@@ -33,7 +33,7 @@ func FindPPMShipmentWithDocument(appCtx appcontext.AppContext, ppmShipmentID uui
 
 	err = appCtx.DB().Q().
 		Scope(utilities.ExcludeDeletedScope()).
-		Where("ppm_shipment_id = ? AND (empty_document_id = ? OR full_document_id = ? OR constructed_weight_document_id = ?)", ppmShipmentID, documentID, documentID, documentID).
+		Where("ppm_shipment_id = ? AND document_id = ?", ppmShipmentID, documentID).
 		First(&proGear)
 
 	if err != nil {

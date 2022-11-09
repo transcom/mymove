@@ -77,6 +77,16 @@ func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
+func subScenarioPPMCloseOut(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
+	return func() {
+		createServicesCounselor(appCtx)
+
+		// PPM Closeout
+		createMovesForEachBranch(appCtx, userUploader)
+		createMoveWithCloseoutOffice(appCtx, userUploader)
+	}
+}
+
 func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
 	return func() {
 		createTXO(appCtx)
@@ -234,8 +244,9 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 			},
 		)
 		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{MTOShipment: models.MTOShipment{
-			MoveTaskOrderID: move.ID,
-			Status:          models.MTOShipmentStatusSubmitted,
+			MoveTaskOrderID:       move.ID,
+			Status:                models.MTOShipmentStatusSubmitted,
+			ScheduledDeliveryDate: swag.Time(time.Now()),
 		}})
 		testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{Move: move})
 
@@ -248,13 +259,15 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 		ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
-				StorageFacility: &storageFacility,
+				StorageFacility:       &storageFacility,
+				ScheduledDeliveryDate: swag.Time(time.Now()),
 			},
 		})
 		testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
-				StorageFacility: &storageFacility,
+				StorageFacility:       &storageFacility,
+				ScheduledDeliveryDate: swag.Time(time.Now()),
 			},
 		})
 

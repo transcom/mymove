@@ -12,11 +12,17 @@ describe('MoveHistoryDetailsSelector', () => {
       },
       eventName: 'requestShipmentCancellation',
       oldValues: { shipment_type: 'PPM' },
-      tableName: '',
+      tableName: 'mto_shipments',
+      context: [
+        {
+          shipment_id_abbr: 'acf7b',
+          shipment_type: 'PPM',
+        },
+      ],
     };
     it('renders the plain text details appropriately', () => {
       render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
-      expect(screen.getByText('Requested cancellation for PPM shipment')).toBeInTheDocument();
+      expect(screen.getByText('Requested cancellation for PPM shipment #ACF7B')).toBeInTheDocument();
     });
   });
 
@@ -93,6 +99,7 @@ describe('MoveHistoryDetailsSelector', () => {
           status: 'REQUESTED',
           shipment_id: '123',
           shipment_type: 'HHG',
+          shipment_id_abbr: 'acf7b',
         },
         {
           name: 'Domestic uncrating',
@@ -100,6 +107,7 @@ describe('MoveHistoryDetailsSelector', () => {
           status: 'REQUESTED',
           shipment_id: '456',
           shipment_type: 'HHG_INTO_NTS_DOMESTIC',
+          shipment_id_abbr: 'a1b2c',
         },
         { name: 'Move management', price: '1234', status: 'REQUESTED' },
       ],

@@ -1,6 +1,6 @@
 # Contributing to MyMove
 
-Anyone is welcome to contribute code changes and additions to this project. If you'd like your changes merged into the master branch, please read the following document before opening a [pull request][pulls].
+Anyone is welcome to contribute code changes and additions to this project. If you'd like your changes merged into the main branch, please read the following document before opening a [pull request][pulls].
 
 There are several ways in which you can help improve this project:
 
@@ -23,7 +23,7 @@ See our [Development Setup](https://github.com/transcom/mymove#development)
 
 1. Fork and clone the project's repo.
 1. Install development dependencies as outlined above.
-1. Create a feature branch for the code changes you're looking to make: `git checkout -b your-descriptive-branch-name origin/master`.
+1. Create a feature branch for the code changes you're looking to make: `git checkout -b your-descriptive-branch-name origin/main`.
 1. _Write some code!_
 1. Run the application and verify that your changes function as intended: `something`.
 1. If your changes would benefit from testing, add the necessary tests and verify everything passes by running `something`.
@@ -47,7 +47,7 @@ Before submitting a pull request to this repository for the first time, you'll n
 
 You may submit contributions anonymously or under a pseudonym if you'd like, but we need to be able to reach you at the email address you provide when agreeing to the DCO. Contributions you make to this public Department of Defense repository are completely voluntary. When you submit a pull request, you're offering your contribution without expectation of payment and you expressly waive any future pay claims against the U.S. Federal Government related to your contribution.
 
-[contributors]: https://github.com/transcom/mymove/blob/master/CONTRIBUTORS.md
+[contributors]: https://github.com/transcom/mymove/blob/main/CONTRIBUTORS.md
 [issues]: https://github.com/transcom/mymove/issues
-[license]: https://github.com/transcom/mymove/blob/master/LICENSE.txt
+[license]: https://github.com/transcom/mymove/blob/main/LICENSE.txt
 [pulls]: https://github.com/transcom/mymove/pulls

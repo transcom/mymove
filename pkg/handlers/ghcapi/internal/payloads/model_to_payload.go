@@ -761,6 +761,10 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		payload.ScheduledPickupDate = handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate)
 	}
 
+	if mtoShipment.ScheduledDeliveryDate != nil {
+		payload.ScheduledDeliveryDate = handlers.FmtDatePtr(mtoShipment.ScheduledDeliveryDate)
+	}
+
 	if mtoShipment.DestinationType != nil {
 		destinationType := ghcmessages.DestinationType(*mtoShipment.DestinationType)
 		payload.DestinationType = &destinationType

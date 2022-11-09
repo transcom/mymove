@@ -2,7 +2,6 @@ import {
   navigateFromCloseoutReviewPageToExpensesPage,
   setMobileViewport,
   signInAndNavigateToPPMReviewPage,
-  signInAndNavigateToWeightTicketPage,
 } from '../../../support/ppmCustomerShared';
 
 describe('Expenses', function () {
@@ -11,6 +10,7 @@ describe('Expenses', function () {
   });
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
+    cy.intercept('POST', '**/internal/ppm-shipments/**/uploads**').as('uploadFile');
   });
   const viewportType = [
     { viewport: 'desktop', isMobile: false, userId: '146c2665-5b8a-4653-8434-9a4460de30b5' }, // movingExpensePPM@ppm.approved
@@ -32,10 +32,20 @@ describe('Expenses', function () {
       cy.get('input[name="paidWithGTCC"][value="true"]').click({ force: true });
       cy.get('input[name="amount"]').type('675.99');
 
-      // TODO: Add receipt document upload when integrated
+      cy.upload_file('.receiptDocument.filepond--root', 'sampleWeightTicket.jpg');
+      cy.wait('@uploadFile');
 
       cy.get('input[name="sitStartDate"]').type('14 Aug 2022').blur();
       cy.get('input[name="sitEndDate"]').type('20 Aug 2022').blur();
+
+      cy.get('button').contains('Save & Continue').should('be.enabled').click();
+      cy.location().should((loc) => {
+        expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+      });
+
+      cy.contains('Cloud storage');
+      cy.contains('dt', 'Days in storage:');
+      cy.contains('dd', '7');
     });
 
     it(`edit expense page loads - ${viewport}`, () => {
@@ -65,6 +75,13 @@ describe('Expenses', function () {
 
       cy.get('input[name="missingReceipt"]').as('missingReceipt').should('not.be.checked');
       cy.get('@missingReceipt').click({ force: true });
+
+      cy.get('button').contains('Save & Continue').should('be.enabled').click();
+      cy.location().should((loc) => {
+        expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+      });
+
+      cy.contains('PA Turnpike EZ-Pass');
     });
   });
 });

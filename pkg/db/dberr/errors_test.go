@@ -2,7 +2,6 @@ package dberr
 
 import (
 	"errors"
-	"testing"
 
 	"github.com/jackc/pgerrcode"
 	"github.com/lib/pq"
@@ -14,16 +13,16 @@ func (suite *DBErrSuite) TestIsDBError() {
 		Code: pq.ErrorCode(errCode),
 	}
 
-	suite.T().Run("db error and code match", func(t *testing.T) {
+	suite.Run("db error and code match", func() {
 		suite.True(IsDBError(&dbErr, errCode))
 	})
 
-	suite.T().Run("not a db error", func(t *testing.T) {
+	suite.Run("not a db error", func() {
 		err := errors.New("some random error")
 		suite.False(IsDBError(err, errCode))
 	})
 
-	suite.T().Run("not the right db error code", func(t *testing.T) {
+	suite.Run("not the right db error code", func() {
 		suite.False(IsDBError(&dbErr, pgerrcode.UniqueViolation))
 	})
 }
@@ -36,20 +35,20 @@ func (suite *DBErrSuite) TestIsDBErrorForConstraint() {
 		Constraint: constraintName,
 	}
 
-	suite.T().Run("db error, code, and constraint match", func(t *testing.T) {
+	suite.Run("db error, code, and constraint match", func() {
 		suite.True(IsDBErrorForConstraint(&dbErr, errCode, constraintName))
 	})
 
-	suite.T().Run("not a db error", func(t *testing.T) {
+	suite.Run("not a db error", func() {
 		err := errors.New("some random error")
 		suite.False(IsDBErrorForConstraint(err, errCode, constraintName))
 	})
 
-	suite.T().Run("not the right db error code", func(t *testing.T) {
+	suite.Run("not the right db error code", func() {
 		suite.False(IsDBErrorForConstraint(&dbErr, pgerrcode.InternalError, constraintName))
 	})
 
-	suite.T().Run("not the right constraint name", func(t *testing.T) {
+	suite.Run("not the right constraint name", func() {
 		suite.False(IsDBErrorForConstraint(&dbErr, errCode, "bogus"))
 	})
 }

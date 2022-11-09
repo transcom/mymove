@@ -1,15 +1,34 @@
 import React from 'react';
+import classnames from 'classnames';
 import PropTypes from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
+
+import styles from './NotFound.module.scss';
 
 const NotFound = ({ handleOnClick }) => {
   return (
-    <div className="usa-grid">
-      <div className="grid-container usa-prose">
-        <h1>Page not found</h1>
-        <p>Looks like you&apos;ve followed a broken link or entered a URL that doesn&apos;t exist on this site.</p>
-        <button type="button" className="usa-button" onClick={handleOnClick}>
-          Go Back
-        </button>
+    <div className={classnames('usa-grid', styles.notFound)}>
+      <div className="grid-container">
+        <div className={styles.preheader}>
+          <b>Error - 404</b>
+          <div className={styles.preheaderQuip}>
+            <b>Let&apos;s move you in the right direction</b>
+          </div>
+        </div>
+        <h1>
+          <b>We can&apos;t find the page you&apos;re looking for</b>
+        </h1>
+        <div className={styles.description}>
+          <p className={styles.explanation}>
+            You are seeing this because the page you&apos;re looking for doesn&apos;t exist or has been removed.
+          </p>
+          <p className={styles.recommendation}>
+            We suggest checking the spelling in the URL or return{' '}
+            <Button unstyled className={styles.goBack} onClick={handleOnClick}>
+              back home.
+            </Button>
+          </p>
+        </div>
       </div>
     </div>
   );

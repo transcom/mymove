@@ -28,8 +28,6 @@ const (
 	PPMShipmentStatusNeedsPaymentApproval PPMShipmentStatus = "NEEDS_PAYMENT_APPROVAL"
 	// PPMShipmentStatusPaymentApproved captures enum value "PAYMENT_APPROVED"
 	PPMShipmentStatusPaymentApproved PPMShipmentStatus = "PAYMENT_APPROVED"
-	// PPMShipmentStatusNeedsCloseOut captures enum value "NEEDS_CLOSE_OUT"
-	PPMShipmentStatusNeedsCloseOut PPMShipmentStatus = "NEEDS_CLOSE_OUT"
 )
 
 // PPMAdvanceStatus represents the status of an advance that can be approved, edited or rejected by a SC

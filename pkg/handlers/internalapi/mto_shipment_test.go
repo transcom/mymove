@@ -66,7 +66,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	ppmEstimator := mocks.PPMEstimator{}
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 
-	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator)
+	shipmentRouter := mtoshipment.NewShipmentRouter()
+	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter)
 
 	type mtoCreateSubtestData struct {
 		serviceMember models.ServiceMember
