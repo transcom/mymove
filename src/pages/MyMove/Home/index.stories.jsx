@@ -158,7 +158,11 @@ const propsForCloseoutCompletePPMShipment = {
   mtoShipments: [
     createPPMShipmentWithFinalIncentive({
       id: 'abcd1234-0000-0000-0000-000000000000',
-      ppmShipment: { status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL },
+      ppmShipment: {
+        status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+        approvedAt: '2022-11-25',
+        submittedAt: '2022-11-21',
+      },
     }),
   ],
   move: {
