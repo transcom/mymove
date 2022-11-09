@@ -563,6 +563,14 @@ func (suite *PopTestSuite) DB() *pop.Connection {
 			}
 			i++
 		}
+
+		// Delete the extra connection since we're about to panic.
+		delete(suite.txnTestDb, testingName)
+		err := popConn.Close()
+		if err != nil {
+			log.Panic(err)
+		}
+
 		log.Panic("Multiple test databases active simultaneously, use PreloadData: " + names)
 	}
 	suite.T().Cleanup(func() {
@@ -700,7 +708,7 @@ func (suite *PopTestSuite) TearDown() {
 			log.Panic(err)
 		}
 	}
-	if suite.highPrivConn != nil {
+	if suite.highPrivConn != nil && suite.highPrivConn != suite.lowPrivConn {
 		if err := suite.highPrivConn.Close(); err != nil {
 			log.Panic(err)
 		}

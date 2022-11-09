@@ -44,7 +44,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 	ppmEstimator := mocks.PPMEstimator{}
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
-	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator)
+	shipmentRouter := mtoshipment.NewShipmentRouter()
+	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter)
 	mockCreator := mocks.ShipmentCreator{}
 
 	var pickupAddress primemessages.Address
