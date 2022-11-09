@@ -18,15 +18,19 @@ describe('A customer following HHG Setup flow', function () {
     customerSetsUpAnHHGMove();
     customerReviewsMoveDetailsAndEditsHHG();
     customerSubmitsMove();
+    cy.a11y();
   });
 });
 
 function customerChoosesAnHHGMove() {
   cy.get('button[data-testid="shipment-selection-btn"]').click();
+  cy.a11y();
   cy.nextPage();
 
   cy.get('input[type="radio"]').eq(0).check({ force: true });
+  cy.a11y();
   cy.nextPage();
+  cy.a11y();
 }
 
 function customerSetsUpAnHHGMove() {
@@ -123,7 +127,9 @@ function customerSetsUpAnHHGMove() {
 
   // customer remarks
   cy.get(`[data-testid="remarks"]`).first().type('some customer remark');
+  cy.a11y();
   cy.nextPage();
+  cy.a11y();
 }
 
 function customerReviewsMoveDetailsAndEditsHHG() {
@@ -155,6 +161,8 @@ function customerReviewsMoveDetailsAndEditsHHG() {
   cy.get(`input[name="delivery.agent.email"]`).clear().type('John@example.com').blur();
   cy.get('button').contains('Save').click();
 
+  cy.a11y();
+
   cy.wait('@patchShipment');
 
   cy.location().should((loc) => {
@@ -169,7 +177,9 @@ function customerReviewsMoveDetailsAndEditsHHG() {
   cy.get('h3').contains('Time to submit your move');
   cy.get('button').contains('Review and submit').click();
 
+  cy.a11y();
   cy.nextPage();
+  cy.a11y();
 }
 
 function customerSubmitsMove() {
@@ -179,4 +189,5 @@ function customerSubmitsMove() {
   cy.get('.usa-alert--success').within(() => {
     cy.contains('You’ve submitted your move request.');
   });
+  cy.a11y();
 }

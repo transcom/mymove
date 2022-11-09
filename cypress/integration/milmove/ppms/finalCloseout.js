@@ -14,10 +14,6 @@ describe('Final Closeout', function () {
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
   });
 
-  afterEach(() => {
-    cy.pa11y();
-  });
-
   const testCases = [
     { viewport: 'desktop', isMobile: false },
     { viewport: 'mobile', isMobile: true },
@@ -32,6 +28,7 @@ describe('Final Closeout', function () {
       signInAndNavigateToFinalCloseoutPage('1c842b03-fc2d-4e92-ade8-bd3e579196e0'); // readyForFinalComplete@ppm.approved
 
       verifyFinalIncentiveAndTotals();
+      cy.a11y();
     });
   });
 });

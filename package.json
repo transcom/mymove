@@ -105,6 +105,8 @@
     "test:e2e": "cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
     "test:e2e-debug": "DEBUG=cypress:server:util:process_profiler cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
     "test:e2e-clean-debug": "make db_dev_e2e_populate; DEBUG=cypress:server:util:process_profiler cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
+    "test:a11y": "CYPRESS_A11Y_AUDIT=true cypress run --headless --browser chrome",
+    "test:a11y:fix": "CYPRESS_A11Y_FIX=true cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
     "prettier": "prettier --write --loglevel warn 'src/**/*.{js,jsx}'",
     "prettier-ci": "prettier --check 'src/**/*.{js,jsx}'",
     "lint": "eslint --ext .js,.jsx --max-warnings=0 src",

@@ -1,4 +1,3 @@
-import { afterEach } from 'mocha';
 import {
   navigateFromDateAndLocationPageToEstimatedWeightsPage,
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage,
@@ -16,24 +15,23 @@ describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
   });
 
-  afterEach(() => {
-    cy.pa11y();
-  });
-
   it('doesn’t allow SM to progress if form is in an invalid state', () => {
     // For this invalid tests we don't need to wait for the API calls, prioritizing consistency over performance
     getToEstimatedWeightsPage();
     invalidInputs();
+    cy.a11y();
   });
 
   it('can continue to next page', () => {
     getToEstimatedWeightsPage();
     submitsEstimatedWeights();
+    cy.a11y();
   });
 
   it('can continue to next page with progear added', () => {
     getToEstimatedWeightsPage();
     submitsEstimatedWeightsAndProGear();
+    cy.a11y();
   });
 });
 

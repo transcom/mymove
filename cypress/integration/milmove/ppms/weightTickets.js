@@ -16,10 +16,6 @@ describe('Weight Tickets', function () {
     cy.intercept('POST', '**/internal/ppm-shipments/**/uploads**').as('uploadFile');
   });
 
-  afterEach(() => {
-    cy.pa11y();
-  });
-
   const viewportType = [
     { viewport: 'desktop', isMobile: false, userId: '88007896-6ae7-4600-866a-873d3bc67fd3' }, // actualPPMDateZIPAdvanceDone@ppm.approved
     { viewport: 'mobile', isMobile: true, userId: '22dba194-3d9a-49c6-8328-718dd945292f' }, // actualPPMDateZIPAdvanceDone2@ppm.approved
@@ -33,6 +29,7 @@ describe('Weight Tickets', function () {
 
       signInAndNavigateToWeightTicketPage(userId);
       submitWeightTicketPage();
+      cy.a11y();
     });
   });
 
@@ -48,6 +45,7 @@ describe('Weight Tickets', function () {
       }
       signInAndNavigateToWeightTicketPage(userId);
       submitWeightTicketPage({ hasTrailer: true, ownTrailer: true });
+      cy.a11y();
     });
   });
 
@@ -63,6 +61,7 @@ describe('Weight Tickets', function () {
       }
       signInAndNavigateToWeightTicketPage(userId);
       submitWeightTicketPage({ hasTrailer: true, ownTrailer: false });
+      cy.a11y();
     });
   });
 
@@ -79,6 +78,7 @@ describe('Weight Tickets', function () {
 
       signInAndNavigateToWeightTicketPage(userId);
       submitWeightTicketPage({ useConstructedWeight: true });
+      cy.a11y();
     });
   });
 });

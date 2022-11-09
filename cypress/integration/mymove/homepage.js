@@ -11,19 +11,16 @@ describe('The Home Page', function () {
     cy.intercept('DELETE', '**/internal/mto-shipments/**').as('deleteShipment');
   });
 
-  it('passes a pa11y audit', function () {
-    cy.visit('/');
-    cy.pa11y();
-  });
-
   it('creates new devlocal user', function () {
     cy.signInAsNewMilMoveUser();
+    cy.a11y();
   });
 
   it('successfully loads when not logged in', function () {
     cy.logout();
     cy.contains('Welcome');
     cy.contains('Sign in');
+    cy.a11y();
   });
 
   it('contains the link to customer service', function () {
@@ -31,6 +28,7 @@ describe('The Home Page', function () {
     cy.get('address').within(() => {
       cy.get('a').should('have.attr', 'href', 'https://move.mil/customer-service');
     });
+    cy.a11y();
   });
 
   const editTestCases = [
@@ -45,6 +43,7 @@ describe('The Home Page', function () {
 
     it(testTitle, () => {
       cy.apiSignInAsUser(userID);
+      cy.a11y();
 
       cy.wait('@getShipment');
 
@@ -61,6 +60,7 @@ describe('The Home Page', function () {
         cy.get('[data-testid="shipment-list-item-container"] button').should('not.exist');
         cy.get('[data-testid="shipment-list-item-container"] button').should('not.exist');
       }
+      cy.a11y();
     });
   });
 
@@ -76,6 +76,7 @@ describe('The Home Page', function () {
       }
 
       navigateDeletingShipment(userId, isMobile);
+      cy.a11y();
     });
   });
 });
@@ -85,4 +86,5 @@ function navigateDeletingShipment(userId, isMobile = false) {
   cy.wait('@getShipment');
   cy.get('[data-testid="shipment-list-item-container"]').as('shipmentListContainer');
   deleteShipment('@shipmentListContainer', 0);
+  cy.a11y();
 }

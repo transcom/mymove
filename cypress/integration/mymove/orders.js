@@ -16,6 +16,7 @@ describe('orders entry', function () {
     cy.contains('Next step: Add your orders');
     cy.contains('Profile complete');
     cy.contains('Upload orders');
+    cy.a11y();
     cy.contains('Add orders').click();
 
     cy.location().should((loc) => {

@@ -11,19 +11,25 @@ describe('Customer NTSr Setup flow', function () {
   it('Sets up an NTSr shipment', function () {
     cy.apiSignInAsUser(profileCompleteUser);
     customerCreatesAnNTSRShipment();
+    cy.a11y();
     customerReviewsNTSRMoveDetails();
+    cy.a11y();
   });
 
   it('Edits an NTSr shipment from review page', function () {
     cy.apiSignInAsUser(ntsUser);
     customerVisitsReviewPage();
+    cy.a11y();
     customerReviewsShipmentInfoOnReviewPage();
+    cy.a11y();
     customerEditsNTSRShipmentFromReviewPage();
+    cy.a11y();
   });
 
   it('Edits an NTSr shipment from home page', function () {
     cy.apiSignInAsUser(ntsUser);
     customerEditsNTSRShipmentFromHomePage();
+    cy.a11y();
   });
 });
 
@@ -35,6 +41,7 @@ function customerEditsNTSRShipmentFromHomePage() {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
+  cy.a11y();
 }
 
 function customerReviewsNTSRMoveDetails() {
@@ -106,8 +113,10 @@ function customerVisitsReviewPage() {
 function customerCreatesAnNTSRShipment() {
   cy.get('[data-testid="shipment-selection-btn"]').click();
   cy.nextPage();
+  cy.a11y();
   cy.get('input[type="radio"]').eq(3).check({ force: true });
   cy.nextPage();
+  cy.a11y();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/new-shipment/);
   });
@@ -132,4 +141,5 @@ function customerCreatesAnNTSRShipment() {
   cy.get(`[data-testid="remarks"]`).first().type('some other customer remark');
 
   cy.nextPage();
+  cy.a11y();
 }

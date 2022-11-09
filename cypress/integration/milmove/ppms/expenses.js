@@ -12,9 +12,6 @@ describe('Expenses', function () {
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
   });
-  afterEach(() => {
-    cy.pa11y();
-  });
   const viewportType = [
     { viewport: 'desktop', isMobile: false, userId: '146c2665-5b8a-4653-8434-9a4460de30b5' }, // movingExpensePPM@ppm.approved
     { viewport: 'mobile', isMobile: true, userId: '7d4dbc69-2973-4c8b-bf75-6fb582d7a5f6' }, // movingExpensePPM2@ppm.approved
@@ -39,6 +36,8 @@ describe('Expenses', function () {
 
       cy.get('input[name="sitStartDate"]').type('14 Aug 2022').blur();
       cy.get('input[name="sitEndDate"]').type('20 Aug 2022').blur();
+
+      cy.a11y();
     });
 
     it(`edit expense page loads - ${viewport}`, () => {
@@ -68,6 +67,8 @@ describe('Expenses', function () {
 
       cy.get('input[name="missingReceipt"]').as('missingReceipt').should('not.be.checked');
       cy.get('@missingReceipt').click({ force: true });
+
+      cy.a11y();
     });
   });
 });

@@ -269,3 +269,10 @@ Cypress.Commands.add('selectDutyLocation', (dutyLocationName, fieldName) => {
   let classSelector = '.duty-input-box';
   genericSelect(dutyLocationName, fieldName, classSelector);
 });
+
+Cypress.Commands.add('a11y', () => {
+  if (Cypress.env('A11Y_AUDIT') || Cypress.env('A11Y_FIX')) {
+    cy.task('setCurrentTest', Cypress.currentTest);
+    cy.pa11y();
+  }
+});

@@ -3,6 +3,7 @@ function serviceMemberChoosesConusOrOconus() {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/conus-oconus/);
   });
+  cy.a11y();
   cy.get('[for="input_CONUS"]').click();
   cy.get('button[data-testid="wizardNextButton"]').click();
 }
@@ -20,6 +21,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/name/);
   });
+  cy.a11y();
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //name
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
@@ -29,7 +31,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/contact-info/);
   });
-
+  cy.a11y();
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //contact info
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
@@ -44,6 +46,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/current-duty/);
   });
+  cy.a11y();
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //duty location
@@ -54,6 +57,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/current-address/);
   });
+  cy.a11y();
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //residential-address
@@ -70,6 +74,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/backup-address/);
   });
+  cy.a11y();
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   // backup address
@@ -82,6 +87,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/backup-contact/);
   });
+  cy.a11y();
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //backup contact
@@ -89,4 +95,5 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('input[name="email"]').type('doug@glass.net');
   cy.get('input[name="telephone"]').type('555-555-3333');
   cy.nextPage();
+  cy.a11y();
 }

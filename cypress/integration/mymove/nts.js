@@ -12,6 +12,7 @@ describe('Customer NTS Setup flow', function () {
     cy.apiSignInAsUser(profileCompleteUser);
     customerCreatesAnNTSShipment();
     customerReviewsNTSMoveDetails();
+    cy.a11y();
   });
 
   it('Edits an NTS shipment', function () {
@@ -19,11 +20,13 @@ describe('Customer NTS Setup flow', function () {
     customerVisitsReviewPage();
     customerReviewsShipmentInfoOnReviewPageBeforeEdit();
     customerEditsNTSShipment();
+    cy.a11y();
   });
 
   it('Edits an NTS shipment from homepage', function () {
     cy.apiSignInAsUser(ntsUser);
     customerEditsNTSShipmentFromHomePage();
+    cy.a11y();
   });
 
   it('Submits an NTS shipment from homepage', function () {
@@ -31,6 +34,7 @@ describe('Customer NTS Setup flow', function () {
     customerVisitsReviewPage();
     customerReviewsShipmentInfoOnReviewPageAfterEdit();
     customerSubmitsNTSShipmentMoveFromHomePage();
+    cy.a11y();
   });
 });
 
@@ -43,12 +47,14 @@ function customerSubmitsNTSShipmentMoveFromHomePage() {
 
   cy.get('input[name="signature"]').type('Jane Doe');
   cy.completeFlow();
+  cy.a11y();
 }
 
 function customerEditsNTSShipmentFromHomePage() {
   cy.get('[data-testid="shipment-list-item-container"]').eq(0).children().contains('Edit').click();
   cy.get('textarea[data-testid="remarks"]').clear().type('Warning: glass').blur();
   cy.get('input[name="secondaryPickup.address.city"]').clear().type('The Hills');
+  cy.a11y();
   cy.get('button').contains('Save').click();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
@@ -86,6 +92,7 @@ function customerEditsNTSShipment() {
   cy.get('input[name="pickup.agent.lastName"]').clear().type('Bourne').blur();
   cy.get('textarea[data-testid="remarks"]').clear().type('Handle with care').blur();
   cy.get('input[name="secondaryPickup.address.streetAddress1"]').clear().type('999 Any Street');
+  cy.a11y();
   cy.get('button').contains('Save').click();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
@@ -149,8 +156,10 @@ function customerReviewsShipmentInfoOnReviewPageAfterEdit() {
 
 function customerCreatesAnNTSShipment() {
   cy.get('[data-testid="shipment-selection-btn"]').contains('Set up your shipments').click();
+  cy.a11y();
   cy.nextPage();
   cy.get('input[type="radio"]').eq(2).check({ force: true });
+  cy.a11y();
   cy.nextPage();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/new-shipment/);
@@ -177,6 +186,7 @@ function customerCreatesAnNTSShipment() {
 
   // remarks
   cy.get(`[data-testid="remarks"]`).first().type('some customer remark');
+  cy.a11y();
 
   cy.nextPage();
 }

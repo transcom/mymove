@@ -11,11 +11,13 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/conus-oconus/);
   });
+  cy.a11y();
   cy.get('[data-testid="radio"] label').contains('CONUS').click();
   cy.nextPage();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/dod-info/);
   });
+  cy.a11y();
 
   // DOD INFO
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
@@ -27,6 +29,7 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/name/);
   });
+  cy.a11y();
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
 
   // name
@@ -37,6 +40,7 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/contact-info/);
   });
+  cy.a11y();
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   // contact info
@@ -47,6 +51,7 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/current-duty/);
   });
+  cy.a11y();
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   // duty location
@@ -57,6 +62,7 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/current-address/);
   });
+  cy.a11y();
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   // residential-address
@@ -73,6 +79,7 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/backup-address/);
   });
+  cy.a11y();
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   // backup address
@@ -86,6 +93,7 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/backup-contact/);
   });
+  cy.a11y();
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   // backup contact
@@ -116,12 +124,14 @@ export function customerFillsOutOrdersInformation() {
   cy.location().should((loc) => {
     expect(loc.pathname).to.eq('/orders/upload');
   });
+  cy.a11y();
 
   cy.upload_file('.filepond--root', 'sample-orders.png');
   cy.get('button[data-testid="wizardNextButton"]', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
 
   cy.get('h1').contains('Tips for planning your shipments');
   cy.nextPage();
+  cy.a11y();
 
   cy.visit('/');
   cy.get('[data-testid="doc-list-container"]').contains('sample-orders.png');
@@ -132,6 +142,7 @@ export function signAgreement() {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/agreement/);
   });
+  cy.a11y();
 
   cy.get('h1').contains('Now for the official part…');
 

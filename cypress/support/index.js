@@ -29,7 +29,7 @@ Cypress.on('window:load', (win) => {
 Cypress.on('fail', (error, runnable) => {
   // don't throw on a11y errors
   const isPa11yFailure = error.message.indexOf('cy.pa11y') > -1;
-  if (!isPa11yFailure) throw error; // throw error to have test still fail
+  if (!isPa11yFailure || Cypress.env('A11Y_FIX')) throw error; // throw error to have test still fail
 });
 
 // See https://docs.cypress.io/guides/references/migration-guide#Uncaught-exception-and-unhandled-rejections

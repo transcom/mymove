@@ -31,7 +31,6 @@ describe('Progear', function () {
       cy.get('label[for="ownerOfProGearSpouse"').click();
       cy.get('[data-testid="selfProGear"]').should('not.be.checked');
       cy.get('[data-testid="spouseProGear"]').should('be.checked');
-      cy.pa11y();
     });
   });
 });

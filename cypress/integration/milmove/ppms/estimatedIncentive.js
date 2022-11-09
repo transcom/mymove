@@ -16,14 +16,11 @@ describe('PPM Onboarding - Estimated Incentive', function () {
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
   });
 
-  afterEach(() => {
-    cy.pa11y();
-  });
-
   it('go to estimated incentives page', () => {
     navigateToEstimatedIncentivePage();
     verifyShipmentSpecificInfo();
     generalVerifyEstimatedIncentivePage(false);
+    cy.a11y();
   });
 
   it('mobile - go to estimated incentives page', () => {
@@ -31,6 +28,7 @@ describe('PPM Onboarding - Estimated Incentive', function () {
     navigateToEstimatedIncentivePage();
     verifyShipmentSpecificInfo();
     generalVerifyEstimatedIncentivePage(true);
+    cy.a11y();
   });
 });
 

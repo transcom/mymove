@@ -36,6 +36,7 @@ describe('Entire PPM onboarding flow', function () {
       }
 
       navigateHappyPath(userId, isMobile);
+      cy.a11y();
     });
   });
 
@@ -51,14 +52,7 @@ describe('Entire PPM onboarding flow', function () {
       }
 
       navigateHappyPathWithEditsAndBacks(userId, isMobile);
-    });
-    it(`passes a pa11y audit - ${viewport}`, () => {
-      if (isMobile) {
-        setMobileViewport();
-      }
-
-      navigateHappyPathWithEditsAndBacks(userId, isMobile);
-      cy.pa11y();
+      cy.a11y();
     });
   });
 });

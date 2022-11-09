@@ -1,4 +1,4 @@
-import { deleteShipment, setMobileViewport, signInAndNavigateToAboutPage } from '../../../support/ppmCustomerShared';
+import { setMobileViewport, signInAndNavigateToAboutPage } from '../../../support/ppmCustomerShared';
 
 describe('About Your PPM', function () {
   before(() => {
@@ -8,10 +8,6 @@ describe('About Your PPM', function () {
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
-  });
-
-  afterEach(() => {
-    cy.pa11y();
   });
 
   const viewportType = [
@@ -28,6 +24,7 @@ describe('About Your PPM', function () {
       }
 
       signInAndNavigateToAboutPage(userId, selectAdvance);
+      cy.a11y();
     });
   });
 });
