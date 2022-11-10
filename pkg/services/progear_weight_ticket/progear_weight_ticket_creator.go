@@ -31,11 +31,11 @@ func (f *progearWeightTicketCreator) CreateProgearWeightTicket(appCtx appcontext
 
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 
-		document := models.Document{
+		document := &models.Document{
 			ServiceMemberID: appCtx.Session().ServiceMemberID,
 		}
-		allDocs := models.Documents{document}
-		verrs, err := appCtx.DB().ValidateAndCreate(allDocs)
+
+		verrs, err := appCtx.DB().ValidateAndCreate(document)
 
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the Document.")
@@ -44,8 +44,8 @@ func (f *progearWeightTicketCreator) CreateProgearWeightTicket(appCtx appcontext
 		}
 
 		progearWeightTicket = models.ProgearWeightTicket{
-			Document:      allDocs[0],
-			DocumentID:    allDocs[0].ID,
+			Document:      *document,
+			DocumentID:    document.ID,
 			PPMShipmentID: ppmShipmentID,
 		}
 		verrs, err = txnCtx.DB().ValidateAndCreate(&progearWeightTicket)
