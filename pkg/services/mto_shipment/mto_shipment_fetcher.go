@@ -10,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 )
 
 type mtoShipmentFetcher struct {
@@ -72,19 +71,19 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 				if loadErr != nil {
 					return nil, loadErr
 				}
-				weightTicket.EmptyDocument.UserUploads = weightticket.FilterDeletedValued(weightTicket.EmptyDocument.UserUploads)
+				weightTicket.EmptyDocument.UserUploads = weightTicket.EmptyDocument.UserUploads.FilterDeleted()
 
 				loadErr = appCtx.DB().Load(weightTicket, "FullDocument.UserUploads.Upload")
 				if loadErr != nil {
 					return nil, loadErr
 				}
-				weightTicket.FullDocument.UserUploads = weightticket.FilterDeletedValued(weightTicket.FullDocument.UserUploads)
+				weightTicket.FullDocument.UserUploads = weightTicket.FullDocument.UserUploads.FilterDeleted()
 
 				loadErr = appCtx.DB().Load(weightTicket, "ProofOfTrailerOwnershipDocument.UserUploads.Upload")
 				if loadErr != nil {
 					return nil, loadErr
 				}
-				weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightticket.FilterDeletedValued(weightTicket.ProofOfTrailerOwnershipDocument.UserUploads)
+				weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightTicket.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
 			}
 
 			for j := range shipments[i].PPMShipment.MovingExpenses {

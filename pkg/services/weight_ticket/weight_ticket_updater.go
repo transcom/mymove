@@ -112,23 +112,9 @@ func FetchWeightTicketByIDExcludeDeletedUploads(appContext appcontext.AppContext
 		}
 	}
 
-	weightTicket.EmptyDocument.UserUploads = FilterDeletedValued(weightTicket.EmptyDocument.UserUploads)
-	weightTicket.FullDocument.UserUploads = FilterDeletedValued(weightTicket.FullDocument.UserUploads)
-	weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = FilterDeletedValued(weightTicket.ProofOfTrailerOwnershipDocument.UserUploads)
+	weightTicket.EmptyDocument.UserUploads = weightTicket.EmptyDocument.UserUploads.FilterDeleted()
+	weightTicket.FullDocument.UserUploads = weightTicket.FullDocument.UserUploads.FilterDeleted()
+	weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightTicket.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
 
 	return &weightTicket, nil
-}
-
-func FilterDeletedValued(userUploads models.UserUploads) models.UserUploads {
-	if userUploads == nil {
-		return userUploads
-	}
-
-	filteredUploads := models.UserUploads{}
-	for _, userUpload := range userUploads {
-		if userUpload.DeletedAt == nil {
-			filteredUploads = append(filteredUploads, userUpload)
-		}
-	}
-	return filteredUploads
 }

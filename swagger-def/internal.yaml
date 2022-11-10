@@ -1445,7 +1445,7 @@ definitions:
       ppm_id:
         $ref: 'definitions/PpmID.yaml'
       certification_type:
-        $ref: '#/definitions/SignedCertificationType'
+        $ref: '#/definitions/NullableSignedCertificationType'
     required:
       - id
       - move_id
@@ -1478,11 +1478,28 @@ definitions:
       - date
       - signature
       - certification_text
+  SavePPMShipmentSignedCertification:
+    type: object
+    properties:
+      certification_text:
+        description: Text that the customer is agreeing to and signing.
+        type: string
+      signature:
+        description: Customer signature
+        type: string
+      date:
+        description: Date of signature
+        type: string
+        format: date
+    required:
+      - certification_text
+      - signature
+      - date
   SignedCertifications:
     type: array
     items:
       $ref: '#/definitions/SignedCertificationPayload'
-  SignedCertificationType:
+  NullableSignedCertificationType:
     type: string
     enum:
       - PPM_PAYMENT
@@ -4486,6 +4503,95 @@ paths:
           $ref: '#/responses/NotFound'
         '413':
           description: payload is too large
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+    post:
+      summary: Saves signature and routes PPM shipment to service counselor
+      description: |
+        Saves customer signature along with the text they agreed to, and then routes the PPM shipment to the service
+        counselor queue for review.
+      operationId: submitPPMShipmentDocumentation
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: savePPMShipmentSignedCertificationPayload
+          required: true
+          schema:
+            $ref: '#/definitions/SavePPMShipmentSignedCertification'
+      responses:
+        '200':
+          description: Returns the updated PPM shipment
+          schema:
+            $ref: 'definitions/PPMShipment.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/resubmit-ppm-shipment-documentation/{signedCertificationId}:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+    put:
+      summary: Updates signature and routes PPM shipment to service counselor
+      description: |
+        Updates customer signature along with the text they agreed to, and then routes the PPM shipment to the service
+        counselor queue for review.
+      operationId: resubmitPPMShipmentDocumentation
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: signedCertificationId
+          description: UUID of the signed certification
+          type: string
+          format: uuid
+          required: true
+        - $ref: 'parameters/ifMatch.yaml'
+        - in: body
+          name: savePPMShipmentSignedCertificationPayload
+          required: true
+          schema:
+            $ref: '#/definitions/SavePPMShipmentSignedCertification'
+      responses:
+        '200':
+          description: Returns the updated PPM shipment
+          schema:
+            $ref: 'definitions/PPMShipment.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':

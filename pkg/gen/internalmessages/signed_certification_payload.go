@@ -24,7 +24,7 @@ type SignedCertificationPayload struct {
 	CertificationText *string `json:"certification_text"`
 
 	// certification type
-	CertificationType *SignedCertificationType `json:"certification_type,omitempty"`
+	CertificationType *NullableSignedCertificationType `json:"certification_type,omitempty"`
 
 	// created at
 	// Required: true

@@ -114,7 +114,7 @@ type PPMShipment struct {
 	WeightTickets                  WeightTickets        `has_many:"weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	MovingExpenses                 MovingExpenses       `has_many:"moving_expenses" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	ProgearExpenses                ProgearWeightTickets `has_many:"progear_weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
-	SignedCertifications           SignedCertifications `has_many:"signed_certifications" fk_id:"ppm_id" order_by:"created_at desc"`
+	SignedCertification            *SignedCertification `has_one:"signed_certification" fk_id:"ppm_id"`
 }
 
 // PPMShipments is a list of PPMs
@@ -128,7 +128,7 @@ func (p PPMShipment) TableName() string {
 func FetchPPMShipmentFromMTOShipmentID(db *pop.Connection, mtoShipmentID uuid.UUID) (*PPMShipment, error) {
 	var ppmShipment PPMShipment
 
-	err := db.Scope(utilities.ExcludeDeletedScope()).EagerPreload("Shipment").
+	err := db.Scope(utilities.ExcludeDeletedScope()).EagerPreload("Shipment", "W2Address").
 		Where("ppm_shipments.shipment_id = ?", mtoShipmentID).
 		First(&ppmShipment)
 
