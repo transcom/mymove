@@ -1,8 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import a from 'constants/MoveHistory/Database/Actions';
-import t from 'constants/MoveHistory/Database/Tables';
 import updateAddress from 'constants/MoveHistory/EventTemplates/UpdateAddress/updateAddress';
 import ADDRESS_TYPE from 'constants/MoveHistory/Database/AddressTypes';
 import { shipmentTypes } from 'constants/shipments';
@@ -19,9 +17,9 @@ const LABEL = {
 
 describe('when given a Update basic service item address history record', () => {
   const historyRecord = {
-    action: a.UPDATE,
-    eventName: '',
-    tableName: t.addresses,
+    action: 'UPDATE',
+    eventName: 'patchServiceMember',
+    tableName: 'addresses',
     oldValues: {
       city: 'Beverly Hills',
       postal_code: '90211',
@@ -50,7 +48,7 @@ describe('when given a Update basic service item address history record', () => 
     it.each(Object.keys(ADDRESS_TYPE).map((type) => [type, newAddress]))(
       'for label %s it displays the proper details value %s',
       async (type, value) => {
-        // add the address type and new valuei in changeValues
+        // add the address type and new value in changedValues
         const newChangedValues = { ...changedValues, [type]: newAddress };
         // set the address type in context
         const context = [{ address_type: type }];
