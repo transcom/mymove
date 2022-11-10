@@ -59,6 +59,53 @@ func (suite *ProgearWeightTicketSuite) TestValidationRules() {
 		})
 	})
 
+	suite.Run("checkCreateRequiredFields", func() {
+		docID := uuid.Must(uuid.NewV4())
+		serviceMemberID := uuid.Must(uuid.NewV4())
+
+		documentUploads := models.UserUploads{}
+		documentUploads = append(documentUploads, models.UserUpload{
+			DocumentID: &docID,
+		})
+
+		suite.Run("Success", func() {
+			suite.Run("Create ProgearWeightTIcket", func() {
+
+				err := checkCreateRequiredFields().Validate(suite.AppContextForTest(),
+					&models.ProgearWeightTicket{
+						ID:            progearWeightTicketID,
+						PPMShipmentID: ppmShipmentID,
+						Document: models.Document{
+							ServiceMemberID: serviceMemberID,
+							UserUploads:     documentUploads,
+						},
+					},
+					nil,
+				)
+				suite.NilOrNoVerrs(err)
+			})
+		})
+
+		suite.Run("Failure", func() {
+			suite.Run("Create ProgearWeightTicket - missing fields", func() {
+				err := checkCreateRequiredFields().Validate(suite.AppContextForTest(),
+					&models.ProgearWeightTicket{},
+					nil,
+				)
+
+				switch verr := err.(type) {
+				case *validate.Errors:
+					suite.True(verr.HasAny())
+					suite.Equal(2, len(verr.Keys()))
+					suite.Contains(verr.Keys(), "PPMShipmentID")
+					suite.Contains(verr.Keys(), "ServiceMemberID")
+				default:
+					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+				}
+			})
+		})
+	})
+
 	suite.Run("checkRequiredFields", func() {
 		suite.Run("Success", func() {
 			suite.Run("Update ProgearWeightTicket - all fields", func() {

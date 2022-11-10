@@ -60,7 +60,8 @@ func checkRequiredFields() progearWeightTicketValidator {
 func checkCreateRequiredFields() progearWeightTicketValidator {
 	return progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, newProgearWeightTicket *models.ProgearWeightTicket, oldProgearWeightTicket *models.ProgearWeightTicket) error {
 		verrs := validate.NewErrors()
-		if newProgearWeightTicket == nil || oldProgearWeightTicket == nil {
+
+		if newProgearWeightTicket == nil {
 			return verrs
 		}
 
