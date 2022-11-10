@@ -20,17 +20,17 @@ import (
 type UpdateProGearWeightTicket struct {
 
 	// Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.
-	BelongsToSelf *bool `json:"belongsToSelf"`
+	BelongsToSelf bool `json:"belongsToSelf,omitempty"`
 
 	// Describes the pro-gear that was moved.
-	Description *string `json:"description"`
+	Description string `json:"description,omitempty"`
 
 	// Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.
-	HasWeightTickets *bool `json:"hasWeightTickets"`
+	HasWeightTickets bool `json:"hasWeightTickets,omitempty"`
 
 	// Weight of the vehicle not including the pro-gear.
 	// Minimum: 0
-	Weight *int64 `json:"weight"`
+	Weight *int64 `json:"weight,omitempty"`
 }
 
 // Validate validates this update pro gear weight ticket

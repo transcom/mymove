@@ -297,16 +297,11 @@ func ProgearWeightTicketModelFromUpdate(progearWeightTicket *internalmessages.Up
 		return nil
 	}
 	model := &models.ProgearWeightTicket{
-		Description: progearWeightTicket.Description,
-		Weight:      handlers.PoundPtrFromInt64Ptr(progearWeightTicket.Weight),
+		Description:      &progearWeightTicket.Description,
+		Weight:           handlers.PoundPtrFromInt64Ptr(progearWeightTicket.Weight),
+		HasWeightTickets: handlers.FmtBool(progearWeightTicket.HasWeightTickets),
+		BelongsToSelf:    handlers.FmtBool(progearWeightTicket.BelongsToSelf),
 	}
 
-	if progearWeightTicket.BelongsToSelf != nil {
-		model.BelongsToSelf = handlers.FmtBool(*progearWeightTicket.BelongsToSelf)
-	}
-
-	if progearWeightTicket.HasWeightTickets != nil {
-		model.HasWeightTickets = handlers.FmtBool(*progearWeightTicket.HasWeightTickets)
-	}
 	return model
 }

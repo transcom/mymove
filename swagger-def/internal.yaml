@@ -691,24 +691,16 @@ definitions:
       belongsToSelf:
         description: Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.
         type: boolean
-        x-nullable: true
-        x-omitempty: false
       description:
         description: Describes the pro-gear that was moved.
         type: string
-        x-nullable: true
-        x-omitempty: false
       hasWeightTickets:
         description: Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.
         type: boolean
-        x-nullable: true
-        x-omitempty: false
       weight:
         description: Weight of the vehicle not including the pro-gear.
         type: integer
         minimum: 0
-        x-nullable: true
-        x-omitempty: false
   MoveDocumentPayload:
     type: object
     properties:

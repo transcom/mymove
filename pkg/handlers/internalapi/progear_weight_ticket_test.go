@@ -194,10 +194,10 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		hasWeightTickets := true
 		belongsToSelf := true
 		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{
-			Description:      &progearDes,
-			HasWeightTickets: &hasWeightTickets,
+			Description:      progearDes,
+			HasWeightTickets: hasWeightTickets,
 			Weight:           handlers.FmtInt64(4000),
-			BelongsToSelf:    &belongsToSelf,
+			BelongsToSelf:    belongsToSelf,
 		}
 
 		response := subtestData.handler.Handle(params)
@@ -206,7 +206,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 
 		updatedProgear := response.(*progearops.UpdateProGearWeightTicketOK).Payload
 		suite.Equal(subtestData.progear.ID.String(), updatedProgear.ID.String())
-		suite.Equal(params.UpdateProGearWeightTicket.Description, updatedProgear.Description)
+		suite.Equal(params.UpdateProGearWeightTicket.Description, *updatedProgear.Description)
 	})
 
 	suite.Run("PATCH failure -400 - nil body", func() {
@@ -228,10 +228,10 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		hasWeightTickets := true
 		belongsToSelf := true
 		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{
-			Description:      &progearDes,
-			HasWeightTickets: &hasWeightTickets,
+			Description:      progearDes,
+			HasWeightTickets: hasWeightTickets,
 			Weight:           handlers.FmtInt64(0),
-			BelongsToSelf:    &belongsToSelf,
+			BelongsToSelf:    belongsToSelf,
 		}
 
 		response := subtestData.handler.Handle(params)
@@ -277,10 +277,10 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		hasWeightTickets := true
 		belongsToSelf := true
 		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{
-			Description:      &progearDes,
+			Description:      progearDes,
 			Weight:           handlers.FmtInt64(1),
-			HasWeightTickets: &hasWeightTickets,
-			BelongsToSelf:    &belongsToSelf,
+			HasWeightTickets: hasWeightTickets,
+			BelongsToSelf:    belongsToSelf,
 		}
 
 		err := errors.New("ServerError")

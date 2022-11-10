@@ -7177,27 +7177,19 @@ func init() {
       "properties": {
         "belongsToSelf": {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
+          "type": "boolean"
         },
         "description": {
           "description": "Describes the pro-gear that was moved.",
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false
+          "type": "string"
         },
         "hasWeightTickets": {
           "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
+          "type": "boolean"
         },
         "weight": {
           "description": "Weight of the vehicle not including the pro-gear.",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
+          "type": "integer"
         }
       }
     },
@@ -15119,28 +15111,20 @@ func init() {
       "properties": {
         "belongsToSelf": {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
+          "type": "boolean"
         },
         "description": {
           "description": "Describes the pro-gear that was moved.",
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false
+          "type": "string"
         },
         "hasWeightTickets": {
           "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
+          "type": "boolean"
         },
         "weight": {
           "description": "Weight of the vehicle not including the pro-gear.",
           "type": "integer",
-          "minimum": 0,
-          "x-nullable": true,
-          "x-omitempty": false
+          "minimum": 0
         }
       }
     },
