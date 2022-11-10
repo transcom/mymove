@@ -79,7 +79,7 @@ func updateDSN(dsn string) (string, error) {
 }
 
 // Refreshes the RDS IAM on the given interval.
-func refreshRDSIAM(host string, port string, region string, user string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger *zap.Logger, errorMessagesChan chan error, shouldQuitChan chan bool) {
+func refreshRDSIAM(host string, port string, region string, user string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger *zap.Logger, errorMessagesChan chan error, shouldQuitChan chan bool, gotCredsOnceChan chan bool) {
 	logger.Info("Starting refresh of RDS IAM")
 	// This for loop immediately runs the first tick then on interval
 	// This for loop will run indefinitely until it either errors or true is
@@ -109,6 +109,7 @@ func refreshRDSIAM(host string, port string, region string, user string, creds *
 			iamConfig.currentIamPass = url.QueryEscape(authToken)
 			iamConfig.currentPassMutex.Unlock()
 			logger.Info("Successfully generated new IAM token")
+			gotCredsOnceChan <- true
 			<-ticker.C
 		}
 	}
@@ -124,11 +125,22 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	iamConfig.logger = logger
 
 	errorMessagesChan := make(chan error)
+	gotCredsOnceChan := make(chan bool)
 
 	// GoRoutine to continually refresh the RDS IAM auth on the given interval.
-	go refreshRDSIAM(host, port, region, user, creds, rus, ticker, logger, errorMessagesChan, shouldQuitChan)
+	go refreshRDSIAM(host, port, region, user, creds, rus, ticker, logger, errorMessagesChan, shouldQuitChan, gotCredsOnceChan)
+
+	go stopTheRefresh(gotCredsOnceChan, shouldQuitChan)
 
 	go logEnableIAMFailed(logger, errorMessagesChan)
+}
+
+func stopTheRefresh(gotCredsOnceChan chan bool, shouldQuitChan chan bool) {
+	gotCredsMessage := <-gotCredsOnceChan
+
+	if gotCredsMessage {
+		shouldQuitChan <- true
+	}
 }
 
 func logEnableIAMFailed(logger *zap.Logger, errorMessagesChan chan error) {
