@@ -10,7 +10,6 @@ func GetTraitNavy() []Customization {
 			Model: models.ServiceMember{
 				Affiliation: &navy,
 			},
-			Type: &ServiceMember,
 		},
 	}
 }
@@ -23,7 +22,6 @@ func GetTraitArmy() []Customization {
 			Model: models.ServiceMember{
 				Affiliation: &army,
 			},
-			Type: &ServiceMember,
 		},
 	}
 }

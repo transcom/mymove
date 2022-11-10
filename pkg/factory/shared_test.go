@@ -140,7 +140,6 @@ func (suite *FactorySuite) TestMergeCustomization() {
 						CurrentOfficeSessionID: "trait1",
 						CurrentMilSessionID:    "",
 					},
-					Type: &User,
 				},
 			}
 		}
@@ -152,7 +151,6 @@ func (suite *FactorySuite) TestMergeCustomization() {
 						CurrentOfficeSessionID: "trait2",
 						CurrentMilSessionID:    "trait2",
 					},
-					Type: &User,
 				},
 			}
 		}
@@ -163,7 +161,6 @@ func (suite *FactorySuite) TestMergeCustomization() {
 					Model: models.User{
 						CurrentAdminSessionID: "custom",
 					},
-					Type: &User,
 				},
 			},
 			[]Trait{
@@ -182,27 +179,58 @@ func (suite *FactorySuite) TestMergeCustomization() {
 }
 
 func (suite *FactorySuite) TestMergeInterfaces() {
-	// Under test:       mergeInterfaces, wrapper function for calling mergeModels
-	// Set up:           Create two interface types and call mergeInterfaces
-	// Expected outcome: Underlying model should contain fields from both models.
-	//                   user1 fields should overwrite user2 fields
-	user1 := models.User{
-		LoginGovEmail: "user1@example.com",
-		Active:        true,
-	}
-	uuidNew := uuid.Must(uuid.NewV4())
-	user2 := models.User{
-		LoginGovEmail: "user2@example.com",
-		LoginGovUUID:  &uuidNew,
-	}
+	suite.Run("Check that mergeInterfaces merges the models", func() {
+		// Under test:       mergeInterfaces, wrapper function for calling mergeModels
+		// Set up:           Create two interface types and call mergeInterfaces
+		// Expected outcome: Underlying model should contain fields from both models.
+		//                   user1 fields should overwrite user2 fields
+		user1 := models.User{
+			LoginGovEmail: "user1@example.com",
+			Active:        true,
+		}
+		uuidNew := uuid.Must(uuid.NewV4())
+		user2 := models.User{
+			LoginGovEmail: "user2@example.com",
+			LoginGovUUID:  &uuidNew,
+		}
 
-	result := mergeInterfaces(user2, user1)
-	user := result.(models.User)
-	// user1 email should overwrite user2 email
-	suite.Equal(user1.LoginGovEmail, user.LoginGovEmail)
-	// All other fields set in interfaces should persist
-	suite.Equal(user1.Active, user.Active)
-	suite.Equal(user2.LoginGovUUID, user.LoginGovUUID)
+		result := mergeInterfaces(user2, user1)
+		user := result.(models.User)
+		// user1 email should overwrite user2 email
+		suite.Equal(user1.LoginGovEmail, user.LoginGovEmail)
+		// All other fields set in interfaces should persist
+		suite.Equal(user1.Active, user.Active)
+		suite.Equal(user2.LoginGovUUID, user.LoginGovUUID)
+	})
+
+	suite.Run("Check that mergeInterfaces doesn't change input models", func() {
+		// Under test:       mergeInterfaces, wrapper function for calling mergeModels
+		// Set up:           Create two interface types and call mergeInterfaces
+		// Expected outcome: Caller models should not be affected
+		user1email := "user1@example.com"
+		user2email := "user2@example.com"
+		uuidNew := uuid.Must(uuid.NewV4())
+
+		user1 := models.User{
+			LoginGovEmail: user1email,
+			Active:        true,
+		}
+		user2 := models.User{
+			LoginGovEmail: user2email,
+			LoginGovUUID:  &uuidNew,
+		}
+
+		mergeInterfaces(user2, user1)
+
+		// user1 should be untouched
+		suite.Equal(user1email, user1.LoginGovEmail)
+		suite.True(user1.Active)
+
+		// user2 should be untouched
+		suite.Equal(user2email, user2.LoginGovEmail)
+		suite.False(user2.Active)
+		suite.Equal(uuidNew, *user2.LoginGovUUID)
+	})
 }
 
 func (suite *FactorySuite) TestHasID() {

@@ -54,7 +54,6 @@ func GetTraitActiveUser() []Customization {
 			Model: models.User{
 				Active: true,
 			},
-			Type: &User,
 		},
 	}
 }

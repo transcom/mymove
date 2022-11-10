@@ -34,8 +34,9 @@ var ServiceMember CustomType = "ServiceMember"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
-	"models.Address": Address,
-	"models.User":    User,
+	"models.Address":       Address,
+	"models.User":          User,
+	"models.ServiceMember": ServiceMember,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
@@ -124,6 +125,9 @@ func setDefaultTypes(clist []Customization) {
 	}
 }
 
+// setDefaultTypesTraits assigns types to all customizations in the traits
+//func setDefaultTypesTraits()
+
 // setupCustomizations prepares the customizations for the factory
 // - Ensures a control object has been created
 // - Assigns default types to all default customizations
@@ -149,10 +153,7 @@ func setupCustomizations(customs []Customization, traits []Trait) []Customizatio
 	}
 
 	// If not valid:
-
-	// Make sure all customs have a proper type
-	setDefaultTypes(customs)
-	// Merge customizations with traits
+	// Merge customizations with traits (also sets default types)
 	customs = mergeCustomization(customs, traits)
 	// Ensure unique customizations
 	err := isUnique(customs)
@@ -252,8 +253,13 @@ func hasID(model interface{}) bool {
 //   - trait 1 will override trait 2 (so start with the highest priority)
 //   - customization will override trait 2
 func mergeCustomization(customs []Customization, traits []Trait) []Customization {
-	// Get a list of traits, each could return a list of customizations
+	// Make sure all customs have a proper type
+	setDefaultTypes(customs)
+
+	// Iterate list of traits, each could return a list of customizations
 	for _, trait := range traits {
+
+		// Get customizations and set default types
 		traitCustomizations := trait()
 		setDefaultTypes(traitCustomizations)
 
