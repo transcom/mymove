@@ -107,7 +107,7 @@ func FetchProgearWeightTicketByIDExcludeDeletedUploads(appContext appcontext.App
 		}
 	}
 
-	progearWeightTicket.Document.UserUploads = FilterDeletedValued(progearWeightTicket.Document.UserUploads)
+	progearWeightTicket.Document.UserUploads.FilterDeleted()
 
 	return &progearWeightTicket, nil
 }
