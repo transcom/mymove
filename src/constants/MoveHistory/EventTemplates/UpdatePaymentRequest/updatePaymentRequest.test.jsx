@@ -53,31 +53,14 @@ describe('when a payment request has an update', () => {
     expect(screen.getByText('Updated payment request 4462-6355-3')).toBeInTheDocument();
   });
 
-  describe('should display the proper labeled details when payment is sent to GEX', () => {
-    it.each([['Status', ': Sent to GEX']])('label `%s` should have value `%s`', (label, value) => {
-      const template = getTemplate(historyRecord);
-
-      render(template.getDetails(historyRecord));
-      expect(screen.getByText(label)).toBeInTheDocument();
-      expect(screen.getByText(value)).toBeInTheDocument();
-    });
-  });
-
-  describe('should display the proper labeled details when payment is recevived by GEX', () => {
-    it.each([['Status', ': Received']])('label `%s` should have value `%s`', (label, value) => {
-      const template = getTemplate(historyRecord2);
-
-      render(template.getDetails(historyRecord2));
-      expect(screen.getByText(label)).toBeInTheDocument();
-      expect(screen.getByText(value)).toBeInTheDocument();
-    });
-  });
-
-  describe('should display the proper labeled details when a EDI error is present', () => {
-    it.each([['Status', ': EDI error']])('label `%s` should have value `%s`', (label, value) => {
-      const template = getTemplate(historyRecord2);
-
-      render(template.getDetails(historyRecordWithError));
+  describe('should display the proper labeled details when payment status is changed', () => {
+    it.each([
+      ['Status', ': Sent to GEX', historyRecord],
+      ['Status', ': Received', historyRecord2],
+      ['Status', ': EDI error', historyRecordWithError],
+    ])('label `%s` should have value `%s`', (label, value, record) => {
+      const template = getTemplate(record);
+      render(template.getDetails(record));
       expect(screen.getByText(label)).toBeInTheDocument();
       expect(screen.getByText(value)).toBeInTheDocument();
     });
