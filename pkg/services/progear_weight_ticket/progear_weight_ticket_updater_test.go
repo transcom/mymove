@@ -154,7 +154,7 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 		suite.Equal(*desiredProgearWeightTicket.Weight, *updatedProgearWeightTicket.Weight)
 		suite.Equal(*desiredProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.HasWeightTickets)
 		suite.Equal(*desiredProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.BelongsToSelf)
-		suite.Equal(1, len(updatedProgearWeightTicket.Document.UserUploads))
+		suite.Equal(2, len(updatedProgearWeightTicket.Document.UserUploads))
 	})
 
 	suite.Run("Fails to update when files are missing", func() {
