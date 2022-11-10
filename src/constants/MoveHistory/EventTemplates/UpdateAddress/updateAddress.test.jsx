@@ -95,4 +95,30 @@ describe('when given a Update basic service item address history record', () => 
       },
     );
   });
+
+  describe('should display the whole address when only one field was updated', () => {
+    const updatedHistoryRecord = {
+      action: 'UPDATE',
+      eventName: 'patchServiceMember',
+      tableName: 'addresses',
+      oldValues: {
+        city: 'los angeles',
+        postal_code: '90210',
+        state: 'CA',
+        street_address_1: '123 sesame st',
+      },
+      changedValues: { street_address_1: '1234 New Ave' },
+      context: [{ address_type: 'residentialAddress' }],
+    };
+    const updatedTemplate = getTemplate(updatedHistoryRecord);
+
+    it.each([['Current mailing address', ': 1234 New Ave, los angeles, CA 90210']])(
+      'Label `%s` should have the full address `%s`',
+      async (label, value) => {
+        render(updatedTemplate.getDetails(updatedHistoryRecord));
+        expect(screen.getByText(label)).toBeInTheDocument();
+        expect(screen.getByText(value)).toBeInTheDocument();
+      },
+    );
+  });
 });
