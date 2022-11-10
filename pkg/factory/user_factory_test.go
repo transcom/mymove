@@ -4,7 +4,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *MakerSuite) TestUserMaker() {
+func (suite *FactorySuite) TestUserMaker() {
 	defaultEmail := "first.last@login.gov.test"
 	customEmail := "leospaceman123@example.com"
 	suite.Run("Successful creation of default user", func() {

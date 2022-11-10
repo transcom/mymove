@@ -12,13 +12,13 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type MakerSuite struct {
+type FactorySuite struct {
 	*testingsuite.PopTestSuite
 }
 
-func TestMakerSuite(t *testing.T) {
+func TestFactorySuite(t *testing.T) {
 
-	ts := &MakerSuite{
+	ts := &FactorySuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 	}
 	suite.Run(t, ts)
@@ -45,13 +45,15 @@ func getTraitActiveArmy() []Customization {
 	}
 }
 
-func (suite *MakerSuite) TestMergeCustomization() {
+func (suite *FactorySuite) TestMergeCustomization() {
 
 	suite.Run("Customizations and traits merged into result", func() {
 		// Under test:       mergeCustomization, which merges traits and customizations
 		// Set up:           Create a customization without a matching trait, and traits with no customizations
 		// Expected outcome: All should exist in the result list
 		streetAddress := "235 Prospect Valley Road SE"
+
+		// CALL FUNCTION UNDER TEST
 		result := mergeCustomization(
 			// Address customization
 			[]Customization{
@@ -59,27 +61,33 @@ func (suite *MakerSuite) TestMergeCustomization() {
 					Model: models.Address{
 						StreetAddress1: streetAddress,
 					},
-					Type: &Address,
+					Type: &Address, // ← Address customization
 				},
 			},
 			// User and ServiceMember customization
 			[]Trait{
-				getTraitActiveArmy,
+				getTraitActiveArmy, // ← User and ServiceMember customization
 			},
 		)
 		suite.Len(result, 3)
+
+		// VALIDATE RESULTS
+		// Check that result included our Address customization
 		_, custom := findCustomWithIdx(result, Address)
 		suite.NotNil(custom)
 		address := custom.Model.(models.Address)
 		suite.Equal(streetAddress, address.StreetAddress1)
 
-		// Check that User customization from trait is available
+		// Check that result included our User customization
 		_, custom = findCustomWithIdx(result, User)
 		suite.NotNil(custom)
 		user := custom.Model.(models.User)
 		suite.Equal("trait@army.mil", user.LoginGovEmail)
-		// Check that ServiceMember customization from trait is available
+
+		// Check that result included our ServiceMember customization
 		_, custom = findCustomWithIdx(result, ServiceMember)
+		sm := custom.Model.(models.ServiceMember)
+		suite.Equal(models.AffiliationARMY, *sm.Affiliation)
 		suite.NotNil(custom)
 	})
 
@@ -87,8 +95,8 @@ func (suite *MakerSuite) TestMergeCustomization() {
 		// Under test:       mergeCustomization, which merges traits and customizations
 		// Set up:           Create a customization with a user email and a trait with a user email
 		// Expected outcome: Customization should override the trait email
-		//                   If an object exists and no customization, it should become a customization
 		uuidval := uuid.Must(uuid.NewV4())
+		// RUN FUNCTION UNDER TEST
 		result := mergeCustomization(
 			[]Customization{
 				{
@@ -96,24 +104,84 @@ func (suite *MakerSuite) TestMergeCustomization() {
 						LoginGovUUID:  &uuidval,
 						LoginGovEmail: "custom@army.mil",
 					},
-					Type: &User,
+					Type: &User, // ← User customization
 				},
 			},
 			[]Trait{
-				getTraitActiveArmy,
+				getTraitActiveArmy, // ← Address and User customization
 			},
 		)
+
+		// VALIDATE RESULTS
 		userModel := result[0].Model.(models.User)
 		// Customization email should be used
 		suite.Equal("custom@army.mil", userModel.LoginGovEmail)
 		// But other fields could come from trait
 		suite.Equal("my-session-id", userModel.CurrentAdminSessionID)
+	})
 
+	suite.Run("Customization should override traits in priority order", func() {
+		// Under test:       mergeCustomization, which merges traits and customizations
+		// Set up:           Check the priority order, which is customization, then traits in order
+		// Expected outcome: Customization should override getTrait1
+		//                   getTrait1 should override getTrait1
+
+		// customization is  custom   ______   ______
+		// getTrait1 is      trait1   trait1   ______
+		// getTrait1 is      trait2   trait2   trait2
+
+		// Result should be  custom   trait1   trait2
+
+		getTrait1 := func() []Customization {
+			return []Customization{
+				{
+					Model: models.User{
+						CurrentAdminSessionID:  "trait1",
+						CurrentOfficeSessionID: "trait1",
+						CurrentMilSessionID:    "",
+					},
+					Type: &User,
+				},
+			}
+		}
+		getTrait2 := func() []Customization {
+			return []Customization{
+				{
+					Model: models.User{
+						CurrentAdminSessionID:  "trait2",
+						CurrentOfficeSessionID: "trait2",
+						CurrentMilSessionID:    "trait2",
+					},
+					Type: &User,
+				},
+			}
+		}
+		// RUN FUNCTION UNDER TEST
+		result := mergeCustomization(
+			[]Customization{
+				{
+					Model: models.User{
+						CurrentAdminSessionID: "custom",
+					},
+					Type: &User,
+				},
+			},
+			[]Trait{
+				getTrait1,
+				getTrait2,
+			},
+		)
+
+		// VALIDATE RESULTS
+		user := result[0].Model.(models.User)
+		suite.Equal("custom", user.CurrentAdminSessionID)
+		suite.Equal("trait1", user.CurrentOfficeSessionID)
+		suite.Equal("trait2", user.CurrentMilSessionID)
 	})
 
 }
 
-func (suite *MakerSuite) TestMergeInterfaces() {
+func (suite *FactorySuite) TestMergeInterfaces() {
 	// Under test:       mergeInterfaces, wrapper function for calling mergeModels
 	// Set up:           Create two interface types and call mergeInterfaces
 	// Expected outcome: Underlying model should contain fields from both models.
@@ -137,7 +205,7 @@ func (suite *MakerSuite) TestMergeInterfaces() {
 	suite.Equal(user2.LoginGovUUID, user.LoginGovUUID)
 }
 
-func (suite *MakerSuite) TestHasID() {
+func (suite *FactorySuite) TestHasID() {
 	suite.Run("True if ID is provided", func() {
 		// Under test:       hasIDs, uses reflection to check if a model has a populated ID
 		// Set up:           Test a model with an id
@@ -168,7 +236,7 @@ func (suite *MakerSuite) TestHasID() {
 	})
 }
 
-func (suite *MakerSuite) TestNestedModelsCheck() {
+func (suite *FactorySuite) TestNestedModelsCheck() {
 	suite.Run("Must not call with pointer", func() {
 		// Under test:       checkNestedModels, uses reflection to check if other models are nested
 		// Set up:           Call with a pointer, instead of a struct
@@ -271,7 +339,7 @@ func (suite *MakerSuite) TestNestedModelsCheck() {
 	})
 
 }
-func (suite *MakerSuite) TestDefaultTypes() {
+func (suite *FactorySuite) TestDefaultTypes() {
 
 	suite.Run("Default types added if missing", func() {
 		// TESTCASE SCENARIO
@@ -311,7 +379,7 @@ func (suite *MakerSuite) TestDefaultTypes() {
 		suite.ErrorContains(err, "models.MoveHistory")
 	})
 }
-func (suite *MakerSuite) TestSetupCustomizations() {
+func (suite *FactorySuite) TestSetupCustomizations() {
 
 	suite.Run("Customizations and traits merged into result", func() {
 		// Under test:       setupCustomizations which calls mergeCustomization,
@@ -389,7 +457,7 @@ func (suite *MakerSuite) TestSetupCustomizations() {
 	})
 
 }
-func (suite *MakerSuite) TestValidateCustomizations() {
+func (suite *FactorySuite) TestValidateCustomizations() {
 	suite.Run("Control obj added if missing", func() {
 		// Under test:       setupCustomizations
 		// Set up:           Create some customizations without a control object
@@ -463,7 +531,7 @@ func (suite *MakerSuite) TestValidateCustomizations() {
 
 }
 
-func (suite *MakerSuite) TestElevateCustomization() {
+func (suite *FactorySuite) TestElevateCustomization() {
 
 	suite.Run("Customization converted ", func() {
 		// Under test:       convertCustomizationInList converts the type of the customization
