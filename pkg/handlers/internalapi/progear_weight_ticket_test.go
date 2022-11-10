@@ -181,7 +181,6 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 
 		params := subtestData.params
 
-		// An upload must exist if trailer is owned and qualifies to be claimed
 		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
 			UserUpload: models.UserUpload{
 				DocumentID: &subtestData.progear.DocumentID,
@@ -189,7 +188,6 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 			},
 		})
 
-		// Add Description
 		progearDes := "Pro gear desctription"
 		hasWeightTickets := true
 		belongsToSelf := true
