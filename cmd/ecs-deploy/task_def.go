@@ -119,6 +119,7 @@ const (
 	memFlag                  string = "memory"
 	registerFlag             string = "register"
 	openTelemetrySidecarFlag string = "open-telemetry-sidecar"
+	healthCheckFlag          string = "health-check"
 )
 
 // ECRImage represents an ECR Image tag broken into its constituent parts
@@ -230,6 +231,8 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 
 	// Open Telemetry SideCar
 	flag.Bool(openTelemetrySidecarFlag, false, "Include open telemetry sidecar container")
+	// Health Check
+	flag.Bool(healthCheckFlag, false, "Include health check in the task definition")
 
 	// Dry Run or Registration
 	flag.Bool(dryRunFlag, false, "Execute as a dry-run without modifying AWS.")
@@ -616,6 +619,23 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 			Privileged:             aws.Bool(false),
 			User:                   aws.String("1042"),
 		},
+	}
+
+	// if health check is enabled, add it to the container definition
+	if v.GetBool(healthCheckFlag) {
+		containerDefinitions[0].HealthCheck = &ecs.HealthCheck{
+			Command: []*string{
+				aws.String("CMD"),
+				aws.String("/bin/milmove"),
+				aws.String("health"),
+			},
+			// Interval defaults to 30 seconds
+			// Retries defaults to 3
+			// Timeout defaults to 5 seconds
+			//
+			// StartPeriod is a grace period when the app starts, it
+			// defaults to off and can be between 5 - 300 seconds
+		}
 	}
 
 	if v.GetBool(openTelemetrySidecarFlag) {
