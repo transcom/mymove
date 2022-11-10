@@ -130,17 +130,13 @@ func main() {
 
 	// Open the spreadsheet
 	printDivider("Loading")
-	spinner, err := pterm.DefaultSpinner.Start(fmt.Sprintf("Loading file: %s", params.XlsxFilename))
-	if err != nil {
-		logger.Fatal("Failed to create pterm spinner", zap.Error(err))
-	}
+	pterm.Println(pterm.BgGray.Sprint(fmt.Sprintf("Loading file %s", params.XlsxFilename)))
 
 	params.XlsxFile, err = xlsx.OpenFile(params.XlsxFilename)
 	if err != nil {
-		spinner.Fail()
 		logger.Fatal("Failed to open file", zap.String("XlsxFilename", params.XlsxFilename), zap.Error(err))
 	}
-	spinner.Success()
+	pterm.Println(pterm.BgGray.Sprint(fmt.Sprintf("Finished loading file %s", params.XlsxFilename)))
 
 	// Now kick off the parsing
 	printDivider("Parsing")
