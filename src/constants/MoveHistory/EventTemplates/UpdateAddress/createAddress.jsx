@@ -2,7 +2,6 @@ import React from 'react';
 
 import { formatMoveHistoryFullAddress } from 'utils/formatters';
 import a from 'constants/MoveHistory/Database/Actions';
-import o from 'constants/MoveHistory/UIDisplay/Operations';
 import t from 'constants/MoveHistory/Database/Tables';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 import ADDRESS_TYPE from 'constants/MoveHistory/Database/AddressTypes';
@@ -26,7 +25,7 @@ const formatChangedValues = (historyRecord) => {
 
 export default {
   action: a.INSERT,
-  eventName: o.updateMTOShipment,
+  eventName: '*',
   tableName: t.addresses,
   getEventNameDisplay: () => 'Updated address',
   getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
