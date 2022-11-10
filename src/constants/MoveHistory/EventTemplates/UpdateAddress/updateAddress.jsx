@@ -27,8 +27,8 @@ const formatChangedValues = (historyRecord) => {
     state: oldValues.state,
     postal_code: oldValues.postal_code,
     [addressLabel]: address,
-    ...getMtoShipmentLabel(historyRecord),
     ...changedValues,
+    ...getMtoShipmentLabel(historyRecord),
   };
 
   return { ...historyRecord, changedValues: newChangedValues };
