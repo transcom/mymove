@@ -111,17 +111,3 @@ func FetchProgearWeightTicketByIDExcludeDeletedUploads(appContext appcontext.App
 
 	return &progearWeightTicket, nil
 }
-
-func FilterDeletedValued(userUploads models.UserUploads) models.UserUploads {
-	if userUploads == nil {
-		return userUploads
-	}
-
-	filteredUploads := models.UserUploads{}
-	for _, userUpload := range userUploads {
-		if userUpload.DeletedAt == nil {
-			filteredUploads = append(filteredUploads, userUpload)
-		}
-	}
-	return filteredUploads
-}
