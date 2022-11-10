@@ -506,9 +506,7 @@ func (suite *FactorySuite) TestValidateCustomizations() {
 			},
 		)
 		suite.Len(customs, 4)
-
-		customs, err := uniqueCustomizations(customs)
-		suite.Len(customs, 4)
+		err := isUnique(customs)
 		suite.NoError(err)
 	})
 	suite.Run("Error if duplicate customization is used", func() {
@@ -522,9 +520,7 @@ func (suite *FactorySuite) TestValidateCustomizations() {
 			Type:  &User,
 		})
 		suite.Len(customs, 3)
-
-		customs, err := uniqueCustomizations(customs)
-		suite.Len(customs, 3)
+		err := isUnique(customs)
 		suite.ErrorContains(err, "Found more than one instance")
 
 	})
@@ -556,7 +552,7 @@ func (suite *FactorySuite) TestElevateCustomization() {
 		// convert customization type from residentialAddress to Address
 		tempCustoms := convertCustomizationInList(customizationList, Addresses.ResidentialAddress, Address)
 		// Nothing wrong with customizations
-		tempCustoms, err := uniqueCustomizations(tempCustoms)
+		err := isUnique(tempCustoms)
 		suite.NoError(err)
 		// Customization has new type
 		suite.Equal(Address, *tempCustoms[1].Type)

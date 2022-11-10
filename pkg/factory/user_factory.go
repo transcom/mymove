@@ -42,3 +42,19 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 func BuildDefaultUser(db *pop.Connection) models.User {
 	return BuildUser(db, nil, []Trait{GetTraitActiveUser})
 }
+
+// ------------------------
+//      TRAITS
+// ------------------------
+
+// GetTraitActiveUser returns a customization to enable active on a user
+func GetTraitActiveUser() []Customization {
+	return []Customization{
+		{
+			Model: models.User{
+				Active: true,
+			},
+			Type: &User,
+		},
+	}
+}

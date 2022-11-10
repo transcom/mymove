@@ -4,11 +4,11 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *FactorySuite) TestUserMaker() {
+func (suite *FactorySuite) TestBuildUser() {
 	defaultEmail := "first.last@login.gov.test"
 	customEmail := "leospaceman123@example.com"
 	suite.Run("Successful creation of default user", func() {
-		// Under test:      UserMaker
+		// Under test:      BuildUser
 		// Mocked:          None
 		// Set up:          Create a User with no customizations or traits
 		// Expected outcome:User should be created with default values
@@ -19,7 +19,7 @@ func (suite *FactorySuite) TestUserMaker() {
 	})
 
 	suite.Run("Successful creation of user with customization", func() {
-		// Under test:      UserMaker
+		// Under test:      BuildUser
 		// Set up:          Create a User with a customized email and no trait
 		// Expected outcome:User should be created with email and inactive status
 		user := BuildUser(suite.DB(), []Customization{
@@ -35,7 +35,7 @@ func (suite *FactorySuite) TestUserMaker() {
 	})
 
 	suite.Run("Successful creation of user with trait", func() {
-		// Under test:      UserMaker
+		// Under test:      BuildUser
 		// Set up:          Create a User with a trait
 		// Expected outcome:User should be created with default email and active status
 
@@ -48,7 +48,7 @@ func (suite *FactorySuite) TestUserMaker() {
 	})
 
 	suite.Run("Successful creation of user with both", func() {
-		// Under test:      UserMaker
+		// Under test:      BuildUser
 		// Set up:          Create a User with a customized email and active trait
 		// Expected outcome:User should be created with email and active status
 
@@ -65,7 +65,7 @@ func (suite *FactorySuite) TestUserMaker() {
 	})
 
 	suite.Run("Successful creation of stubbed user", func() {
-		// Under test:      UserMaker
+		// Under test:      BuildUser
 		// Set up:          Create a customized user, but don't pass in a db
 		// Expected outcome:User should be created with email and active status
 		//                  No user should be created in database
@@ -89,4 +89,29 @@ func (suite *FactorySuite) TestUserMaker() {
 		suite.Equal(precount, count)
 	})
 
+}
+
+func (suite *FactorySuite) TestBuildDefaultUser() {
+	defaultEmail := "first.last@login.gov.test"
+	suite.Run("Successful creation of default user", func() {
+		// Under test:      BuildDefaultUser
+		// Mocked:          None
+		// Set up:          Use helper function BuildDefaultUser
+		// Expected outcome:User should be created with GetTraitActiveUser
+
+		user := BuildDefaultUser(suite.DB())
+		suite.Equal(defaultEmail, user.LoginGovEmail)
+		suite.True(user.Active)
+	})
+
+	suite.Run("Successful creation of stubbed default user", func() {
+		// Under test:      BuildDefaultUser
+		// Mocked:          None
+		// Set up:          Use helper function BuildDefaultUser, but no db
+		// Expected outcome:User should be created with GetTraitActiveUser
+
+		user := BuildDefaultUser(nil)
+		suite.Equal(defaultEmail, user.LoginGovEmail)
+		suite.True(user.Active)
+	})
 }

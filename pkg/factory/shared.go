@@ -155,7 +155,7 @@ func setupCustomizations(customs []Customization, traits []Trait) []Customizatio
 	// Merge customizations with traits
 	customs = mergeCustomization(customs, traits)
 	// Ensure unique customizations
-	customs, err := uniqueCustomizations(customs)
+	err := isUnique(customs)
 	if err != nil {
 		controller.isValid = false
 		log.Panic(err)
@@ -166,9 +166,9 @@ func setupCustomizations(customs []Customization, traits []Trait) []Customizatio
 
 }
 
-// uniqueCustomizations ensures there's only one customization per type.
+// isUnique ensures there's only one customization per type.
 // Requirement: All customizations should already have a type assigned.
-func uniqueCustomizations(customs []Customization) ([]Customization, error) {
+func isUnique(customs []Customization) error {
 	// validate that there are no repeat CustomTypes
 	m := make(map[CustomType]int)
 	for i, custom := range customs {
@@ -178,13 +178,13 @@ func uniqueCustomizations(customs []Customization) ([]Customization, error) {
 		// if custom type already exists
 		idx, exists := m[*custom.Type]
 		if exists {
-			return customs, fmt.Errorf("Found more than one instance of %s Customization at index %d and %d",
+			return fmt.Errorf("Found more than one instance of %s Customization at index %d and %d",
 				*custom.Type, idx, i)
 		}
 		// Add to hashmap
 		m[*custom.Type] = i
 	}
-	return customs, nil
+	return nil
 
 }
 
