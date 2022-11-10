@@ -39,7 +39,6 @@ func checkRequiredFields() progearWeightTicketValidator {
 			verrs.Add("HasWeightTickets", "HasWeightTickets is required")
 		}
 
-		// ARE WE ALLOWING 0 values now?
 		if newProgearWeightTicket.Weight == nil || *newProgearWeightTicket.Weight < 1 {
 			verrs.Add("Weight", "Weight must have a value of at least 1")
 		}
