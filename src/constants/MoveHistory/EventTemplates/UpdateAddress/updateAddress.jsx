@@ -2,6 +2,7 @@ import React from 'react';
 
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
+import o from 'constants/MoveHistory/UIDisplay/Operations';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 import { formatMoveHistoryFullAddress } from 'utils/formatters';
 import ADDRESS_TYPE from 'constants/MoveHistory/Database/AddressTypes';
@@ -9,7 +10,12 @@ import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 
 const formatChangedValues = (historyRecord) => {
   const { context, changedValues, oldValues } = historyRecord;
-  const address = formatMoveHistoryFullAddress(changedValues);
+  // order is important here, please keep oldValues first in the addressValues object
+  const addressValues = {
+    ...oldValues,
+    ...changedValues,
+  };
+  const address = formatMoveHistoryFullAddress(addressValues);
 
   const addressType = context.filter((contextObject) => contextObject.address_type)[0].address_type;
   const addressLabel = ADDRESS_TYPE[addressType];
@@ -21,8 +27,8 @@ const formatChangedValues = (historyRecord) => {
     state: oldValues.state,
     postal_code: oldValues.postal_code,
     [addressLabel]: address,
-    ...changedValues,
     ...getMtoShipmentLabel(historyRecord),
+    ...changedValues,
   };
 
   return { ...historyRecord, changedValues: newChangedValues };
@@ -30,7 +36,7 @@ const formatChangedValues = (historyRecord) => {
 
 export default {
   action: a.UPDATE,
-  eventName: '*',
+  eventName: o.patchServiceMember,
   tableName: t.addresses,
   getEventNameDisplay: () => 'Updated address',
   getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
