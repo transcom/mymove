@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
 
 func (suite *ShipmentSuite) TestCreateShipment() {
@@ -35,7 +36,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		mockPPMShipmentCreator := mocks.PPMShipmentCreator{}
 		subtestData.mockPPMShipmentCreator = &mockPPMShipmentCreator
 
-		subtestData.shipmentCreatorOrchestrator = NewShipmentCreator(subtestData.mockMTOShipmentCreator, subtestData.mockPPMShipmentCreator)
+		subtestData.shipmentCreatorOrchestrator = NewShipmentCreator(subtestData.mockMTOShipmentCreator, subtestData.mockPPMShipmentCreator, mtoshipment.NewShipmentRouter())
 
 		if returnErrorForMTOShipment {
 			subtestData.fakeError = apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Pickup date missing")

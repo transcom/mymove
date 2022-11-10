@@ -5,6 +5,7 @@ import t from 'constants/MoveHistory/Database/Tables';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 import { formatMoveHistoryFullAddress } from 'utils/formatters';
 import ADDRESS_TYPE from 'constants/MoveHistory/Database/AddressTypes';
+import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 
 const formatChangedValues = (historyRecord) => {
   const { context, changedValues, oldValues } = historyRecord;
@@ -21,12 +22,8 @@ const formatChangedValues = (historyRecord) => {
     postal_code: oldValues.postal_code,
     [addressLabel]: address,
     ...changedValues,
+    ...getMtoShipmentLabel(historyRecord),
   };
-
-  if (context[0]?.shipment_type) {
-    newChangedValues.shipment_type = context[0].shipment_type;
-    newChangedValues.shipment_id_display = context[0].shipment_id_abbr.toUpperCase();
-  }
 
   return { ...historyRecord, changedValues: newChangedValues };
 };
