@@ -17,7 +17,7 @@ import (
 type Customization struct {
 	Model    interface{}
 	Type     *CustomType
-	linkOnly bool
+	LinkOnly bool
 }
 
 // CustomType is a string that represents what kind of customization it is
@@ -272,12 +272,10 @@ func mergeCustomization(customs []Customization, traits []Trait) []Customization
 		for _, traitCustom := range traitCustomizations {
 			j, callerCustom := findCustomWithIdx(customs, *traitCustom.Type)
 			if callerCustom != nil {
-				// If a customization has an ID, it means we use that precreated object
-				// Therefore we can't merge a trait with it, as those fields will not get
-				// updated.
-				// While this feels like we should warn or error out, we want to support overriding a
-				// trait with a precreated object so it's not an error.
-				if !hasID(callerCustom.Model) {
+				// If a customization is marked as LinkOnly, it means we use that precreated object
+				// Therefore we can't merge a trait with it, as we don't update fields on pre-created
+				// objects. So we only merge if LinkOnly is false.
+				if !callerCustom.LinkOnly {
 					result := mergeInterfaces(traitCustom.Model, callerCustom.Model)
 					callerCustom.Model = result
 					customs[j] = *callerCustom

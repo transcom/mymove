@@ -25,7 +25,7 @@ func BuildOfficeUser(db *pop.Connection, customs []Customization, traits []Trait
 	result := findValidCustomization(customs, User)
 	if result != nil {
 		user = result.Model.(models.User)
-		linkOnly = result.linkOnly
+		linkOnly = result.LinkOnly
 	}
 	if !linkOnly {
 		user = BuildUser(db, customs, nil)

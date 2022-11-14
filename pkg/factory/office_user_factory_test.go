@@ -1,12 +1,14 @@
 package factory
 
 import (
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *MakerSuite) TestBuildOfficeUser() {
+func (suite *FactorySuite) TestBuildOfficeUser() {
 	defaultEmail := "first.last@login.gov.test"
 	customEmail := "leospaceman123@example.com"
 	suite.Run("Successful creation of default office user", func() {
@@ -19,6 +21,7 @@ func (suite *MakerSuite) TestBuildOfficeUser() {
 		suite.Equal(defaultEmail, officeUser.User.LoginGovEmail)
 		suite.False(officeUser.User.Active)
 	})
+
 	suite.Run("Successful creation of officeUser with matched email", func() {
 		// Under test:      BuildOfficeUser
 		// Mocked:          None
@@ -33,6 +36,7 @@ func (suite *MakerSuite) TestBuildOfficeUser() {
 		suite.Equal(officeUser.Email, officeUser.User.LoginGovEmail)
 		suite.False(officeUser.User.Active)
 	})
+
 	suite.Run("Successful creation of user with customization", func() {
 		// Under test:      BuildOfficeUser
 		// Set up:          Create an officeUser and pass in specified emails
@@ -55,7 +59,7 @@ func (suite *MakerSuite) TestBuildOfficeUser() {
 		suite.False(officeUser.User.Active)
 	})
 }
-func (suite *MakerSuite) TestBuildOfficeUserRoles() {
+func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 
 	suite.Run("Successful creation of TIO Office User", func() {
 
@@ -79,4 +83,65 @@ func (suite *MakerSuite) TestBuildOfficeUserRoles() {
 		suite.True(hasRole)
 	})
 
+	suite.Run("Successful creation of OfficeUser with linked User", func() {
+		// Under test:       BuildOfficeUser
+		// Set up:           Create an officeUser and pass in a precreated user
+		// Expected outcome: officeUser should link in the precreated user
+
+		user := BuildUser(suite.DB(), []Customization{
+			{
+				Model: models.User{
+					CurrentAdminSessionID: "breathe",
+				},
+			},
+		}, nil)
+		officeUser := BuildOfficeUser(suite.DB(), []Customization{
+			{
+				Model:    user,
+				LinkOnly: true,
+			},
+		}, []Trait{
+			GetTraitOfficeUserEmail,
+		})
+		// Check that the linked user was used
+		suite.Equal(user.ID, *officeUser.UserID)
+		suite.Equal(user.ID, officeUser.User.ID)
+		suite.Equal("breathe", officeUser.User.CurrentAdminSessionID)
+		suite.False(officeUser.Active)
+
+	})
+	suite.Run("Successful creation of OfficeUser with forced id User", func() {
+		// Under test:       BuildOfficeUser
+		// Set up:           Create an officeUser and pass in a precreated user
+		// Expected outcome: officeUser and User should be created with specified emails
+		defaultLoginGovEmail := "first.last@login.gov.test"
+		uuid := uuid.FromStringOrNil("6f97d298-1502-4d8c-9472-f8b5b2a63a10")
+		officeUser := BuildOfficeUser(suite.DB(), []Customization{
+			{
+				Model: models.User{
+					ID: uuid,
+				},
+			},
+		}, []Trait{
+			GetTraitOfficeUserEmail,
+		})
+		// Check that the forced ID was used
+		suite.Equal(uuid, *officeUser.UserID)
+		suite.Equal(uuid, officeUser.User.ID)
+
+		// Check that id can be found in DB
+		foundUser := models.User{}
+		err := suite.DB().Find(&foundUser, uuid)
+		suite.NoError(err)
+
+		// Check that email was applied to user
+		suite.NotContains(defaultLoginGovEmail, officeUser.User.LoginGovEmail)
+		suite.Equal(officeUser.Email, officeUser.User.LoginGovEmail)
+	})
+
+	suite.Run("Successful creation of stubbed OfficeUser with forced id User", func() {
+		// Under test:       BuildOfficeUser
+		// Set up:           Create an officeUser and pass in a precreated user
+		// Expected outcome: officeUser and User should be created with specified emails
+	})
 }
