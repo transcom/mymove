@@ -1,0 +1,64 @@
+description: Signed certification
+type: object
+properties:
+  id:
+    description: The ID of the signed certification.
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  submittingUserId:
+    description: The ID of the user that signed.
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  moveId:
+    description: The ID of the move associated with this signed certification.
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  ppmId:
+    description: The ID of the PPM shipment associated with this signed certification, if any.
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+    x-nullable: true
+    x-omitempty: false
+  certificationType:
+    $ref: 'SignedCertificationType.yaml'
+  certificationText:
+    description: Full text that the customer agreed to and signed.
+    type: string
+  signature:
+    description: The signature that the customer provided.
+    type: string
+  date:
+    description: Date that the customer signed the certification.
+    type: string
+    format: date
+  createdAt:
+    type: string
+    format: date-time
+    readOnly: true
+  updatedAt:
+    type: string
+    format: date-time
+    readOnly: true
+  eTag:
+    description: A hash that should be used as the "If-Match" header for any updates.
+    type: string
+    readOnly: true
+required:
+  - id
+  - submittingUserId
+  - moveId
+  - certificationType
+  - certificationText
+  - signature
+  - date
+  - createdAt
+  - updatedAt
+  - eTag

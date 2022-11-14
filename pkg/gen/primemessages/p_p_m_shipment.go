@@ -169,7 +169,7 @@ type PPMShipment struct {
 	// Required: true
 	Status PPMShipmentStatus `json:"status"`
 
-	// The timestamp of when the customer submitted their move to the counselor.
+	// The timestamp of when the customer submitted their PPM documentation to the counselor for review.
 	// Format: date-time
 	SubmittedAt *strfmt.DateTime `json:"submittedAt"`
 

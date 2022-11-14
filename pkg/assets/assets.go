@@ -4,7 +4,7 @@ import (
 	"embed"
 )
 
-//go:embed notifications paperwork
+//go:embed notifications paperwork sql_scripts
 var embeddedFiles embed.FS
 
 // Asset loads and returns the asset for the given path (relative to the "pkg/assets" directory). It returns an error if
