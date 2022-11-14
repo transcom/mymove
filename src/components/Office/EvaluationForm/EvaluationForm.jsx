@@ -160,6 +160,11 @@ const EvaluationForm = ({
       violations = values.violationsObserved === 'yes';
     }
 
+    let observedDate;
+    if (values.observedDate !== 'Invalid date') {
+      observedDate = formatDateForSwagger(values.observedDate);
+    }
+
     const body = {
       ...existingReportFields,
       location: evaluationLocation,
@@ -171,7 +176,7 @@ const EvaluationForm = ({
       inspectionDate: formatDateForSwagger(values.inspectionDate),
       evaluationLengthMinutes: evalMinutes,
       travelTimeMinutes: travelMinutes,
-      observedDate: formatDateForSwagger(values.observedDate),
+      observedDate,
     };
 
     await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
