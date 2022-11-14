@@ -61,8 +61,10 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                 <h2>Set {setNumber}</h2>
                 <FormGroup>
                   <Fieldset>
-                    <legend>Who does this pro-gear belongs to?</legend>
-                    <Hint className={ppmStyles.hint}>You have to separate yours and your spouse&apos;s pro-gear.</Hint>
+                    <label htmlFor="selfProGear" className={classnames('usa-label', styles.descriptionTextField)}>
+                      Who does this pro-gear belong to?
+                      <Hint className={styles.hint}>You have to separate yours and your spouse&apos;s pro-gear.</Hint>
+                    </label>
                     <Field
                       as={Radio}
                       id="ownerOfProGearSelf"
@@ -90,7 +92,7 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                         label="Brief description of the pro-gear"
                         labelHint={
                           <Hint className={styles.hint}>
-                            Examples of pro-gear includes specialized apparel and government issued equipment. Check the{' '}
+                            Examples of pro-gear include specialized apparel and government&ndash;issued equipment.
                             {jtr} for examples of pro-gear.
                           </Hint>
                         }
