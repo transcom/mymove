@@ -4211,6 +4211,23 @@ func init() {
         "$ref": "#/definitions/DutyLocationPayload"
       }
     },
+    "Entitlement": {
+      "type": "object",
+      "properties": {
+        "proGear": {
+          "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearSpouse": {
+          "description": "Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
+        }
+      }
+    },
     "Error": {
       "type": "object",
       "required": [
@@ -5291,6 +5308,9 @@ func init() {
         },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "entitlement": {
+          "$ref": "#/definitions/Entitlement"
         },
         "grade": {
           "type": "string",
@@ -12210,6 +12230,23 @@ func init() {
         "$ref": "#/definitions/DutyLocationPayload"
       }
     },
+    "Entitlement": {
+      "type": "object",
+      "properties": {
+        "proGear": {
+          "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearSpouse": {
+          "description": "Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
+        }
+      }
+    },
     "Error": {
       "type": "object",
       "required": [
@@ -13303,6 +13340,9 @@ func init() {
         },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "entitlement": {
+          "$ref": "#/definitions/Entitlement"
         },
         "grade": {
           "type": "string",
