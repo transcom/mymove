@@ -32,7 +32,7 @@ export { default as updateMTOServiceItem } from './UpdateMTOServiceItem/updateMT
 export { default as updateMTOShipment } from './UpdateMTOShipment/updateMTOShipment';
 export { default as updateMTOShipmentAgent } from './UpdateMTOShipment/updateMTOShipmentAgent';
 export { default as updateMTOShipmentDeprecatePaymentRequest } from './UpdateMTOShipment/updateMTOShipmentDeprecatePaymentRequest';
-export { default as reweighPaymentRequest } from './reweighPaymentRequest';
+export { default as reweighPaymentRequest } from './UpdateReweigh/updatePaymentRequest';
 export { default as updateOrder } from './UpdateOrders/updateOrder';
 export { default as updatePaymentRequest } from './UpdatePaymentRequest/updatePaymentRequest';
 export { default as updatePaymentRequestJobRunner } from './UpdatePaymentRequest/updatePaymentRequestJobRunner';
