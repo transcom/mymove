@@ -6,10 +6,26 @@
   ul {
     @include u-padding-left(2.5);
     @include u-margin-top(0);
+    @include u-margin-bottom(0);
     @include u-font-size('body', 'xs');
   }
 
-  p:last-of-type {
+  p:nth-of-type(1){
     @include u-margin-bottom(0);
+  }
+
+  h2 {
+    @include u-margin-top(4);
+    @include u-margin-bottom(4);
+  }
+
+  p:nth-of-type(2), p:nth-of-type(3) {
+    @include u-margin-top(0);
+    @include u-margin-bottom(0);
+  }
+
+  p:last-of-type {
+    @include u-margin-top(4);
+    @include u-margin-bottom(4);
   }
 }

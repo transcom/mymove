@@ -76,7 +76,10 @@ const About = () => {
               </Alert>
             )}
             <div className={closingPageStyles['closing-section']}>
-              <p>Finish moving this PPM before you start documenting it.</p>
+              <p>
+                <b>Finish moving this PPM before you start documenting it.</b>
+              </p>
+              <h2>How to complete your PPM</h2>
               <p>To complete your PPM, you will:</p>
               <ul>
                 <li>Upload weight tickets for each trip</li>
@@ -85,6 +88,19 @@ const About = () => {
                 <li>Upload any other documentation (such as proof of ownership for a trailer, if you used your own)</li>
                 <li>Complete your PPM to send it to a counselor for review</li>
               </ul>
+              <h2>About your final payment</h2>
+              <p>Your final payment will be:</p>
+              <ul>
+                <li>based on your final incentive</li>
+                <li>modified by expenses submitted (authorized expenses reduce your tax burden)</li>
+                <li>minus any taxes withheld (the IRS considers your incentive to be taxable income)</li>
+                <li>plus any reimbursements you receive</li>
+              </ul>
+              <p>
+                Verified expenses reduce the taxable income you report to the IRS on form W-2. They may not be claimed
+                again as moving expenses. Federal tax withholding will be deducted from the profit (entitlement less
+                eligible operating expenses.)
+              </p>
             </div>
             <AboutForm
               mtoShipment={mtoShipment}
