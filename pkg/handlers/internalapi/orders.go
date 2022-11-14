@@ -67,7 +67,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 
 	var dBAuthorizedWeight *int64
 	dBAuthorizedWeight = nil
-	var entitlement internalmessages.OrdersEntitlement
+	var entitlement internalmessages.Entitlement
 	if order.Entitlement != nil {
 		dBAuthorizedWeight = swag.Int64(int64(*order.Entitlement.AuthorizedWeight()))
 		entitlement.ProGear = swag.Int64(int64(order.Entitlement.ProGearWeight))

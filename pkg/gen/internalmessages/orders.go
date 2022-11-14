@@ -32,7 +32,7 @@ type Orders struct {
 	DepartmentIndicator *DeptIndicator `json:"department_indicator,omitempty"`
 
 	// entitlement
-	Entitlement *OrdersEntitlement `json:"entitlement,omitempty"`
+	Entitlement *Entitlement `json:"entitlement,omitempty"`
 
 	// grade
 	// Example: O-6
@@ -728,48 +728,6 @@ func (m *Orders) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (m *Orders) UnmarshalBinary(b []byte) error {
 	var res Orders
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
-// OrdersEntitlement orders entitlement
-//
-// swagger:model OrdersEntitlement
-type OrdersEntitlement struct {
-
-	// pro gear
-	// Example: 2000
-	ProGear *int64 `json:"proGear,omitempty"`
-
-	// pro gear spouse
-	// Example: 500
-	ProGearSpouse *int64 `json:"proGearSpouse,omitempty"`
-}
-
-// Validate validates this orders entitlement
-func (m *OrdersEntitlement) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this orders entitlement based on context it is used
-func (m *OrdersEntitlement) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *OrdersEntitlement) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *OrdersEntitlement) UnmarshalBinary(b []byte) error {
-	var res OrdersEntitlement
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

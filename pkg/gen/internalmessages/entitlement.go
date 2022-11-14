@@ -17,11 +17,13 @@ import (
 // swagger:model Entitlement
 type Entitlement struct {
 
-	// pro gear
+	// Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank
+	//
 	// Example: 2000
 	ProGear *int64 `json:"proGear,omitempty"`
 
-	// pro gear spouse
+	// Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank
+	//
 	// Example: 500
 	ProGearSpouse *int64 `json:"proGearSpouse,omitempty"`
 }

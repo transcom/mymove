@@ -1829,16 +1829,7 @@ definitions:
         example: 7000
         x-nullable: true
       entitlement:
-        type: object
-        properties:
-          proGear:
-            type: integer
-            example: 2000
-            x-nullable: true
-          proGearSpouse:
-            type: integer
-            example: 500
-            x-nullable: true
+        $ref: '#/definitions/Entitlement'
     required:
       - id
       - service_member_id
@@ -1858,10 +1849,16 @@ definitions:
         type: integer
         example: 2000
         x-nullable: true
+        description: >
+          Pro-gear weight limit as set by an Office user, distinct from the
+          service member's default weight allotment determined by rank
       proGearSpouse:
         type: integer
         example: 500
         x-nullable: true
+        description: >
+          Spouse's pro-gear weight limit as set by an Office user, distinct from
+          the service member's default weight allotment determined by rank
   CreateUpdateOrders:
     type: object
     properties:
@@ -2158,7 +2155,7 @@ definitions:
         description: zip code, international allowed
         format: zip
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: '''90210'' or ''N15 3NL'''
       postal_code_type:
         type: string
         enum:
