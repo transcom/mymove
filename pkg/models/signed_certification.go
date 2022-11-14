@@ -30,7 +30,7 @@ const (
 	SignedCertificationTypeSHIPMENT SignedCertificationType = "SHIPMENT"
 )
 
-var signedCertifications = []string{
+var AllowedSignedCertificationTypes = []string{
 	string(SignedCertificationTypePPMPAYMENT),
 	string(SignedCertificationTypeSHIPMENT),
 }
@@ -53,32 +53,20 @@ type SignedCertification struct {
 // SignedCertifications is not required by pop and may be deleted
 type SignedCertifications []SignedCertification
 
-// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
-func (s *SignedCertification) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	var ptrCertificationType *string
-	if s.CertificationType != nil {
-		certificationType := string(*s.CertificationType)
-		ptrCertificationType = &certificationType
-	}
-
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate,
+// pop.ValidateAndUpdate) method. This should contain validation that is for data integrity. Business validation should
+// occur in service objects.
+func (s *SignedCertification) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.StringIsPresent{Field: s.CertificationText, Name: "CertificationText"},
-		&validators.StringIsPresent{Field: s.Signature, Name: "Signature"},
-		&OptionalStringInclusion{Field: ptrCertificationType, Name: "CertificationType", List: signedCertifications},
+		&validators.UUIDIsPresent{Name: "SubmittingUserID", Field: s.SubmittingUserID},
+		&validators.UUIDIsPresent{Name: "MoveID", Field: s.MoveID},
+		&OptionalUUIDIsPresent{Name: "PersonallyProcuredMoveID", Field: s.PersonallyProcuredMoveID},
+		&OptionalUUIDIsPresent{Name: "PpmID", Field: s.PpmID},
+		&OptionalStringInclusion{Name: "CertificationType", Field: (*string)(s.CertificationType), List: AllowedSignedCertificationTypes},
+		&validators.StringIsPresent{Name: "CertificationText", Field: s.CertificationText},
+		&validators.StringIsPresent{Name: "Signature", Field: s.Signature},
+		&validators.TimeIsPresent{Name: "Date", Field: s.Date},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (s *SignedCertification) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (s *SignedCertification) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }
 
 // DEPRECATED - This can be removed when the PPM Shipment Summary Worksheet is updated

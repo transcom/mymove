@@ -388,7 +388,15 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 
 	suite.MustSave(&move.Orders)
 	moveRouter := moverouter.NewMoveRouter()
-	moveRouter.Submit(suite.AppContextForTest(), &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			SubmittingUserID: newServiceMember.UserID,
+			MoveID:           move.ID,
+		},
+		Stub: true,
+	})
+	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+	suite.NoError(err)
 	suite.MustSave(&move)
 
 	resAddress := fakeAddressPayload()
