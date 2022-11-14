@@ -86,6 +86,10 @@
   width: 480px;
 }
 
+.showOptional{
+  @include u-width(358px);
+}
+
 .title {
   h3 {
     @include u-margin-bottom(1);
