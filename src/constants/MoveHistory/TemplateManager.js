@@ -1,4 +1,3 @@
-import detailsTypes from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import undefinedEvent from 'constants/MoveHistory/EventTemplates/NullEvent/undefined';
 import * as eventTemplates from 'constants/MoveHistory/EventTemplates';
 
@@ -8,7 +7,6 @@ const registerTemplate = ({
   action,
   eventName,
   tableName,
-  detailsType = detailsTypes.PLAIN_TEXT,
   getEventNameDisplay = () => {
     return 'Undefined event type';
   },
@@ -26,7 +24,6 @@ const registerTemplate = ({
   eventType.action = action;
   eventType.eventName = eventName;
   eventType.tableName = tableName;
-  eventType.detailsType = detailsType;
   eventType.getEventNameDisplay = getEventNameDisplay;
   eventType.getDetailsPlainText = getDetailsPlainText;
   eventType.getStatusDetails = getStatusDetails;
