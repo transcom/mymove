@@ -15,7 +15,7 @@ import {
   selectPPMEstimateRange,
   selectPPMSitEstimate,
   selectReimbursementById,
-  selectEntitlementsForLoggedInUser,
+  selectWeightAllotmentsForLoggedInUser,
   selectWeightTicketAndIndexById,
 } from './selectors';
 
@@ -1659,7 +1659,7 @@ describe('selectReimbursementById', () => {
   });
 });
 
-describe('selectEntitlementsForLoggedInUser', () => {
+describe('selectWeightAllotmentsForLoggedInUser', () => {
   describe('when I have dependents', () => {
     describe('when my spouse has pro gear', () => {
       it('should include spouse progear', () => {
@@ -1696,7 +1696,7 @@ describe('selectEntitlementsForLoggedInUser', () => {
           },
         };
 
-        expect(selectEntitlementsForLoggedInUser(testState)).toEqual({
+        expect(selectWeightAllotmentsForLoggedInUser(testState)).toEqual({
           pro_gear: 2000,
           pro_gear_spouse: 500,
           sum: 10500,
@@ -1740,7 +1740,7 @@ describe('selectEntitlementsForLoggedInUser', () => {
           },
         };
 
-        expect(selectEntitlementsForLoggedInUser(testState)).toEqual({
+        expect(selectWeightAllotmentsForLoggedInUser(testState)).toEqual({
           pro_gear: 2000,
           pro_gear_spouse: 0,
           sum: 10000,
@@ -1785,7 +1785,7 @@ describe('selectEntitlementsForLoggedInUser', () => {
         },
       };
 
-      expect(selectEntitlementsForLoggedInUser(testState)).toEqual({
+      expect(selectWeightAllotmentsForLoggedInUser(testState)).toEqual({
         pro_gear: 2000,
         pro_gear_spouse: 0,
         sum: 7000,

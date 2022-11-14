@@ -227,41 +227,26 @@ export function selectReimbursementById(state, reimbursementId) {
   return state.entities?.reimbursements?.[`${reimbursementId}`] || null;
 }
 
-export const selectEntitlementsForLoggedInUser = createSelector(
+export const selectWeightAllotmentsForLoggedInUser = createSelector(
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
   (serviceMember, orders) => {
-    const entitlement = {
+    const weightAllotment = {
       pro_gear: serviceMember.weight_allotment?.pro_gear_weight,
       pro_gear_spouse: orders?.spouse_has_pro_gear ? serviceMember.weight_allotment?.pro_gear_weight_spouse : 0,
     };
 
     if (orders?.has_dependents) {
-      entitlement.weight = serviceMember.weight_allotment?.total_weight_self_plus_dependents;
+      weightAllotment.weight = serviceMember.weight_allotment?.total_weight_self_plus_dependents;
     } else {
-      entitlement.weight = serviceMember.weight_allotment?.total_weight_self;
+      weightAllotment.weight = serviceMember.weight_allotment?.total_weight_self;
     }
 
-    entitlement.sum = [entitlement.weight, entitlement.pro_gear, entitlement.pro_gear_spouse].reduce(
+    weightAllotment.sum = [weightAllotment.weight, weightAllotment.pro_gear, weightAllotment.pro_gear_spouse].reduce(
       (acc, num) => acc + num,
       0,
     );
 
-    return entitlement;
-  },
-);
-
-export const selectEntitlementForServiceMember = createSelector(
-  selectServiceMemberFromLoggedInUser,
-  selectCurrentOrders,
-  (serviceMember, orders) => {
-    let entitlement = {
-      proGear: serviceMember.weight_allotment?.pro_gear_weight,
-      proGearSpouse: serviceMember.weight_allotment?.pro_gear_weight_spouse,
-    };
-    if (orders?.entitlement) {
-      entitlement = orders?.entitlement;
-    }
-    return entitlement;
+    return weightAllotment;
   },
 );
