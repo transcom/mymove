@@ -1,15 +1,13 @@
 package query
 
 import (
-	"embed"
 	"fmt"
+
+	"github.com/transcom/mymove/pkg/assets"
 )
 
-//go:embed sql_scripts/*
-var queries embed.FS
-
 func GetSQLQueryByName(fileName string) (string, error) {
-	sql, err := queries.ReadFile("sql_scripts/" + fileName + ".sql")
+	sql, err := assets.Asset("sql_scripts/" + fileName + ".sql")
 
 	if err != nil {
 		return "", err

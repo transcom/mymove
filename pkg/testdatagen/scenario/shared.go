@@ -384,8 +384,11 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 			ID: uuid.FromStringOrNil("d733fe2f-b08d-434a-ad8d-551f4d597b03"),
 		},
 	})
-
-	err := moveRouter.Submit(appCtx, &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		Stub: true,
+	})
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -1433,8 +1436,11 @@ func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUpload
 	}
 
 	move, _ := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
-
-	err := moveRouter.Submit(appCtx, &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		Stub: true,
+	})
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 
 	if err != nil {
 		log.Panic(err)
@@ -2101,8 +2107,11 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 	}
 
 	move, _ := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
-
-	err := moveRouter.Submit(appCtx, &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		Stub: true,
+	})
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -2127,8 +2136,11 @@ func createMoveWithHHGMissingOrdersInfo(appCtx appcontext.AppContext, moveRouter
 	order.DepartmentIndicator = nil
 	order.OrdersTypeDetail = nil
 	testdatagen.MustSave(db, &order)
-
-	err := moveRouter.Submit(appCtx, &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		Stub: true,
+	})
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -2511,7 +2523,11 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 	})
 
 	if opts.moveStatus == models.MoveStatusSUBMITTED {
-		err := moveRouter.Submit(appCtx, &move)
+		newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+			Move: move,
+			Stub: true,
+		})
+		err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 		if err != nil {
 			log.Panic(err)
 		}
@@ -2663,8 +2679,11 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 	})
 
 	move := shipment.MoveTaskOrder
-
-	submissionErr := moveRouter.Submit(appCtx, &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		Stub: true,
+	})
+	submissionErr := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
 	}
@@ -2870,8 +2889,11 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	})
 
 	move := shipment.MoveTaskOrder
-
-	submissionErr := moveRouter.Submit(appCtx, &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		Stub: true,
+	})
+	submissionErr := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
 	}
@@ -3175,8 +3197,11 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		},
 		Move: move,
 	})
-
-	submissionErr := moveRouter.Submit(appCtx, &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		Stub: true,
+	})
+	submissionErr := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
 	}
@@ -4789,8 +4814,11 @@ func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRoute
 		},
 		Move: move,
 	})
-
-	err := moveRouter.Submit(appCtx, &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		Stub: true,
+	})
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -4831,8 +4859,11 @@ func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, moveRouter
 		},
 		Move: move,
 	})
-
-	err := moveRouter.Submit(appCtx, &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		Stub: true,
+	})
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -6263,8 +6294,11 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 		},
 	})
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipmentForReweigh, unit.Pound(1541))
-
-	err := moveRouter.Submit(appCtx, &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		Stub: true,
+	})
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -6310,8 +6344,11 @@ func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userU
 			MoveTaskOrderID:      move.ID,
 		},
 	})
-
-	err := moveRouter.Submit(appCtx, &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		Stub: true,
+	})
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -6357,8 +6394,11 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 			MoveTaskOrderID:      move.ID,
 		},
 	})
-
-	err := moveRouter.Submit(appCtx, &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		Stub: true,
+	})
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -6402,8 +6442,11 @@ func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, us
 			MoveTaskOrderID:   move.ID,
 		},
 	})
-
-	err := moveRouter.Submit(appCtx, &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		Stub: true,
+	})
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -6479,8 +6522,11 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 			MoveTaskOrderID:   move.ID,
 		},
 	})
-
-	err := moveRouter.Submit(appCtx, &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		Stub: true,
+	})
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}

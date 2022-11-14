@@ -1,0 +1,11 @@
+description: >
+  The type of signed certification:
+    - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are
+        ready to submit their documentation for review. When they submit, they will be asked to sign certifying the
+        information is correct.
+    - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.
+type: string
+enum:
+  - PPM_PAYMENT
+  - SHIPMENT
+readOnly: true

@@ -45,7 +45,7 @@ type MoveRouter interface {
 	Cancel(appCtx appcontext.AppContext, reason string, move *models.Move) error
 	CompleteServiceCounseling(appCtx appcontext.AppContext, move *models.Move) error
 	SendToOfficeUser(appCtx appcontext.AppContext, move *models.Move) error
-	Submit(appCtx appcontext.AppContext, move *models.Move) error
+	Submit(appCtx appcontext.AppContext, move *models.Move, newSignedCertification *models.SignedCertification) error
 }
 
 // MoveWeights is the exported interface for flagging a move with an excess weight risk
