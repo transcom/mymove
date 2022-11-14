@@ -10,7 +10,6 @@ const registerTemplate = ({
   getEventNameDisplay = () => {
     return 'Undefined event type';
   },
-  getDetailsLabeledDetails = null,
   getLabeledPaymentRequestDetails = null,
   getDetails = null,
 }) => {
@@ -20,7 +19,6 @@ const registerTemplate = ({
   eventType.tableName = tableName;
   eventType.getEventNameDisplay = getEventNameDisplay;
   eventType.getLabeledPaymentRequestDetails = getLabeledPaymentRequestDetails;
-  eventType.getDetailsLabeledDetails = getDetailsLabeledDetails;
   eventType.getDetails = getDetails;
 
   // Used for matching properties on Events when building an Event Template
