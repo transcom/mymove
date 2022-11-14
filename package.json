@@ -13,7 +13,7 @@
     "connected-react-router": "^6.9.3",
     "core-js": "^3.26.0",
     "customize-cra": "^1.0.0",
-    "deep-object-diff": "^1.1.7",
+    "deep-object-diff": "^1.1.9",
     "eslint-plugin-react": "^7.31",
     "filepond": "^4.30.4",
     "filepond-plugin-file-validate-size": "^2.2.7",
