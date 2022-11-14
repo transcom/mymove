@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 
-import EvaluationReportTable from './EvaluationReportTable';
+import EvaluationReportTable from './QAEReportTable';
 import ShipmentQAEReportHeader from './ShipmentQAEReportHeader';
-import styles from './ShipmentEvaluationReports.module.scss';
+import styles from './ShipmentQAEReports.module.scss';
 
 import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 
-const ShipmentEvaluationReports = ({
+const ShipmentQAEReports = ({
   shipments,
   reports,
   moveCode,
@@ -54,7 +54,7 @@ const ShipmentEvaluationReports = ({
   );
 };
 
-ShipmentEvaluationReports.propTypes = {
+ShipmentQAEReports.propTypes = {
   reports: PropTypes.arrayOf(EvaluationReportShape),
   shipments: PropTypes.arrayOf(ShipmentShape),
   moveCode: PropTypes.string.isRequired,
@@ -62,9 +62,9 @@ ShipmentEvaluationReports.propTypes = {
   grade: PropTypes.string.isRequired,
   destinationDutyLocationPostalCode: PropTypes.string.isRequired,
 };
-ShipmentEvaluationReports.defaultProps = {
+ShipmentQAEReports.defaultProps = {
   reports: [],
   shipments: [],
 };
 
-export default ShipmentEvaluationReports;
+export default ShipmentQAEReports;

@@ -1,14 +1,14 @@
 import React from 'react';
 
-import ShipmentEvaluationReports from './ShipmentEvaluationReports';
+import ShipmentQAEReports from './ShipmentQAEReports';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 
 export default {
-  title: 'Office Components/ShipmentEvaluationReports',
-  component: ShipmentEvaluationReports,
+  title: 'Office Components/ShipmentQAEReports',
+  component: ShipmentQAEReports,
   decorators: [
     (Story, context) => {
       // Dont wrap with permissions for the read only tests
@@ -109,18 +109,18 @@ const reports = [
 
 export const empty = () => (
   <div className="officeApp">
-    <ShipmentEvaluationReports reports={[]} />
+    <ShipmentQAEReports reports={[]} />
   </div>
 );
 
 export const single = () => (
   <div className="officeApp">
-    <ShipmentEvaluationReports shipments={shipments} reports={reports} />
+    <ShipmentQAEReports shipments={shipments} reports={reports} />
   </div>
 );
 
 export const singleReadOnly = () => (
   <div className="officeApp">
-    <ShipmentEvaluationReports shipments={shipments} reports={reports} />
+    <ShipmentQAEReports shipments={shipments} reports={reports} />
   </div>
 );
