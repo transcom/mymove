@@ -12,7 +12,7 @@ export { default as createOrders } from './CreateOrders/createOrders';
 export { default as createEntitlements } from './CreateOrders/createEntitlements';
 export { default as createMoves } from './CreateOrders/createMoves';
 export { default as createPaymentRequest } from './CreatePaymentRequest/createPaymentRequest';
-export { default as createPaymentRequestReweighUpdate } from './createPaymentRequestReweighUpdate';
+export { default as createPaymentRequestReweighUpdate } from './UpdateReweigh/createPaymentRequestReweighUpdate';
 export { default as createPaymentRequestShipmentUpdate } from './UpdateMTOShipment/createPaymentRequestShipmentUpdate';
 export { default as createReweighRequestWeightUpdate } from './UpdateMTOShipment/createReweighRequestWeightUpdate';
 export { default as createStandardServiceItem } from './ApproveShipment/createStandardServiceItem';
