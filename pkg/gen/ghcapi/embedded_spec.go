@@ -3002,6 +3002,12 @@ func init() {
             "description": "filters the status of the move",
             "name": "status",
             "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "filters the ppm status of the move",
+            "name": "ppmCloseout",
+            "in": "query"
           }
         ],
         "responses": {
@@ -12745,6 +12751,12 @@ func init() {
             },
             "description": "filters the status of the move",
             "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "filters the ppm status of the move",
+            "name": "ppmCloseout",
             "in": "query"
           }
         ],

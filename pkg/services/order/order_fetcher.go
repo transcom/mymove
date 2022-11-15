@@ -9,6 +9,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -119,6 +120,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"MTOServiceItems",
 			"ShipmentGBLOC",
 			"OriginDutyLocationGBLOC",
+			"MTOShipments.PPMShipment",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
@@ -132,6 +134,18 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			Where("show = ?", swag.Bool(true)).
 			Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
+		if params.PPMCloseout != nil {
+			appCtx.Logger().Debug("PPMCloseout not nil", zap.Bool("PPMCloseout", *params.PPMCloseout))
+			if *params.PPMCloseout {
+				appCtx.Logger().Debug("PPMCloseout true")
+				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
+					Where("ppm_shipments.status = ?", models.PPMShipmentStatusNeedsPaymentApproval)
+			} else {
+				appCtx.Logger().Debug("PPMCloseout false")
+				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
+					Where("ppm_shipments.status <> ?", models.PPMShipmentStatusNeedsPaymentApproval)
+			}
+		}
 	}
 
 	for _, option := range options {

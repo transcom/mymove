@@ -2495,6 +2495,10 @@ paths:
             enum:
               - NEEDS SERVICE COUNSELING
               - SERVICE COUNSELING COMPLETED
+        - in: query
+          name: ppmCloseout
+          type: boolean
+          description: filters the ppm status of the move
       responses:
         '200':
           description: Successfully returned all moves matching the criteria

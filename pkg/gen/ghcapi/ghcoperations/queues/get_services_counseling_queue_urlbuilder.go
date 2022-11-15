@@ -25,6 +25,7 @@ type GetServicesCounselingQueueURL struct {
 	OriginGBLOC        *string
 	Page               *int64
 	PerPage            *int64
+	PpmCloseout        *bool
 	RequestedMoveDate  *string
 	Sort               *string
 	Status             []string
@@ -134,6 +135,14 @@ func (o *GetServicesCounselingQueueURL) Build() (*url.URL, error) {
 	}
 	if perPageQ != "" {
 		qs.Set("perPage", perPageQ)
+	}
+
+	var ppmCloseoutQ string
+	if o.PpmCloseout != nil {
+		ppmCloseoutQ = swag.FormatBool(*o.PpmCloseout)
+	}
+	if ppmCloseoutQ != "" {
+		qs.Set("ppmCloseout", ppmCloseoutQ)
 	}
 
 	var requestedMoveDateQ string
