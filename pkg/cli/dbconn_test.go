@@ -1,21 +1,11 @@
 package cli
 
-import (
-	"os"
-)
-
 func (suite *cliTestSuite) TestConfigDatabase() {
 	suite.Setup(InitDatabaseFlags, []string{})
 	suite.NoError(CheckDatabase(suite.viper, suite.logger))
 }
 
 func (suite *cliTestSuite) TestInitDatabase() {
-
-	if os.Getenv("TEST_ACC_INIT_DATABASE") != "1" {
-		suite.logger.Info("skipping TestInitDatabase")
-		return
-	}
-
 	suite.Setup(InitDatabaseFlags, []string{})
 	conn, err := InitDatabase(suite.viper, nil, suite.logger)
 	suite.NoError(err)
@@ -25,4 +15,21 @@ func (suite *cliTestSuite) TestInitDatabase() {
 func (suite *cliTestSuite) TestConfigDatabaseRetry() {
 	suite.Setup(InitDatabaseRetryFlags, []string{})
 	suite.NoError(CheckDatabaseRetry(suite.viper))
+}
+
+func (suite *cliTestSuite) TestPingPopConnectionOk() {
+	suite.Setup(InitDatabaseFlags, []string{})
+	conn, err := InitDatabase(suite.viper, nil, suite.logger)
+	suite.NoError(err)
+	suite.NotNil(conn)
+	suite.NoError(PingPopConnection(conn, suite.logger))
+}
+
+func (suite *cliTestSuite) TestPingPopConnectionFail() {
+	// intentionally misconfigure the db so the ping will fail
+	suite.Setup(InitDatabaseFlags, []string{"--" + DbNameFlag, "missingdb"})
+	conn, err := InitDatabase(suite.viper, nil, suite.logger)
+	suite.NoError(err)
+	suite.NotNil(conn)
+	suite.Error(PingPopConnection(conn, suite.logger))
 }
