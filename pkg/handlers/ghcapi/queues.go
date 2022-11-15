@@ -193,7 +193,6 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				PPMCloseout:        params.PpmCloseout,
 			}
 
-			// this is fine. too uses same function but will obv not go down this code path
 			if len(params.Status) == 0 {
 				ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
 			} else {
