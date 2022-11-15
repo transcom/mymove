@@ -248,3 +248,16 @@ export const selectWeightAllotmentsForLoggedInUser = createSelector(
     return weightAllotment;
   },
 );
+
+export const selectProGearEntitlements = (state) => {
+  const orders = selectCurrentOrders(state);
+  return orders?.entitlement || null;
+  // switch (proGearOwnerIsSelf) {
+  //   case true:
+  //     return orders.entitlement.proGear;
+  //   case false:
+  //     return orders.entitlement.spouseProGear;
+  //   default:
+  //     return null;
+  // }
+};

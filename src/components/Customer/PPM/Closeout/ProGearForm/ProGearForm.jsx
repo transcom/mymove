@@ -1,4 +1,5 @@
 import React, { createRef } from 'react';
+import { connect } from 'react-redux';
 import * as Yup from 'yup';
 import { Field, Formik } from 'formik';
 import { func, number } from 'prop-types';
@@ -6,6 +7,8 @@ import { Button, Form, Link, Radio } from '@trussworks/react-uswds';
 import { FormGroup } from '@material-ui/core';
 import classnames from 'classnames';
 
+import { formatWeight } from 'utils/formatters';
+import { selectProGearEntitlements } from 'store/entities/selectors';
 import Fieldset from 'shared/Fieldset';
 import { ProGearTicketShape } from 'types/shipment';
 import { CheckboxField } from 'components/form/fields/CheckboxField';
@@ -28,8 +31,18 @@ const validationSchema = Yup.object().shape({
 
 const proGearDocumentRef = createRef();
 
-const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onUploadComplete, onUploadDelete }) => {
+const ProGearForm = ({
+  proGear,
+  setNumber,
+  onSubmit,
+  onBack,
+  onCreateUpload,
+  onUploadComplete,
+  onUploadDelete,
+  proGearEntitlements,
+}) => {
   const { selfProGear, document, proGearWeight, description, missingWeightTicket } = proGear || {};
+
   let proGearValue;
   if (selfProGear === true) {
     proGearValue = 'true';
@@ -51,9 +64,19 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
       Joint Travel Regulations (JTR)
     </Link>
   );
+
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ handleSubmit, isValid, isSubmitting, values, ...formikProps }) => {
+      {({ handleSubmit, isValid, isSubmitting, setFieldValue, values, ...formikProps }) => {
+        const entitlement = () => {
+          if (values.selfProGear === 'true') {
+            return formatWeight(proGearEntitlements.proGear);
+          }
+          if (values.selfProGear === 'false') {
+            return formatWeight(proGearEntitlements.proGearSpouse);
+          }
+          return null;
+        };
         return (
           <div className={classnames(ppmStyles.formContainer, styles.ProGearForm)}>
             <Form className={classnames(ppmStyles.form, styles.form)}>
@@ -93,7 +116,8 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                         labelHint={
                           <Hint className={styles.hint}>
                             Examples of pro-gear include specialized apparel and government&ndash;issued equipment.
-                            {jtr} for examples of pro-gear.
+                            <br />
+                            Check the {jtr} for examples of pro-gear.
                           </Hint>
                         }
                         id="description"
@@ -105,7 +129,7 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                         defaultValue="0"
                         name="proGearWeight"
                         label="Shipment's pro-gear weight"
-                        labelHint={<Hint className={styles.hint}>Your maximum allowance is X,XXX lbs.</Hint>}
+                        labelHint={<Hint className={styles.hint}>Your maximum allowance is {entitlement()}.</Hint>}
                         id="proGearWeight"
                         mask={Number}
                         scale={0} // digits after point, 0 for integers
@@ -184,4 +208,11 @@ ProGearForm.defaultProps = {
   },
 };
 
-export default ProGearForm;
+const mapStateToProps = (state) => {
+  const proGearEntitlements = selectProGearEntitlements(state);
+  return {
+    proGearEntitlements,
+  };
+};
+
+export default connect(mapStateToProps)(ProGearForm);
