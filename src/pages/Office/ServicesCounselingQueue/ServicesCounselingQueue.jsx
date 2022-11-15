@@ -112,22 +112,48 @@ const ServicesCounselingQueue = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  let counseling = true;
+  let ppmCloseout = false;
+
+  if (history.location.pathname === '/PPM-closeout') {
+    ppmCloseout = true;
+    counseling = false;
+  }
   return (
     // TODO: Pull out header count and add new move button
     <div className={styles.ServicesCounselingQueue}>
-      <TableQueue
-        showFilters
-        showPagination
-        manualSortBy
-        defaultCanSort
-        defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
-        disableMultiSort
-        disableSortBy={false}
-        columns={columns()}
-        title="Moves"
-        handleClick={handleClick}
-        useQueries={useServicesCounselingQueueQueries}
-      />
+      {ppmCloseout && (
+        <TableQueue
+          showTabs
+          showFilters
+          showPagination
+          manualSortBy
+          defaultCanSort
+          defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
+          disableMultiSort
+          disableSortBy={false}
+          columns={columns()}
+          title="DAMoves"
+          handleClick={handleClick}
+          useQueries={useServicesCounselingQueueQueries}
+        />
+      )}
+      {counseling && (
+        <TableQueue
+          showTabs
+          showFilters
+          showPagination
+          manualSortBy
+          defaultCanSort
+          defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
+          disableMultiSort
+          disableSortBy={false}
+          columns={columns()}
+          title="Moves"
+          handleClick={handleClick}
+          useQueries={useServicesCounselingQueueQueries}
+        />
+      )}
     </div>
   );
 };
