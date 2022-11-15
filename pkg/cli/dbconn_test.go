@@ -10,6 +10,7 @@ func (suite *cliTestSuite) TestInitDatabase() {
 	conn, err := InitDatabase(suite.viper, nil, suite.logger)
 	suite.NoError(err)
 	suite.NotNil(conn)
+	defer conn.Close()
 }
 
 func (suite *cliTestSuite) TestConfigDatabaseRetry() {
@@ -22,6 +23,7 @@ func (suite *cliTestSuite) TestPingPopConnectionOk() {
 	conn, err := InitDatabase(suite.viper, nil, suite.logger)
 	suite.NoError(err)
 	suite.NotNil(conn)
+	defer conn.Close()
 	suite.NoError(PingPopConnection(conn, suite.logger))
 }
 
@@ -31,5 +33,6 @@ func (suite *cliTestSuite) TestPingPopConnectionFail() {
 	conn, err := InitDatabase(suite.viper, nil, suite.logger)
 	suite.NoError(err)
 	suite.NotNil(conn)
+	defer conn.Close()
 	suite.Error(PingPopConnection(conn, suite.logger))
 }
