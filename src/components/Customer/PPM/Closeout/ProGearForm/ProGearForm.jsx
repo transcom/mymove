@@ -21,14 +21,6 @@ import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 
-const validationSchema = Yup.object().shape({
-  selfProGear: Yup.bool().required('Required'),
-  proGearDocument: Yup.object().nullable(),
-  proGearWeight: Yup.number().required('Required').min(0, 'Enter a weight 0 lbs or greater'),
-  description: Yup.string().required('Required'),
-  missingWeightTicket: Yup.string(),
-});
-
 const proGearDocumentRef = createRef();
 
 const ProGearForm = ({
@@ -42,6 +34,25 @@ const ProGearForm = ({
   proGearEntitlements,
 }) => {
   const { selfProGear, document, proGearWeight, description, missingWeightTicket } = proGear || {};
+
+  const validationSchema = Yup.object().shape({
+    selfProGear: Yup.bool().required('Required'),
+    proGearDocument: Yup.object().nullable(),
+    proGearWeight: Yup.number()
+      .required('Required')
+      .min(0, 'Enter a weight 0 lbs or greater')
+      .when('selfProGear', (selfProGearField, schema) => {
+        if (selfProGearField === null) {
+          return schema;
+        }
+        if (selfProGearField) {
+          return schema.max(proGearEntitlements.proGear);
+        }
+        return schema.max(proGearEntitlements.proGearSpouse);
+      }),
+    description: Yup.string().required('Required'),
+    missingWeightTicket: Yup.string(),
+  });
 
   let proGearValue;
   if (selfProGear === true) {
@@ -68,14 +79,14 @@ const ProGearForm = ({
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ handleSubmit, isValid, isSubmitting, setFieldValue, values, ...formikProps }) => {
-        const entitlement = () => {
+        const getEntitlement = () => {
+          if (values.selfProGear === null) {
+            return null;
+          }
           if (values.selfProGear === 'true') {
-            return formatWeight(proGearEntitlements.proGear);
+            return proGearEntitlements.proGear;
           }
-          if (values.selfProGear === 'false') {
-            return formatWeight(proGearEntitlements.proGearSpouse);
-          }
-          return null;
+          return proGearEntitlements.proGearSpouse;
         };
         return (
           <div className={classnames(ppmStyles.formContainer, styles.ProGearForm)}>
@@ -129,7 +140,11 @@ const ProGearForm = ({
                         defaultValue="0"
                         name="proGearWeight"
                         label="Shipment's pro-gear weight"
-                        labelHint={<Hint className={styles.hint}>Your maximum allowance is {entitlement()}.</Hint>}
+                        labelHint={
+                          <Hint className={styles.hint}>
+                            Your maximum allowance is {formatWeight(getEntitlement())}.
+                          </Hint>
+                        }
                         id="proGearWeight"
                         mask={Number}
                         scale={0} // digits after point, 0 for integers
