@@ -2373,13 +2373,8 @@ func init() {
         ],
         "summary": "Creates a pro-gear weight ticket",
         "operationId": "createProGearWeightTicket",
-        "parameters": [
-          {
-            "$ref": "#/parameters/ifMatch"
-          }
-        ],
         "responses": {
-          "200": {
+          "201": {
             "description": "returns a new pro-gear weight ticket object",
             "schema": {
               "$ref": "#/definitions/ProGearWeightTicket"
@@ -2436,6 +2431,9 @@ func init() {
             "$ref": "#/parameters/ppmShipmentId"
           },
           {
+            "$ref": "#/parameters/proGearWeightTicketId"
+          },
+          {
             "name": "updateProGearWeightTicket",
             "in": "body",
             "required": true,
@@ -2445,7 +2443,7 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "returns an updated pro-gear weight ticket object",
             "schema": {
               "$ref": "#/definitions/ProGearWeightTicket"
@@ -2473,15 +2471,7 @@ func init() {
             "$ref": "#/responses/ServerError"
           }
         }
-      },
-      "parameters": [
-        {
-          "$ref": "#/parameters/ppmShipmentId"
-        },
-        {
-          "$ref": "#/parameters/proGearWeightTicketId"
-        }
-      ]
+      }
     },
     "/ppm-shipments/{ppmShipmentId}/resubmit-ppm-shipment-documentation/{signedCertificationId}": {
       "put": {
@@ -10390,17 +10380,8 @@ func init() {
         ],
         "summary": "Creates a pro-gear weight ticket",
         "operationId": "createProGearWeightTicket",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
-          "200": {
+          "201": {
             "description": "returns a new pro-gear weight ticket object",
             "schema": {
               "$ref": "#/definitions/ProGearWeightTicket"
@@ -10492,6 +10473,14 @@ func init() {
             "required": true
           },
           {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the pro-gear weight ticket",
+            "name": "proGearWeightTicketId",
+            "in": "path",
+            "required": true
+          },
+          {
             "name": "updateProGearWeightTicket",
             "in": "body",
             "required": true,
@@ -10501,7 +10490,7 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "returns an updated pro-gear weight ticket object",
             "schema": {
               "$ref": "#/definitions/ProGearWeightTicket"
@@ -10550,25 +10539,7 @@ func init() {
             }
           }
         }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "UUID of the PPM shipment",
-          "name": "ppmShipmentId",
-          "in": "path",
-          "required": true
-        },
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "UUID of the pro-gear weight ticket",
-          "name": "proGearWeightTicketId",
-          "in": "path",
-          "required": true
-        }
-      ]
+      }
     },
     "/ppm-shipments/{ppmShipmentId}/resubmit-ppm-shipment-documentation/{signedCertificationId}": {
       "put": {

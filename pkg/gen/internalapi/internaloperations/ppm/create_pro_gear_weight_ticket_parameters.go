@@ -31,12 +31,6 @@ type CreateProGearWeightTicketParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
-
-	  Required: true
-	  In: header
-	*/
-	IfMatch string
 	/*UUID of the PPM shipment
 	  Required: true
 	  In: path
@@ -53,10 +47,6 @@ func (o *CreateProGearWeightTicketParams) BindRequest(r *http.Request, route *mi
 
 	o.HTTPRequest = r
 
-	if err := o.bindIfMatch(r.Header[http.CanonicalHeaderKey("If-Match")], true, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
 	rPpmShipmentID, rhkPpmShipmentID, _ := route.Params.GetOK("ppmShipmentId")
 	if err := o.bindPpmShipmentID(rPpmShipmentID, rhkPpmShipmentID, route.Formats); err != nil {
 		res = append(res, err)
@@ -64,26 +54,6 @@ func (o *CreateProGearWeightTicketParams) BindRequest(r *http.Request, route *mi
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-// bindIfMatch binds and validates parameter IfMatch from header.
-func (o *CreateProGearWeightTicketParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	if !hasKey {
-		return errors.Required("If-Match", "header", rawData)
-	}
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: true
-
-	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
-		return err
-	}
-	o.IfMatch = raw
-
 	return nil
 }
 

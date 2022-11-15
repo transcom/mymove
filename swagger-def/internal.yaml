@@ -4275,8 +4275,6 @@ paths:
         - application/json
       produces:
         - application/json
-      parameters:
-        - $ref: 'parameters/ppmShipmentId.yaml'
       responses:
         '201':
           description: returns a new pro-gear weight ticket object
@@ -4312,13 +4310,14 @@ paths:
       parameters:
         - $ref: 'parameters/ifMatch.yaml'
         - $ref: 'parameters/ppmShipmentId.yaml'
+        - $ref: 'parameters/proGearWeightTicketId.yaml'
         - in: body
           name: updateProGearWeightTicket
           required: true
           schema:
             $ref: '#/definitions/UpdateProGearWeightTicket'
       responses:
-        '200':
+        '201':
           description: returns an updated pro-gear weight ticket object
           schema:
             $ref: 'definitions/ProGearWeightTicket.yaml'

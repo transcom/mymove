@@ -5447,10 +5447,8 @@ paths:
         - application/json
       produces:
         - application/json
-      parameters:
-        - $ref: '#/parameters/ifMatch'
       responses:
-        '200':
+        '201':
           description: returns a new pro-gear weight ticket object
           schema:
             $ref: '#/definitions/ProGearWeightTicket'
@@ -5469,9 +5467,6 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}:
-    parameters:
-      - $ref: '#/parameters/ppmShipmentId'
-      - $ref: '#/parameters/proGearWeightTicketId'
     patch:
       summary: Updates a pro-gear weight ticket
       description: >
@@ -5489,13 +5484,14 @@ paths:
       parameters:
         - $ref: '#/parameters/ifMatch'
         - $ref: '#/parameters/ppmShipmentId'
+        - $ref: '#/parameters/proGearWeightTicketId'
         - in: body
           name: updateProGearWeightTicket
           required: true
           schema:
             $ref: '#/definitions/UpdateProGearWeightTicket'
       responses:
-        '200':
+        '201':
           description: returns an updated pro-gear weight ticket object
           schema:
             $ref: '#/definitions/ProGearWeightTicket'

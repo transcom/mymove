@@ -58,9 +58,9 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 
 		response := subtestData.handler.Handle(subtestData.params)
 
-		suite.IsType(&progearops.CreateProGearWeightTicketOK{}, response)
+		suite.IsType(&progearops.CreateProGearWeightTicketCreated{}, response)
 
-		createdProgear := response.(*progearops.CreateProGearWeightTicketOK).Payload
+		createdProgear := response.(*progearops.CreateProGearWeightTicketCreated).Payload
 
 		suite.NotEmpty(createdProgear.ID.String())
 		suite.NotNil(createdProgear.DocumentID.String())
@@ -190,9 +190,9 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 
 		response := subtestData.handler.Handle(params)
 
-		suite.IsType(&progearops.UpdateProGearWeightTicketOK{}, response)
+		suite.IsType(&progearops.UpdateProGearWeightTicketCreated{}, response)
 
-		updatedProgear := response.(*progearops.UpdateProGearWeightTicketOK).Payload
+		updatedProgear := response.(*progearops.UpdateProGearWeightTicketCreated).Payload
 		suite.Equal(subtestData.progear.ID.String(), updatedProgear.ID.String())
 		suite.Equal(params.UpdateProGearWeightTicket.Description, *updatedProgear.Description)
 	})

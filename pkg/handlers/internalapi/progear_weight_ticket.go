@@ -54,7 +54,7 @@ func (h CreateProGearWeightTicketHandler) Handle(params progearops.CreateProGear
 			if returnPayload == nil {
 				return progearops.NewCreateProGearWeightTicketInternalServerError(), err
 			}
-			return progearops.NewCreateProGearWeightTicketOK().WithPayload(returnPayload), nil
+			return progearops.NewCreateProGearWeightTicketCreated().WithPayload(returnPayload), nil
 		})
 }
 
@@ -132,6 +132,6 @@ func (h UpdateProGearWeightTicketHandler) Handle(params progearops.UpdateProGear
 
 			}
 			returnPayload := payloads.ProGearWeightTicket(h.FileStorer(), updateProgear)
-			return progearops.NewUpdateProGearWeightTicketOK().WithPayload(returnPayload), nil
+			return progearops.NewUpdateProGearWeightTicketCreated().WithPayload(returnPayload), nil
 		})
 }

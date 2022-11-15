@@ -13,15 +13,15 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
-// CreateProGearWeightTicketOKCode is the HTTP code returned for type CreateProGearWeightTicketOK
-const CreateProGearWeightTicketOKCode int = 200
+// CreateProGearWeightTicketCreatedCode is the HTTP code returned for type CreateProGearWeightTicketCreated
+const CreateProGearWeightTicketCreatedCode int = 201
 
 /*
-CreateProGearWeightTicketOK returns a new pro-gear weight ticket object
+CreateProGearWeightTicketCreated returns a new pro-gear weight ticket object
 
-swagger:response createProGearWeightTicketOK
+swagger:response createProGearWeightTicketCreated
 */
-type CreateProGearWeightTicketOK struct {
+type CreateProGearWeightTicketCreated struct {
 
 	/*
 	  In: Body
@@ -29,27 +29,27 @@ type CreateProGearWeightTicketOK struct {
 	Payload *internalmessages.ProGearWeightTicket `json:"body,omitempty"`
 }
 
-// NewCreateProGearWeightTicketOK creates CreateProGearWeightTicketOK with default headers values
-func NewCreateProGearWeightTicketOK() *CreateProGearWeightTicketOK {
+// NewCreateProGearWeightTicketCreated creates CreateProGearWeightTicketCreated with default headers values
+func NewCreateProGearWeightTicketCreated() *CreateProGearWeightTicketCreated {
 
-	return &CreateProGearWeightTicketOK{}
+	return &CreateProGearWeightTicketCreated{}
 }
 
-// WithPayload adds the payload to the create pro gear weight ticket o k response
-func (o *CreateProGearWeightTicketOK) WithPayload(payload *internalmessages.ProGearWeightTicket) *CreateProGearWeightTicketOK {
+// WithPayload adds the payload to the create pro gear weight ticket created response
+func (o *CreateProGearWeightTicketCreated) WithPayload(payload *internalmessages.ProGearWeightTicket) *CreateProGearWeightTicketCreated {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the create pro gear weight ticket o k response
-func (o *CreateProGearWeightTicketOK) SetPayload(payload *internalmessages.ProGearWeightTicket) {
+// SetPayload sets the payload to the create pro gear weight ticket created response
+func (o *CreateProGearWeightTicketCreated) SetPayload(payload *internalmessages.ProGearWeightTicket) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *CreateProGearWeightTicketOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *CreateProGearWeightTicketCreated) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(200)
+	rw.WriteHeader(201)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {
