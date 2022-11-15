@@ -2,7 +2,7 @@ version: '3'
 
 services:
   database:
-    image: postgres:12.7
+    image: public.ecr.aws/docker/library/postgres:12.7
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=mysecretpassword
@@ -15,7 +15,7 @@ services:
         awslogs-stream-prefix: mymove
 
   redis:
-    image: redis:5.0.6
+    image: public.ecr.aws/docker/library/redis:5.0.14
     logging:
       driver: awslogs
       options:
