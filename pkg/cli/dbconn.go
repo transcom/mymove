@@ -388,24 +388,29 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 		return nil, err
 	}
 
-	dbWithPinger, ok := connection.Store.(pinger)
+	// Return the open connection
+	return connection, nil
+}
+
+// PingPopConnection pings the database and returns an error if it is
+// not reachable
+func PingPopConnection(c *pop.Connection, logger *zap.Logger) error {
+	dbWithPinger, ok := c.Store.(pinger)
 	if !ok {
 		logger.Error("Failed to convert to pinger interface")
-		return nil, errors.New("Failed to convert to pinger interface")
+		return errors.New("Failed to convert to pinger interface")
 	}
 
 	// Make the db ping
 	logger.Info("Starting database ping....")
-	err = dbWithPinger.Ping()
+	err := dbWithPinger.Ping()
 	if err != nil {
 		logger.Warn("Failed to ping DB connection", zap.Error(err))
-		return nil, err
+		return err
 	}
 
 	logger.Info("...DB ping successful!")
-
-	// Return the open connection
-	return connection, nil
+	return nil
 }
 
 type pinger interface {

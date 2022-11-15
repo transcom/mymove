@@ -366,9 +366,14 @@ func initializeDB(v *viper.Viper, logger *zap.Logger,
 	}
 
 	// Create a connection to the DB
-	dbConnection, errDbConnection := cli.InitDatabase(v, dbCreds, logger)
-	if errDbConnection != nil {
-		logger.Warn("DB is not ready for connections", zap.Error(errDbConnection))
+	dbConnection, err := cli.InitDatabase(v, dbCreds, logger)
+	if err != nil {
+		logger.Fatal("Invalid DB Configuration", zap.Error(err))
+	}
+
+	err = cli.PingPopConnection(dbConnection, logger)
+	if err != nil {
+		logger.Warn("DB is not ready for connections", zap.Error(err))
 	}
 
 	return dbConnection
