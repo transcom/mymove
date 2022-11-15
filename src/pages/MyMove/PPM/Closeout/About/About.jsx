@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
+import classnames from 'classnames';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
@@ -75,7 +76,7 @@ const About = () => {
                 {errorMessage}
               </Alert>
             )}
-            <div className={closingPageStyles['closing-section']}>
+            <div className={classnames(closingPageStyles['closing-section'], closingPageStyles['about-ppm'])}>
               <p>Finish moving this PPM before you start documenting it.</p>
               <h2>How to complete your PPM</h2>
               <p>To complete your PPM, you will:</p>
