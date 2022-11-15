@@ -366,16 +366,16 @@ func initializeDB(v *viper.Viper, logger *zap.Logger,
 	}
 
 	// Create a connection to the DB
-	dbConnection, errDbConnection := cli.InitDatabase(v, dbCreds, logger)
-	if errDbConnection != nil {
-		if dbConnection == nil {
-			// No connection object means that the configuraton failed to validate and we should kill server startup
-			logger.Fatal("Invalid DB Configuration", zap.Error(errDbConnection))
-		} else {
-			// A valid connection object that still has an error indicates that the DB is not up but we
-			// can proceed (this avoids a failure loop when deploying containers).
-			logger.Warn("DB is not ready for connections", zap.Error(errDbConnection))
-		}
+	dbConnection, err := cli.InitDatabase(v, dbCreds, logger)
+	if err != nil {
+		logger.Fatal("Invalid DB Configuration", zap.Error(err))
+	}
+
+	err = cli.PingPopConnection(dbConnection, logger)
+	if err != nil {
+		// if the db is not up yet, the server can still start. This
+		// prevents a failure loop when deploying containers
+		logger.Warn("DB is not ready for connections", zap.Error(err))
 	}
 
 	return dbConnection

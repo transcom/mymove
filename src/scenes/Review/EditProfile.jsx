@@ -17,7 +17,7 @@ import scrollToTop from 'shared/scrollToTop';
 import {
   selectCurrentMove,
   selectCurrentOrders,
-  selectEntitlementsForLoggedInUser,
+  selectWeightAllotmentsForLoggedInUser,
   selectHasCurrentPPM,
   selectMoveIsInDraft,
   selectServiceMemberFromLoggedInUser,
@@ -191,7 +191,7 @@ function mapStateToProps(state) {
     isPpm: selectHasCurrentPPM(state),
     schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
     schemaAffiliation: get(state, 'swaggerInternal.spec.definitions.Affiliation', {}),
-    entitlement: selectEntitlementsForLoggedInUser(state),
+    entitlement: selectWeightAllotmentsForLoggedInUser(state),
   };
 }
 

@@ -2359,6 +2359,120 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets": {
+      "post": {
+        "description": "Creates a PPM shipment's pro-gear weight ticket. This will only contain the minimum necessary fields for a\npro-gear weight ticket. Data should be filled in using the patch endpoint.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a pro-gear weight ticket",
+        "operationId": "createProGearWeightTicket",
+        "responses": {
+          "201": {
+            "description": "returns a new pro-gear weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/ProGearWeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
+      "patch": {
+        "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a pro-gear weight ticket",
+        "operationId": "updateProGearWeightTicket",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ifMatch"
+          },
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "$ref": "#/parameters/proGearWeightTicketId"
+          },
+          {
+            "name": "updateProGearWeightTicket",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateProGearWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "returns an updated pro-gear weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/ProGearWeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/resubmit-ppm-shipment-documentation/{signedCertificationId}": {
       "put": {
         "description": "Updates customer signature along with the text they agreed to, and then routes the PPM shipment to the service\ncounselor queue for review.\n",
@@ -4211,6 +4325,23 @@ func init() {
         "$ref": "#/definitions/DutyLocationPayload"
       }
     },
+    "Entitlement": {
+      "type": "object",
+      "properties": {
+        "proGear": {
+          "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearSpouse": {
+          "description": "Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
+        }
+      }
+    },
     "Error": {
       "type": "object",
       "required": [
@@ -5292,6 +5423,9 @@ func init() {
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
+        "entitlement": {
+          "$ref": "#/definitions/Entitlement"
+        },
         "grade": {
           "type": "string",
           "x-nullable": true,
@@ -6271,13 +6405,11 @@ func init() {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
       "required": [
-        "id",
         "ppmShipmentId",
         "createdAt",
         "updatedAt",
         "documentId",
-        "document",
-        "eTag"
+        "document"
       ],
       "properties": {
         "belongsToSelf": {
@@ -7298,6 +7430,27 @@ func init() {
         }
       }
     },
+    "UpdateProGearWeightTicket": {
+      "type": "object",
+      "properties": {
+        "belongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean"
+        },
+        "description": {
+          "description": "Describes the pro-gear that was moved.",
+          "type": "string"
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean"
+        },
+        "weight": {
+          "description": "Weight of the vehicle not including the pro-gear.",
+          "type": "integer"
+        }
+      }
+    },
     "UpdateServiceMemberBackupContactPayload": {
       "type": "object",
       "required": [
@@ -7702,6 +7855,14 @@ func init() {
       "format": "uuid",
       "description": "UUID of the PPM shipment",
       "name": "ppmShipmentId",
+      "in": "path",
+      "required": true
+    },
+    "proGearWeightTicketId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the pro-gear weight ticket",
+      "name": "proGearWeightTicketId",
       "in": "path",
       "required": true
     },
@@ -10225,6 +10386,181 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets": {
+      "post": {
+        "description": "Creates a PPM shipment's pro-gear weight ticket. This will only contain the minimum necessary fields for a\npro-gear weight ticket. Data should be filled in using the patch endpoint.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a pro-gear weight ticket",
+        "operationId": "createProGearWeightTicket",
+        "responses": {
+          "201": {
+            "description": "returns a new pro-gear weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/ProGearWeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
+      "patch": {
+        "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a pro-gear weight ticket",
+        "operationId": "updateProGearWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the pro-gear weight ticket",
+            "name": "proGearWeightTicketId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "updateProGearWeightTicket",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateProGearWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "returns an updated pro-gear weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/ProGearWeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/resubmit-ppm-shipment-documentation/{signedCertificationId}": {
       "put": {
         "description": "Updates customer signature along with the text they agreed to, and then routes the PPM shipment to the service\ncounselor queue for review.\n",
@@ -12210,6 +12546,23 @@ func init() {
         "$ref": "#/definitions/DutyLocationPayload"
       }
     },
+    "Entitlement": {
+      "type": "object",
+      "properties": {
+        "proGear": {
+          "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearSpouse": {
+          "description": "Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
+        }
+      }
+    },
     "Error": {
       "type": "object",
       "required": [
@@ -13304,6 +13657,9 @@ func init() {
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
+        "entitlement": {
+          "$ref": "#/definitions/Entitlement"
+        },
         "grade": {
           "type": "string",
           "x-nullable": true,
@@ -14287,13 +14643,11 @@ func init() {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
       "required": [
-        "id",
         "ppmShipmentId",
         "createdAt",
         "updatedAt",
         "documentId",
-        "document",
-        "eTag"
+        "document"
       ],
       "properties": {
         "belongsToSelf": {
@@ -15318,6 +15672,28 @@ func init() {
         }
       }
     },
+    "UpdateProGearWeightTicket": {
+      "type": "object",
+      "properties": {
+        "belongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean"
+        },
+        "description": {
+          "description": "Describes the pro-gear that was moved.",
+          "type": "string"
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean"
+        },
+        "weight": {
+          "description": "Weight of the vehicle not including the pro-gear.",
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
     "UpdateServiceMemberBackupContactPayload": {
       "type": "object",
       "required": [
@@ -15729,6 +16105,14 @@ func init() {
       "format": "uuid",
       "description": "UUID of the PPM shipment",
       "name": "ppmShipmentId",
+      "in": "path",
+      "required": true
+    },
+    "proGearWeightTicketId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the pro-gear weight ticket",
+      "name": "proGearWeightTicketId",
       "in": "path",
       "required": true
     },
