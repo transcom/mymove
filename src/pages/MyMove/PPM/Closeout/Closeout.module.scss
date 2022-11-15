@@ -12,6 +12,7 @@
 
   p:nth-of-type(1){
     @include u-margin-bottom(0);
+    @include u-font-weight(bold);
   }
 
   h2 {

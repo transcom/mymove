@@ -76,9 +76,7 @@ const About = () => {
               </Alert>
             )}
             <div className={closingPageStyles['closing-section']}>
-              <p>
-                <b>Finish moving this PPM before you start documenting it.</b>
-              </p>
+              <p>Finish moving this PPM before you start documenting it.</p>
               <h2>How to complete your PPM</h2>
               <p>To complete your PPM, you will:</p>
               <ul>
