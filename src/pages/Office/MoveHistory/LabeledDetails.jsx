@@ -41,7 +41,6 @@ const LabeledDetails = ({ historyRecord }) => {
   let shipmentDisplay = '';
 
   // Check for shipment_type to use it as a header for the row
-  // TODO: [ MB-12182 ] This will include a shipment ID label in the future
   if ('shipment_type' in changedValuesToUse) {
     shipmentDisplay = shipmentTypes[changedValuesToUse.shipment_type];
     shipmentDisplay += ` shipment #${changedValuesToUse.shipment_id_display}`;
