@@ -67,6 +67,7 @@ func checkIfPackageCanBeSkipped(packageName string) bool {
 	// at the package level and does not include subpackages.
 	allowedPackages := map[string]bool{
 		"appcontext":   true,
+		"cli":          true,
 		"db":           true,
 		"migrate":      true,
 		"models":       true,
