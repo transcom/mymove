@@ -80,16 +80,6 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 		suite.IsType(&progearops.CreateProGearWeightTicketBadRequest{}, response)
 	})
 
-	suite.Run("POST failure -401 - Unauthorized - unauthenticated user", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx, false)
-
-		response := subtestData.handler.Handle(subtestData.params)
-
-		suite.IsType(&progearops.CreateProGearWeightTicketUnauthorized{}, response)
-	})
-
 	suite.Run("POST failure - 403- permission denied - wrong application", func() {
 		appCtx := suite.AppContextForTest()
 

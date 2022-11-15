@@ -51,6 +51,8 @@ func checkRequiredFields() progearWeightTicketValidator {
 			if (*newProgearWeightTicket.Status == models.PPMDocumentStatusExcluded || *newProgearWeightTicket.Status == models.PPMDocumentStatusRejected) && (newProgearWeightTicket.Reason == nil || *newProgearWeightTicket.Reason == "") {
 				verrs.Add("Reason", "A reason must be provided when the status is EXCLUDED or REJECTED")
 			}
+		} else if newProgearWeightTicket.Status == nil && (newProgearWeightTicket.Reason != nil && *newProgearWeightTicket.Reason != "") {
+			verrs.Add("Status", "A Status is expected when a reason has been provided")
 		}
 
 		return verrs
