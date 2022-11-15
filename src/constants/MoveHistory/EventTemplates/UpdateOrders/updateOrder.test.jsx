@@ -56,39 +56,20 @@ describe('when given an Order update history record', () => {
   });
   describe('When given a specific set of details for updated orders', () => {
     it.each([
-      ['Status', ': SUBMITTED'],
-      ['Report by date', ': 12 Oct 2022'],
-      ['Orders date', ': 11 Oct 2022'],
-      ['Orders type', ': Permanent Change Of Station (PCS)'],
-      ['Origin duty location name', ': Los Angeles AFB'],
-      ['New duty location name', ': Fairchild AFB'],
-      ['Dependents included', ': false'],
-      ['Rank', ': E-2'],
-    ])('displays the proper details value for %s', async (label, value) => {
-      const result = getTemplate(historyRecord.RELOCATION);
-      render(result.getDetails(historyRecord.RELOCATION));
-      expect(screen.getByText(label)).toBeInTheDocument();
-      expect(screen.getByText(value)).toBeInTheDocument();
-    });
-  });
-  describe('When given orders type is SEPARATION, it correctly displays label', () => {
-    it.each([['Date of separation', ': 12 Oct 2022']])(
-      'displays the proper details value for %s',
-      async (label, value) => {
-        const template = getTemplate(historyRecord.SEPARATION);
-        render(template.getDetails(historyRecord.SEPARATION));
-        expect(screen.getByText(label)).toBeInTheDocument();
-        expect(screen.getByText(value)).toBeInTheDocument();
-      },
-    );
-  });
-  describe('When given orders type is RETIREMENT, it correctly displays label', () => {
-    it.each([
-      ['Orders type', ': Retirement'],
-      ['Date of retirement', ': 12 Oct 2022'],
-    ])('displays the proper details value for %s', async (label, value) => {
-      const template = getTemplate(historyRecord.RETIREMENT);
-      render(template.getDetails(historyRecord.RETIREMENT));
+      ['Status', ': SUBMITTED', historyRecord.RELOCATION],
+      ['Report by date', ': 12 Oct 2022', historyRecord.RELOCATION],
+      ['Orders date', ': 11 Oct 2022', historyRecord.RELOCATION],
+      ['Orders type', ': Permanent Change Of Station (PCS)', historyRecord.RELOCATION],
+      ['Origin duty location name', ': Los Angeles AFB', historyRecord.RELOCATION],
+      ['New duty location name', ': Fairchild AFB', historyRecord.RELOCATION],
+      ['Dependents included', ': false', historyRecord.RELOCATION],
+      ['Rank', ': E-2', historyRecord.RELOCATION],
+      ['Date of separation', ': 12 Oct 2022', historyRecord.SEPARATION],
+      ['Orders type', ': Retirement', historyRecord.RETIREMENT],
+      ['Date of retirement', ': 12 Oct 2022', historyRecord.RETIREMENT],
+    ])('displays the proper details value for %s', async (label, value, record) => {
+      const result = getTemplate(record);
+      render(result.getDetails(record));
       expect(screen.getByText(label)).toBeInTheDocument();
       expect(screen.getByText(value)).toBeInTheDocument();
     });
