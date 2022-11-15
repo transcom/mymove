@@ -27,7 +27,6 @@ export { default as updateAllowance } from './UpdateAllowances/updateAllowance';
 export { default as updateBillableWeight } from './UpdateBillableWeight/updateBillableWeight';
 export { default as updateBillableWeightAsTIO } from './UpdateBillableWeight/updateBillableWeightAsTIO';
 export { default as updateBillableWeightRemarksAsTIO } from './UpdateBillableWeight/updateBillableWeightRemarksAsTIO';
-export { default as updateMoveTaskOrder } from './updateMoveTaskOrder';
 export { default as updateMoveTaskOrderStatus } from './UpdateMoveTaskOrderStatus/updateMoveTaskOrderStatus';
 export { default as updateMTOServiceItem } from './UpdateMTOServiceItem/updateMTOServiceItem';
 export { default as updateMTOShipment } from './UpdateMTOShipment/updateMTOShipment';
@@ -35,8 +34,8 @@ export { default as updateMTOShipmentAgent } from './UpdateMTOShipment/updateMTO
 export { default as updateMTOShipmentDeprecatePaymentRequest } from './UpdateMTOShipment/updateMTOShipmentDeprecatePaymentRequest';
 export { default as reweighPaymentRequest } from './reweighPaymentRequest';
 export { default as updateOrder } from './UpdateOrders/updateOrder';
-export { default as updatePaymentRequest } from './updatePaymentRequest';
-export { default as updatePaymentRequestJobRunner } from './UpdatePaymentRequestJobRunner/updatePaymentRequestJobRunner';
+export { default as updatePaymentRequest } from './UpdatePaymentRequest/updatePaymentRequest';
+export { default as updatePaymentRequestJobRunner } from './UpdatePaymentRequest/updatePaymentRequestJobRunner';
 export { default as updatePaymentRequestStatus } from './UpdatePaymentRequestStatus/updatePaymentRequestStatus';
 export { default as updateReweighWeight } from './UpdateReweigh/updateReweighWeight';
 export { default as updateServiceItemStatus } from './UpdateServiceItemStatus/updateServiceItemStatus';

@@ -1827,6 +1827,8 @@ definitions:
         type: integer
         example: 7000
         x-nullable: true
+      entitlement:
+        $ref: '#/definitions/Entitlement'
     required:
       - id
       - service_member_id
@@ -1839,6 +1841,21 @@ definitions:
       - uploaded_orders
       - created_at
       - updated_at
+  Entitlement:
+    type: object
+    properties:
+      proGear:
+        type: integer
+        example: 2000
+        x-nullable: true
+        description: >
+          Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank
+      proGearSpouse:
+        type: integer
+        example: 500
+        x-nullable: true
+        description: >
+          Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank
   CreateUpdateOrders:
     type: object
     properties:
