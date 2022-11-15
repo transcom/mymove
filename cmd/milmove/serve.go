@@ -373,6 +373,8 @@ func initializeDB(v *viper.Viper, logger *zap.Logger,
 
 	err = cli.PingPopConnection(dbConnection, logger)
 	if err != nil {
+		// if the db is not up yet, the server can still start. This
+		// prevents a failure loop when deploying containers
 		logger.Warn("DB is not ready for connections", zap.Error(err))
 	}
 
