@@ -23,11 +23,6 @@ type CreateProGearWeightTicketHandler struct {
 func (h CreateProGearWeightTicketHandler) Handle(params progearops.CreateProGearWeightTicketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			if appCtx.Session() == nil {
-				noSessionErr := apperror.NewSessionError("No user session")
-				return progearops.NewCreateProGearWeightTicketUnauthorized(), noSessionErr
-			}
-
 			if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
 				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
 				return progearops.NewCreateProGearWeightTicketForbidden(), noServiceMemberIDErr
@@ -55,6 +50,10 @@ func (h CreateProGearWeightTicketHandler) Handle(params progearops.CreateProGear
 				}
 			}
 			returnPayload := payloads.ProGearWeightTicket(h.FileStorer(), progear)
+
+			if returnPayload == nil {
+				return progearops.NewCreateProGearWeightTicketInternalServerError(), err
+			}
 			return progearops.NewCreateProGearWeightTicketOK().WithPayload(returnPayload), nil
 		})
 }

@@ -4276,9 +4276,9 @@ paths:
       produces:
         - application/json
       parameters:
-        - $ref: 'parameters/ifMatch.yaml'
+        - $ref: 'parameters/ppmShipmentId.yaml'
       responses:
-        '200':
+        '201':
           description: returns a new pro-gear weight ticket object
           schema:
             $ref: 'definitions/ProGearWeightTicket.yaml'
@@ -4297,9 +4297,6 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}:
-    parameters:
-      - $ref: 'parameters/ppmShipmentId.yaml'
-      - $ref: 'parameters/proGearWeightTicketId.yaml'
     patch:
       summary: Updates a pro-gear weight ticket
       description: |
