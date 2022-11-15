@@ -2,7 +2,7 @@ version: '3'
 
 services:
   database:
-    image: postgres:12.7
+    image: public.ecr.aws/docker/library/postgres:12.7
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=mysecretpassword
@@ -15,7 +15,7 @@ services:
         awslogs-stream-prefix: mymove
 
   redis:
-    image: redis:5.0.6
+    image: public.ecr.aws/docker/library/redis:5.0.14
     logging:
       driver: awslogs
       options:
@@ -30,6 +30,7 @@ services:
     environment:
       - DB_HOST=127.0.0.1
       - DB_DEBUG=0
+      - LOGGING_ENV
       - MIGRATION_PATH=file:///migrate/schema;file:///migrate/secure
       - MIGRATION_MANIFEST=/migrate/migrations_manifest.txt
       - MOVE_MIL_DOD_CA_CERT
@@ -63,6 +64,7 @@ services:
       - HTTP_ORDERS_SERVER_NAME=orders-${REVIEW_BASE_DOMAIN}
       - HTTP_PRIME_SERVER_NAME=prime-${REVIEW_BASE_DOMAIN}
       - IWS_RBS_HOST
+      - LOGGING_ENV
       - LOGIN_GOV_ADMIN_CLIENT_ID
       - LOGIN_GOV_CALLBACK_PROTOCOL
       - LOGIN_GOV_HOSTNAME

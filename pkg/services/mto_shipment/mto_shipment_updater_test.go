@@ -1,6 +1,7 @@
 package mtoshipment
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -1242,7 +1243,17 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.Equal(models.MTOShipmentStatusSubmitted, mtoShipment.Status)
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
-		suite.Contains(err.Error(), "Cannot approve a shipment if the move isn't approved.")
+		suite.Contains(
+			err.Error(),
+			fmt.Sprintf(
+				"Cannot approve a shipment if the move status isn't %s or %s, or if it isn't a PPM shipment with a move status of %s. The current status for the move with ID %s is %s",
+				models.MoveStatusAPPROVED,
+				models.MoveStatusAPPROVALSREQUESTED,
+				models.MoveStatusNeedsServiceCounseling,
+				submittedMTO.ID,
+				submittedMTO.Status,
+			),
+		)
 	})
 
 	suite.Run("An approved shipment can change to CANCELLATION_REQUESTED", func() {

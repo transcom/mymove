@@ -52,18 +52,14 @@ func (gre *GHCRateEngineImporter) runImports(appCtx appcontext.AppContext) error
 	}
 
 	for _, importer := range importers {
-		spinner, err := pterm.DefaultSpinner.Start(importer.action)
-		if err != nil {
-			return fmt.Errorf("failed to create pterm spinner: %w", err)
-		}
+		pterm.Println(pterm.BgGray.Sprint(importer.action))
 
-		err = importer.importFunction(appCtx)
+		err := importer.importFunction(appCtx)
 		if err != nil {
-			spinner.Fail()
 			return fmt.Errorf("importer failed: %s: %w", importer.action, err)
 		}
 
-		spinner.Success()
+		pterm.Println(pterm.BgGray.Sprint(fmt.Sprintf("Finished %s", importer.action)))
 	}
 
 	return nil

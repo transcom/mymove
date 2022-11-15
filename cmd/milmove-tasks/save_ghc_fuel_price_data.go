@@ -114,8 +114,6 @@ func saveGHCFuelPriceData(cmd *cobra.Command, args []string) error {
 	// Create a connection to the DB
 	dbConnection, err := cli.InitDatabase(v, dbCreds, logger)
 	if err != nil {
-		// No connection object means that the configuraton failed to validate and we should not startup
-		// A valid connection object that still has an error indicates that the DB is not up and we should not startup
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
