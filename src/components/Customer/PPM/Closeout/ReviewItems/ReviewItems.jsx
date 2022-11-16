@@ -27,7 +27,7 @@ const ReviewItems = ({ className, heading, renderAddButton, contents, emptyMessa
               {subheading && <div className={styles.subheading}>{subheading}</div>}
               <dl>
                 {rows.map(({ id: rowId, hideLabel, label, value }) => (
-                  <div key={`${rowId}-${id}`}>
+                  <div key={`${rowId}-${id}`} className={styles[rowId]}>
                     <dt className={classnames({ [styles.hiddenTerm]: hideLabel })} aria-hidden={hideLabel}>
                       {label}
                     </dt>

@@ -89,6 +89,13 @@
     dl {
       @include u-margin-bottom(0);
       @include u-flex(1);
+      .empty {
+        @include u-height(2);
+      }
+      .w2Address {
+        color: $base-darker;
+        @include u-font-weight(bold);
+      }
     }
 
     .actionContainer {

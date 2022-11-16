@@ -25,6 +25,31 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
             ? `Yes, $${formatCentsTruncateWhole(ppmShipment.advanceAmountRequested)}`
             : 'No',
         },
+        {
+          id: 'empty',
+          label: '',
+          value: '',
+        },
+        {
+          id: 'w2Address',
+          label: 'W-2 heading:',
+          value: 'W-2 address',
+          hideLabel: true,
+        },
+        {
+          id: 'addressLine1',
+          label: 'address line1:',
+          value: ppmShipment.w2Address?.streetAddress2
+            ? `${ppmShipment.w2Address.streetAddress1} ${ppmShipment.w2Address.streetAddress2}`
+            : ppmShipment.w2Address?.streetAddress1,
+          hideLabel: true,
+        },
+        {
+          id: 'addressLine2',
+          label: 'address line2:',
+          value: `${ppmShipment.w2Address?.city}, ${ppmShipment.w2Address?.state} ${ppmShipment.w2Address?.postalCode}`,
+          hideLabel: true,
+        },
       ],
       renderEditLink: () => <Link to={generatePath(editPath, editParams)}>Edit</Link>,
     },
