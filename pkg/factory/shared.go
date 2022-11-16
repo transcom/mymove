@@ -128,7 +128,10 @@ func setDefaultTypes(clist []Customization) {
 // setDefaultTypesTraits assigns types to all customizations in the traits
 //func setDefaultTypesTraits()
 
-// setupCustomizations prepares the customizations for the factory
+// setupCustomizations prepares the customizations customs for the factory
+// by applying and merging the traits.
+// customs is a slice that will be modified by setupCustomizations.
+//
 // - Ensures a control object has been created
 // - Assigns default types to all default customizations
 // - Merges customizations and traits

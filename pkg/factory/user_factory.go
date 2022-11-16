@@ -9,6 +9,8 @@ import (
 )
 
 // UserMaker is the base maker function to create a user
+// customs is a slice that will be modified by setupCustomizations.
+// db can be set to nil to create a stubbed model that is not stored in DB.
 func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) models.User {
 	customs = setupCustomizations(customs, traits)
 
@@ -39,6 +41,7 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 }
 
 // BuildDefaultUser creates an active user
+// db can be set to nil to create a stubbed model that is not stored in DB.
 func BuildDefaultUser(db *pop.Connection) models.User {
 	return BuildUser(db, nil, []Trait{GetTraitActiveUser})
 }
