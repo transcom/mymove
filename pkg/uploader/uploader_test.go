@@ -243,8 +243,8 @@ func (suite *UploaderSuite) TestDeleteUpload() {
 	up, err := uploader.NewUploader(suite.storer, 25*uploader.MB, models.UploadTypeUSER)
 	suite.NoError(err)
 	f, cleanup, err := suite.createFileOfArbitrarySize(uint64(5 * uploader.MB))
-	suite.NoError(err)
 	defer cleanup()
+	suite.NoError(err)
 
 	upload, verrs, err := up.CreateUpload(suite.AppContextForTest(), uploader.File{File: f}, uploader.AllowedTypesAny)
 	suite.Nil(err, "failed to create upload")
