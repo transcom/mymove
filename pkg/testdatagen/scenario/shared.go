@@ -1455,7 +1455,7 @@ func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUpload
 
 func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {
 	userID := uuid.Must(uuid.NewV4())
-	email := "needscloseout@ppm.closeout"
+	email := fmt.Sprintf("needscloseout+%s@ppm.closeout", strings.ToLower(branch.String()))
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
@@ -1518,7 +1518,7 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 
 func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {
 	userID := uuid.Must(uuid.NewV4())
-	email := "1needscloseout@ppm.closeout"
+	email := fmt.Sprintf("1needscloseout+%s@ppm.closeout", strings.ToLower(branch.String()))
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
@@ -1597,7 +1597,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 
 func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {
 	userID := uuid.Must(uuid.NewV4())
-	email := "2needcloseout@ppm.closeout"
+	email := fmt.Sprintf("2needcloseout+%s@ppm.closeout", strings.ToLower(branch.String()))
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
@@ -1676,7 +1676,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 
 func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {
 	userID := uuid.Must(uuid.NewV4())
-	email := "needscloseout@ppmHHG.closeout"
+	email := fmt.Sprintf("needscloseout+%s@ppmHHG.closeout", strings.ToLower(branch.String()))
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
