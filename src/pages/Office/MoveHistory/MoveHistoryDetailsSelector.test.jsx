@@ -30,20 +30,25 @@ describe('MoveHistoryDetailsSelector', () => {
     const historyRecord = {
       action: 'UPDATE',
       changedValues: {
-        billable_weight_cap: '200',
-        customer_remarks: 'Test customer remarks',
-        counselor_remarks: '',
+        actual_weight: '300',
+        estimated_weight: '500',
       },
-      eventName: 'updateMoveTaskOrder',
-      oldValues: { billable_: 'PPM' },
-      tableName: 'moves',
+      context: [
+        {
+          name: 'Domestic uncrating',
+          shipment_type: 'HHG',
+          shipment_id_abbr: 'a1b2c',
+        },
+      ],
+      eventName: 'updateMTOServiceItem',
+      tableName: 'mto_service_items',
     };
     it('renders the labeled details appropriately', () => {
       render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
-      expect(screen.getByText('Billable weight')).toBeInTheDocument();
-      expect(screen.getByText(200, { exact: false })).toBeInTheDocument();
-      expect(screen.getByText('Customer remarks')).toBeInTheDocument();
-      expect(screen.getByText('Test customer remarks', { exact: false })).toBeInTheDocument();
+      expect(screen.getByText('Actual weight')).toBeInTheDocument();
+      expect(screen.getByText(300, { exact: false })).toBeInTheDocument();
+      expect(screen.getByText('Estimated weight')).toBeInTheDocument();
+      expect(screen.getByText('500', { exact: false })).toBeInTheDocument();
     });
   });
 
