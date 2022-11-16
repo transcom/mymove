@@ -27,7 +27,6 @@ export { default as updateAllowance } from './UpdateAllowances/updateAllowance';
 export { default as updateBillableWeight } from './UpdateBillableWeight/updateBillableWeight';
 export { default as updateBillableWeightAsTIO } from './UpdateBillableWeight/updateBillableWeightAsTIO';
 export { default as updateBillableWeightRemarksAsTIO } from './UpdateBillableWeight/updateBillableWeightRemarksAsTIO';
-export { default as updateMoveTaskOrder } from './updateMoveTaskOrder';
 export { default as updateMoveTaskOrderStatus } from './UpdateMoveTaskOrderStatus/updateMoveTaskOrderStatus';
 export { default as updateMTOServiceItem } from './UpdateMTOServiceItem/updateMTOServiceItem';
 export { default as updateMTOShipment } from './UpdateMTOShipment/updateMTOShipment';

@@ -31,6 +31,9 @@ type Orders struct {
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"department_indicator,omitempty"`
 
+	// entitlement
+	Entitlement *Entitlement `json:"entitlement,omitempty"`
+
 	// grade
 	// Example: O-6
 	Grade *string `json:"grade,omitempty"`
@@ -133,6 +136,10 @@ func (m *Orders) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateEntitlement(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateHasDependents(formats); err != nil {
 		res = append(res, err)
 	}
@@ -227,6 +234,25 @@ func (m *Orders) validateDepartmentIndicator(formats strfmt.Registry) error {
 				return ve.ValidateName("department_indicator")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("department_indicator")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Orders) validateEntitlement(formats strfmt.Registry) error {
+	if swag.IsZero(m.Entitlement) { // not required
+		return nil
+	}
+
+	if m.Entitlement != nil {
+		if err := m.Entitlement.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("entitlement")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("entitlement")
 			}
 			return err
 		}
@@ -493,6 +519,10 @@ func (m *Orders) ContextValidate(ctx context.Context, formats strfmt.Registry) e
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateEntitlement(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateMoves(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -539,6 +569,22 @@ func (m *Orders) contextValidateDepartmentIndicator(ctx context.Context, formats
 				return ve.ValidateName("department_indicator")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("department_indicator")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Orders) contextValidateEntitlement(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Entitlement != nil {
+		if err := m.Entitlement.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("entitlement")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("entitlement")
 			}
 			return err
 		}
