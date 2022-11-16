@@ -17,7 +17,11 @@
 
 # These are raw SQL files that are embedded in the project after ADR 0073 Use
 # Templates for SQL Queries
-/pkg/services/query/sql_scripts/ @transcom/truss-db
+# NOTE: Specific queries can be excluded from truss-db ownership
+# in order to prevent teams from experiencing bottlenecks in PR reviews
+/pkg/assets/sql_scripts/ @transcom/truss-db
+# Excluded SQL files:
+/pkg/assets/sql_scripts/move_history_fetcher.sql
 
 # Require design / frontend reviews on Storybook
 /src/stories/ @transcom/truss-design

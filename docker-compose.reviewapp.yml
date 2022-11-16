@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   database_review:
-    image: postgres:12.7
+    image: public.ecr.aws/docker/library/postgres:12.7
     restart: always
     ports:
       - '6432:5432'
@@ -14,7 +14,7 @@ services:
       - /var/lib/postgresql/data
 
   redis_review:
-    image: redis:5.0.6
+    image: public.ecr.aws/docker/library/redis:5.0.14
 
   milmove_migrate_review:
     depends_on:
