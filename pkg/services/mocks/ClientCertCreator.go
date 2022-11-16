@@ -47,3 +47,18 @@ func (_m *ClientCertCreator) CreateClientCert(appCtx appcontext.AppContext, user
 
 	return r0, r1, r2
 }
+
+type mockConstructorTestingTNewClientCertCreator interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewClientCertCreator creates a new instance of ClientCertCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewClientCertCreator(t mockConstructorTestingTNewClientCertCreator) *ClientCertCreator {
+	mock := &ClientCertCreator{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
+}
