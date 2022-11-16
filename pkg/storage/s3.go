@@ -62,6 +62,7 @@ func (s *S3) Store(key string, data io.ReadSeeker, checksum string, tags *string
 }
 
 // Delete deletes an object at a specified key
+// Use with caution, deletions are disabled on our S3 buckets as per our ATO.
 func (s *S3) Delete(key string) error {
 	namespacedKey := path.Join(s.keyNamespace, key)
 
