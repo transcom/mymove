@@ -21,7 +21,7 @@ import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 
-const proGearDocumentRef = createRef();
+const documentRef = createRef();
 
 const ProGearForm = ({
   proGear,
@@ -33,41 +33,44 @@ const ProGearForm = ({
   onUploadDelete,
   proGearEntitlements,
 }) => {
-  const { selfProGear, document, proGearWeight, description, missingWeightTicket } = proGear || {};
+  const { belongsToSelf, document, weight, description, hasWeightTickets } = proGear || {};
 
   const validationSchema = Yup.object().shape({
-    selfProGear: Yup.bool().required('Required'),
-    proGearDocument: Yup.object().nullable(),
-    proGearWeight: Yup.number()
+    belongsToSelf: Yup.bool().required('Required'),
+    document: Yup.object().nullable(),
+    weight: Yup.number()
       .required('Required')
-      .min(0, 'Enter a weight 0 lbs or greater')
-      .when('selfProGear', (selfProGearField, schema) => {
-        if (selfProGearField === null) {
+      .min(0, 'Enter a weight 0 lbs or greater.')
+      .when('belongsToSelf', (belongsToSelfField, schema) => {
+        if (belongsToSelfField === null) {
           return schema;
         }
-        if (selfProGearField) {
-          return schema.max(proGearEntitlements.proGear);
+        let maximum;
+        if (belongsToSelfField) {
+          maximum = proGearEntitlements.proGear;
+        } else {
+          maximum = proGearEntitlements.proGearSpouse;
         }
-        return schema.max(proGearEntitlements.proGearSpouse);
+        return schema.max(maximum, `Pro gear weight must be less than or equal to ${formatWeight(maximum)}.`);
       }),
     description: Yup.string().required('Required'),
-    missingWeightTicket: Yup.string(),
+    hasWeightTickets: Yup.string(),
   });
 
   let proGearValue;
-  if (selfProGear === true) {
+  if (belongsToSelf === true) {
     proGearValue = 'true';
   }
-  if (selfProGear === false) {
+  if (belongsToSelf === false) {
     proGearValue = 'false';
   }
 
   const initialValues = {
-    selfProGear: proGearValue,
-    proGearDocument: document?.uploads || [],
-    proGearWeight: proGearWeight ? `${proGearWeight}` : '',
+    belongsToSelf: proGearValue,
+    document: document?.uploads || [],
+    weight: weight ? `${weight}` : '',
     description: description ? `${description}` : '',
-    missingWeightTicket: missingWeightTicket ? `${missingWeightTicket}` : '',
+    missingWeightTicket: hasWeightTickets === 'false',
   };
 
   const jtr = (
@@ -78,12 +81,12 @@ const ProGearForm = ({
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ handleSubmit, isValid, isSubmitting, setFieldValue, values, ...formikProps }) => {
+      {({ isValid, isSubmitting, handleSubmit, values, ...formikProps }) => {
         const getEntitlement = () => {
-          if (values.selfProGear === null) {
+          if (values.belongsToSelf === null) {
             return null;
           }
-          if (values.selfProGear === 'true') {
+          if (values.belongsToSelf === 'true') {
             return proGearEntitlements.proGear;
           }
           return proGearEntitlements.proGearSpouse;
@@ -95,7 +98,7 @@ const ProGearForm = ({
                 <h2>Set {setNumber}</h2>
                 <FormGroup>
                   <Fieldset>
-                    <label htmlFor="selfProGear" className={classnames('usa-label', styles.descriptionTextField)}>
+                    <label htmlFor="belongsToSelf" className={classnames('usa-label', styles.descriptionTextField)}>
                       Who does this pro-gear belong to?
                       <Hint className={styles.hint}>You have to separate yours and your spouse&apos;s pro-gear.</Hint>
                     </label>
@@ -103,22 +106,22 @@ const ProGearForm = ({
                       as={Radio}
                       id="ownerOfProGearSelf"
                       label="Me"
-                      name="selfProGear"
+                      name="belongsToSelf"
                       value="true"
-                      checked={values.selfProGear === 'true'}
-                      data-testid="selfProGear"
+                      checked={values.belongsToSelf === 'true'}
+                      data-testid="belongsToSelf"
                     />
                     <Field
                       as={Radio}
                       id="ownerOfProGearSpouse"
                       label="My spouse"
-                      name="selfProGear"
+                      name="belongsToSelf"
                       value="false"
-                      checked={values.selfProGear === 'false'}
+                      checked={values.belongsToSelf === 'false'}
                       data-testid="spouseProGear"
                     />
                   </Fieldset>
-                  {(values.selfProGear === 'true' || values.selfProGear === 'false') && (
+                  {(values.belongsToSelf === 'true' || values.belongsToSelf === 'false') && (
                     <Fieldset>
                       <h3>Description</h3>
                       <TextField
@@ -138,14 +141,14 @@ const ProGearForm = ({
                       <MaskedTextField
                         containerClassName={styles.weightField}
                         defaultValue="0"
-                        name="proGearWeight"
+                        name="weight"
                         label="Shipment's pro-gear weight"
                         labelHint={
                           <Hint className={styles.hint}>
                             Your maximum allowance is {formatWeight(getEntitlement())}.
                           </Hint>
                         }
-                        id="proGearWeight"
+                        id="weight"
                         mask={Number}
                         scale={0} // digits after point, 0 for integers
                         signed={false} // disallow negative
@@ -158,32 +161,18 @@ const ProGearForm = ({
                         name="missingWeightTicket"
                         label="I don't have weight tickets"
                       />
-                      {values.missingWeightTicket ? (
-                        <div>
-                          <WeightTicketUpload
-                            fieldName="missingProGearWeightDocument"
-                            missingWeightTicket
-                            onCreateUpload={onCreateUpload}
-                            onUploadComplete={onUploadComplete}
-                            onUploadDelete={onUploadDelete}
-                            fileUploadRef={proGearDocumentRef}
-                            values={values}
-                            formikProps={formikProps}
-                          />
-                        </div>
-                      ) : (
-                        <div>
-                          <WeightTicketUpload
-                            fieldName="proGearDocument"
-                            onCreateUpload={onCreateUpload}
-                            onUploadComplete={onUploadComplete}
-                            onUploadDelete={onUploadDelete}
-                            fileUploadRef={proGearDocumentRef}
-                            values={values}
-                            formikProps={formikProps}
-                          />
-                        </div>
-                      )}
+                      <div>
+                        <WeightTicketUpload
+                          fieldName="document"
+                          missingWeightTicket={values.missingWeightTicket}
+                          onCreateUpload={onCreateUpload}
+                          onUploadComplete={onUploadComplete}
+                          onUploadDelete={onUploadDelete}
+                          fileUploadRef={documentRef}
+                          values={values}
+                          formikProps={formikProps}
+                        />
+                      </div>
                     </Fieldset>
                   )}
                 </FormGroup>
@@ -219,7 +208,7 @@ ProGearForm.propTypes = {
 ProGearForm.defaultProps = {
   setNumber: 1,
   proGear: {
-    selfProGear: null,
+    belongsToSelf: null,
   },
 };
 

@@ -61,7 +61,7 @@ const WeightTicketUpload = ({
       return 'Upload empty weight ticket';
     }
 
-    if (name === 'proGearDocument') {
+    if (name === 'document') {
       return "Upload your pro-gear's weight tickets";
     }
 

@@ -64,7 +64,7 @@ const Review = () => {
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
   const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
-  const proGear = mtoShipment?.ppmShipment?.proGear;
+  const proGear = mtoShipment?.ppmShipment?.proGearWeightTickets;
   const expenses = mtoShipment?.ppmShipment?.movingExpenses;
 
   if (!mtoShipment) {
