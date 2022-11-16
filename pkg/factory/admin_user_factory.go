@@ -2,6 +2,7 @@ package factory
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gobuffalo/pop/v6"
 
@@ -9,7 +10,9 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-// BuildAdminUser is the base maker function to create an adminuser
+// BuildAdminUser creates an AdminUser
+// Also creates
+//   - User
 func BuildAdminUser(db *pop.Connection, customs []Customization, traits []Trait) models.AdminUser {
 	customs = setupCustomizations(customs, traits)
 
@@ -19,7 +22,7 @@ func BuildAdminUser(db *pop.Connection, customs []Customization, traits []Trait)
 		cAdminUser = result.Model.(models.AdminUser)
 	}
 
-	// Find/create the required user model
+	// Find/create the user model
 	var user models.User
 	linkOnly := false
 	result := findValidCustomization(customs, User)
@@ -52,6 +55,13 @@ func BuildAdminUser(db *pop.Connection, customs []Customization, traits []Trait)
 	return adminUser
 }
 
+// BuildDefaultAdminUser returns an admin user with appropriate email
+// Also creates
+//   - User
+func BuildDefaultAdminUser(db *pop.Connection) models.AdminUser {
+	return BuildAdminUser(db, nil, []Trait{GetTraitAdminUserEmail})
+}
+
 // ------------------------
 //        TRAITS
 // ------------------------
@@ -59,7 +69,7 @@ func BuildAdminUser(db *pop.Connection, customs []Customization, traits []Trait)
 // GetTraitAdminUserEmail helps comply with the uniqueness constraint on emails
 func GetTraitAdminUserEmail() []Customization {
 	// There's a uniqueness constraint on admin user emails so add some randomness
-	email := fmt.Sprintf("leo_spaceman_admin_%s@example.com", makeRandomString(5))
+	email := strings.ToLower(fmt.Sprintf("leo_spaceman_admin_%s@example.com", makeRandomString(5)))
 	return []Customization{
 		{
 			Model: models.User{

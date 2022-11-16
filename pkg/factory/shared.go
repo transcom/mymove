@@ -129,6 +129,16 @@ func setDefaultTypes(clist []Customization) {
 	}
 }
 
+// linkOnlyHasID ensures LinkOnly customizations have an ID
+func linkOnlyHasID(clist []Customization) error {
+	for idx := 0; idx < len(clist); idx++ {
+		if clist[idx].LinkOnly && !hasID(clist[idx].Model) {
+			return fmt.Errorf("Customization was LinkOnly but the Model had no ID. LinkOnly models must have ID")
+		}
+	}
+	return nil
+}
+
 // setDefaultTypesTraits assigns types to all customizations in the traits
 //func setDefaultTypesTraits()
 
@@ -160,12 +170,18 @@ func setupCustomizations(customs []Customization, traits []Trait) []Customizatio
 	}
 
 	// If not valid:
+	// Ensure LinkOnly customizations all have ID
+	err := linkOnlyHasID(customs)
+	if err != nil {
+		log.Panic(err)
+	}
+
 	// Merge customizations with traits (also sets default types)
 	customs = mergeCustomization(customs, traits)
+
 	// Ensure unique customizations
-	err := isUnique(customs)
+	err = isUnique(customs)
 	if err != nil {
-		controller.isValid = false
 		log.Panic(err)
 	}
 	// Store the validation result

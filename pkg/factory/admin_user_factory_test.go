@@ -5,7 +5,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *FactorySuite) TestBuildAdminUser() {
@@ -60,11 +59,24 @@ func (suite *FactorySuite) TestBuildAdminUser() {
 	})
 }
 func (suite *FactorySuite) TestBuildAdminUserExtra() {
+	// Under test:      BuildAdminUser
+	// Mocked:          None
+	// Set up:          Create a AdminUser but pass in a role
+	// Expected outcome:Created User should have the associated Role
 
 	suite.Run("Successful creation of TIO Admin User", func() {
 
-		tioRole, _ := testdatagen.LookupOrMakeRole(suite.DB(), roles.RoleTypeTIO, "Transportation Invoicing Adminr")
+		// Create the TIO Role
+		tioRole := roles.Role{
+			ID:       uuid.Must(uuid.NewV4()),
+			RoleType: roles.RoleTypeTIO,
+			RoleName: "Transportation Invoicing Officer",
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&tioRole)
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
 
+		// FUNCTION UNDER TEST
 		adminUser := BuildAdminUser(suite.DB(), []Customization{
 			{
 				Model: models.User{
@@ -75,6 +87,8 @@ func (suite *FactorySuite) TestBuildAdminUserExtra() {
 		}, []Trait{
 			GetTraitAdminUserEmail,
 		})
+
+		// VALIDATE RESULT
 		// Check that the email trait worked
 		suite.Equal(adminUser.Email, adminUser.User.LoginGovEmail)
 		suite.False(adminUser.User.Active)
@@ -112,8 +126,10 @@ func (suite *FactorySuite) TestBuildAdminUserExtra() {
 	})
 	suite.Run("Successful creation of AdminUser with forced id User", func() {
 		// Under test:       BuildAdminUser
-		// Set up:           Create an adminUser and pass in a precreated user
-		// Expected outcome: adminUser and User should be created with specified emails
+		// Set up:           Create an adminUser and pass in an ID for User
+		// Expected outcome: adminUser and User should be created
+		//                   User should have specified ID
+
 		defaultLoginGovEmail := "first.last@login.gov.test"
 		uuid := uuid.FromStringOrNil("6f97d298-1502-4d8c-9472-f8b5b2a63a10")
 		adminUser := BuildAdminUser(suite.DB(), []Customization{
