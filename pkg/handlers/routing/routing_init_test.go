@@ -11,11 +11,11 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/telemetry"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -99,7 +99,7 @@ func (suite *RoutingSuite) TestServeGHC() {
 	h, err := InitRouting(suite.AppContextForTest(), nil, rConfig, &telemetry.Config{})
 	suite.NoError(err)
 
-	user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{})
+	user := factory.BuildUser(suite.DB(), nil, nil)
 
 	// make the request without auth
 	// getting auth working here in the test is a good bit more work.
