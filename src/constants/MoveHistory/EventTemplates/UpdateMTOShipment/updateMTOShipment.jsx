@@ -1,6 +1,5 @@
 import React from 'react';
 
-import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
@@ -21,7 +20,6 @@ export default {
   action: a.UPDATE,
   eventName: o.updateMTOShipment,
   tableName: t.mto_shipments,
-  detailsType: d.LABELED,
   getEventNameDisplay: () => 'Updated shipment',
   getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
 };

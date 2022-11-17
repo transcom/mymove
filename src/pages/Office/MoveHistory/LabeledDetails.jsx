@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import styles from './LabeledDetails.module.scss';
 
@@ -37,16 +36,11 @@ const retrieveTextToDisplay = (fieldName, value) => {
   };
 };
 
-const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
-  let changedValuesToUse = historyRecord.changedValues;
+const LabeledDetails = ({ historyRecord }) => {
+  const changedValuesToUse = historyRecord.changedValues;
   let shipmentDisplay = '';
-  // run custom function to mutate changedValues to display if not null
-  if (getDetailsLabeledDetails) {
-    changedValuesToUse = getDetailsLabeledDetails(historyRecord);
-  }
 
   // Check for shipment_type to use it as a header for the row
-  // TODO: [ MB-12182 ] This will include a shipment ID label in the future
   if ('shipment_type' in changedValuesToUse) {
     shipmentDisplay = shipmentTypes[changedValuesToUse.shipment_type];
     shipmentDisplay += ` shipment #${changedValuesToUse.shipment_id_display}`;
@@ -85,12 +79,10 @@ const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
 
 LabeledDetails.propTypes = {
   historyRecord: HistoryLogRecordShape,
-  getDetailsLabeledDetails: PropTypes.func,
 };
 
 LabeledDetails.defaultProps = {
   historyRecord: {},
-  getDetailsLabeledDetails: null,
 };
 
 export default LabeledDetails;
