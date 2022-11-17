@@ -26,7 +26,7 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
             : 'No',
         },
       ],
-      renderEditLink: () => <Link to={generatePath(editPath, editParams)}>Edit</Link>,
+      renderEditLink: () => (editPath ? <Link to={generatePath(editPath, editParams)}>Edit</Link> : ''),
     },
   ];
 };
