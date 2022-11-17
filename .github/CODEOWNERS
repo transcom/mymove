@@ -19,9 +19,11 @@
 # Templates for SQL Queries
 # NOTE: Specific queries can be excluded from truss-db ownership
 # in order to prevent teams from experiencing bottlenecks in PR reviews
-/pkg/assets/sql_scripts/ @transcom/truss-db
 # Excluded SQL files:
 /pkg/assets/sql_scripts/move_history_fetcher.sql
+
+/pkg/assets/sql_scripts/ @transcom/truss-db
+
 
 # Require design / frontend reviews on Storybook
 /src/stories/ @transcom/truss-design
