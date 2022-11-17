@@ -3005,8 +3005,8 @@ func init() {
           },
           {
             "type": "boolean",
-            "description": "filters the ppm status of the move",
-            "name": "ppmCloseout",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
+            "name": "needsPPMCloseout",
             "in": "query"
           }
         ],
@@ -12755,8 +12755,8 @@ func init() {
           },
           {
             "type": "boolean",
-            "description": "filters the ppm status of the move",
-            "name": "ppmCloseout",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
+            "name": "needsPPMCloseout",
             "in": "query"
           }
         ],

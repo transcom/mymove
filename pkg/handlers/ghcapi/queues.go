@@ -190,7 +190,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				PerPage:            params.PerPage,
 				Sort:               params.Sort,
 				Order:              params.Order,
-				PPMCloseout:        params.PpmCloseout,
+				NeedsPPMCloseout:   params.NeedsPPMCloseout,
 			}
 
 			if len(params.Status) == 0 {

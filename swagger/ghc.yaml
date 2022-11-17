@@ -2582,9 +2582,11 @@ paths:
               - NEEDS SERVICE COUNSELING
               - SERVICE COUNSELING COMPLETED
         - in: query
-          name: ppmCloseout
+          name: needsPPMCloseout
           type: boolean
-          description: filters the ppm status of the move
+          description: >-
+            Only used for Services Counseling queue. If true, show PPM moves
+            that are ready for closeout. Otherwise, show all other moves.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria

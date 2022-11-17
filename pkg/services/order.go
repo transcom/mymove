@@ -57,5 +57,5 @@ type ListOrderParams struct {
 	PerPage                 *int64
 	Sort                    *string
 	Order                   *string
-	PPMCloseout             *bool
+	NeedsPPMCloseout        *bool
 }

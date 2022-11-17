@@ -20,12 +20,12 @@ type GetServicesCounselingQueueURL struct {
 	DodID              *string
 	LastName           *string
 	Locator            *string
+	NeedsPPMCloseout   *bool
 	Order              *string
 	OriginDutyLocation *string
 	OriginGBLOC        *string
 	Page               *int64
 	PerPage            *int64
-	PpmCloseout        *bool
 	RequestedMoveDate  *string
 	Sort               *string
 	Status             []string
@@ -97,6 +97,14 @@ func (o *GetServicesCounselingQueueURL) Build() (*url.URL, error) {
 		qs.Set("locator", locatorQ)
 	}
 
+	var needsPPMCloseoutQ string
+	if o.NeedsPPMCloseout != nil {
+		needsPPMCloseoutQ = swag.FormatBool(*o.NeedsPPMCloseout)
+	}
+	if needsPPMCloseoutQ != "" {
+		qs.Set("needsPPMCloseout", needsPPMCloseoutQ)
+	}
+
 	var orderQ string
 	if o.Order != nil {
 		orderQ = *o.Order
@@ -135,14 +143,6 @@ func (o *GetServicesCounselingQueueURL) Build() (*url.URL, error) {
 	}
 	if perPageQ != "" {
 		qs.Set("perPage", perPageQ)
-	}
-
-	var ppmCloseoutQ string
-	if o.PpmCloseout != nil {
-		ppmCloseoutQ = swag.FormatBool(*o.PpmCloseout)
-	}
-	if ppmCloseoutQ != "" {
-		qs.Set("ppmCloseout", ppmCloseoutQ)
 	}
 
 	var requestedMoveDateQ string

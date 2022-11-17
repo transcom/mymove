@@ -50,6 +50,10 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	Locator *string
+	/*Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.
+	  In: query
+	*/
+	NeedsPPMCloseout *bool
 	/*direction of sort order if applied
 	  In: query
 	*/
@@ -70,10 +74,6 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	PerPage *int64
-	/*filters the ppm status of the move
-	  In: query
-	*/
-	PpmCloseout *bool
 	/*filters the requested pickup date of a shipment on the move
 	  In: query
 	*/
@@ -124,6 +124,11 @@ func (o *GetServicesCounselingQueueParams) BindRequest(r *http.Request, route *m
 		res = append(res, err)
 	}
 
+	qNeedsPPMCloseout, qhkNeedsPPMCloseout, _ := qs.GetOK("needsPPMCloseout")
+	if err := o.bindNeedsPPMCloseout(qNeedsPPMCloseout, qhkNeedsPPMCloseout, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qOrder, qhkOrder, _ := qs.GetOK("order")
 	if err := o.bindOrder(qOrder, qhkOrder, route.Formats); err != nil {
 		res = append(res, err)
@@ -146,11 +151,6 @@ func (o *GetServicesCounselingQueueParams) BindRequest(r *http.Request, route *m
 
 	qPerPage, qhkPerPage, _ := qs.GetOK("perPage")
 	if err := o.bindPerPage(qPerPage, qhkPerPage, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
-	qPpmCloseout, qhkPpmCloseout, _ := qs.GetOK("ppmCloseout")
-	if err := o.bindPpmCloseout(qPpmCloseout, qhkPpmCloseout, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -247,6 +247,29 @@ func (o *GetServicesCounselingQueueParams) bindLocator(rawData []string, hasKey 
 		return nil
 	}
 	o.Locator = &raw
+
+	return nil
+}
+
+// bindNeedsPPMCloseout binds and validates parameter NeedsPPMCloseout from query.
+func (o *GetServicesCounselingQueueParams) bindNeedsPPMCloseout(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertBool(raw)
+	if err != nil {
+		return errors.InvalidType("needsPPMCloseout", "query", "bool", raw)
+	}
+	o.NeedsPPMCloseout = &value
 
 	return nil
 }
@@ -361,29 +384,6 @@ func (o *GetServicesCounselingQueueParams) bindPerPage(rawData []string, hasKey 
 		return errors.InvalidType("perPage", "query", "int64", raw)
 	}
 	o.PerPage = &value
-
-	return nil
-}
-
-// bindPpmCloseout binds and validates parameter PpmCloseout from query.
-func (o *GetServicesCounselingQueueParams) bindPpmCloseout(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
-		return nil
-	}
-
-	value, err := swag.ConvertBool(raw)
-	if err != nil {
-		return errors.InvalidType("ppmCloseout", "query", "bool", raw)
-	}
-	o.PpmCloseout = &value
 
 	return nil
 }
