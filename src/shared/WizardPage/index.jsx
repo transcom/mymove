@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom-old';
 import { push } from 'connected-react-router';
 
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';

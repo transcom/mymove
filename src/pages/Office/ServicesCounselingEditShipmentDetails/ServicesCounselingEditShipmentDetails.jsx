@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom-old';
 import { generatePath } from 'react-router';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';

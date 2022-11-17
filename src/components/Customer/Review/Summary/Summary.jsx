@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { withRouter, Link } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom-old';
 import { arrayOf, func, shape, bool, string } from 'prop-types';
 import moment from 'moment';
 import { Button, Grid } from '@trussworks/react-uswds';

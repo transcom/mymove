@@ -3,7 +3,7 @@ import { node, shape, arrayOf, func, string } from 'prop-types';
 import { Provider } from 'react-redux';
 import { createMemoryHistory } from 'history';
 import { ConnectedRouter } from 'connected-react-router';
-import { Router } from 'react-router-dom';
+import { Router } from 'react-router-dom-old';
 /* eslint-disable-next-line import/no-extraneous-dependencies */
 import { render } from '@testing-library/react';
 

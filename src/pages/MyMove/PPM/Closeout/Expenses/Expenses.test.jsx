@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { generatePath, useParams } from 'react-router-dom';
+import { generatePath, useParams } from 'react-router-dom-old';
 import { v4 } from 'uuid';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';

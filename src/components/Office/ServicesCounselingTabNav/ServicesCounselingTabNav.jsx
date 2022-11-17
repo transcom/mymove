@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom-old';
 import { Tag } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
 

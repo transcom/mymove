@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Route, Redirect } from 'react-router-dom';
+import { Route, Redirect } from 'react-router-dom-old';
 import { connect } from 'react-redux';
 
 import { selectGetCurrentUserIsLoading, selectIsLoggedIn } from 'store/auth/selectors';

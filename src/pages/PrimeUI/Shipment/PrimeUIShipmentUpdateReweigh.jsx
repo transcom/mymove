@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
-import { useHistory, useParams, withRouter } from 'react-router-dom';
+import { useHistory, useParams, withRouter } from 'react-router-dom-old';
 import { queryCache, useMutation } from 'react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';

@@ -3,7 +3,7 @@ import WeightTicket from './WeightTicket';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import store from 'shared/store';
-import { HashRouter as Router } from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom-old';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 
 function mountComponents(

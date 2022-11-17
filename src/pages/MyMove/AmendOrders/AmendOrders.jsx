@@ -2,7 +2,7 @@ import { React, createRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom-old';
 
 import styles from './AmendOrders.module.scss';
 

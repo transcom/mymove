@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Button, Textarea, ErrorMessage } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 import { Field, Formik } from 'formik';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom-old';
 import * as Yup from 'yup';
 import classnames from 'classnames';
 
