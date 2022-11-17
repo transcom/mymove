@@ -11,3 +11,8 @@ export const HistoryLogRecordShape = PropTypes.shape({
   oldValues: HistoryLogValuesShape,
   tableName: PropTypes.string,
 });
+
+export const PaymentRequestServicesShape = PropTypes.shape({
+  moveServices: PropTypes.string,
+  shipmentServices: PropTypes.array,
+});

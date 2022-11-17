@@ -18,6 +18,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/factory"
 	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -29,12 +30,12 @@ import (
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	userservice "github.com/transcom/mymove/pkg/services/user"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetUserHandler() {
 	suite.Run("integration test ok response", func() {
-		user := testdatagen.MakeDefaultUser(suite.DB())
+		user := factory.BuildDefaultUser(suite.DB())
+
 		params := userop.GetUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/users/%s", user.ID)),
 			UserID:      strfmt.UUID(user.ID.String()),
@@ -55,7 +56,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 	})
 
 	suite.Run("unsuccessful response when fetch fails", func() {
-		user := testdatagen.MakeDefaultUser(suite.DB())
+		user := factory.BuildDefaultUser(suite.DB())
 		params := userop.GetUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/users/%s", user.ID)),
 			UserID:      strfmt.UUID(user.ID.String()),
@@ -86,8 +87,8 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 	// test that everything is wired up
 	suite.Run("integration test ok response", func() {
 		users := models.Users{
-			testdatagen.MakeDefaultUser(suite.DB()),
-			testdatagen.MakeDefaultUser(suite.DB()),
+			factory.BuildDefaultUser(suite.DB()),
+			factory.BuildDefaultUser(suite.DB()),
 		}
 		params := userop.IndexUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/users"),
@@ -154,6 +155,19 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 	adminSessionID := "admin-session"
 	officeSessionID := "office-session"
 
+	activeUserTrait := func() []factory.Customization {
+		return []factory.Customization{
+			{
+				Model: models.User{
+					CurrentMilSessionID:    milSessionID,
+					CurrentAdminSessionID:  adminSessionID,
+					CurrentOfficeSessionID: officeSessionID,
+					Active:                 true,
+				},
+			},
+		}
+	}
+
 	// Create a handler and service object instances to test
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
@@ -184,15 +198,9 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 
 		// Create a user that has multiple sessions
 		// and is labeled an Active user of the system
-		assertions := testdatagen.Assertions{
-			User: models.User{
-				CurrentMilSessionID:    milSessionID,
-				CurrentAdminSessionID:  adminSessionID,
-				CurrentOfficeSessionID: officeSessionID,
-				Active:                 true,
-			},
-		}
-		user := testdatagen.MakeUser(suite.DB(), assertions)
+		user := factory.BuildUser(suite.DB(), nil, []factory.Trait{
+			activeUserTrait,
+		})
 
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
@@ -228,13 +236,8 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		//			   *All* sessions are revoked because the user is deactivated.
 
 		// Create a fresh user to reset all values
-		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
-			User: models.User{
-				CurrentMilSessionID:    milSessionID,
-				CurrentAdminSessionID:  adminSessionID,
-				CurrentOfficeSessionID: officeSessionID,
-				Active:                 true,
-			},
+		user := factory.BuildUser(suite.DB(), nil, []factory.Trait{
+			activeUserTrait,
 		})
 
 		// Create the update to revoke 2 sessions and deactivate the user
@@ -272,13 +275,8 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		//			   All sessions are revoked because the user is deactivated.
 
 		// Create a fresh user to reset all values
-		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
-			User: models.User{
-				CurrentMilSessionID:    milSessionID,
-				CurrentAdminSessionID:  adminSessionID,
-				CurrentOfficeSessionID: officeSessionID,
-				Active:                 true,
-			},
+		user := factory.BuildUser(suite.DB(), nil, []factory.Trait{
+			activeUserTrait,
 		})
 
 		params := userop.UpdateUserParams{
@@ -314,17 +312,16 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		//
 
 		// Create a new user that is inactive but has session values
-		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
-			User: models.User{
-				CurrentMilSessionID:    milSessionID,
-				CurrentAdminSessionID:  adminSessionID,
-				CurrentOfficeSessionID: officeSessionID,
-				Active:                 false,
+		user := factory.BuildUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.User{
+					CurrentMilSessionID:    milSessionID,
+					CurrentAdminSessionID:  adminSessionID,
+					CurrentOfficeSessionID: officeSessionID,
+					Active:                 false,
+				},
 			},
-		})
-
-		// Manually update Active because of an issue with mergeModels in MakeUser
-		suite.DB().ValidateAndUpdate(&user)
+		}, nil)
 
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
@@ -357,13 +354,8 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		// 			   Err returned for RevokeUserSession
 
 		// Create a fresh user to reset all values
-		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
-			User: models.User{
-				CurrentMilSessionID:    milSessionID,
-				CurrentAdminSessionID:  adminSessionID,
-				CurrentOfficeSessionID: officeSessionID,
-				Active:                 true,
-			},
+		user := factory.BuildUser(suite.DB(), nil, []factory.Trait{
+			activeUserTrait,
 		})
 
 		params := userop.UpdateUserParams{
@@ -407,13 +399,8 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		// 			   User sessions are revoked.
 
 		// Create a fresh user to reset all values
-		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
-			User: models.User{
-				CurrentMilSessionID:    milSessionID,
-				CurrentAdminSessionID:  adminSessionID,
-				CurrentOfficeSessionID: officeSessionID,
-				Active:                 true,
-			},
+		user := factory.BuildUser(suite.DB(), nil, []factory.Trait{
+			activeUserTrait,
 		})
 
 		params := userop.UpdateUserParams{
@@ -461,13 +448,8 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		// 			   User sessions are not revoked.
 
 		// Create a fresh user to reset all values
-		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
-			User: models.User{
-				CurrentMilSessionID:    milSessionID,
-				CurrentAdminSessionID:  adminSessionID,
-				CurrentOfficeSessionID: officeSessionID,
-				Active:                 true,
-			},
+		user := factory.BuildUser(suite.DB(), nil, []factory.Trait{
+			activeUserTrait,
 		})
 
 		params := userop.UpdateUserParams{

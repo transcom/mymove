@@ -7,7 +7,7 @@ require (
 	github.com/XSAM/otelsql v0.17.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20220216073957-c252878bcf5a
 	github.com/alexedwards/scs/v2 v2.5.0
-	github.com/aws/aws-sdk-go v1.44.136
+	github.com/aws/aws-sdk-go v1.44.138
 	github.com/benbjohnson/clock v1.3.0
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/disintegration/imaging v1.6.2
@@ -52,7 +52,7 @@ require (
 	github.com/pkg/sftp v1.13.5
 	github.com/pterm/pterm v0.12.49
 	github.com/rickar/cal/v2 v2.1.8
-	github.com/spf13/afero v1.9.2
+	github.com/spf13/afero v1.9.3
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.14.0
@@ -61,7 +61,7 @@ require (
 	github.com/tealeg/xlsx/v3 v3.2.4
 	github.com/tiaguinho/gosoap v1.4.4
 	github.com/trussworks/otelhttp v0.0.0-20220801182039-09272611890b
-	github.com/vektra/mockery/v2 v2.14.1
+	github.com/vektra/mockery/v2 v2.15.0
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.11.1
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.36.4
@@ -78,7 +78,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v0.33.0
 	go.opentelemetry.io/otel/trace v1.11.1
 	go.uber.org/zap v1.23.0
-	golang.org/x/crypto v0.2.0
+	golang.org/x/crypto v0.3.0
 	golang.org/x/net v0.2.0
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783
 	golang.org/x/text v0.4.0

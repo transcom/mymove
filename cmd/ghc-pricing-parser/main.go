@@ -89,8 +89,6 @@ func main() {
 	}
 	db, err := cli.InitDatabase(v, nil, logger)
 	if err != nil {
-		// No connection object means that the configuraton failed to validate and we should not startup
-		// A valid connection object that still has an error indicates that the DB is not up and we should not startup
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 	defer func() {
@@ -130,17 +128,13 @@ func main() {
 
 	// Open the spreadsheet
 	printDivider("Loading")
-	spinner, err := pterm.DefaultSpinner.Start(fmt.Sprintf("Loading file: %s", params.XlsxFilename))
-	if err != nil {
-		logger.Fatal("Failed to create pterm spinner", zap.Error(err))
-	}
+	pterm.Println(pterm.BgGray.Sprint(fmt.Sprintf("Loading file %s", params.XlsxFilename)))
 
 	params.XlsxFile, err = xlsx.OpenFile(params.XlsxFilename)
 	if err != nil {
-		spinner.Fail()
 		logger.Fatal("Failed to open file", zap.String("XlsxFilename", params.XlsxFilename), zap.Error(err))
 	}
-	spinner.Success()
+	pterm.Println(pterm.BgGray.Sprint(fmt.Sprintf("Finished loading file %s", params.XlsxFilename)))
 
 	// Now kick off the parsing
 	printDivider("Parsing")

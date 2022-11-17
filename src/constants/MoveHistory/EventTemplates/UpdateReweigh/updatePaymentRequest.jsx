@@ -1,4 +1,5 @@
-import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
+import React from 'react';
+
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
@@ -8,9 +9,8 @@ export default {
   action: a.UPDATE,
   eventName: o.updateReweigh,
   tableName: t.payment_requests,
-  detailsType: d.STATUS,
   getEventNameDisplay: ({ oldValues }) => `Updated payment request ${oldValues?.payment_request_number}`,
-  getStatusDetails: ({ changedValues }) => {
+  getDetails: ({ changedValues }) => {
     let status = '';
     if (changedValues.recalculation_of_payment_request_id) {
       status = 'Recalculated payment request';
@@ -19,6 +19,10 @@ export default {
     } else {
       status = 'Undefined status';
     }
-    return status;
+    return (
+      <>
+        <b>Status</b>: {status}
+      </>
+    );
   },
 };

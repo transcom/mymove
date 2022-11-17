@@ -9,4 +9,6 @@ export default {
   sit_departure_date: 'sit_departure_date',
   sit_entry_date: 'sit_entry_date',
   first_available_delivery_date: 'first_available_delivery_date',
+  retirement_date: 'retirement_date',
+  separation_date: 'separation_date',
 };
