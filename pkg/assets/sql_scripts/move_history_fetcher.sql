@@ -509,7 +509,7 @@ WITH move AS (
 			backup_contacts_logs
 
 
-	) SELECT
+	) SELECT DISTINCT
 		combined_logs.*,
 		COALESCE(office_users.first_name, prime_user_first_name, service_members.first_name) AS session_user_first_name,
 		COALESCE(office_users.last_name, service_members.last_name) AS session_user_last_name,
