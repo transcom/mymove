@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { HashRouter as Router } from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom-old';
 
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';

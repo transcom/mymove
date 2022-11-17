@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom-old';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from './Forbidden.module.scss';

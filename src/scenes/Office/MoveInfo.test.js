@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { HashRouter as Router } from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom-old';
 
 import MoveInfo from './MoveInfo';
 import store from 'shared/store';

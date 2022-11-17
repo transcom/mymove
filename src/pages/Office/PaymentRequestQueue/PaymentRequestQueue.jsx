@@ -1,5 +1,5 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom-old';
 
 import styles from './PaymentRequestQueue.module.scss';
 

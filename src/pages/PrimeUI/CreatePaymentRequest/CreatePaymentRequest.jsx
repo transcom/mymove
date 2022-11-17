@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useParams, useHistory, withRouter } from 'react-router-dom';
+import { useParams, useHistory, withRouter } from 'react-router-dom-old';
 import * as Yup from 'yup';
 import { Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';

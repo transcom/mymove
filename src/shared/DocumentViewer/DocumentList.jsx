@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom-old';
 
 import { renderStatusIcon, openLinkInNewWindow } from 'shared/utils';
 import styles from 'shared/DocumentViewer/DocumentList.module.scss';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route } from 'react-router-dom-old';
 import { every, some, get, findKey, pick } from 'lodash';
 
 import { generalRoutes, customerRoutes } from 'constants/routes';

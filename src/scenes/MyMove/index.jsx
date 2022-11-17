@@ -1,7 +1,7 @@
 import React, { Component, lazy } from 'react';
 import PropTypes from 'prop-types';
 import { LastLocationProvider } from 'react-router-last-location';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom-old';
 import { push, goBack } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { GovBanner } from '@trussworks/react-uswds';

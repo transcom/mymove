@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom-old';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import styles from './PaymentRequestReview.module.scss';

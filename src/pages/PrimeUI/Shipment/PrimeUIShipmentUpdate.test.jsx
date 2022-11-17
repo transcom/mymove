@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom-old';
 
 import PrimeUIShipmentUpdate from './PrimeUIShipmentUpdate';
 

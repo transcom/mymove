@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { capitalize, get, includes } from 'lodash';
 import { NavTab, RoutedTabs } from 'react-router-tabs';
-import { NavLink, Redirect, Switch } from 'react-router-dom';
+import { NavLink, Redirect, Switch } from 'react-router-dom-old';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 

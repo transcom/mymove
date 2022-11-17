@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { Component, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
-import { Route, Switch, withRouter, matchPath, Link } from 'react-router-dom';
+import { Route, Switch, withRouter, matchPath, Link } from 'react-router-dom-old';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 

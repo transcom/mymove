@@ -1,5 +1,5 @@
 import React, { Component, lazy } from 'react';
-import { Route, Switch, withRouter } from 'react-router-dom';
+import { Route, Switch, withRouter } from 'react-router-dom-old';
 
 import Home from './Home';
 import { GetLoggedInUser } from 'utils/api';
