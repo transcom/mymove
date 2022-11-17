@@ -1,6 +1,6 @@
 import React from 'react';
 import { Formik } from 'formik';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom-old';
 import { generatePath } from 'react-router';
 import PropTypes from 'prop-types';
 import { FormGroup } from '@material-ui/core';

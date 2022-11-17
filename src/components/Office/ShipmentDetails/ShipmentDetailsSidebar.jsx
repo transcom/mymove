@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom-old';
 import { generatePath, useHistory } from 'react-router';
 import * as PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';

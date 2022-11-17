@@ -3,7 +3,7 @@ import { arrayOf, oneOf, shape, bool, node, string, func } from 'prop-types';
 import classnames from 'classnames';
 import moment from 'moment';
 import { Button, Tag } from '@trussworks/react-uswds';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom-old';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './PaymentRequestCard.module.scss';

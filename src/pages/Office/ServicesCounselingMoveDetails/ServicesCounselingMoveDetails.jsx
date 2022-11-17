@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useParams, useHistory } from 'react-router-dom';
+import { Link, useParams, useHistory } from 'react-router-dom-old';
 import { queryCache, useMutation } from 'react-query';
 import { generatePath } from 'react-router';
 import { func } from 'prop-types';

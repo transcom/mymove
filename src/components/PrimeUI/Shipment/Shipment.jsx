@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom-old';
 import { generatePath } from 'react-router';
 import PropTypes from 'prop-types';
 

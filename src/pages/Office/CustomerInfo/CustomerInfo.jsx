@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { queryCache, useMutation } from 'react-query';
 import { generatePath } from 'react-router';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom-old';
 import { GridContainer } from '@trussworks/react-uswds';
 
 import CustomerContactInfoForm from '../../../components/Office/CustomerContactInfoForm/CustomerContactInfoForm';

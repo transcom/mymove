@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useHistory, withRouter } from 'react-router-dom';
+import { useParams, useHistory, withRouter } from 'react-router-dom-old';
 import classnames from 'classnames';
 import { useMutation } from 'react-query';
 import { generatePath } from 'react-router';

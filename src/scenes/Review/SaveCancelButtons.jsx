@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom-old';
 
 const SaveCancelButtons = (props) => {
   const { submitting, valid } = props;

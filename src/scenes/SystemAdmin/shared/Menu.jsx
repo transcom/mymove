@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { getResources, MenuItemLink } from 'react-admin';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom-old';
 import ExitIcon from '@material-ui/icons/PowerSettingsNew';
 import { LogoutUser } from 'utils/api';
 

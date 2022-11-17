@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import 'styles/office.scss';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom-old';
 import classnames from 'classnames';
 import { queryCache, useMutation } from 'react-query';
 

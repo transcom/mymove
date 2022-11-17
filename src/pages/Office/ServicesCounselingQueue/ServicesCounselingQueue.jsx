@@ -1,6 +1,6 @@
 import React from 'react';
 import { generatePath } from 'react-router';
-import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom-old';
 
 import styles from './ServicesCounselingQueue.module.scss';
 

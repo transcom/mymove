@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { GridContainer, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom-old';
 
 import ServiceInfoForm from 'components/Customer/ServiceInfoForm/ServiceInfoForm';
 import { patchServiceMember, getResponseError } from 'services/internalApi';

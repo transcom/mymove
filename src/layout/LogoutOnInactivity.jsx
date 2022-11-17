@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom-old';
 import { useIdleTimer } from 'react-idle-timer';
 import { useSelector, useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';

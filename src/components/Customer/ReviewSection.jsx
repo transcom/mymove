@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom-old';
 import PropTypes from 'prop-types';
 
 import styles from './ReviewSection.module.scss';

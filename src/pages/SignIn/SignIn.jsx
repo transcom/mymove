@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import qs from 'query-string';
 import { bool, shape, string } from 'prop-types';
 import { Button, ButtonGroup } from '@trussworks/react-uswds';
-import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom-old';
 
 import '../../styles/office.scss';
 import styles from './SignIn.module.scss';

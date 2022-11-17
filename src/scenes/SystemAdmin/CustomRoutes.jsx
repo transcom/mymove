@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route } from 'react-router-dom-old';
 import UploadSearch from './Uploads/UploadSearch';
 
 const routes = [

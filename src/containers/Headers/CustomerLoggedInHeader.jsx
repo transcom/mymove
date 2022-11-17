@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom-old';
 
 import MilMoveHeader from 'components/MilMoveHeader/index';
 import CustomerUserInfo from 'components/MilMoveHeader/CustomerUserInfo';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom-old';
 import { queryCache, useMutation } from 'react-query';
 
 import styles from './PaymentRequestReview.module.scss';

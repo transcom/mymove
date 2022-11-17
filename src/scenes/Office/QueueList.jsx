@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom-old';
 
 export default class QueueList extends Component {
   render() {
