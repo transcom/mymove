@@ -315,15 +315,10 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
-	// maybe table driven?
-	// army office user closeout shows closeout move doesnt show non closeout move
-	// airforce office user closeout shows closeout move doesnt show non closeout move
-
 	orderFetcher := NewOrderFetcher()
 	showMove := true
 
-	// TODO rename
-	suite.Run("non special gbloc office user needs closeout", func() {
+	suite.Run("office user in normal GBLOC should only see non-Navy/Marines/CoastGuard moves that need closeout in closeout tab", func() {
 		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "AAAA")
 		army := models.AffiliationARMY
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -346,6 +341,29 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 			Move: move,
 		})
 
+		// Moves that are not ready for closeout should not show in this queue
+		af := models.AffiliationAIRFORCE
+		afMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+				Show:   &showMove,
+			},
+			TransportationOffice: models.TransportationOffice{
+				Gbloc: "AAAA",
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &af},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusSubmitted,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			Move: afMove,
+		})
+
+		// Coast guard moves should not show up in our office user's closeout queue
 		cg := models.AffiliationCOASTGUARD
 		cgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -367,10 +385,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 			Move: cgMove,
 		})
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", "AAAA")
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "30813", "AAAA")
 
 		params := services.ListOrderParams{PerPage: swag.Int64(9), Page: swag.Int64(1), PPMCloseout: swag.Bool(true), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
-
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
@@ -378,10 +394,12 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		suite.Equal(move.Locator, moves[0].Locator)
 	})
 
-	suite.Run("non special gbloc SC user non-closeout", func() {
+	suite.Run("office user in normal GBLOC should not see moves that require closeout in counseling tab", func() {
 		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "AAAA")
+
+		// PPM moves that need closeout should not show up in counseling queue
 		army := models.AffiliationARMY
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		closeoutMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusNeedsServiceCounseling,
 				Show:   &showMove,
@@ -398,11 +416,12 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypePPM,
 			},
-			Move: move,
+			Move: closeoutMove,
 		})
 
+		// PPM moves that don't need closeout should show up in counseling queue
 		airforce := models.AffiliationAIRFORCE
-		nonCGMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		nonCloseoutMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusNeedsServiceCounseling,
 				Show:   &showMove,
@@ -419,11 +438,9 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypePPM,
 			},
-			Move: nonCGMove,
+			Move: nonCloseoutMove,
 		})
-		// TODO one of these may be unnecessary
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", "AAAA")
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "30813", "AAAA")
 
 		params := services.ListOrderParams{PerPage: swag.Int64(9), Page: swag.Int64(1), PPMCloseout: swag.Bool(false), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
 
@@ -431,7 +448,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
-		suite.Equal(nonCGMove.Locator, moves[0].Locator)
+		suite.Equal(nonCloseoutMove.Locator, moves[0].Locator)
 	})
 }
 
