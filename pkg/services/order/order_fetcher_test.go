@@ -314,6 +314,127 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 	})
 }
 
+func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
+	// maybe table driven?
+	// army office user closeout shows closeout move doesnt show non closeout move
+	// airforce office user closeout shows closeout move doesnt show non closeout move
+
+	orderFetcher := NewOrderFetcher()
+	showMove := true
+
+	// TODO rename
+	suite.Run("non special gbloc office user needs closeout", func() {
+		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "AAAA")
+		army := models.AffiliationARMY
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+				Show:   &showMove,
+			},
+			TransportationOffice: models.TransportationOffice{
+				Gbloc: "AAAA",
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &army},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			Move: move,
+		})
+
+		cg := models.AffiliationCOASTGUARD
+		cgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+				Show:   &showMove,
+			},
+			TransportationOffice: models.TransportationOffice{
+				Gbloc: "AAAA",
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &cg},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			Move: cgMove,
+		})
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", "AAAA")
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "30813", "AAAA")
+
+		params := services.ListOrderParams{PerPage: swag.Int64(9), Page: swag.Int64(1), PPMCloseout: swag.Bool(true), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
+
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(move.Locator, moves[0].Locator)
+	})
+
+	suite.Run("non special gbloc SC user non-closeout", func() {
+		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "AAAA")
+		army := models.AffiliationARMY
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+				Show:   &showMove,
+			},
+			TransportationOffice: models.TransportationOffice{
+				Gbloc: "AAAA",
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &army},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			Move: move,
+		})
+
+		airforce := models.AffiliationAIRFORCE
+		nonCGMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+				Show:   &showMove,
+			},
+			TransportationOffice: models.TransportationOffice{
+				Gbloc: "AAAA",
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &airforce},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusSubmitted,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			Move: nonCGMove,
+		})
+		// TODO one of these may be unnecessary
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", "AAAA")
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "30813", "AAAA")
+
+		params := services.ListOrderParams{PerPage: swag.Int64(9), Page: swag.Int64(1), PPMCloseout: swag.Bool(false), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
+
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(nonCGMove.Locator, moves[0].Locator)
+	})
+}
+
 func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMarines() {
 	orderFetcher := NewOrderFetcher()
 	showMove := true
@@ -334,14 +455,13 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    models.MTOShipmentTypePPM,
-				MoveTaskOrder:   move,
-				MoveTaskOrderID: move.ID,
+				ShipmentType: models.MTOShipmentTypePPM,
 			},
+			Move: move,
 		})
 
 		cg := models.AffiliationCOASTGUARD
-		nonCGMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		cgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusSUBMITTED,
 				Show:   &showMove,
@@ -353,10 +473,9 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    models.MTOShipmentTypePPM,
-				MoveTaskOrder:   nonCGMove,
-				MoveTaskOrderID: nonCGMove.ID,
+				ShipmentType: models.MTOShipmentTypePPM,
 			},
+			Move: cgMove,
 		})
 
 		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "NAVY")
@@ -386,7 +505,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    models.MTOShipmentTypePPM,
+				ShipmentType: models.MTOShipmentTypePPM,
+				// TODO bug, this should be in separate move struct
 				MoveTaskOrder:   move,
 				MoveTaskOrderID: move.ID,
 			},
@@ -405,7 +525,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    models.MTOShipmentTypePPM,
+				ShipmentType: models.MTOShipmentTypePPM,
+				// TODO bug, this should be in separate move struct
 				MoveTaskOrder:   nonMarineMove,
 				MoveTaskOrderID: nonMarineMove.ID,
 			},
@@ -438,7 +559,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    models.MTOShipmentTypePPM,
+				ShipmentType: models.MTOShipmentTypePPM,
+				// TODO bug, this should be in separate move struct
 				MoveTaskOrder:   move,
 				MoveTaskOrderID: move.ID,
 			},
@@ -457,7 +579,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    models.MTOShipmentTypePPM,
+				ShipmentType: models.MTOShipmentTypePPM,
+				// TODO bug, this should be in separate move struct
 				MoveTaskOrder:   armyMove,
 				MoveTaskOrderID: armyMove.ID,
 			},
@@ -487,7 +610,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusPaymentApproved,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    models.MTOShipmentTypePPM,
+				ShipmentType: models.MTOShipmentTypePPM,
+				// TODO bug, this should be in separate move struct
 				MoveTaskOrder:   cgMoveInWrongStatus,
 				MoveTaskOrderID: cgMoveInWrongStatus.ID,
 			},
@@ -513,7 +637,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		})
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    models.MTOShipmentTypeHHG,
+				ShipmentType: models.MTOShipmentTypeHHG,
+				// TODO bug, this should be in separate move struct
 				MoveTaskOrder:   moveWithHHG,
 				MoveTaskOrderID: moveWithHHG.ID,
 			},
