@@ -54,7 +54,7 @@
     "react-rangeslider": "^2.2.0",
     "react-redux": "^7.2.9",
     "react-router": "^5.1.2",
-    "react-router-dom": "^5.3.4",
+    "react-router-dom": "^6.4.3",
     "react-router-dom-old": "npm:react-router-dom@5.3.4",
     "react-router-last-location": "^2.0.1",
     "react-router-tabs": "^1.1.1",
