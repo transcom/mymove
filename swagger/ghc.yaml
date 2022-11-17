@@ -3007,7 +3007,8 @@ definitions:
         example: David
         x-nullable: true
       current_address:
-        $ref: '#/definitions/Address'
+        allOf:
+          - $ref: '#/definitions/Address'
       backup_contact:
         $ref: '#/definitions/BackupContact'
   Entitlements:

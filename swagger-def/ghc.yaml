@@ -2893,7 +2893,8 @@ definitions:
         example: David
         x-nullable: true
       current_address:
-        $ref: 'definitions/Address.yaml'
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       backup_contact:
         $ref: '#/definitions/BackupContact'
   Entitlements:
