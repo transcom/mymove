@@ -506,10 +506,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 			},
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypePPM,
-				// TODO bug, this should be in separate move struct
-				MoveTaskOrder:   move,
-				MoveTaskOrderID: move.ID,
 			},
+			Move: move,
 		})
 
 		army := models.AffiliationARMY
@@ -526,10 +524,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 			},
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypePPM,
-				// TODO bug, this should be in separate move struct
-				MoveTaskOrder:   nonMarineMove,
-				MoveTaskOrderID: nonMarineMove.ID,
 			},
+			Move: nonMarineMove,
 		})
 
 		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "TVCB")
@@ -560,10 +556,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 			},
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypePPM,
-				// TODO bug, this should be in separate move struct
-				MoveTaskOrder:   move,
-				MoveTaskOrderID: move.ID,
 			},
+			Move: move,
 		})
 
 		army := models.AffiliationARMY
@@ -580,10 +574,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 			},
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypePPM,
-				// TODO bug, this should be in separate move struct
-				MoveTaskOrder:   armyMove,
-				MoveTaskOrderID: armyMove.ID,
 			},
+			Move: armyMove,
 		})
 
 		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "USCG")
@@ -611,10 +603,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 			},
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypePPM,
-				// TODO bug, this should be in separate move struct
-				MoveTaskOrder:   cgMoveInWrongStatus,
-				MoveTaskOrderID: cgMoveInWrongStatus.ID,
 			},
+			Move: cgMoveInWrongStatus,
 		})
 
 		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "USCG")
@@ -638,10 +628,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypeHHG,
-				// TODO bug, this should be in separate move struct
-				MoveTaskOrder:   moveWithHHG,
-				MoveTaskOrderID: moveWithHHG.ID,
 			},
+			Move: moveWithHHG,
 		})
 
 		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "USCG")
