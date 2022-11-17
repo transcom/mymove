@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { generatePath, useHistory, useParams } from 'react-router-dom';
+import { generatePath, useHistory, useParams } from 'react-router-dom-old';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';

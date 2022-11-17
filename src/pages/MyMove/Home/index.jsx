@@ -4,7 +4,7 @@ import moment from 'moment';
 import { connect } from 'react-redux';
 import { Alert, Button } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom-old';
 
 import styles from './Home.module.scss';
 import {

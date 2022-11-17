@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom-old';
 import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';

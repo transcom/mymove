@@ -1,5 +1,5 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom-old';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
 

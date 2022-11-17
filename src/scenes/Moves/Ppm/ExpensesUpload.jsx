@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { get, isEmpty, map } from 'lodash';
 import { withLastLocation } from 'react-router-last-location';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom-old';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getFormValues, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';

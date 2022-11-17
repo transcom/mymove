@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom-old';
 import PropTypes from 'prop-types';
 import { Button, GridContainer } from '@trussworks/react-uswds';
 

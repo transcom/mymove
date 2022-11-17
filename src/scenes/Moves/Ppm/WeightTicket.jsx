@@ -3,7 +3,7 @@ import { getFormValues, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { get, map } from 'lodash';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom-old';
 import { withLastLocation } from 'react-router-last-location';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 

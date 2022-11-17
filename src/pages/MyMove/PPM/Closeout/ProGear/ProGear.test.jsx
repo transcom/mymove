@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useParams, generatePath } from 'react-router-dom';
+import { useParams, generatePath } from 'react-router-dom-old';
 import { v4 } from 'uuid';
 
 import { MockProviders } from 'testUtils';

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Component, Fragment } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom-old';
 
 export class UploadSearch extends Component {
   state = { ...this.initialState };

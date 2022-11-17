@@ -1,6 +1,6 @@
 import React from 'react';
 import Summary from 'components/Customer/Review/Summary/Summary';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom-old';
 import scrollToTop from 'shared/scrollToTop';
 
 export class Edit extends React.Component {

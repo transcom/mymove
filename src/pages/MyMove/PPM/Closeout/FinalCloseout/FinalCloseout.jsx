@@ -1,7 +1,7 @@
 import classnames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom-old';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import styles from './FinalCloseout.module.scss';

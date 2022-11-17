@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import React from 'react';
 import { generatePath } from 'react-router';
-import { Link, useHistory, useParams } from 'react-router-dom';
+import { Link, useHistory, useParams } from 'react-router-dom-old';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { useQueryClient, useMutation } from '@tanstack/react-query';

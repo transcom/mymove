@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, matchPath, useLocation } from 'react-router-dom';
+import { useParams, matchPath, useLocation } from 'react-router-dom-old';
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';

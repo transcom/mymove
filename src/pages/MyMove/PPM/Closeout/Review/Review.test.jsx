@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { v4 } from 'uuid';
 import userEvent from '@testing-library/user-event';
-import { generatePath } from 'react-router-dom';
+import { generatePath } from 'react-router-dom-old';
 
 import { MockProviders, setUpProvidersWithHistory } from 'testUtils';
 import { selectMTOShipmentById } from 'store/entities/selectors';
