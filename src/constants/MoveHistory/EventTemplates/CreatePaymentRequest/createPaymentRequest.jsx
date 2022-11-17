@@ -5,7 +5,7 @@ import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import LabeledPaymentRequestDetails from 'pages/Office/MoveHistory/LabeledPaymentRequestDetails';
 
-const getLabeledPaymentRequestDetails = (context) => {
+const getPaymentRequestServices = (context) => {
   let moveServices = '';
   const shipmentServices = {};
 
@@ -36,7 +36,5 @@ export default {
   eventName: o.createPaymentRequest,
   tableName: t.payment_requests,
   getEventNameDisplay: ({ changedValues }) => `Submitted payment request ${changedValues?.payment_request_number}`,
-  getDetails: ({ context }) => (
-    <LabeledPaymentRequestDetails context={context} getLabeledPaymentRequestDetails={getLabeledPaymentRequestDetails} />
-  ),
+  getDetails: ({ context }) => <LabeledPaymentRequestDetails services={getPaymentRequestServices(context)} />,
 };

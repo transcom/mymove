@@ -266,12 +266,8 @@ func (u *Uploader) PresignedURL(appCtx appcontext.AppContext, upload *models.Upl
 	return url, nil
 }
 
-// DeleteUpload removes an Upload from the database and deletes its file from the
-// storer.
+// DeleteUpload removes an Upload from the database
 func (u *Uploader) DeleteUpload(appCtx appcontext.AppContext, upload *models.Upload) error {
-	if err := u.Storer.Delete(upload.StorageKey); err != nil {
-		return err
-	}
 	return models.DeleteUpload(appCtx.DB(), upload)
 }
 

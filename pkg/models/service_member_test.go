@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -85,8 +86,8 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 }
 
 func (suite *ModelSuite) TestFetchServiceMemberForUser() {
-	user1 := testdatagen.MakeDefaultUser(suite.DB())
-	user2 := testdatagen.MakeDefaultUser(suite.DB())
+	user1 := factory.BuildDefaultUser(suite.DB())
+	user2 := factory.BuildDefaultUser(suite.DB())
 
 	firstName := "Oliver"
 	resAddress := testdatagen.MakeDefaultAddress(suite.DB())
@@ -128,7 +129,7 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 }
 
 func (suite *ModelSuite) TestFetchServiceMemberNotForUser() {
-	user1 := testdatagen.MakeDefaultUser(suite.DB())
+	user1 := factory.BuildDefaultUser(suite.DB())
 
 	firstName := "Nino"
 	resAddress := testdatagen.MakeDefaultAddress(suite.DB())
@@ -151,7 +152,7 @@ func (suite *ModelSuite) TestFetchServiceMemberNotForUser() {
 func (suite *ModelSuite) TestFetchLatestOrders() {
 	setupTestData := func() (Order, *auth.Session) {
 
-		user := testdatagen.MakeDefaultUser(suite.DB())
+		user := factory.BuildDefaultUser(suite.DB())
 
 		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
