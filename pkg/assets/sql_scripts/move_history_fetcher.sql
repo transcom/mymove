@@ -521,3 +521,4 @@ FROM
 			) prime_users ON roles.role_type = 'prime'
 	ORDER BY
 		action_tstamp_tx DESC
+-- Creating a draft PR which will be deleted in order to confirm that this file has been excluded from db reviewers ownership
