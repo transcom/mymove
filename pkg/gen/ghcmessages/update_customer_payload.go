@@ -23,7 +23,9 @@ type UpdateCustomerPayload struct {
 	BackupContact *BackupContact `json:"backup_contact,omitempty"`
 
 	// current address
-	CurrentAddress *Address `json:"current_address,omitempty"`
+	CurrentAddress struct {
+		Address
+	} `json:"current_address,omitempty"`
 
 	// email
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
@@ -100,17 +102,6 @@ func (m *UpdateCustomerPayload) validateCurrentAddress(formats strfmt.Registry) 
 		return nil
 	}
 
-	if m.CurrentAddress != nil {
-		if err := m.CurrentAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("current_address")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("current_address")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -173,17 +164,6 @@ func (m *UpdateCustomerPayload) contextValidateBackupContact(ctx context.Context
 }
 
 func (m *UpdateCustomerPayload) contextValidateCurrentAddress(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.CurrentAddress != nil {
-		if err := m.CurrentAddress.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("current_address")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("current_address")
-			}
-			return err
-		}
-	}
 
 	return nil
 }

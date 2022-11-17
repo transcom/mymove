@@ -48,19 +48,20 @@ func MTOAgentsModel(mtoAgents *ghcmessages.MTOAgents) *models.MTOAgents {
 // CustomerToServiceMember transforms UpdateCustomerPayload to ServiceMember model
 func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.ServiceMember {
 
-	var address models.Address
-	if payload.CurrentAddress != nil {
-		address = models.Address{
-			ID:             uuid.FromStringOrNil(payload.CurrentAddress.ID.String()),
-			StreetAddress1: *payload.CurrentAddress.StreetAddress1,
-			StreetAddress2: payload.CurrentAddress.StreetAddress2,
-			StreetAddress3: payload.CurrentAddress.StreetAddress3,
-			City:           *payload.CurrentAddress.City,
-			State:          *payload.CurrentAddress.State,
-			PostalCode:     *payload.CurrentAddress.PostalCode,
-			Country:        payload.CurrentAddress.Country,
-		}
-	}
+	// var address models.Address
+	// if payload.CurrentAddress != nil {
+	// 	address = models.Address{
+	// 		ID:             uuid.FromStringOrNil(payload.CurrentAddress.ID.String()),
+	// 		StreetAddress1: *payload.CurrentAddress.StreetAddress1,
+	// 		StreetAddress2: payload.CurrentAddress.StreetAddress2,
+	// 		StreetAddress3: payload.CurrentAddress.StreetAddress3,
+	// 		City:           *payload.CurrentAddress.City,
+	// 		State:          *payload.CurrentAddress.State,
+	// 		PostalCode:     *payload.CurrentAddress.PostalCode,
+	// 		Country:        payload.CurrentAddress.Country,
+	// 	}
+	// }
+	address := AddressModel(&payload.CurrentAddress.Address)
 
 	var backupContacts []models.BackupContact
 	if payload.BackupContact != nil {
@@ -72,7 +73,7 @@ func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.S
 	}
 
 	return models.ServiceMember{
-		ResidentialAddress: &address,
+		ResidentialAddress: address,
 		BackupContacts:     backupContacts,
 		FirstName:          &payload.FirstName,
 		LastName:           &payload.LastName,
