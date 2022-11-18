@@ -218,7 +218,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 				sm.middle_name AS sm_middle
 			FROM service_members as sm
 			JOIN users on sm.user_id = users.id
-			WHERE users.login_gov_email != 'first.last@login.gov.test'
+			WHERE users.login_gov_email NOT IN ('first.last@login.gov.test', 'needscloseout@ppm.closeout', '1needscloseout@ppm.closeout', '2needcloseout@ppm.closeout', 'needscloseout@ppmHHG.closeout')
 			ORDER BY users.created_at LIMIT $1`
 	}
 
