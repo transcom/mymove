@@ -1,0 +1,19 @@
+#! /usr/bin/env bash
+#
+#   check-tls-pair confirms that the TLS cert and key pair are a match.
+#   This will allow us to trigger a failure quickly instead of finding out that the keypair doesn't work 30 minutes into the deploy.
+#
+set -eu -o pipefail
+
+key=$1
+cert=$2
+
+KEY_FILE=$(echo $1 | base64 --decode)
+CERT_FILE=$(echo $2 | base64 --decode)
+
+key_mod=$(openssl rsa -noout -modulus -in ${KEY_FILE} | openssl md5)
+cert_mod=$(openssl x509 -noout -modulus -in ${CERT_FILE} | openssl md5)
+
+if [ key_mod != cert_mod ]; then
+  exit 1
+fi

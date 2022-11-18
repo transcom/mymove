@@ -729,6 +729,31 @@ jobs:
       - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
       - announce_failure
 
+  # `check_tls_certificate_env` is used to confirm that the certificate-key pair match
+  check_tls_certificate_prd:
+    executor: av_medium
+    steps:
+      - checkout
+      - tls_vars_prd
+      - run: scripts/check-tls-pair ${TLS_KEY} ${TLS_CERT}
+      - announce_failure
+  
+  check_tls_certificate_stg:
+    executor: av_medium
+    steps:
+      - checkout
+      - tls_vars_stg
+      - run: scripts/check-tls-pair ${TLS_KEY} ${TLS_CERT}
+      - announce_failure
+
+  check_tls_certificate_dp3:
+    executor: av_medium
+    steps:
+      - checkout
+      - tls_vars_dp3
+      - run: scripts/check-tls-pair ${TLS_KEY} ${TLS_CERT}
+      - announce_failure
+
   # `anti_virus` uses virus detection software to scan the source code
   anti_virus:
     executor: av_medium
