@@ -10,15 +10,21 @@ set -e -o pipefail
 # Let's make sure that openssl is installed wherever we run this script.
 if type openssl &> /dev/null
 then
-
   key="${1}"
   cert="${2}"
 
-  KEY_FILE=$(echo "${key}" | base64 --decode)
-  CERT_FILE=$(echo "${cert}" | base64 --decode)
+  # README: We'll create a temporary directory here and push it into the stack.
+  pushd "$(mktemp -d)"
 
-  key_mod=$(openssl rsa -noout -modulus -in "${KEY_FILE}" | openssl md5)
-  cert_mod=$(openssl x509 -noout -modulus -in "${CERT_FILE}" | openssl md5)
+  echo "${key}" | base64 --decode > ./KEY_FILE
+  echo "${cert}" | base64 --decode > ./CERT_FILE
+
+  key_mod=$(openssl rsa -noout -modulus -in ./KEY_FILE | openssl md5)
+  cert_mod=$(openssl x509 -noout -modulus -in ./CERT_FILE | openssl md5)
+
+  # README: We're done with the temporary directory here so we'll pop it off
+  # the stack.
+  popd
 
   if [ "${key_mod}" != "${cert_mod}" ]; then
     # README: This will echo out the message to STDERR.
