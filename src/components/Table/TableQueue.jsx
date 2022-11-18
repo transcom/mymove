@@ -36,6 +36,8 @@ const TableQueue = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(20);
   const [pageCount, setPageCount] = useState(0);
+  const [closeoutCount, setCloseoutCount] = useState(0);
+  // TODO hook in ppm closeout data both here and in useServicesCounselingQueuePPMQueries' useQuery() in queries.js
 
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
@@ -90,6 +92,7 @@ const TableQueue = ({
       manualFilters,
       manualPagination: true,
       pageCount,
+      closeoutCount,
       manualSortBy,
       disableMultiSort,
       defaultCanSort,
@@ -109,8 +112,9 @@ const TableQueue = ({
       setCurrentPage(pageIndex + 1);
       setCurrentPageSize(pageSize);
       setPageCount(Math.ceil(totalCount / pageSize));
+      setCloseoutCount(Math.ceil(closeoutCount / pageSize));
     }
-  }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount]);
+  }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount, closeoutCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -126,7 +130,7 @@ const TableQueue = ({
               <span className="tab-title">{`Counseling (${totalCount})`}</span>
             </NavLink>,
             <NavLink exact activeClassName="usa-current" to={servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH}>
-              <span className="tab-title">{`PPM closeout (${totalCount})`}</span>
+              <span className="tab-title">{`PPM closeout (${closeoutCount})`}</span>
             </NavLink>,
           ]}
         />
@@ -151,6 +155,7 @@ const TableQueue = ({
           pageIndex={pageIndex}
           pageSize={pageSize}
           pageCount={pageCount}
+          closeoutCount={closeoutCount}
           pageOptions={pageOptions}
         />
       </div>
