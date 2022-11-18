@@ -285,9 +285,13 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 				suite.Equal(*order.NtsSAC, changedData["nts_sac"])
 				suite.Equal(*order.DepartmentIndicator, changedData["department_indicator"])
 
-				//changedData["amended_orders_acknowledged_at"] is being converted from a string to a formatted time.Time type
-				layout := "2006-01-02T15:04:05.000000"
-				changedDataTimeStamp, _ := time.Parse(layout, changedData["amended_orders_acknowledged_at"].(string))
+				// we're getting results in different precision than expected in CI and locally, so account for possible discrepancy
+				changedDataTimeStamp, err := time.Parse("2006-01-02T15:04:05.000000", changedData["amended_orders_acknowledged_at"].(string))
+				if err != nil {
+					changedDataTimeStamp, err = time.Parse("2006-01-02T15:04:05.00000", changedData["amended_orders_acknowledged_at"].(string))
+					suite.NoError(err)
+				}
+
 				//CircleCi seems to add on nanoseconds to the tested time stamps so this is being used with Truncate to shave those nanoseconds off
 				d := 1000 * time.Nanosecond
 				//We assert if it falls within a range starting at the original order.AmendedOrdersAcknowledgedAt time and ending with a added 2000 microsecond buffer
@@ -688,7 +692,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 
-		reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		reService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeMS,
 			},
