@@ -737,7 +737,7 @@ jobs:
       - tls_vars_prd
       - run: scripts/check-tls-pair ${TLS_KEY} ${TLS_CERT}
       - announce_failure
-  
+
   check_tls_certificate_stg:
     executor: av_medium
     steps:
@@ -1764,9 +1764,9 @@ workflows:
       - pre_deps_golang
 
       - pre_deps_yarn
-      
+
       - check_tls_certificate_dp3
-      
+
       - check_generated_code:
           requires:
             - pre_deps_golang
