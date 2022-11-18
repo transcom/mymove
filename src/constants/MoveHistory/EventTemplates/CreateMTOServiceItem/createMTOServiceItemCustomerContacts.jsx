@@ -24,8 +24,7 @@ const formatChangedValues = (historyRecord) => {
     newChangedValues[deliveryDateOrder] = changedValues.first_available_delivery_date;
     delete newChangedValues.first_available_delivery_date;
   }
-  // eslint-disable-next-line no-console
-  console.log({ ...historyRecord, changedValues: newChangedValues });
+
   return { ...historyRecord, changedValues: newChangedValues };
 };
 
