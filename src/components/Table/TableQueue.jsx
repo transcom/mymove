@@ -120,6 +120,7 @@ const TableQueue = ({
       <h1>{`${title} (${totalCount})`}</h1>
       {showTabs && (
         <TabNav
+          className={styles.tableTabs}
           items={[
             <NavLink activeClassName="usa-current" to={servicesCounselingRoutes.QUEUE_COUNSELING_PATH}>
               <span className="tab-title">{`Counseling (${totalCount})`}</span>

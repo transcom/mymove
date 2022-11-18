@@ -140,6 +140,7 @@ const ServicesCounselingQueue = () => {
       )}
       {counseling && (
         <TableQueue
+          className={styles.ServicesCounseling}
           showTabs
           showFilters
           showPagination
