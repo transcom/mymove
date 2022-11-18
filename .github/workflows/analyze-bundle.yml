@@ -3,7 +3,7 @@ name: F/E bundle diff
 on:
   pull_request_target:
     branches:
-      - master
+      - main
 
 jobs:
   changes:

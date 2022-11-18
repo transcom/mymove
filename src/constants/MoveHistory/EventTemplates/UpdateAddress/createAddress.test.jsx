@@ -3,8 +3,6 @@ import { render, screen } from '@testing-library/react';
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import createAddress from 'constants/MoveHistory/EventTemplates/UpdateAddress/createAddress';
 import ADDRESS_TYPE from 'constants/MoveHistory/Database/AddressTypes';
-import a from 'constants/MoveHistory/Database/Actions';
-import t from 'constants/MoveHistory/Database/Tables';
 
 const LABEL = {
   backupMailingAddress: 'Backup mailing address',
@@ -17,9 +15,9 @@ const LABEL = {
 
 describe('when given an insert with address table history record', () => {
   const historyRecord = {
-    action: a.INSERT,
-    eventName: '',
-    tableName: t.addresses,
+    action: 'INSERT',
+    eventName: 'updateMTOShipment',
+    tableName: 'addresses',
   };
   const changedValues = {
     city: 'Beverly Hills',

@@ -620,45 +620,6 @@ paths:
       description: Gets a move
       operationId: getMoveTaskOrder
       summary: Gets a move by ID
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-      responses:
-        '200':
-          description: Successfully retrieved move task order
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '401':
-          $ref: '#/responses/PermissionDenied'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '412':
-          $ref: '#/responses/PreconditionFailed'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-      description: Updates a move by ID
-      operationId: updateMoveTaskOrder
-      summary: Updates a move by ID
   /move_task_orders/{moveTaskOrderID}/mto_service_items:
     parameters:
       - description: ID of move for mto service item to use
@@ -6039,11 +6000,11 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      createdAt:
+      updatedAt:
         type: string
         format: date-time
         readOnly: true
-      updatedAt:
+      createdAt:
         type: string
         format: date-time
         readOnly: true
@@ -6095,12 +6056,89 @@ definitions:
         type: string
         readOnly: true
     required:
-      - id
       - ppmShipmentId
       - createdAt
       - updatedAt
       - documentId
       - document
+  SignedCertificationType:
+    description: |
+      The type of signed certification:
+        - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are
+            ready to submit their documentation for review. When they submit, they will be asked to sign certifying the
+            information is correct.
+        - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.
+    type: string
+    enum:
+      - PPM_PAYMENT
+      - SHIPMENT
+    readOnly: true
+  SignedCertification:
+    description: Signed certification
+    type: object
+    properties:
+      id:
+        description: The ID of the signed certification.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      submittingUserId:
+        description: The ID of the user that signed.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      moveId:
+        description: The ID of the move associated with this signed certification.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      ppmId:
+        description: >-
+          The ID of the PPM shipment associated with this signed certification,
+          if any.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+        x-nullable: true
+        x-omitempty: false
+      certificationType:
+        $ref: '#/definitions/SignedCertificationType'
+      certificationText:
+        description: Full text that the customer agreed to and signed.
+        type: string
+      signature:
+        description: The signature that the customer provided.
+        type: string
+      date:
+        description: Date that the customer signed the certification.
+        type: string
+        format: date
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+      eTag:
+        description: A hash that should be used as the "If-Match" header for any updates.
+        type: string
+        readOnly: true
+    required:
+      - id
+      - submittingUserId
+      - moveId
+      - certificationType
+      - certificationText
+      - signature
+      - date
+      - createdAt
+      - updatedAt
       - eTag
   PPMShipment:
     description: >-
@@ -6150,8 +6188,8 @@ definitions:
         x-omitempty: false
       submittedAt:
         description: >-
-          The timestamp of when the customer submitted their move to the
-          counselor.
+          The timestamp of when the customer submitted their PPM documentation
+          to the counselor for review.
         format: date-time
         type: string
         x-nullable: true
@@ -6374,6 +6412,8 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/ProGearWeightTicket'
+      signedCertification:
+        $ref: '#/definitions/SignedCertification'
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"

@@ -3,6 +3,7 @@ package payloads
 import (
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -17,21 +18,6 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 	}
 	return &models.Address{
 		ID:             uuid.FromStringOrNil(address.ID.String()),
-		StreetAddress1: *address.StreetAddress1,
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
-		City:           *address.City,
-		State:          *address.State,
-		PostalCode:     *address.PostalCode,
-		Country:        address.Country,
-	}
-}
-
-func AddressModelWithoutID(address *internalmessages.Address) *models.Address {
-	if address == nil {
-		return nil
-	}
-	return &models.Address{
 		StreetAddress1: *address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
@@ -163,7 +149,7 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		FinalIncentive:                 handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive),
 	}
 
-	ppmModel.W2Address = AddressModelWithoutID(ppmShipment.W2Address)
+	ppmModel.W2Address = AddressModel(ppmShipment.W2Address)
 	if ppmShipment.ExpectedDepartureDate != nil {
 		ppmModel.ExpectedDepartureDate = *handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
 	}
@@ -289,4 +275,72 @@ func WeightTicketModelFromUpdate(weightTicket *internalmessages.UpdateWeightTick
 		TrailerMeetsCriteria:     handlers.FmtBool(weightTicket.TrailerMeetsCriteria),
 	}
 	return model
+}
+
+// ProgearWeightTicketModelFromUpdate
+func ProgearWeightTicketModelFromUpdate(progearWeightTicket *internalmessages.UpdateProGearWeightTicket) *models.ProgearWeightTicket {
+	if progearWeightTicket == nil {
+		return nil
+	}
+	model := &models.ProgearWeightTicket{
+		Description:      &progearWeightTicket.Description,
+		Weight:           handlers.PoundPtrFromInt64Ptr(progearWeightTicket.Weight),
+		HasWeightTickets: handlers.FmtBool(progearWeightTicket.HasWeightTickets),
+		BelongsToSelf:    handlers.FmtBool(progearWeightTicket.BelongsToSelf),
+	}
+	return model
+}
+
+// SavePPMShipmentSignedCertification converts from the SavePPMShipmentSignedCertification payload and the
+// SignedCertification model
+func SavePPMShipmentSignedCertification(ppmShipmentID uuid.UUID, signedCertification internalmessages.SavePPMShipmentSignedCertification) models.SignedCertification {
+	model := models.SignedCertification{
+		PpmID: &ppmShipmentID,
+		Date:  handlers.FmtDatePtrToPop(signedCertification.Date),
+	}
+
+	if signedCertification.CertificationText != nil {
+		model.CertificationText = *signedCertification.CertificationText
+	}
+
+	if signedCertification.Signature != nil {
+		model.Signature = *signedCertification.Signature
+	}
+
+	return model
+}
+
+// ReSavePPMShipmentSignedCertification converts from the SavePPMShipmentSignedCertification payload and the
+// SignedCertification model, taking into account an existing ID
+func ReSavePPMShipmentSignedCertification(ppmShipmentID uuid.UUID, signedCertificationID uuid.UUID, signedCertification internalmessages.SavePPMShipmentSignedCertification) models.SignedCertification {
+	model := SavePPMShipmentSignedCertification(ppmShipmentID, signedCertification)
+
+	model.ID = signedCertificationID
+
+	return model
+}
+
+// SignedCertificationFromSubmit
+func SignedCertificationFromSubmit(payload *internalmessages.SubmitMoveForApprovalPayload, userID uuid.UUID, moveID strfmt.UUID) *models.SignedCertification {
+	if payload == nil {
+		return nil
+	}
+	date := time.Time(*payload.Certificate.Date)
+	certType := models.SignedCertificationType(*payload.Certificate.CertificationType)
+	newSignedCertification := models.SignedCertification{
+		MoveID:                   uuid.FromStringOrNil(moveID.String()),
+		PersonallyProcuredMoveID: nil,
+		CertificationType:        &certType,
+		SubmittingUserID:         userID,
+		CertificationText:        *payload.Certificate.CertificationText,
+		Signature:                *payload.Certificate.Signature,
+		Date:                     date,
+	}
+
+	if payload.Certificate.PersonallyProcuredMoveID != nil {
+		ppmID := uuid.FromStringOrNil(payload.Certificate.PersonallyProcuredMoveID.String())
+		newSignedCertification.PersonallyProcuredMoveID = &ppmID
+	}
+
+	return &newSignedCertification
 }

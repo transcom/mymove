@@ -18,10 +18,10 @@ func NewShipmentRouter() services.ShipmentRouter {
 	return &shipmentRouter{}
 }
 
-// Submit is used to submit a shipment at the time the customer submits
-// their move.
+// Submit is used to submit a shipment either at creation time, or when the customer submits their move. It's up to the
+// caller to save the shipment.
 func (router shipmentRouter) Submit(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
-	if shipment.Status != models.MTOShipmentStatusDraft {
+	if shipment.Status != models.MTOShipmentStatusDraft && shipment.Status != "" {
 		return ConflictStatusError{
 			id:                        shipment.ID,
 			transitionFromStatus:      shipment.Status,
@@ -34,16 +34,24 @@ func (router shipmentRouter) Submit(appCtx appcontext.AppContext, shipment *mode
 	return nil
 }
 
-// Approve is called when the TOO approves the shipment.
-func (router shipmentRouter) Approve(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+// Approve checks if a shipment can be approved, and if so, sets the appropriate status and date. It's up to the caller
+// to save the shipment.
+func (router shipmentRouter) Approve(_ appcontext.AppContext, shipment *models.MTOShipment) error {
 	// When a shipment is approved, service items automatically get created, but
 	// service items can only be created if a Move's status is either Approved
 	// or Approvals Requested, so check and fail early.
 	move := shipment.MoveTaskOrder
-	if move.Status != models.MoveStatusAPPROVED && move.Status != models.MoveStatusAPPROVALSREQUESTED {
+	if move.Status != models.MoveStatusAPPROVED && move.Status != models.MoveStatusAPPROVALSREQUESTED && !(shipment.ShipmentType == models.MTOShipmentTypePPM && move.Status == models.MoveStatusNeedsServiceCounseling) {
 		return apperror.NewConflictError(
 			move.ID,
-			fmt.Sprintf("Cannot approve a shipment if the move isn't approved. The current status for the move with ID %s is %s", move.ID, move.Status),
+			fmt.Sprintf(
+				"Cannot approve a shipment if the move status isn't %s or %s, or if it isn't a PPM shipment with a move status of %s. The current status for the move with ID %s is %s",
+				models.MoveStatusAPPROVED,
+				models.MoveStatusAPPROVALSREQUESTED,
+				models.MoveStatusNeedsServiceCounseling,
+				move.ID,
+				move.Status,
+			),
 		)
 	}
 
@@ -71,7 +79,7 @@ func (router shipmentRouter) Approve(appCtx appcontext.AppContext, shipment *mod
 }
 
 // RequestCancellation is called when the TOO has requested that the Prime cancel the shipment.
-func (router shipmentRouter) RequestCancellation(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+func (router shipmentRouter) RequestCancellation(_ appcontext.AppContext, shipment *models.MTOShipment) error {
 	if shipment.Status != models.MTOShipmentStatusApproved {
 		return ConflictStatusError{
 			id:                        shipment.ID,
@@ -86,7 +94,7 @@ func (router shipmentRouter) RequestCancellation(appCtx appcontext.AppContext, s
 }
 
 // Cancel cancels the shipment
-func (router shipmentRouter) Cancel(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+func (router shipmentRouter) Cancel(_ appcontext.AppContext, shipment *models.MTOShipment) error {
 	if shipment.Status != models.MTOShipmentStatusCancellationRequested {
 		return ConflictStatusError{
 			id:                        shipment.ID,
@@ -102,7 +110,7 @@ func (router shipmentRouter) Cancel(appCtx appcontext.AppContext, shipment *mode
 }
 
 // Reject rejects the shipment
-func (router shipmentRouter) Reject(appCtx appcontext.AppContext, shipment *models.MTOShipment, reason *string) error {
+func (router shipmentRouter) Reject(_ appcontext.AppContext, shipment *models.MTOShipment, reason *string) error {
 	if shipment.Status != models.MTOShipmentStatusSubmitted {
 		return ConflictStatusError{
 			id:                        shipment.ID,
@@ -119,7 +127,7 @@ func (router shipmentRouter) Reject(appCtx appcontext.AppContext, shipment *mode
 }
 
 // RequestDiversion is called when the TOO has requested that the Prime divert the shipment.
-func (router shipmentRouter) RequestDiversion(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+func (router shipmentRouter) RequestDiversion(_ appcontext.AppContext, shipment *models.MTOShipment) error {
 	if shipment.Status != models.MTOShipmentStatusApproved {
 		return ConflictStatusError{
 			id:                        shipment.ID,
@@ -134,7 +142,7 @@ func (router shipmentRouter) RequestDiversion(appCtx appcontext.AppContext, ship
 }
 
 // ApproveDiversion is called when the TOO is approving a shipment that the Prime has marked as being diverted.
-func (router shipmentRouter) ApproveDiversion(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+func (router shipmentRouter) ApproveDiversion(_ appcontext.AppContext, shipment *models.MTOShipment) error {
 	if !shipment.Diversion {
 		return apperror.NewConflictError(
 			shipment.ID,

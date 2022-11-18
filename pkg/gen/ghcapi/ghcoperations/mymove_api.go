@@ -242,9 +242,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderUpdateMoveTIORemarksHandler: move_task_order.UpdateMoveTIORemarksHandlerFunc(func(params move_task_order.UpdateMoveTIORemarksParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMoveTIORemarks has not yet been implemented")
 		}),
-		MoveTaskOrderUpdateMoveTaskOrderHandler: move_task_order.UpdateMoveTaskOrderHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrder has not yet been implemented")
-		}),
 		MoveTaskOrderUpdateMoveTaskOrderStatusHandler: move_task_order.UpdateMoveTaskOrderStatusHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrderStatus has not yet been implemented")
 		}),
@@ -429,8 +426,6 @@ type MymoveAPI struct {
 	OrderUpdateMaxBillableWeightAsTIOHandler order.UpdateMaxBillableWeightAsTIOHandler
 	// MoveTaskOrderUpdateMoveTIORemarksHandler sets the operation handler for the update move t i o remarks operation
 	MoveTaskOrderUpdateMoveTIORemarksHandler move_task_order.UpdateMoveTIORemarksHandler
-	// MoveTaskOrderUpdateMoveTaskOrderHandler sets the operation handler for the update move task order operation
-	MoveTaskOrderUpdateMoveTaskOrderHandler move_task_order.UpdateMoveTaskOrderHandler
 	// MoveTaskOrderUpdateMoveTaskOrderStatusHandler sets the operation handler for the update move task order status operation
 	MoveTaskOrderUpdateMoveTaskOrderStatusHandler move_task_order.UpdateMoveTaskOrderStatusHandler
 	// PpmUpdateMovingExpenseHandler sets the operation handler for the update moving expense operation
@@ -704,9 +699,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveTaskOrderUpdateMoveTIORemarksHandler == nil {
 		unregistered = append(unregistered, "move_task_order.UpdateMoveTIORemarksHandler")
-	}
-	if o.MoveTaskOrderUpdateMoveTaskOrderHandler == nil {
-		unregistered = append(unregistered, "move_task_order.UpdateMoveTaskOrderHandler")
 	}
 	if o.MoveTaskOrderUpdateMoveTaskOrderStatusHandler == nil {
 		unregistered = append(unregistered, "move_task_order.UpdateMoveTaskOrderStatusHandler")
@@ -1059,10 +1051,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/tio-remarks"] = move_task_order.NewUpdateMoveTIORemarks(o.context, o.MoveTaskOrderUpdateMoveTIORemarksHandler)
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
-	}
-	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}"] = move_task_order.NewUpdateMoveTaskOrder(o.context, o.MoveTaskOrderUpdateMoveTaskOrderHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

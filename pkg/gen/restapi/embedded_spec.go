@@ -30,7 +30,7 @@ func init() {
     "title": "my.move.mil",
     "license": {
       "name": "MIT",
-      "url": "https://github.com/transcom/mymove/blob/master/LICENSE.md"
+      "url": "https://github.com/transcom/mymove/blob/main/LICENSE.md"
     },
     "version": "0.0.1"
   },
@@ -113,7 +113,7 @@ func init() {
     "title": "my.move.mil",
     "license": {
       "name": "MIT",
-      "url": "https://github.com/transcom/mymove/blob/master/LICENSE.md"
+      "url": "https://github.com/transcom/mymove/blob/main/LICENSE.md"
     },
     "version": "0.0.1"
   },

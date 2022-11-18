@@ -6,7 +6,7 @@ info:
   title: MilMove Orders API
   license:
     name: MIT
-    url: 'https://github.com/transcom/mymove/blob/master/LICENSE.md'
+    url: 'https://github.com/transcom/mymove/blob/main/LICENSE.md'
 basePath: /orders/v1
 paths:
   '/edipis/{edipi}/orders':
