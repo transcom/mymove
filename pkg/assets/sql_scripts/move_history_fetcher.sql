@@ -109,7 +109,7 @@ WITH move AS (
 				'shipment_type', move_shipments.shipment_type,
 				'shipment_id_abbr', move_shipments.shipment_id_abbr
 				)
-			)::TEXT, '[{}]'::TEXT AS context
+			)::TEXT AS context
 		FROM
 			mto_service_item_customer_contacts
 		JOIN move_service_items on move_service_items.id = mto_service_item_customer_contacts.mto_service_item_id
