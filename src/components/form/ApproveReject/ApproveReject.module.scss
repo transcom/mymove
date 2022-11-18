@@ -1,0 +1,180 @@
+@import '../../../shared/styles/basics';
+@import '../../../shared/styles/mixins';
+@import '../../../shared/styles/colors';
+
+.ApproveReject {
+  &:not(:first-child)  {
+    @include u-border-width('2px');
+    @include u-border-color('gray-10');
+
+    .cardHeader {
+      @include u-display('none');
+    }
+  }
+
+  h3 {
+    @include u-margin-top(1.5);
+    @include u-margin-bottom(1);
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  dl {
+    @include u-margin-bottom(1);
+  }
+
+  dt {
+    @include u-font-size('base', 2);
+    @include u-font-weight('bold');
+    @include u-color('gray-90');
+  }
+
+  dt.daysInSIT {
+    @include u-margin-bottom(1);
+  }
+
+  dd {
+    margin-left: 0;
+    @include u-margin-top(1);
+    @include u-margin-bottom(3);
+  }
+
+  dd:last-child{
+    @include u-margin-bottom(1);
+  }
+
+  .daysInSITDetails {
+    @include u-margin-bottom(3)
+  }
+
+  :global(.usa-button.usa-button--unstyled).toggleCalculations {
+      @include u-padding-x(0);
+      @include u-margin-bottom(1);
+      @include u-font-size(body, '3xs');
+  }
+
+  .calculationsContainer {
+    @include u-margin-top(2);
+    @include u-margin-bottom(1);
+  }
+
+  .form {
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .rejectionButtonGroup {
+    display: flex;
+    align-items: center;
+  }
+
+  .divider {
+    @include u-border-top(1px);
+    @include u-border-top('base-lighter');
+    @include u-margin-left(-2);
+    @include u-margin-right(-2);
+  }
+
+  .cardHeader {
+    @include u-margin-top(1.5);
+    @include u-margin-bottom(2);
+  }
+
+  .addressBlock {
+    @include u-margin-top(0);
+    span {
+      @include u-text('bold');
+    }
+  }
+
+  .statusOption {
+    @include u-padding(0);
+    @include u-border(1px);
+    border-color: $base-light;
+    border-radius: units(2px);
+
+    :global {
+      .usa-radio__label {
+        @include u-padding-y(2);
+        @include u-padding-left(6);
+        margin: 0;
+      }
+
+      .usa-radio__input:checked+.usa-radio__label {
+        background-color: $link-light;
+      }
+
+      .usa-form-group {
+        @include u-padding(2);
+
+        .usa-label {
+          margin-top: 0;
+        }
+      }
+    }
+
+    p {
+      @include u-margin-top(1);
+      @include u-margin-bottom(0);
+      white-space: pre-wrap;
+    }
+
+    &.selected {
+      @include u-shadow(2);
+    }
+  }
+
+  .statusOption+.statusOption {
+    @include u-margin-top(1);
+  }
+
+  .clearStatus {
+    padding: 0;
+    @include u-padding-top(2);
+    @include u-text('light');
+  }
+
+  .statusOption+.clearStatus {
+    margin-top: 3px;
+  }
+
+  .completeContainer {
+    @include u-margin(0);
+    @include u-margin-top(4);
+    @include u-padding(2);
+    background-color: $bg-gray;
+    color: $base-darkest;
+    border: 1px solid $base-lighter;
+    @include u-radius('05');
+
+    svg {
+      @include u-margin-right(1);
+      height: 16px;
+      width: 16px;
+    }
+
+    .statusHeading {
+      @include u-font-weight(bold);
+      @include u-display(flex);
+      align-items: center;
+    }
+
+    .statusApproved svg {
+      color: $success;
+    }
+
+    .statusRejected svg {
+      color: $error;
+    }
+
+    .rejectionReason {
+      @include u-font-size('base', 2);
+      @include u-margin-bottom(0);
+      white-space: pre-wrap;
+    }
+  }
+}
