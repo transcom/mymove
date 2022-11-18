@@ -17187,10 +17187,10 @@ ra-core@^4.5.0:
     react-is "^17.0.2"
     react-query "^3.32.1"
 
-ra-data-simple-rest@^4.5.1:
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.5.1.tgz#bdb4ea6711c8d5d319e3771d86c635225ea2ef77"
-  integrity sha512-iIEtoNvX09yqMw2jE3vKuEuQ0n+iFKGSOmltMa2FnWZGHjGZWHqr3z13gpoZrqgxJM24jLEUdJ/d/vThsYYjhg==
+ra-data-simple-rest@^4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.5.2.tgz#d3672c295beee1f6f47dcbc69a7524ee3bc4bf61"
+  integrity sha512-eGkpIT/M2M3Ytgn+UArfT4HE4Niqvi7U50ksGs6KqmAYpD3R2kQhkMzwpltaN0pEzkQVSKMWXQYaPoCmx4jgzg==
   dependencies:
     query-string "^7.1.1"
 
