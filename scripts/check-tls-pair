@@ -14,8 +14,6 @@ CERT_FILE=$(echo $2 | base64 --decode)
 key_mod=$(openssl rsa -noout -modulus -in ${KEY_FILE} | openssl md5)
 cert_mod=$(openssl x509 -noout -modulus -in ${CERT_FILE} | openssl md5)
 
-if [ key_mod != cert_mod ]; then
-  echo $key_mod
-  echo $cert_mod
+if [ $key_mod != $cert_mod ]; then
   exit 1
 fi
