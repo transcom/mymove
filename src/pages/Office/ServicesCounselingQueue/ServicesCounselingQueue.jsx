@@ -1,6 +1,6 @@
 import React from 'react';
 import { generatePath } from 'react-router';
-import { useHistory } from 'react-router-dom';
+import { useHistory, Switch, Route } from 'react-router-dom';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
@@ -15,7 +15,7 @@ import {
   SERVICE_COUNSELING_MOVE_STATUS_LABELS,
 } from 'constants/queues';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { useServicesCounselingQueueQueries, useUserQueries } from 'hooks/queries';
+import { useServicesCounselingQueueQueries, useServicesCounselingQueuePPMQueries, useUserQueries } from 'hooks/queries';
 import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -106,55 +106,71 @@ const ServicesCounselingQueue = () => {
   const history = useHistory();
 
   const handleClick = (values) => {
-    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode: values.locator }));
+    history.push(
+      generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, {
+        moveCode: values.locator,
+      }),
+    );
   };
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  let counseling = true;
-  let ppmCloseout = false;
-
-  if (history.location.pathname === '/PPM-closeout') {
-    ppmCloseout = true;
-    counseling = false;
-  }
   return (
     // TODO: Pull out header count and add new move button
     <div className={styles.ServicesCounselingQueue}>
-      {ppmCloseout && (
-        <TableQueue
-          showTabs
-          showFilters
-          showPagination
-          manualSortBy
-          defaultCanSort
-          defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
-          disableMultiSort
-          disableSortBy={false}
-          columns={columns()}
-          title="DAMoves"
-          handleClick={handleClick}
-          useQueries={useServicesCounselingQueueQueries}
-        />
-      )}
-      {counseling && (
-        <TableQueue
-          className={styles.ServicesCounseling}
-          showTabs
-          showFilters
-          showPagination
-          manualSortBy
-          defaultCanSort
-          defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
-          disableMultiSort
-          disableSortBy={false}
-          columns={columns()}
-          title="Moves"
-          handleClick={handleClick}
-          useQueries={useServicesCounselingQueueQueries}
-        />
-      )}
+      <Switch>
+        <Route path={servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH} exact>
+          <TableQueue
+            showTabs
+            showFilters
+            showPagination
+            manualSortBy
+            defaultCanSort
+            defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
+            disableMultiSort
+            disableSortBy={false}
+            columns={columns()}
+            title="Moves"
+            handleClick={handleClick}
+            useQueries={useServicesCounselingQueuePPMQueries}
+          />
+        </Route>
+        <Route path={servicesCounselingRoutes.QUEUE_COUNSELING_PATH}>
+          <TableQueue
+            className={styles.ServicesCounseling}
+            showTabs
+            showFilters
+            showPagination
+            manualSortBy
+            defaultCanSort
+            defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
+            disableMultiSort
+            disableSortBy={false}
+            columns={columns()}
+            title="Moves"
+            handleClick={handleClick}
+            useQueries={useServicesCounselingQueueQueries}
+          />
+        </Route>
+        <Route path={servicesCounselingRoutes.DEFAULT_QUEUE_PATH}>
+          <TableQueue
+            className={styles.ServicesCounseling}
+            showTabs
+            showFilters
+            showPagination
+            manualSortBy
+            defaultCanSort
+            defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
+            disableMultiSort
+            disableSortBy={false}
+            columns={columns()}
+            title="Moves"
+            handleClick={handleClick}
+            useQueries={useServicesCounselingQueueQueries}
+          />
+        </Route>
+      </Switch>
     </div>
   );
 };

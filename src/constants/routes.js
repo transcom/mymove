@@ -51,6 +51,7 @@ export const servicesCounselingRoutes = {
   MOVE_VIEW_PATH: `${BASE_MOVE_PATH}/details`,
   ORDERS_EDIT_PATH: `${BASE_MOVE_PATH}/orders`,
   QUEUE_VIEW_PATH: '/counseling/queue',
+  DEFAULT_QUEUE_PATH: '/',
   QUEUE_COUNSELING_PATH: '/counseling',
   QUEUE_CLOSEOUT_PATH: '/PPM-closeout',
   SHIPMENT_ADD_PATH: `${BASE_MOVE_PATH}/new-:shipmentType`,
