@@ -1764,7 +1764,9 @@ workflows:
       - pre_deps_golang
 
       - pre_deps_yarn
-
+      
+      - check_tls_certificate_prd
+      
       - check_generated_code:
           requires:
             - pre_deps_golang
@@ -1776,7 +1778,6 @@ workflows:
           filters:
             branches:
               only: main
-
       - pre_test:
           requires:
             - pre_deps_golang
