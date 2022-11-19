@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS audit_history_table_name_idx ON audit_history(table_name);
