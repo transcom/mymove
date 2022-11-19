@@ -74,18 +74,20 @@ describe('ShipmentList component', () => {
     await checkShipmentClick('ID-4', 1, SHIPMENT_OPTIONS.NTSR);
   });
 
-  it('calls onDeleteClick when delete is clicked', async () => {
+  it.each([
+    [SHIPMENT_OPTIONS.PPM, 1],
+    [SHIPMENT_OPTIONS.HHG, 2],
+    [SHIPMENT_OPTIONS.NTS, 3],
+    [SHIPMENT_OPTIONS.NTSR, 4],
+  ])('calls onDeleteClick for shipment type %s when delete is clicked', async (_, id) => {
     render(<ShipmentList {...defaultProps} />);
-    for (let i = 0; i < defaultProps.shipments.length; i += 1) {
-      const deleteBtn = getByRole(screen.getAllByTestId('shipment-list-item-container')[i], 'button', {
-        name: 'Delete',
-      });
+    const deleteBtn = getByRole(screen.getAllByTestId('shipment-list-item-container')[id - 1], 'button', {
+      name: 'Delete',
+    });
 
-      /* eslint-disable no-await-in-loop */
-      await userEvent.click(deleteBtn);
-      expect(onDeleteClick).toHaveBeenCalledWith(`ID-${i + 1}`);
-      expect(onDeleteClick).toHaveBeenCalledTimes(i + 1);
-    }
+    await userEvent.click(deleteBtn);
+    expect(onDeleteClick).toHaveBeenCalledWith(`ID-${id}`);
+    expect(onDeleteClick).toHaveBeenCalledTimes(1);
   });
 });
 
