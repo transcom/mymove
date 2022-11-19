@@ -452,6 +452,48 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 	return model
 }
 
+// ProgearWeightTicketModelFromUpdate model
+func ProgearWeightTicketModelFromUpdate(progearWeightTicket *ghcmessages.UpdateProGearWeightTicket) *models.ProgearWeightTicket {
+	if progearWeightTicket == nil {
+		return nil
+	}
+
+	model := &models.ProgearWeightTicket{
+		Weight:           handlers.PoundPtrFromInt64Ptr(progearWeightTicket.Weight),
+		HasWeightTickets: handlers.FmtBool(progearWeightTicket.HasWeightTickets),
+		BelongsToSelf:    handlers.FmtBool(progearWeightTicket.BelongsToSelf),
+	}
+	return model
+}
+
+// WeightTicketModelFromUpdate
+func WeightTicketModelFromUpdate(weightTicket *ghcmessages.UpdateWeightTicket) *models.WeightTicket {
+	if weightTicket == nil {
+		return nil
+	}
+	model := &models.WeightTicket{
+		EmptyWeight:          handlers.PoundPtrFromInt64Ptr(weightTicket.EmptyWeight),
+		FullWeight:           handlers.PoundPtrFromInt64Ptr(weightTicket.FullWeight),
+		OwnsTrailer:          handlers.FmtBool(weightTicket.OwnsTrailer),
+		TrailerMeetsCriteria: handlers.FmtBool(weightTicket.TrailerMeetsCriteria),
+	}
+	return model
+}
+
+// MovingExpenseModelFromUpdate
+func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense) *models.MovingExpense {
+	if movingExpense == nil {
+		return nil
+	}
+	model := &models.MovingExpense{
+		Amount:       handlers.FmtInt64PtrToPopPtr(&movingExpense.Amount),
+		SITStartDate: handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
+		SITEndDate:   handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
+	}
+
+	return model
+}
+
 func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) *models.EvaluationReport {
 	if evaluationReport == nil {
 		return nil
