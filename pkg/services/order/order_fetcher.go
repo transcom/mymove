@@ -140,7 +140,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 					Having("bool_and(ppm_shipments.status = ?)", models.PPMShipmentStatusNeedsPaymentApproval)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
-					Where("ppm_shipments.status IS NULL OR ppm_shipments.status <> ?", models.PPMShipmentStatusNeedsPaymentApproval)
+					// include moves if any of their PPMs are not in NeedsPaymentApproval status OR if they do not have any PPMs
+					Having("(BOOL_OR(ppm_shipments.status IS NOT NULL AND ppm_shipments.status <> ?) OR BOOL_AND(ppm_shipments.status IS NULL))", models.PPMShipmentStatusNeedsPaymentApproval)
 			}
 		}
 	}

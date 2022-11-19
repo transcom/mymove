@@ -394,6 +394,44 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		suite.Equal(move.Locator, moves[0].Locator)
 	})
 
+	suite.Run("Move with HHG and PPM in closeout should not be returned when needsPPMCloseout=false", func() {
+		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "AAAA")
+		army := models.AffiliationARMY
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+				Show:   &showMove,
+			},
+			TransportationOffice: models.TransportationOffice{
+				Gbloc: "AAAA",
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &army},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			Move: move,
+		})
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHG,
+			},
+			Move: move,
+		})
+
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", "AAAA")
+
+		params := services.ListOrderParams{PerPage: swag.Int64(9), Page: swag.Int64(1), NeedsPPMCloseout: swag.Bool(false), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Empty(moves)
+	})
+
 	suite.Run("office user in normal GBLOC should not see moves that require closeout in counseling tab", func() {
 		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "AAAA")
 
