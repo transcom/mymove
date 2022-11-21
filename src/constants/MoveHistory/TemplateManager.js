@@ -1,4 +1,3 @@
-import detailsTypes from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import undefinedEvent from 'constants/MoveHistory/EventTemplates/NullEvent/undefined';
 import * as eventTemplates from 'constants/MoveHistory/EventTemplates';
 
@@ -8,30 +7,16 @@ const registerTemplate = ({
   action,
   eventName,
   tableName,
-  detailsType = detailsTypes.PLAIN_TEXT,
   getEventNameDisplay = () => {
     return 'Undefined event type';
   },
-  getDetailsPlainText = () => {
-    return 'Undefined details';
-  },
-  getStatusDetails = () => {
-    return 'Undefined status';
-  },
-  getDetailsLabeledDetails = null,
-  getLabeledPaymentRequestDetails = null,
   getDetails = null,
 }) => {
   const eventType = {};
   eventType.action = action;
   eventType.eventName = eventName;
   eventType.tableName = tableName;
-  eventType.detailsType = detailsType;
   eventType.getEventNameDisplay = getEventNameDisplay;
-  eventType.getDetailsPlainText = getDetailsPlainText;
-  eventType.getStatusDetails = getStatusDetails;
-  eventType.getLabeledPaymentRequestDetails = getLabeledPaymentRequestDetails;
-  eventType.getDetailsLabeledDetails = getDetailsLabeledDetails;
   eventType.getDetails = getDetails;
 
   // Used for matching properties on Events when building an Event Template
