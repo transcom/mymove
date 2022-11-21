@@ -296,11 +296,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 					// separate the fractional seconds part of the timestamp
 					parts := strings.Split(amendedAcknowledgedAt, ".")
 					if len(parts) > 1 {
-						// create format string to generate the missing zeros if any ("%05s")
-						fillFormat := "%0" + fmt.Sprintf("%ds", 6-len(parts[1]))
-						// combine the existing fractional seconds with the filled zeros ("900000")
-						microseconds := fmt.Sprintf("%s"+fillFormat, parts[1], "")
-						normalizedTimestamp = fmt.Sprintf("%s.%s", parts[0], microseconds)
+						trailingZeros := strings.Repeat("0", 6-len(parts[1]))
+						normalizedTimestamp = fmt.Sprintf("%s.%s%s", parts[0], parts[1], trailingZeros)
 					} else if len(parts) == 1 {
 						normalizedTimestamp = parts[0] + ".000000"
 					}
