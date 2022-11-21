@@ -55,3 +55,4 @@ export { default as createUpload } from './CreateUpload/createUpload';
 export { default as deleteUpload } from './DeleteUpload/deleteUpload';
 export { default as updateServiceMemberBackupContacts } from './UpdateServiceMemberBackupContact/updateServiceMemberBackupContact';
 export { default as createServiceMemberBackupContacts } from './CreateServiceMemberBackupContact/createServiceMemberBackupContact';
+export { default as updateCustomer } from './UpdateCustomer/updateCustomer';
