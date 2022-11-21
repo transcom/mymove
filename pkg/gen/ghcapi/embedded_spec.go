@@ -8102,7 +8102,11 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "email": {
           "type": "string",
@@ -18113,7 +18117,11 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "email": {
           "type": "string",

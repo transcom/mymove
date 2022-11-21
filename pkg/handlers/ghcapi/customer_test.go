@@ -48,22 +48,25 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeServicesCounselor,
 	})
+
 	body := &ghcmessages.UpdateCustomerPayload{
 		LastName:  "Newlastname",
 		FirstName: "Newfirstname",
 		Phone:     handlers.FmtString("123-455-3399"),
-		CurrentAddress: &ghcmessages.Address{
-			StreetAddress1: handlers.FmtString("123 New Street"),
-			City:           handlers.FmtString("Newcity"),
-			State:          handlers.FmtString("MA"),
-			PostalCode:     handlers.FmtString("12345"),
-		},
 		BackupContact: &ghcmessages.BackupContact{
 			Name:  handlers.FmtString("New Backup Contact"),
 			Phone: handlers.FmtString("445-345-1212"),
 			Email: handlers.FmtString("newbackup@mail.com"),
 		},
 	}
+	currentAddress := ghcmessages.Address{
+		StreetAddress1: handlers.FmtString("123 New Street"),
+		City:           handlers.FmtString("Newcity"),
+		State:          handlers.FmtString("MA"),
+		PostalCode:     handlers.FmtString("12345"),
+	}
+	body.CurrentAddress.Address = currentAddress
+
 	customer := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
 	request := httptest.NewRequest("PATCH", "/orders/{customerID}", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
