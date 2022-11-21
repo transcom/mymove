@@ -463,21 +463,17 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 		inspectionType = &tempInspectionType
 	}
 
-	var travelTimeMinutes *int
-	if evaluationReport.TravelTimeMinutes != nil {
-		tempTravelTime := int(*evaluationReport.TravelTimeMinutes)
-		travelTimeMinutes = &tempTravelTime
-	}
-	var evaluationLengthMinutes *int
-	if evaluationReport.EvaluationLengthMinutes != nil {
-		tempEvaluationLength := int(*evaluationReport.EvaluationLengthMinutes)
-		evaluationLengthMinutes = &tempEvaluationLength
-	}
 	var location *models.EvaluationReportLocationType
 	if evaluationReport.Location != nil {
 		tempLocation := models.EvaluationReportLocationType(*evaluationReport.Location)
 		location = &tempLocation
 	}
+
+	//TODO: put this in a constant
+	timeFormat := "15:04"
+	timeDepart, _ := time.Parse(timeFormat, *evaluationReport.TimeDepart)
+	evalStart, _ := time.Parse(timeFormat, *evaluationReport.EvalStart)
+	evalEnd, _ := time.Parse(timeFormat, *evaluationReport.EvalEnd)
 
 	model := models.EvaluationReport{
 		ID:                            uuid.FromStringOrNil(evaluationReport.ID.String()),
@@ -490,11 +486,12 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 		Type:                          models.EvaluationReportType(evaluationReport.Type),
 		InspectionDate:                (*time.Time)(evaluationReport.InspectionDate),
 		InspectionType:                inspectionType,
-		TravelTimeMinutes:             travelTimeMinutes,
+		TimeDepart:                    &timeDepart,
+		EvalStart:                     &evalStart,
+		EvalEnd:                       &evalEnd,
 		Location:                      location,
 		LocationDescription:           evaluationReport.LocationDescription,
 		ObservedDate:                  (*time.Time)(evaluationReport.ObservedDate),
-		EvaluationLengthMinutes:       evaluationLengthMinutes,
 		ViolationsObserved:            evaluationReport.ViolationsObserved,
 		Remarks:                       evaluationReport.Remarks,
 		SeriousIncident:               evaluationReport.SeriousIncident,

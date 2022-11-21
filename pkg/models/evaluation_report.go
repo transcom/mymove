@@ -43,11 +43,12 @@ type EvaluationReport struct {
 	Type                          EvaluationReportType            `json:"type" db:"type"`
 	InspectionDate                *time.Time                      `json:"inspection_date" db:"inspection_date"`
 	InspectionType                *EvaluationReportInspectionType `json:"inspection_type" db:"inspection_type"`
-	TravelTimeMinutes             *int                            `json:"travel_time_minutes" db:"travel_time_minutes"`
 	Location                      *EvaluationReportLocationType   `json:"location" db:"location"`
 	LocationDescription           *string                         `json:"location_description" db:"location_description"`
 	ObservedDate                  *time.Time                      `json:"observed_date" db:"observed_date"`
-	EvaluationLengthMinutes       *int                            `json:"evaluation_length_minutes" db:"evaluation_length_minutes"`
+	TimeDepart                    *time.Time                      `json:"time_depart" db:"time_depart"`
+	EvalStart                     *time.Time                      `json:"eval_start" db:"eval_start"`
+	EvalEnd                       *time.Time                      `json:"eval_end" db:"eval_end"`
 	ViolationsObserved            *bool                           `json:"violations_observed" db:"violations_observed"`
 	Remarks                       *string                         `json:"remarks" db:"remarks"`
 	SeriousIncident               *bool                           `json:"serious_incident" db:"serious_incident"`
@@ -72,9 +73,19 @@ func (r *EvaluationReport) Validate(tx *pop.Connection) (*validate.Errors, error
 	if r.ShipmentID != nil {
 		vs = append(vs, &validators.StringsMatch{Name: "Type", Field: string(r.Type), Field2: string(EvaluationReportTypeShipment)})
 	}
-	if r.TravelTimeMinutes != nil {
-		vs = append(vs, &validators.StringsMatch{Field: string(*r.InspectionType), Name: "InspectionType", Field2: string(EvaluationReportInspectionTypePhysical)})
+
+	physical := EvaluationReportInspectionTypePhysical
+	other := EvaluationReportLocationTypeOther
+
+	// Physical inspections at origin location must have time depart, eval start and end times recorded
+	if r.InspectionType == &physical && r.Location != &other {
+		vs = append(vs, &validators.TimeIsPresent{Field: *r.TimeDepart, Name: "TimeDepart"})
+
+		vs = append(vs, &validators.TimeIsPresent{Field: *r.EvalStart, Name: "EvalStart"})
+
+		vs = append(vs, &validators.TimeIsPresent{Field: *r.EvalEnd, Name: "EvalEnd"})
 	}
+
 	if r.ObservedDate != nil {
 		vs = append(vs, &validators.StringsMatch{Field: string(*r.InspectionType), Name: "InspectionType", Field2: string(EvaluationReportInspectionTypePhysical)})
 	}

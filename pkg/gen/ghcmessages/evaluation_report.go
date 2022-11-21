@@ -30,9 +30,13 @@ type EvaluationReport struct {
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
-	// evaluation length minutes
-	// Minimum: 0
-	EvaluationLengthMinutes *int64 `json:"evaluationLengthMinutes,omitempty"`
+	// eval end
+	// Example: 18:00
+	EvalEnd *string `json:"evalEnd,omitempty"`
+
+	// eval start
+	// Example: 15:00
+	EvalStart *string `json:"evalStart,omitempty"`
 
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -110,9 +114,9 @@ type EvaluationReport struct {
 	// Format: date-time
 	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
 
-	// travel time minutes
-	// Minimum: 0
-	TravelTimeMinutes *int64 `json:"travelTimeMinutes,omitempty"`
+	// time depart
+	// Example: 14:30
+	TimeDepart *string `json:"timeDepart,omitempty"`
 
 	// type
 	Type EvaluationReportType `json:"type,omitempty"`
@@ -135,10 +139,6 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateEvaluationLengthMinutes(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -198,10 +198,6 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateTravelTimeMinutes(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateType(formats); err != nil {
 		res = append(res, err)
 	}
@@ -239,18 +235,6 @@ func (m *EvaluationReport) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *EvaluationReport) validateEvaluationLengthMinutes(formats strfmt.Registry) error {
-	if swag.IsZero(m.EvaluationLengthMinutes) { // not required
-		return nil
-	}
-
-	if err := validate.MinimumInt("evaluationLengthMinutes", "body", *m.EvaluationLengthMinutes, 0, false); err != nil {
 		return err
 	}
 
@@ -440,18 +424,6 @@ func (m *EvaluationReport) validateSubmittedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("submittedAt", "body", "date-time", m.SubmittedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *EvaluationReport) validateTravelTimeMinutes(formats strfmt.Registry) error {
-	if swag.IsZero(m.TravelTimeMinutes) { // not required
-		return nil
-	}
-
-	if err := validate.MinimumInt("travelTimeMinutes", "body", *m.TravelTimeMinutes, 0, false); err != nil {
 		return err
 	}
 

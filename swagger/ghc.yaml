@@ -4819,10 +4819,6 @@ definitions:
         type: string
         format: date
         x-nullable: true
-      travelTimeMinutes:
-        type: integer
-        minimum: 0
-        x-nullable: true
       officeUser:
         $ref: '#/definitions/EvaluationReportOfficeUser'
       location:
@@ -4839,10 +4835,18 @@ definitions:
         type: string
         format: date
         x-nullable: true
-      evaluationLengthMinutes:
-        type: integer
-        minimum: 0
+      timeDepart:
+        type: string
         x-nullable: true
+        example: '14:30'
+      evalStart:
+        type: string
+        x-nullable: true
+        example: '15:00'
+      evalEnd:
+        type: string
+        x-nullable: true
+        example: '18:00'
       violationsObserved:
         type: boolean
         x-nullable: true
