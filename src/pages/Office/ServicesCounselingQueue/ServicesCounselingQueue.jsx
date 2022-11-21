@@ -136,24 +136,10 @@ const ServicesCounselingQueue = () => {
             useQueries={useServicesCounselingQueuePPMQueries}
           />
         </Route>
-        <Route path={servicesCounselingRoutes.QUEUE_COUNSELING_PATH}>
-          <TableQueue
-            className={styles.ServicesCounseling}
-            showTabs
-            showFilters
-            showPagination
-            manualSortBy
-            defaultCanSort
-            defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
-            disableMultiSort
-            disableSortBy={false}
-            columns={columns()}
-            title="Moves"
-            handleClick={handleClick}
-            useQueries={useServicesCounselingQueueQueries}
-          />
-        </Route>
-        <Route path={servicesCounselingRoutes.DEFAULT_QUEUE_PATH}>
+        <Route
+          path={[servicesCounselingRoutes.QUEUE_COUNSELING_PATH, servicesCounselingRoutes.DEFAULT_QUEUE_PATH]}
+          exact
+        >
           <TableQueue
             className={styles.ServicesCounseling}
             showTabs
