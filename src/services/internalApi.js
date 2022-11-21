@@ -457,3 +457,16 @@ export async function patchMovingExpense(ppmShipmentId, movingExpenseId, payload
     },
   );
 }
+
+export async function submitPPMShipmentSignedCertification(ppmShipmentId, payload) {
+  return makeInternalRequest(
+    'ppm.submitPPMShipmentDocumentation',
+    {
+      ppmShipmentId,
+      savePPMShipmentSignedCertificationPayload: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
+}

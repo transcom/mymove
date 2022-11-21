@@ -106,3 +106,12 @@ Management Regulation [DOD 7000.14-R, Volume 9](https://www.defensetravel.dod.mi
 I understand additional information and regulations pertaining to the transportation of my personal property \
 shipment(s) are provided in Chapter 5, [Joint Travel Regulations](https://www.defensetravel.dod.mil/Docs/perdiem/JTR.pdf) (PDF link).
 `;
+
+export const ppmSubmissionCertificationText = `
+I certify that any expenses claimed in this application were legitimately incurred during my PPM.
+
+Failure to furnish data may result in partial or total denial of claim and/or improper tax application.
+
+I understand the penalty for willfully making a false statement of claim is a maximum fine of $10,000, \
+maximum imprisonment of five years, or both (U.S.C, Title 18, Section 287).
+`;
