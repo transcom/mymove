@@ -1,21 +1,18 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import o from 'constants/MoveHistory/UIDisplay/Operations';
-import a from 'constants/MoveHistory/Database/Actions';
-import t from 'constants/MoveHistory/Database/Tables';
 import e from 'constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemCustomerContacts';
 
 describe('when given a Create basic service item customer contacts history record', () => {
   const historyRecord = {
-    action: a.INSERT,
+    action: 'INSERT',
     changedValues: {
       first_available_delivery_date: '2022-06-30T00:00:00+00:00',
       time_military: '1500Z',
       type: 'SECOND',
     },
-    eventName: o.createMTOServiceItem,
-    tableName: t.mto_service_item_customer_contacts,
+    eventName: 'createMTOServiceItem',
+    tableName: 'mto_service_item_customer_contacts',
   };
   const template = getTemplate(historyRecord);
   it('correctly matches the create service item customer contacts event', () => {

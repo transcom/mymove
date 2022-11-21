@@ -7,7 +7,7 @@ import e from 'constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createM
 describe('when given a move status update with create mto service item history record', () => {
   const historyRecord = {
     action: 'UPDATE',
-    eventName: o.createMTOServiceItem,
+    eventName: 'createMTOServiceItem',
     tableName: 'moves',
     oldValues: {
       status: 'Approved',
