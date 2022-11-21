@@ -1,8 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import o from 'constants/MoveHistory/UIDisplay/Operations';
-import t from 'constants/MoveHistory/Database/Tables';
 import updateServiceMemberBackupContact from 'constants/MoveHistory/EventTemplates/UpdateServiceMemberBackupContact/updateServiceMemberBackupContact';
 
 const BACKUP_CONTACT = {
@@ -14,8 +12,8 @@ const BACKUP_CONTACT = {
 describe('When a service members updates their profile', () => {
   const template = {
     action: 'UPDATE',
-    eventName: o.updateServiceMemberBackupContact,
-    tableName: t.backup_contacts,
+    eventName: 'updateServiceMemberBackupContact',
+    tableName: 'backup_contacts',
     eventNameDisplay: 'Updated profile',
   };
   it('correctly matches the patch service member event template', () => {
