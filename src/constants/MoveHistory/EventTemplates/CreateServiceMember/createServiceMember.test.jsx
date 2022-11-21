@@ -7,7 +7,7 @@ import createServiceMember from 'constants/MoveHistory/EventTemplates/CreateServ
 describe('When a service members creates a profile', () => {
   const item = {
     action: 'INSERT',
-    tableName: t.service_members,
+    tableName: 'service_members',
     eventNameDisplay: 'Created Profile',
   };
   it('correctly matches the create service member event template', () => {
