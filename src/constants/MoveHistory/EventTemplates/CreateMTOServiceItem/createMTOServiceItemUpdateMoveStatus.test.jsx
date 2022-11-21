@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import o from 'constants/MoveHistory/UIDisplay/Operations';
 import e from 'constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus';
 
 describe('when given a move status update with create mto service item history record', () => {
