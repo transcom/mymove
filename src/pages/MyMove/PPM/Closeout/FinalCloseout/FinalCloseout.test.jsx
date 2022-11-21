@@ -2,7 +2,6 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 
 import { generalRoutes } from 'constants/routes';
 import FinalCloseout from 'pages/MyMove/PPM/Closeout/FinalCloseout/FinalCloseout';
@@ -19,9 +18,10 @@ jest.mock('react-router-dom', () => ({
   useParams: jest.fn(),
 }));
 
+const mockDispatch = jest.fn();
 jest.mock('react-redux', () => ({
   ...jest.requireActual('react-redux'),
-  useDispatch: jest.fn(),
+  useDispatch: jest.fn().mockImplementation(() => mockDispatch),
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -90,9 +90,6 @@ describe('Final Closeout page', () => {
     const mockShipment = setUpMocks();
     submitPPMShipmentSignedCertification.mockResolvedValueOnce(mockShipment.ppmShipment);
 
-    const mockDispatch = jest.fn();
-    useDispatch.mockImplementation(mockDispatch);
-
     const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
 
     render(<FinalCloseout />, { wrapper: mockProviderWithHistory });
@@ -109,6 +106,7 @@ describe('Final Closeout page', () => {
     );
 
     expect(updateMTOShipment).toHaveBeenCalledWith(mockShipment);
+    expect(mockDispatch).toHaveBeenCalledTimes(2);
 
     expect(memoryHistory.location.pathname).toEqual(generalRoutes.HOME_PATH);
   });
