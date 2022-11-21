@@ -8,9 +8,7 @@ const createBaseProGearWeightTicket = ({ serviceMemberId, creationDate = new Dat
   const createdAt = creationDate.toISOString();
 
   const smId = serviceMemberId || v4();
-  const emptyDocument = createDocumentWithoutUploads({ serviceMemberId: smId });
-  const fullDocument = createDocumentWithoutUploads({ serviceMemberId: smId });
-  const constructedWeightDocument = createDocumentWithoutUploads({ serviceMemberId: smId });
+  const document = createDocumentWithoutUploads({ serviceMemberId: smId });
 
   return {
     id: v4(),
@@ -19,14 +17,9 @@ const createBaseProGearWeightTicket = ({ serviceMemberId, creationDate = new Dat
     description: null,
     hasWeightTickets: null,
     emptyWeight: null,
-    emptyDocumentId: emptyDocument.id,
-    emptyDocument,
-    fullWeight: null,
-    fullDocumentId: fullDocument.id,
-    fullDocument,
-    constructedWeight: null,
-    constructedWeightDocumentId: constructedWeightDocument.id,
-    constructedWeightDocument,
+    documentId: document.id,
+    document,
+    weight: null,
     status: null,
     reason: null,
     createdAt,
@@ -55,12 +48,8 @@ const createCompleteProGearWeightTicket = ({ serviceMemberId, creationDate } = {
     weightTicket.eTag = window.btoa(updatedAt);
   }
 
-  if (weightTicket.emptyDocument.uploads.length === 0) {
-    weightTicket.emptyDocument.uploads.push(createUpload({ fileName: 'emptyDocument.pdf' }));
-  }
-
-  if (weightTicket.fullDocument.uploads.length === 0) {
-    weightTicket.fullDocument.uploads.push(createUpload({ fileName: 'fullDocument.pdf' }));
+  if (weightTicket.document.uploads.length === 0) {
+    weightTicket.document.uploads.push(createUpload({ fileName: 'emptyDocument.pdf' }));
   }
 
   return weightTicket;

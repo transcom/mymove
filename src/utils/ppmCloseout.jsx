@@ -144,6 +144,14 @@ export const calculateNetWeightForWeightTicket = (weightTicket) => {
   return weightTicket.fullWeight - weightTicket.emptyWeight;
 };
 
+export const calculateNetWeightForProGearWeightTicket = (weightTicket) => {
+  if (weightTicket.weight == null || Number.isNaN(Number(weightTicket.weight))) {
+    return 0;
+  }
+
+  return weightTicket.weight;
+};
+
 export const calculateTotalNetWeightForWeightTickets = (weightTickets = []) => {
   return weightTickets.reduce((prev, curr) => {
     return prev + calculateNetWeightForWeightTicket(curr);
@@ -152,7 +160,7 @@ export const calculateTotalNetWeightForWeightTickets = (weightTickets = []) => {
 
 export const calculateTotalNetWeightForProGearWeightTickets = (proGearWeightTickets = []) => {
   return proGearWeightTickets.reduce((prev, curr) => {
-    return prev + curr.weight;
+    return prev + calculateNetWeightForProGearWeightTicket(curr);
   }, 0);
 };
 
