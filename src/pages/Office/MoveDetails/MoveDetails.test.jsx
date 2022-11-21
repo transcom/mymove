@@ -791,8 +791,8 @@ describe('MoveDetails page', () => {
       expect(navLinks.at(3).prop('href')).toBe('#customer-info');
     });
 
-    it('renders the Requested Shipments component', () => {
-      expect(wrapper.find('RequestedShipments')).toHaveLength(1);
+    it('renders the Submitted Requested Shipments component', () => {
+      expect(wrapper.find('SubmittedRequestedShipments')).toHaveLength(1);
     });
 
     it('renders the Orders Table', () => {

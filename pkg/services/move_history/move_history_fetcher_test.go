@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -387,7 +388,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 	suite.Run("returns Audit History with session information", func() {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		fakeRole, _ := testdatagen.LookupOrMakeRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
-		fakeUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{})
+		fakeUser := factory.BuildUser(suite.DB(), nil, nil)
 		_ = testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
 			User: fakeUser,
 			UsersRoles: models.UsersRoles{
