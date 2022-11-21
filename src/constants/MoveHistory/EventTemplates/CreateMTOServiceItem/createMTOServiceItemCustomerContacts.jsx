@@ -10,18 +10,16 @@ const formatChangedValues = (historyRecord) => {
   const { changedValues } = historyRecord;
   const { type, time_military: timeMilitary } = historyRecord.changedValues;
 
-  const deliveryTimeOrder = type === 'FIRST' ? 'first_available_delivery_time' : 'second_available_delivery_time';
-  const deliveryDateOrder = type === 'FIRST' ? 'first_available_delivery_date' : 'second_available_delivery_date';
   const newChangedValues = {
     ...getMtoShipmentLabel(historyRecord),
     ...changedValues,
   };
 
   if (type === 'FIRST') {
-    newChangedValues[deliveryTimeOrder] = timeMilitary;
+    newChangedValues.first_available_delivery_time = timeMilitary;
   } else {
-    newChangedValues[deliveryTimeOrder] = timeMilitary;
-    newChangedValues[deliveryDateOrder] = changedValues.first_available_delivery_date;
+    newChangedValues.second_available_delivery_time = timeMilitary;
+    newChangedValues.second_available_delivery_date = changedValues.first_available_delivery_date;
     delete newChangedValues.first_available_delivery_date;
   }
 
