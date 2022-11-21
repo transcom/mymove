@@ -22,7 +22,7 @@ export default {
   updateBillableWeightAsTIO: 'updateMaxBillableWeightAsTIO',
   updateMoveTaskOrder: 'updateMoveTaskOrder', // ghc.yaml
   updateMoveTaskOrderStatus: 'updateMoveTaskOrderStatus', // ghc.yaml
-  updateMTOReviewedBillableWeightsAt: 'UpdateMTOReviewedBillableWeightsAt',
+  updateMTOReviewedBillableWeightsAt: 'updateMTOReviewedBillableWeightsAt',
   updateMTOServiceItemStatus: 'updateMTOServiceItemStatus', // ghc.yaml
   updateMTOServiceItem: 'updateMTOServiceItem', // ghc.yaml
   updateMTOShipment: 'updateMTOShipment', // ghc.yaml internal.yaml prime.yaml
