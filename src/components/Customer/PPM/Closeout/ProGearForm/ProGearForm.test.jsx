@@ -29,9 +29,9 @@ beforeEach(() => {
 
 const proGearProps = {
   proGear: {
-    selfProGear: true,
+    belongsToSelf: true,
     document: [],
-    proGearWeight: 1,
+    weight: 1,
     description: 'Description',
     missingWeightTicket: '',
   },
@@ -39,7 +39,7 @@ const proGearProps = {
 
 const spouseProGearProps = {
   proGear: {
-    selfProGear: false,
+    belongsToSelf: false,
   },
 };
 
@@ -59,13 +59,13 @@ describe('ProGearForm component', () => {
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
-    it('does not select a radio when selfProGear is null', () => {
+    it('does not select a radio when belongsToSelf is null', () => {
       render(<ProGearForm {...defaultProps} />, { wrapper: MockProviders });
       expect(screen.getByLabelText('Me')).not.toBeChecked();
       expect(screen.getByLabelText('My spouse')).not.toBeChecked();
     });
 
-    it('selects "Me" radio when selfProGear is true', () => {
+    it('selects "Me" radio when belongsToSelf is true', () => {
       const { container } = render(<ProGearForm {...defaultProps} {...proGearProps} />, { wrapper: MockProviders });
       expect(screen.getByLabelText('Me')).toBeChecked();
       expect(screen.getByLabelText('My spouse')).not.toBeChecked();
@@ -73,7 +73,7 @@ describe('ProGearForm component', () => {
     });
     // TODO: Move test to WeightTicketUpload.test.jsx
     // it('populates form when weight ticket is missing', async () => {
-    //   render(<ProGearForm {...defaultProps} {...selfProGearProps} />);
+    //   render(<ProGearForm {...defaultProps} {...belongsToSelfProps} />);
     //   await waitFor(() => {
     //     expect(screen.getByLabelText("I don't have weight tickets")).toHaveDisplayValue('missingWeightTicket');
     //   });
@@ -82,7 +82,7 @@ describe('ProGearForm component', () => {
     //   ).toBeInTheDocument();
     // });
 
-    it('selects "My spouse" radio when selfProGear is false', () => {
+    it('selects "My spouse" radio when belongsToSelf is false', () => {
       render(
         <MockProviders initialState={testState}>
           <ProGearForm {...defaultProps} {...spouseProGearProps} />
@@ -93,13 +93,13 @@ describe('ProGearForm component', () => {
     });
   });
   describe('attaches button handler callbacks', () => {
-    it('calls the onSubmit callback with selfProGear set', async () => {
+    it('calls the onSubmit callback with belongsToSelf set', async () => {
       const expectedPayload = {
-        selfProGear: 'true',
+        belongsToSelf: 'true',
         document: [],
-        proGearWeight: '1',
+        weight: '1',
         description: 'Description',
-        missingWeightTicket: '',
+        missingWeightTicket: false,
       };
       render(<ProGearForm {...defaultProps} {...proGearProps} />, { wrapper: MockProviders });
 
