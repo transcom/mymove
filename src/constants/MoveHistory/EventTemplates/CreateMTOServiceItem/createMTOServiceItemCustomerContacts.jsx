@@ -4,15 +4,25 @@ import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 
 const formatChangedValues = (historyRecord) => {
+  const { changedValues } = historyRecord;
   const { type, time_military: timeMilitary } = historyRecord.changedValues;
-  const deliveryTimeOrder = type === 'FIRST' ? 'first_available_delivery_time' : 'second_available_delivery_time';
+
   const newChangedValues = {
-    ...historyRecord.changedValues,
+    ...getMtoShipmentLabel(historyRecord),
+    ...changedValues,
   };
 
-  newChangedValues[deliveryTimeOrder] = timeMilitary;
+  if (type === 'FIRST') {
+    newChangedValues.first_available_delivery_time = timeMilitary;
+  } else {
+    newChangedValues.second_available_delivery_time = timeMilitary;
+    newChangedValues.second_available_delivery_date = changedValues.first_available_delivery_date;
+    delete newChangedValues.first_available_delivery_date;
+  }
+
   return { ...historyRecord, changedValues: newChangedValues };
 };
 
