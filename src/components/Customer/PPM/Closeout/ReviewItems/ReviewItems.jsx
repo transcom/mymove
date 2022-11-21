@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, element, func, arrayOf, bool, shape, oneOfType, number } from 'prop-types';
+import { string, element, func, arrayOf, bool, shape, oneOfType, number, node } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
@@ -27,7 +27,7 @@ const ReviewItems = ({ className, heading, renderAddButton, contents, emptyMessa
               {subheading && <div className={styles.subheading}>{subheading}</div>}
               <dl>
                 {rows.map(({ id: rowId, hideLabel, label, value }) => (
-                  <div key={`${rowId}-${id}`}>
+                  <div key={`${rowId}-${id}`} className={styles[rowId]}>
                     <dt className={classnames({ [styles.hiddenTerm]: hideLabel })} aria-hidden={hideLabel}>
                       {label}
                     </dt>
@@ -67,7 +67,7 @@ ReviewItems.propTypes = {
           id: string.isRequired,
           hideLabel: bool,
           label: string,
-          value: oneOfType([string, number]),
+          value: oneOfType([string, number, node]),
         }),
       ).isRequired,
       onDelete: func,
