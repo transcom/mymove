@@ -13,10 +13,10 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-4dbb2bcb421ecd4a7ea1e511b954e285a317c8fc
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-94a41a022a48dab1c05b932734b472922260f3c0
 
   # the cypress image to use
-  cypress: &cypress milmove/circleci-docker:milmove-cypress-f678d1c6a5e2085f733f5408b7affd628f9f3576
+  cypress: &cypress milmove/circleci-docker:milmove-cypress-e44706ef28d1cad04ee6ebf45b2316d825991af7
 
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
   postgres: &postgres cimg/postgres:12.7
@@ -273,7 +273,7 @@ commands:
       - run:
           name: Announce failure
           command: |
-            [[ $CIRCLE_BRANCH = master ]] || exit 0
+            [[ $CIRCLE_BRANCH = main ]] || exit 0
             scripts/circleci-announce-broken-branch
           when: on_fail
 
@@ -1066,11 +1066,11 @@ jobs:
           destination: test-results
       - store_test_results:
           path: ~/transcom/mymove/tmp/test-results
-      # only save the cache on master builds because we only want to
-      # change the baseline of test results on master builds
+      # only save the cache on default branch builds because we only want to
+      # change the baseline of test results on main builds
       - when:
           condition:
-            equal: [master, << pipeline.git.branch >>]
+            equal: [main, << pipeline.git.branch >>]
           steps:
             save_cache:
               key: server-tests-coverage
@@ -1107,11 +1107,11 @@ jobs:
           destination: coverage
       - store_test_results:
           path: ~/transcom/mymove
-      # only save the cache on master builds because we only want to
-      # change the baseline of test results on master builds
+      # only save the cache on default branch builds because we only want to
+      # change the baseline of test results on main builds
       - when:
           condition:
-            equal: [master, << pipeline.git.branch >>]
+            equal: [main, << pipeline.git.branch >>]
           steps:
             save_cache:
               key: client-tests-coverage
@@ -1244,11 +1244,11 @@ jobs:
           keys:
             - v2-node-modules-cache-{{ checksum "yarn.lock" }}
       - run: make client_build
-      # only save the cache on master builds so that PRs don't pollute
+      # only save the cache on default branch builds so that PRs don't pollute
       # the cache
       - when:
           condition:
-            equal: [master, << pipeline.git.branch >>]
+            equal: [main, << pipeline.git.branch >>]
           steps:
             save_cache:
               key: v2-node-modules-cache-{{ checksum "yarn.lock" }}
@@ -1611,7 +1611,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Halt workflow to prevent old master deploying to staging
+          name: Halt workflow to prevent old default branch deploying to staging
           command: scripts/compare-deployed-commit my.stg.move.mil $CIRCLE_SHA1
 
   # `deploy_stg_migrations` deploys migrations to the stg environment
@@ -1750,7 +1750,7 @@ workflows:
       - anti_virus:
           filters:
             branches:
-              only: master
+              only: main
 
       - pre_test:
           requires:
@@ -2024,28 +2024,28 @@ workflows:
             - build_app
           filters:
             branches:
-              only: master
+              only: main
 
       - push_migrations_stg:
           requires:
             - build_migrations
           filters:
             branches:
-              only: master
+              only: main
 
       - push_tasks_stg:
           requires:
             - build_tasks
           filters:
             branches:
-              only: master
+              only: main
 
       - push_webhook_client_stg:
           requires:
             - build_webhook_client
           filters:
             branches:
-              only: master
+              only: main
 
       - check_circle_against_stg_sha:
           requires:
@@ -2063,42 +2063,42 @@ workflows:
             - integration_tests_mtls
           filters:
             branches:
-              only: master
+              only: main
 
       - deploy_stg_migrations:
           requires:
             - check_circle_against_stg_sha
           filters:
             branches:
-              only: master
+              only: main
 
       - deploy_stg_tasks:
           requires:
             - deploy_stg_migrations
           filters:
             branches:
-              only: master
+              only: main
 
       - deploy_stg_app:
           requires:
             - deploy_stg_migrations
           filters:
             branches:
-              only: master
+              only: main
 
       - deploy_stg_app_client_tls:
           requires:
             - deploy_stg_migrations
           filters:
             branches:
-              only: master
+              only: main
 
       - deploy_stg_webhook_client:
           requires:
             - deploy_stg_migrations
           filters:
             branches:
-              only: master
+              only: main
 
       - approve_prd_deploy:
           type: approval
@@ -2113,7 +2113,7 @@ workflows:
             - build_storybook
           filters:
             branches:
-              only: master
+              only: main
 
       - build_storybook:
           requires:
@@ -2125,21 +2125,21 @@ workflows:
             - approve_prd_deploy
           filters:
             branches:
-              only: master
+              only: main
 
       - push_migrations_prd:
           requires:
             - approve_prd_deploy
           filters:
             branches:
-              only: master
+              only: main
 
       - push_tasks_prd:
           requires:
             - approve_prd_deploy
           filters:
             branches:
-              only: master
+              only: main
 
       - deploy_prd_migrations:
           requires:
@@ -2148,7 +2148,7 @@ workflows:
             - push_tasks_prd
           filters:
             branches:
-              only: master
+              only: main
 
       - deploy_prd_tasks:
           requires:
@@ -2156,7 +2156,7 @@ workflows:
             - push_tasks_prd
           filters:
             branches:
-              only: master
+              only: main
 
       - deploy_prd_app:
           requires:
@@ -2164,7 +2164,7 @@ workflows:
             - push_app_prd
           filters:
             branches:
-              only: master
+              only: main
 
       - deploy_prd_app_client_tls:
           requires:
@@ -2172,10 +2172,10 @@ workflows:
             - push_app_prd
           filters:
             branches:
-              only: master
+              only: main
 
 experimental:
   notify:
     branches:
       only:
-        - master
+        - main

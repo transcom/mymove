@@ -238,3 +238,20 @@ func (suite *UploaderSuite) TestCreateUploadNoDocument() {
 	err = up.Storer.Delete(upload.StorageKey)
 	suite.NoError(err)
 }
+
+func (suite *UploaderSuite) TestDeleteUpload() {
+	up, err := uploader.NewUploader(suite.storer, 25*uploader.MB, models.UploadTypeUSER)
+	suite.NoError(err)
+	f, cleanup, err := suite.createFileOfArbitrarySize(uint64(5 * uploader.MB))
+	defer cleanup()
+	suite.NoError(err)
+
+	upload, verrs, err := up.CreateUpload(suite.AppContextForTest(), uploader.File{File: f}, uploader.AllowedTypesAny)
+	suite.Nil(err, "failed to create upload")
+	suite.Empty(verrs.Error(), "verrs returned error")
+	suite.NotNil(upload, "failed to create upload structure")
+
+	err = up.DeleteUpload(suite.AppContextForTest(), upload)
+	suite.NoError(err)
+	suite.NotNil(upload.DeletedAt)
+}

@@ -18,7 +18,10 @@ func (suite *MoveServiceSuite) TestMoveApproval() {
 	moveRouter := NewMoveRouter()
 
 	suite.Run("from valid statuses", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+		orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{Stub: true})
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Order: orders,
+			Stub:  true})
 		validStatuses := []struct {
 			desc   string
 			status models.MoveStatus
@@ -69,7 +72,8 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		// Set up: Submit a move without an OrdersID
 		// Expected outcome: Error on ordersID
 		var move models.Move
-		err := moveRouter.Submit(suite.AppContextForTest(), &move)
+		newSignedCertification := testdatagen.MakeDefaultSignedCertification(suite.DB())
+		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Not found looking for move.OrdersID")
 	})
@@ -83,8 +87,13 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		order.OriginDutyLocation = nil
 		order.OriginDutyLocationID = nil
 		suite.NoError(suite.DB().Update(&order))
-
-		err := moveRouter.Submit(suite.AppContextForTest(), &move)
+		newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+			SignedCertification: models.SignedCertification{
+				MoveID: move.ID,
+			},
+			Stub: true,
+		})
+		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 		suite.Error(err)
 		suite.Contains(err.Error(), "orders missing OriginDutyLocation")
 	})
@@ -106,8 +115,13 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			},
 			Order: order,
 		})
-
-		err := moveRouter.Submit(suite.AppContextForTest(), &move)
+		newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+			SignedCertification: models.SignedCertification{
+				MoveID: move.ID,
+			},
+			Stub: true,
+		})
+		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
 	})
@@ -129,8 +143,13 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			},
 			Order: order,
 		})
-
-		err := moveRouter.Submit(suite.AppContextForTest(), &move)
+		newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+			SignedCertification: models.SignedCertification{
+				MoveID: move.ID,
+			},
+			Stub: true,
+		})
+		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 		suite.Error(err)
 		suite.Contains(err.Error(), fmt.Sprintf("The status for the move with ID %s can not be sent to 'Approvals Requested' if the status is cancelled.", move.ID))
 	})
@@ -155,7 +174,13 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			Order: order,
 		})
 		suite.NotNil(move.Orders.AmendedOrdersAcknowledgedAt)
-		err := moveRouter.Submit(suite.AppContextForTest(), &move)
+		newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+			SignedCertification: models.SignedCertification{
+				MoveID: move.ID,
+			},
+			Stub: true,
+		})
+		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 		suite.NoError(err)
 		var updatedOrders models.Order
 		err = suite.DB().Find(&updatedOrders, move.OrdersID)
@@ -183,8 +208,13 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		}
 		for _, tt := range invalidStatuses {
 			move.Status = tt.status
-
-			err := moveRouter.Submit(suite.AppContextForTest(), &move)
+			newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+				SignedCertification: models.SignedCertification{
+					MoveID: move.ID,
+				},
+				Stub: true,
+			})
+			err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 			suite.Error(err)
 			suite.Contains(err.Error(), "Cannot move to Submitted state for TOO review when the Move is not in Draft status")
 			suite.Contains(err.Error(), fmt.Sprintf("Its current status is: %s", tt.status))
@@ -219,11 +249,116 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		}
 		for _, tt := range invalidStatuses {
 			move.Status = tt.status
-
-			err := moveRouter.Submit(suite.AppContextForTest(), &move)
+			newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+				Move: move,
+				Stub: true,
+			})
+			err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 			suite.Error(err)
 			suite.Contains(err.Error(), "Cannot move to NeedsServiceCounseling state when the Move is not in Draft status")
 			suite.Contains(err.Error(), fmt.Sprintf("Its current status is: %s", tt.status))
+		}
+	})
+
+	suite.Run("Moves are routed correctly and SignedCertification is created", func() {
+		// Under test: MoveRouter.Submit (both routing to services counselor and office user)
+		// Set up: Create moves and SignedCertification
+		// Expected outcome: signed cert is created and move status is updated
+		tests := []struct {
+			desc                       string
+			ProvidesServicesCounseling bool
+			moveStatus                 models.MoveStatus
+		}{
+			{"Routes to Service Counseling", true, models.MoveStatusNeedsServiceCounseling},
+			{"Routes to office user", false, models.MoveStatusSUBMITTED},
+		}
+		for _, tt := range tests {
+			suite.Run(tt.desc, func() {
+				dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+					DutyLocation: models.DutyLocation{
+						ProvidesServicesCounseling: tt.ProvidesServicesCounseling,
+					},
+				})
+
+				move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+					Order: models.Order{
+						OriginDutyLocation: &dutyLocation,
+					},
+					Move: models.Move{
+						Status: models.MoveStatusDRAFT,
+					},
+				})
+
+				shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+					MTOShipment: models.MTOShipment{
+						Status:          models.MTOShipmentStatusDraft,
+						ShipmentType:    models.MTOShipmentTypePPM,
+						MoveTaskOrder:   move,
+						MoveTaskOrderID: move.ID,
+					},
+					Stub: true,
+				})
+				ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+					PPMShipment: models.PPMShipment{
+						Status: models.PPMShipmentStatusDraft,
+					},
+					Stub: true,
+				})
+
+				move.MTOShipments = models.MTOShipments{shipment}
+				move.MTOShipments[0].PPMShipment = &ppmShipment
+
+				newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+					SignedCertification: models.SignedCertification{
+						MoveID: move.ID,
+					},
+					Stub: true,
+				})
+				err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+				suite.NoError(err)
+				err = suite.DB().Where("move_id = $1", move.ID).First(&newSignedCertification)
+				suite.NoError(err)
+				suite.NotNil(newSignedCertification)
+
+				err = suite.DB().Find(&move, move.ID)
+				suite.NoError(err)
+				suite.Equal(tt.moveStatus, move.Status)
+			})
+		}
+	})
+
+	suite.Run("Returns error if signedCertificate is missing", func() {
+		// Under test: MoveRouter.Submit (both routing to services counselor and office user)
+		// Set up: Create moves and SignedCertification
+		// Expected outcome: signed cert is created and move status is updated
+		tests := []struct {
+			desc                       string
+			ProvidesServicesCounseling bool
+		}{
+			{"Routing to Service Counseling", true},
+			{"Routing to office user", false},
+		}
+		for _, tt := range tests {
+			suite.Run(tt.desc, func() {
+				dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+					DutyLocation: models.DutyLocation{
+						ProvidesServicesCounseling: tt.ProvidesServicesCounseling,
+					},
+				})
+
+				move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+					Order: models.Order{
+						OriginDutyLocation: &dutyLocation,
+					},
+					Move: models.Move{
+						Status: models.MoveStatusDRAFT,
+					},
+				})
+
+				err := moveRouter.Submit(suite.AppContextForTest(), &move, nil)
+				suite.Error(err)
+				suite.Contains(err.Error(), "signedCertification is required")
+			})
 		}
 	})
 
@@ -232,8 +367,10 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 
 		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusDraft,
-				ShipmentType: models.MTOShipmentTypePPM,
+				Status:          models.MTOShipmentStatusDraft,
+				ShipmentType:    models.MTOShipmentTypePPM,
+				MoveTaskOrder:   move,
+				MoveTaskOrderID: move.ID,
 			},
 			Stub: true,
 		})
@@ -247,7 +384,15 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		move.MTOShipments = models.MTOShipments{hhgShipment}
 		move.MTOShipments[0].PPMShipment = &ppmShipment
 
-		err := moveRouter.Submit(suite.AppContextForTest(), &move)
+		move.MTOShipments = models.MTOShipments{hhgShipment}
+		move.MTOShipments[0].PPMShipment = &ppmShipment
+		newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+			SignedCertification: models.SignedCertification{
+				MoveID: move.ID,
+			},
+			Stub: true,
+		})
+		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
@@ -358,7 +503,9 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 	moveRouter := NewMoveRouter()
 
 	suite.Run("from valid statuses", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+		orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Order: orders})
 		validStatuses := []struct {
 			desc   string
 			status models.MoveStatus

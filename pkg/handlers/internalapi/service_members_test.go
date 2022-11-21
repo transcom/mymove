@@ -18,6 +18,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -29,7 +30,7 @@ import (
 
 func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 	// Given: A servicemember and a user
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := factory.BuildDefaultUser(suite.DB())
 
 	newServiceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -81,7 +82,7 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 
 func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 	// Given: A logged-in user
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := factory.BuildDefaultUser(suite.DB())
 
 	// When: a new ServiceMember is posted
 	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{}
@@ -128,7 +129,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 
 func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	// Given: A logged-in user
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := factory.BuildDefaultUser(suite.DB())
 
 	// When: a new ServiceMember is posted
 	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{
@@ -172,7 +173,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	// Given: a logged in user
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := factory.BuildDefaultUser(suite.DB())
 
 	// TODO: add more fields to change
 	var origEdipi = "2342342344"
@@ -304,7 +305,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	// Given: a logged in user
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := factory.BuildDefaultUser(suite.DB())
 
 	edipi := "2342342344"
 
@@ -388,7 +389,15 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 
 	suite.MustSave(&move.Orders)
 	moveRouter := moverouter.NewMoveRouter()
-	moveRouter.Submit(suite.AppContextForTest(), &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			SubmittingUserID: newServiceMember.UserID,
+			MoveID:           move.ID,
+		},
+		Stub: true,
+	})
+	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+	suite.NoError(err)
 	suite.MustSave(&move)
 
 	resAddress := fakeAddressPayload()
@@ -463,8 +472,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 	// Given: a logged in user
-	user := testdatagen.MakeDefaultUser(suite.DB())
-	user2 := testdatagen.MakeDefaultUser(suite.DB())
+	user := factory.BuildDefaultUser(suite.DB())
+	user2 := factory.BuildDefaultUser(suite.DB())
 
 	var origEdipi = "2342342344"
 	var newEdipi = "9999999999"
@@ -499,7 +508,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 	// Given: a logged in user
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := factory.BuildDefaultUser(suite.DB())
 
 	servicememberUUID := uuid.Must(uuid.NewV4())
 
@@ -529,7 +538,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 	// Given: a logged in user with a servicemember
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := factory.BuildDefaultUser(suite.DB())
 
 	var origEdipi = "4444444444"
 	newServiceMember := models.ServiceMember{

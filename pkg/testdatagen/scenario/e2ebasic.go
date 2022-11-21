@@ -427,6 +427,10 @@ func serviceMemberWithUploadedOrdersAndNewPPM(appCtx appcontext.AppContext, user
 		},
 	})
 	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+	move := models.Move{
+		ID:      uuid.FromStringOrNil("0db80bd6-de75-439e-bf89-deaafa1d0dc8"),
+		Locator: "VGHEIS",
+	}
 	ppm0 := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("94ced723-fabc-42af-b9ee-87f8986bb5c9"),
@@ -436,10 +440,7 @@ func serviceMemberWithUploadedOrdersAndNewPPM(appCtx appcontext.AppContext, user
 			Edipi:         models.StringPointer("1234567890"),
 			PersonalEmail: models.StringPointer(email),
 		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("0db80bd6-de75-439e-bf89-deaafa1d0dc8"),
-			Locator: "VGHEIS",
-		},
+		Move: move,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate:    &nextValidMoveDate,
 			Advance:             &advance,
@@ -448,7 +449,13 @@ func serviceMemberWithUploadedOrdersAndNewPPM(appCtx appcontext.AppContext, user
 		},
 		UserUploader: userUploader,
 	})
-	moveRouter.Submit(appCtx, &ppm0.Move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(appCtx, &ppm0.Move, &newSignedCertification)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm0.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -467,6 +474,10 @@ func serviceMemberWithUploadedOrdersNewPPMNoAdvance(appCtx appcontext.AppContext
 			Active:        true,
 		},
 	})
+	move := models.Move{
+		ID:      uuid.FromStringOrNil("4f3f4bee-3719-4c17-8cf4-7e445a38d90e"),
+		Locator: "NOADVC",
+	}
 	ppmNoAdvance := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("1a1aafde-df3b-4459-9dbd-27e9f6c1d2f6"),
@@ -476,16 +487,19 @@ func serviceMemberWithUploadedOrdersNewPPMNoAdvance(appCtx appcontext.AppContext
 			Edipi:         models.StringPointer("1234567890"),
 			PersonalEmail: models.StringPointer(email),
 		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("4f3f4bee-3719-4c17-8cf4-7e445a38d90e"),
-			Locator: "NOADVC",
-		},
+		Move: move,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &nextValidMoveDate,
 		},
 		UserUploader: userUploader,
 	})
-	moveRouter.Submit(appCtx, &ppmNoAdvance.Move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(appCtx, &ppmNoAdvance.Move, &newSignedCertification)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmNoAdvance.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -504,6 +518,10 @@ func officeUserFindsMoveCompletesStoragePanel(appCtx appcontext.AppContext, user
 			Active:        true,
 		},
 	})
+	move := models.Move{
+		ID:      uuid.FromStringOrNil("25fb9bf6-2a38-4463-8247-fce2a5571ab7"),
+		Locator: "STORAG",
+	}
 	ppmStorage := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("76eb1c93-16f7-4c8e-a71c-67d5c9093dd3"),
@@ -512,16 +530,19 @@ func officeUserFindsMoveCompletesStoragePanel(appCtx appcontext.AppContext, user
 			LastName:      models.StringPointer("Panel"),
 			PersonalEmail: models.StringPointer(email),
 		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("25fb9bf6-2a38-4463-8247-fce2a5571ab7"),
-			Locator: "STORAG",
-		},
+		Move: move,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &nextValidMoveDate,
 		},
 		UserUploader: userUploader,
 	})
-	moveRouter.Submit(appCtx, &ppmStorage.Move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(appCtx, &ppmStorage.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppmStorage.Move)
 	ppmStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -544,6 +565,10 @@ func officeUserFindsMoveCancelsStoragePanel(appCtx appcontext.AppContext, userUp
 			Active:        true,
 		},
 	})
+	move := models.Move{
+		ID:      uuid.FromStringOrNil("9d0409b8-3587-4fad-9caf-7fc853e1c001"),
+		Locator: "NOSTRG",
+	}
 	ppmNoStorage := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("b9673e29-ac8d-4945-abc2-36f8eafd6fd8"),
@@ -552,16 +577,19 @@ func officeUserFindsMoveCancelsStoragePanel(appCtx appcontext.AppContext, userUp
 			LastName:      models.StringPointer("Panel"),
 			PersonalEmail: models.StringPointer(email),
 		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("9d0409b8-3587-4fad-9caf-7fc853e1c001"),
-			Locator: "NOSTRG",
-		},
+		Move: move,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &nextValidMoveDate,
 		},
 		UserUploader: userUploader,
 	})
-	moveRouter.Submit(appCtx, &ppmNoStorage.Move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(appCtx, &ppmNoStorage.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppmNoStorage.Move)
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -584,6 +612,10 @@ func aMoveThatWillBeCancelledByAnE2ETest(appCtx appcontext.AppContext, userUploa
 			Active:        true,
 		},
 	})
+	move := models.Move{
+		ID:      uuid.FromStringOrNil("0db80bd6-de75-439e-bf89-deaafa1d0dc9"),
+		Locator: "CANCEL",
+	}
 	ppmToCancel := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("94ced723-fabc-42af-b9ee-87f8986bb5ca"),
@@ -593,16 +625,19 @@ func aMoveThatWillBeCancelledByAnE2ETest(appCtx appcontext.AppContext, userUploa
 			Edipi:         models.StringPointer("1234567890"),
 			PersonalEmail: models.StringPointer(email),
 		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("0db80bd6-de75-439e-bf89-deaafa1d0dc9"),
-			Locator: "CANCEL",
-		},
+		Move: move,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &nextValidMoveDate,
 		},
 		UserUploader: userUploader,
 	})
-	moveRouter.Submit(appCtx, &ppmToCancel.Move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(appCtx, &ppmToCancel.Move, &newSignedCertification)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmToCancel.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -622,6 +657,10 @@ func serviceMemberWithPPMInProgress(appCtx appcontext.AppContext, userUploader *
 		},
 	})
 	pastTime := nextValidMoveDateMinusTen
+	move := models.Move{
+		ID:      uuid.FromStringOrNil("c9df71f2-334f-4f0e-b2e7-050ddb22efa1"),
+		Locator: "GBXYUI",
+	}
 	ppm1 := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("466c41b9-50bf-462c-b3cd-1ae33a2dad9b"),
@@ -631,16 +670,19 @@ func serviceMemberWithPPMInProgress(appCtx appcontext.AppContext, userUploader *
 			Edipi:         models.StringPointer("1617033988"),
 			PersonalEmail: models.StringPointer(email),
 		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("c9df71f2-334f-4f0e-b2e7-050ddb22efa1"),
-			Locator: "GBXYUI",
-		},
+		Move: move,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &pastTime,
 		},
 		UserUploader: userUploader,
 	})
-	moveRouter.Submit(appCtx, &ppm1.Move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(appCtx, &ppm1.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm1.Move)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm1.Move)
 	if err != nil || verrs.HasAny() {
@@ -662,6 +704,10 @@ func serviceMemberWithPPMMoveWithPaymentRequested01(appCtx appcontext.AppContext
 	})
 	futureTime := nextValidMoveDatePlusTen
 	typeDetail := internalmessages.OrdersTypeDetailPCSTDY
+	move := models.Move{
+		ID:      uuid.FromStringOrNil("0a2580ef-180a-44b2-a40b-291fa9cc13cc"),
+		Locator: "FDXTIU",
+	}
 	ppm2 := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("9ce5a930-2446-48ec-a9c0-17bc65e8522d"),
@@ -678,16 +724,19 @@ func serviceMemberWithPPMMoveWithPaymentRequested01(appCtx appcontext.AppContext
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
 			TAC:                 models.StringPointer("E19A"),
 		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("0a2580ef-180a-44b2-a40b-291fa9cc13cc"),
-			Locator: "FDXTIU",
-		},
+		Move: move,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &futureTime,
 		},
 		UserUploader: userUploader,
 	})
-	moveRouter.Submit(appCtx, &ppm2.Move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(appCtx, &ppm2.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm2.Move)
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -715,6 +764,10 @@ func serviceMemberWithPPMMoveWithPaymentRequested02(appCtx appcontext.AppContext
 	originalMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
 	actualMoveDate := time.Date(testdatagen.TestYear, time.November, 11, 10, 0, 0, 0, time.UTC)
 	moveTypeDetail := internalmessages.OrdersTypeDetailPCSTDY
+	move := models.Move{
+		ID:      uuid.FromStringOrNil("d6b8980d-6f88-41be-9ae2-1abcbd2574bc"),
+		Locator: "PAYMNT",
+	}
 	ppm3 := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("3c24bab5-fd13-4057-a321-befb97d90c43"),
@@ -731,18 +784,20 @@ func serviceMemberWithPPMMoveWithPaymentRequested02(appCtx appcontext.AppContext
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
 			TAC:                 models.StringPointer("E19A"),
 		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("d6b8980d-6f88-41be-9ae2-1abcbd2574bc"),
-			Locator: "PAYMNT",
-		},
+		Move: move,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &originalMoveDate,
 			ActualMoveDate:   &actualMoveDate,
 		},
 		UserUploader: userUploader,
 	})
-
-	moveRouter.Submit(appCtx, &ppm3.Move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(appCtx, &ppm3.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm3.Move)
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
 	ppm3.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -766,6 +821,10 @@ func aCanceledPPMMove(appCtx appcontext.AppContext, userUploader *uploader.UserU
 			Active:        true,
 		},
 	})
+	move := models.Move{
+		ID:      uuid.FromStringOrNil("6b88c856-5f41-427e-a480-a7fb6c87533b"),
+		Locator: "PPMCAN",
+	}
 	ppmCanceled := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("2da0d5e6-4efb-4ea1-9443-bf9ef64ace65"),
@@ -775,16 +834,19 @@ func aCanceledPPMMove(appCtx appcontext.AppContext, userUploader *uploader.UserU
 			Edipi:         models.StringPointer("1234567890"),
 			PersonalEmail: models.StringPointer(email),
 		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("6b88c856-5f41-427e-a480-a7fb6c87533b"),
-			Locator: "PPMCAN",
-		},
+		Move: move,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &nextValidMoveDate,
 		},
 		UserUploader: userUploader,
 	})
-	moveRouter.Submit(appCtx, &ppmCanceled.Move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(appCtx, &ppmCanceled.Move, &newSignedCertification)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmCanceled.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -917,7 +979,13 @@ func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, user
 	})
 
 	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
-	moveRouter.Submit(appCtx, &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -1162,6 +1230,10 @@ func serviceMemberWithPPMReadyToRequestPayment01(appCtx appcontext.AppContext, u
 	})
 	pastTime := nextValidMoveDateMinusTen
 	typeDetail := internalmessages.OrdersTypeDetailPCSTDY
+	move := models.Move{
+		ID:      uuid.FromStringOrNil("f9f10492-587e-43b3-af2a-9f67d2ac8757"),
+		Locator: "RQPAY2",
+	}
 	ppm6 := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("1404fdcf-7a54-4b83-862d-7d1c7ba36ad7"),
@@ -1178,17 +1250,19 @@ func serviceMemberWithPPMReadyToRequestPayment01(appCtx appcontext.AppContext, u
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
 			TAC:                 models.StringPointer("E19A"),
 		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("f9f10492-587e-43b3-af2a-9f67d2ac8757"),
-			Locator: "RQPAY2",
-		},
+		Move: move,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &pastTime,
 		},
 		UserUploader: userUploader,
 	})
-
-	moveRouter.Submit(appCtx, &ppm6.Move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(appCtx, &ppm6.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm6.Move)
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -1212,6 +1286,10 @@ func serviceMemberWithPPMReadyToRequestPayment02(appCtx appcontext.AppContext, u
 	})
 	pastTime := nextValidMoveDateMinusTen
 	typeDetail := internalmessages.OrdersTypeDetailPCSTDY
+	move := models.Move{
+		ID:      uuid.FromStringOrNil("0581253d-0539-4a93-b1b6-ea4ad384f0c5"),
+		Locator: "RQPAY3",
+	}
 	ppm7 := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("0cfb9fc6-82dd-404b-aa39-4deb6dba6c66"),
@@ -1228,16 +1306,19 @@ func serviceMemberWithPPMReadyToRequestPayment02(appCtx appcontext.AppContext, u
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
 			TAC:                 models.StringPointer("E19A"),
 		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("0581253d-0539-4a93-b1b6-ea4ad384f0c5"),
-			Locator: "RQPAY3",
-		},
+		Move: move,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &pastTime,
 		},
 		UserUploader: userUploader,
 	})
-	moveRouter.Submit(appCtx, &ppm7.Move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(appCtx, &ppm7.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm7.Move)
 	ppm7.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm7.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -1261,6 +1342,10 @@ func serviceMemberWithPPMReadyToRequestPayment03(appCtx appcontext.AppContext, u
 	})
 	pastTime := nextValidMoveDateMinusTen
 	typeDetail := internalmessages.OrdersTypeDetailPCSTDY
+	move := models.Move{
+		ID:      uuid.FromStringOrNil("946a5d40-0636-418f-b457-474915fb0149"),
+		Locator: "REQPAY",
+	}
 	ppm5 := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("ff1f56c0-544e-4109-8168-f91ebcbbb878"),
@@ -1277,16 +1362,19 @@ func serviceMemberWithPPMReadyToRequestPayment03(appCtx appcontext.AppContext, u
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
 			TAC:                 models.StringPointer("E19A"),
 		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("946a5d40-0636-418f-b457-474915fb0149"),
-			Locator: "REQPAY",
-		},
+		Move: move,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &pastTime,
 		},
 		UserUploader: userUploader,
 	})
-	moveRouter.Submit(appCtx, &ppm5.Move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(appCtx, &ppm5.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm5.Move)
 	// This is the same PPM model as ppm5, but this is the one that will be saved by SaveMoveDependencies
 	ppm5.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -1311,6 +1399,10 @@ func serviceMemberWithPPMApprovedNotInProgress(appCtx appcontext.AppContext, use
 	})
 	inProgressDate := nextValidMoveDatePlusTen
 	typeDetails := internalmessages.OrdersTypeDetailPCSTDY
+	move := models.Move{
+		ID:      uuid.FromStringOrNil("bd3d46b3-cb76-40d5-a622-6ada239e5504"),
+		Locator: "APPROV",
+	}
 	ppmApproved := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("acfed739-9e7a-4d95-9a56-698ef0392500"),
@@ -1327,16 +1419,19 @@ func serviceMemberWithPPMApprovedNotInProgress(appCtx appcontext.AppContext, use
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
 			TAC:                 models.StringPointer("E19A"),
 		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("bd3d46b3-cb76-40d5-a622-6ada239e5504"),
-			Locator: "APPROV",
-		},
+		Move: move,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &inProgressDate,
 		},
 		UserUploader: userUploader,
 	})
-	moveRouter.Submit(appCtx, &ppmApproved.Move)
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(appCtx, &ppmApproved.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppmApproved.Move)
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppmApproved.Move.PersonallyProcuredMoves[0].Submit(time.Now())

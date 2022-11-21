@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/notifications/mocks"
@@ -36,13 +37,14 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 	setupTestData := func() (models.User, models.AdminUser) {
 
 		loginGovUUID := uuid.Must(uuid.NewV4())
-		existingUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
-			User: models.User{
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: "spaceman+existing@leo.org",
-				Active:        true,
-			},
-		})
+		existingUser := factory.BuildUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.User{
+					LoginGovUUID:  &loginGovUUID,
+					LoginGovEmail: "spaceman+existing@leo.org",
+					Active:        true,
+				},
+			}}, nil)
 
 		organization := testdatagen.MakeDefaultOrganization(suite.DB())
 		userInfo := models.AdminUser{

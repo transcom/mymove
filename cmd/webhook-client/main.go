@@ -147,6 +147,10 @@ func InitRootConfig(v *viper.Viper) (*pop.Connection, *zap.Logger, error) {
 	// DB CONNECTION CHECK
 	dbConnection, err := cli.InitDatabase(v, dbCreds, logger)
 	if err != nil {
+		logger.Fatal("Invalid DB Configuration", zap.Error(err))
+	}
+	err = cli.PingPopConnection(dbConnection, logger)
+	if err != nil {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 

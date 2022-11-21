@@ -51,6 +51,7 @@ export default {
   estimated_weight: 'Estimated weight',
   description: 'Description',
   reason: 'Reason',
+  rejection_reason: 'Reason',
   sit_departure_date: 'SIT departure date',
   sit_entry_date: 'SIT entry date',
   sit_postal_code: 'SIT postal code',
@@ -80,4 +81,7 @@ export default {
   backup_contact_name: 'Backup contact name',
   backup_contact_email: 'Backup contact email',
   backup_contact_phone: 'Backup contact phone',
+  max_billable_weight: 'Max billable weight',
+  retirement_date: 'Date of retirement',
+  separation_date: 'Date of separation',
 };

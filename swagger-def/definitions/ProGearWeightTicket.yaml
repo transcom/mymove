@@ -13,11 +13,11 @@ properties:
     format: uuid
     example: c56a4180-65aa-42ec-a945-5fd21dec0538
     readOnly: true
-  createdAt:
+  updatedAt:
     type: string
     format: date-time
     readOnly: true
-  updatedAt:
+  createdAt:
     type: string
     format: date-time
     readOnly: true
@@ -61,10 +61,8 @@ properties:
     type: string
     readOnly: true
 required:
-  - id
   - ppmShipmentId
   - createdAt
   - updatedAt
   - documentId
   - document
-  - eTag

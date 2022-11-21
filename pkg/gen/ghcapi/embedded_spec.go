@@ -692,65 +692,6 @@ func init() {
           }
         }
       },
-      "patch": {
-        "description": "Updates a move by ID",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "Updates a move by ID",
-        "operationId": "updateMoveTaskOrder",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved move task order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "412": {
-            "$ref": "#/responses/PreconditionFailed"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
       "parameters": [
         {
           "type": "string",
@@ -6920,6 +6861,9 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "signedCertification": {
+          "$ref": "#/definitions/SignedCertification"
+        },
         "sitEstimatedCost": {
           "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
           "type": "integer",
@@ -6975,7 +6919,7 @@ func init() {
           "$ref": "#/definitions/PPMShipmentStatus"
         },
         "submittedAt": {
-          "description": "The timestamp of when the customer submitted their move to the counselor.",
+          "description": "The timestamp of when the customer submitted their PPM documentation to the counselor for review.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
@@ -7295,13 +7239,11 @@ func init() {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
       "required": [
-        "id",
         "ppmShipmentId",
         "createdAt",
         "updatedAt",
         "documentId",
-        "document",
-        "eTag"
+        "document"
       ],
       "properties": {
         "belongsToSelf": {
@@ -7949,6 +7891,94 @@ func init() {
         "$ref": "#/definitions/ShipmentPaymentSITBalance"
       }
     },
+    "SignedCertification": {
+      "description": "Signed certification",
+      "type": "object",
+      "required": [
+        "id",
+        "submittingUserId",
+        "moveId",
+        "certificationType",
+        "certificationText",
+        "signature",
+        "date",
+        "createdAt",
+        "updatedAt",
+        "eTag"
+      ],
+      "properties": {
+        "certificationText": {
+          "description": "Full text that the customer agreed to and signed.",
+          "type": "string"
+        },
+        "certificationType": {
+          "$ref": "#/definitions/SignedCertificationType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "date": {
+          "description": "Date that the customer signed the certification.",
+          "type": "string",
+          "format": "date"
+        },
+        "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "description": "The ID of the signed certification.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "moveId": {
+          "description": "The ID of the move associated with this signed certification.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmId": {
+          "description": "The ID of the PPM shipment associated with this signed certification, if any.",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "signature": {
+          "description": "The signature that the customer provided.",
+          "type": "string"
+        },
+        "submittingUserId": {
+          "description": "The ID of the user that signed.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "SignedCertificationType": {
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
+      "type": "string",
+      "enum": [
+        "PPM_PAYMENT",
+        "SHIPMENT"
+      ],
+      "readOnly": true
+    },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
       "type": "object",
@@ -8072,7 +8102,11 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "email": {
           "type": "string",
@@ -9751,86 +9785,6 @@ func init() {
             "description": "The requested resource wasn't found",
             "schema": {
               "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "patch": {
-        "description": "Updates a move by ID",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "Updates a move by ID",
-        "operationId": "updateMoveTaskOrder",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved move task order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -16914,6 +16868,9 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "signedCertification": {
+          "$ref": "#/definitions/SignedCertification"
+        },
         "sitEstimatedCost": {
           "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
           "type": "integer",
@@ -16969,7 +16926,7 @@ func init() {
           "$ref": "#/definitions/PPMShipmentStatus"
         },
         "submittedAt": {
-          "description": "The timestamp of when the customer submitted their move to the counselor.",
+          "description": "The timestamp of when the customer submitted their PPM documentation to the counselor for review.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
@@ -17289,13 +17246,11 @@ func init() {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
       "required": [
-        "id",
         "ppmShipmentId",
         "createdAt",
         "updatedAt",
         "documentId",
-        "document",
-        "eTag"
+        "document"
       ],
       "properties": {
         "belongsToSelf": {
@@ -17947,6 +17902,94 @@ func init() {
         "$ref": "#/definitions/ShipmentPaymentSITBalance"
       }
     },
+    "SignedCertification": {
+      "description": "Signed certification",
+      "type": "object",
+      "required": [
+        "id",
+        "submittingUserId",
+        "moveId",
+        "certificationType",
+        "certificationText",
+        "signature",
+        "date",
+        "createdAt",
+        "updatedAt",
+        "eTag"
+      ],
+      "properties": {
+        "certificationText": {
+          "description": "Full text that the customer agreed to and signed.",
+          "type": "string"
+        },
+        "certificationType": {
+          "$ref": "#/definitions/SignedCertificationType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "date": {
+          "description": "Date that the customer signed the certification.",
+          "type": "string",
+          "format": "date"
+        },
+        "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "description": "The ID of the signed certification.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "moveId": {
+          "description": "The ID of the move associated with this signed certification.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmId": {
+          "description": "The ID of the PPM shipment associated with this signed certification, if any.",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "signature": {
+          "description": "The signature that the customer provided.",
+          "type": "string"
+        },
+        "submittingUserId": {
+          "description": "The ID of the user that signed.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "SignedCertificationType": {
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
+      "type": "string",
+      "enum": [
+        "PPM_PAYMENT",
+        "SHIPMENT"
+      ],
+      "readOnly": true
+    },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
       "type": "object",
@@ -18074,7 +18117,11 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "email": {
           "type": "string",
