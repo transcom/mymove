@@ -2,6 +2,7 @@ package movehistory
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -285,17 +286,32 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 				suite.Equal(*order.NtsSAC, changedData["nts_sac"])
 				suite.Equal(*order.DepartmentIndicator, changedData["department_indicator"])
 
-				// we're getting results in different precision than expected in CI and locally, so account for possible discrepancy
-				changedDataTimeStamp, err := time.Parse("2006-01-02T15:04:05.000000", changedData["amended_orders_acknowledged_at"].(string))
-				if err != nil {
-					changedDataTimeStamp, err = time.Parse("2006-01-02T15:04:05.00000", changedData["amended_orders_acknowledged_at"].(string))
-					suite.NoError(err)
+				// the database json serialization of timestamps removes trailing zeros after the decimal point, so we
+				// need to add trailing zeros if we want to use a single layout parse format for microseconds
+				var normalizedTimestamp string
+				amendedAcknowledgedAt, ok := changedData["amended_orders_acknowledged_at"].(string)
+				if !ok {
+					suite.Fail("casting changedData amendedOrdersAcknowledgedAt to string value failed")
+				} else {
+					// separate the fractional seconds part of the timestamp
+					parts := strings.Split(amendedAcknowledgedAt, ".")
+					if len(parts) > 1 {
+						// create format string to generate the missing zeros if any ("%05s")
+						fillFormat := "%0" + fmt.Sprintf("%ds", 6-len(parts[1]))
+						// combine the existing fractional seconds with the filled zeros ("900000")
+						microseconds := fmt.Sprintf("%s"+fillFormat, parts[1], "")
+						normalizedTimestamp = fmt.Sprintf("%s.%s", parts[0], microseconds)
+					} else if len(parts) == 1 {
+						normalizedTimestamp = parts[0] + ".000000"
+					}
 				}
 
+				changedDataTimeStamp, err := time.Parse("2006-01-02T15:04:05.000000", normalizedTimestamp)
+				suite.NoError(err)
+
 				//CircleCi seems to add on nanoseconds to the tested time stamps so this is being used with Truncate to shave those nanoseconds off
-				d := 1000 * time.Nanosecond
-				//We assert if it falls within a range starting at the original order.AmendedOrdersAcknowledgedAt time and ending with a added 2000 microsecond buffer
-				suite.WithinRange(changedDataTimeStamp, order.AmendedOrdersAcknowledgedAt.Truncate(d), order.AmendedOrdersAcknowledgedAt.Add(2000*time.Microsecond).Truncate(d))
+				//We assert if it falls within a range starting at the original order.AmendedOrdersAcknowledgedAt time and ending with an added 2000 microsecond buffer
+				suite.WithinRange(changedDataTimeStamp, order.AmendedOrdersAcknowledgedAt.Truncate(time.Microsecond), order.AmendedOrdersAcknowledgedAt.Add(2000*time.Microsecond).Truncate(time.Microsecond))
 
 				// test context as well
 				context := removeEscapeJSONtoArray(historyRecord.Context)[0]
