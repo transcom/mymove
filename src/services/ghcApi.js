@@ -455,8 +455,7 @@ export async function getServicesCounselingQueue(
   });
   return makeGHCRequest(
     operationPath,
-    // TODO hard coding ppmCloseout here is temporary for testing
-    { sort, order, page: currentPage, perPage: currentPageSize, ppmCloseout: false, ...paramFilters },
+    { sort, order, page: currentPage, perPage: currentPageSize, ...paramFilters },
     { schemaKey: 'queueMovesResult', normalize: false },
   );
 }
