@@ -6,7 +6,7 @@ import e from 'constants/MoveHistory/EventTemplates/UpdateBillableWeight/updateB
 describe('when given an update billable weights', () => {
   const historyRecord = {
     action: 'UPDATE',
-     // To-do: Update changedValue key to max_billable_weight once available in database.
+    // To-do: Update changedValue key to max_billable_weight once available in database.
     changedValues: { authorized_weight: '5800' },
     eventName: 'updateBillableWeight',
     tableName: 'entitlements',
