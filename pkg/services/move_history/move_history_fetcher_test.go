@@ -2,6 +2,7 @@ package movehistory
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -285,13 +286,29 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 				suite.Equal(*order.NtsSAC, changedData["nts_sac"])
 				suite.Equal(*order.DepartmentIndicator, changedData["department_indicator"])
 
-				//changedData["amended_orders_acknowledged_at"] is being converted from a string to a formatted time.Time type
-				layout := "2006-01-02T15:04:05.000000"
-				changedDataTimeStamp, _ := time.Parse(layout, changedData["amended_orders_acknowledged_at"].(string))
+				// the database json serialization of timestamps removes trailing zeros after the decimal point, so we
+				// need to add trailing zeros if we want to use a single layout parse format for microseconds
+				var normalizedTimestamp string
+				amendedAcknowledgedAt, ok := changedData["amended_orders_acknowledged_at"].(string)
+				if !ok {
+					suite.Fail("casting changedData amendedOrdersAcknowledgedAt to string value failed")
+				} else {
+					// separate the fractional seconds part of the timestamp
+					parts := strings.Split(amendedAcknowledgedAt, ".")
+					if len(parts) > 1 {
+						trailingZeros := strings.Repeat("0", 6-len(parts[1]))
+						normalizedTimestamp = fmt.Sprintf("%s.%s%s", parts[0], parts[1], trailingZeros)
+					} else if len(parts) == 1 {
+						normalizedTimestamp = parts[0] + ".000000"
+					}
+				}
+
+				changedDataTimeStamp, err := time.Parse("2006-01-02T15:04:05.000000", normalizedTimestamp)
+				suite.NoError(err)
+
 				//CircleCi seems to add on nanoseconds to the tested time stamps so this is being used with Truncate to shave those nanoseconds off
-				d := 1000 * time.Nanosecond
-				//We assert if it falls within a range starting at the original order.AmendedOrdersAcknowledgedAt time and ending with a added 2000 microsecond buffer
-				suite.WithinRange(changedDataTimeStamp, order.AmendedOrdersAcknowledgedAt.Truncate(d), order.AmendedOrdersAcknowledgedAt.Add(2000*time.Microsecond).Truncate(d))
+				//We assert if it falls within a range starting at the original order.AmendedOrdersAcknowledgedAt time and ending with an added 2000 microsecond buffer
+				suite.WithinRange(changedDataTimeStamp, order.AmendedOrdersAcknowledgedAt.Truncate(time.Microsecond), order.AmendedOrdersAcknowledgedAt.Add(2000*time.Microsecond).Truncate(time.Microsecond))
 
 				// test context as well
 				context := removeEscapeJSONtoArray(historyRecord.Context)[0]
@@ -688,7 +705,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 
-		reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		reService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeMS,
 			},

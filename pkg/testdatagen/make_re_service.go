@@ -56,21 +56,21 @@ func MakeDDFSITReService(db *pop.Connection) models.ReService {
 			Code: models.ReServiceCodeDDFSIT,
 		},
 	}
-	reService := MakeReService(db, assertionsDDFSIT)
+	reService := FetchOrMakeReService(db, assertionsDDFSIT)
 
 	assertionsDDASIT := Assertions{
 		ReService: models.ReService{
 			Code: models.ReServiceCodeDDASIT,
 		},
 	}
-	MakeReService(db, assertionsDDASIT)
+	FetchOrMakeReService(db, assertionsDDASIT)
 
 	assertionsDDDSIT := Assertions{
 		ReService: models.ReService{
 			Code: models.ReServiceCodeDDDSIT,
 		},
 	}
-	MakeReService(db, assertionsDDDSIT)
+	FetchOrMakeReService(db, assertionsDDDSIT)
 
 	return reService
 }
