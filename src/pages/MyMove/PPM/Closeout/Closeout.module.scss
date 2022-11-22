@@ -13,3 +13,34 @@
     @include u-margin-bottom(0);
   }
 }
+
+.about-ppm {
+  ul {
+    @include u-margin-bottom(0);
+  }
+
+  p:nth-of-type(1){
+    @include u-margin-bottom(0);
+    @include u-font-weight(bold);
+  }
+
+  h2 {
+    @include u-margin-top(3);
+    @include u-margin-bottom(3);
+
+    @include at-media('tablet') {
+      @include u-margin-top(4);
+      @include u-margin-bottom(4);
+    }
+  }
+
+  p:nth-of-type(2), p:nth-of-type(3) {
+    @include u-margin-top(0);
+    @include u-margin-bottom(0);
+  }
+
+  p:last-of-type {
+    @include u-margin-top(4);
+    @include u-margin-bottom(4);
+  }
+}

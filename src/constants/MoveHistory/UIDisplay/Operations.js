@@ -20,6 +20,7 @@ export default {
   updateAllowance: 'updateAllowance', // ghc.yaml
   updateBillableWeight: 'updateBillableWeight', // ghc.yaml
   updateBillableWeightAsTIO: 'updateMaxBillableWeightAsTIO',
+  updateCustomer: 'updateCustomer',
   updateMoveTaskOrder: 'updateMoveTaskOrder', // ghc.yaml
   updateMoveTaskOrderStatus: 'updateMoveTaskOrderStatus', // ghc.yaml
   updateMTOReviewedBillableWeightsAt: 'UpdateMTOReviewedBillableWeightsAt',
