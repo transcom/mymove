@@ -107,21 +107,28 @@ WITH move AS (
 	),
 	service_item_customer_contacts AS (
 		SELECT
-			mto_service_item_customer_contacts.*
+			mto_service_item_customer_contacts.*,
+			jsonb_agg(jsonb_build_object(
+				'shipment_type', move_shipments.shipment_type,
+				'shipment_id_abbr', move_shipments.shipment_id_abbr
+				)
+			)::TEXT AS context
 		FROM
 			mto_service_item_customer_contacts
-		JOIN mto_service_items on mto_service_items.id = mto_service_item_customer_contacts.mto_service_item_id
-		JOIN move ON move.id = mto_service_items.move_id
+		JOIN move_service_items on move_service_items.id = mto_service_item_customer_contacts.mto_service_item_id
+			LEFT JOIN move_shipments ON move_service_items.mto_shipment_id = move_shipments.id
+		JOIN move ON move.id = move_service_items.move_id
+		GROUP BY mto_service_item_customer_contacts.id
 	),
 	service_item_customer_contacts_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
+			service_item_customer_contacts.context AS context,
 			NULL AS context_id
 		FROM
 			audit_history
 		JOIN service_item_customer_contacts ON service_item_customer_contacts.id = audit_history.object_id
-			AND audit_history."table_name" = 'mto_service_item_customer_contacts'
+			WHERE audit_history.table_name = 'mto_service_item_customer_contacts'
 	),
 	service_item_dimensions AS (
 		SELECT
