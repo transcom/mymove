@@ -450,46 +450,6 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		suite.Equal(1, len(moves))
 		suite.Equal(nonCloseoutMove.Locator, moves[0].Locator)
 	})
-	suite.Run("moves should not show up in closeout unless every ppm shipment is ready for closeout", func() {
-		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "AAAA")
-		army := models.AffiliationARMY
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusNeedsServiceCounseling,
-				Show:   &showMove,
-			},
-			TransportationOffice: models.TransportationOffice{
-				Gbloc: "AAAA",
-			},
-			ServiceMember: models.ServiceMember{Affiliation: &army},
-		})
-		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
-			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
-			},
-			Move: move,
-		})
-		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusSubmitted,
-			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
-			},
-			Move: move,
-		})
-
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", "AAAA")
-
-		params := services.ListOrderParams{PerPage: swag.Int64(9), Page: swag.Int64(1), NeedsPPMCloseout: swag.Bool(true), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
-
-		suite.FatalNoError(err)
-		suite.Empty(moves)
-	})
 }
 
 func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMarines() {
