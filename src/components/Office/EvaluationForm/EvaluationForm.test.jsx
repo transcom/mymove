@@ -30,7 +30,6 @@ const evaluationReportShipment = {
 const mockEvaluationReport = {
   createdAt: '2022-09-07T15:17:37.484Z',
   eTag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
-  evaluationLengthMinutes: 240,
   id: '6739d7fc-6067-4e84-996d-f4f70b8ec6fd',
   inspectionDate: '2022-09-08',
   inspectionType: 'DATA_REVIEW',
@@ -127,7 +126,6 @@ describe('EvaluationForm', () => {
       expect(screen.getByText('Date of inspection')).toBeInTheDocument();
       expect(screen.getByText('Evaluation type')).toBeInTheDocument();
       expect(screen.getByText('Evaluation location')).toBeInTheDocument();
-      expect(screen.getByText('Evaluation length')).toBeInTheDocument();
       expect(screen.getByText('Violations observed')).toBeInTheDocument();
       expect(screen.getByText('Evaluation remarks')).toBeInTheDocument();
 
@@ -151,15 +149,18 @@ describe('EvaluationForm', () => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Evaluation form');
       expect(screen.getAllByTestId('textarea')).toHaveLength(1);
 
-      expect(screen.queryByText('Travel time to evaluation')).not.toBeInTheDocument();
+      expect(screen.queryByText('Time departed for evaluation')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
     });
 
-    // Select Physical Evaluation type, should show Travel time to evaluation picker
+    // Select Physical Evaluation type and origin location, record travel time, evaluation start and end
     await waitFor(() => {
       userEvent.click(screen.getByText('Physical'));
-      expect(screen.getByText('Travel time to evaluation')).toBeInTheDocument();
+      userEvent.click(screen.getByText('Origin'));
+      expect(screen.getByText('Time departed for evaluation')).toBeInTheDocument();
+      expect(screen.getByText('Time evaulation started')).toBeInTheDocument();
+      expect(screen.getByText('Time evaulation ended')).toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
       expect(screen.getAllByTestId('textarea')).toHaveLength(1);
@@ -190,7 +191,9 @@ describe('EvaluationForm', () => {
     // If not 'Physical' eval type, no conditional time fields should be shown
     await waitFor(() => {
       userEvent.click(screen.getByText('Virtual'));
-      expect(screen.queryByText('Travel time to evaluation')).not.toBeInTheDocument();
+      expect(screen.getByText('Time departed for evaluation')).not.toBeInTheDocument();
+      expect(screen.getByText('Time evaulation started')).not.toBeInTheDocument();
+      expect(screen.getByText('Time evaulation ended')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
     });
@@ -232,14 +235,12 @@ describe('EvaluationForm', () => {
     expect(mockSaveEvaluationReport).toHaveBeenCalledTimes(1);
     expect(mockSaveEvaluationReport).toHaveBeenCalledWith({
       body: {
-        evaluationLengthMinutes: mockEvaluationReport.evaluationLengthMinutes,
         inspectionDate: mockEvaluationReport.inspectionDate,
         inspectionType: mockEvaluationReport.inspectionType,
         location: mockEvaluationReport.location,
         locationDescription: undefined,
         observedDate: undefined,
         remarks: mockEvaluationReport.remarks,
-        travelTimeMinutes: undefined,
         violationsObserved: true,
       },
       ifMatchETag: mockEvaluationReport.eTag,
@@ -259,14 +260,12 @@ describe('EvaluationForm', () => {
       expect(mockSaveEvaluationReport).toHaveBeenCalledTimes(1);
       expect(mockSaveEvaluationReport).toHaveBeenCalledWith({
         body: {
-          evaluationLengthMinutes: 240,
           inspectionDate: '2022-09-08',
           inspectionType: 'DATA_REVIEW',
           location: 'ORIGIN',
           locationDescription: undefined,
           observedDate: undefined,
           remarks: 'test',
-          travelTimeMinutes: undefined,
           violationsObserved: false,
         },
         ifMatchETag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',

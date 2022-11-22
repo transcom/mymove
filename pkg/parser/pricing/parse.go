@@ -429,15 +429,11 @@ func process(appCtx appcontext.AppContext, xlsxDataSheets []XlsxDataSheetInfo, p
 					processDescription = *p.description
 				}
 
-				spinner, err := pterm.DefaultSpinner.Start(fmt.Sprintf("Processing section: %s", processDescription))
-				if err != nil {
-					appCtx.Logger().Fatal("Failed to create pterm spinner", zap.Error(err))
-				}
+				pterm.Println(pterm.BgGray.Sprint(fmt.Sprintf("Processing section %s", processDescription)))
 
 				callFunc := *p.process
 				slice, err := callFunc(appCtx, params, sheetIndex)
 				if err != nil {
-					spinner.Fail()
 					appCtx.Logger().Error("process error", zap.String("description", description), zap.Error(err))
 					return errors.Wrapf(err, "process error for sheet index: %d with description: %s", sheetIndex, description)
 				}
@@ -445,16 +441,14 @@ func process(appCtx appcontext.AppContext, xlsxDataSheets []XlsxDataSheetInfo, p
 				if params.SaveToFile {
 					filename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.RunTime, p.adtlSuffix)
 					if err := createCSV(appCtx, filename, slice); err != nil {
-						spinner.Fail()
 						return errors.Wrapf(err, "Could not create CSV for sheet index: %d with description: %s", sheetIndex, description)
 					}
 				}
 				if err := tableFromSliceCreator.CreateTableFromSlice(appCtx, slice); err != nil {
-					spinner.Fail()
 					return errors.Wrapf(err, "Could not create table for sheet index: %d with description: %s", sheetIndex, description)
 				}
 
-				spinner.Success()
+				pterm.Println(pterm.BgGray.Sprint(fmt.Sprintf("Finished processing section %s", processDescription)))
 			} else {
 				appCtx.Logger().Info("No process function", zap.Int("sheet index", sheetIndex), zap.String("description", description), zap.Int("method index", methodIndex))
 			}

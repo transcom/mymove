@@ -14,24 +14,24 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 	suite.Run("FormatValuesInspectionInformation other location", func() {
 		testDate := time.Date(2022, 10, 4, 0, 0, 0, 0, time.UTC)
 		inspectionType := models.EvaluationReportInspectionTypePhysical
-		testDurationMinutes := 60
-		location := models.EvaluationReportLocationTypeOther
-		locationDescription := "other location"
+		location := models.EvaluationReportLocationTypeOrigin
+		timeDepart := "12:30"
+		evalStart := "14:55"
+		evalEnd := "17:55"
 		report := models.EvaluationReport{
-			InspectionDate:          &testDate,
-			InspectionType:          &inspectionType,
-			TravelTimeMinutes:       &testDurationMinutes,
-			Location:                &location,
-			LocationDescription:     &locationDescription,
-			EvaluationLengthMinutes: &testDurationMinutes,
-			ViolationsObserved:      swag.Bool(false),
-			Remarks:                 swag.String("remarks"),
-			UpdatedAt:               time.Time{},
+			InspectionDate:     &testDate,
+			InspectionType:     &inspectionType,
+			Location:           &location,
+			TimeDepart:         &timeDepart,
+			evalStart:          &evalStart,
+			evalEnd:            &evalEnd,
+			ViolationsObserved: swag.Bool(false),
+			Remarks:            swag.String("remarks"),
+			UpdatedAt:          time.Time{},
 		}
 		values := FormatValuesInspectionInformation(report)
 		suite.Equal("04 October 2022", values.DateOfInspection)
 		suite.Equal("Physical", values.EvaluationType)
-		suite.Equal("1 hr 0 min", values.TravelTimeToEvaluation)
 		suite.Equal("Other\nother location", values.EvaluationLocation)
 		//suite.Equal("04 October 2022", values.ObservedPickupDate)
 		suite.Equal("1 hr 0 min", values.EvaluationLength)

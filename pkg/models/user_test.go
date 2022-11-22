@@ -6,6 +6,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/dberr"
+	"github.com/transcom/mymove/pkg/factory"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	userroles "github.com/transcom/mymove/pkg/services/users_roles"
@@ -150,13 +151,15 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.NoError(suite.DB().Create(&rs))
 	customerRole := rs[0]
 	patUUID := uuid.Must(uuid.NewV4())
-	pat := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
-		User: User{
-			LoginGovUUID: &patUUID,
-			Active:       true,
-			Roles:        []roles.Role{customerRole},
+	pat := factory.BuildUser(suite.DB(), []factory.Customization{
+		{
+			Model: User{
+				LoginGovUUID: &patUUID,
+				Active:       true,
+				Roles:        []roles.Role{customerRole},
+			},
 		},
-	})
+	}, nil)
 
 	identity, err = FetchUserIdentity(suite.DB(), pat.LoginGovUUID.String())
 	suite.Nil(err, "loading pat's identity")
@@ -165,13 +168,15 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 
 	tooRole := rs[1]
 	billyUUID := uuid.Must(uuid.NewV4())
-	billy := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
-		User: User{
-			LoginGovUUID: &billyUUID,
-			Active:       true,
-			Roles:        []roles.Role{tooRole},
+	billy := factory.BuildUser(suite.DB(), []factory.Customization{
+		{
+			Model: User{
+				LoginGovUUID: &billyUUID,
+				Active:       true,
+				Roles:        []roles.Role{tooRole},
+			},
 		},
-	})
+	}, nil)
 
 	suite.DB().MigrationURL()
 	identity, err = FetchUserIdentity(suite.DB(), billy.LoginGovUUID.String())
@@ -257,11 +262,12 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 
 		// Create a user email that won't be filtered out of the devlocal user query w/ a default value of
 		// first.last@login.gov.test
-		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
-			User: User{
-				LoginGovEmail: "test@example.com",
-			},
-		})
+		user := factory.BuildUser(suite.DB(), []factory.Customization{
+			{
+				Model: User{
+					LoginGovEmail: "test@example.com",
+				},
+			}}, nil)
 
 		testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
 			ServiceMember: ServiceMember{

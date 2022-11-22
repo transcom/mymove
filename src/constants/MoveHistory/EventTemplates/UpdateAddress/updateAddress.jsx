@@ -9,7 +9,12 @@ import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 
 const formatChangedValues = (historyRecord) => {
   const { context, changedValues, oldValues } = historyRecord;
-  const address = formatMoveHistoryFullAddress(changedValues);
+  // order is important here, please keep oldValues first in the addressValues object
+  const addressValues = {
+    ...oldValues,
+    ...changedValues,
+  };
+  const address = formatMoveHistoryFullAddress(addressValues);
 
   const addressType = context.filter((contextObject) => contextObject.address_type)[0].address_type;
   const addressLabel = ADDRESS_TYPE[addressType];

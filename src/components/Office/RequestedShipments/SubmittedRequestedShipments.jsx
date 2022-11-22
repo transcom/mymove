@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { generatePath } from 'react-router';
 
 import styles from './RequestedShipments.module.scss';
@@ -16,9 +15,8 @@ import Restricted from 'components/Restricted/Restricted';
 import { serviceItemCodes } from 'content/serviceItems';
 import { shipmentTypeLabels } from 'content/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
-import { MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
+import { MoveTaskOrderShape, OrdersInfoShape } from 'types/order';
 import { ShipmentShape } from 'types/shipment';
-import { formatDateFromIso } from 'utils/formatters';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
@@ -33,14 +31,12 @@ const showWhenCollapsedWithGHCPrime = {
   HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
 };
 
-const RequestedShipments = ({
+const SubmittedRequestedShipments = ({
   mtoShipments,
-  ordersInfo,
-  allowancesInfo,
-  customerInfo,
-  shipmentsStatus,
-  mtoServiceItems,
   moveTaskOrder,
+  allowancesInfo,
+  ordersInfo,
+  customerInfo,
   approveMTO,
   approveMTOShipment,
   handleAfterSuccess,
@@ -174,172 +170,100 @@ const RequestedShipments = ({
 
   return (
     <div className={styles.RequestedShipments} data-testid="requested-shipments">
-      {shipmentsStatus === 'SUBMITTED' && (
-        <>
-          <div
-            id="approvalConfirmationModal"
-            data-testid="approvalConfirmationModal"
-            style={{ display: isModalVisible ? 'block' : 'none' }}
-          >
-            <ShipmentApprovalPreview
-              mtoShipments={filteredShipments}
-              ordersInfo={ordersInfo}
-              allowancesInfo={allowancesInfo}
-              customerInfo={customerInfo}
-              setIsModalVisible={setIsModalVisible}
-              onSubmit={formik.handleSubmit}
-              counselingFee={formik.values.counselingFee}
-              shipmentManagementFee={formik.values.shipmentManagementFee}
-            />
-          </div>
+      <div
+        id="approvalConfirmationModal"
+        data-testid="approvalConfirmationModal"
+        style={{ display: isModalVisible ? 'block' : 'none' }}
+      >
+        <ShipmentApprovalPreview
+          mtoShipments={filteredShipments}
+          ordersInfo={ordersInfo}
+          allowancesInfo={allowancesInfo}
+          customerInfo={customerInfo}
+          setIsModalVisible={setIsModalVisible}
+          onSubmit={formik.handleSubmit}
+          counselingFee={formik.values.counselingFee}
+          shipmentManagementFee={formik.values.shipmentManagementFee}
+        />
+      </div>
 
-          <form onSubmit={formik.handleSubmit}>
-            <h2>Requested shipments</h2>
-            <div className={shipmentCardsStyles.shipmentCards}>
-              {mtoShipments &&
-                mtoShipments.map((shipment) => {
-                  const editURL = generatePath(tooRoutes.SHIPMENT_EDIT_PATH, {
-                    moveCode,
-                    shipmentId: shipment.id,
-                  });
+      <form onSubmit={formik.handleSubmit}>
+        <h2>Requested shipments</h2>
+        <div className={shipmentCardsStyles.shipmentCards}>
+          {mtoShipments &&
+            mtoShipments.map((shipment) => {
+              const editUrl = generatePath(tooRoutes.SHIPMENT_EDIT_PATH, {
+                moveCode,
+                shipmentId: shipment.id,
+              });
 
-                  return (
-                    <ShipmentDisplay
-                      key={shipment.id}
-                      shipmentId={shipment.id}
-                      shipmentType={shipment.shipmentType}
-                      isSubmitted
-                      displayInfo={shipmentDisplayInfo(shipment, dutyLocationPostal)}
-                      ordersLOA={ordersLOA}
-                      errorIfMissing={errorIfMissing[shipment.shipmentType]}
-                      showWhenCollapsed={
-                        shipment.usesExternalVendor
-                          ? showWhenCollapsedWithExternalVendor[shipment.shipmentType]
-                          : showWhenCollapsedWithGHCPrime[shipment.shipmentType]
-                      }
-                      editURL={editURL}
-                      /* eslint-disable-next-line react/jsx-props-no-spreading */
-                      {...formik.getFieldProps(`shipments`)}
-                    />
-                  );
-                })}
-            </div>
-
-            <Restricted to={permissionTypes.updateShipment}>
-              <div className={styles.serviceItems}>
-                {!moveTaskOrder.availableToPrimeAt && (
-                  <>
-                    <h2>Add service items to this move</h2>
-                    <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
-                      <Checkbox
-                        id="shipmentManagementFee"
-                        label={serviceItemCodes.MS}
-                        name="shipmentManagementFee"
-                        onChange={formik.handleChange}
-                      />
-                      {moveTaskOrder.serviceCounselingCompletedAt ? (
-                        <p
-                          className={styles.serviceCounselingCompleted}
-                          data-testid="services-counseling-completed-text"
-                        >
-                          The customer has received counseling for this move.
-                        </p>
-                      ) : (
-                        <Checkbox
-                          id="counselingFee"
-                          label={serviceItemCodes.CS}
-                          name="counselingFee"
-                          onChange={formik.handleChange}
-                        />
-                      )}
-                    </Fieldset>
-                  </>
-                )}
-                <Button
-                  data-testid="shipmentApproveButton"
-                  className={styles.approveButton}
-                  onClick={handleReviewClick}
-                  type="button"
-                  disabled={!isButtonEnabled}
-                >
-                  <span>Approve selected</span>
-                </Button>
-              </div>
-            </Restricted>
-          </form>
-        </>
-      )}
-
-      {shipmentsStatus === 'APPROVED' && (
-        <>
-          <h2>Approved shipments</h2>
-          <div className={shipmentCardsStyles.shipmentCards}>
-            {mtoShipments &&
-              mtoShipments.map((shipment) => {
-                const editURL = generatePath(tooRoutes.SHIPMENT_EDIT_PATH, {
-                  moveCode,
-                  shipmentId: shipment.id,
-                });
-
-                return (
-                  <ShipmentDisplay
-                    key={shipment.id}
-                    shipmentId={shipment.id}
-                    shipmentType={shipment.shipmentType}
-                    displayInfo={shipmentDisplayInfo(shipment, dutyLocationPostal)}
-                    ordersLOA={ordersLOA}
-                    showWhenCollapsed={
-                      shipment.usesExternalVendor
-                        ? showWhenCollapsedWithExternalVendor[shipment.shipmentType]
-                        : showWhenCollapsedWithGHCPrime[shipment.shipmentType]
-                    }
-                    isSubmitted={false}
-                    editURL={editURL}
-                  />
-                );
-              })}
-          </div>
-        </>
-      )}
-
-      {shipmentsStatus === 'APPROVED' && (
-        <div className={styles.serviceItems}>
-          <h3>Service items</h3>
-
-          <table className="table--stacked">
-            <colgroup>
-              <col style={{ width: '75%' }} />
-              <col style={{ width: '25%' }} />
-            </colgroup>
-            <tbody>
-              {mtoServiceItems &&
-                mtoServiceItems
-                  .filter((serviceItem) => serviceItem.reServiceCode === 'MS' || serviceItem.reServiceCode === 'CS')
-                  .map((serviceItem) => (
-                    <tr key={serviceItem.id}>
-                      <td data-testid="basicServiceItemName">{serviceItem.reServiceName}</td>
-                      <td data-testid="basicServiceItemDate">
-                        {serviceItem.status === 'APPROVED' && (
-                          <span>
-                            <FontAwesomeIcon icon="check" className={styles.serviceItemApproval} />{' '}
-                            {formatDateFromIso(serviceItem.approvedAt, 'DD MMM YYYY')}
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-            </tbody>
-          </table>
+              return (
+                <ShipmentDisplay
+                  key={shipment.id}
+                  isSubmitted
+                  shipmentId={shipment.id}
+                  shipmentType={shipment.shipmentType}
+                  displayInfo={shipmentDisplayInfo(shipment, dutyLocationPostal)}
+                  ordersLOA={ordersLOA}
+                  errorIfMissing={errorIfMissing[shipment.shipmentType]}
+                  showWhenCollapsed={
+                    shipment.usesExternalVendor
+                      ? showWhenCollapsedWithExternalVendor[shipment.shipmentType]
+                      : showWhenCollapsedWithGHCPrime[shipment.shipmentType]
+                  }
+                  editURL={editUrl}
+                  /* eslint-disable-next-line react/jsx-props-no-spreading */
+                  {...formik.getFieldProps(`shipments`)}
+                />
+              );
+            })}
         </div>
-      )}
+
+        <Restricted to={permissionTypes.updateShipment}>
+          <div className={styles.serviceItems}>
+            {!moveTaskOrder.availableToPrimeAt && (
+              <>
+                <h2>Add service items to this move</h2>
+                <Fieldset legend="MTO service items" legendsronly="true" id="input-type-fieldset">
+                  <Checkbox
+                    id="shipmentManagementFee"
+                    label={serviceItemCodes.MS}
+                    name="shipmentManagementFee"
+                    onChange={formik.handleChange}
+                  />
+                  {moveTaskOrder.serviceCounselingCompletedAt ? (
+                    <p className={styles.serviceCounselingCompleted} data-testid="services-counseling-completed-text">
+                      The customer has received counseling for this move.
+                    </p>
+                  ) : (
+                    <Checkbox
+                      id="counselingFee"
+                      label={serviceItemCodes.CS}
+                      name="counselingFee"
+                      onChange={formik.handleChange}
+                    />
+                  )}
+                </Fieldset>
+              </>
+            )}
+            <Button
+              data-testid="shipmentApproveButton"
+              className={styles.approveButton}
+              onClick={handleReviewClick}
+              type="button"
+              disabled={!isButtonEnabled}
+            >
+              <span>Approve selected</span>
+            </Button>
+          </div>
+        </Restricted>
+      </form>
     </div>
   );
 };
 
-RequestedShipments.propTypes = {
+SubmittedRequestedShipments.propTypes = {
   mtoShipments: PropTypes.arrayOf(ShipmentShape).isRequired,
-  shipmentsStatus: PropTypes.string.isRequired,
-  mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
   ordersInfo: OrdersInfoShape.isRequired,
   allowancesInfo: PropTypes.shape({
     branch: PropTypes.string,
@@ -370,14 +294,13 @@ RequestedShipments.propTypes = {
   approveMTOShipment: PropTypes.func,
   moveTaskOrder: MoveTaskOrderShape,
   missingRequiredOrdersInfo: PropTypes.bool,
-  handleAfterSuccess: PropTypes.func,
   moveCode: PropTypes.string.isRequired,
+  handleAfterSuccess: PropTypes.func,
   errorIfMissing: PropTypes.shape({}),
   displayDestinationType: PropTypes.bool,
 };
 
-RequestedShipments.defaultProps = {
-  mtoServiceItems: [],
+SubmittedRequestedShipments.defaultProps = {
   moveTaskOrder: {},
   approveMTO: () => Promise.resolve(),
   approveMTOShipment: () => Promise.resolve(),
@@ -387,4 +310,4 @@ RequestedShipments.defaultProps = {
   displayDestinationType: false,
 };
 
-export default RequestedShipments;
+export default SubmittedRequestedShipments;

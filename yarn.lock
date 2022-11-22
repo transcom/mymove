@@ -2329,31 +2329,31 @@
   dependencies:
     "@floating-ui/core" "^1.0.1"
 
-"@fortawesome/fontawesome-common-types@6.2.0":
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-6.2.0.tgz#76467a94aa888aeb22aafa43eb6ff889df3a5a7f"
-  integrity sha512-rBevIsj2nclStJ7AxTdfsa3ovHb1H+qApwrxcTVo+NNdeJiB9V75hsKfrkG5AwNcRUNxrPPiScGYCNmLMoh8pg==
+"@fortawesome/fontawesome-common-types@6.2.1":
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-6.2.1.tgz#411e02a820744d3f7e0d8d9df9d82b471beaa073"
+  integrity sha512-Sz07mnQrTekFWLz5BMjOzHl/+NooTdW8F8kDQxjWwbpOJcnoSg4vUDng8d/WR1wOxM0O+CY9Zw0nR054riNYtQ==
 
-"@fortawesome/fontawesome-svg-core@^6.2.0":
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-6.2.0.tgz#11856eaf4dd1d865c442ddea1eed8ee855186ba2"
-  integrity sha512-Cf2mAAeMWFMzpLC7Y9H1I4o3wEU+XovVJhTiNG8ZNgSQj53yl7OCJaS80K4YjrABWZzbAHVaoHE1dVJ27AAYXw==
+"@fortawesome/fontawesome-svg-core@^6.2.1":
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-6.2.1.tgz#e87e905e444b5e7b715af09b64d27b53d4c8f9d9"
+  integrity sha512-HELwwbCz6C1XEcjzyT1Jugmz2NNklMrSPjZOWMlc+ZsHIVk+XOvOXLGGQtFBwSyqfJDNgRq4xBCwWOaZ/d9DEA==
   dependencies:
-    "@fortawesome/fontawesome-common-types" "6.2.0"
+    "@fortawesome/fontawesome-common-types" "6.2.1"
 
-"@fortawesome/free-regular-svg-icons@^6.2.0":
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/@fortawesome/free-regular-svg-icons/-/free-regular-svg-icons-6.2.0.tgz#947e1f03be17da3a60bfeb2666b5348b19448ce2"
-  integrity sha512-M1dG+PAmkYMTL9BSUHFXY5oaHwBYfHCPhbJ8qj8JELsc9XCrUJ6eEHWip4q0tE+h9C0DVyFkwIM9t7QYyCpprQ==
+"@fortawesome/free-regular-svg-icons@^6.2.1":
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/@fortawesome/free-regular-svg-icons/-/free-regular-svg-icons-6.2.1.tgz#650e56d937755a8341f2eef258ecb6f95458820f"
+  integrity sha512-wiqcNDNom75x+pe88FclpKz7aOSqS2lOivZeicMV5KRwOAeypxEYWAK/0v+7r+LrEY30+qzh8r2XDaEHvoLsMA==
   dependencies:
-    "@fortawesome/fontawesome-common-types" "6.2.0"
+    "@fortawesome/fontawesome-common-types" "6.2.1"
 
-"@fortawesome/free-solid-svg-icons@^6.2.0":
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/@fortawesome/free-solid-svg-icons/-/free-solid-svg-icons-6.2.0.tgz#8dcde48109354fd7a5ece8ea48d678bb91d4b5f0"
-  integrity sha512-UjCILHIQ4I8cN46EiQn0CZL/h8AwCGgR//1c4R96Q5viSRwuKVo0NdQEc4bm+69ZwC0dUvjbDqAHF1RR5FA3XA==
+"@fortawesome/free-solid-svg-icons@^6.2.1":
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/@fortawesome/free-solid-svg-icons/-/free-solid-svg-icons-6.2.1.tgz#2290ea5adcf1537cbd0c43de6feb38af02141d27"
+  integrity sha512-oKuqrP5jbfEPJWTij4sM+/RvgX+RMFwx3QZCZcK9PrBDgxC35zuc7AOFsyMjMd/PIFPeB2JxyqDr5zs/DZFPPw==
   dependencies:
-    "@fortawesome/fontawesome-common-types" "6.2.0"
+    "@fortawesome/fontawesome-common-types" "6.2.1"
 
 "@fortawesome/react-fontawesome@^0.2.0":
   version "0.2.0"
@@ -8158,10 +8158,10 @@ core-js@^2.0.0:
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.12.tgz#d9333dfa7b065e347cc5682219d6f690859cc2ec"
   integrity sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ==
 
-core-js@^3.0.4, core-js@^3.19.2, core-js@^3.26.0, core-js@^3.6.5, core-js@^3.8.2:
-  version "3.26.0"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.26.0.tgz#a516db0ed0811be10eac5d94f3b8463d03faccfe"
-  integrity sha512-+DkDrhoR4Y0PxDz6rurahuB+I45OsEUv8E1maPTB6OuHRohMMcznBq9TMpdpDMm/hUPob/mJJS3PqgbHpMTQgw==
+core-js@^3.0.4, core-js@^3.19.2, core-js@^3.26.1, core-js@^3.6.5, core-js@^3.8.2:
+  version "3.26.1"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.26.1.tgz#7a9816dabd9ee846c1c0fe0e8fcad68f3709134e"
+  integrity sha512-21491RRQVzUn0GGM9Z1Jrpr6PNPxPi+Za8OM9q4tksTSnlbXXGKK1nXNg/QvwFYettXvSX6zWKCtHHfjN4puyA==
 
 core-util-is@1.0.2:
   version "1.0.2"
@@ -11293,10 +11293,10 @@ happo-plugin-storybook@^3.0.0:
     archiver "^3.0.0"
     rimraf "^2.6.3"
 
-happo.io@^8.2.0:
-  version "8.2.0"
-  resolved "https://registry.yarnpkg.com/happo.io/-/happo.io-8.2.0.tgz#8d44f928fc608ab7846a9ac481b7d675ab29268c"
-  integrity sha512-OrMRRYUwOzpVAntiz25/lYAqwVrKByXNbIddJ0v63BTcs9pN+ZQz11ZaHTwlYXvfTWRA1Zu5i0wBsGBGkR5fGA==
+happo.io@^8.3.0:
+  version "8.3.0"
+  resolved "https://registry.yarnpkg.com/happo.io/-/happo.io-8.3.0.tgz#4259e08dfa5c6eba3a7167be803d0d4fad665366"
+  integrity sha512-gpnUddCEgV0IGdZaXhpKojY8zZ66WhqBXhNhU/L5e0srr2jLpaZ9sTPrdWQGlk9qTeW0tFkZJsctN89wFwN+ag==
   dependencies:
     "@babel/preset-react" "^7.12.1"
     abort-controller "^3.0.0"
@@ -13836,9 +13836,9 @@ loader-runner@^4.2.0:
   integrity sha512-3R/1M+yS3j5ou80Me59j7F9IMs4PXs3VqRrm0TU3AbKPxlmpoY1TNscJV/oGJXo8qCatFGTfDbY6W6ipGOYXfg==
 
 loader-utils@^1.0.2, loader-utils@^1.2.3, loader-utils@^1.4.0, loader-utils@^2.0.0, loader-utils@^2.0.3, loader-utils@^3.2.0:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/loader-utils/-/loader-utils-2.0.3.tgz#d4b15b8504c63d1fc3f2ade52d41bc8459d6ede1"
-  integrity sha512-THWqIsn8QRnvLl0shHYVBN9syumU8pYWEHPTmkiVGd+7K5eFNVSY6AJhRvgGF70gg1Dz+l/k8WicvFCxdEs60A==
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/loader-utils/-/loader-utils-2.0.4.tgz#8b5cb38b5c34a9a018ee1fc0e6a066d1dfcc528c"
+  integrity sha512-xXqpXoINfFhgua9xiqD8fPFHgkoq1mmmpE92WlDbm9rNRd/EbRb+Gqf908T2DMfuHjjJlksiK2RbHVOdD/MqSw==
   dependencies:
     big.js "^5.2.2"
     emojis-list "^3.0.0"
@@ -17171,10 +17171,10 @@ ra-core@^3.19.11:
     query-string "^5.1.1"
     reselect "~3.0.0"
 
-ra-core@^4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.5.0.tgz#e6941fe240a840355c3929d0f958922671138e54"
-  integrity sha512-rOb8AFW7qTZPAhYU+nE3lkhvkYj4Hra1G9DCbEaes3G2ZFXgJ/Wi5Lsk4MBgLmtk+KJgykzm685bhbEAEZBq8g==
+ra-core@^4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.5.2.tgz#96d2bf10482a3992d44b4913d99ac9eef67b031c"
+  integrity sha512-3Oehkh8F73QDm0v8rNXKoa7EoWunoqUlFWAbPF7/p7vRmLTxgAE/+6PhpItkUU42ro6Oh2lC+MSe3zHANhivhQ==
   dependencies:
     clsx "^1.1.1"
     date-fns "^2.19.0"
@@ -17187,10 +17187,10 @@ ra-core@^4.5.0:
     react-is "^17.0.2"
     react-query "^3.32.1"
 
-ra-data-simple-rest@^4.5.1:
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.5.1.tgz#bdb4ea6711c8d5d319e3771d86c635225ea2ef77"
-  integrity sha512-iIEtoNvX09yqMw2jE3vKuEuQ0n+iFKGSOmltMa2FnWZGHjGZWHqr3z13gpoZrqgxJM24jLEUdJ/d/vThsYYjhg==
+ra-data-simple-rest@^4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.5.2.tgz#d3672c295beee1f6f47dcbc69a7524ee3bc4bf61"
+  integrity sha512-eGkpIT/M2M3Ytgn+UArfT4HE4Niqvi7U50ksGs6KqmAYpD3R2kQhkMzwpltaN0pEzkQVSKMWXQYaPoCmx4jgzg==
   dependencies:
     query-string "^7.1.1"
 
@@ -17209,12 +17209,12 @@ ra-language-english@^3.19.11:
   dependencies:
     ra-core "^3.19.11"
 
-ra-language-english@^4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.5.0.tgz#dab242f43e0eeb83ed9c9f3f1de9229a146a75a7"
-  integrity sha512-7lhrWfuOnDhxOaqJ2QXLDBDQ24q5+TElbk3Ys4JmsRXzchM5eWH0R0q5hCpmneYdg3bGYORvm7e4EbEmj7y+jQ==
+ra-language-english@^4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.5.2.tgz#464a9077c088588e8d265e5acd7f21182d1a0b8f"
+  integrity sha512-k3rBLFotQuvwG7vZYiHlVjU/OGieo8udIgGrnSzXJ12rkHuc3y75wtWlrv7DwQYINUClVRASbBpcVu8v7eqakg==
   dependencies:
-    ra-core "^4.5.0"
+    ra-core "^4.5.2"
 
 ra-ui-materialui@^3.19.11:
   version "3.19.11"
@@ -17754,10 +17754,10 @@ react-select@^3.2.0:
     react-input-autosize "^3.0.0"
     react-transition-group "^4.3.0"
 
-react-select@^5.6.0:
-  version "5.6.0"
-  resolved "https://registry.yarnpkg.com/react-select/-/react-select-5.6.0.tgz#d987f4c86b3dcd32307a0104e503e4e8a9777a34"
-  integrity sha512-uUvP/72rA8NGhOL16RVBaeC12Wa4NUE0iXIa6hz0YRno9ZgxTmpuMeKzjR7vHcwmigpVCoe0prP+3NVb6Obq8Q==
+react-select@^5.6.1:
+  version "5.6.1"
+  resolved "https://registry.yarnpkg.com/react-select/-/react-select-5.6.1.tgz#22f3d3f763ab24ac250739254f0191d46a2f1064"
+  integrity sha512-dYNRswtxUHW+F1Sc0HnxO5ryecPIAsG0+Cwyq5EIXZJBxCxUG2hFfQz41tc++30/2ISuuPglDikc4hEb4NsiuA==
   dependencies:
     "@babel/runtime" "^7.12.0"
     "@emotion/cache" "^11.4.0"
@@ -18070,10 +18070,10 @@ regenerate@^1.4.2:
   resolved "https://registry.yarnpkg.com/regenerate/-/regenerate-1.4.2.tgz#b9346d8827e8f5a32f7ba29637d398b69014848a"
   integrity sha512-zrceR/XhGYU/d/opr2EKO7aRHUeiBI8qjtfHqADTwZd6Szfy16la6kqD0MIUs5z5hx6AaKa+PixpPrR289+I0A==
 
-regenerator-runtime@^0.13.10, regenerator-runtime@^0.13.4, regenerator-runtime@^0.13.7, regenerator-runtime@^0.13.9:
-  version "0.13.10"
-  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.10.tgz#ed07b19616bcbec5da6274ebc75ae95634bfc2ee"
-  integrity sha512-KepLsg4dU12hryUO7bp/axHAKvwGOCV0sGloQtpagJ12ai+ojVDqkeGSiRX1zlq+kjIMZ1t7gpze+26QqtdGqw==
+regenerator-runtime@^0.13.11, regenerator-runtime@^0.13.4, regenerator-runtime@^0.13.7, regenerator-runtime@^0.13.9:
+  version "0.13.11"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.11.tgz#f6dca3e7ceec20590d07ada785636a90cdca17f9"
+  integrity sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==
 
 regenerator-transform@^0.14.2:
   version "0.14.5"

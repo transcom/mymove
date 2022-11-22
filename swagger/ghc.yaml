@@ -3007,7 +3007,8 @@ definitions:
         example: David
         x-nullable: true
       current_address:
-        $ref: '#/definitions/Address'
+        allOf:
+          - $ref: '#/definitions/Address'
       backup_contact:
         $ref: '#/definitions/BackupContact'
   Entitlements:
@@ -6004,11 +6005,11 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      createdAt:
+      updatedAt:
         type: string
         format: date-time
         readOnly: true
-      updatedAt:
+      createdAt:
         type: string
         format: date-time
         readOnly: true
@@ -6060,13 +6061,11 @@ definitions:
         type: string
         readOnly: true
     required:
-      - id
       - ppmShipmentId
       - createdAt
       - updatedAt
       - documentId
       - document
-      - eTag
   SignedCertificationType:
     description: |
       The type of signed certification:
