@@ -34,3 +34,30 @@ describe('When a service members updates their profile', () => {
     });
   });
 });
+
+describe('When a service counselor updates a backup contact name', () => {
+  const historyRecord = {
+    action: 'UPDATE',
+    eventName: 'updateCustomer',
+    tableName: 'backup_contacts',
+    eventNameDisplay: 'Updated profile',
+    changedValues: {
+      name: 'Ron Swanson',
+    },
+  };
+
+  it('correctly matches the updateCustomer event to the template', () => {
+    const template = getTemplate(historyRecord);
+    expect(template).toMatchObject(updateServiceMemberBackupContact);
+  });
+
+  describe('Renders the correct details for updated customer name', () => {
+    it.each([['Backup contact name', ': Ron Swanson']])('expect label %s to have value %s', async (label, value) => {
+      const result = getTemplate(historyRecord);
+
+      render(result.getDetails(historyRecord));
+      expect(screen.getByText(label)).toBeInTheDocument();
+      expect(screen.getByText(value)).toBeInTheDocument();
+    });
+  });
+});

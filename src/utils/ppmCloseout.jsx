@@ -5,6 +5,21 @@ import moment from 'moment';
 import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
 
+const getW2Address = (address) => {
+  const addressLine1 = address?.streetAddress2
+    ? `${address.streetAddress1} ${address.streetAddress2}`
+    : address?.streetAddress1;
+  const addressLine2 = `${address?.city}, ${address?.state} ${address?.postalCode}`;
+  return (
+    <>
+      <br />
+      {addressLine1}
+      <br />
+      {addressLine2}
+    </>
+  );
+};
+
 export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
   return [
     {
@@ -24,6 +39,11 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
           value: ppmShipment.hasReceivedAdvance
             ? `Yes, $${formatCentsTruncateWhole(ppmShipment.advanceAmountRequested)}`
             : 'No',
+        },
+        {
+          id: 'w2Address',
+          label: 'W-2 address:',
+          value: getW2Address(ppmShipment.w2Address),
         },
       ],
       renderEditLink: () => <Link to={generatePath(editPath, editParams)}>Edit</Link>,
