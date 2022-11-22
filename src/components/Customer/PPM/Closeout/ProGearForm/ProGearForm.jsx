@@ -1,5 +1,5 @@
 import React, { createRef } from 'react';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
 import { Field, Formik } from 'formik';
 import { func, number } from 'prop-types';
@@ -23,17 +23,10 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 
 const documentRef = createRef();
 
-const ProGearForm = ({
-  proGear,
-  setNumber,
-  onSubmit,
-  onBack,
-  onCreateUpload,
-  onUploadComplete,
-  onUploadDelete,
-  proGearEntitlements,
-}) => {
+const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onUploadComplete, onUploadDelete }) => {
   const { belongsToSelf, document, weight, description, hasWeightTickets } = proGear || {};
+
+  const proGearEntitlements = useSelector((state) => selectProGearEntitlements(state));
 
   const validationSchema = Yup.object().shape({
     belongsToSelf: Yup.bool().required('Required'),
@@ -212,11 +205,4 @@ ProGearForm.defaultProps = {
   },
 };
 
-const mapStateToProps = (state) => {
-  const proGearEntitlements = selectProGearEntitlements(state);
-  return {
-    proGearEntitlements,
-  };
-};
-
-export default connect(mapStateToProps)(ProGearForm);
+export default ProGearForm;
