@@ -164,7 +164,7 @@ const QAEReportTable = ({
           }
         />
       )}
-      <table className={styles.evaluationReportTable}>
+      <table className={styles.qaeReportTable}>
         <thead>
           <tr>
             <th className={styles.reportIDColumn}>Report ID</th>
