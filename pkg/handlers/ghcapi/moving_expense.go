@@ -1,6 +1,8 @@
 package ghcapi
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -40,7 +42,7 @@ func (h UpdateMovingExpenseHandler) Handle(params movingexpenseops.UpdateMovingE
 			return movingexpenseops.NewUpdateMovingExpenseUnprocessableEntity().WithPayload(payload), emptyBodyError
 		}
 
-		ppmshipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
+		//ppmshipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
 		//oldPPMShipment, err := mtoshipment.FindShipment(appCtx, ppmshipmentID)
 		// Can't find original moving expense
 		//if err != nil {
@@ -58,7 +60,7 @@ func (h UpdateMovingExpenseHandler) Handle(params movingexpenseops.UpdateMovingE
 		//}
 
 		movingExpense := payloads.MovingExpenseModelFromUpdate(payload)
-		movingExpense.ID = ppmshipmentID
+		movingExpense.ID = uuid.FromStringOrNil(params.MovingExpenseID.String())
 
 		//handleError := func(err error) (middleware.Responder, error) {
 		//	appCtx.Logger().Error("ghcapi.UpdateMovingExpenseHandler", zap.Error(err))
@@ -99,6 +101,7 @@ func (h UpdateMovingExpenseHandler) Handle(params movingexpenseops.UpdateMovingE
 		//	return handleError(err)
 		//}
 		returnPayload := payloads.MovingExpense(h.FileStorer(), updatedMovingExpense)
+		fmt.Println(returnPayload)
 		return movingexpenseops.NewUpdateMovingExpenseOK().WithPayload(returnPayload), nil
 	})
 }

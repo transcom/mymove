@@ -63,6 +63,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 
 		params := subtestData.params
 		amount := unit.Cents(5000)
+
 		params.UpdateMovingExpense = &ghcmessages.UpdateMovingExpense{
 			Amount: *handlers.FmtCost(&amount),
 		}
@@ -72,6 +73,6 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 
 		updatedMovingExpense := response.(*movingexpenseops.UpdateMovingExpenseOK).Payload
 		suite.Equal(subtestData.movingExpense.ID.String(), updatedMovingExpense.ID.String())
-		suite.Equal(params.UpdateMovingExpense.Amount, updatedMovingExpense.Amount)
+		suite.Equal(params.UpdateMovingExpense.Amount, *updatedMovingExpense.Amount)
 	})
 }
