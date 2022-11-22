@@ -12,7 +12,7 @@ export default {
     (Story) => (
       <GridContainer>
         <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }}>
+          <Grid col desktop={{ col: 2, offset: 8 }}>
             <Story />
           </Grid>
         </Grid>
@@ -38,4 +38,6 @@ Blank.args = {
       advanceAmountRequested: 60000,
     },
   },
+  tripNumber: '1',
+  ppmNumber: '1',
 };
