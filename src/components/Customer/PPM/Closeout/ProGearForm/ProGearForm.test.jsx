@@ -94,16 +94,6 @@ describe('ProGearForm component', () => {
       expect(screen.getByLabelText('My spouse')).not.toBeChecked();
       expect(container).toHaveTextContent("You have to separate yours and your spouse's pro-gear.");
     });
-    // TODO: Move test to WeightTicketUpload.test.jsx
-    // it('populates form when weight ticket is missing', async () => {
-    //   render(<ProGearForm {...defaultProps} {...belongsToSelfProps} />);
-    //   await waitFor(() => {
-    //     expect(screen.getByLabelText("I don't have weight tickets")).toHaveDisplayValue('missingWeightTicket');
-    //   });
-    //   expect(
-    //     screen.getByText('Download the official government spreadsheet to calculate the constructed weight.'),
-    //   ).toBeInTheDocument();
-    // });
 
     it('selects "My spouse" radio when belongsToSelf is false', () => {
       render(<ProGearForm {...defaultProps} {...spouseProGearProps} />, { wrapper: MockProviders });
