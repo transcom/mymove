@@ -20,6 +20,7 @@ import formStyles from 'styles/form.module.scss';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
+import { uploadShape } from 'types/uploads';
 
 const documentRef = createRef();
 
@@ -30,10 +31,10 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
 
   const validationSchema = Yup.object().shape({
     belongsToSelf: Yup.bool().required('Required'),
-    document: Yup.object().nullable(),
+    document: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
     weight: Yup.number()
       .required('Required')
-      .min(0, 'Enter a weight 0 lbs or greater.')
+      .min(1, 'Enter a weight greater than 0 lbs.')
       .when('belongsToSelf', (belongsToSelfField, schema) => {
         if (belongsToSelfField === null) {
           return schema;

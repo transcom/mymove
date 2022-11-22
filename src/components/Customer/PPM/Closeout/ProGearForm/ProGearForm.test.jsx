@@ -30,10 +30,17 @@ beforeEach(() => {
 const proGearProps = {
   proGear: {
     belongsToSelf: true,
-    document: [],
+    document: {},
     weight: 1,
     description: 'Description',
-    missingWeightTicket: '',
+    hasWeightTickets: '',
+  },
+};
+
+const proGearNoWeightProps = {
+  proGear: {
+    ...proGearProps.proGear,
+    weight: 0,
   },
 };
 
@@ -43,7 +50,23 @@ const spouseProGearProps = {
   },
 };
 
-const testState = {};
+const proGearWithDocumentProps = {
+  proGear: {
+    ...proGearProps.proGear,
+    document: {
+      uploads: [
+        {
+          id: '299e2fb4-432d-4261-bbed-d8280c6090af',
+          createdAt: '2022-06-22T23:25:50.490Z',
+          bytes: 819200,
+          url: 'a/fake/path',
+          filename: 'empty_weight.pdf',
+          contentType: 'image/pdf',
+        },
+      ],
+    },
+  },
+};
 
 describe('ProGearForm component', () => {
   describe('displays form', () => {
@@ -83,26 +106,30 @@ describe('ProGearForm component', () => {
     // });
 
     it('selects "My spouse" radio when belongsToSelf is false', () => {
-      render(
-        <MockProviders initialState={testState}>
-          <ProGearForm {...defaultProps} {...spouseProGearProps} />
-        </MockProviders>,
-      );
+      render(<ProGearForm {...defaultProps} {...spouseProGearProps} />, { wrapper: MockProviders });
       expect(screen.getByLabelText('My spouse')).toBeChecked();
       expect(screen.getByLabelText('Me')).not.toBeChecked();
     });
   });
+  describe('validates', () => {
+    it('when all required fields are filled', async () => {
+      render(<ProGearForm {...defaultProps} {...proGearWithDocumentProps} />, { wrapper: MockProviders });
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+      });
+    });
+  });
   describe('attaches button handler callbacks', () => {
-    it('calls the onSubmit callback with belongsToSelf set', async () => {
+    it('calls the onSubmit callback with required fields', async () => {
       const expectedPayload = {
         belongsToSelf: 'true',
-        document: [],
+        document: proGearWithDocumentProps.proGear.document.uploads,
         weight: '1',
         description: 'Description',
         missingWeightTicket: false,
       };
-      render(<ProGearForm {...defaultProps} {...proGearProps} />, { wrapper: MockProviders });
-
+      render(<ProGearForm {...defaultProps} {...proGearWithDocumentProps} />, { wrapper: MockProviders });
+      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
       userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
       await waitFor(() => {
@@ -147,6 +174,16 @@ describe('ProGearForm component', () => {
       userEvent.click(screen.getByLabelText('My spouse'));
       await waitFor(() => {
         expect(screen.getByText(/Pro gear weight must be less than or equal to 987 lbs./)).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+      });
+    });
+  });
+  describe('invalidates fields', () => {
+    it('invalidates if weight is zero', async () => {
+      render(<ProGearForm {...defaultProps} {...proGearNoWeightProps} />, { wrapper: MockProviders });
+      userEvent.type(screen.getByRole('textbox', { name: /^Shipment's pro-gear weight/ }), '0');
+      await waitFor(() => {
+        expect(screen.getByText(/Enter a weight greater than 0 lbs./)).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
       });
     });

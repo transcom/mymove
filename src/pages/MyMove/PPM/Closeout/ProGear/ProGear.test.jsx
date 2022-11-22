@@ -279,9 +279,14 @@ describe('Pro-gear page', () => {
       deleteButtons = screen.getAllByRole('button', { name: 'Delete' });
       expect(deleteButtons).toHaveLength(2);
     });
+    userEvent.click(deleteButtons[1]);
+    await waitFor(() => {
+      expect(screen.queryByText('weight_ticket.pdf')).not.toBeInTheDocument();
+    });
     userEvent.click(deleteButtons[0]);
     await waitFor(() => {
       expect(screen.queryByText('weight_ticket.jpg')).not.toBeInTheDocument();
+      expect(screen.getByText(/At least one upload is required/)).toBeInTheDocument();
     });
   });
 
