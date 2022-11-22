@@ -17171,10 +17171,10 @@ ra-core@^3.19.11:
     query-string "^5.1.1"
     reselect "~3.0.0"
 
-ra-core@^4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.5.0.tgz#e6941fe240a840355c3929d0f958922671138e54"
-  integrity sha512-rOb8AFW7qTZPAhYU+nE3lkhvkYj4Hra1G9DCbEaes3G2ZFXgJ/Wi5Lsk4MBgLmtk+KJgykzm685bhbEAEZBq8g==
+ra-core@^4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.5.2.tgz#96d2bf10482a3992d44b4913d99ac9eef67b031c"
+  integrity sha512-3Oehkh8F73QDm0v8rNXKoa7EoWunoqUlFWAbPF7/p7vRmLTxgAE/+6PhpItkUU42ro6Oh2lC+MSe3zHANhivhQ==
   dependencies:
     clsx "^1.1.1"
     date-fns "^2.19.0"
@@ -17187,10 +17187,10 @@ ra-core@^4.5.0:
     react-is "^17.0.2"
     react-query "^3.32.1"
 
-ra-data-simple-rest@^4.5.1:
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.5.1.tgz#bdb4ea6711c8d5d319e3771d86c635225ea2ef77"
-  integrity sha512-iIEtoNvX09yqMw2jE3vKuEuQ0n+iFKGSOmltMa2FnWZGHjGZWHqr3z13gpoZrqgxJM24jLEUdJ/d/vThsYYjhg==
+ra-data-simple-rest@^4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.5.2.tgz#d3672c295beee1f6f47dcbc69a7524ee3bc4bf61"
+  integrity sha512-eGkpIT/M2M3Ytgn+UArfT4HE4Niqvi7U50ksGs6KqmAYpD3R2kQhkMzwpltaN0pEzkQVSKMWXQYaPoCmx4jgzg==
   dependencies:
     query-string "^7.1.1"
 
@@ -17209,12 +17209,12 @@ ra-language-english@^3.19.11:
   dependencies:
     ra-core "^3.19.11"
 
-ra-language-english@^4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.5.0.tgz#dab242f43e0eeb83ed9c9f3f1de9229a146a75a7"
-  integrity sha512-7lhrWfuOnDhxOaqJ2QXLDBDQ24q5+TElbk3Ys4JmsRXzchM5eWH0R0q5hCpmneYdg3bGYORvm7e4EbEmj7y+jQ==
+ra-language-english@^4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.5.2.tgz#464a9077c088588e8d265e5acd7f21182d1a0b8f"
+  integrity sha512-k3rBLFotQuvwG7vZYiHlVjU/OGieo8udIgGrnSzXJ12rkHuc3y75wtWlrv7DwQYINUClVRASbBpcVu8v7eqakg==
   dependencies:
-    ra-core "^4.5.0"
+    ra-core "^4.5.2"
 
 ra-ui-materialui@^3.19.11:
   version "3.19.11"
@@ -18070,10 +18070,10 @@ regenerate@^1.4.2:
   resolved "https://registry.yarnpkg.com/regenerate/-/regenerate-1.4.2.tgz#b9346d8827e8f5a32f7ba29637d398b69014848a"
   integrity sha512-zrceR/XhGYU/d/opr2EKO7aRHUeiBI8qjtfHqADTwZd6Szfy16la6kqD0MIUs5z5hx6AaKa+PixpPrR289+I0A==
 
-regenerator-runtime@^0.13.10, regenerator-runtime@^0.13.4, regenerator-runtime@^0.13.7, regenerator-runtime@^0.13.9:
-  version "0.13.10"
-  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.10.tgz#ed07b19616bcbec5da6274ebc75ae95634bfc2ee"
-  integrity sha512-KepLsg4dU12hryUO7bp/axHAKvwGOCV0sGloQtpagJ12ai+ojVDqkeGSiRX1zlq+kjIMZ1t7gpze+26QqtdGqw==
+regenerator-runtime@^0.13.11, regenerator-runtime@^0.13.4, regenerator-runtime@^0.13.7, regenerator-runtime@^0.13.9:
+  version "0.13.11"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.11.tgz#f6dca3e7ceec20590d07ada785636a90cdca17f9"
+  integrity sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==
 
 regenerator-transform@^0.14.2:
   version "0.14.5"

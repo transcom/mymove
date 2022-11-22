@@ -3,7 +3,6 @@ import { string } from 'prop-types';
 
 import styles from './MoveHistory.module.scss';
 import ModifiedBy from './ModifiedBy';
-import MoveHistoryDetailsSelector from './MoveHistoryDetailsSelector';
 
 import TableQueue from 'components/Table/TableQueue';
 import { createHeader } from 'components/Table/utils';
@@ -23,11 +22,7 @@ const columns = [
   createHeader(
     'Details',
     (row) => {
-      return (
-        <div className={styles.details}>
-          <MoveHistoryDetailsSelector historyRecord={row} />
-        </div>
-      );
+      return <div className={styles.details}>{getTemplate(row).getDetails(row)}</div>;
     },
     { id: 'move-history-details' },
   ),

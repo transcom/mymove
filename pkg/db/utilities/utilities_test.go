@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/db/utilities"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -37,7 +38,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_NotModel() {
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithoutAssociations() {
 	//model without deleted_at with no associations
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := factory.BuildDefaultUser(suite.DB())
 
 	err := utilities.SoftDestroy(suite.DB(), &user)
 
