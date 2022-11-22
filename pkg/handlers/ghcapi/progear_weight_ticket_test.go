@@ -81,6 +81,6 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 
 		updatedProgear := response.(*progearops.UpdateProGearWeightTicketOK).Payload
 		suite.Equal(subtestData.progear.ID.String(), updatedProgear.ID.String())
-		suite.Equal(params.UpdateProGearWeightTicket.Weight, *updatedProgear.Weight)
+		suite.Equal(params.UpdateProGearWeightTicket.Weight, updatedProgear.Weight)
 	})
 }
