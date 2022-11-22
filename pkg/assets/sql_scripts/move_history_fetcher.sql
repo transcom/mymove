@@ -258,6 +258,9 @@ WITH move AS (
 			audit_history
 			JOIN agents ON agents.id = audit_history.object_id
 		WHERE audit_history.table_name = 'mto_agents'
+			AND (audit_history.event_name <> 'deleteShipment' OR audit_history.event_name IS NULL)
+				-- This event name is used to delete the parent shipment and child agent logs are unnecessary.
+				-- NULLS are not counted in comparisons, so we include those as well.
 	),
 	move_reweighs AS (
 		SELECT

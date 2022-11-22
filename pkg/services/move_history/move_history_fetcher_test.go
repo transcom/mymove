@@ -759,6 +759,59 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		}
 		suite.True(verifyServiceItemDimensionsHistoryFound, "AuditHistories contains an AuditHistory with a service item customer contacts creation")
 	})
+
+	suite.Run("has audit history records for mto_agents", func() {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		mtoAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+
+		// Make two audit history entries, one with an event name we should find
+		// and another with the eventName we are intentionally not returning in our query.
+		eventNameToFind := "updateShipment"
+		eventNameToNotFind := "deleteShipment"
+		tableName := "mto_agents"
+		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
+			TestDataAuditHistory: testdatagen.TestDataAuditHistory{
+				EventName:   &eventNameToFind,
+				TableNameDB: tableName,
+				ObjectID:    &mtoAgent.ID,
+			},
+			Move: models.Move{
+				ID: move.ID,
+			},
+		})
+		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
+			TestDataAuditHistory: testdatagen.TestDataAuditHistory{
+				EventName:   &eventNameToNotFind,
+				TableNameDB: tableName,
+				ObjectID:    &mtoAgent.ID,
+			},
+			Move: models.Move{
+				ID: move.ID,
+			},
+		})
+		params := services.FetchMoveHistoryParams{Locator: move.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		verifyEventNameFound := false
+		verifyEventNameNotFound := false
+
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "mto_agents" {
+				if h.EventName != nil && *h.EventName == eventNameToFind {
+					verifyEventNameFound = true
+				}
+				if h.EventName != nil && *h.EventName == eventNameToNotFind {
+					verifyEventNameNotFound = true
+				}
+			}
+		}
+		suite.True(verifyEventNameFound, "MTO Agent event name to find.")
+		suite.False(verifyEventNameNotFound, "MTO Agent event name to NOT find.")
+	})
 }
 
 func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
