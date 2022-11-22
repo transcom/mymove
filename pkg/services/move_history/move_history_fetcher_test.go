@@ -784,10 +784,10 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 
 		for _, h := range moveHistoryData.AuditHistories {
 			if h.TableName == "mto_agents" {
-				if *h.EventName == eventNameToFind {
+				if h.EventName != nil && *h.EventName == eventNameToFind {
 					verifyEventNameFound = true
 				}
-				if *h.EventName == eventNameToNotFind {
+				if h.EventName != nil && *h.EventName == eventNameToNotFind {
 					verifyEventNameNotFound = true
 				}
 			}
