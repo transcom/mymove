@@ -162,12 +162,14 @@ describe('About page', () => {
     expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('About your PPM');
     expect(screen.getByText('Finish moving this PPM before you start documenting it.')).toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('How to complete your PPM');
+    expect(screen.getAllByRole('heading', { level: 2 })[1]).toHaveTextContent('About your final payment');
 
     // renders form content
-    expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Departure date');
-    expect(screen.getAllByRole('heading', { level: 2 })[1]).toHaveTextContent('Locations');
-    expect(screen.getAllByRole('heading', { level: 2 })[2]).toHaveTextContent('Advance (AOA)');
-    expect(screen.getAllByRole('heading', { level: 2 })[3]).toHaveTextContent('W-2 address');
+    expect(screen.getAllByRole('heading', { level: 2 })[2]).toHaveTextContent('Departure date');
+    expect(screen.getAllByRole('heading', { level: 2 })[3]).toHaveTextContent('Locations');
+    expect(screen.getAllByRole('heading', { level: 2 })[4]).toHaveTextContent('Advance (AOA)');
+    expect(screen.getAllByRole('heading', { level: 2 })[5]).toHaveTextContent('W-2 address');
   });
 
   it('routes back to home when return to homepage is clicked', () => {
