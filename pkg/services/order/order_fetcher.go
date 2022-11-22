@@ -140,7 +140,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
-					Where("ppm_shipments.status IS NULL OR ppm_shipments.status <> ?", models.PPMShipmentStatusNeedsPaymentApproval)
+					Where("(ppm_shipments.status IS NULL OR ppm_shipments.status <> ?)", models.PPMShipmentStatusNeedsPaymentApproval)
 			}
 		}
 	}
