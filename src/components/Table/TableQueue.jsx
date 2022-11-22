@@ -42,7 +42,7 @@ const TableQueue = ({
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
   const {
-    queueResult: { totalCount = 0, data = [], page = 1, perPage = 20 },
+    queueResult: { totalCount = 0, totalCloseoutCount = 10, data = [], page = 1, perPage = 20 },
     isLoading,
     isError,
   } = useQueries({
@@ -112,9 +112,9 @@ const TableQueue = ({
       setCurrentPage(pageIndex + 1);
       setCurrentPageSize(pageSize);
       setPageCount(Math.ceil(totalCount / pageSize));
-      setCloseoutCount(Math.ceil(closeoutCount / pageSize));
+      setCloseoutCount(Math.ceil(totalCloseoutCount / pageSize));
     }
-  }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount, closeoutCount]);
+  }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount, totalCloseoutCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -130,7 +130,7 @@ const TableQueue = ({
               <span className="tab-title">{`Counseling (${totalCount})`}</span>
             </NavLink>,
             <NavLink exact activeClassName="usa-current" to={servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH}>
-              <span className="tab-title">{`PPM closeout (${closeoutCount})`}</span>
+              <span className="tab-title">{`PPM closeout (${totalCloseoutCount})`}</span>
             </NavLink>,
           ]}
         />
