@@ -53,6 +53,11 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	ppmCloseoutGblocs := officeUserGbloc == "NAVY" || officeUserGbloc == "TVCB" || officeUserGbloc == "USCG"
 
+	// Services Counselors in closeout GBLOCs should only see closeout moves
+	if needsCounseling && ppmCloseoutGblocs && params.NeedsPPMCloseout != nil && !*params.NeedsPPMCloseout {
+		return []models.Move{}, 0, nil
+	}
+
 	branchQuery := branchFilter(params.Branch, needsCounseling, ppmCloseoutGblocs)
 
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
@@ -75,10 +80,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	//    back to the GBLOC of the origin duty location's transportation office since an NTS-Release
 	//    does not populate the pickup address field.
 	var gblocQuery QueryOption
-	if needsCounseling {
-		gblocQuery = gblocFilterForSC(gblocToFilterBy)
-	} else if ppmCloseoutGblocs {
+	if ppmCloseoutGblocs {
 		gblocQuery = gblocFilterForPPMCloseoutForNavyMarineAndCG(gblocToFilterBy)
+	} else if needsCounseling {
+		gblocQuery = gblocFilterForSC(gblocToFilterBy)
 	} else {
 		gblocQuery = gblocFilterForTOO(gblocToFilterBy)
 	}
