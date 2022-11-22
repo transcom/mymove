@@ -41,7 +41,7 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 				return weightticketops.NewUpdateWeightTicketUnprocessableEntity().WithPayload(payload), emptyBodyError
 			}
 
-			ppmshipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
+			//ppmshipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
 			//oldPPMShipment, err := mtoshipment.FindShipment(appCtx, ppmshipmentID)
 			// Can't find original weight ticket
 			//if err != nil {
@@ -59,7 +59,7 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 			//}
 
 			weightTicket := payloads.WeightTicketModelFromUpdate(payload)
-			weightTicket.ID = ppmshipmentID
+			weightTicket.ID = uuid.FromStringOrNil(params.WeightTicketID.String())
 
 			//handleError := func(err error) (middleware.Responder, error) {
 			//	appCtx.Logger().Error("ghcapi.UpdateWeightTicketHandler", zap.Error(err))

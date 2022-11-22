@@ -80,6 +80,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 
 		updatedWeightTicket := response.(*weightticketops.UpdateWeightTicketOK).Payload
 		suite.Equal(subtestData.weightTicket.ID.String(), updatedWeightTicket.ID.String())
-		suite.Equal(params.UpdateWeightTicketPayload.FullWeight, *updatedWeightTicket.FullWeight)
+		suite.Equal(params.UpdateWeightTicketPayload.FullWeight, updatedWeightTicket.FullWeight)
+		suite.Equal(params.UpdateWeightTicketPayload.EmptyWeight, updatedWeightTicket.EmptyWeight)
 	})
 }
