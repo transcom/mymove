@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import qs from 'query-string';
 import { bool, shape, string } from 'prop-types';
 import { Button, ButtonGroup } from '@trussworks/react-uswds';
-import { useHistory } from 'react-router-dom-old';
+import { useNavigate } from 'react-router-dom';
 
 import '../../styles/office.scss';
 import styles from './SignIn.module.scss';
@@ -17,15 +17,15 @@ import { isDevelopment } from 'shared/constants';
 
 const SignIn = ({ context, location, showLocalDevLogin }) => {
   const [showEula, setShowEula] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     function unload() {
-      history.replace('', null);
+      navigate('', { replace: true, state: null });
     }
     window.addEventListener('beforeunload', unload);
     return () => window.removeEventListener('beforeunload', unload);
-  }, [history]);
+  }, [navigate]);
 
   const { error } = qs.parse(location.search);
   const { siteName, showLoginWarning } = context;
