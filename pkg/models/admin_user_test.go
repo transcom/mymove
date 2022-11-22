@@ -1,12 +1,12 @@
 package models_test
 
 import (
+	"github.com/transcom/mymove/pkg/factory"
 	. "github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestAdminUserCreation() {
-	user := testdatagen.MakeStubbedUser(suite.DB())
+	user := factory.BuildUser(nil, nil, nil)
 
 	newAdminUser := AdminUser{
 		FirstName: "Leo",

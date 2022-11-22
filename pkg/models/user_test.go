@@ -92,7 +92,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(ErrFetchNotFound, err, "Expected not to find missing Identity")
 	suite.Nil(identity)
 
-	alice := testdatagen.MakeDefaultUser(suite.DB())
+	alice := factory.BuildDefaultUser(suite.DB())
 	identity, err = FetchUserIdentity(suite.DB(), alice.LoginGovUUID.String())
 	suite.Nil(err, "loading alice's identity")
 	suite.NotNil(identity)
@@ -110,7 +110,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(bob.ID, *identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
 
-	carolUser := testdatagen.MakeDefaultUser(suite.DB())
+	carolUser := factory.BuildDefaultUser(suite.DB())
 	carol := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
 		OfficeUser: OfficeUser{
 			UserID: &carolUser.ID,
@@ -125,13 +125,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(identity.ServiceMemberID)
 	suite.Equal(carol.ID, *identity.OfficeUserID)
 
-	adminUser := testdatagen.MakeDefaultUser(suite.DB())
-	systemAdmin := testdatagen.MakeAdminUser(suite.DB(), testdatagen.Assertions{
-		AdminUser: AdminUser{
-			User:   adminUser,
-			UserID: &adminUser.ID,
-		},
-	})
+	systemAdmin := factory.BuildDefaultAdminUser(suite.DB())
 	identity, err = FetchUserIdentity(suite.DB(), systemAdmin.User.LoginGovUUID.String())
 	suite.Nil(err, "loading systemAdmin's identity")
 	suite.NotNil(identity)
@@ -306,7 +300,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 	})
 
 	suite.Run("admin user", func() {
-		testdatagen.MakeDefaultAdminUser(suite.DB())
+		factory.BuildDefaultAdminUser(suite.DB())
 		identities, err := FetchAppUserIdentities(suite.DB(), auth.AdminApp, 5)
 		suite.Nil(err)
 		suite.NotEmpty(identities)
@@ -321,7 +315,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 }
 
 func (suite *ModelSuite) TestGetUser() {
-	alice := testdatagen.MakeDefaultUser(suite.DB())
+	alice := factory.BuildDefaultUser(suite.DB())
 
 	user1, err := GetUserFromEmail(suite.DB(), alice.LoginGovEmail)
 	suite.Nil(err, "loading alice's user")
