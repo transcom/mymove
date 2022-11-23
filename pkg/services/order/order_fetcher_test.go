@@ -355,7 +355,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		})
 		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusSubmitted,
+				Status: models.PPMShipmentStatusDraft,
 			},
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypePPM,
@@ -419,7 +419,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 			Move: closeoutMove,
 		})
 
-		// PPM moves that don't need closeout should show up in counseling queue
+		// PPM moves that are not in one of the closeout statuses
 		airforce := models.AffiliationAIRFORCE
 		nonCloseoutMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -433,7 +433,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		})
 		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusSubmitted,
+				Status: models.PPMShipmentStatusDraft,
 			},
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypePPM,

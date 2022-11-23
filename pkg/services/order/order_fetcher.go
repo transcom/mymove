@@ -141,11 +141,11 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		if params.NeedsPPMCloseout != nil {
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
-					Where("ppm_shipments.status = ?", models.PPMShipmentStatusNeedsPaymentApproval).
+					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusSubmitted, models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsPaymentApproval, models.PPMShipmentStatusPaymentApproved).
 					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
-					Where("(ppm_shipments.status IS NULL OR ppm_shipments.status <> ?)", models.PPMShipmentStatusNeedsPaymentApproval)
+					Where("(ppm_shipments.status IS NULL OR ppm_shipments.status NOT IN (?))", models.PPMShipmentStatusSubmitted, models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsPaymentApproval, models.PPMShipmentStatusPaymentApproved)
 			}
 		}
 	}
