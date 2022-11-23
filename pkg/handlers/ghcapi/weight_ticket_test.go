@@ -30,14 +30,10 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		// Use fake data:
 		subtestData.weightTicket = testdatagen.MakeWeightTicket(db, testdatagen.Assertions{})
 		subtestData.ppmShipment = subtestData.weightTicket.PPMShipment
-		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
-
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/weight-ticket/%s", subtestData.ppmShipment.ID.String(), subtestData.weightTicket.ID.String())
 		req := httptest.NewRequest("PATCH", endpoint, nil)
-		if authenticateRequest {
-			req = suite.AuthenticateRequest(req, serviceMember)
-		}
 		eTag := etag.GenerateEtag(subtestData.weightTicket.UpdatedAt)
+
 		subtestData.params = weightticketops.UpdateWeightTicketParams{
 			HTTPRequest:    req,
 			PpmShipmentID:  *handlers.FmtUUID(subtestData.ppmShipment.ID),

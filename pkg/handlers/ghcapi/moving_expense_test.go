@@ -31,14 +31,11 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 		// Fake data:
 		subtestData.movingExpense = testdatagen.MakeMovingExpense(db, testdatagen.Assertions{})
 		subtestData.ppmShipment = subtestData.movingExpense.PPMShipment
-		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/moving-expense/%s", subtestData.ppmShipment.ID.String(), subtestData.movingExpense.ID.String())
 		req := httptest.NewRequest("PATCH", endpoint, nil)
-		if authenticateRequest {
-			req = suite.AuthenticateRequest(req, serviceMember)
-		}
 		eTag := etag.GenerateEtag(subtestData.movingExpense.UpdatedAt)
+
 		subtestData.params = movingexpenseops.
 			UpdateMovingExpenseParams{
 			HTTPRequest:     req,
