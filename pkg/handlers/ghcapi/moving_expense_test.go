@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http/httptest"
 
+	"github.com/go-openapi/strfmt"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	movingexpenseops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
@@ -69,6 +71,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 		suite.IsType(&movingexpenseops.UpdateMovingExpenseOK{}, response)
 
 		updatedMovingExpense := response.(*movingexpenseops.UpdateMovingExpenseOK).Payload
+		suite.NoError(updatedMovingExpense.Validate(strfmt.Default))
 		suite.Equal(subtestData.movingExpense.ID.String(), updatedMovingExpense.ID.String())
 		suite.Equal(params.UpdateMovingExpense.Amount, *updatedMovingExpense.Amount)
 	})

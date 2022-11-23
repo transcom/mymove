@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http/httptest"
 
+	"github.com/go-openapi/strfmt"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	progearops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
@@ -77,6 +79,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		suite.IsType(&progearops.UpdateProGearWeightTicketOK{}, response)
 
 		updatedProgear := response.(*progearops.UpdateProGearWeightTicketOK).Payload
+		suite.NoError(updatedProgear.Validate(strfmt.Default))
 		suite.Equal(subtestData.progear.ID.String(), updatedProgear.ID.String())
 		suite.Equal(params.UpdateProGearWeightTicket.Weight, updatedProgear.Weight)
 	})

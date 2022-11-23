@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http/httptest"
 
+	"github.com/go-openapi/strfmt"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	weightticketops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
@@ -75,6 +77,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		suite.IsType(&weightticketops.UpdateWeightTicketOK{}, response)
 
 		updatedWeightTicket := response.(*weightticketops.UpdateWeightTicketOK).Payload
+		suite.NoError(updatedWeightTicket.Validate(strfmt.Default))
 		suite.Equal(subtestData.weightTicket.ID.String(), updatedWeightTicket.ID.String())
 		suite.Equal(params.UpdateWeightTicketPayload.FullWeight, updatedWeightTicket.FullWeight)
 		suite.Equal(params.UpdateWeightTicketPayload.EmptyWeight, updatedWeightTicket.EmptyWeight)
