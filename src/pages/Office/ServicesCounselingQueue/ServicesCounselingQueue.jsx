@@ -137,7 +137,11 @@ const ServicesCounselingQueue = () => {
           />
         </Route>
         <Route
-          path={[servicesCounselingRoutes.QUEUE_COUNSELING_PATH, servicesCounselingRoutes.DEFAULT_QUEUE_PATH]}
+          path={[
+            servicesCounselingRoutes.QUEUE_COUNSELING_PATH,
+            servicesCounselingRoutes.DEFAULT_QUEUE_PATH,
+            servicesCounselingRoutes.QUEUE_VIEW_PATH,
+          ]}
           exact
         >
           <TableQueue
