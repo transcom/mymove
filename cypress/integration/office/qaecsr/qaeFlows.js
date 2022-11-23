@@ -122,8 +122,6 @@ const fillInForm = () => {
   cy.get('input[name="inspectionDate"]').clear().type('01 Oct 2022').blur(); // Date of inspection
   cy.get('[data-testid="radio"] [for="dataReview"]').click(); // Evaluation type
   cy.get('[data-testid="radio"] [for="origin"]').click(); // Evaluation location
-  cy.get('select[name="evalLengthHour"]').select('1').blur(); // Evaluation length Hours
-  cy.get('select[name="evalLengthMinute"]').select('15').blur(); // Evaluation length Minutes
   cy.get('[data-testid="radio"] [for="noViolations"]').click(); // Violations observed
   cy.get('textarea[name="remarks"]').type('This is a test evaluation report'); // Evaluation remarks
 };
@@ -274,10 +272,16 @@ describe('Quality Evaluation Report', () => {
       // Fill out the eval report form with minimal info required to submit
       fillInForm();
 
-      // Fill out the eval report form displaying/using all possible fields
-      cy.get('[data-testid="radio"] [for="physical"]').click(); // Evaluation type
-      cy.get('select[name="travelTimeHour"]').select('2').blur(); // Travel time to evaluation
-      cy.get('select[name="travelTimeMinute"]').select('15').blur(); // Travel time to evaluation
+      cy.get('[data-testid="radio"] [for="physical"]').click();
+      cy.get('[data-testid="radio"] [for="origin"]').click();
+
+      // Time departed for eval, time started and finished
+      cy.get('select[name="timeDepartHour"]').select('2').blur();
+      cy.get('select[name="timeDepartMinute"]').select('15').blur();
+      cy.get('select[name="EvalStartHour"]').select('4').blur();
+      cy.get('select[name="EvalStartMinute"]').select('25').blur();
+      cy.get('select[name="evalEndHour"]').select('12').blur();
+      cy.get('select[name="evalEndMinute"]').select('38').blur();
 
       // Evaluation location, has up to 3 conditional fields displayed dependent upon selection
       cy.get('[data-testid="radio"] [for="destination"]').click();

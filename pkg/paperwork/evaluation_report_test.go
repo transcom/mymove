@@ -15,10 +15,9 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 		testDate := time.Date(2022, 10, 4, 0, 0, 0, 0, time.UTC)
 		inspectionType := models.EvaluationReportInspectionTypePhysical
 		location := models.EvaluationReportLocationTypeOrigin
-		inspectionTime := time.Now().AddDate(0, 0, -4)
-		timeDepart := inspectionTime
-		evalStart := inspectionTime
-		evalEnd := inspectionTime
+		timeDepart := time.Now().AddDate(0, 0, -4)
+		evalStart := timeDepart.Add(time.Hour * 2)
+		evalEnd := evalStart.Add(time.Minute * 45)
 
 		report := models.EvaluationReport{
 			InspectionDate:     &testDate,
@@ -31,13 +30,15 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 			Remarks:            swag.String("remarks"),
 			UpdatedAt:          time.Time{},
 		}
+
 		values := FormatValuesInspectionInformation(report)
+
 		suite.Equal("04 October 2022", values.DateOfInspection)
 		suite.Equal("Physical", values.EvaluationType)
 		suite.Equal("Origin", values.EvaluationLocation)
-		suite.Equal(timeDepart, values.TimeDepart)
-		suite.Equal(evalStart, values.EvalStart)
-		suite.Equal(evalEnd, values.EvalEnd)
+		suite.Equal(timeDepart.Format(timeFormat), values.TimeDepart)
+		suite.Equal(evalStart.Format(timeFormat), values.EvalStart)
+		suite.Equal(evalEnd.Format(timeFormat), values.EvalEnd)
 		suite.Equal("remarks", values.QAERemarks)
 		suite.Equal("No", values.ViolationsObserved)
 
@@ -66,7 +67,6 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 		suite.Equal("04 October 2022", values.DateOfInspection)
 		suite.Equal("Physical", values.EvaluationType)
 		suite.Equal("Other\nother location", values.EvaluationLocation)
-		suite.Equal("1 hr 0 min", values.EvaluationLength)
 		suite.Equal("remarks", values.QAERemarks)
 		suite.Equal("Yes\nViolations are listed on a subsequent page", values.ViolationsObserved)
 
