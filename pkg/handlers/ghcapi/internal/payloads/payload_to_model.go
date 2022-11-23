@@ -449,6 +449,8 @@ func ProgearWeightTicketModelFromUpdate(progearWeightTicket *ghcmessages.UpdateP
 		Weight:           handlers.PoundPtrFromInt64Ptr(progearWeightTicket.Weight),
 		HasWeightTickets: handlers.FmtBool(progearWeightTicket.HasWeightTickets),
 		BelongsToSelf:    handlers.FmtBool(progearWeightTicket.BelongsToSelf),
+		Status:           (*models.PPMDocumentStatus)(handlers.FmtString(string(progearWeightTicket.Status))),
+		Reason:           handlers.FmtString(progearWeightTicket.Reason),
 	}
 	return model
 }
@@ -463,6 +465,8 @@ func WeightTicketModelFromUpdate(weightTicket *ghcmessages.UpdateWeightTicket) *
 		FullWeight:           handlers.PoundPtrFromInt64Ptr(weightTicket.FullWeight),
 		OwnsTrailer:          handlers.FmtBool(weightTicket.OwnsTrailer),
 		TrailerMeetsCriteria: handlers.FmtBool(weightTicket.TrailerMeetsCriteria),
+		Status:               (*models.PPMDocumentStatus)(handlers.FmtString(string(weightTicket.Status))),
+		Reason:               handlers.FmtString(weightTicket.Reason),
 	}
 	return model
 }
@@ -476,6 +480,8 @@ func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense
 		Amount:       handlers.FmtInt64PtrToPopPtr(&movingExpense.Amount),
 		SITStartDate: handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
 		SITEndDate:   handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
+		Status:       (*models.PPMDocumentStatus)(handlers.FmtString(string(movingExpense.Status))),
+		Reason:       handlers.FmtString(movingExpense.Reason),
 	}
 
 	return model
