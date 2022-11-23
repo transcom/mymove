@@ -4,7 +4,7 @@ import 'styles/office.scss';
 import { GridContainer, Grid, Button, Radio, FormGroup, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 import { useParams, useHistory, useLocation } from 'react-router';
 import { useMutation, queryCache } from 'react-query';
-import { Formik, Field, yupToFormErrors } from 'formik';
+import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

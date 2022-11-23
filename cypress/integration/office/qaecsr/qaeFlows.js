@@ -171,7 +171,6 @@ describe('Quality Evaluation Report', () => {
         cy.get('td').contains('01 Oct 2022');
         cy.get('dd').contains('Data review');
         cy.get('dd').contains('Origin');
-        cy.get('dd').contains('1 hr 15 min');
         cy.get('dd').contains('No');
         cy.get('dd').contains('This is a test evaluation report');
       });
@@ -253,7 +252,6 @@ describe('Quality Evaluation Report', () => {
         cy.get('td').contains('01 Oct 2022');
         cy.get('dd').contains('Data review');
         cy.get('dd').contains('Origin');
-        cy.get('dd').contains('1 hr 15 min');
         cy.get('dd').contains('No');
         cy.get('dd').contains('This is a test evaluation report');
       });
@@ -276,10 +274,10 @@ describe('Quality Evaluation Report', () => {
       cy.get('[data-testid="radio"] [for="origin"]').click();
 
       // Time departed for eval, time started and finished
-      cy.get('select[name="timeDepartHour"]').select('2').blur();
+      cy.get('select[name="timeDepartHour"]').select('02').blur();
       cy.get('select[name="timeDepartMinute"]').select('15').blur();
-      cy.get('select[name="EvalStartHour"]').select('4').blur();
-      cy.get('select[name="EvalStartMinute"]').select('25').blur();
+      cy.get('select[name="evalStartHour"]').select('04').blur();
+      cy.get('select[name="evalStartMinute"]').select('25').blur();
       cy.get('select[name="evalEndHour"]').select('12').blur();
       cy.get('select[name="evalEndMinute"]').select('38').blur();
 
@@ -329,7 +327,6 @@ describe('Quality Evaluation Report', () => {
         cy.contains('dd', 'Physical');
         cy.contains('dd', 'Other');
         cy.contains('dd', 'This is a test other location text');
-        cy.contains('dd', '1 hr 15 min');
         cy.contains('dd', 'This is a test evaluation report');
 
         //  kpi dates
