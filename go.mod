@@ -28,7 +28,7 @@ require (
 	github.com/gobuffalo/envy v1.10.2
 	github.com/gobuffalo/fizz v1.14.4
 	github.com/gobuffalo/flect v0.3.0
-	github.com/gobuffalo/pop/v6 v6.0.8
+	github.com/gobuffalo/pop/v6 v6.1.0
 	github.com/gobuffalo/validate/v3 v3.3.3
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/uuid v4.3.1+incompatible
