@@ -1,8 +1,6 @@
 package ghcapi
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -37,66 +35,14 @@ func (h UpdateMovingExpenseHandler) Handle(params movingexpenseops.UpdateMovingE
 			return movingexpenseops.NewUpdateMovingExpenseUnprocessableEntity().WithPayload(payload), emptyBodyError
 		}
 
-		//ppmshipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
-		//oldPPMShipment, err := mtoshipment.FindShipment(appCtx, ppmshipmentID)
-		// Can't find original moving expense
-		//if err != nil {
-		//	appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
-		//	switch err.(type) {
-		//	case apperror.NotFoundError:
-		//		return movingexpenseops.NewUpdateMovingExpenseNotFound(), err
-		//	default:
-		//		msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
-		//
-		//		return movingexpenseops.NewUpdateMovingExpenseInternalServerError().WithPayload(
-		//			&ghcmessages.Error{Message: &msg},
-		//		), err
-		//	}
-		//}
-
 		movingExpense := payloads.MovingExpenseModelFromUpdate(payload)
+
 		movingExpense.ID = uuid.FromStringOrNil(params.MovingExpenseID.String())
 
-		//handleError := func(err error) (middleware.Responder, error) {
-		//	appCtx.Logger().Error("ghcapi.UpdateMovingExpenseHandler", zap.Error(err))
-		//
-		//	switch e := err.(type) {
-		//	case apperror.NotFoundError:
-		//		return movingexpenseops.NewUpdateMovingExpenseNotFound(), err
-		//	case apperror.ForbiddenError:
-		//		msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
-		//		return movingexpenseops.NewUpdateMovingExpenseForbidden().WithPayload(
-		//			&ghcmessages.Error{Message: &msg},
-		//		), err
-		//	case apperror.InvalidInputError:
-		//		return movingexpenseops.NewUpdateMovingExpenseUnprocessableEntity().WithPayload(
-		//			payloadForValidationError(
-		//				handlers.ValidationErrMessage,
-		//				err.Error(),
-		//				h.GetTraceIDFromRequest(params.HTTPRequest),
-		//				e.ValidationErrors,
-		//			),
-		//		), err
-		//	case apperror.PreconditionFailedError:
-		//		msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
-		//		return movingexpenseops.NewUpdateMovingExpensePreconditionFailed().WithPayload(
-		//			&ghcmessages.Error{Message: &msg},
-		//		), err
-		//	default:
-		//		msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
-		//
-		//		return movingexpenseops.NewUpdateMovingExpenseInternalServerError().WithPayload(
-		//			&ghcmessages.Error{Message: &msg},
-		//		), err
-		//	}
-		//}
-
 		updatedMovingExpense, _ := h.movingExpenseUpdater.UpdateMovingExpense(appCtx, *movingExpense, params.IfMatch)
-		//if err != nil {
-		//	return handleError(err)
-		//}
+
 		returnPayload := payloads.MovingExpense(h.FileStorer(), updatedMovingExpense)
-		fmt.Println(returnPayload)
+
 		return movingexpenseops.NewUpdateMovingExpenseOK().WithPayload(returnPayload), nil
 	})
 }
