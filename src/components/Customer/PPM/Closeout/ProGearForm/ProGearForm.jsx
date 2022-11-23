@@ -36,9 +36,6 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
       .required('Required')
       .min(1, 'Enter a weight greater than 0 lbs.')
       .when('belongsToSelf', (belongsToSelfField, schema) => {
-        if (belongsToSelfField === null) {
-          return schema;
-        }
         let maximum;
         if (belongsToSelfField) {
           maximum = proGearEntitlements.proGear;
@@ -77,13 +74,7 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, values, ...formikProps }) => {
         const getEntitlement = () => {
-          if (values.belongsToSelf === null) {
-            return null;
-          }
-          if (values.belongsToSelf === 'true') {
-            return proGearEntitlements.proGear;
-          }
-          return proGearEntitlements.proGearSpouse;
+          return values.belongsToSelf === 'true' ? proGearEntitlements.proGear : proGearEntitlements.proGearSpouse;
         };
         return (
           <div className={classnames(ppmStyles.formContainer, styles.ProGearForm)}>
