@@ -290,6 +290,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 
 	physical := models.EvaluationReportInspectionTypePhysical
 	virtual := models.EvaluationReportInspectionTypeVirtual
+	origin := models.EvaluationReportLocationTypeOrigin
 	dataReview := models.EvaluationReportInspectionTypeDataReview
 	currentTime := time.Now()
 
@@ -298,21 +299,12 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		travelTimeMinutes *int
 		observedDate      *time.Time
 		expectedError     bool
+		location          *models.EvaluationReportLocationType
 	}{
-		"travel time set for physical report type should succeed": {
-			inspectionType:    &physical,
-			travelTimeMinutes: swag.Int(30),
-			expectedError:     false,
-		},
-		"travel time set for virtual report type should fail": {
-			inspectionType:    &virtual,
-			travelTimeMinutes: swag.Int(30),
-			expectedError:     true,
-		},
-		"travel time set for data review report type should fail": {
-			inspectionType:    &dataReview,
-			travelTimeMinutes: swag.Int(30),
-			expectedError:     true,
+		"physical inspection at origin without time depart, eval start, end should fail": {
+			inspectionType: &physical,
+			location:       &origin,
+			expectedError:  false,
 		},
 		"observed date set for physical report type should succeed": {
 			inspectionType: &physical,
@@ -339,6 +331,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 			report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
 			report.InspectionType = tc.inspectionType
 			report.ObservedDate = tc.observedDate
+			report.Location = tc.location
 			err := updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, report.OfficeUserID, etag.GenerateEtag(report.UpdatedAt))
 			if tc.expectedError {
 				suite.Error(err)

@@ -13,6 +13,10 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+const (
+	timeHHMMFormat = "15:04"
+)
+
 // MTOAgentModel model
 func MTOAgentModel(mtoAgent *ghcmessages.MTOAgent) *models.MTOAgent {
 	if mtoAgent == nil {
@@ -456,22 +460,19 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 		location = &tempLocation
 	}
 
-	//TODO: put this in a constant
-	timeFormat := "15:04"
-
 	var timeDepart time.Time
 	if evaluationReport.TimeDepart != nil {
-		timeDepart, _ = time.Parse(timeFormat, *evaluationReport.TimeDepart)
+		timeDepart, _ = time.Parse(timeHHMMFormat, *evaluationReport.TimeDepart)
 	}
 
 	var evalStart time.Time
 	if evaluationReport.EvalStart != nil {
-		evalStart, _ = time.Parse(timeFormat, *evaluationReport.EvalStart)
+		evalStart, _ = time.Parse(timeHHMMFormat, *evaluationReport.EvalStart)
 	}
 
 	var evalEnd time.Time
 	if evaluationReport.EvalEnd != nil {
-		evalEnd, _ = time.Parse(timeFormat, *evaluationReport.EvalEnd)
+		evalEnd, _ = time.Parse(timeHHMMFormat, *evaluationReport.EvalEnd)
 	}
 
 	model := models.EvaluationReport{
