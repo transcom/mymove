@@ -103,7 +103,7 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                       name="belongsToSelf"
                       value="true"
                       checked={values.belongsToSelf === 'true'}
-                      data-testid="belongsToSelf"
+                      data-testid="selfProGear"
                     />
                     <Field
                       as={Radio}
