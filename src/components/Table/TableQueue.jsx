@@ -36,13 +36,11 @@ const TableQueue = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(20);
   const [pageCount, setPageCount] = useState(0);
-  const [closeoutCount, setCloseoutCount] = useState(0);
-  // TODO hook in ppm closeout data both here and in useServicesCounselingQueuePPMQueries' useQuery() in queries.js
 
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
   const {
-    queueResult: { totalCount = 0, totalCloseoutCount = 10, data = [], page = 1, perPage = 20 },
+    queueResult: { totalCount = 0, data = [], page = 1, perPage = 20 },
     isLoading,
     isError,
   } = useQueries({
@@ -92,7 +90,6 @@ const TableQueue = ({
       manualFilters,
       manualPagination: true,
       pageCount,
-      closeoutCount,
       manualSortBy,
       disableMultiSort,
       defaultCanSort,
@@ -112,9 +109,8 @@ const TableQueue = ({
       setCurrentPage(pageIndex + 1);
       setCurrentPageSize(pageSize);
       setPageCount(Math.ceil(totalCount / pageSize));
-      setCloseoutCount(Math.ceil(totalCloseoutCount / pageSize));
     }
-  }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount, totalCloseoutCount]);
+  }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -127,10 +123,10 @@ const TableQueue = ({
           className={styles.tableTabs}
           items={[
             <NavLink activeClassName="usa-current" to={servicesCounselingRoutes.QUEUE_COUNSELING_PATH}>
-              <span className="tab-title">{`Counseling (${totalCount})`}</span>
+              <span className="tab-title">Counseling</span>
             </NavLink>,
             <NavLink exact activeClassName="usa-current" to={servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH}>
-              <span className="tab-title">{`PPM closeout (${totalCloseoutCount})`}</span>
+              <span className="tab-title">PPM closeout</span>
             </NavLink>,
           ]}
         />
@@ -155,7 +151,6 @@ const TableQueue = ({
           pageIndex={pageIndex}
           pageSize={pageSize}
           pageCount={pageCount}
-          closeoutCount={closeoutCount}
           pageOptions={pageOptions}
         />
       </div>
@@ -206,5 +201,4 @@ TableQueue.defaultProps = {
   defaultSortedColumns: [],
   defaultHiddenColumns: ['id'],
 };
-
 export default TableQueue;

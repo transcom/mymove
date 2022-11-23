@@ -306,7 +306,7 @@ export const useServicesCounselingQueuePPMQueries = ({
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
 }) => {
   const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
-    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
+    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize, ppmCloseout: true }],
     getServicesCounselingQueue,
   );
   const { isLoading, isError, isSuccess } = getQueriesStatus([servicesCounselingQueueQuery]);
@@ -327,7 +327,7 @@ export const useServicesCounselingQueueQueries = ({
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
 }) => {
   const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
-    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
+    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize, ppmCloseout: false }],
     getServicesCounselingQueue,
   );
   const { isLoading, isError, isSuccess } = getQueriesStatus([servicesCounselingQueueQuery]);
