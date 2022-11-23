@@ -23,11 +23,6 @@ type UpdateMovingExpenseHandler struct {
 
 func (h UpdateMovingExpenseHandler) Handle(params movingexpenseops.UpdateMovingExpenseParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest, func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-		if appCtx.Session() == nil {
-			noSessionErr := apperror.NewSessionError("No user session")
-			return movingexpenseops.NewUpdateMovingExpenseUnauthorized(), noSessionErr
-		}
-
 		payload := params.UpdateMovingExpense
 		if payload == nil {
 			appCtx.Logger().Error("Invalid Moving Expense: params Body is nil")
