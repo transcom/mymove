@@ -89,6 +89,9 @@
     dl {
       @include u-margin-bottom(0);
       @include u-flex(1);
+      .w2Address {
+        @include u-margin-top(2);
+      }
     }
 
     .actionContainer {
