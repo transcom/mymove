@@ -149,6 +149,7 @@ const ProGear = () => {
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
             <h1>Pro-gear</h1>
+            {renderError()}
             <div className={closingPageStyles['closing-section']}>
               <p>
                 If you moved pro-gear for yourself or your spouse as part of this PPM, document the total weight here.

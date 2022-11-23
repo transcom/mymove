@@ -290,6 +290,40 @@ describe('Pro-gear page', () => {
     });
   });
 
+  it('displays an error if delete fails', async () => {
+    useParams.mockImplementation(() => ({
+      moveId: mockMoveId,
+      mtoShipmentId: mockMTOShipmentId,
+      proGearId: mockProGearWeightTicketId,
+    }));
+
+    selectProGearWeightTicketAndIndexById.mockReturnValue({
+      proGearWeightTicket: mockProGearWeightTicketWithUploads,
+      index: 0,
+    });
+
+    selectMTOShipmentById.mockReturnValue({
+      ...mockMTOShipment,
+      ppmShipment: {
+        ...mockMTOShipment.ppmShipment,
+        proGearWeightTickets: [mockProGearWeightTicketWithUploads],
+      },
+    });
+
+    deleteUpload.mockRejectedValue('error');
+    render(<ProGear />, { wrapper: MockProviders });
+
+    let deleteButtons;
+    await waitFor(() => {
+      deleteButtons = screen.getAllByRole('button', { name: 'Delete' });
+      expect(deleteButtons).toHaveLength(2);
+    });
+    userEvent.click(deleteButtons[1]);
+    await waitFor(() => {
+      expect(screen.getByText(/Failed to delete the file upload/)).toBeInTheDocument();
+    });
+  });
+
   it('expect loadingPlaceholder when mtoShipment is falsy', async () => {
     selectMTOShipmentById.mockReturnValueOnce(null);
 
