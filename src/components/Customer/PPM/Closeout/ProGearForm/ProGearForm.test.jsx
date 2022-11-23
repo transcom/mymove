@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { act } from 'react-dom/test-utils';
 
 import { MockProviders } from 'testUtils';
 import ProGearForm from 'components/Customer/PPM/Closeout/ProGearForm/ProGearForm';
@@ -149,7 +150,9 @@ describe('ProGearForm component', () => {
     });
     it('invalidates if weight exceeds the maximum.', async () => {
       render(<ProGearForm {...defaultProps} {...proGearProps} />, { wrapper: MockProviders });
-      userEvent.type(screen.getByRole('textbox', { name: /^Shipment's pro-gear weight/ }), '2000');
+      act(() => {
+        userEvent.type(screen.getByRole('textbox', { name: /^Shipment's pro-gear weight/ }), '2000');
+      });
       await waitFor(() => {
         expect(screen.getByText(/Pro gear weight must be less than or equal to 1,234 lbs./)).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
@@ -157,11 +160,15 @@ describe('ProGearForm component', () => {
     });
     it('invalidates if a valid weight is entered but a lower maximum is subsequently selected', async () => {
       render(<ProGearForm {...defaultProps} {...proGearProps} />, { wrapper: MockProviders });
-      userEvent.type(screen.getByRole('textbox', { name: /^Shipment's pro-gear weight/ }), '1000');
+      act(() => {
+        userEvent.type(screen.getByRole('textbox', { name: /^Shipment's pro-gear weight/ }), '1000');
+      });
       await waitFor(() => {
         expect(screen.queryByText(/Pro gear weight must be less than or equal to 1,234 lbs./)).not.toBeInTheDocument();
       });
-      userEvent.click(screen.getByLabelText('My spouse'));
+      act(() => {
+        userEvent.click(screen.getByLabelText('My spouse'));
+      });
       await waitFor(() => {
         expect(screen.getByText(/Pro gear weight must be less than or equal to 987 lbs./)).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();

@@ -16,7 +16,6 @@ const createBaseProGearWeightTicket = ({ serviceMemberId, creationDate = new Dat
     belongsToSelf: null,
     description: null,
     hasWeightTickets: null,
-    emptyWeight: null,
     documentId: document.id,
     document,
     weight: null,
@@ -34,8 +33,7 @@ const createCompleteProGearWeightTicket = ({ serviceMemberId, creationDate } = {
     belongsToSelf: true,
     description: 'Work equipment',
     hasWeightTickets: true,
-    emptyWeight: 14500,
-    fullWeight: 16000,
+    weight: 1500,
     ...fieldOverrides,
   };
 
@@ -63,7 +61,7 @@ const createCompleteProGearWeightTicketWithConstructedWeight = (
     belongsToSelf: true,
     description: 'Work equipment',
     hasWeightTickets: false,
-    constructedWeight: 1400,
+    weight: 1400,
     ...fieldOverrides,
   };
 

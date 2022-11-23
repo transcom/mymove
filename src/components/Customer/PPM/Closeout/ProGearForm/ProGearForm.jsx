@@ -48,7 +48,7 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
         return schema.max(maximum, `Pro gear weight must be less than or equal to ${formatWeight(maximum)}.`);
       }),
     description: Yup.string().required('Required'),
-    hasWeightTickets: Yup.string(),
+    missingWeightTicket: Yup.string().required(),
   });
 
   let proGearValue;
