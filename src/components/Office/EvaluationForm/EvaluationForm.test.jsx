@@ -76,6 +76,7 @@ const customerInfo = {
 
 const grade = 'E_4';
 const moveCode = 'FAKEIT';
+const destinationDutyLocationPostalCode = '90210';
 
 const mockPush = jest.fn();
 jest.mock('react-router', () => ({
@@ -97,6 +98,7 @@ const renderForm = (props) => {
     customerInfo,
     grade,
     moveCode,
+    destinationDutyLocationPostalCode,
   };
 
   return render(
@@ -154,7 +156,7 @@ describe('EvaluationForm', () => {
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
     });
 
-    // Select Physical Evaluation type and origin location, record travel time, evaluation start and end
+    // Select Physical Evaluation type and origin location, ensure time depart, evaluation start and end are in the doc
     await waitFor(() => {
       userEvent.click(screen.getByText('Physical'));
       userEvent.click(screen.getByText('Origin'));
@@ -162,15 +164,7 @@ describe('EvaluationForm', () => {
       expect(screen.getByText('Time evaulation started')).toBeInTheDocument();
       expect(screen.getByText('Time evaulation ended')).toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
-      expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
-      expect(screen.getAllByTestId('textarea')).toHaveLength(1);
-    });
-
-    // Select Eval locations and validate correct fields are shown
-    await waitFor(() => {
-      userEvent.click(screen.getByText('Origin'));
-      expect(screen.getByText('Observed pickup date')).toBeInTheDocument();
-      expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
+      expect(screen.queryByText('Observed pickup date')).toBeInTheDocument();
       expect(screen.getAllByTestId('textarea')).toHaveLength(1);
     });
 
@@ -191,9 +185,9 @@ describe('EvaluationForm', () => {
     // If not 'Physical' eval type, no conditional time fields should be shown
     await waitFor(() => {
       userEvent.click(screen.getByText('Virtual'));
-      expect(screen.getByText('Time departed for evaluation')).not.toBeInTheDocument();
-      expect(screen.getByText('Time evaulation started')).not.toBeInTheDocument();
-      expect(screen.getByText('Time evaulation ended')).not.toBeInTheDocument();
+      expect(screen.queryByText('Time departed for evaluation')).not.toBeInTheDocument();
+      expect(screen.queryByText('Time evaulation started')).not.toBeInTheDocument();
+      expect(screen.queryByText('Time evaulation ended')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
     });

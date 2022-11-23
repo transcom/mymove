@@ -506,7 +506,8 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 
 	suite.Run("Successful save", func() {
-		reportID := uuid.Must(uuid.NewV4())
+		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		reportID := report.ID
 
 		updater := &mocks.EvaluationReportUpdater{}
 		handlerConfig := suite.HandlerConfig()
@@ -520,22 +521,15 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		params := evaluationReportop.SaveEvaluationReportParams{
 			HTTPRequest: request,
 			Body: &ghcmessages.EvaluationReport{
-				EvaluationLengthMinutes:       handlers.FmtInt64(45),
-				InspectionDate:                &now,
-				InspectionType:                ghcmessages.EvaluationReportInspectionTypePHYSICAL.Pointer().Pointer(),
-				Location:                      ghcmessages.EvaluationReportLocationORIGIN.Pointer(),
-				LocationDescription:           swag.String("location description"),
-				ObservedClaimsResponseDate:    handlers.FmtDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)),
-				ObservedDate:                  handlers.FmtDate(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)),
-				ObservedPickupDate:            handlers.FmtDate(time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC)),
-				ObservedPickupSpreadStartDate: handlers.FmtDate(time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC)),
-				ObservedPickupSpreadEndDate:   handlers.FmtDate(time.Date(2020, 2, 5, 0, 0, 0, 0, time.UTC)),
-				ObservedDeliveryDate:          handlers.FmtDate(time.Date(2020, 2, 5, 0, 0, 0, 0, time.UTC)),
-				Remarks:                       swag.String("new remarks"),
-				SeriousIncident:               handlers.FmtBool(true),
-				SeriousIncidentDesc:           swag.String("serious incident description"),
-				TravelTimeMinutes:             handlers.FmtInt64(30),
-				ViolationsObserved:            handlers.FmtBool(true),
+				InspectionDate:      &now,
+				InspectionType:      ghcmessages.EvaluationReportInspectionTypePHYSICAL.Pointer(),
+				Location:            ghcmessages.EvaluationReportLocationOTHER.Pointer(),
+				LocationDescription: swag.String("location description"),
+				ObservedDate:        handlers.FmtDate(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)),
+				Remarks:             swag.String("new remarks"),
+				SeriousIncident:     handlers.FmtBool(true),
+				SeriousIncidentDesc: swag.String("serious incident description"),
+				ViolationsObserved:  handlers.FmtBool(false),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
 		}

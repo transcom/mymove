@@ -27,6 +27,12 @@ func (suite *ModelSuite) TestReport() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	virtualInspection := models.EvaluationReportInspectionTypeVirtual
 	dataReviewInspection := models.EvaluationReportInspectionTypeDataReview
+	physicalInspection := models.EvaluationReportInspectionTypePhysical
+	location := models.EvaluationReportLocationTypeOrigin
+	inspectionTime := time.Now().AddDate(0, 0, -4)
+	timeDepart := inspectionTime
+	evalStart := inspectionTime
+	evalEnd := inspectionTime
 
 	testCases := map[string]struct {
 		report         models.EvaluationReport
@@ -75,20 +81,21 @@ func (suite *ModelSuite) TestReport() {
 				"type": {"COUNSELING does not equal SHIPMENT."},
 			},
 		},
-		"Non-physical inspection cannot have non-nil travel time": {
+		"Physical inspection at origin location must record time departed, eval start and end time": {
 			report: models.EvaluationReport{
-				ID:                uuid.Must(uuid.NewV4()),
-				OfficeUser:        officeUser,
-				OfficeUserID:      officeUser.ID,
-				Move:              move,
-				MoveID:            move.ID,
-				Type:              models.EvaluationReportTypeCounseling,
-				InspectionType:    &virtualInspection,
-				TravelTimeMinutes: swag.Int(10),
+				ID:             uuid.Must(uuid.NewV4()),
+				OfficeUser:     officeUser,
+				OfficeUserID:   officeUser.ID,
+				Move:           move,
+				MoveID:         move.ID,
+				Type:           models.EvaluationReportTypeCounseling,
+				InspectionType: &physicalInspection,
+				Location:       &location,
+				TimeDepart:     &timeDepart,
+				EvalStart:      &evalStart,
+				EvalEnd:        &evalEnd,
 			},
-			expectedErrors: map[string][]string{
-				"inspection_type": {"VIRTUAL does not equal PHYSICAL."},
-			},
+			expectedErrors: map[string][]string{},
 		},
 		"ObservedDate cannot be set for virtual inspections": {
 			report: models.EvaluationReport{

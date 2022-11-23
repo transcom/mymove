@@ -458,9 +458,21 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 
 	//TODO: put this in a constant
 	timeFormat := "15:04"
-	timeDepart, _ := time.Parse(timeFormat, *evaluationReport.TimeDepart)
-	evalStart, _ := time.Parse(timeFormat, *evaluationReport.EvalStart)
-	evalEnd, _ := time.Parse(timeFormat, *evaluationReport.EvalEnd)
+
+	var timeDepart time.Time
+	if evaluationReport.TimeDepart != nil {
+		timeDepart, _ = time.Parse(timeFormat, *evaluationReport.TimeDepart)
+	}
+
+	var evalStart time.Time
+	if evaluationReport.EvalStart != nil {
+		evalStart, _ = time.Parse(timeFormat, *evaluationReport.EvalStart)
+	}
+
+	var evalEnd time.Time
+	if evaluationReport.EvalEnd != nil {
+		evalEnd, _ = time.Parse(timeFormat, *evaluationReport.EvalEnd)
+	}
 
 	model := models.EvaluationReport{
 		ID:                            uuid.FromStringOrNil(evaluationReport.ID.String()),

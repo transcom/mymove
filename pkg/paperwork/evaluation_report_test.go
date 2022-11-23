@@ -15,16 +15,18 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 		testDate := time.Date(2022, 10, 4, 0, 0, 0, 0, time.UTC)
 		inspectionType := models.EvaluationReportInspectionTypePhysical
 		location := models.EvaluationReportLocationTypeOrigin
-		timeDepart := "12:30"
-		evalStart := "14:55"
-		evalEnd := "17:55"
+		inspectionTime := time.Now().AddDate(0, 0, -4)
+		timeDepart := inspectionTime
+		evalStart := inspectionTime
+		evalEnd := inspectionTime
+
 		report := models.EvaluationReport{
 			InspectionDate:     &testDate,
 			InspectionType:     &inspectionType,
 			Location:           &location,
 			TimeDepart:         &timeDepart,
-			evalStart:          &evalStart,
-			evalEnd:            &evalEnd,
+			EvalStart:          &evalStart,
+			EvalEnd:            &evalEnd,
 			ViolationsObserved: swag.Bool(false),
 			Remarks:            swag.String("remarks"),
 			UpdatedAt:          time.Time{},
@@ -32,9 +34,10 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 		values := FormatValuesInspectionInformation(report)
 		suite.Equal("04 October 2022", values.DateOfInspection)
 		suite.Equal("Physical", values.EvaluationType)
-		suite.Equal("Other\nother location", values.EvaluationLocation)
-		//suite.Equal("04 October 2022", values.ObservedPickupDate)
-		suite.Equal("1 hr 0 min", values.EvaluationLength)
+		suite.Equal("Origin", values.EvaluationLocation)
+		suite.Equal(timeDepart, values.TimeDepart)
+		suite.Equal(evalStart, values.EvalStart)
+		suite.Equal(evalEnd, values.EvalEnd)
 		suite.Equal("remarks", values.QAERemarks)
 		suite.Equal("No", values.ViolationsObserved)
 
@@ -46,26 +49,22 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 	suite.Run("FormatValuesInspectionInformation violations", func() {
 		testDate := time.Date(2022, 10, 4, 0, 0, 0, 0, time.UTC)
 		inspectionType := models.EvaluationReportInspectionTypePhysical
-		testDurationMinutes := 60
 		location := models.EvaluationReportLocationTypeOther
 		locationDescription := "other location"
 		report := models.EvaluationReport{
-			InspectionDate:          &testDate,
-			InspectionType:          &inspectionType,
-			TravelTimeMinutes:       &testDurationMinutes,
-			Location:                &location,
-			LocationDescription:     &locationDescription,
-			EvaluationLengthMinutes: &testDurationMinutes,
-			ViolationsObserved:      swag.Bool(true),
-			Remarks:                 swag.String("remarks"),
-			SeriousIncident:         swag.Bool(true),
-			SeriousIncidentDesc:     swag.String("serious incident"),
-			UpdatedAt:               time.Time{},
+			InspectionDate:      &testDate,
+			InspectionType:      &inspectionType,
+			Location:            &location,
+			LocationDescription: &locationDescription,
+			ViolationsObserved:  swag.Bool(true),
+			Remarks:             swag.String("remarks"),
+			SeriousIncident:     swag.Bool(true),
+			SeriousIncidentDesc: swag.String("serious incident"),
+			UpdatedAt:           time.Time{},
 		}
 		values := FormatValuesInspectionInformation(report)
 		suite.Equal("04 October 2022", values.DateOfInspection)
 		suite.Equal("Physical", values.EvaluationType)
-		suite.Equal("1 hr 0 min", values.TravelTimeToEvaluation)
 		suite.Equal("Other\nother location", values.EvaluationLocation)
 		suite.Equal("1 hr 0 min", values.EvaluationLength)
 		suite.Equal("remarks", values.QAERemarks)

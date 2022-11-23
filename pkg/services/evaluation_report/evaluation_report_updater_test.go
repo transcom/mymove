@@ -22,15 +22,22 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 		// Create a report
 		inspectionType := models.EvaluationReportInspectionTypeVirtual
 		location := models.EvaluationReportLocationTypeOrigin
+		inspectionTime := time.Now().AddDate(0, 0, -4)
+		timeDepart := inspectionTime
+		evalStart := inspectionTime
+		evalEnd := inspectionTime
+
 		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
 			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
-				OfficeUserID:            officeUser.ID,
-				InspectionDate:          swag.Time(time.Now()),
-				InspectionType:          &inspectionType,
-				Location:                &location,
-				EvaluationLengthMinutes: swag.Int(160),
-				ViolationsObserved:      swag.Bool(false),
-				Remarks:                 swag.String("This is a remark."),
+				OfficeUserID:       officeUser.ID,
+				InspectionDate:     swag.Time(time.Now()),
+				InspectionType:     &inspectionType,
+				Location:           &location,
+				TimeDepart:         &timeDepart,
+				EvalStart:          &evalStart,
+				EvalEnd:            &evalEnd,
+				ViolationsObserved: swag.Bool(false),
+				Remarks:            swag.String("This is a remark."),
 			}})
 		// Generate an etag
 		eTag := etag.GenerateEtag(evaluationReport.UpdatedAt)
@@ -48,13 +55,12 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 		location := models.EvaluationReportLocationTypeOrigin
 		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
 			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
-				OfficeUserID:            officeUser.ID,
-				InspectionDate:          swag.Time(time.Now()),
-				InspectionType:          &inspectionType,
-				Location:                &location,
-				EvaluationLengthMinutes: swag.Int(160),
-				ViolationsObserved:      swag.Bool(false),
-				Remarks:                 swag.String("This is a remark."),
+				OfficeUserID:       officeUser.ID,
+				InspectionDate:     swag.Time(time.Now()),
+				InspectionType:     &inspectionType,
+				Location:           &location,
+				ViolationsObserved: swag.Bool(false),
+				Remarks:            swag.String("This is a remark."),
 			}})
 		// Generate an etag
 		eTag := ""
@@ -72,12 +78,11 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 		// Missing inspection date
 		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
 			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
-				OfficeUserID:            officeUser.ID,
-				InspectionType:          &inspectionType,
-				Location:                &location,
-				EvaluationLengthMinutes: swag.Int(160),
-				ViolationsObserved:      swag.Bool(false),
-				Remarks:                 swag.String("This is a remark."),
+				OfficeUserID:       officeUser.ID,
+				InspectionType:     &inspectionType,
+				Location:           &location,
+				ViolationsObserved: swag.Bool(false),
+				Remarks:            swag.String("This is a remark."),
 			}})
 		// Generate an etag
 		eTag := etag.GenerateEtag(evaluationReport.UpdatedAt)
@@ -95,13 +100,12 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 		// Missing location description
 		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
 			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
-				OfficeUserID:            officeUser.ID,
-				InspectionDate:          swag.Time(time.Now()),
-				InspectionType:          &inspectionType,
-				Location:                &location,
-				EvaluationLengthMinutes: swag.Int(160),
-				ViolationsObserved:      swag.Bool(false),
-				Remarks:                 swag.String("This is a remark."),
+				OfficeUserID:       officeUser.ID,
+				InspectionDate:     swag.Time(time.Now()),
+				InspectionType:     &inspectionType,
+				Location:           &location,
+				ViolationsObserved: swag.Bool(false),
+				Remarks:            swag.String("This is a remark."),
 			}})
 		// Generate an etag
 		eTag := etag.GenerateEtag(evaluationReport.UpdatedAt)
@@ -119,13 +123,12 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 		// Missing travel time
 		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
 			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
-				OfficeUserID:            officeUser.ID,
-				InspectionDate:          swag.Time(time.Now()),
-				InspectionType:          &inspectionType,
-				Location:                &location,
-				EvaluationLengthMinutes: swag.Int(160),
-				ViolationsObserved:      swag.Bool(false),
-				Remarks:                 swag.String("This is a remark."),
+				OfficeUserID:       officeUser.ID,
+				InspectionDate:     swag.Time(time.Now()),
+				InspectionType:     &inspectionType,
+				Location:           &location,
+				ViolationsObserved: swag.Bool(false),
+				Remarks:            swag.String("This is a remark."),
 			}})
 		// Generate an etag
 		eTag := etag.GenerateEtag(evaluationReport.UpdatedAt)
@@ -335,7 +338,6 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		suite.Run(name, func() {
 			report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
 			report.InspectionType = tc.inspectionType
-			report.TravelTimeMinutes = tc.travelTimeMinutes
 			report.ObservedDate = tc.observedDate
 			err := updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, report.OfficeUserID, etag.GenerateEtag(report.UpdatedAt))
 			if tc.expectedError {

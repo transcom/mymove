@@ -137,8 +137,8 @@ func isValidForSubmission(evaluationReport models.EvaluationReport) error {
 			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without an Inspection Type.",
 				evaluationReport.ID))
 	}
-	// Physical reports must have departure time, evaluation start and end time
-	if *evaluationReport.InspectionType == models.EvaluationReportInspectionTypePhysical {
+	// Physical reports with origin location must have departure time, evaluation start and end time
+	if *evaluationReport.InspectionType == models.EvaluationReportInspectionTypePhysical && *evaluationReport.Location == models.EvaluationReportLocationTypeOrigin {
 		if evaluationReport.TimeDepart == nil {
 			return errors.Wrap(models.ErrInvalidTransition,
 				fmt.Sprintf("Evaluation report with ID %s cannot be submitted without departure time if the location is physical.",
