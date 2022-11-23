@@ -33,7 +33,7 @@ WITH move AS (
 		FROM
 			audit_history
 			JOIN move_shipments ON move_shipments.id = audit_history.object_id
-				AND audit_history."table_name" = 'mto_shipments'
+		WHERE audit_history.table_name = 'mto_shipments'
 		GROUP BY audit_history.id
 	),
 	move_logs AS (
@@ -43,8 +43,8 @@ WITH move AS (
 			NULL AS context_id
 		FROM
 			audit_history
-		JOIN move ON audit_history.table_name = 'moves'
-			AND audit_history.object_id = move.id
+		JOIN move ON audit_history.object_id = move.id
+		WHERE audit_history.table_name = 'moves'
 	),
 	move_orders AS (
 		SELECT
@@ -62,17 +62,20 @@ WITH move AS (
 			audit_history.*,
 			NULLIF(
 				jsonb_agg(jsonb_strip_nulls(
-					jsonb_build_object('origin_duty_location_name', old_duty.name, 'new_duty_location_name', new_duty.name)
+					jsonb_build_object(
+						'origin_duty_location_name',
+						(SELECT duty_locations.name FROM duty_locations WHERE duty_locations.id = uuid(c.origin_duty_location_id)),
+						'new_duty_location_name',
+						(SELECT duty_locations.name FROM duty_locations WHERE duty_locations.id = uuid(c.new_duty_location_id))
+					)
 				))::TEXT, '[{}]'::TEXT
 			) AS context,
  			NULL AS context_id
 		FROM
 			audit_history
 		JOIN move_orders ON move_orders.id = audit_history.object_id
-			AND audit_history."table_name" = 'orders'
 		JOIN jsonb_to_record(audit_history.changed_data) as c(origin_duty_location_id TEXT, new_duty_location_id TEXT) on TRUE
-		LEFT JOIN duty_locations AS old_duty on uuid(c.origin_duty_location_id) = old_duty.id
-		LEFT JOIN duty_locations AS new_duty on uuid(c.new_duty_location_id) = new_duty.id
+		WHERE audit_history.table_name = 'orders'
 		GROUP BY audit_history.id
 	),
 	move_service_items AS (
@@ -96,56 +99,63 @@ WITH move AS (
 		FROM
 			audit_history
 			JOIN move_service_items ON move_service_items.id = audit_history.object_id
-				AND audit_history. "table_name" = 'mto_service_items'
 			JOIN re_services ON move_service_items.re_service_id = re_services.id
 			LEFT JOIN move_shipments ON move_service_items.mto_shipment_id = move_shipments.id
+		WHERE audit_history.table_name = 'mto_service_items'
 		GROUP BY
 				audit_history.id, move_service_items.id
 	),
 	service_item_customer_contacts AS (
 		SELECT
-			mto_service_item_customer_contacts.*
+			mto_service_item_customer_contacts.*,
+			jsonb_agg(jsonb_build_object(
+				'shipment_type', move_shipments.shipment_type,
+				'shipment_id_abbr', move_shipments.shipment_id_abbr
+				)
+			)::TEXT AS context
 		FROM
 			mto_service_item_customer_contacts
-		JOIN mto_service_items on mto_service_items.id = mto_service_item_customer_contacts.mto_service_item_id
-		JOIN move ON move.id = mto_service_items.move_id
+		JOIN move_service_items on move_service_items.id = mto_service_item_customer_contacts.mto_service_item_id
+			LEFT JOIN move_shipments ON move_service_items.mto_shipment_id = move_shipments.id
+		JOIN move ON move.id = move_service_items.move_id
+		GROUP BY mto_service_item_customer_contacts.id
 	),
 	service_item_customer_contacts_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
+			service_item_customer_contacts.context AS context,
 			NULL AS context_id
 		FROM
 			audit_history
 		JOIN service_item_customer_contacts ON service_item_customer_contacts.id = audit_history.object_id
-			AND audit_history."table_name" = 'mto_service_item_customer_contacts'
+			WHERE audit_history.table_name = 'mto_service_item_customer_contacts'
 	),
 	service_item_dimensions AS (
 		SELECT
-			mto_service_item_dimensions.*
-		FROM
-			mto_service_item_dimensions
-		JOIN move_service_items on move_service_items.id = mto_service_item_dimensions.mto_service_item_id
-
-	),
-	service_item_dimensions_logs AS  (
-		SELECT
-			audit_history.*,
+			mto_service_item_dimensions.*,
 			jsonb_agg(jsonb_build_object(
 				'name', re_services.name,
 				'shipment_type', move_shipments.shipment_type,
 				'shipment_id_abbr', move_shipments.shipment_id_abbr
 				)
-			)::TEXT AS context,
+			)::TEXT AS context
+		FROM
+			mto_service_item_dimensions
+		JOIN move_service_items on move_service_items.id = mto_service_item_dimensions.mto_service_item_id
+		JOIN re_services ON move_service_items.re_service_id = re_services.id
+			LEFT JOIN move_shipments ON move_service_items.mto_shipment_id = move_shipments.id
+		GROUP BY mto_service_item_dimensions.id
+	),
+	service_item_dimensions_logs AS  (
+		SELECT
+			audit_history.*,
+			service_item_dimensions.context AS context,
 			NULL AS context_id
 		FROM
 			audit_history
 			JOIN service_item_dimensions ON service_item_dimensions.id = audit_history.object_id
-				AND audit_history."table_name" = 'mto_service_item_dimensions'
-			JOIN move_service_items ON move_service_items.id = service_item_dimensions.mto_service_item_id
-			JOIN re_services ON move_service_items.re_service_id = re_services.id
-			LEFT JOIN move_shipments ON move_service_items.mto_shipment_id = move_shipments.id
-		GROUP BY audit_history.id
+		WHERE audit_history.table_name = 'mto_service_item_dimensions'
+
 	),
 	move_entitlements AS (
 		SELECT
@@ -167,7 +177,7 @@ WITH move AS (
 		FROM
 			audit_history
 			JOIN move_entitlements ON move_entitlements.id = audit_history.object_id
-				AND audit_history. "table_name" = 'entitlements'
+		WHERE audit_history.table_name = 'entitlements'
 	),
 	move_payment_requests AS (
 		SELECT
@@ -202,7 +212,7 @@ WITH move AS (
 		FROM
 			audit_history
 			JOIN move_payment_requests ON move_payment_requests.id = audit_history.object_id
-				AND audit_history. "table_name" = 'payment_requests'
+		WHERE audit_history.table_name = 'payment_requests'
 	),
 	move_proof_of_service_docs AS (
 		SELECT
@@ -223,7 +233,7 @@ WITH move AS (
 		FROM
 			audit_history
 			JOIN move_proof_of_service_docs ON move_proof_of_service_docs.id = audit_history.object_id
-				AND audit_history. "table_name" = 'proof_of_service_docs'
+		WHERE audit_history.table_name = 'proof_of_service_docs'
 	),
 	agents AS (
 		SELECT
@@ -247,7 +257,10 @@ WITH move AS (
 		FROM
 			audit_history
 			JOIN agents ON agents.id = audit_history.object_id
-				AND audit_history."table_name" = 'mto_agents'
+		WHERE audit_history.table_name = 'mto_agents'
+			AND (audit_history.event_name <> 'deleteShipment' OR audit_history.event_name IS NULL)
+				-- This event name is used to delete the parent shipment and child agent logs are unnecessary.
+				-- NULLS are not counted in comparisons, so we include those as well.
 	),
 	move_reweighs AS (
 		SELECT
@@ -271,8 +284,8 @@ WITH move AS (
 			NULL AS context_id
 		FROM
 			audit_history
-		JOIN move_reweighs ON move_reweighs.id = audit_history.object_id
-			AND audit_history."table_name" = 'reweighs'
+			JOIN move_reweighs ON move_reweighs.id = audit_history.object_id
+		WHERE audit_history.table_name = 'reweighs'
 	),
 	move_service_members AS (
 		SELECT service_members.*
@@ -285,16 +298,18 @@ WITH move AS (
 		SELECT audit_history.*,
 				NULLIF(
 				jsonb_agg(jsonb_strip_nulls(
-					jsonb_build_object('current_duty_location_name', current_duty.name)
+					jsonb_build_object(
+						'current_duty_location_name',
+						(SELECT duty_locations.name FROM duty_locations WHERE duty_locations.id = uuid(c.duty_location_id))
+					)
 				))::TEXT, '[{}]'::TEXT
 			) AS context,
 			NULL AS context_id
 		FROM
 			audit_history
-		JOIN move_service_members ON move_service_members.id = audit_history.object_id
-			AND audit_history."table_name" = 'service_members'
-		JOIN jsonb_to_record(audit_history.changed_data) as c(duty_location_id TEXT) on TRUE
-		LEFT JOIN duty_locations AS current_duty on uuid(c.duty_location_id) = current_duty.id
+			JOIN move_service_members ON move_service_members.id = audit_history.object_id
+			JOIN jsonb_to_record(audit_history.changed_data) as c(duty_location_id TEXT) on TRUE
+		WHERE audit_history.table_name = 'service_members'
 		GROUP BY audit_history.id
 	),
 	move_addresses (address_id, address_type, shipment_type, shipment_id, service_member_id)  AS (
@@ -306,7 +321,7 @@ WITH move AS (
 			NULL
 		FROM audit_history
 			JOIN move_shipments ON move_shipments.destination_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
-		UNION ALL
+		UNION
 		SELECT
 			audit_history.object_id,
 			'secondaryDestinationAddress',
@@ -315,7 +330,7 @@ WITH move AS (
 			NULL
 		FROM audit_history
 			JOIN move_shipments ON move_shipments.secondary_delivery_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
-		UNION ALL
+		UNION
 		SELECT
 			audit_history.object_id,
 			'pickupAddress',
@@ -324,7 +339,7 @@ WITH move AS (
 			NULL
 		FROM audit_history
 			JOIN move_shipments ON move_shipments.pickup_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
-		UNION ALL
+		UNION
 		SELECT
 			audit_history.object_id,
 			'secondaryPickupAddress',
@@ -333,7 +348,7 @@ WITH move AS (
 			NULL
 		FROM audit_history
 			JOIN move_shipments ON move_shipments.secondary_pickup_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
-		UNION ALL
+		UNION
 		SELECT
 			audit_history.object_id,
 			'residentialAddress',
@@ -342,7 +357,7 @@ WITH move AS (
 			move_service_members.id::TEXT
 		FROM audit_history
 			JOIN move_service_members ON move_service_members.residential_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
-		UNION ALL
+		UNION
 		SELECT
 			audit_history.object_id,
 			'backupMailingAddress',
@@ -368,7 +383,7 @@ WITH move AS (
 		FROM
 			audit_history
 				JOIN move_addresses ON move_addresses.address_id = audit_history.object_id
-					AND audit_history. "table_name" = 'addresses'
+		WHERE audit_history.table_name = 'addresses'
 		GROUP BY
 			move_addresses.shipment_id, move_addresses.service_member_id, audit_history.id
 	),
@@ -385,7 +400,7 @@ WITH move AS (
 		WHERE documents.service_member_id = move_orders.service_member_id
 
 		-- amended orders have the document id in the uploaded amended orders id column
-		UNION ALL
+		UNION
 		SELECT
 			user_uploads.id,
 			uploads.filename,
@@ -409,7 +424,7 @@ WITH move AS (
 		FROM
 			audit_history
 				JOIN file_uploads ON user_upload_id = audit_history.object_id
-					AND audit_history."table_name" = 'user_uploads'
+		WHERE audit_history.table_name = 'user_uploads'
 		GROUP BY audit_history.id
 	),
 	move_backup_contacts AS (
@@ -432,72 +447,72 @@ WITH move AS (
 			*
 		FROM
 			address_logs
-		UNION ALL
+		UNION
 		SELECT
 			*
 		FROM
 			service_item_logs
-		UNION ALL
+		UNION
 		SELECT
 			*
 		FROM
 			service_item_customer_contacts_logs
-		UNION ALL
+		UNION
 		SELECT
 			*
 		FROM
 			service_item_dimensions_logs
-		UNION ALL
+		UNION
 		SELECT
 			*
 		FROM
 			shipment_logs
-		UNION ALL
+		UNION
 		SELECT
 			*
 		FROM
 			entitlements_logs
-		UNION ALL
+		UNION
 		SELECT
 			*
 		FROM
 			reweigh_logs
-		UNION ALL
+		UNION
 		SELECT
 			*
 		FROM
 			orders_logs
-		UNION ALL
+		UNION
 		SELECT
 			*
 		FROM
 			agents_logs
-		UNION ALL
+		UNION
 		SELECT
 			*
 		FROM
 			payment_requests_logs
-		UNION ALL
+		UNION
 		SELECT
 			*
 		FROM
 			proof_of_service_docs_logs
-		UNION ALL
+		UNION
 		SELECT
 			*
 		FROM
 			move_logs
-		UNION ALL
+		UNION
 		SELECT
 		 	*
 		FROM
 			service_members_logs
-		UNION ALL
+		UNION
 		SELECT
 		    *
 		FROM
 		    file_uploads_logs
-		UNION ALL
+		UNION
 		SELECT
 		 	*
 		FROM

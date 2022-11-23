@@ -5,10 +5,6 @@ import LabeledPaymentRequestDetails from './LabeledPaymentRequestDetails';
 
 describe('LabeledPaymentRequestDetails', () => {
   it('renders the labeled payment request details', async () => {
-    const context = [
-      { name: 'Test service', price: '', shipment_id: '123', shipment_id_abbr: 'acf7b' },
-      { name: 'Domestic uncrating', price: '', shipment_id: '456', shipment_id_abbr: 'a1c2b' },
-    ];
     const labeledPaymentRequestDetails = {
       moveServices: 'Move management',
       shipmentServices: [
@@ -22,12 +18,7 @@ describe('LabeledPaymentRequestDetails', () => {
       ],
     };
 
-    render(
-      <LabeledPaymentRequestDetails
-        context={context}
-        getLabeledPaymentRequestDetails={() => labeledPaymentRequestDetails}
-      />,
-    );
+    render(<LabeledPaymentRequestDetails services={labeledPaymentRequestDetails} />);
 
     expect(screen.getByText('Move services')).toBeInTheDocument();
     expect(screen.getByText(': Move management')).toBeInTheDocument();

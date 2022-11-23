@@ -14,26 +14,14 @@ const formatChangedValues = (historyRecord) => {
     first_name: oldValues.first_name,
     last_name: oldValues.last_name,
     phone: oldValues.phone,
+    agent_type: oldValues.agent_type,
     ...changedValues,
   };
-
-  const agent = formatMoveHistoryAgent(newChangedValues);
-
-  const agentType = changedValues.agent_type ?? oldValues.agent_type;
-
-  let agentLabel = '';
-  if (agentType === 'RECEIVING_AGENT') {
-    agentLabel = 'receiving_agent';
-  } else if (agentType === 'RELEASING_AGENT') {
-    agentLabel = 'releasing_agent';
-  }
 
   newChangedValues = {
-    ...changedValues,
+    ...formatMoveHistoryAgent(newChangedValues),
     ...getMtoShipmentLabel(historyRecord),
   };
-
-  newChangedValues[agentLabel] = agent;
 
   return { ...historyRecord, changedValues: newChangedValues };
 };

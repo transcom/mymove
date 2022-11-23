@@ -686,6 +686,26 @@ definitions:
       CAR_TRAILER: Car + Trailer
       BOX_TRUCK: Box truck
       PRO_GEAR: Pro-gear
+  UpdateProGearWeightTicket:
+    type: object
+    properties:
+      belongsToSelf:
+        description: >-
+          Indicates if this information is for the customer's own pro-gear,
+          otherwise, it's the spouse's.
+        type: boolean
+      description:
+        description: Describes the pro-gear that was moved.
+        type: string
+      hasWeightTickets:
+        description: >-
+          Indicates if the user has a weight ticket for their pro-gear,
+          otherwise they have a constructed weight.
+        type: boolean
+      weight:
+        description: Weight of the vehicle not including the pro-gear.
+        type: integer
+        minimum: 0
   MoveDocumentPayload:
     type: object
     properties:
@@ -3227,11 +3247,11 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      createdAt:
+      updatedAt:
         type: string
         format: date-time
         readOnly: true
-      updatedAt:
+      createdAt:
         type: string
         format: date-time
         readOnly: true
@@ -3283,13 +3303,11 @@ definitions:
         type: string
         readOnly: true
     required:
-      - id
       - ppmShipmentId
       - createdAt
       - updatedAt
       - documentId
       - document
-      - eTag
   SignedCertificationType:
     description: |
       The type of signed certification:
@@ -5430,6 +5448,86 @@ paths:
           description: not authorized to modify this move
         '500':
           description: server error
+  /ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+    post:
+      summary: Creates a pro-gear weight ticket
+      description: >
+        Creates a PPM shipment's pro-gear weight ticket. This will only contain
+        the minimum necessary fields for a
+
+        pro-gear weight ticket. Data should be filled in using the patch
+        endpoint.
+      operationId: createProGearWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: returns a new pro-gear weight ticket object
+          schema:
+            $ref: '#/definitions/ProGearWeightTicket'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}:
+    patch:
+      summary: Updates a pro-gear weight ticket
+      description: >
+        Updates a PPM shipment's pro-gear weight ticket with new information.
+        Only some of the fields are editable
+
+        because some have to be set by the customer, e.g. the description.
+      operationId: updateProGearWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/ifMatch'
+        - $ref: '#/parameters/ppmShipmentId'
+        - $ref: '#/parameters/proGearWeightTicketId'
+        - in: body
+          name: updateProGearWeightTicket
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateProGearWeightTicket'
+      responses:
+        '201':
+          description: returns an updated pro-gear weight ticket object
+          schema:
+            $ref: '#/definitions/ProGearWeightTicket'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/moving-expenses:
     post:
       summary: Creates moving expense document
@@ -5969,13 +6067,6 @@ parameters:
     format: uuid
     required: true
     description: UUID of the PPM shipment
-  movingExpenseId:
-    name: movingExpenseId
-    in: path
-    type: string
-    format: uuid
-    required: true
-    description: UUID of the moving expense
   ifMatch:
     in: header
     name: If-Match
@@ -5985,6 +6076,20 @@ parameters:
       Optimistic locking is implemented via the `If-Match` header. If the ETag
       header does not match the value of the resource on the server, the server
       rejects the change with a `412 Precondition Failed` error.
+  proGearWeightTicketId:
+    name: proGearWeightTicketId
+    in: path
+    type: string
+    format: uuid
+    required: true
+    description: UUID of the pro-gear weight ticket
+  movingExpenseId:
+    name: movingExpenseId
+    in: path
+    type: string
+    format: uuid
+    required: true
+    description: UUID of the moving expense
   weightTicketId:
     name: weightTicketId
     in: path

@@ -43,19 +43,17 @@ type ProGearWeightTicket struct {
 	DocumentID strfmt.UUID `json:"documentId"`
 
 	// A hash that should be used as the "If-Match" header for any updates.
-	// Required: true
 	// Read Only: true
-	ETag string `json:"eTag"`
+	ETag string `json:"eTag,omitempty"`
 
 	// Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.
 	HasWeightTickets *bool `json:"hasWeightTickets"`
 
 	// The ID of the pro-gear weight ticket.
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
-	// Required: true
 	// Read Only: true
 	// Format: uuid
-	ID strfmt.UUID `json:"id"`
+	ID strfmt.UUID `json:"id,omitempty"`
 
 	// The ID of the PPM shipment that this pro-gear weight ticket is associated with.
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -94,10 +92,6 @@ func (m *ProGearWeightTicket) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDocumentID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateETag(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -177,19 +171,9 @@ func (m *ProGearWeightTicket) validateDocumentID(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *ProGearWeightTicket) validateETag(formats strfmt.Registry) error {
-
-	if err := validate.RequiredString("eTag", "body", m.ETag); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *ProGearWeightTicket) validateID(formats strfmt.Registry) error {
-
-	if err := validate.Required("id", "body", strfmt.UUID(m.ID)); err != nil {
-		return err
+	if swag.IsZero(m.ID) { // not required
+		return nil
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
