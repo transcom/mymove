@@ -18,10 +18,10 @@ UserShowTitle.defaultProps = {
   },
 };
 
-const UserShow = (props) => {
+const UserShow = () => {
   return (
     // eslint-disable-next-line react/jsx-props-no-spreading
-    <Show {...props} title={<UserShowTitle />} data-testid="user-show-detail">
+    <Show title={<UserShowTitle />} data-testid="user-show-detail">
       <SimpleShowLayout>
         <TextField source="id" label="User ID" />
         <TextField source="loginGovEmail" label="User email" />

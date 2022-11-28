@@ -7,8 +7,8 @@ const UserEditToolbar = (props) => (
   </Toolbar>
 );
 
-const UserEdit = (props) => (
-  <Edit {...props}>
+const UserEdit = () => (
+  <Edit>
     <SimpleForm toolbar={<UserEditToolbar />}>
       <TextInput source="id" disabled />
       <TextInput source="loginGovEmail" disabled />

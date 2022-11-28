@@ -29,9 +29,9 @@ OfficeUserShowTitle.defaultProps = {
   },
 };
 
-const OfficeUserShow = (props) => {
+const OfficeUserShow = () => {
   return (
-    <Show {...props} title={<OfficeUserShowTitle />}>
+    <Show title={<OfficeUserShowTitle />}>
       <SimpleShowLayout>
         <TextField source="id" />
         <TextField source="userId" label="User Id" />

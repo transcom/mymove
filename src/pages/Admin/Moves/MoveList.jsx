@@ -12,9 +12,8 @@ const MoveFilter = (props) => (
   </Filter>
 );
 
-const MoveList = (props) => (
+const MoveList = () => (
   <List
-    {...props}
     pagination={<AdminPagination />}
     perPage={25}
     filters={<MoveFilter />}

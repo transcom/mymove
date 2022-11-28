@@ -18,10 +18,10 @@ MoveShowTitle.defaultProps = {
   },
 };
 
-const MoveShow = (props) => {
+const MoveShow = () => {
   return (
     /* eslint-disable-next-line react/jsx-props-no-spreading */
-    <Show {...props} title={<MoveShowTitle />}>
+    <Show title={<MoveShowTitle />}>
       <SimpleShowLayout>
         <TextField source="id" />
         <TextField source="locator" />
