@@ -68,46 +68,6 @@ func (router moveRouter) Submit(appCtx appcontext.AppContext, move *models.Move,
 			return transactionError
 		}
 		appCtx.Logger().Info("SUCCESS: Move sent to services counseling")
-	} else if move.Orders.UploadedAmendedOrders != nil {
-		appCtx.Logger().Info("Move has amended orders")
-		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			err = router.SendToOfficeUser(txnAppCtx, move)
-			if err != nil {
-				txnAppCtx.Logger().Error("failure routing move submission with amended orders", zap.Error(err))
-				return err
-			}
-			// Let's get the orders for this move so we can wipe out the acknowledgement if it exists already (from a prior orders amendment process)
-			var ordersForMove models.Order
-			err = txnAppCtx.DB().Find(&ordersForMove, move.OrdersID)
-			if err != nil {
-				switch err {
-				case sql.ErrNoRows:
-					return apperror.NewNotFoundError(move.OrdersID, "looking for Order")
-				default:
-					return apperror.NewQueryError("Order", err, "")
-				}
-			}
-			// Here we'll nil out the value (if it's set already) so that on the client-side we'll see view this change
-			// in status as 'new orders' that need acknowledging by the TOO.
-			// We shouldn't need more complicated logic here since we only hit this point from calling Submit().
-			// Other circumstances like new MTOServiceItems will be calling SendToOfficeUser() directly.
-			txnAppCtx.Logger().Info("Determining whether there is a preexisting orders acknowledgement")
-			if ordersForMove.AmendedOrdersAcknowledgedAt != nil {
-				txnAppCtx.Logger().Info("Move has a preexisting acknowledgement")
-				ordersForMove.AmendedOrdersAcknowledgedAt = nil
-				_, err = txnAppCtx.DB().ValidateAndSave(&ordersForMove)
-				if err != nil {
-					txnAppCtx.Logger().Error("failure resetting orders AmendedOrdersAcknowledgeAt field when routing move submission with amended orders ", zap.Error(err))
-					return err
-				}
-				txnAppCtx.Logger().Info("Successfully reset orders acknowledgement")
-			}
-			return nil
-		})
-		if transactionError != nil {
-			return transactionError
-		}
-		appCtx.Logger().Info("SUCCESS: Move with amended orders sent to office user / TOO queue")
 	} else {
 		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 			// when a move is submitted and needs to be routed to a TOO, the move status is updated,
@@ -141,6 +101,43 @@ func (router moveRouter) Submit(appCtx appcontext.AppContext, move *models.Move,
 
 	appCtx.Logger().Info("SUCCESS: Move submitted and routed to the appropriate queue")
 	return nil
+}
+
+func (router moveRouter) RouteAfterAmendingOrders(appCtx appcontext.AppContext, move *models.Move) error {
+	return appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		err := router.SendToOfficeUser(txnAppCtx, move)
+		if err != nil {
+			txnAppCtx.Logger().Error("failure routing move submission with amended orders", zap.Error(err))
+			return err
+		}
+		// Let's get the orders for this move so we can wipe out the acknowledgement if it exists already (from a prior orders amendment process)
+		var ordersForMove models.Order
+		err = txnAppCtx.DB().Find(&ordersForMove, move.OrdersID)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return apperror.NewNotFoundError(move.OrdersID, "looking for Order")
+			default:
+				return apperror.NewQueryError("Order", err, "")
+			}
+		}
+		// Here we'll nil out the value (if it's set already) so that on the client-side we'll see view this change
+		// in status as 'new orders' that need acknowledging by the TOO.
+		// We shouldn't need more complicated logic here since we only hit this point from calling Submit().
+		// Other circumstances like new MTOServiceItems will be calling SendToOfficeUser() directly.
+		txnAppCtx.Logger().Info("Determining whether there is a preexisting orders acknowledgement")
+		if ordersForMove.AmendedOrdersAcknowledgedAt != nil {
+			txnAppCtx.Logger().Info("Move has a preexisting acknowledgement")
+			ordersForMove.AmendedOrdersAcknowledgedAt = nil
+			_, err = txnAppCtx.DB().ValidateAndSave(&ordersForMove)
+			if err != nil {
+				txnAppCtx.Logger().Error("failure resetting orders AmendedOrdersAcknowledgeAt field when routing move submission with amended orders ", zap.Error(err))
+				return err
+			}
+			txnAppCtx.Logger().Info("Successfully reset orders acknowledgement")
+		}
+		return nil
+	})
 }
 
 func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, move *models.Move) (bool, error) {
