@@ -243,7 +243,7 @@ const ServiceItemCard = ({
                   id={id}
                   currentStatus={values.status}
                   rejectionReason={values.rejectionReason}
-                  requestComplete
+                  requestComplete={requestComplete}
                   approvedStatus={APPROVED}
                   deniedStatus={DENIED}
                   canEditRejection={canEditRejection}
