@@ -306,6 +306,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// double check that we found the record we're looking for
 		suite.True(foundUpdateOrderRecord)
 	})
+
 	suite.Run("returns user uploads fields and context", func() {
 		// Make an approved move and get the associated orders, service member, uploaded orders and related document
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
@@ -357,7 +358,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		suite.True(foundUserUploadAmendedOrdersRecord, "foundUserUploadAmendedOrdersRecord")
 
 	})
-
 }
 
 func removeEscapeJSONtoObject(data *string) map[string]interface{} {
@@ -506,7 +506,9 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 				if *h.ObjectID == updatedServiceItem.ID {
 					if h.Context != nil {
 						context := removeEscapeJSONtoArray(h.Context)
-						if context != nil && context[0]["name"] == serviceItem.ReService.Name && context[0]["shipment_type"] == string(serviceItem.MTOShipment.ShipmentType) {
+						if context != nil && context[0]["name"] == serviceItem.ReService.Name &&
+							context[0]["shipment_type"] == string(serviceItem.MTOShipment.ShipmentType) &&
+							context[0]["shipment_id_abbr"] != "" {
 							verifyServiceItemStatusContext = true
 						}
 					}
@@ -573,19 +575,31 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NoError(err)
 
 		verifyPaymentRequestHistoryFound := false
+		verifyPaymentRequestContext := false
+
 		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "payment_requests" && *h.ObjectID == approvedPaymentRequest.ID {
-				if h.Context != nil {
-					context := removeEscapeJSONtoArray(h.Context)
-					if context != nil {
-						suite.Contains(context[0]["status"], paymentServiceItem.Status)
+			if h.TableName == "payment_requests" {
+				if *h.ObjectID == approvedPaymentRequest.ID {
+					if h.ChangedData != nil {
 						verifyPaymentRequestHistoryFound = true
+
+						if h.Context != nil {
+							context := removeEscapeJSONtoArray(h.Context)
+							if context[0]["status"] == paymentServiceItem.Status.String() &&
+								context[0]["name"] == paymentServiceItem.MTOServiceItem.ReService.Name &&
+								context[0]["price"] == paymentServiceItem.PriceCents.String() &&
+								context[0]["shipment_type"] == string(paymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType) &&
+								context[0]["shipment_id_abbr"] != "" {
+								verifyPaymentRequestContext = true
+							}
+						}
 					}
+					break
 				}
-				break
 			}
 		}
 		suite.True(verifyPaymentRequestHistoryFound, "AuditHistories contains an AuditHistory with an approved payment request")
+		suite.True(verifyPaymentRequestContext, "Approved payment request creation AuditHistory contains a context with the appropriate values")
 	})
 
 	suite.Run("has audit history records for reweighs", func() {
@@ -614,7 +628,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 				verifyReweighHistoryFound = true
 				if h.Context != nil {
 					context := removeEscapeJSONtoArray(h.Context)
-					if context != nil && context[0]["shipment_type"] == string(shipment.ShipmentType) {
+					if context != nil && context[0]["shipment_type"] == string(shipment.ShipmentType) && context[0]["shipment_id_abbr"] != "" {
 						verifyReweighContext = true
 					}
 				}
@@ -664,6 +678,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NoError(err)
 
 		verifyServiceItemDimensionsHistoryFound := false
+		verifyServiceItemDimensionContext := false
 
 		for _, h := range moveHistoryData.AuditHistories {
 			if h.TableName == "mto_service_item_dimensions" {
@@ -671,12 +686,20 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 					changedData := removeEscapeJSONtoObject(h.ChangedData)
 					if changedData["type"] == "ITEM" {
 						verifyServiceItemDimensionsHistoryFound = true
-						break
+					}
+
+					if h.Context != nil {
+						context := removeEscapeJSONtoArray(h.Context)
+						if context[0]["shipment_type"] == string(serviceItem.MTOShipment.ShipmentType) && context[0]["shipment_id_abbr"] != "" {
+							verifyServiceItemDimensionContext = true
+						}
 					}
 				}
+				break
 			}
 		}
 		suite.True(verifyServiceItemDimensionsHistoryFound, "AuditHistories contains an AuditHistory with a service item dimensions creation")
+		suite.True(verifyServiceItemDimensionContext, "Service item dimensions creation AuditHistory contains a context with the appropriate shipment type")
 	})
 
 	suite.Run("has audit history records for service item customer contacts", func() {
@@ -741,6 +764,36 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 			}
 		}
 		suite.True(verifyServiceItemDimensionsHistoryFound, "AuditHistories contains an AuditHistory with a service item customer contacts creation")
+	})
+
+	suite.Run("has audit history records for service members", func() {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		serviceMember := move.Orders.ServiceMember
+		suite.NotNil(serviceMember)
+
+		params := services.FetchMoveHistoryParams{Locator: move.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		verifyServiceMemberHistoryFound := false
+		verifyServiceMemberContextFound := false
+
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "service_members" && *h.ObjectID == serviceMember.ID {
+				verifyServiceMemberHistoryFound = true
+
+				if h.Context != nil {
+					context := removeEscapeJSONtoArray(h.Context)
+					if context[0]["current_duty_location_name"] != "" {
+						verifyServiceMemberContextFound = true
+					}
+				}
+				break
+			}
+		}
+		suite.True(verifyServiceMemberHistoryFound, "AuditHistories contains an AuditHistory when a service member is created")
+		suite.True(verifyServiceMemberContextFound, "Service member creation AuditHistory contains a context with current duty location name")
 	})
 }
 
