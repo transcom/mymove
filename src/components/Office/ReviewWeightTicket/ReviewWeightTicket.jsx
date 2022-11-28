@@ -12,7 +12,7 @@ import ApproveReject from 'components/form/ApproveReject/ApproveReject';
 import formStyles from 'styles/form.module.scss';
 
 export default function ReviewWeightTicket({ mtoShipment, tripNumber, ppmNumber }) {
-  const [canEditRejection, setCanEditRejection] = useState(false);
+  const [canEditRejection, setCanEditRejection] = useState(true);
   const initialValues = {
     weightType: '',
     emptyWeight: '',
@@ -146,7 +146,7 @@ export default function ReviewWeightTicket({ mtoShipment, tripNumber, ppmNumber 
                   id={mtoShipment?.ppmShipment?.id}
                   currentStatus={values.status}
                   rejectionReason={values.rejectionReason}
-                  requestComplete
+                  requestComplete={false}
                   approvedStatus="APPROVED"
                   deniedStatus="DENIED"
                   canEditRejection={canEditRejection}

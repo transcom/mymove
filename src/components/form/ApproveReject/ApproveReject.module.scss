@@ -32,7 +32,7 @@
       .usa-radio__label:before {
         left: 10px;
       }
-      
+
       .usa-form-group {
         @include u-padding(2);
 
@@ -53,6 +53,11 @@
     }
   }
 
+  .rejectionButtonGroup {
+    display: flex;
+    align-items: center;
+  }
+  
   .statusOption+.statusOption {
     @include u-margin-top(1);
   }
