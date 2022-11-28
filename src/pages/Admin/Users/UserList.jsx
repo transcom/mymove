@@ -12,10 +12,9 @@ const UserFilter = (props) => (
 
 const defaultSort = { field: 'loginGovEmail', order: 'ASC' };
 
-const UserList = (props) => (
+const UserList = () => (
   <List
     /* eslint-disable-next-line react/jsx-props-no-spreading */
-    {...props}
     filters={<UserFilter />}
     pagination={<AdminPagination />}
     perPage={25}
