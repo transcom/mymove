@@ -23,6 +23,7 @@ import {
   getPWSViolations,
   getReportViolationsByReportID,
   getMTOShipmentByID,
+  getServicesCounselingPPMQueue,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorAvailableMoves, getPrimeSimulatorMove } from 'services/primeApi';
@@ -306,9 +307,10 @@ export const useServicesCounselingQueuePPMQueries = ({
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
 }) => {
   const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
-    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize, ppmCloseout: true }],
-    getServicesCounselingQueue,
+    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: true }],
+    getServicesCounselingPPMQueue,
   );
+
   const { isLoading, isError, isSuccess } = getQueriesStatus([servicesCounselingQueueQuery]);
   const { queueMoves, ...dataProps } = data;
   return {
@@ -327,9 +329,10 @@ export const useServicesCounselingQueueQueries = ({
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
 }) => {
   const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
-    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize, ppmCloseout: false }],
+    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false }],
     getServicesCounselingQueue,
   );
+
   const { isLoading, isError, isSuccess } = getQueriesStatus([servicesCounselingQueueQuery]);
   const { queueMoves, ...dataProps } = data;
   return {

@@ -122,7 +122,7 @@ const TableQueue = ({
         <TabNav
           className={styles.tableTabs}
           items={[
-            <NavLink activeClassName="usa-current" to={servicesCounselingRoutes.QUEUE_COUNSELING_PATH}>
+            <NavLink exact activeClassName="usa-current" to={servicesCounselingRoutes.QUEUE_COUNSELING_PATH}>
               <span className="tab-title">Counseling</span>
             </NavLink>,
             <NavLink exact activeClassName="usa-current" to={servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH}>
