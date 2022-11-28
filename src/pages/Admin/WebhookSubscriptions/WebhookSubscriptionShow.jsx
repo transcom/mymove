@@ -18,10 +18,10 @@ WebhookSubscriptionShowTitle.defaultProps = {
   },
 };
 
-const WebhookSubscriptionShow = (props) => {
+const WebhookSubscriptionShow = () => {
   return (
     /* eslint-disable-next-line react/jsx-props-no-spreading */
-    <Show {...props} title={<WebhookSubscriptionShowTitle />}>
+    <Show title={<WebhookSubscriptionShowTitle />}>
       <SimpleShowLayout>
         <TextField source="id" />
         <TextField label="Subscriber Id" source="subscriberId" />

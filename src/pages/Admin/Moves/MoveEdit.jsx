@@ -8,8 +8,8 @@ const MoveEditToolbar = (props) => (
   </Toolbar>
 );
 
-const MoveEdit = (props) => (
-  <Edit {...props}>
+const MoveEdit = () => (
+  <Edit>
     <SimpleForm toolbar={<MoveEditToolbar />}>
       <TextInput source="id" disabled />
       <TextInput source="locator" disabled />
