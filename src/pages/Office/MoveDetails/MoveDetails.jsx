@@ -18,7 +18,8 @@ import OrdersList from 'components/Office/DefinitionLists/OrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
-import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
+import ApprovedRequestedShipments from 'components/Office/RequestedShipments/ApprovedRequestedShipments';
+import SubmittedRequestedShipments from 'components/Office/RequestedShipments/SubmittedRequestedShipments';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatus, updateMTOShipmentStatus, updateFinancialFlag } from 'services/ghcApi';
 import LeftNav from 'components/LeftNav/LeftNav';
@@ -325,16 +326,13 @@ const MoveDetails = ({
               </Grid>
             )}
           </Grid>
-          {/* TODO - RequestedShipments could be simplified, if extra time we could tackle this or just write a story to track */}
           {submittedShipments.length > 0 && (
             <div className={styles.section} id="requested-shipments">
-              <RequestedShipments
+              <SubmittedRequestedShipments
                 mtoShipments={submittedShipments}
                 ordersInfo={ordersInfo}
                 allowancesInfo={allowancesInfo}
                 customerInfo={customerInfo}
-                mtoServiceItems={mtoServiceItems}
-                shipmentsStatus={shipmentStatuses.SUBMITTED}
                 approveMTO={mutateMoveStatus}
                 approveMTOShipment={mutateMTOShipmentStatus}
                 moveTaskOrder={move}
@@ -348,16 +346,11 @@ const MoveDetails = ({
           )}
           {approvedOrCanceledShipments.length > 0 && (
             <div className={styles.section} id="approved-shipments">
-              <RequestedShipments
-                moveTaskOrder={move}
+              <ApprovedRequestedShipments
                 mtoShipments={approvedOrCanceledShipments}
                 ordersInfo={ordersInfo}
-                allowancesInfo={allowancesInfo}
-                customerInfo={customerInfo}
                 mtoServiceItems={mtoServiceItems}
-                shipmentsStatus={shipmentStatuses.APPROVED}
                 moveCode={moveCode}
-                errorIfMissing={errorIfMissing}
                 displayDestinationType={isRetirementOrSeparation}
               />
             </div>

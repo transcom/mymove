@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/move"
 	movehistory "github.com/transcom/mymove/pkg/services/move_history"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	movingexpense "github.com/transcom/mymove/pkg/services/moving_expense"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
@@ -25,9 +26,11 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	paymentserviceitem "github.com/transcom/mymove/pkg/services/payment_service_item"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
+	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	pwsviolation "github.com/transcom/mymove/pkg/services/pws_violation"
 	"github.com/transcom/mymove/pkg/services/query"
 	reportviolation "github.com/transcom/mymove/pkg/services/report_violation"
+	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 )
 
 // NewGhcAPIHandler returns a handler for the GHC API
@@ -392,6 +395,21 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.PaymentRequestsGetShipmentsPaymentSITBalanceHandler = ShipmentsSITBalanceHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestShipmentsSITBalance(),
+	}
+
+	ghcAPI.PpmUpdateProGearWeightTicketHandler = UpdateProgearWeightTicketHandler{
+		handlerConfig,
+		progear.NewOfficeProgearWeightTicketUpdater(),
+	}
+
+	ghcAPI.PpmUpdateWeightTicketHandler = UpdateWeightTicketHandler{
+		handlerConfig,
+		weightticket.NewOfficeWeightTicketUpdater(),
+	}
+
+	ghcAPI.PpmUpdateMovingExpenseHandler = UpdateMovingExpenseHandler{
+		handlerConfig,
+		movingexpense.NewMovingExpenseUpdater(),
 	}
 
 	ghcAPI.PwsViolationsGetPWSViolationsHandler = GetPWSViolationsHandler{

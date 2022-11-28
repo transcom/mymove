@@ -1,14 +1,14 @@
 import React from 'react';
 
-import ShipmentEvaluationReports from './ShipmentEvaluationReports';
+import ShipmentQAEReportHeader from './ShipmentQAEReportHeader';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 
 export default {
-  title: 'Office Components/ShipmentEvaluationReports',
-  component: ShipmentEvaluationReports,
+  title: 'Office Components/ShipmentQAEReportHeader',
+  component: ShipmentQAEReportHeader,
   decorators: [
     (Story, context) => {
       // Dont wrap with permissions for the read only tests
@@ -27,7 +27,7 @@ export default {
 };
 
 const hhgShipment = {
-  id: '11111111-1111-1111-1111-111111111111',
+  id: '111111',
   shipmentType: SHIPMENT_OPTIONS.HHG,
   pickupAddress: {
     streetAddress1: '123 Any St',
@@ -41,21 +41,18 @@ const hhgShipment = {
     state: 'AK',
     postalCode: '90210',
   },
-  createdAt: '2020-01-01T00:01:00.999Z',
 };
-
 const ppmShipment = {
-  id: '22222222-2222-2222-2222-222222222222',
+  id: '22222',
   shipmentType: SHIPMENT_OPTIONS.PPM,
   ppmShipment: {
     pickupPostalCode: '89503',
     destinationPostalCode: '90210',
   },
-  createdAt: '2020-01-01T00:02:00.999Z',
 };
 
 const ntsShipment = {
-  id: '33333333-3333-3333-3333-333333333333',
+  id: '3333333',
   shipmentType: SHIPMENT_OPTIONS.NTS,
   pickupAddress: {
     streetAddress1: '123 Any St',
@@ -66,11 +63,9 @@ const ntsShipment = {
   storageFacility: {
     facilityName: 'Awesome Storage LLC',
   },
-  createdAt: '2020-01-01T00:03:00.999Z',
 };
-
 const ntsrShipment = {
-  id: '44444444-4444-4444-4444-444444444444',
+  id: '444444',
   shipmentType: SHIPMENT_OPTIONS.NTSR,
   destinationAddress: {
     streetAddress1: '123 Any St',
@@ -81,46 +76,47 @@ const ntsrShipment = {
   storageFacility: {
     facilityName: 'Awesome Storage LLC',
   },
-  createdAt: '2020-01-01T00:04:00.999Z',
 };
 
-const shipments = [hhgShipment, ppmShipment, ntsShipment, ntsrShipment];
-
-const reports = [
-  {
-    id: 'a7fdb0b3-f876-4686-b94f-ad20a2c9a63d',
-    createdAt: '2022-07-14T19:21:27.573Z',
-    location: 'DESTINATION',
-    shipmentID: '11111111-1111-1111-1111-111111111111',
-    submittedAt: '2022-07-14T19:21:27.565Z',
-    type: 'SHIPMENT',
-    violationsObserved: true,
-  },
-  {
-    id: '1f9d18a8-7688-428d-be8e-3f3c59a0ae5e',
-    createdAt: '2022-07-14T19:21:27.579Z',
-    location: null,
-    shipmentID: '22222222-2222-2222-2222-222222222222',
-    submittedAt: null,
-    type: 'SHIPMENT',
-    violationsObserved: true,
-  },
-];
-
-export const empty = () => (
+export const hhg = () => (
   <div className="officeApp">
-    <ShipmentEvaluationReports reports={[]} />
+    <ShipmentQAEReportHeader shipment={hhgShipment} />
   </div>
 );
 
-export const single = () => (
+export const nts = () => (
   <div className="officeApp">
-    <ShipmentEvaluationReports shipments={shipments} reports={reports} />
+    <ShipmentQAEReportHeader shipment={ntsShipment} />
+  </div>
+);
+export const ntsr = () => (
+  <div className="officeApp">
+    <ShipmentQAEReportHeader shipment={ntsrShipment} />
+  </div>
+);
+export const ppm = () => (
+  <div className="officeApp">
+    <ShipmentQAEReportHeader shipment={ppmShipment} />
+  </div>
+);
+export const hhgReadOnly = () => (
+  <div className="officeApp">
+    <ShipmentQAEReportHeader shipment={hhgShipment} />
   </div>
 );
 
-export const singleReadOnly = () => (
+export const ntsReadOnly = () => (
   <div className="officeApp">
-    <ShipmentEvaluationReports shipments={shipments} reports={reports} />
+    <ShipmentQAEReportHeader shipment={ntsShipment} />
+  </div>
+);
+export const ntsrReadOnly = () => (
+  <div className="officeApp">
+    <ShipmentQAEReportHeader shipment={ntsrShipment} />
+  </div>
+);
+export const ppmReadOnly = () => (
+  <div className="officeApp">
+    <ShipmentQAEReportHeader shipment={ppmShipment} />
   </div>
 );
