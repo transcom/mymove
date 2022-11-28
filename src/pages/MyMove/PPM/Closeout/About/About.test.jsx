@@ -112,31 +112,31 @@ const weightTicketsPath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKET
 });
 
 const fillOutBasicForm = (form) => {
-  userEvent.type(within(form).getByLabelText('When did you leave your origin?'), '31 May 2022');
+  userEvent.paste(within(form).getByLabelText('When did you leave your origin?'), '31 May 2022');
 
-  userEvent.type(within(form).getByLabelText('Starting ZIP'), '10001', {
+  userEvent.paste(within(form).getByLabelText('Starting ZIP'), '10001', {
     initialSelectionStart: 0,
     initialSelectionEnd: 5,
   });
 
-  userEvent.type(within(form).getByLabelText('Ending ZIP'), '10002', {
+  userEvent.paste(within(form).getByLabelText('Ending ZIP'), '10002', {
     initialSelectionStart: 0,
     initialSelectionEnd: 5,
   });
 
-  userEvent.type(within(form).getByLabelText('Address 1'), '10642 N Second Ave');
+  userEvent.paste(within(form).getByLabelText('Address 1'), '10642 N Second Ave');
 
-  userEvent.type(within(form).getByLabelText('City'), 'Goldsboro');
+  userEvent.paste(within(form).getByLabelText('City'), 'Goldsboro');
 
   userEvent.selectOptions(within(form).getByLabelText('State'), 'NC');
 
-  userEvent.type(within(form).getByLabelText('ZIP'), '27534');
+  userEvent.paste(within(form).getByLabelText('ZIP'), '27534');
 };
 
 const fillOutAdvanceSections = (form) => {
   userEvent.click(within(form).getByLabelText('Yes'));
 
-  userEvent.type(within(form).getByLabelText('How much did you receive?'), '7500');
+  userEvent.paste(within(form).getByLabelText('How much did you receive?'), '7500');
 };
 
 describe('About page', () => {
