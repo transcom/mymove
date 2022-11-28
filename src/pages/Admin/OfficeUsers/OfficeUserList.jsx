@@ -18,10 +18,10 @@ import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 // Overriding the default toolbar to add import button
 const ListActions = (props) => {
-  const { basePath, total, resource, currentSort, filterValues, exporter } = props;
+  const { total, resource, currentSort, filterValues, exporter } = props;
   return (
     <TopToolbar>
-      <CreateButton basePath={basePath} />
+      <CreateButton />
       <ImportOfficeUserButton resource={resource} {...props} />
       <ExportButton
         disabled={total === 0}
@@ -42,9 +42,8 @@ const OfficeUserListFilter = (props) => (
 
 const defaultSort = { field: 'last_name', order: 'ASC' };
 
-const OfficeUserList = (props) => (
+const OfficeUserList = () => (
   <List
-    {...props}
     pagination={<AdminPagination />}
     perPage={25}
     bulkActionButtons={false}

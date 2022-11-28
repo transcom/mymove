@@ -4,8 +4,8 @@ import { Create, SimpleForm, TextInput, ReferenceInput, AutocompleteInput, requi
 import { RolesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesCheckboxes';
 import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
 
-const OfficeUserCreate = (props) => (
-  <Create {...props}>
+const OfficeUserCreate = () => (
+  <Create>
     <SimpleForm>
       <TextInput source="firstName" validate={required()} />
       <TextInput source="middleInitials" />
