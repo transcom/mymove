@@ -4,6 +4,7 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
@@ -80,6 +81,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		suite.IsType(&moveops.GetMoveHistoryOK{}, response)
 
 		payload := response.(*moveops.GetMoveHistoryOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.Equal(moveHistory.ID.String(), payload.ID.String())
 		suite.Equal(moveHistory.Locator, payload.Locator)
@@ -125,6 +127,8 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		}
 		response := handler.Handle(badParams)
 		suite.IsType(&moveops.GetMoveHistoryBadRequest{}, response)
+		payload := response.(*moveops.GetMoveHistoryBadRequest).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 
 	suite.Run("Unsuccessful move history fetch - locator not found", func() {
@@ -151,6 +155,8 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveHistoryNotFound{}, response)
+		payload := response.(*moveops.GetMoveHistoryNotFound).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 
 	suite.Run("Unsuccessful move history fetch - internal server error", func() {
@@ -177,6 +183,8 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveHistoryInternalServerError{}, response)
+		payload := response.(*moveops.GetMoveHistoryInternalServerError).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 
 	suite.Run("Paginated move history fetch results", func() {
@@ -213,6 +221,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 
 		suite.IsType(&moveops.GetMoveHistoryOK{}, response)
 		payload := response.(*moveops.GetMoveHistoryOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		// Returned row count of 2 (since page size = 2)
 		suite.Len(payload.HistoryRecords, 2)
