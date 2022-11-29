@@ -168,11 +168,11 @@ const MovePaymentRequests = ({
 
   const handleReviewWeightsClick = () => {
     history.push(generatePath(tioRoutes.BILLABLE_WEIGHT_PATH, { moveCode }));
-    const payload = {
-      moveTaskOrderID: move?.id,
-      ifMatchETag: move?.eTag,
-    };
-    mutateMoves(payload);
+    // const payload = {
+    //   moveTaskOrderID: move?.id,
+    //   ifMatchETag: move?.eTag,
+    // };
+    // mutateMoves(payload);
   };
 
   const handleEditAccountingCodes = (shipmentID, body) => {
