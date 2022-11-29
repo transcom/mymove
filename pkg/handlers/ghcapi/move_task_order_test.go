@@ -67,6 +67,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	suite.IsNotErrResponse(response)
 	moveTaskOrderResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
 	moveTaskOrderPayload := moveTaskOrderResponse.Payload
+	suite.NoError(moveTaskOrderPayload.Validate(strfmt.Default))
 
 	suite.Assertions.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
 	suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrderPayload.ID)
@@ -134,6 +135,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		suite.IsNotErrResponse(response)
 		moveResponse := response.(*movetaskorderops.UpdateMoveTaskOrderStatusOK)
 		movePayload := moveResponse.Payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
 
 		updatedMove := models.Move{}
 		suite.DB().Find(&updatedMove, movePayload.ID)
@@ -197,6 +199,8 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{handlerConfig, moveUpdater}
 	response := handler.Handle(params)
 	suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderStatusPreconditionFailed{}, response)
+	payload := response.(*movetaskorderops.UpdateMoveTaskOrderStatusPreconditionFailed).Payload
+	suite.NoError(payload.Validate(strfmt.Default))
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncompleteOrder() {
@@ -229,6 +233,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 
 	suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderStatusUnprocessableEntity{}, response)
 	invalidResponse := response.(*movetaskorderops.UpdateMoveTaskOrderStatusUnprocessableEntity).Payload
+	suite.NoError(invalidResponse.Validate(strfmt.Default))
 	errorDetail := invalidResponse.Detail
 
 	suite.Contains(*errorDetail, "TransportationAccountingCode cannot be blank.")
@@ -292,6 +297,8 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		suite.IsType(&movetaskorderops.UpdateMTOStatusServiceCounselingCompletedForbidden{}, response)
+		payload := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedForbidden).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Unsuccessful move status update to Service Counseling Completed, not found - Integration", func() {
@@ -307,6 +314,8 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		suite.IsType(&movetaskorderops.UpdateMTOStatusServiceCounselingCompletedNotFound{}, response)
+		payload := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedNotFound).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 
 	suite.Run("Unsuccessful move status update to Service Counseling Completed, eTag does not match - Integration", func() {
@@ -328,6 +337,8 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		suite.IsType(&movetaskorderops.UpdateMTOStatusServiceCounselingCompletedPreconditionFailed{}, response)
+		payload := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedPreconditionFailed).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Unsuccessful move status update to Service Counseling Completed, state conflict - Integration", func() {
@@ -353,6 +364,8 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		suite.IsType(&movetaskorderops.UpdateMTOStatusServiceCounselingCompletedConflict{}, response)
+		payload := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedConflict).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Unsuccessful move status update to Service Counseling Completed, misc mocked errors - Integration", func() {
@@ -393,6 +406,14 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 			response := handler.Handle(params)
 			suite.IsNotErrResponse(response)
 			suite.IsType(testCase.handlerResponse, response)
+			switch response := response.(type) {
+			case *movetaskorderops.UpdateMTOStatusServiceCounselingCompletedUnprocessableEntity:
+				suite.NoError(response.Payload.Validate(strfmt.Default))
+			case *movetaskorderops.UpdateMTOStatusServiceCounselingCompletedInternalServerError:
+				suite.Nil(response.Payload)
+			default:
+				suite.Fail(fmt.Sprintf("unexpected response type of %T", response))
+			}
 		}
 	})
 }
@@ -435,6 +456,7 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 		suite.IsNotErrResponse(response)
 		moveTaskOrderResponse := response.(*movetaskorderops.UpdateMoveTIORemarksOK)
 		moveTaskOrderPayload := moveTaskOrderResponse.Payload
+		suite.NoError(moveTaskOrderPayload.Validate(strfmt.Default))
 
 		suite.Assertions.IsType(&movetaskorderops.UpdateMoveTIORemarksOK{}, response)
 		updatedMove := models.Move{}
@@ -456,6 +478,8 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 		suite.IsNotErrResponse(response)
 
 		suite.Assertions.IsType(&movetaskorderops.UpdateMoveTIORemarksPreconditionFailed{}, response)
+		payload := response.(*movetaskorderops.UpdateMoveTIORemarksPreconditionFailed).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Unsuccessful move TIO Remarks update, not found", func() {
@@ -472,5 +496,7 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 		suite.IsNotErrResponse(response)
 
 		suite.Assertions.IsType(&movetaskorderops.UpdateMoveTIORemarksNotFound{}, response)
+		payload := response.(*movetaskorderops.UpdateMoveTIORemarksNotFound).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 }
