@@ -4449,7 +4449,7 @@ definitions:
       customer:
         $ref: '#/definitions/Customer'
       status:
-        $ref: '#/definitions/PaymentRequestStatus'
+        $ref: '#/definitions/QueuePaymentRequestStatus'
       age:
         type: number
         format: double
@@ -4480,6 +4480,14 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
+  QueuePaymentRequestStatus:
+    enum:
+      - Payment requested
+      - Reviewed
+      - Rejected
+      - Paid
+    title: Queue Payment Request Status
+    type: string
   SearchMoves:
     type: array
     items:

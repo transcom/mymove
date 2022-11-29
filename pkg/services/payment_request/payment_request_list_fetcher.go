@@ -49,6 +49,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	paymentRequests := models.PaymentRequests{}
 	query := appCtx.DB().Q().EagerPreload(
 		"MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice",
+		"MoveTaskOrder.Orders.OriginDutyLocation.Address",
 		// See note further below about having to do this in a separate Load call due to a Pop issue.
 		// "MoveTaskOrder.Orders.ServiceMember",
 	).

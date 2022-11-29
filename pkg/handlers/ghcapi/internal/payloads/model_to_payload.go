@@ -1393,7 +1393,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			ID:                 *handlers.FmtUUID(paymentRequest.ID),
 			MoveID:             *handlers.FmtUUID(moveTaskOrder.ID),
 			Customer:           Customer(&orders.ServiceMember),
-			Status:             ghcmessages.PaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
+			Status:             ghcmessages.QueuePaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
 			Age:                math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0),
 			SubmittedAt:        *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:            moveTaskOrder.Locator,
