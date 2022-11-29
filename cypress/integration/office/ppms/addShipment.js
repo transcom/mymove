@@ -20,7 +20,7 @@ describe('Services counselor user', () => {
 
     // Note this intercept is specific to a particular move locator
     cy.intercept(
-      '**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&needsPPMCloseout=false&locator=PPMADD',
+      '**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&locator=PPMADD&needsPPMCloseout=false',
     ).as('getFilterSortedMoves');
     cy.intercept('GET', '**/ghc/v1/move/**').as('getMoves');
     cy.intercept('GET', '**/ghc/v1/orders/**').as('getOrders');
