@@ -18,18 +18,12 @@ import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 // Overriding the default toolbar to add import button
 const ListActions = (props) => {
-  const { total, resource, currentSort, filterValues, exporter } = props;
+  const { total, resource, sort, filterValues, exporter } = props;
   return (
     <TopToolbar>
       <CreateButton />
       <ImportOfficeUserButton resource={resource} {...props} />
-      <ExportButton
-        disabled={total === 0}
-        resource={resource}
-        sort={currentSort}
-        filter={filterValues}
-        exporter={exporter}
-      />
+      <ExportButton disabled={total === 0} resource={resource} sort={sort} filter={filterValues} exporter={exporter} />
     </TopToolbar>
   );
 };
@@ -68,7 +62,7 @@ ListActions.propTypes = {
   basePath: PropTypes.string,
   total: PropTypes.number,
   resource: PropTypes.string,
-  currentSort: PropTypes.exact({
+  sort: PropTypes.exact({
     field: PropTypes.string,
     order: PropTypes.string,
   }),
@@ -81,7 +75,7 @@ ListActions.propTypes = {
 
 ListActions.defaultProps = {
   resource: 'office_users',
-  currentSort: {
+  sort: {
     field: 'last_name',
     order: 'ASC',
   },
