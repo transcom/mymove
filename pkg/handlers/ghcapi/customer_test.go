@@ -31,9 +31,11 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
 
+	suite.Assertions.IsType(&customerops.GetCustomerOK{}, response)
 	getCustomerResponse := response.(*customerops.GetCustomerOK)
 	getCustomerPayload := getCustomerResponse.Payload
-	suite.Assertions.IsType(&customerops.GetCustomerOK{}, response)
+	suite.NoError(getCustomerPayload.Validate(strfmt.Default))
+
 	suite.Equal(strfmt.UUID(customer.ID.String()), getCustomerPayload.ID)
 	suite.Equal(*customer.Edipi, getCustomerPayload.DodID)
 	suite.Equal(strfmt.UUID(customer.UserID.String()), getCustomerPayload.UserID)
@@ -52,7 +54,7 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 	body := &ghcmessages.UpdateCustomerPayload{
 		LastName:  "Newlastname",
 		FirstName: "Newfirstname",
-		Phone:     handlers.FmtString("123-455-3399"),
+		Phone:     handlers.FmtString("223-455-3399"),
 		BackupContact: &ghcmessages.BackupContact{
 			Name:  handlers.FmtString("New Backup Contact"),
 			Phone: handlers.FmtString("445-345-1212"),
@@ -86,9 +88,11 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 
 	// TODO: test with actual updated customer?
 	// updatedCustomer, _ := models.FetchServiceMember(suite.DB(), customer.ID)
+	suite.Assertions.IsType(&customerops.UpdateCustomerOK{}, response)
 	updateCustomerResponse := response.(*customerops.UpdateCustomerOK)
 	updateCustomerPayload := updateCustomerResponse.Payload
-	suite.Assertions.IsType(&customerops.UpdateCustomerOK{}, response)
+	suite.NoError(updateCustomerPayload.Validate(strfmt.Default))
+
 	suite.Equal(body.FirstName, updateCustomerPayload.FirstName)
 	suite.Equal(body.LastName, updateCustomerPayload.LastName)
 	suite.Equal(body.Phone, updateCustomerPayload.Phone)
