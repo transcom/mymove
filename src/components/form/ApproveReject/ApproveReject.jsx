@@ -20,6 +20,7 @@ const ApproveReject = ({
   requestComplete,
   canEditRejection,
   setCanEditRejection,
+  rejectOptionText,
 }) => {
   return (
     <Fieldset className={styles.ApproveReject}>
@@ -40,7 +41,7 @@ const ApproveReject = ({
           checked={currentStatus === deniedStatus}
           value={deniedStatus}
           name="status"
-          label="Reject"
+          label={rejectOptionText}
           onChange={handleChange}
           data-testid="rejectRadio"
         />
@@ -125,6 +126,7 @@ ApproveReject.propTypes = {
   id: string.isRequired,
   currentStatus: string,
   rejectionReason: string,
+  rejectOptionText: string,
   requestComplete: bool,
   canEditRejection: bool,
   approvedStatus: string,
@@ -142,6 +144,7 @@ ApproveReject.defaultProps = {
   approvedStatus: '',
   deniedStatus: '',
   rejectionReason: '',
+  rejectOptionText: 'Reject',
   requestComplete: false,
   canEditRejection: false,
 };

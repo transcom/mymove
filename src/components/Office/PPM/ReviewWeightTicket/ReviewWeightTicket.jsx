@@ -1,25 +1,49 @@
 import React, { useState } from 'react';
-import { object, string } from 'prop-types';
+import { string } from 'prop-types';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { Form, FormGroup, Label, Radio } from '@trussworks/react-uswds';
 
 import styles from './ReviewWeightTicket.module.scss';
 
+import { PPMShipmentShape, WeightTicketShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ApproveReject from 'components/form/ApproveReject/ApproveReject';
 import formStyles from 'styles/form.module.scss';
+import { formatWeight, formatDate, formatCentsTruncateWhole } from 'utils/formatters';
 
-export default function ReviewWeightTicket({ mtoShipment, tripNumber, ppmNumber }) {
+export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumber, ppmNumber }) {
+  const {
+    vehicleDescription,
+    missingEmptyWeightTicket,
+    missingFullWeightTicket,
+    emptyWeight,
+    fullWeight,
+    ownsTrailer,
+    trailerMeetsCriteria,
+    status,
+    reason,
+  } = weightTicket || {};
   const [canEditRejection, setCanEditRejection] = useState(true);
+  const constructedOrWeightTicket =
+    !missingEmptyWeightTicket && !missingFullWeightTicket ? 'weightTicket' : 'constructedWeight';
+  const {
+    actualPickupPostalCode,
+    actualDestinationPostalCode,
+    actualMoveDate,
+    hasReceivedAdvance,
+    advanceAmountReceived,
+  } = ppmShipment || {};
+
   const initialValues = {
-    weightType: '',
-    emptyWeight: '',
-    fullWeight: '',
-    ownTrailer: '',
-    status: '',
-    rejectionReason: '',
+    weightType: weightTicket?.id ? constructedOrWeightTicket : '',
+    emptyWeight: emptyWeight || '',
+    fullWeight: fullWeight || '',
+    ownsTrailer: ownsTrailer ? 'true' : 'false',
+    trailerMeetsCriteria: trailerMeetsCriteria ? 'true' : 'false',
+    status: status || '',
+    rejectionReason: reason || '',
   };
   return (
     <div className={styles.container}>
@@ -66,19 +90,21 @@ export default function ReviewWeightTicket({ mtoShipment, tripNumber, ppmNumber 
                     <section>
                       <div>
                         <Label className={styles.headerLabel}>Departure date</Label>
-                        <span className={styles.light}>08-31-1991</span>
+                        <span className={styles.light}>{formatDate(actualMoveDate)}</span>
                       </div>
                       <div>
                         <Label className={styles.headerLabel}>Starting ZIP</Label>
-                        <span className={styles.light}>90210</span>
+                        <span className={styles.light}>{actualPickupPostalCode}</span>
                       </div>
                       <div>
                         <Label className={styles.headerLabel}>Ending ZIP</Label>
-                        <span className={styles.light}>94611</span>
+                        <span className={styles.light}>{actualDestinationPostalCode}</span>
                       </div>
                       <div>
                         <Label className={styles.headerLabel}>Advance recieved</Label>
-                        <span className={styles.light}>Yes, $560</span>
+                        <span className={styles.light}>
+                          {hasReceivedAdvance ? `Yes, $${formatCentsTruncateWhole(advanceAmountReceived)}` : 'No'}
+                        </span>
                       </div>
                     </section>
                   </div>
@@ -86,7 +112,7 @@ export default function ReviewWeightTicket({ mtoShipment, tripNumber, ppmNumber 
                 </header>
                 <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
                 <legend className={classnames('usa-label', styles.label)}>Vehicle description</legend>
-                <div className={styles.displayValue}>Chevy</div>
+                <div className={styles.displayValue}>{vehicleDescription}</div>
                 <FormGroup>
                   <Fieldset>
                     <legend className="usa-label">Weight type</legend>
@@ -96,7 +122,7 @@ export default function ReviewWeightTicket({ mtoShipment, tripNumber, ppmNumber 
                       label="Weight tickets"
                       name="weightType"
                       value="weightTicket"
-                      checked
+                      checked={values.weightType === 'weightTicket'}
                     />
                     <Field
                       as={Radio}
@@ -104,13 +130,14 @@ export default function ReviewWeightTicket({ mtoShipment, tripNumber, ppmNumber 
                       label="Constructed weight"
                       name="weightType"
                       value="constructedWeight"
+                      checked={values.weightType === 'constructedWeight'}
                     />
                   </Fieldset>
                 </FormGroup>
                 <MaskedTextField
                   defaultValue="0"
                   name="emptyWeight"
-                  label="Empty weight"
+                  label={values.weightType === 'weightTicket' ? 'Empty weight' : 'Empty constructed weight'}
                   id="emptyWeight"
                   mask={Number}
                   scale={0} // digits after point, 0 for integers
@@ -122,7 +149,7 @@ export default function ReviewWeightTicket({ mtoShipment, tripNumber, ppmNumber 
                 <MaskedTextField
                   defaultValue="0"
                   name="fullWeight"
-                  label="Full weight"
+                  label={values.weightType === 'weightTicket' ? 'Full weight' : 'Full constructed weight'}
                   id="fullWeight"
                   mask={Number}
                   scale={0} // digits after point, 0 for integers
@@ -132,18 +159,55 @@ export default function ReviewWeightTicket({ mtoShipment, tripNumber, ppmNumber 
                   suffix="lbs"
                 />
                 <Label className={styles.label}>Net weight</Label>
-                <div className={styles.displayValue}>4,565 lbs</div>
+                <div className={styles.displayValue}>{formatWeight(values.fullWeight - values.emptyWeight)}</div>
                 <FormGroup>
                   <Fieldset>
                     <legend className="usa-label">Did they use a trailer they owned</legend>
-                    <Field as={Radio} id="yes" label="Yes" name="ownTrailer" value="true" checked />
-                    <Field as={Radio} id="no" label="No" name="ownTrailer" value="false" />
+                    <Field
+                      as={Radio}
+                      id="ownsTrailerYes"
+                      label="Yes"
+                      name="ownsTrailer"
+                      value="true"
+                      checked={values.ownsTrailer === 'true'}
+                    />
+                    <Field
+                      as={Radio}
+                      id="ownsTrailerNo"
+                      label="No"
+                      name="ownsTrailer"
+                      value="false"
+                      checked={values.ownsTrailer === 'false'}
+                    />
                   </Fieldset>
                 </FormGroup>
+                {values.ownsTrailer === 'true' && (
+                  <FormGroup>
+                    <Fieldset>
+                      <legend className="usa-label">{`Is the trailer's weight claimable?`}</legend>
+                      <Field
+                        as={Radio}
+                        id="trailerCriteriaYes"
+                        label="Yes"
+                        name="trailerMeetsCriteria"
+                        value="true"
+                        checked={values.trailerMeetsCriteria === 'true'}
+                      />
+                      <Field
+                        as={Radio}
+                        id="trailerCriteriaNo"
+                        label="No"
+                        name="trailerMeetsCriteria"
+                        value="false"
+                        checked={values.trailerMeetsCriteria === 'false'}
+                      />
+                    </Fieldset>
+                  </FormGroup>
+                )}
                 <h3 className={styles.reviewHeader}>Review trip {tripNumber}</h3>
                 <p>Add a review for this weight ticket</p>
                 <ApproveReject
-                  id={mtoShipment?.ppmShipment?.id}
+                  id="ApproveReject"
                   currentStatus={values.status}
                   rejectionReason={values.rejectionReason}
                   requestComplete={false}
@@ -167,7 +231,13 @@ export default function ReviewWeightTicket({ mtoShipment, tripNumber, ppmNumber 
 }
 
 ReviewWeightTicket.propTypes = {
-  mtoShipment: object.isRequired,
+  weightTicket: WeightTicketShape,
+  ppmShipment: PPMShipmentShape,
   tripNumber: string.isRequired,
   ppmNumber: string.isRequired,
+};
+
+ReviewWeightTicket.defaultProps = {
+  weightTicket: undefined,
+  ppmShipment: undefined,
 };
