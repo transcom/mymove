@@ -82,4 +82,45 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		suite.Equal(params.UpdateWeightTicketPayload.FullWeight, updatedWeightTicket.FullWeight)
 		suite.Equal(params.UpdateWeightTicketPayload.EmptyWeight, updatedWeightTicket.EmptyWeight)
 	})
+
+	suite.Run("PATCH failure -400 - nil body", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData.params.UpdateWeightTicketPayload = nil
+		response := subtestData.handler.Handle(subtestData.params)
+
+		suite.IsType(&weightticketops.UpdateWeightTicketBadRequest{}, response)
+	})
+
+	// TODO: 401 - Permission Denied - test
+
+	suite.Run("PATCH failure - 404- not found", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateWeightTicketPayload = &ghcmessages.UpdateWeightTicket{}
+		wrongUUIDString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("cde78daf-802f-491f-a230-fc1fdcfe6595"))
+		params.WeightTicketID = *wrongUUIDString
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&weightticketops.UpdateWeightTicketNotFound{}, response)
+	})
+
+	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateWeightTicketPayload = &ghcmessages.UpdateWeightTicket{}
+		params.IfMatch = "wrong-if-match-header-value"
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&weightticketops.UpdateWeightTicketPreconditionFailed{}, response)
+	})
+
+	// TODO: Add 500 failure - Server Error
 }
