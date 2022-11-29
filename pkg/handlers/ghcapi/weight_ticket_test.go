@@ -1,17 +1,21 @@
 package ghcapi
 
 import (
+	"errors"
 	"fmt"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	weightticketops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	progearops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -66,7 +70,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 			},
 		})
 
-		// Add vehicleDescription
+		// Add full and empty weights
 		params.UpdateWeightTicketPayload = &ghcmessages.UpdateWeightTicket{
 			EmptyWeight: handlers.FmtInt64(1),
 			FullWeight:  handlers.FmtInt64(4000),
@@ -94,6 +98,24 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	})
 
 	// TODO: 401 - Permission Denied - test
+	//suite.Run("POST failure - 401 - permission denied - not authenticated", func() {
+	//	subtestData := suite.makeListSubtestData()
+	//	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	//	unauthorizedReq := suite.AuthenticateOfficeRequest(subtestData.params.HTTPRequest, officeUser)
+	//	unauthorizedParams := weightticketops.ListMTOShipmentsParams{
+	//		HTTPRequest:     unauthorizedReq,
+	//		WeightTicketID: *handlers.FmtUUID(subtestData.shipments[0].MoveTaskOrderID),
+	//	}
+	//	mockWeightTicket := &mocks.WeightTicketUpdater{}
+	//	handler := UpdateWeightTicketHandler{
+	//		suite.HandlerConfig(),
+	//		mockWeightTicketUpdater,
+	//	}
+	//
+	//	response := handler.Handle(unauthorizedParams)
+	//
+	//	suite.IsType(&weightticketops.UpdateWeightTicketUnauthorized{}, response)
+	//})
 
 	suite.Run("PATCH failure - 404- not found", func() {
 		appCtx := suite.AppContextForTest()
@@ -123,4 +145,40 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	})
 
 	// TODO: Add 500 failure - Server Error
+	suite.Run("PATCH failure - 500", func() {
+		mockUpdater := mocks.WeightTicketUpdater{}
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		ownsTrailer := true
+		trailerMeetsCriteria := true
+
+		params.UpdateWeightTicketPayload = &ghcmessages.UpdateWeightTicket{
+			EmptyWeight:          handlers.FmtInt64(1),
+			FullWeight:           handlers.FmtInt64(1000),
+			OwnsTrailer:          ownsTrailer,
+			TrailerMeetsCriteria: trailerMeetsCriteria,
+		}
+
+		err := errors.New("ServerError")
+
+		// Might remove the mocks:
+		mockUpdater.On("UpdateProgearWeightTicket",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.ProgearWeightTicket"),
+			mock.AnythingOfType("string"),
+		).Return(nil, err)
+
+		handler := UpdateWeightTicketHandler{
+			suite.HandlerConfig(),
+			&mockUpdater,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&progearops.UpdateWeightTicketInternalServerError{}, response)
+		errResponse := response.(*progearops.UpdateWeightTicketInternalServerError)
+		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
+	})
 }
