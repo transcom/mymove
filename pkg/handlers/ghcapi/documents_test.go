@@ -43,6 +43,7 @@ func (suite *HandlerSuite) TestGetDocumentHandler() {
 		suite.Fail("Request failed: %#v", response)
 	}
 	documentPayload := showResponse.Payload
+	suite.NoError(documentPayload.Validate(strfmt.Default))
 
 	responseDocumentUUID := documentPayload.ID.String()
 	if responseDocumentUUID != documentID.String() {
