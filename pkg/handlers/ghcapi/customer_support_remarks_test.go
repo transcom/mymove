@@ -53,6 +53,7 @@ func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&customersupportremarksop.GetCustomerSupportRemarksForMoveOK{}, response)
 		responsePayload := response.(*customersupportremarksop.GetCustomerSupportRemarksForMoveOK)
+		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
 		suite.Equal(remark.ID.String(), responsePayload.Payload[0].ID.String())
 		suite.Equal(remark.OfficeUserID.String(), responsePayload.Payload[0].OfficeUserID.String())
 	})
@@ -71,8 +72,8 @@ func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
 		}
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&customersupportremarksop.GetCustomerSupportRemarksForMoveNotFound{}, response)
+		// No payload to validate
 	})
-
 }
 
 func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
@@ -115,6 +116,8 @@ func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.CreateCustomerSupportRemarkForMoveOK{}, response)
+		payload := response.(*customersupportremarksop.CreateCustomerSupportRemarkForMoveOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("unsuccessful POST", func() {
@@ -141,6 +144,7 @@ func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.CreateCustomerSupportRemarkForMoveInternalServerError{}, response)
+		// No payload to validate
 	})
 }
 
@@ -192,6 +196,8 @@ func (suite *HandlerSuite) TestUpdateCustomerSupportRemarksHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.UpdateCustomerSupportRemarkForMoveOK{}, response)
+		responsePayload := response.(*customersupportremarksop.UpdateCustomerSupportRemarkForMoveOK).Payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("unsuccessful PATCH", func() {
@@ -219,6 +225,7 @@ func (suite *HandlerSuite) TestUpdateCustomerSupportRemarksHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.UpdateCustomerSupportRemarkForMoveInternalServerError{}, response)
+		// No payload to validate
 	})
 }
 
@@ -245,6 +252,7 @@ func (suite *HandlerSuite) TestDeleteCustomerSupportRemarksHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.DeleteCustomerSupportRemarkNoContent{}, response)
+		// No payload to validate
 	})
 
 	suite.Run("unsuccessful DELETE", func() {
@@ -269,5 +277,6 @@ func (suite *HandlerSuite) TestDeleteCustomerSupportRemarksHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.DeleteCustomerSupportRemarkInternalServerError{}, response)
+		// No payload to validate
 	})
 }
