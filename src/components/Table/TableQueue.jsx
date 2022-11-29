@@ -126,7 +126,7 @@ const TableQueue = ({
               <span className="tab-title">Counseling</span>
             </NavLink>,
             <NavLink exact activeClassName="usa-current" to={servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH}>
-              <span className="tab-title">PPM closeout</span>
+              <span className="tab-title">PPM Closeout</span>
             </NavLink>,
           ]}
         />
