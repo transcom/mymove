@@ -5,11 +5,14 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -32,10 +35,14 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		if hasEmptyFiles {
 			for i := 0; i < 2; i++ {
 				var deletedAt *time.Time
-				if i == 1 {
+
+				markAsDeleted := i == 1
+
+				if markAsDeleted {
 					deletedAt = &now
 				}
-				testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
+
+				userUpload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
 					UserUpload: models.UserUpload{
 						UploaderID: serviceMember.UserID,
 						DocumentID: &emptyDocument.ID,
@@ -43,37 +50,48 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 						DeletedAt:  deletedAt,
 					},
 				})
+
+				if !markAsDeleted {
+					emptyDocument.UserUploads = append(emptyDocument.UserUploads, userUpload)
+				}
 			}
 		}
 
 		if hasFullFiles {
 			for i := 0; i < 2; i++ {
-				testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
+				userUpload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
 					UserUpload: models.UserUpload{
 						UploaderID: serviceMember.UserID,
 						DocumentID: &fullDocument.ID,
 						Document:   fullDocument,
 					},
 				})
+
+				fullDocument.UserUploads = append(fullDocument.UserUploads, userUpload)
 			}
 		}
 
 		if hasProofFiles {
 			for i := 0; i < 2; i++ {
-				testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
+				userUpload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
 					UserUpload: models.UserUpload{
 						UploaderID: serviceMember.UserID,
 						DocumentID: &proofOfOwnership.ID,
 						Document:   proofOfOwnership,
 					},
 				})
+
+				proofOfOwnership.UserUploads = append(proofOfOwnership.UserUploads, userUpload)
 			}
 		}
 
 		originalWeightTicket := models.WeightTicket{
 			EmptyDocumentID:                   emptyDocument.ID,
+			EmptyDocument:                     emptyDocument,
 			FullDocumentID:                    fullDocument.ID,
+			FullDocument:                      fullDocument,
 			ProofOfTrailerOwnershipDocumentID: proofOfOwnership.ID,
+			ProofOfTrailerOwnershipDocument:   proofOfOwnership,
 			PPMShipmentID:                     ppmShipment.ID,
 		}
 
@@ -90,12 +108,26 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		return &originalWeightTicket
 	}
 
+	setUpFetcher := func(returnValue ...interface{}) services.WeightTicketFetcher {
+		mockFetcher := &mocks.WeightTicketFetcher{}
+
+		mockFetcher.On(
+			"GetWeightTicket",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(returnValue...)
+
+		return mockFetcher
+	}
+
 	suite.Run("Returns an error if the original doesn't exist", func() {
 		badWeightTicket := models.WeightTicket{
 			ID: uuid.Must(uuid.NewV4()),
 		}
 
-		updater := NewCustomerWeightTicketUpdater()
+		notFoundErr := apperror.NewNotFoundError(badWeightTicket.ID, "while looking for weight ticket")
+
+		updater := NewCustomerWeightTicketUpdater(setUpFetcher(nil, notFoundErr))
 
 		updatedWeightTicket, err := updater.UpdateWeightTicket(suite.AppContextForTest(), badWeightTicket, "")
 
@@ -105,7 +137,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			suite.IsType(apperror.NotFoundError{}, err)
 
 			suite.Equal(
-				fmt.Sprintf("ID: %s not found while looking for WeightTicket", badWeightTicket.ID.String()),
+				notFoundErr.Error(),
 				err.Error(),
 			)
 		}
@@ -116,7 +148,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 		originalWeightTicket := setupForTest(appCtx, nil, false, false, false)
 
-		updater := NewCustomerWeightTicketUpdater()
+		updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil))
 
 		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *originalWeightTicket, "")
 
@@ -137,7 +169,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 		originalWeightTicket := setupForTest(appCtx, nil, true, true, false)
 
-		updater := NewCustomerWeightTicketUpdater()
+		updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil))
 
 		desiredWeightTicket := &models.WeightTicket{
 			ID:                       originalWeightTicket.ID,
@@ -171,7 +203,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 		originalWeightTicket := setupForTest(appCtx, nil, true, true, true)
 
-		updater := NewCustomerWeightTicketUpdater()
+		updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil))
 
 		desiredWeightTicket := &models.WeightTicket{
 			ID:                       originalWeightTicket.ID,
@@ -208,7 +240,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 		originalWeightTicket := setupForTest(appCtx, nil, false, false, false)
 
-		updater := NewCustomerWeightTicketUpdater()
+		updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil))
 
 		desiredWeightTicket := &models.WeightTicket{
 			ID:                       originalWeightTicket.ID,
@@ -237,7 +269,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 				originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
 
-				updater := NewOfficeWeightTicketUpdater()
+				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil))
 
 				status := models.PPMDocumentStatusExcluded
 
@@ -266,7 +298,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 					},
 				})
 
-				updater := NewOfficeWeightTicketUpdater()
+				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil))
 
 				desiredWeightTicket := &models.WeightTicket{
 					ID:     originalWeightTicket.ID,
@@ -292,7 +324,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 					},
 				})
 
-				updater := NewOfficeWeightTicketUpdater()
+				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil))
 
 				desiredStatus := models.PPMDocumentStatusApproved
 				desiredWeightTicket := &models.WeightTicket{
@@ -316,7 +348,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 				originalWeightTicket := setupForTest(appCtx, nil, true, true, false)
 
-				updater := NewCustomerWeightTicketUpdater()
+				updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil))
 
 				status := models.PPMDocumentStatusExcluded
 
@@ -341,7 +373,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 				suite.Equal("Invalid input found while validating the weight ticket.", updateErr.Error())
 			})
 
-			suite.Run("to update status", func() {
+			suite.Run("to update status if reason is also set when approving", func() {
 				appCtx := suite.AppContextForTest()
 
 				status := models.PPMDocumentStatusExcluded
@@ -352,7 +384,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 					},
 				})
 
-				updater := NewOfficeWeightTicketUpdater()
+				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil))
 
 				desiredStatus := models.PPMDocumentStatusApproved
 				desiredWeightTicket := &models.WeightTicket{
@@ -374,7 +406,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 				originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
 
-				updater := NewOfficeWeightTicketUpdater()
+				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil))
 
 				status := models.PPMDocumentStatus("invalid status")
 				desiredWeightTicket := &models.WeightTicket{

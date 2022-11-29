@@ -18,7 +18,8 @@ import (
 
 func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	// Reusable objects
-	weightTicketUpdater := weightticket.NewCustomerWeightTicketUpdater()
+	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
+	weightTicketUpdater := weightticket.NewCustomerWeightTicketUpdater(weightTicketFetcher)
 
 	type weightTicketUpdateSubtestData struct {
 		ppmShipment  models.PPMShipment
@@ -36,6 +37,8 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		req := httptest.NewRequest("PATCH", endpoint, nil)
 		eTag := etag.GenerateEtag(subtestData.weightTicket.UpdatedAt)
 
+		officeUser := testdatagen.MakeDefaultOfficeUser(db)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		subtestData.params = weightticketops.UpdateWeightTicketParams{
 			HTTPRequest:    req,
 			PpmShipmentID:  *handlers.FmtUUID(subtestData.ppmShipment.ID),
