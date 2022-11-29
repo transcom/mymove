@@ -7444,13 +7444,23 @@ func init() {
           "$ref": "#/definitions/GBLOC"
         },
         "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
+          "$ref": "#/definitions/QueuePaymentRequestStatus"
         },
         "submittedAt": {
           "type": "string",
           "format": "date-time"
         }
       }
+    },
+    "QueuePaymentRequestStatus": {
+      "type": "string",
+      "title": "Queue Payment Request Status",
+      "enum": [
+        "Payment requested",
+        "Reviewed",
+        "Rejected",
+        "Paid"
+      ]
     },
     "QueuePaymentRequests": {
       "type": "array",
@@ -17458,13 +17468,23 @@ func init() {
           "$ref": "#/definitions/GBLOC"
         },
         "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
+          "$ref": "#/definitions/QueuePaymentRequestStatus"
         },
         "submittedAt": {
           "type": "string",
           "format": "date-time"
         }
       }
+    },
+    "QueuePaymentRequestStatus": {
+      "type": "string",
+      "title": "Queue Payment Request Status",
+      "enum": [
+        "Payment requested",
+        "Reviewed",
+        "Rejected",
+        "Paid"
+      ]
     },
     "QueuePaymentRequests": {
       "type": "array",
