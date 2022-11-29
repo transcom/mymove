@@ -21,15 +21,8 @@ const TSPPFilter = (props) => (
 );
 
 const TSPPList = (props) => (
-  <List
-    {...props}
-    pagination={<AdminPagination />}
-    perPage={25}
-    filters={<TSPPFilter />}
-    sort={defaultSort}
-    bulkActionButtons={false}
-  >
-    <Datagrid rowClick="show">
+  <List {...props} pagination={<AdminPagination />} perPage={25} filters={<TSPPFilter />} sort={defaultSort}>
+    <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" reference="transportation_service_provider_performances" />
       <TextField source="trafficDistributionListId" reference="transportation_service_provider_performances" />
       <TextField source="transportationServiceProviderId" reference="transportation_service_provider_performances" />
