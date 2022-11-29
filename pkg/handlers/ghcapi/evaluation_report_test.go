@@ -77,6 +77,8 @@ func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
 		}
 		response := handler.Handle(params)
 		suite.IsType(&moveop.GetMoveShipmentEvaluationReportsListInternalServerError{}, response)
+		payload := response.(*moveop.GetMoveShipmentEvaluationReportsListInternalServerError).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 }
 
@@ -132,6 +134,8 @@ func (suite *HandlerSuite) TestGetCounselingEvaluationReportsHandler() {
 		}
 		response := handler.Handle(params)
 		suite.IsType(&moveop.GetMoveCounselingEvaluationReportsListInternalServerError{}, response)
+		payload := response.(*moveop.GetMoveCounselingEvaluationReportsListInternalServerError).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 }
 
@@ -163,6 +167,8 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 		}
 		response := handler.Handle(params)
 		suite.IsType(&evaluationReportop.GetEvaluationReportOK{}, response)
+		payload := response.(*evaluationReportop.GetEvaluationReportOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	// 404 response
@@ -191,6 +197,8 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&evaluationReportop.GetEvaluationReportNotFound{}, response)
+		payload := response.(*evaluationReportop.GetEvaluationReportNotFound).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	// 403 response
@@ -219,6 +227,8 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&evaluationReportop.GetEvaluationReportForbidden{}, response)
+		payload := response.(*evaluationReportop.GetEvaluationReportForbidden).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -274,6 +284,8 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.CreateEvaluationReportOK{}, response)
+		payload := response.(*evaluationReportop.CreateEvaluationReportOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Unsuccessful POST", func() {
@@ -306,6 +318,8 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.CreateEvaluationReportInternalServerError{}, response)
+		payload := response.(*evaluationReportop.CreateEvaluationReportInternalServerError).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 }
 
@@ -333,6 +347,7 @@ func (suite *HandlerSuite) TestDeleteEvaluationReportHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.DeleteEvaluationReportNoContent{}, response)
+		// No payload to validate
 	})
 }
 
@@ -363,8 +378,9 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportNoContent{}, response)
-
+		// No payload to validate
 	})
+
 	suite.Run("Precondition failed", func() {
 		updater := &mocks.EvaluationReportUpdater{}
 
@@ -391,8 +407,10 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportPreconditionFailed{}, response)
-
+		payload := response.(*evaluationReportop.SubmitEvaluationReportPreconditionFailed).Payload
+		suite.Nil(payload) // No payload to validate
 	})
+
 	suite.Run("Not found error", func() {
 		updater := &mocks.EvaluationReportUpdater{}
 
@@ -419,7 +437,10 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportNotFound{}, response)
+		payload := response.(*evaluationReportop.SubmitEvaluationReportNotFound).Payload
+		suite.Nil(payload) // No payload to validate
 	})
+
 	suite.Run("Invalid input", func() {
 		updater := &mocks.EvaluationReportUpdater{}
 
@@ -446,7 +467,10 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportUnprocessableEntity{}, response)
+		payload := response.(*evaluationReportop.SubmitEvaluationReportUnprocessableEntity).Payload
+		suite.Nil(payload) // No payload to validate
 	})
+
 	suite.Run("Forbidden error", func() {
 		updater := &mocks.EvaluationReportUpdater{}
 
@@ -473,7 +497,10 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportForbidden{}, response)
+		payload := response.(*evaluationReportop.SubmitEvaluationReportForbidden).Payload
+		suite.Nil(payload) // No payload to validate
 	})
+
 	suite.Run("Internal server error", func() {
 		updater := &mocks.EvaluationReportUpdater{}
 
@@ -500,6 +527,8 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportInternalServerError{}, response)
+		payload := response.(*evaluationReportop.SubmitEvaluationReportInternalServerError).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 }
 
@@ -550,7 +579,9 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportNoContent{}, response)
+		// No payload to validate
 	})
+
 	suite.Run("Not found error", func() {
 		reportID := uuid.Must(uuid.NewV4())
 
@@ -580,7 +611,10 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportNotFound{}, response)
+		payload := response.(*evaluationReportop.SaveEvaluationReportNotFound).Payload
+		suite.Nil(payload) // No payload to validate
 	})
+
 	suite.Run("Invalid input error", func() {
 		reportID := uuid.Must(uuid.NewV4())
 
@@ -610,7 +644,10 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportUnprocessableEntity{}, response)
+		payload := response.(*evaluationReportop.SaveEvaluationReportUnprocessableEntity).Payload
+		suite.Nil(payload) // No payload to validate
 	})
+
 	suite.Run("Precondition failed error", func() {
 		reportID := uuid.Must(uuid.NewV4())
 
@@ -640,7 +677,10 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportPreconditionFailed{}, response)
+		payload := response.(*evaluationReportop.SaveEvaluationReportPreconditionFailed).Payload
+		suite.Nil(payload) // No payload to validate
 	})
+
 	suite.Run("Forbidden error", func() {
 		reportID := uuid.Must(uuid.NewV4())
 
@@ -670,7 +710,10 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportForbidden{}, response)
+		payload := response.(*evaluationReportop.SaveEvaluationReportForbidden).Payload
+		suite.Nil(payload) // No payload to validate
 	})
+
 	suite.Run("Conflict error", func() {
 		reportID := uuid.Must(uuid.NewV4())
 
@@ -700,7 +743,10 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportConflict{}, response)
+		payload := response.(*evaluationReportop.SaveEvaluationReportConflict).Payload
+		suite.Nil(payload) // No payload to validate
 	})
+
 	suite.Run("Unknown error", func() {
 		reportID := uuid.Must(uuid.NewV4())
 
@@ -730,8 +776,11 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportInternalServerError{}, response)
+		payload := response.(*evaluationReportop.SaveEvaluationReportInternalServerError).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 }
+
 func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 
 	suite.Run("Successful download", func() {
@@ -783,7 +832,11 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.DownloadEvaluationReportOK{}, response)
+		// Payload should be an instance of a ReadCloser interface
+		payload := response.(*evaluationReportop.DownloadEvaluationReportOK).Payload
+		suite.NotNil(payload)
 	})
+
 	suite.Run("Not found error", func() {
 		reportID := uuid.Must(uuid.NewV4())
 
@@ -811,7 +864,10 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.DownloadEvaluationReportNotFound{}, response)
+		payload := response.(*evaluationReportop.DownloadEvaluationReportNotFound).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
+
 	suite.Run("Query error should result in 500", func() {
 		reportID := uuid.Must(uuid.NewV4())
 
@@ -839,7 +895,10 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.DownloadEvaluationReportInternalServerError{}, response)
+		payload := response.(*evaluationReportop.DownloadEvaluationReportInternalServerError).Payload
+		suite.Nil(payload) // No payload to validate
 	})
+
 	suite.Run("Unknown error should result in 500", func() {
 		reportID := uuid.Must(uuid.NewV4())
 
@@ -867,5 +926,7 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.DownloadEvaluationReportInternalServerError{}, response)
+		payload := response.(*evaluationReportop.DownloadEvaluationReportInternalServerError).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 }
