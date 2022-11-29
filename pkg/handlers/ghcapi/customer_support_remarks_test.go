@@ -72,7 +72,8 @@ func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
 		}
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&customersupportremarksop.GetCustomerSupportRemarksForMoveNotFound{}, response)
-		// No payload to validate
+		payload := response.(*customersupportremarksop.GetCustomerSupportRemarksForMoveNotFound).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 }
 
@@ -144,7 +145,8 @@ func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.CreateCustomerSupportRemarkForMoveInternalServerError{}, response)
-		// No payload to validate
+		payload := response.(*customersupportremarksop.CreateCustomerSupportRemarkForMoveInternalServerError).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 }
 
@@ -225,7 +227,8 @@ func (suite *HandlerSuite) TestUpdateCustomerSupportRemarksHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.UpdateCustomerSupportRemarkForMoveInternalServerError{}, response)
-		// No payload to validate
+		responsePayload := response.(*customersupportremarksop.UpdateCustomerSupportRemarkForMoveInternalServerError).Payload
+		suite.Nil(responsePayload) // No payload to validate
 	})
 }
 
@@ -277,6 +280,7 @@ func (suite *HandlerSuite) TestDeleteCustomerSupportRemarksHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.DeleteCustomerSupportRemarkInternalServerError{}, response)
-		// No payload to validate
+		payload := response.(*customersupportremarksop.DeleteCustomerSupportRemarkInternalServerError).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 }

@@ -737,7 +737,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 	suite.IsNotErrResponse(response)
 
 	suite.Assertions.IsType(&queues.GetMovesQueueForbidden{}, response)
-	// No payload to validate
+	payload := response.(*queues.GetMovesQueueForbidden).Payload
+	suite.Nil(payload) // No payload to validate
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
@@ -761,7 +762,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 	suite.IsNotErrResponse(response)
 
 	suite.Assertions.IsType(&queues.GetMovesQueueForbidden{}, response)
-	// No payload to validate
+	payload := response.(*queues.GetMovesQueueForbidden).Payload
+	suite.Nil(payload) // No payload to validate
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
@@ -982,7 +984,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() 
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&queues.GetPaymentRequestsQueueForbidden{}, response)
-	// No payload to validate
+	payload := response.(*queues.GetPaymentRequestsQueueForbidden).Payload
+	suite.Nil(payload) // No payload to validate
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
@@ -1011,7 +1014,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&queues.GetPaymentRequestsQueueInternalServerError{}, response)
-	// No payload to validate
+	payload := response.(*queues.GetPaymentRequestsQueueInternalServerError).Payload
+	suite.Nil(payload) // No payload to validate
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
@@ -1273,6 +1277,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		suite.IsNotErrResponse(response)
 
 		suite.Assertions.IsType(&queues.GetServicesCounselingQueueForbidden{}, response)
-		// No payload to validate
+		payload := response.(*queues.GetServicesCounselingQueueForbidden).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 }
