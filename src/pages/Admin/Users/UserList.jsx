@@ -21,7 +21,7 @@ const UserList = () => (
     sort={defaultSort}
     bulkActionButtons={false}
   >
-    <Datagrid data-testid="user-data-grid" rowClick="show">
+    <Datagrid bulkActionButtons={false} data-testid="user-data-grid" rowClick="show">
       <TextField data-testid="user-id" source="id" />
       <TextField source="loginGovEmail" label="Email" />
       <BooleanField source="active" />

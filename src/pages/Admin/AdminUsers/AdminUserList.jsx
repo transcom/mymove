@@ -6,8 +6,8 @@ import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 const defaultSort = { field: 'last_name', order: 'ASC' };
 
 const AdminUserList = () => (
-  <List pagination={<AdminPagination />} perPage={25} sort={defaultSort} bulkActionButtons={false}>
-    <Datagrid rowClick="show">
+  <List pagination={<AdminPagination />} perPage={25} sort={defaultSort}>
+    <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" />
       <TextField source="email" />
       <TextField source="firstName" />

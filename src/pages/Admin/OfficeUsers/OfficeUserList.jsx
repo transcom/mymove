@@ -46,12 +46,11 @@ const OfficeUserList = () => (
   <List
     pagination={<AdminPagination />}
     perPage={25}
-    bulkActionButtons={false}
     sort={defaultSort}
     filters={<OfficeUserListFilter />}
     actions={<ListActions />}
   >
-    <Datagrid rowClick="show">
+    <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" />
       <TextField source="email" />
       <TextField source="firstName" />
