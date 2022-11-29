@@ -61,7 +61,7 @@ const EditShipmentDetails = ({ match }) => {
                   isCreatePage={false}
                   currentResidence={customer.current_address}
                   newDutyLocationAddress={order.destinationDutyLocation?.address}
-                  selectedMoveType={matchingShipment.shipmentType}
+                  shipmentType={matchingShipment.shipmentType}
                   mtoShipment={matchingShipment}
                   serviceMember={{ weightAllotment }}
                   moveTaskOrderID={move.id}

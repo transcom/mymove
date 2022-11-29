@@ -3002,6 +3002,12 @@ func init() {
             "description": "filters the status of the move",
             "name": "status",
             "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
+            "name": "needsPPMCloseout",
+            "in": "query"
           }
         ],
         "responses": {
@@ -8102,7 +8108,11 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "email": {
           "type": "string",
@@ -12744,6 +12754,12 @@ func init() {
             "description": "filters the status of the move",
             "name": "status",
             "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
+            "name": "needsPPMCloseout",
+            "in": "query"
           }
         ],
         "responses": {
@@ -18113,7 +18129,11 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "email": {
           "type": "string",

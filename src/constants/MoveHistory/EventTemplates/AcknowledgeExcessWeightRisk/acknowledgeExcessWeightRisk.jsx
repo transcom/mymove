@@ -9,5 +9,7 @@ export default {
   eventName: o.acknowledgeExcessWeightRisk,
   tableName: t.moves,
   getEventNameDisplay: () => 'Updated move',
-  getDetails: () => <> Dismissed excess weight alert </>,
+  getDetails: (historyRecord) => (
+    <>{historyRecord?.changedValues?.excess_weight_acknowledged_at ? 'Dismissed excess weight alert' : '-'} </>
+  ),
 };

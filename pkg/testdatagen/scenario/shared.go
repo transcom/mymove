@@ -829,6 +829,7 @@ func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUpl
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -848,6 +849,7 @@ func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUpl
 			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
 		},
 	}
 
@@ -874,6 +876,7 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -894,6 +897,7 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
 		},
 	}
 
@@ -907,7 +911,7 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
 }
 
-func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("88007896-6ae7-4600-866a-873d3bc67fd3"),
 		email:       "actualPPMDateZIPAdvanceDone@ppm.approved",
@@ -919,6 +923,7 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx appcontext
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -938,13 +943,14 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx appcontext
 			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
 		},
 	}
 
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
-func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createApprovedMoveWithPPMWithAboutFormComplete2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("22dba194-3d9a-49c6-8328-718dd945292f"),
 		email:       "actualPPMDateZIPAdvanceDone2@ppm.approved",
@@ -956,6 +962,7 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo2(appCtx appcontex
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -975,13 +982,14 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo2(appCtx appcontex
 			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
 		},
 	}
 
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
-func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createApprovedMoveWithPPMWithAboutFormComplete3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("9ec731d8-f347-4d34-8b54-4ce9e6ea3282"),
 		email:       "actualPPMDateZIPAdvanceDone3@ppm.approved",
@@ -993,6 +1001,7 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo3(appCtx appcontex
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1012,13 +1021,14 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo3(appCtx appcontex
 			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
 		},
 	}
 
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
-func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo4(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createApprovedMoveWithPPMWithAboutFormComplete4(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("2a0146c4-ec9a-4efc-a94c-6c2849c3e167"),
 		email:       "actualPPMDateZIPAdvanceDone4@ppm.approved",
@@ -1030,6 +1040,7 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo4(appCtx appcontex
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1049,13 +1060,14 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo4(appCtx appcontex
 			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
 		},
 	}
 
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
-func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo5(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createApprovedMoveWithPPMWithAboutFormComplete5(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("bab42ae8-fe0d-4165-87be-dc1317ae0099"),
 		email:       "actualPPMDateZIPAdvanceDone5@ppm.approved",
@@ -1067,6 +1079,7 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo5(appCtx appcontex
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1086,13 +1099,14 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo5(appCtx appcontex
 			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
 		},
 	}
 
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
-func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo6(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createApprovedMoveWithPPMWithAboutFormComplete6(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("2c4eaae3-5226-456a-94d5-177c679b0656"),
 		email:       "actualPPMDateZIPAdvanceDone6@ppm.approved",
@@ -1104,6 +1118,7 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo6(appCtx appcontex
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1123,13 +1138,14 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo6(appCtx appcontex
 			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
 		},
 	}
 
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
-func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo7(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createApprovedMoveWithPPMWithAboutFormComplete7(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("c7cd77e8-74e8-4d7f-975c-d4ca18735561"),
 		email:       "actualPPMDateZIPAdvanceDone7@ppm.approved",
@@ -1141,6 +1157,7 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo7(appCtx appcontex
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1160,13 +1177,14 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo7(appCtx appcontex
 			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
 		},
 	}
 
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
-func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo8(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createApprovedMoveWithPPMWithAboutFormComplete8(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("e5a06330-3f5c-4f50-82a6-46f1bd7dd3a6"),
 		email:       "actualPPMDateZIPAdvanceDone8@ppm.approved",
@@ -1178,6 +1196,7 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo8(appCtx appcontex
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1197,6 +1216,7 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo8(appCtx appcontex
 			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
 		},
 	}
 
@@ -1219,6 +1239,7 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, info *
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1238,6 +1259,7 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, info *
 			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
 		},
 	}
 
@@ -1276,6 +1298,7 @@ func createApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext, 
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1295,6 +1318,7 @@ func createApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext, 
 			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
 		},
 	}
 
@@ -1322,6 +1346,7 @@ func createApprovedMoveWithPPMProgearWeightTicket2(appCtx appcontext.AppContext,
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1341,6 +1366,7 @@ func createApprovedMoveWithPPMProgearWeightTicket2(appCtx appcontext.AppContext,
 			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
 		},
 	}
 
@@ -1367,6 +1393,7 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1386,6 +1413,7 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
 		},
 	}
 

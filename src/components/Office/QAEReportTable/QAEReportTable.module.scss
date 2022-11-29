@@ -2,7 +2,7 @@
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
 
-.evaluationReportTable {
+.qaeReportTable {
   th {
     min-width: 0px;
     @include u-font('body', '3xs');
