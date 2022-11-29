@@ -1,15 +1,13 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import o from 'constants/MoveHistory/UIDisplay/Operations';
-import t from 'constants/MoveHistory/Database/Tables';
 import updateAllowanceServiceMemberByTOO from 'constants/MoveHistory/EventTemplates/UpdateServiceMember/updateServiceMemberByTOO';
 
 describe('When a TOO updates shipping allowances', () => {
   const historyRecord = {
     action: 'UPDATE',
-    eventName: o.updateAllowance,
-    tableName: t.service_members,
+    eventName: 'updateAllowance',
+    tableName: 'service_members',
     eventNameDisplay: 'Updated profile',
     changedValues: {
       affiliation: 'AIR_FORCE',

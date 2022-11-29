@@ -1,15 +1,13 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import o from 'constants/MoveHistory/UIDisplay/Operations';
-import t from 'constants/MoveHistory/Database/Tables';
 import e from 'constants/MoveHistory/EventTemplates/CreateOrders/createOrders';
 
 describe('When given a created orders event for the orders table', () => {
   const item = {
     action: 'INSERT',
-    eventName: o.createOrders,
-    tableName: t.orders,
+    eventName: 'createOrders',
+    tableName: 'orders',
     eventNameDisplay: 'Created orders',
     changedValues: {
       status: 'DRAFT',

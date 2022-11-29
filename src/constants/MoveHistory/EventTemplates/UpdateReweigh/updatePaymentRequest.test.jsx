@@ -1,12 +1,11 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import o from 'constants/MoveHistory/UIDisplay/Operations';
 
 describe('reweighs update', () => {
   const historyRecord = {
     action: 'UPDATE',
-    eventName: o.updateReweigh,
+    eventName: 'updateReweigh',
     tableName: 'payment_requests',
     context: [{ shipment_type: 'HHG' }],
     changedValues: { recalculation_of_payment_request_id: '1234' },
