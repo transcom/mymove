@@ -50,6 +50,10 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	Locator *string
+	/*Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.
+	  In: query
+	*/
+	NeedsPPMCloseout *bool
 	/*direction of sort order if applied
 	  In: query
 	*/
@@ -117,6 +121,11 @@ func (o *GetServicesCounselingQueueParams) BindRequest(r *http.Request, route *m
 
 	qLocator, qhkLocator, _ := qs.GetOK("locator")
 	if err := o.bindLocator(qLocator, qhkLocator, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qNeedsPPMCloseout, qhkNeedsPPMCloseout, _ := qs.GetOK("needsPPMCloseout")
+	if err := o.bindNeedsPPMCloseout(qNeedsPPMCloseout, qhkNeedsPPMCloseout, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -238,6 +247,29 @@ func (o *GetServicesCounselingQueueParams) bindLocator(rawData []string, hasKey 
 		return nil
 	}
 	o.Locator = &raw
+
+	return nil
+}
+
+// bindNeedsPPMCloseout binds and validates parameter NeedsPPMCloseout from query.
+func (o *GetServicesCounselingQueueParams) bindNeedsPPMCloseout(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertBool(raw)
+	if err != nil {
+		return errors.InvalidType("needsPPMCloseout", "query", "bool", raw)
+	}
+	o.NeedsPPMCloseout = &value
 
 	return nil
 }

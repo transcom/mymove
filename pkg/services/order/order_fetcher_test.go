@@ -314,6 +314,144 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 	})
 }
 
+func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
+	orderFetcher := NewOrderFetcher()
+	showMove := true
+
+	suite.Run("office user in normal GBLOC should only see non-Navy/Marines/CoastGuard moves that need closeout in closeout tab", func() {
+		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "AAAA")
+		army := models.AffiliationARMY
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+				Show:   &showMove,
+			},
+			TransportationOffice: models.TransportationOffice{
+				Gbloc: "AAAA",
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &army},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			Move: move,
+		})
+
+		// Moves that are not ready for closeout should not show in this queue
+		af := models.AffiliationAIRFORCE
+		afMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+				Show:   &showMove,
+			},
+			TransportationOffice: models.TransportationOffice{
+				Gbloc: "AAAA",
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &af},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusDraft,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			Move: afMove,
+		})
+
+		// Coast guard moves should not show up in our office user's closeout queue
+		cg := models.AffiliationCOASTGUARD
+		cgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+				Show:   &showMove,
+			},
+			TransportationOffice: models.TransportationOffice{
+				Gbloc: "AAAA",
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &cg},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			Move: cgMove,
+		})
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", "AAAA")
+
+		params := services.ListOrderParams{PerPage: swag.Int64(9), Page: swag.Int64(1), NeedsPPMCloseout: swag.Bool(true), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(move.Locator, moves[0].Locator)
+	})
+
+	suite.Run("office user in normal GBLOC should not see moves that require closeout in counseling tab", func() {
+		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "AAAA")
+
+		// PPM moves that need closeout should not show up in counseling queue
+		army := models.AffiliationARMY
+		closeoutMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+				Show:   &showMove,
+			},
+			TransportationOffice: models.TransportationOffice{
+				Gbloc: "AAAA",
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &army},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			Move: closeoutMove,
+		})
+
+		// PPM moves that are not in one of the closeout statuses
+		airforce := models.AffiliationAIRFORCE
+		nonCloseoutMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+				Show:   &showMove,
+			},
+			TransportationOffice: models.TransportationOffice{
+				Gbloc: "AAAA",
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &airforce},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusDraft,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			Move: nonCloseoutMove,
+		})
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", "AAAA")
+
+		params := services.ListOrderParams{PerPage: swag.Int64(9), Page: swag.Int64(1), NeedsPPMCloseout: swag.Bool(false), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
+
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(nonCloseoutMove.Locator, moves[0].Locator)
+	})
+}
+
 func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMarines() {
 	orderFetcher := NewOrderFetcher()
 	showMove := true
@@ -334,14 +472,13 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    models.MTOShipmentTypePPM,
-				MoveTaskOrder:   move,
-				MoveTaskOrderID: move.ID,
+				ShipmentType: models.MTOShipmentTypePPM,
 			},
+			Move: move,
 		})
 
 		cg := models.AffiliationCOASTGUARD
-		nonCGMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		cgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusSUBMITTED,
 				Show:   &showMove,
@@ -353,10 +490,9 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    models.MTOShipmentTypePPM,
-				MoveTaskOrder:   nonCGMove,
-				MoveTaskOrderID: nonCGMove.ID,
+				ShipmentType: models.MTOShipmentTypePPM,
 			},
+			Move: cgMove,
 		})
 
 		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "NAVY")
@@ -386,10 +522,9 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    models.MTOShipmentTypePPM,
-				MoveTaskOrder:   move,
-				MoveTaskOrderID: move.ID,
+				ShipmentType: models.MTOShipmentTypePPM,
 			},
+			Move: move,
 		})
 
 		army := models.AffiliationARMY
@@ -405,10 +540,9 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    models.MTOShipmentTypePPM,
-				MoveTaskOrder:   nonMarineMove,
-				MoveTaskOrderID: nonMarineMove.ID,
+				ShipmentType: models.MTOShipmentTypePPM,
 			},
+			Move: nonMarineMove,
 		})
 
 		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "TVCB")
@@ -438,10 +572,9 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    models.MTOShipmentTypePPM,
-				MoveTaskOrder:   move,
-				MoveTaskOrderID: move.ID,
+				ShipmentType: models.MTOShipmentTypePPM,
 			},
+			Move: move,
 		})
 
 		army := models.AffiliationARMY
@@ -457,10 +590,9 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    models.MTOShipmentTypePPM,
-				MoveTaskOrder:   armyMove,
-				MoveTaskOrderID: armyMove.ID,
+				ShipmentType: models.MTOShipmentTypePPM,
 			},
+			Move: armyMove,
 		})
 
 		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "USCG")
@@ -487,10 +619,9 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusPaymentApproved,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    models.MTOShipmentTypePPM,
-				MoveTaskOrder:   cgMoveInWrongStatus,
-				MoveTaskOrderID: cgMoveInWrongStatus.ID,
+				ShipmentType: models.MTOShipmentTypePPM,
 			},
+			Move: cgMoveInWrongStatus,
 		})
 
 		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "USCG")
@@ -513,10 +644,9 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		})
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    models.MTOShipmentTypeHHG,
-				MoveTaskOrder:   moveWithHHG,
-				MoveTaskOrderID: moveWithHHG.ID,
+				ShipmentType: models.MTOShipmentTypeHHG,
 			},
+			Move: moveWithHHG,
 		})
 
 		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "USCG")

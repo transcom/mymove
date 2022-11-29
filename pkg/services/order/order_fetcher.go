@@ -53,6 +53,11 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	ppmCloseoutGblocs := officeUserGbloc == "NAVY" || officeUserGbloc == "TVCB" || officeUserGbloc == "USCG"
 
+	// Services Counselors in closeout GBLOCs should only see closeout moves
+	if needsCounseling && ppmCloseoutGblocs && params.NeedsPPMCloseout != nil && !*params.NeedsPPMCloseout {
+		return []models.Move{}, 0, nil
+	}
+
 	branchQuery := branchFilter(params.Branch, needsCounseling, ppmCloseoutGblocs)
 
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
@@ -75,10 +80,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	//    back to the GBLOC of the origin duty location's transportation office since an NTS-Release
 	//    does not populate the pickup address field.
 	var gblocQuery QueryOption
-	if needsCounseling {
-		gblocQuery = gblocFilterForSC(gblocToFilterBy)
-	} else if ppmCloseoutGblocs {
+	if ppmCloseoutGblocs {
 		gblocQuery = gblocFilterForPPMCloseoutForNavyMarineAndCG(gblocToFilterBy)
+	} else if needsCounseling {
+		gblocQuery = gblocFilterForSC(gblocToFilterBy)
 	} else {
 		gblocQuery = gblocFilterForTOO(gblocToFilterBy)
 	}
@@ -119,6 +124,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"MTOServiceItems",
 			"ShipmentGBLOC",
 			"OriginDutyLocationGBLOC",
+			"MTOShipments.PPMShipment",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
@@ -132,6 +138,16 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			Where("show = ?", swag.Bool(true)).
 			Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
+		if params.NeedsPPMCloseout != nil {
+			if *params.NeedsPPMCloseout {
+				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
+					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusSubmitted, models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsPaymentApproval, models.PPMShipmentStatusPaymentApproved).
+					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
+			} else {
+				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
+					Where("(ppm_shipments.status IS NULL OR ppm_shipments.status NOT IN (?))", models.PPMShipmentStatusSubmitted, models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsPaymentApproval, models.PPMShipmentStatusPaymentApproved)
+			}
+		}
 	}
 
 	for _, option := range options {

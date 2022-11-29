@@ -19,6 +19,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi"
 	"github.com/transcom/mymove/pkg/models"
@@ -655,7 +656,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 }
 
 func (suite *AuthSuite) TestAuthKnownServiceMember() {
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := factory.BuildDefaultUser(suite.DB())
 	userID := uuid.Must(uuid.NewV4())
 
 	userIdentity := models.UserIdentity{
@@ -906,7 +907,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := factory.BuildDefaultUser(suite.DB())
 	// user is in office_users but has never logged into the app
 	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
@@ -958,7 +959,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := factory.BuildDefaultUser(suite.DB())
 	// user is in office_users but has never logged into the app
 	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
@@ -1129,7 +1130,7 @@ func (suite *AuthSuite) TestAuthorizeKnownUserAdminNotFound() {
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := factory.BuildDefaultUser(suite.DB())
 	// user is in admin_users but has not logged into the app before
 	adminUser := testdatagen.MakeAdminUser(suite.DB(), testdatagen.Assertions{
 		AdminUser: models.AdminUser{
@@ -1180,7 +1181,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 }
 
 func (suite *AuthSuite) TestLoginGovAuthenticatedRedirect() {
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := factory.BuildDefaultUser(suite.DB())
 	// user is in office_users but has never logged into the app
 	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
@@ -1223,7 +1224,7 @@ func (suite *AuthSuite) TestLoginGovAuthenticatedRedirect() {
 }
 
 func (suite *AuthSuite) TestAuthorizePrime() {
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := factory.BuildDefaultUser(suite.DB())
 	clientCert := testdatagen.MakeDevClientCert(suite.DB(), testdatagen.Assertions{
 		ClientCert: models.ClientCert{
 			UserID: user.ID,

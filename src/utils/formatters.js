@@ -212,6 +212,13 @@ export const formatMoveHistoryFullAddress = (address) => {
 };
 
 export const formatMoveHistoryAgent = (agent) => {
+  let agentLabel = '';
+  if (agent.agent_type === 'RECEIVING_AGENT') {
+    agentLabel = 'receiving_agent';
+  } else if (agent.agent_type === 'RELEASING_AGENT') {
+    agentLabel = 'releasing_agent';
+  }
+
   let formattedAgent = '';
 
   if (agent.first_name) {
@@ -236,7 +243,10 @@ export const formatMoveHistoryAgent = (agent) => {
 
   formattedAgent = formattedAgent.trim();
 
-  return formattedAgent;
+  const formattedAgentValues = {};
+  formattedAgentValues[agentLabel] = formattedAgent;
+
+  return formattedAgentValues;
 };
 
 export const dropdownInputOptions = (options) => {
