@@ -7,8 +7,8 @@ import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 const defaultSort = { field: 'status', order: 'ASC' };
 
 const WebhookSubscriptionList = () => (
-  <List pagination={<AdminPagination />} perPage={25} sort={defaultSort} bulkActionButtons={false}>
-    <Datagrid rowClick="show">
+  <List pagination={<AdminPagination />} perPage={25} sort={defaultSort}>
+    <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" />
       <TextField source="eventKey" />
       <TextField source="callbackUrl" />
