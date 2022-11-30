@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Grid } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
@@ -102,14 +102,14 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit }) => 
               I understand the penalty for willfully making a false statement of claim is a maximum fine of $10,000,
               maximum imprisonment of five years, or both (U.S.C, Title 18, Section 287).
             </p>
-            <Grid row>
-              <Grid desktop={{ col: 6 }}>
+            <div>
+              <div className={styles.signatureField}>
                 <TextField label="Signature" id="signature" name="signature" />
-              </Grid>
-              <Grid desktop={{ col: 4, offset: 1 }}>
+              </div>
+              <div className={styles.dateField}>
                 <TextField label="Date" id="date" name="date" disabled />
-              </Grid>
-            </Grid>
+              </div>
+            </div>
           </SectionWrapper>
 
           <div className={ppmStyles.buttonContainer}>
