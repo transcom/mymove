@@ -478,7 +478,7 @@ func (router moveRouter) CompleteServiceCounseling(appCtx appcontext.AppContext,
 // ApproveOrRequestApproval routes the move appropriately based on whether or
 // not the TOO has any tasks requiring their attention.
 func (router moveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, move models.Move) (*models.Move, error) {
-	err := appCtx.DB().Q().EagerPreload("MTOServiceItems", "Orders", "MTOShipments.SITExtensions").Find(&move, move.ID)
+	err := appCtx.DB().Q().EagerPreload("MTOServiceItems", "Orders.ServiceMember", "Orders.NewDutyLocation.Address", "MTOShipments.SITExtensions").Find(&move, move.ID)
 	if err != nil {
 		appCtx.Logger().Error("Failed to preload MTOServiceItems and Orders for Move", zap.Error(err))
 		switch err {

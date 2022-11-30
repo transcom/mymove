@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -48,10 +49,11 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
+	suite.IsType(&orderop.GetOrderOK{}, response)
 	orderOK := response.(*orderop.GetOrderOK)
 	ordersPayload := orderOK.Payload
+	suite.NoError(ordersPayload.Validate(strfmt.Default))
 
-	suite.Assertions.IsType(&orderop.GetOrderOK{}, response)
 	suite.Equal(order.ID.String(), ordersPayload.ID.String())
 	suite.Equal(move.Locator, ordersPayload.MoveCode)
 	suite.Equal(order.ServiceMemberID.String(), ordersPayload.Customer.ID.String())
@@ -102,9 +104,11 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
-
+		suite.IsType(&orderop.GetOrderOK{}, response)
 		orderOK := response.(*orderop.GetOrderOK)
 		orderPayload := orderOK.Payload
+		suite.NoError(orderPayload.Validate(strfmt.Default))
+
 		payloadEntitlement := orderPayload.Entitlement
 		orderEntitlement := order.Entitlement
 		expectedAllowance := int64(orderEntitlement.WeightAllotment().TotalWeightSelf)
@@ -142,9 +146,11 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
-
+		suite.IsType(&orderop.GetOrderOK{}, response)
 		orderOK := response.(*orderop.GetOrderOK)
 		orderPayload := orderOK.Payload
+		suite.NoError(orderPayload.Validate(strfmt.Default))
+
 		payloadEntitlement := orderPayload.Entitlement
 		orderEntitlement := order.Entitlement
 		expectedAllowance := int64(orderEntitlement.WeightAllotment().TotalWeightSelfPlusDependents)
@@ -288,9 +294,10 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 
 		suite.IsNotErrResponse(response)
 
-		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
+		suite.IsType(&orderop.UpdateOrderOK{}, response)
 		orderOK := response.(*orderop.UpdateOrderOK)
 		ordersPayload := orderOK.Payload
+		suite.NoError(ordersPayload.Validate(strfmt.Default))
 
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
@@ -360,7 +367,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
-		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
+		suite.IsType(&orderop.UpdateOrderOK{}, response)
+		payload := response.(*orderop.UpdateOrderOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		var moveInDB models.Move
 		err := suite.DB().Find(&moveInDB, approvalsRequestedMove.ID)
@@ -415,7 +424,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
-		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
+		suite.IsType(&orderop.UpdateOrderOK{}, response)
+		payload := response.(*orderop.UpdateOrderOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		var moveInDB models.Move
 		err := suite.DB().Find(&moveInDB, move.ID)
@@ -490,11 +501,11 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
-
+		suite.IsType(&orderop.UpdateOrderOK{}, response)
 		orderOK := response.(*orderop.UpdateOrderOK)
 		ordersPayload := orderOK.Payload
+		suite.NoError(ordersPayload.Validate(strfmt.Default))
 
-		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
 		suite.Equal(body.OriginDutyLocationID.String(), ordersPayload.OriginDutyLocation.ID.String())
@@ -544,6 +555,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateOrderOK{}, response)
+		payload := response.(*orderop.UpdateOrderOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
@@ -575,6 +588,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateOrderNotFound{}, response)
+		payload := response.(*orderop.UpdateOrderNotFound).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -606,6 +621,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateOrderPreconditionFailed{}, response)
+		payload := response.(*orderop.UpdateOrderPreconditionFailed).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
@@ -637,6 +654,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateOrderUnprocessableEntity{}, response)
+		payload := response.(*orderop.UpdateOrderUnprocessableEntity).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -676,12 +695,12 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 	response := handler.Handle(params) // This step also saves traceID into DB
 
 	suite.IsNotErrResponse(response)
-
+	suite.IsType(&orderop.UpdateOrderOK{}, response)
 	orderOK := response.(*orderop.UpdateOrderOK)
 	ordersPayload := orderOK.Payload
+	suite.NoError(ordersPayload.Validate(strfmt.Default))
 
 	suite.FatalNoError(err, "Error creating a new trace ID.")
-	suite.IsType(&orderop.UpdateOrderOK{}, response)
 	suite.Equal(ordersPayload.ID, strfmt.UUID(order.ID.String()))
 	suite.HasWebhookNotification(order.ID, traceID)
 }
@@ -746,10 +765,11 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
+		suite.IsType(&orderop.CounselingUpdateOrderOK{}, response)
 		orderOK := response.(*orderop.CounselingUpdateOrderOK)
 		ordersPayload := orderOK.Payload
+		suite.NoError(ordersPayload.Validate(strfmt.Default))
 
-		suite.Assertions.IsType(&orderop.CounselingUpdateOrderOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
 		suite.Equal(body.OriginDutyLocationID.String(), ordersPayload.OriginDutyLocation.ID.String())
@@ -790,6 +810,8 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.CounselingUpdateOrderNotFound{}, response)
+		payload := response.(*orderop.CounselingUpdateOrderNotFound).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -820,6 +842,8 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.CounselingUpdateOrderPreconditionFailed{}, response)
+		payload := response.(*orderop.CounselingUpdateOrderPreconditionFailed).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
@@ -850,6 +874,8 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.CounselingUpdateOrderUnprocessableEntity{}, response)
+		payload := response.(*orderop.CounselingUpdateOrderUnprocessableEntity).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -962,10 +988,11 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
+		suite.IsType(&orderop.UpdateAllowanceOK{}, response)
 		orderOK := response.(*orderop.UpdateAllowanceOK)
 		ordersPayload := orderOK.Payload
+		suite.NoError(ordersPayload.Validate(strfmt.Default))
 
-		suite.Assertions.IsType(&orderop.UpdateAllowanceOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
 		suite.Equal(body.Grade, ordersPayload.Grade)
@@ -1006,6 +1033,8 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateAllowanceNotFound{}, response)
+		payload := response.(*orderop.UpdateAllowanceNotFound).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -1036,6 +1065,8 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateAllowancePreconditionFailed{}, response)
+		payload := response.(*orderop.UpdateAllowancePreconditionFailed).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
@@ -1066,6 +1097,8 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateAllowanceUnprocessableEntity{}, response)
+		payload := response.(*orderop.UpdateAllowanceUnprocessableEntity).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -1104,12 +1137,12 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 	response := handler.Handle(params) // This step also saves traceID into DB
 
 	suite.IsNotErrResponse(response)
-
+	suite.IsType(&orderop.UpdateAllowanceOK{}, response)
 	orderOK := response.(*orderop.UpdateAllowanceOK)
 	ordersPayload := orderOK.Payload
+	suite.NoError(ordersPayload.Validate(strfmt.Default))
 
 	suite.FatalNoError(err, "Error creating a new trace ID.")
-	suite.IsType(&orderop.UpdateAllowanceOK{}, response)
 	suite.Equal(ordersPayload.ID, strfmt.UUID(order.ID.String()))
 	suite.HasWebhookNotification(order.ID, traceID)
 }
@@ -1160,10 +1193,11 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
+		suite.IsType(&orderop.CounselingUpdateAllowanceOK{}, response)
 		orderOK := response.(*orderop.CounselingUpdateAllowanceOK)
 		ordersPayload := orderOK.Payload
+		suite.NoError(ordersPayload.Validate(strfmt.Default))
 
-		suite.Assertions.IsType(&orderop.CounselingUpdateAllowanceOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.Grade, ordersPayload.Grade)
 		suite.Equal(body.Agency, ordersPayload.Agency)
@@ -1202,6 +1236,8 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.CounselingUpdateAllowanceNotFound{}, response)
+		payload := response.(*orderop.CounselingUpdateAllowanceNotFound).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -1231,6 +1267,8 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.CounselingUpdateAllowancePreconditionFailed{}, response)
+		payload := response.(*orderop.CounselingUpdateAllowancePreconditionFailed).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
@@ -1260,6 +1298,8 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.CounselingUpdateAllowanceUnprocessableEntity{}, response)
+		payload := response.(*orderop.CounselingUpdateAllowanceUnprocessableEntity).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -1292,10 +1332,11 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
+		suite.IsType(&orderop.UpdateMaxBillableWeightAsTIOOK{}, response)
 		orderOK := response.(*orderop.UpdateMaxBillableWeightAsTIOOK)
 		ordersPayload := orderOK.Payload
+		suite.NoError(ordersPayload.Validate(strfmt.Default))
 
-		suite.Assertions.IsType(&orderop.UpdateMaxBillableWeightAsTIOOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
 	})
@@ -1330,6 +1371,8 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateMaxBillableWeightAsTIONotFound{}, response)
+		payload := response.(*orderop.UpdateMaxBillableWeightAsTIONotFound).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -1362,6 +1405,8 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateMaxBillableWeightAsTIOPreconditionFailed{}, response)
+		payload := response.(*orderop.UpdateMaxBillableWeightAsTIOPreconditionFailed).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
@@ -1388,12 +1433,17 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
 		tioRemarks := params.Body.TioRemarks
 
+		verrs := validate.NewErrors()
+		verrs.Add("some key", "some validation error")
+		invalidInputError := apperror.NewInvalidInputError(order.ID, nil, verrs, "")
 		updater.On("UpdateMaxBillableWeightAsTIO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, apperror.InvalidInputError{})
+			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, invalidInputError)
 
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateMaxBillableWeightAsTIOUnprocessableEntity{}, response)
+		payload := response.(*orderop.UpdateMaxBillableWeightAsTIOUnprocessableEntity).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -1426,10 +1476,11 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
+		suite.IsType(&orderop.UpdateBillableWeightOK{}, response)
 		orderOK := response.(*orderop.UpdateBillableWeightOK)
 		ordersPayload := orderOK.Payload
+		suite.NoError(ordersPayload.Validate(strfmt.Default))
 
-		suite.Assertions.IsType(&orderop.UpdateBillableWeightOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
 	})
@@ -1463,6 +1514,8 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateBillableWeightNotFound{}, response)
+		payload := response.(*orderop.UpdateBillableWeightNotFound).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -1494,6 +1547,8 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateBillableWeightPreconditionFailed{}, response)
+		payload := response.(*orderop.UpdateBillableWeightPreconditionFailed).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
@@ -1519,12 +1574,17 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		}
 		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
 
+		verrs := validate.NewErrors()
+		verrs.Add("some key", "some validation error")
+		invalidInputError := apperror.NewInvalidInputError(order.ID, nil, verrs, "")
 		updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, apperror.InvalidInputError{})
+			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, invalidInputError)
 
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateBillableWeightUnprocessableEntity{}, response)
+		payload := response.(*orderop.UpdateBillableWeightUnprocessableEntity).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -1564,12 +1624,12 @@ func (suite *HandlerSuite) TestUpdateBillableWeightEventTrigger() {
 	response := handler.Handle(params) // This step also saves traceID into DB
 
 	suite.IsNotErrResponse(response)
-
+	suite.IsType(&orderop.UpdateBillableWeightOK{}, response)
 	orderOK := response.(*orderop.UpdateBillableWeightOK)
 	ordersPayload := orderOK.Payload
+	suite.NoError(ordersPayload.Validate(strfmt.Default))
 
 	suite.FatalNoError(err, "Error creating a new trace ID.")
-	suite.IsType(&orderop.UpdateBillableWeightOK{}, response)
 	suite.Equal(ordersPayload.ID, strfmt.UUID(order.ID.String()))
 	suite.HasWebhookNotification(order.ID, traceID)
 }
@@ -1602,10 +1662,11 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
+		suite.IsType(&orderop.AcknowledgeExcessWeightRiskOK{}, response)
 		moveOK := response.(*orderop.AcknowledgeExcessWeightRiskOK)
 		movePayload := moveOK.Payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
 
-		suite.Assertions.IsType(&orderop.AcknowledgeExcessWeightRiskOK{}, response)
 		suite.Equal(move.ID.String(), movePayload.ID.String())
 		suite.NotNil(movePayload.ExcessWeightAcknowledgedAt)
 	})
@@ -1639,6 +1700,8 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.AcknowledgeExcessWeightRiskNotFound{}, response)
+		payload := response.(*orderop.AcknowledgeExcessWeightRiskNotFound).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -1670,6 +1733,8 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.AcknowledgeExcessWeightRiskPreconditionFailed{}, response)
+		payload := response.(*orderop.AcknowledgeExcessWeightRiskPreconditionFailed).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
@@ -1695,12 +1760,17 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 			updater,
 		}
 
+		verrs := validate.NewErrors()
+		verrs.Add("some key", "some validation error")
+		invalidInputError := apperror.NewInvalidInputError(order.ID, nil, verrs, "")
 		updater.On("AcknowledgeExcessWeightRisk", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, params.IfMatch).Return(nil, apperror.InvalidInputError{})
+			order.ID, params.IfMatch).Return(nil, invalidInputError)
 
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.AcknowledgeExcessWeightRiskUnprocessableEntity{}, response)
+		payload := response.(*orderop.AcknowledgeExcessWeightRiskUnprocessableEntity).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -1739,12 +1809,12 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskEventTrigger() {
 	response := handler.Handle(params) // This step also saves traceID into DB
 
 	suite.IsNotErrResponse(response)
-
+	suite.IsType(&orderop.AcknowledgeExcessWeightRiskOK{}, response)
 	moveOK := response.(*orderop.AcknowledgeExcessWeightRiskOK)
 	movePayload := moveOK.Payload
+	suite.NoError(movePayload.Validate(strfmt.Default))
 
 	suite.FatalNoError(err, "Error creating a new trace ID.")
-	suite.IsType(&orderop.AcknowledgeExcessWeightRiskOK{}, response)
 	suite.Equal(movePayload.ID, strfmt.UUID(move.ID.String()))
 	suite.HasWebhookNotification(move.ID, traceID)
 }
