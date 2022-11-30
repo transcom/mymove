@@ -38,6 +38,8 @@ func (suite *HandlerSuite) TestGetReportViolationByIDHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&reportViolationop.GetReportViolationsByReportIDOK{}, response)
+		payload := response.(*reportViolationop.GetReportViolationsByReportIDOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	// 404 response
@@ -65,8 +67,11 @@ func (suite *HandlerSuite) TestGetReportViolationByIDHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&reportViolationop.GetReportViolationsByReportIDInternalServerError{}, response)
+		payload := response.(*reportViolationop.GetReportViolationsByReportIDInternalServerError).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 }
+
 func (suite *HandlerSuite) TestAssociateReportViolationsHandler() {
 	suite.Run("Successful POST", func() {
 
@@ -98,6 +103,7 @@ func (suite *HandlerSuite) TestAssociateReportViolationsHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&reportViolationop.AssociateReportViolationsNoContent{}, response)
+		// No payload to validate
 	})
 
 	suite.Run("Unsuccessful POST", func() {
@@ -130,5 +136,7 @@ func (suite *HandlerSuite) TestAssociateReportViolationsHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&reportViolationop.AssociateReportViolationsInternalServerError{}, response)
+		payload := response.(*reportViolationop.AssociateReportViolationsInternalServerError).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 }
