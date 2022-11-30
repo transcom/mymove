@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { string } from 'prop-types';
+import { number } from 'prop-types';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -19,8 +19,8 @@ import { formatWeight } from 'utils/formatters';
 import ppmDocumentStatus from 'constants/ppms';
 
 const validationSchema = Yup.object().shape({
-  emptyWeight: Yup.string().required('Enter the empty weight'),
-  fullWeight: Yup.string().required('Enter the full weight'),
+  emptyWeight: Yup.number().required('Enter the empty weight'),
+  fullWeight: Yup.number().required('Enter the full weight'),
   status: Yup.string().required('Reviewing this weight ticket is required'),
   rejectionReason: Yup.string().when('status', {
     is: ppmDocumentStatus.REJECTED,
@@ -45,8 +45,8 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
 
   const initialValues = {
     weightType: missingEmptyWeightTicket || missingFullWeightTicket ? 'constructedWeight' : 'weightTicket',
-    emptyWeight: emptyWeight || '',
-    fullWeight: fullWeight || '',
+    emptyWeight: emptyWeight ? `${emptyWeight}` : '',
+    fullWeight: fullWeight ? `${fullWeight}` : '',
     ownsTrailer: ownsTrailer ? 'true' : 'false',
     trailerMeetsCriteria: trailerMeetsCriteria ? 'true' : 'false',
     status: status || '',
@@ -125,7 +125,7 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
               <div className={styles.displayValue}>{formatWeight(values.fullWeight - values.emptyWeight)}</div>
               <FormGroup>
                 <Fieldset>
-                  <legend className="usa-label">Did they use a trailer they owned</legend>
+                  <legend className="usa-label">Did they use a trailer they owned?</legend>
                   <Field
                     as={Radio}
                     id="ownsTrailerYes"
@@ -261,8 +261,8 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
 ReviewWeightTicket.propTypes = {
   weightTicket: WeightTicketShape,
   ppmShipment: PPMShipmentShape,
-  tripNumber: string.isRequired,
-  ppmNumber: string.isRequired,
+  tripNumber: number.isRequired,
+  ppmNumber: number.isRequired,
 };
 
 ReviewWeightTicket.defaultProps = {

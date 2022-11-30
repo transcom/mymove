@@ -1,5 +1,5 @@
 import React from 'react';
-import { string } from 'prop-types';
+import { number } from 'prop-types';
 import { Label } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
@@ -48,7 +48,7 @@ export default function PPMHeaderSummary({ ppmShipment, ppmNumber }) {
 
 PPMHeaderSummary.propTypes = {
   ppmShipment: PPMShipmentShape,
-  ppmNumber: string.isRequired,
+  ppmNumber: number.isRequired,
 };
 
 PPMHeaderSummary.defaultProps = {
