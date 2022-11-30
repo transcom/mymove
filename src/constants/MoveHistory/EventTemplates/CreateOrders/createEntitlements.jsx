@@ -8,7 +8,7 @@ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 const formatChangedValues = (historyRecord) => {
   const newChangedValues = {
     ...historyRecord.changedValues,
-    dependents_authorized: historyRecord.changedValues?.dependents_authorized === true ? 'Yes' : 'No',
+    // dependents_authorized: historyRecord.changedValues?.dependents_authorized === true ? 'Yes' : 'No',
   };
 
   return { ...historyRecord, changedValues: newChangedValues };
