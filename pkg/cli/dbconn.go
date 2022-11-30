@@ -332,7 +332,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 		// Set a bogus password holder. It will be replaced with an RDS auth token as the password.
 		passHolder := "*****"
 
-		iampg.EnableIAM(dbConnectionDetails.Host,
+		err := iampg.EnableIAM(dbConnectionDetails.Host,
 			dbConnectionDetails.Port,
 			v.GetString(DbRegionFlag),
 			dbConnectionDetails.User,
@@ -342,6 +342,9 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 			time.NewTicker(10*time.Minute), // Refresh every 10 minutes
 			logger,
 			make(chan bool))
+		if err != nil {
+			return nil, err
+		}
 
 		dbConnectionDetails.Password = passHolder
 		// pop now use url.QueryEscape on the password, but that

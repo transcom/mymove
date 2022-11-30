@@ -36,20 +36,13 @@ func TestEnableIamNilCreds(t *testing.T) {
 
 	shouldQuitChan := make(chan bool)
 
-	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
+	err := EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		nil,
 		&rdsu,
 		tmr,
 		logger,
 		shouldQuitChan)
-	time.Sleep(2 * time.Second)
-
-	iamConfig.currentPassMutex.Lock()
-	t.Logf("Current password: %s", iamConfig.currentIamPass)
-	assert.Equal(iamConfig.currentIamPass, "")
-	iamConfig.currentPassMutex.Unlock()
-	tmr.Stop()
-
+	assert.Error(err, "Enable IAM with nil creds?")
 }
 
 func TestGetCurrentPassword(t *testing.T) {
@@ -64,15 +57,16 @@ func TestGetCurrentPassword(t *testing.T) {
 
 	shouldQuitChan := make(chan bool)
 
-	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
+	err := EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		&rdsu,
 		tmr,
 		logger,
 		shouldQuitChan)
+	assert.Nil(err, "Enable IAM error")
 
 	// this should block for ~ 250ms and then continue
-	currentPass := GetCurrentPass()
+	currentPass := getCurrentPass()
 	assert.Equal(currentPass, "abc")
 	shouldQuitChan <- true
 
@@ -94,15 +88,16 @@ func TestGetCurrentPasswordFail(t *testing.T) {
 
 	shouldQuitChan := make(chan bool)
 
-	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
+	err := EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		&rdsu,
 		tmr,
 		logger,
 		shouldQuitChan)
+	assert.Nil(err, "Enable IAM error")
 
 	// this should block for 30s then return empty string
-	currentPass := GetCurrentPass()
+	currentPass := getCurrentPass()
 	assert.Equal(currentPass, "")
 	shouldQuitChan <- true
 	tmr.Stop()
@@ -141,29 +136,30 @@ func TestEnableIAMNormal(t *testing.T) {
 	// to cycle through.
 	iamConfig.currentIamPass = "123"
 
-	tmr := time.NewTicker(1 * time.Second)
+	tmr := time.NewTicker(1 * time.Millisecond)
 
 	shouldQuitChan := make(chan bool)
 
 	// Confirm that the password got set to what we initially set it to.
-	pass := GetCurrentPass()
+	pass := getCurrentPass()
 	assert.Equal("123", pass)
 
 	// Start cycling through the list of passwords.
-	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
+	err := EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		&rdsu,
 		tmr,
 		logger,
 		shouldQuitChan)
+	assert.Nil(err, "Enable IAM error")
 
 	// The sleep time should be greater than how often the password will cycle
 	// so that the next time the password is fetched, it will have changed.
-	time.Sleep(2 * time.Second)
+	time.Sleep(2 * time.Millisecond)
 
 	// Confirm that the password has changed (it's no longer the initial
 	// password) to the 1 password being cycled through.
-	pass = GetCurrentPass()
+	pass = getCurrentPass()
 	assert.Equal("abc", pass)
 
 	shouldQuitChan <- true
