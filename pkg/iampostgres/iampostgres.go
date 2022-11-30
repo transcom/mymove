@@ -85,23 +85,22 @@ func updateDSN(dsn string) (string, error) {
 func refreshRDSIAM(host string, port string, region string, user string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger *zap.Logger, shouldQuitChan chan bool) {
 	logger.Info("Starting refresh of RDS IAM")
 	// This for loop immediately runs the first tick then on interval
-	// This for loop will run indefinitely until it either errors or true is
-	// passed to the should quit channel.
+	// This for loop will run indefinitely until true is passed to the
+	// should quit channel.
 	for {
 		select {
 		case <-shouldQuitChan:
 			logger.Warn("Shutting down IAM credential refresh")
 			return
 		default:
-			logger.Info("Using IAM Authentication")
 			authToken, err := rus.GetToken(host+":"+port, region, user, creds)
 			if err != nil {
-				logger.Error("Error building auth token", zap.Error(err))
+				logger.Error("Error building IAM auth token", zap.Error(err))
 			} else {
 				iamConfig.currentPassMutex.Lock()
 				iamConfig.currentIamPass = url.QueryEscape(authToken)
 				iamConfig.currentPassMutex.Unlock()
-				logger.Info("Successfully generated new IAM token")
+				logger.Info("Successfully generated new IAM auth token")
 			}
 			<-ticker.C
 		}
