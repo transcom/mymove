@@ -32,10 +32,12 @@ type EvaluationReport struct {
 
 	// eval end
 	// Example: 18:00
+	// Pattern: /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/
 	EvalEnd *string `json:"evalEnd,omitempty"`
 
 	// eval start
 	// Example: 15:00
+	// Pattern: /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/
 	EvalStart *string `json:"evalStart,omitempty"`
 
 	// id
@@ -116,6 +118,7 @@ type EvaluationReport struct {
 
 	// time depart
 	// Example: 14:30
+	// Pattern: /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/
 	TimeDepart *string `json:"timeDepart,omitempty"`
 
 	// type
@@ -139,6 +142,14 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateEvalEnd(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateEvalStart(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -198,6 +209,10 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateTimeDepart(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateType(formats); err != nil {
 		res = append(res, err)
 	}
@@ -235,6 +250,30 @@ func (m *EvaluationReport) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateEvalEnd(formats strfmt.Registry) error {
+	if swag.IsZero(m.EvalEnd) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("evalEnd", "body", *m.EvalEnd, `/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateEvalStart(formats strfmt.Registry) error {
+	if swag.IsZero(m.EvalStart) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("evalStart", "body", *m.EvalStart, `/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/`); err != nil {
 		return err
 	}
 
@@ -424,6 +463,18 @@ func (m *EvaluationReport) validateSubmittedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("submittedAt", "body", "date-time", m.SubmittedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateTimeDepart(formats strfmt.Registry) error {
+	if swag.IsZero(m.TimeDepart) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("timeDepart", "body", *m.TimeDepart, `/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/`); err != nil {
 		return err
 	}
 

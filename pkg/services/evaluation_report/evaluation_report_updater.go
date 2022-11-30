@@ -67,6 +67,17 @@ func (u evaluationReportUpdater) UpdateEvaluationReport(appCtx appcontext.AppCon
 		}
 	}
 
+	inspectionPhysical := evaluationReport.InspectionType != nil && *evaluationReport.InspectionType == models.EvaluationReportInspectionTypePhysical
+
+	locationNotOther := evaluationReport.Location != nil && *evaluationReport.Location != models.EvaluationReportLocationTypeOther
+
+	if inspectionPhysical && locationNotOther {
+		err = isValidEvalTimes(*evaluationReport)
+		if err != nil {
+			return err
+		}
+	}
+
 	verrs, err := appCtx.DB().ValidateAndSave(evaluationReport)
 	if err != nil {
 		return apperror.NewQueryError("EvaluationReport", err, "failed to save the evaluation report")
@@ -121,6 +132,29 @@ func (u evaluationReportUpdater) SubmitEvaluationReport(appCtx appcontext.AppCon
 	return nil
 }
 
+// This checks is run to ensure that phyiscal evaluations that happen at origin or destination location have time depart, eval start and end time reocrded (on update and save)
+func isValidEvalTimes(evaluationReport models.EvaluationReport) error {
+	if evaluationReport.TimeDepart == nil {
+		return errors.Wrap(models.ErrInvalidTransition,
+			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without departure time if the location is physical.",
+				evaluationReport.ID))
+	}
+
+	if evaluationReport.EvalStart == nil {
+		return errors.Wrap(models.ErrInvalidTransition,
+			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without an evaluation start time if the location is physical.",
+				evaluationReport.ID))
+	}
+
+	if evaluationReport.EvalEnd == nil {
+		return errors.Wrap(models.ErrInvalidTransition,
+			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without an evaluation end time if the location is physical.",
+				evaluationReport.ID))
+	}
+
+	return nil
+}
+
 // This function checks to ensure that required fields are filled out and that dependent field requirements are satisfied.
 // It returns an error object if the report is out of alignment with a rule and returns nil if it's ready to go.
 // TODO: Update this so it also applies rules for violations.
@@ -137,24 +171,11 @@ func isValidForSubmission(evaluationReport models.EvaluationReport) error {
 			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without an Inspection Type.",
 				evaluationReport.ID))
 	}
-	// Physical reports with origin location must have departure time, evaluation start and end time
-	if *evaluationReport.InspectionType == models.EvaluationReportInspectionTypePhysical && *evaluationReport.Location == models.EvaluationReportLocationTypeOrigin {
-		if evaluationReport.TimeDepart == nil {
-			return errors.Wrap(models.ErrInvalidTransition,
-				fmt.Sprintf("Evaluation report with ID %s cannot be submitted without departure time if the location is physical.",
-					evaluationReport.ID))
-		}
 
-		if evaluationReport.EvalStart == nil {
-			return errors.Wrap(models.ErrInvalidTransition,
-				fmt.Sprintf("Evaluation report with ID %s cannot be submitted without an evaluation start time if the location is physical.",
-					evaluationReport.ID))
-		}
-
-		if evaluationReport.EvalEnd == nil {
-			return errors.Wrap(models.ErrInvalidTransition,
-				fmt.Sprintf("Evaluation report with ID %s cannot be submitted without an evaluation end time if the location is physical.",
-					evaluationReport.ID))
+	if *evaluationReport.InspectionType == models.EvaluationReportInspectionTypePhysical && *evaluationReport.Location != models.EvaluationReportLocationTypeOther {
+		err := isValidEvalTimes(evaluationReport)
+		if err != nil {
+			return err
 		}
 	}
 

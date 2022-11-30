@@ -74,16 +74,16 @@ func (r *EvaluationReport) Validate(tx *pop.Connection) (*validate.Errors, error
 		vs = append(vs, &validators.StringsMatch{Name: "Type", Field: string(r.Type), Field2: string(EvaluationReportTypeShipment)})
 	}
 
-	physical := EvaluationReportInspectionTypePhysical
-	other := EvaluationReportLocationTypeOther
+	physical := r.InspectionType != nil && *r.InspectionType == EvaluationReportInspectionTypePhysical
+	notOther := r.Location != nil && *r.Location != EvaluationReportLocationTypeOther
 
 	// Physical inspections at origin location must have time depart, eval start and end times recorded
-	if r.InspectionType == &physical && r.Location != &other {
-		vs = append(vs, &validators.TimeIsPresent{Field: *r.TimeDepart, Name: "TimeDepart"})
+	if physical && notOther {
+		vs = append(vs, &OptionalTimeIsPresentAndNotNil{Field: r.TimeDepart, Name: "TimeDepart"})
 
-		vs = append(vs, &validators.TimeIsPresent{Field: *r.EvalStart, Name: "EvalStart"})
+		vs = append(vs, &OptionalTimeIsPresentAndNotNil{Field: r.EvalStart, Name: "EvalStart"})
 
-		vs = append(vs, &validators.TimeIsPresent{Field: *r.EvalEnd, Name: "EvalEnd"})
+		vs = append(vs, &OptionalTimeIsPresentAndNotNil{Field: r.EvalEnd, Name: "EvalEnd"})
 	}
 
 	if r.ObservedDate != nil {

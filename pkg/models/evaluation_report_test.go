@@ -29,10 +29,6 @@ func (suite *ModelSuite) TestReport() {
 	dataReviewInspection := models.EvaluationReportInspectionTypeDataReview
 	physicalInspection := models.EvaluationReportInspectionTypePhysical
 	location := models.EvaluationReportLocationTypeOrigin
-	inspectionTime := time.Now().AddDate(0, 0, -4)
-	timeDepart := inspectionTime
-	evalStart := inspectionTime
-	evalEnd := inspectionTime
 
 	testCases := map[string]struct {
 		report         models.EvaluationReport
@@ -91,11 +87,12 @@ func (suite *ModelSuite) TestReport() {
 				Type:           models.EvaluationReportTypeCounseling,
 				InspectionType: &physicalInspection,
 				Location:       &location,
-				TimeDepart:     &timeDepart,
-				EvalStart:      &evalStart,
-				EvalEnd:        &evalEnd,
 			},
-			expectedErrors: map[string][]string{},
+			expectedErrors: map[string][]string{
+				"time_depart": {"TimeDepart cannot be nil"},
+				"eval_start":  {"EvalStart cannot be nil"},
+				"eval_end":    {"EvalEnd cannot be nil"},
+			},
 		},
 		"ObservedDate cannot be set for virtual inspections": {
 			report: models.EvaluationReport{

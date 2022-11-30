@@ -91,36 +91,13 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 		suite.Equal(models.ErrInvalidTransition, errors.Cause(err))
 	})
 
-	suite.Run("Missing location description for physical location", func() {
+	suite.Run("Missing location description for other location", func() {
 		// Create office user
 		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
 		// Create a report
 		inspectionType := models.EvaluationReportInspectionTypeVirtual
 		location := models.EvaluationReportLocationTypeOther
 		// Missing location description
-		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
-			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
-				OfficeUserID:       officeUser.ID,
-				InspectionDate:     swag.Time(time.Now()),
-				InspectionType:     &inspectionType,
-				Location:           &location,
-				ViolationsObserved: swag.Bool(false),
-				Remarks:            swag.String("This is a remark."),
-			}})
-		// Generate an etag
-		eTag := etag.GenerateEtag(evaluationReport.UpdatedAt)
-		// Submit the report
-		err := updater.SubmitEvaluationReport(suite.AppContextForTest(), evaluationReport.ID, officeUser.ID, eTag)
-		suite.Equal(models.ErrInvalidTransition, errors.Cause(err))
-	})
-
-	suite.Run("Missing travel time on physical location", func() {
-		// Create office user
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
-		// Create a report
-		inspectionType := models.EvaluationReportInspectionTypePhysical
-		location := models.EvaluationReportLocationTypeOrigin
-		// Missing travel time
 		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
 			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
 				OfficeUserID:       officeUser.ID,
@@ -304,7 +281,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		"physical inspection at origin without time depart, eval start, end should fail": {
 			inspectionType: &physical,
 			location:       &origin,
-			expectedError:  false,
+			expectedError:  true,
 		},
 		"observed date set for physical report type should succeed": {
 			inspectionType: &physical,

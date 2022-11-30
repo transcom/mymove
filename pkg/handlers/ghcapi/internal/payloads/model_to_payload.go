@@ -153,20 +153,22 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 
 	evaluationReportOfficeUserPayload := EvaluationReportOfficeUser(evaluationReport.OfficeUser)
 
-	timeFormat := "15:04"
-	var timeDepart string
+	var timeDepart *string
 	if evaluationReport.TimeDepart != nil {
-		timeDepart = evaluationReport.TimeDepart.Format(timeFormat)
+		td := evaluationReport.TimeDepart.Format(timeHHMMFormat)
+		timeDepart = &td
 	}
 
-	var evalStart string
+	var evalStart *string
 	if evaluationReport.TimeDepart != nil {
-		evalStart = evaluationReport.EvalStart.Format(timeFormat)
+		es := evaluationReport.EvalStart.Format(timeHHMMFormat)
+		evalStart = &es
 	}
 
-	var evalEnd string
+	var evalEnd *string
 	if evaluationReport.EvalEnd != nil {
-		evalEnd = evaluationReport.EvalEnd.Format(timeFormat)
+		ee := evaluationReport.EvalEnd.Format(timeHHMMFormat)
+		evalEnd = &ee
 	}
 
 	payload := &ghcmessages.EvaluationReport{
@@ -181,9 +183,9 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		Remarks:                       evaluationReport.Remarks,
 		ShipmentID:                    shipmentID,
 		SubmittedAt:                   handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),
-		TimeDepart:                    &timeDepart,
-		EvalStart:                     &evalStart,
-		EvalEnd:                       &evalEnd,
+		TimeDepart:                    timeDepart,
+		EvalStart:                     evalStart,
+		EvalEnd:                       evalEnd,
 		Type:                          reportType,
 		ViolationsObserved:            evaluationReport.ViolationsObserved,
 		MoveReferenceID:               evaluationReport.Move.ReferenceID,
