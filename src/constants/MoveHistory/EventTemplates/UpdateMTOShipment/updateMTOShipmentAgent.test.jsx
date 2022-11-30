@@ -55,17 +55,12 @@ describe('when given an mto shipment agents update with mto agents table history
       expect(screen.getAllByText('HHG shipment #A1B2C'));
     });
 
-    describe('it displays the proper labeled details for the given releasing agent', () => {
-      it.each([
-        ['Releasing agent', ': Grace Griffin, 555-555-5555, grace@email.com'],
-        ['First name', ': Grace'],
-      ])('should display the label `%s` for the value `%s`', async (label, value) => {
-        const template = getTemplate(historyRecord.RELEASE);
+    it('it displays the proper labeled details for the given releasing agent', () => {
+      const template = getTemplate(historyRecord.RELEASE);
 
-        render(template.getDetails(historyRecord.RELEASE));
-        expect(screen.getByText(label)).toBeInTheDocument();
-        expect(screen.getByText(value)).toBeInTheDocument();
-      });
+      render(template.getDetails(historyRecord.RELEASE));
+      expect(screen.getByText('Releasing agent')).toBeInTheDocument();
+      expect(screen.getByText(': Grace Griffin, 555-555-5555, grace@email.com')).toBeInTheDocument();
     });
   });
   describe('when agent type is Receiving', () => {
@@ -80,17 +75,12 @@ describe('when given an mto shipment agents update with mto agents table history
       expect(screen.getAllByText('HHG shipment #A1B2C'));
     });
 
-    describe('it displays the proper labeled details for the given releasing agent', () => {
-      it.each([
-        ['Receiving agent', ': Nancy Drew, 555-555-5555, nancy@email.com'],
-        ['First name', ': Nancy'],
-      ])('should display the label `%s` for the value `%s`', async (label, value) => {
-        const template = getTemplate(historyRecord.RECEIVE);
+    it('it displays the proper labeled details for the given releasing agent', () => {
+      const template = getTemplate(historyRecord.RECEIVE);
 
-        render(template.getDetails(historyRecord.RECEIVE));
-        expect(screen.getByText(label)).toBeInTheDocument();
-        expect(screen.getByText(value)).toBeInTheDocument();
-      });
+      render(template.getDetails(historyRecord.RECEIVE));
+      expect(screen.getByText('Receiving agent')).toBeInTheDocument();
+      expect(screen.getByText(': Nancy Drew, 555-555-5555, nancy@email.com')).toBeInTheDocument();
     });
   });
 });

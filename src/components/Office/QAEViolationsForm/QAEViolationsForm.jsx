@@ -8,7 +8,7 @@ import classnames from 'classnames';
 import { useMutation, queryCache } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import styles from './EvaluationViolationsForm.module.scss';
+import styles from './QAEViolationsForm.module.scss';
 import SelectedViolation from './SelectedViolation/SelectedViolation';
 
 import { EVALUATION_REPORT, REPORT_VIOLATIONS } from 'constants/queryKeys';
@@ -20,7 +20,7 @@ import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { EvaluationReportShape, ReportViolationShape, PWSViolationShape, CustomerShape, ShipmentShape } from 'types';
 import { formatDateForSwagger } from 'shared/dates';
 
-const EvaluationViolationsForm = ({
+const QAEViolationsForm = ({
   violations,
   evaluationReport,
   reportViolations,
@@ -498,7 +498,7 @@ const EvaluationViolationsForm = ({
   );
 };
 
-EvaluationViolationsForm.propTypes = {
+QAEViolationsForm.propTypes = {
   violations: PropTypes.arrayOf(PWSViolationShape).isRequired,
   evaluationReport: EvaluationReportShape.isRequired,
   reportViolations: PropTypes.arrayOf(ReportViolationShape),
@@ -508,9 +508,9 @@ EvaluationViolationsForm.propTypes = {
   destinationDutyLocationPostalCode: PropTypes.string.isRequired,
 };
 
-EvaluationViolationsForm.defaultProps = {
+QAEViolationsForm.defaultProps = {
   mtoShipments: null,
   reportViolations: null,
 };
 
-export default EvaluationViolationsForm;
+export default QAEViolationsForm;

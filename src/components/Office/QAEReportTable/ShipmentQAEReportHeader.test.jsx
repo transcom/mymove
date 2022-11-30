@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import EvaluationReportShipmentInfo from './EvaluationReportShipmentInfo';
+import ShipmentQAEReportHeader from './ShipmentQAEReportHeader';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
@@ -66,11 +66,11 @@ const ppmShipment = {
   status: 'SUBMITTED',
   createdAt: '2022-07-12T19:38:35.886Z',
 };
-describe('EvaluationReportShipmentInfo', () => {
+describe('ShipmentQAEReportHeader', () => {
   it('renders HHG shipment', () => {
     render(
       <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
-        <EvaluationReportShipmentInfo shipment={hhgShipment} shipmentNumber={1} />
+        <ShipmentQAEReportHeader shipment={hhgShipment} shipmentNumber={1} />
       </MockProviders>,
     );
     expect(screen.getByRole('heading', { level: 4, name: /HHG Shipment ID #C3C64/ })).toBeInTheDocument();
@@ -82,7 +82,7 @@ describe('EvaluationReportShipmentInfo', () => {
   it('renders NTS shipment', () => {
     render(
       <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
-        <EvaluationReportShipmentInfo shipment={ntsShipment} shipmentNumber={1} />
+        <ShipmentQAEReportHeader shipment={ntsShipment} shipmentNumber={1} />
       </MockProviders>,
     );
     expect(screen.getByRole('heading', { level: 4, name: /NTS Shipment ID #C3C64/ })).toBeInTheDocument();
@@ -94,7 +94,7 @@ describe('EvaluationReportShipmentInfo', () => {
   it('renders NTS-R shipment', () => {
     render(
       <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
-        <EvaluationReportShipmentInfo shipment={ntsReleaseShipment} shipmentNumber={1} />
+        <ShipmentQAEReportHeader shipment={ntsReleaseShipment} shipmentNumber={1} />
       </MockProviders>,
     );
     expect(screen.getByRole('heading', { level: 4, name: /NTS-Release Shipment ID #C3C64/ })).toBeInTheDocument();
@@ -106,7 +106,7 @@ describe('EvaluationReportShipmentInfo', () => {
   it('renders PPM shipment', () => {
     render(
       <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
-        <EvaluationReportShipmentInfo shipment={ppmShipment} shipmentNumber={1} />
+        <ShipmentQAEReportHeader shipment={ppmShipment} shipmentNumber={1} />
       </MockProviders>,
     );
     expect(screen.getByRole('heading', { level: 4, name: /PPM Shipment ID #C3C64/ })).toBeInTheDocument();
