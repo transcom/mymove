@@ -19,15 +19,28 @@ import (
 	"go.uber.org/zap"
 )
 
+type pauseFunc func()
+
 type config struct {
 	useIAM           bool
+	maxRetries       int
+	pauseFn          pauseFunc
 	passHolder       string
 	currentIamPass   string
 	currentPassMutex sync.Mutex
 	logger           *zap.Logger
 }
 
-var iamConfig = config{false, "", "", sync.Mutex{}, nil}
+const defaultPauseDuration = time.Millisecond * 250
+const defaultMaxRetries = 120
+
+var defaultPauseFn pauseFunc = func() { time.Sleep(defaultPauseDuration) }
+var iamConfig = config{
+	useIAM:           false,
+	maxRetries:       defaultMaxRetries,
+	pauseFn:          defaultPauseFn,
+	currentPassMutex: sync.Mutex{},
+}
 
 // RDSPostgresDriver wrapper around postgres driver
 type RDSPostgresDriver struct {
@@ -46,7 +59,6 @@ func getCurrentPass() string {
 	currentPass := ""
 
 	counter := 0
-	maxCount := 120 // pauses for 30s
 
 	for {
 		counter++
@@ -56,17 +68,16 @@ func getCurrentPass() string {
 		iamConfig.currentPassMutex.Unlock()
 
 		if currentPass == "" {
-			iamConfig.logger.Info(fmt.Sprintf("Wait %d of %d, sleeping for 250ms for IAM loop to populate RDS credentials.", counter, maxCount))
+			iamConfig.logger.Info(fmt.Sprintf("Wait %d of %d, sleeping for IAM loop to populate RDS credentials.", counter, iamConfig.maxRetries))
 		} else {
 			break
 		}
-		if counter > maxCount {
+		if counter > iamConfig.maxRetries {
 			iamConfig.logger.Error("Waited 30s for IAM creds to populate and giving up, returning empty password.")
 			break
 		}
 
-		time.Sleep(time.Millisecond * 250)
-
+		iamConfig.pauseFn()
 	}
 
 	return currentPass
