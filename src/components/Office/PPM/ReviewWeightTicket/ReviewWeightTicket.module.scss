@@ -33,4 +33,8 @@
         @include u-margin-bottom(1);
         @include u-margin-top(1);
     }
+
+    .reviewHeader {
+        @include u-margin-top(3);
+    }
 }

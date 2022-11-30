@@ -15,8 +15,4 @@
         @include u-font('body', '3xs');
         color: $base;
     }
-
-    .reviewHeader {
-        @include u-margin-top(3);
-    }
 }

@@ -1,18 +1,7 @@
-@import '../../../shared/styles/basics';
-@import '../../../shared/styles/mixins';
-@import '../../../shared/styles/colors';
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
 
-.ApproveReject {
-//   &:not(:first-child)  {
-//     @include u-border-width('2px');
-//     @include u-border-color('gray-10');
-
-//     .cardHeader {
-//       @include u-display('none');
-//     }
-//   }
-  
-  .statusOption {
+.statusOption {
     @include u-padding(0);
     @include u-border(1px);
     border-color: $base-light;
@@ -57,7 +46,7 @@
     display: flex;
     align-items: center;
   }
-  
+
   .statusOption+.statusOption {
     @include u-margin-top(1);
   }
@@ -106,5 +95,4 @@
       @include u-margin-bottom(0);
       white-space: pre-wrap;
     }
-  }
 }

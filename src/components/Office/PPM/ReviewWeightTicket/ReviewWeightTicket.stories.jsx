@@ -3,10 +3,8 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import ReviewWeightTicket from './ReviewWeightTicket';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
-
 export default {
-  title: 'Office Components / Review Weight Ticket',
+  title: 'Office Components / PPM / Review Weight Ticket',
   component: ReviewWeightTicket,
   decorators: [
     (Story) => (
@@ -35,4 +33,24 @@ Blank.args = {
   },
   tripNumber: '1',
   ppmNumber: '1',
+};
+
+export const FilledIn = Template.bind({});
+FilledIn.args = {
+  ppmShipment: {
+    actualMoveDate: Date.now(),
+    actualPickupPostalCode: '90210',
+    actualDestinationPostalCode: '94611',
+    hasReceivedAdvance: true,
+    advanceAmountReceived: 60000,
+  },
+  tripNumber: '1',
+  ppmNumber: '1',
+  weightTicket: {
+    vehicleDescription: 'Kia Forte',
+    emptyWeight: '600',
+    fullWeight: '1200',
+    ownsTrailer: true,
+    trailerMeetsCriteria: false,
+  },
 };

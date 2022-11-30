@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form } from '@trussworks/react-uswds';
+import { Button, Fieldset, Form, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -19,7 +19,7 @@ import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { PaymentServiceItemParam, MTOServiceItemShape } from 'types/order';
 import { allowedServiceItemCalculations, SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import DaysInSITAllowance from 'components/Office/DaysInSITAllowance/DaysInSITAllowance';
-import ApproveReject from 'components/form/ApproveReject/ApproveReject';
+import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 
 const isAdditionalDaySIT = (mtoServiceItemCode) => {
   return mtoServiceItemCode === SERVICE_ITEM_CODES.DOASIT || mtoServiceItemCode === SERVICE_ITEM_CODES.DDASIT;
@@ -239,21 +239,110 @@ const ServiceItemCard = ({
                   <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
                 </dl>
                 {toggleCalculations}
-                <ApproveReject
-                  id={id}
-                  currentStatus={values.status}
-                  rejectionReason={values.rejectionReason}
-                  requestComplete={requestComplete}
-                  approvedStatus={APPROVED}
-                  deniedStatus={DENIED}
-                  canEditRejection={canEditRejection}
-                  setCanEditRejection={setCanEditRejection}
-                  handleApprovalChange={handleApprovalChange}
-                  handleRejectChange={handleRejectChange}
-                  handleRejectCancel={handleRejectCancel}
-                  handleChange={handleChange}
-                  handleFormReset={handleFormReset}
-                />
+                <Fieldset>
+                  <div
+                    className={classnames(approveRejectStyles.statusOption, {
+                      [approveRejectStyles.selected]: values.status === APPROVED,
+                    })}
+                  >
+                    <Radio
+                      id={`approve-${id}`}
+                      checked={values.status === APPROVED}
+                      value={APPROVED}
+                      name="status"
+                      label="Approve"
+                      onChange={handleApprovalChange}
+                      data-testid="approveRadio"
+                    />
+                  </div>
+                  <div
+                    className={classnames(approveRejectStyles.statusOption, {
+                      [approveRejectStyles.selected]: values.status === DENIED,
+                    })}
+                  >
+                    <Radio
+                      id={`reject-${id}`}
+                      checked={values.status === DENIED}
+                      value={DENIED}
+                      name="status"
+                      label="Reject"
+                      onChange={handleChange}
+                      data-testid="rejectRadio"
+                    />
+
+                    {values.status === DENIED && (
+                      <FormGroup>
+                        <Label htmlFor={`rejectReason-${id}`}>Reason for rejection</Label>
+                        {!canEditRejection && (
+                          <>
+                            <p data-testid="rejectionReasonReadOnly">{values.rejectionReason}</p>
+                            <Button
+                              type="button"
+                              unstyled
+                              data-testid="editReasonButton"
+                              className={approveRejectStyles.clearStatus}
+                              onClick={() => setCanEditRejection(true)}
+                              aria-label="Edit reason button"
+                            >
+                              <span className="icon">
+                                <FontAwesomeIcon icon="pen" title="Edit reason" alt="" />
+                              </span>
+                              <span aria-hidden="true">Edit reason</span>
+                            </Button>
+                          </>
+                        )}
+
+                        {!requestComplete && canEditRejection && (
+                          <>
+                            <Textarea
+                              id={`rejectReason-${id}`}
+                              name="rejectionReason"
+                              onChange={handleChange}
+                              value={values.rejectionReason}
+                            />
+                            <div className={approveRejectStyles.rejectionButtonGroup}>
+                              <Button
+                                id="rejectionSaveButton"
+                                type="button"
+                                data-testid="rejectionSaveButton"
+                                onClick={handleRejectChange}
+                                disabled={!values.rejectionReason}
+                                aria-label="Rejection save button"
+                              >
+                                Save
+                              </Button>
+                              <Button
+                                data-testid="cancelRejectionButton"
+                                secondary
+                                onClick={handleRejectCancel}
+                                type="button"
+                                aria-label="Cancel rejection button"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </FormGroup>
+                    )}
+                  </div>
+
+                  {(values.status === APPROVED || values.status === DENIED) && (
+                    <Button
+                      type="button"
+                      unstyled
+                      data-testid="clearStatusButton"
+                      className={approveRejectStyles.clearStatus}
+                      onClick={handleFormReset}
+                      aria-label="Clear status"
+                    >
+                      <span className="icon">
+                        <FontAwesomeIcon icon="times" title="Clear status" alt=" " />
+                      </span>
+                      <span aria-hidden="true">Clear selection</span>
+                    </Button>
+                  )}
+                </Fieldset>
               </ShipmentContainer>
             </Form>
           );

@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { string } from 'prop-types';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
-import { Form, FormGroup, Label, Radio } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Form, FormGroup, Label, Radio, Button, Textarea } from '@trussworks/react-uswds';
+import * as Yup from 'yup';
 
 import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
@@ -11,11 +13,24 @@ import styles from './ReviewWeightTicket.module.scss';
 import { PPMShipmentShape, WeightTicketShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
-import ApproveReject from 'components/form/ApproveReject/ApproveReject';
 import formStyles from 'styles/form.module.scss';
+import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import { formatWeight } from 'utils/formatters';
+import ppmDocumentStatus from 'constants/ppms';
+
+const validationSchema = Yup.object().shape({
+  emptyWeight: Yup.string().required('Enter the empty weight'),
+  fullWeight: Yup.string().required('Enter the full weight'),
+  status: Yup.string().required('Reviewing this weight ticket is required'),
+  rejectionReason: Yup.string().when('status', {
+    is: ppmDocumentStatus.REJECTED,
+    then: (schema) => schema.required('Add a reason why this weight ticket is rejected'),
+  }),
+});
 
 export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumber, ppmNumber }) {
+  const [canEditRejection, setCanEditRejection] = useState(true);
+
   const {
     vehicleDescription,
     missingEmptyWeightTicket,
@@ -27,12 +42,9 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
     status,
     reason,
   } = weightTicket || {};
-  const [canEditRejection, setCanEditRejection] = useState(true);
-  const constructedOrWeightTicket =
-    !missingEmptyWeightTicket && !missingFullWeightTicket ? 'weightTicket' : 'constructedWeight';
 
   const initialValues = {
-    weightType: weightTicket?.id ? constructedOrWeightTicket : '',
+    weightType: missingEmptyWeightTicket || missingFullWeightTicket ? 'constructedWeight' : 'weightTicket',
     emptyWeight: emptyWeight || '',
     fullWeight: fullWeight || '',
     ownsTrailer: ownsTrailer ? 'true' : 'false',
@@ -42,28 +54,11 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
   };
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
-      <Formik initialValues={initialValues}>
-        {({ handleReset, handleChange, submitForm, setValues, values }) => {
+      <Formik initialValues={initialValues} validationSchema={validationSchema}>
+        {({ handleChange, setValues, values }) => {
           const handleApprovalChange = (event) => {
             handleChange(event);
-            submitForm().then(() => {
-              setCanEditRejection(true);
-            });
-          };
-
-          const handleRejectChange = (event) => {
-            handleChange(event);
-            submitForm().then(() => {
-              setCanEditRejection(false);
-            });
-          };
-
-          const handleRejectCancel = (event) => {
-            if (initialValues.rejectionReason) {
-              setCanEditRejection(false);
-            }
-
-            handleReset(event);
+            setCanEditRejection(true);
           };
 
           const handleFormReset = () => {
@@ -71,9 +66,7 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
               status: 'REQUESTED',
               rejectionReason: '',
             });
-            submitForm().then(() => {
-              setCanEditRejection(true);
-            });
+            setCanEditRejection(true);
           };
 
           return (
@@ -176,21 +169,87 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
               )}
               <h3 className={styles.reviewHeader}>Review trip {tripNumber}</h3>
               <p>Add a review for this weight ticket</p>
-              <ApproveReject
-                id="ApproveReject"
-                currentStatus={values.status}
-                rejectionReason={values.rejectionReason}
-                requestComplete={false}
-                approvedStatus="APPROVED"
-                deniedStatus="DENIED"
-                canEditRejection={canEditRejection}
-                setCanEditRejection={setCanEditRejection}
-                handleApprovalChange={handleApprovalChange}
-                handleRejectChange={handleRejectChange}
-                handleRejectCancel={handleRejectCancel}
-                handleChange={handleChange}
-                handleFormReset={handleFormReset}
-              />
+              <Fieldset>
+                <div
+                  className={classnames(approveRejectStyles.statusOption, {
+                    [approveRejectStyles.selected]: values.status === ppmDocumentStatus.APPROVED,
+                  })}
+                >
+                  <Radio
+                    id={`approve-${weightTicket?.id}`}
+                    checked={values.status === ppmDocumentStatus.APPROVED}
+                    value={ppmDocumentStatus.APPROVED}
+                    name="status"
+                    label="Approve"
+                    onChange={handleApprovalChange}
+                    data-testid="approveRadio"
+                  />
+                </div>
+                <div
+                  className={classnames(approveRejectStyles.statusOption, {
+                    [approveRejectStyles.selected]: values.status === ppmDocumentStatus.REJECTED,
+                  })}
+                >
+                  <Radio
+                    id={`reject-${weightTicket?.id}`}
+                    checked={values.status === ppmDocumentStatus.REJECTED}
+                    value={ppmDocumentStatus.REJECTED}
+                    name="status"
+                    label="Reject"
+                    onChange={handleChange}
+                    data-testid="rejectRadio"
+                  />
+
+                  {values.status === ppmDocumentStatus.REJECTED && (
+                    <FormGroup>
+                      <Label htmlFor={`rejectReason-${weightTicket?.id}`}>Reason for rejection</Label>
+                      {!canEditRejection && (
+                        <>
+                          <p data-testid="rejectionReasonReadOnly">{weightTicket?.reason || values.rejectionReason}</p>
+                          <Button
+                            type="button"
+                            unstyled
+                            data-testid="editReasonButton"
+                            className={styles.clearStatus}
+                            onClick={() => setCanEditRejection(true)}
+                            aria-label="Edit reason button"
+                          >
+                            <span className="icon">
+                              <FontAwesomeIcon icon="pen" title="Edit reason" alt="" />
+                            </span>
+                            <span aria-hidden="true">Edit reason</span>
+                          </Button>
+                        </>
+                      )}
+
+                      {canEditRejection && (
+                        <Textarea
+                          id={`rejectReason-${weightTicket?.id}`}
+                          name="rejectionReason"
+                          onChange={handleChange}
+                          // value={rejectionReason}
+                        />
+                      )}
+                    </FormGroup>
+                  )}
+                </div>
+
+                {(values.status === ppmDocumentStatus.APPROVED || values.status === ppmDocumentStatus.REJECTED) && (
+                  <Button
+                    type="button"
+                    unstyled
+                    data-testid="clearStatusButton"
+                    className={approveRejectStyles.clearStatus}
+                    onClick={handleFormReset}
+                    aria-label="Clear status"
+                  >
+                    <span className="icon">
+                      <FontAwesomeIcon icon="times" title="Clear status" alt=" " />
+                    </span>
+                    <span aria-hidden="true">Clear selection</span>
+                  </Button>
+                )}
+              </Fieldset>
             </Form>
           );
         }}
