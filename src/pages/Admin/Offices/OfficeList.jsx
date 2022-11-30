@@ -11,9 +11,8 @@ const OfficeFilter = (props) => (
   </Filter>
 );
 
-const OfficeList = (props) => (
+const OfficeList = () => (
   <List
-    {...props}
     filters={<OfficeFilter />}
     pagination={<AdminPagination />}
     perPage={25}

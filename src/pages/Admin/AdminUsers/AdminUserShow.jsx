@@ -20,9 +20,9 @@ AdminUserShowTitle.defaultProps = {
   },
 };
 
-const AdminUserShow = (props) => {
+const AdminUserShow = () => {
   return (
-    <Show {...props} title={<AdminUserShowTitle />}>
+    <Show title={<AdminUserShowTitle />}>
       <SimpleShowLayout>
         <TextField source="id" />
         <TextField source="userId" label="User Id" />
