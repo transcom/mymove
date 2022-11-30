@@ -6,7 +6,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
-import styles from './EvaluationReportShipmentInfo.module.scss';
+import styles from './ShipmentQAEReportHeader.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatEvaluationReportShipmentAddress, formatShortIDWithPound } from 'utils/formatters';
@@ -17,7 +17,7 @@ import { SHIPMENT_EVALUATION_REPORTS } from 'constants/queryKeys';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
-const EvaluationReportShipmentInfo = ({ shipment, destinationDutyLocationPostalCode }) => {
+const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode }) => {
   const { moveCode } = useParams();
   const history = useHistory();
 
@@ -99,9 +99,9 @@ const EvaluationReportShipmentInfo = ({ shipment, destinationDutyLocationPostalC
     </>
   );
 };
-EvaluationReportShipmentInfo.propTypes = {
+ShipmentQAEReportHeader.propTypes = {
   shipment: ShipmentShape.isRequired,
   destinationDutyLocationPostalCode: PropTypes.string.isRequired,
 };
 
-export default EvaluationReportShipmentInfo;
+export default ShipmentQAEReportHeader;

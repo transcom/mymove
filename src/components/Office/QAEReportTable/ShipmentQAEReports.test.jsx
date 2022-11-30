@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import ShipmentEvaluationReports from './ShipmentEvaluationReports';
+import ShipmentQAEReports from './ShipmentQAEReports';
 
 const customerInfo = {
   agency: 'ARMY',
@@ -27,16 +27,10 @@ const customerInfo = {
   userID: 'f4bbfcdf-ef66-4ce7-92f8-4c1bf507d596',
 };
 
-describe('ShipmentEvaluationReports', () => {
+describe('ShipmentQAEReports', () => {
   it('renders with no shipments', () => {
     render(
-      <ShipmentEvaluationReports
-        shipments={[]}
-        reports={[]}
-        moveCode="Test123"
-        customerInfo={customerInfo}
-        grade="E_4"
-      />,
+      <ShipmentQAEReports shipments={[]} reports={[]} moveCode="Test123" customerInfo={customerInfo} grade="E_4" />,
     );
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Shipment QAE reports (0)');
   });

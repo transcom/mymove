@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import EvaluationReportTable from './EvaluationReportTable';
+import QAEReportTable from './QAEReportTable';
 
 import { MockProviders } from 'testUtils';
 
@@ -59,11 +59,11 @@ const customerInfo = {
   userID: 'f4bbfcdf-ef66-4ce7-92f8-4c1bf507d596',
 };
 
-describe('EvaluationReportTable', () => {
+describe('QAEReportTable', () => {
   it('renders empty table', () => {
     render(
       <MockProviders>
-        <EvaluationReportTable
+        <QAEReportTable
           reports={[]}
           emptyText="no reports for this"
           shipments={[]}
@@ -87,7 +87,7 @@ describe('EvaluationReportTable', () => {
   it('renders table with a draft report', () => {
     render(
       <MockProviders>
-        <EvaluationReportTable
+        <QAEReportTable
           reports={[draftReport]}
           emptyText=""
           shipments={[]}
@@ -115,7 +115,7 @@ describe('EvaluationReportTable', () => {
   it('does not show undefined values in table', () => {
     render(
       <MockProviders>
-        <EvaluationReportTable
+        <QAEReportTable
           reports={[blankReport]}
           emptyText="no reports for this"
           shipments={[]}
@@ -137,7 +137,7 @@ describe('EvaluationReportTable', () => {
   it('renders table with a submitted report', () => {
     render(
       <MockProviders>
-        <EvaluationReportTable
+        <QAEReportTable
           reports={[submittedReport]}
           emptyText="no reports for this"
           shipments={[]}

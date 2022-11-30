@@ -1,13 +1,13 @@
 import React from 'react';
 import { MemoryRouter, Route } from 'react-router';
 
-import EvaluationViolationsForm from './EvaluationViolationsForm';
+import QAEViolationsForm from './QAEViolationsForm';
 
 import { MockProviders } from 'testUtils';
 
 export default {
-  title: 'Office Components/EvaluationViolationsForm',
-  component: EvaluationViolationsForm,
+  title: 'Office Components/QAEViolationsForm',
+  component: QAEViolationsForm,
   decorators: [
     (Story) => (
       <MemoryRouter
@@ -66,7 +66,7 @@ const mockCustomerInfo = {
 };
 
 export const Default = () => (
-  <EvaluationViolationsForm
+  <QAEViolationsForm
     violations={[mockViolation]}
     evaluationReport={mockEvaluationReport}
     customerInfo={mockCustomerInfo}

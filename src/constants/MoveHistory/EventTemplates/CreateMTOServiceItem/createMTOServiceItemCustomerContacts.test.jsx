@@ -1,14 +1,11 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import o from 'constants/MoveHistory/UIDisplay/Operations';
-import a from 'constants/MoveHistory/Database/Actions';
-import t from 'constants/MoveHistory/Database/Tables';
 import e from 'constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemCustomerContacts';
 
 describe('when given a Create basic service item customer contacts history record', () => {
   const firstHistoryRecord = {
-    action: a.INSERT,
+    action: 'INSERT',
     changedValues: {
       first_available_delivery_date: '2022-11-15',
       time_military: '1400Z',
@@ -16,16 +13,17 @@ describe('when given a Create basic service item customer contacts history recor
     },
     context: [
       {
+        name: 'Domestic destination 1st day SIT',
         shipment_id_abbr: 'c3a9e',
         shipment_type: 'HHG',
       },
     ],
-    eventName: o.createMTOServiceItem,
-    tableName: t.mto_service_item_customer_contacts,
+    eventName: 'createMTOServiceItem',
+    tableName: 'mto_service_item_customer_contacts',
   };
 
   const secondHistoryRecord = {
-    action: a.INSERT,
+    action: 'INSERT',
     changedValues: {
       first_available_delivery_date: '2022-11-16',
       time_military: '1500Z',
@@ -33,12 +31,13 @@ describe('when given a Create basic service item customer contacts history recor
     },
     context: [
       {
+        name: 'Domestic destination 1st day SIT',
         shipment_id_abbr: 'c3a9e',
         shipment_type: 'HHG',
       },
     ],
-    eventName: o.createMTOServiceItem,
-    tableName: t.mto_service_item_customer_contacts,
+    eventName: 'createMTOServiceItem',
+    tableName: 'mto_service_item_customer_contacts',
   };
 
   it('correctly matches the create service item customer contacts event', () => {
@@ -51,7 +50,7 @@ describe('when given a Create basic service item customer contacts history recor
     const template = getTemplate(firstHistoryRecord);
 
     render(template.getDetails(firstHistoryRecord));
-    expect(screen.getByText('HHG shipment #C3A9E'));
+    expect(screen.getByText('HHG shipment #C3A9E, Domestic destination 1st day SIT'));
   });
 
   describe('when given a specific set of details', () => {

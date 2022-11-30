@@ -37,6 +37,7 @@ else
 fi
 
 gotest_args=("-count" "1")
+gotest_args+=("-race")
 if [ -n "${CIRCLECI+x}" ]; then
 	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
   gotest_args+=("-parallel" "4")
@@ -65,7 +66,7 @@ fi
 # Add coverage tracker via go cover
 if [[ "${COVERAGE:-}" == "1" ]]; then
   coverpkg=$(echo "${package_list[@]}" | paste -s -d , - | tr '[:blank:]' ',')
-  gotest_args+=(-coverprofile=coverage.out -covermode=count -coverpkg="${coverpkg}")
+  gotest_args+=(-coverprofile=coverage.out -covermode=atomic -coverpkg="${coverpkg}")
 fi
 
 # Set up the test DB instance and wipe it

@@ -445,6 +445,54 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 	return model
 }
 
+// ProgearWeightTicketModelFromUpdate model
+func ProgearWeightTicketModelFromUpdate(progearWeightTicket *ghcmessages.UpdateProGearWeightTicket) *models.ProgearWeightTicket {
+	if progearWeightTicket == nil {
+		return nil
+	}
+
+	model := &models.ProgearWeightTicket{
+		Weight:           handlers.PoundPtrFromInt64Ptr(progearWeightTicket.Weight),
+		HasWeightTickets: handlers.FmtBool(progearWeightTicket.HasWeightTickets),
+		BelongsToSelf:    handlers.FmtBool(progearWeightTicket.BelongsToSelf),
+		Status:           (*models.PPMDocumentStatus)(handlers.FmtString(string(progearWeightTicket.Status))),
+		Reason:           handlers.FmtString(progearWeightTicket.Reason),
+	}
+	return model
+}
+
+// WeightTicketModelFromUpdate
+func WeightTicketModelFromUpdate(weightTicket *ghcmessages.UpdateWeightTicket) *models.WeightTicket {
+	if weightTicket == nil {
+		return nil
+	}
+	model := &models.WeightTicket{
+		EmptyWeight:          handlers.PoundPtrFromInt64Ptr(weightTicket.EmptyWeight),
+		FullWeight:           handlers.PoundPtrFromInt64Ptr(weightTicket.FullWeight),
+		OwnsTrailer:          handlers.FmtBool(weightTicket.OwnsTrailer),
+		TrailerMeetsCriteria: handlers.FmtBool(weightTicket.TrailerMeetsCriteria),
+		Status:               (*models.PPMDocumentStatus)(handlers.FmtString(string(weightTicket.Status))),
+		Reason:               handlers.FmtString(weightTicket.Reason),
+	}
+	return model
+}
+
+// MovingExpenseModelFromUpdate
+func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense) *models.MovingExpense {
+	if movingExpense == nil {
+		return nil
+	}
+	model := &models.MovingExpense{
+		Amount:       handlers.FmtInt64PtrToPopPtr(&movingExpense.Amount),
+		SITStartDate: handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
+		SITEndDate:   handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
+		Status:       (*models.PPMDocumentStatus)(handlers.FmtString(string(movingExpense.Status))),
+		Reason:       handlers.FmtString(movingExpense.Reason),
+	}
+
+	return model
+}
+
 func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) (*models.EvaluationReport, error) {
 	if evaluationReport == nil {
 		err := apperror.NewPreconditionFailedError(uuid.UUID{}, errors.New("Cannot update empty report"))

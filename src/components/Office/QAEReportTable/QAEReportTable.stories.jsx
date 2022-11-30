@@ -1,12 +1,12 @@
 import React from 'react';
 
-import EvaluationReportTable from './EvaluationReportTable';
+import QAEReportTable from './QAEReportTable';
 
 import { MockProviders } from 'testUtils';
 
 export default {
-  title: 'Office Components/EvaluationReportTable',
-  component: EvaluationReportTable,
+  title: 'Office Components/QAEReportTable',
+  component: QAEReportTable,
   decorators: [(Story) => <MockProviders>{Story()}</MockProviders>],
 };
 
@@ -45,12 +45,12 @@ const reports = [
 
 export const empty = () => (
   <div className="officeApp">
-    <EvaluationReportTable reports={[]} emptyText="No QAE reports have been submitted for this shipment." />
+    <QAEReportTable reports={[]} emptyText="No QAE reports have been submitted for this shipment." />
   </div>
 );
 
 export const single = () => (
   <div className="officeApp">
-    <EvaluationReportTable reports={reports} emptyText="No QAE reports have been submitted for this shipment." />
+    <QAEReportTable reports={reports} emptyText="No QAE reports have been submitted for this shipment." />
   </div>
 );

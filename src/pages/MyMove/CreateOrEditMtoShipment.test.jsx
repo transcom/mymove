@@ -45,7 +45,6 @@ const defaultProps = {
   },
   fetchCustomerData: jest.fn(),
   updateMTOShipment: jest.fn(),
-  selectedMoveType: '',
   mtoShipment: {},
   currentResidence: {},
   serviceMember: {
@@ -98,7 +97,7 @@ const renderComponent = (props, options) => render(<CreateOrEditMtoShipment {...
 describe('CreateOrEditMtoShipment component', () => {
   it('fetches customer data on mount', () => {
     renderComponent({
-      selectedMoveType: SHIPMENT_OPTIONS.NTSR,
+      mtoShipment: { shipmentType: SHIPMENT_OPTIONS.NTSR },
     });
     expect(defaultProps.fetchCustomerData).toHaveBeenCalled();
   });
@@ -107,6 +106,7 @@ describe('CreateOrEditMtoShipment component', () => {
     it('renders the PPM date and location page if the shipment type is PPM', async () => {
       renderComponent(
         {
+          mtoShipment: { shipmentType: SHIPMENT_OPTIONS.NTSR },
           location: {
             search: `?type=${SHIPMENT_OPTIONS.PPM}`,
           },
@@ -119,6 +119,7 @@ describe('CreateOrEditMtoShipment component', () => {
 
     it('renders the MtoShipmentForm component right away', async () => {
       renderComponent({
+        mtoShipment: { shipmentType: SHIPMENT_OPTIONS.HHG },
         location: {
           search: `?type=${SHIPMENT_OPTIONS.HHG}`,
         },
