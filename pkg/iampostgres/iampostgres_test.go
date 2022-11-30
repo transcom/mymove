@@ -7,7 +7,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
 )
 
@@ -31,7 +30,7 @@ func TestEnableIamNilCreds(t *testing.T) {
 	assert := assert.New(t)
 
 	rdsu := RDSUTest{}
-	logger, _ := zap.NewProduction()
+	logger := zaptest.NewLogger(t)
 
 	tmr := time.NewTicker(1 * time.Second)
 
