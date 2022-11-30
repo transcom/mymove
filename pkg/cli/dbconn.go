@@ -111,10 +111,10 @@ const (
 	// DbPoolMax is the upper limit the db pool can use for connections which constrains the user input
 	DbPoolMax int = awsRdsT3SmallMaxConnections
 	// DbConnMaxLifetimeDefault is how long a connection should be
-	// left open to the database
+	// left open to the database. 1 hour is picked arbitrarily
 	DbConnMaxLifetimeDefault = 1 * time.Hour
 	// DbConnMaxIdleTimeDefault is how long a connection remains idle
-	// before being closed
+	// before being closed. 15 minutes is picked arbitrarily
 	DbConnMaxIdleTimeDefault = 15 * time.Minute
 )
 

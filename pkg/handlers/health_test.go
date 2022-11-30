@@ -37,7 +37,6 @@ func (suite *HealthSuite) TestHealthHandler() {
 }
 
 func (suite *HealthSuite) TestHealthHandlerDBFailure() {
-
 	badDb := suite.AppContextForTest().DB()
 	// start a transaction
 	suite.NoError(badDb.RawQuery("BEGIN").Exec())

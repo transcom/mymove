@@ -53,6 +53,7 @@ func TestGetCurrentPassword(t *testing.T) {
 	logger := zaptest.NewLogger(t)
 	iamConfig.currentIamPass = "" // ensure iamConfig is in new state
 
+	// use Millisecond so the tests run faster
 	tickerDuration := 1 * time.Millisecond
 	pauseCounter := 0
 	iamConfig.pauseFn = func() {
@@ -93,6 +94,7 @@ func TestGetCurrentPasswordFail(t *testing.T) {
 	logger := zaptest.NewLogger(t)
 	iamConfig.currentIamPass = ""
 
+	// use Millisecond so the tests run faster
 	tickerDuration := 1 * time.Millisecond
 	pauseCounter := 0
 	iamConfig.pauseFn = func() {
@@ -156,6 +158,7 @@ func TestEnableIAMNormal(t *testing.T) {
 	pauseCounter := 0
 	iamConfig.pauseFn = func() { pauseCounter++ }
 
+	// use Millisecond so the tests run faster
 	tmr := time.NewTicker(1 * time.Millisecond)
 
 	shouldQuitChan := make(chan bool)
@@ -175,6 +178,7 @@ func TestEnableIAMNormal(t *testing.T) {
 
 	// The sleep time should be greater than how often the password will cycle
 	// so that the next time the password is fetched, it will have changed.
+	// use Millisecond so the tests run faster
 	time.Sleep(2 * time.Millisecond)
 
 	// Confirm that the password has changed (it's no longer the initial
