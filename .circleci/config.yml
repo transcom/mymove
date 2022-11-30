@@ -28,16 +28,12 @@ references:
   # in dp3-env (loadtest, demo, exp), or
   # `placeholder_branch_name` if you don't want to deploy to dp3
   #
-  # In addition, it's common practice to disable acceptance tests and
-  # ignore tests for dp3 deploys. See the branch settings below.
+  # In addition, it's common practice to ignore tests for dp3 deploys.
+  # See the branch settings below.
   dp3-branch: &dp3-branch placeholder_branch_name
   # MUST BE ONE OF: loadtest, demo, exp.
   # These are used to pull in env vars so the spelling matters!
   dp3-env: &dp3-env placeholder_env
-
-  # set acceptance-branch to the branch you want to ENABLE acceptance
-  # tests, or `placeholder_branch_name` if you don't want to run them
-  acceptance-branch: &acceptance-branch placeholder_branch_name
 
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
@@ -804,63 +800,6 @@ jobs:
       - store_artifacts:
           path: ~/transcom/mymove/tmp/test-results
           destination: test-results
-      - announce_failure
-
-  # `acceptance_tests` runs acceptance tests for the webserver against the local, exp, and staging environments.
-  acceptance_tests:
-    executor: mymove_compiler
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
-      - run:
-          name: Run Local acceptance tests
-          command: |
-            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
-            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-            source $BASH_ENV
-            make acceptance_test
-          environment:
-            CHAMBER_RETRIES: 20
-            DB_RETRY_INTERVAL: 5s
-            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
-            ENV: test
-            ENVIRONMENT: test
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
-            NO_TLS_ENABLED: true
-            PWD: /home/circleci/transcom/mymove
-      - aws_vars_dp3
-      - run:
-          name: Run dp3 acceptance tests
-          command: make acceptance_test
-          environment:
-            CHAMBER_RETRIES: 20
-            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
-            ENV: *dp3-env
-            ENVIRONMENT: *dp3-env
-            NO_TLS_ENABLED: true
-            PWD: /home/circleci/transcom/mymove
-            TEST_ACC_ENV: *dp3-env
-      - aws_vars_stg
-      - run:
-          name: Run Staging acceptance tests
-          command: make acceptance_test
-          environment:
-            CHAMBER_RETRIES: 20
-            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
-            ENV: stg
-            ENVIRONMENT: stg
-            NO_TLS_ENABLED: true
-            PWD: /home/circleci/transcom/mymove
-            TEST_ACC_ENV: stg
-      - run: echo "Prod acceptance tests are prohibited in CircleCI"
       - announce_failure
 
   # separate the integration tests by site so that if there is a flaky
@@ -1756,15 +1695,6 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
-
-      - acceptance_tests:
-          requires:
-            - pre_deps_golang
-          # See comments at the top of this file for configuring/using
-          # this branch config
-          filters:
-            branches:
-              only: *acceptance-branch
 
       - integration_tests_admin:
           requires:
