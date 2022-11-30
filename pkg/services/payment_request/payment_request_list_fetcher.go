@@ -146,7 +146,8 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		"PaymentServiceItems.MTOServiceItem.ReService",
 		"PaymentServiceItems.MTOServiceItem.MTOShipment",
 		"MoveTaskOrder.Contractor",
-		"MoveTaskOrder.Orders").
+		"MoveTaskOrder.Orders.ServiceMember",
+		"MoveTaskOrder.Orders.NewDutyLocation.Address").
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
