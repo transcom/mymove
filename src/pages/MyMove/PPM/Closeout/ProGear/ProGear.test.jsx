@@ -72,30 +72,32 @@ const mockProGearWeightTicket = {
   eTag: mockProGearWeightTicketETag,
 };
 
+const mockUploads = [
+  {
+    id: '299e2fb4-432d-4261-bbed-d8280c6090af',
+    createdAt: '2022-06-22T23:25:50.490Z',
+    bytes: 819200,
+    url: 'a/fake/path',
+    filename: 'weight_ticket.jpg',
+    contentType: 'image/jpg',
+  },
+  {
+    id: 'fd4e80f8-d025-44b2-8c33-15240fac51ab',
+    createdAt: '2022-06-24T23:25:50.490Z',
+    bytes: 204800,
+    url: 'a/fake/path',
+    filename: 'weight_ticket.pdf',
+    contentType: 'application/pdf',
+  },
+];
+
 const mockProGearWeightTicketWithUploads = {
   id: mockProGearWeightTicketId,
   ppmShipmentId: mockPPMShipmentId,
   belongsToSelf: false,
   documentId: mockDocumentId,
   document: {
-    uploads: [
-      {
-        id: '299e2fb4-432d-4261-bbed-d8280c6090af',
-        createdAt: '2022-06-22T23:25:50.490Z',
-        bytes: 819200,
-        url: 'a/fake/path',
-        filename: 'weight_ticket.jpg',
-        contentType: 'image/jpg',
-      },
-      {
-        id: 'fd4e80f8-d025-44b2-8c33-15240fac51ab',
-        createdAt: '2022-06-24T23:25:50.490Z',
-        bytes: 204800,
-        url: 'a/fake/path',
-        filename: 'weight_ticket.pdf',
-        contentType: 'application/pdf',
-      },
-    ],
+    uploads: mockUploads,
   },
   eTag: mockProGearWeightTicketETag,
 };
@@ -291,6 +293,7 @@ describe('Pro-gear page', () => {
   });
 
   it('displays an error if delete fails', async () => {
+    mockProGearWeightTicketWithUploads.document.uploads = mockUploads;
     useParams.mockImplementation(() => ({
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
