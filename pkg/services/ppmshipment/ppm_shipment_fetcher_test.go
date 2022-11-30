@@ -178,4 +178,14 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 		suite.Len(actualShipment.ProgearExpenses[0].Document.UserUploads, 0)
 		suite.Len(actualShipment.MovingExpenses[0].Document.UserUploads, 0)
 	})
+
+	suite.Run("FetchPPMShipmentFromMTOShipmentID - finds records", func() {
+		ppm := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+
+		retrievedPPM, _ := FetchPPMShipmentFromMTOShipmentID(suite.AppContextForTest(), ppm.ShipmentID)
+
+		suite.Equal(retrievedPPM.ID, ppm.ID)
+		suite.Equal(retrievedPPM.ShipmentID, ppm.ShipmentID)
+
+	})
 }

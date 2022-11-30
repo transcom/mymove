@@ -137,3 +137,21 @@ func FindPPMShipmentWithDocument(appCtx appcontext.AppContext, ppmShipmentID uui
 
 	return nil
 }
+
+func FetchPPMShipmentFromMTOShipmentID(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (*models.PPMShipment, error) {
+	var ppmShipment models.PPMShipment
+
+	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).EagerPreload("Shipment", "W2Address", "WeightTickets").
+		Where("ppm_shipments.shipment_id = ?", mtoShipmentID).
+		First(&ppmShipment)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(mtoShipmentID, "while looking for PPMShipment")
+		default:
+			return nil, apperror.NewQueryError("PPMShipment", err, "")
+		}
+	}
+	return &ppmShipment, nil
+}
