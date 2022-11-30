@@ -29,7 +29,8 @@ import {
   useCalculatedTotalBillableWeight,
   useCalculatedWeightRequested,
 } from 'hooks/custom';
-import { updateFinancialFlag, updateMTOShipment } from 'services/ghcApi';
+import { updateFinancialFlag, updateMTOReviewedBillableWeights, updateMTOShipment } from 'services/ghcApi';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import LeftNav from 'components/LeftNav/LeftNav';
@@ -54,6 +55,18 @@ const MovePaymentRequests = ({
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const filteredShipments = mtoShipments?.filter((shipment) => {
     return includedStatusesForCalculatingWeights(shipment.status);
+  });
+
+  const [mutateMoves] = useMutation(updateMTOReviewedBillableWeights, {
+    onSuccess: (data, variables) => {
+      const updatedMove = data.moves[variables.moveTaskOrderID];
+      queryCache.setQueryData([MOVES, move.locator], updatedMove);
+      queryCache.invalidateQueries([MOVES, move.locator]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
   });
 
   const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
@@ -155,6 +168,11 @@ const MovePaymentRequests = ({
 
   const handleReviewWeightsClick = () => {
     history.push(generatePath(tioRoutes.BILLABLE_WEIGHT_PATH, { moveCode }));
+    const payload = {
+      moveTaskOrderID: move?.id,
+      ifMatchETag: move?.eTag,
+    };
+    mutateMoves(payload);
   };
 
   const handleEditAccountingCodes = (shipmentID, body) => {
