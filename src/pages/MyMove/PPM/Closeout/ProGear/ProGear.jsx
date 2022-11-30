@@ -96,8 +96,9 @@ const ProGear = () => {
       });
   };
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     setErrorMessage(null);
+    setErrors({});
     const hasWeightTickets = !values.missingWeightTicket;
     const belongsToSelf = values.belongsToSelf === 'true';
     const payload = {

@@ -3,8 +3,7 @@ import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
 import { Field, Formik } from 'formik';
 import { func, number } from 'prop-types';
-import { Button, Form, Link, Radio } from '@trussworks/react-uswds';
-import { FormGroup } from '@material-ui/core';
+import { ErrorMessage, Button, Form, FormGroup, Link, Radio } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
 import { formatWeight } from 'utils/formatters';
@@ -61,7 +60,7 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
     document: document?.uploads || [],
     weight: weight ? `${weight}` : '',
     description: description ? `${description}` : '',
-    missingWeightTicket: hasWeightTickets === 'false',
+    missingWeightTicket: hasWeightTickets === false,
   };
 
   const jtr = (
@@ -81,11 +80,14 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
             <Form className={classnames(ppmStyles.form, styles.form)}>
               <SectionWrapper className={formStyles.formSection}>
                 <h2>Set {setNumber}</h2>
-                <FormGroup>
+                <FormGroup error={formikProps.touched?.belongsToSelf && formikProps.errors?.belongsToSelf}>
                   <Fieldset>
                     <label htmlFor="belongsToSelf" className={classnames('usa-label', styles.descriptionTextField)}>
                       Who does this pro-gear belong to?
                       <Hint className={styles.hint}>You have to separate yours and your spouse&apos;s pro-gear.</Hint>
+                      {formikProps.touched?.belongsToSelf && formikProps.errors?.belongsToSelf && (
+                        <ErrorMessage>{formikProps.errors?.belongsToSelf}</ErrorMessage>
+                      )}
                     </label>
                     <Field
                       as={Radio}
