@@ -49,6 +49,8 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(mtoagentop.NewFetchMTOAgentListOK(), response)
+		payload := response.(*mtoagentop.FetchMTOAgentListOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Error Response", func() {
@@ -74,6 +76,8 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 		response := handler.Handle(params)
 		expectedResponse := mtoagentop.NewFetchMTOAgentListInternalServerError()
 		suite.Equal(expectedResponse, response)
+		payload := response.(*mtoagentop.FetchMTOAgentListInternalServerError).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 
 	suite.Run("404 Response", func() {
@@ -99,5 +103,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 		response := handler.Handle(params)
 		expectedResponse := mtoagentop.NewFetchMTOAgentListNotFound()
 		suite.Equal(expectedResponse, response)
+		payload := response.(*mtoagentop.FetchMTOAgentListNotFound).Payload
+		suite.Nil(payload) // No payload to validate
 	})
 }
