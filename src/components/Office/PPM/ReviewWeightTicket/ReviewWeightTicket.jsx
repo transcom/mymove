@@ -227,7 +227,7 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
                           id={`rejectReason-${weightTicket?.id}`}
                           name="rejectionReason"
                           onChange={handleChange}
-                          // value={rejectionReason}
+                          value={values.rejectionReason}
                         />
                       )}
                     </FormGroup>
