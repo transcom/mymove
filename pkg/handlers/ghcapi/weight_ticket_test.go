@@ -97,25 +97,25 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		suite.IsType(&weightticketops.UpdateWeightTicketBadRequest{}, response)
 	})
 
-	// TODO: 401 - Permission Denied - test
-	//suite.Run("POST failure - 401 - permission denied - not authenticated", func() {
-	//	subtestData := suite.makeListSubtestData()
-	//	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	//	unauthorizedReq := suite.AuthenticateOfficeRequest(subtestData.params.HTTPRequest, officeUser)
-	//	unauthorizedParams := weightticketops.ListMTOShipmentsParams{
-	//		HTTPRequest:     unauthorizedReq,
-	//		WeightTicketID: *handlers.FmtUUID(subtestData.shipments[0].MoveTaskOrderID),
-	//	}
-	//	mockWeightTicket := &mocks.WeightTicketUpdater{}
-	//	handler := UpdateWeightTicketHandler{
-	//		suite.HandlerConfig(),
-	//		mockWeightTicketUpdater,
-	//	}
-	//
-	//	response := handler.Handle(unauthorizedParams)
-	//
-	//	suite.IsType(&weightticketops.UpdateWeightTicketUnauthorized{}, response)
-	//})
+	suite.Run("POST failure - 401 - permission denied - not authenticated", func() {
+		appCtx := suite.AppContextForTest()
+		subtestData := makeUpdateSubtestData(appCtx, false)
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		unauthorizedReq := suite.AuthenticateOfficeRequest(subtestData.params.HTTPRequest, officeUser)
+		unauthorizedParams := weightticketops.UpdateWeightTicketParams{
+			HTTPRequest:    unauthorizedReq,
+			WeightTicketID: *handlers.FmtUUID(subtestData.weightTicket.ID),
+		}
+		mockWeightTicketUpdater := &mocks.WeightTicketUpdater{}
+		handler := UpdateWeightTicketHandler{
+			suite.HandlerConfig(),
+			mockWeightTicketUpdater,
+		}
+
+		response := handler.Handle(unauthorizedParams)
+
+		suite.IsType(&weightticketops.UpdateWeightTicketUnauthorized{}, response)
+	})
 
 	suite.Run("PATCH failure - 404- not found", func() {
 		appCtx := suite.AppContextForTest()
