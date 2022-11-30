@@ -35,7 +35,7 @@ export default function PPMHeaderSummary({ ppmShipment, ppmNumber }) {
             <span className={styles.light}>{actualDestinationPostalCode}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Advance recieved</Label>
+            <Label className={styles.headerLabel}>Advance received</Label>
             <span className={styles.light}>
               {hasReceivedAdvance ? `Yes, $${formatCentsTruncateWhole(advanceAmountReceived)}` : 'No'}
             </span>
