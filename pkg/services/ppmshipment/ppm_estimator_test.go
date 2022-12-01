@@ -621,6 +621,135 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		})
 	})
 
+	suite.Run("Final Incentive", func() {
+		suite.Run("Final Incentive - Success", func() {
+			setupPricerData()
+			actualMoveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			oldPPMShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					ActualPickupPostalCode:      models.StringPointer("90210"),
+					ActualDestinationPostalCode: models.StringPointer("30813"),
+					ActualMoveDate:              models.TimePointer(actualMoveDate),
+					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+				},
+			})
+
+			// shipment has locations and date but is now updating the net weight for the first time
+			netWeight := unit.Pound(5000)
+			newPPM := oldPPMShipment
+			estimatedWeight := unit.Pound(5000)
+			newPPM.NetWeight = &netWeight
+			newPPM.EstimatedWeight = &estimatedWeight
+
+			mockedPaymentRequestHelper.On(
+				"FetchServiceParamsForServiceItems",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+			// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"90210", "30813").Return(2294, nil)
+
+			ppmFinal, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NilOrNoVerrs(err)
+
+			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"90210", "30813")
+			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+
+			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
+			suite.Equal(unit.Pound(5000), *newPPM.NetWeight)
+			suite.Equal(unit.Cents(70064364), *ppmFinal)
+		})
+
+		// suite.Run("Estimated Incentive - Success - clears advance and advance requested values", func() {
+		// 	oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+		// 		PPMShipment: models.PPMShipment{
+		// 			Status: models.PPMShipmentStatusDraft,
+		// 		},
+		// 	})
+
+		// 	setupPricerData()
+
+		// 	newPPM := oldPPMShipment
+
+		// 	// updating the departure date will re-calculate the estimate and clear the previously requested advance
+		// 	newPPM.ExpectedDepartureDate = time.Date(testdatagen.GHCTestYear, time.March, 30, 0, 0, 0, 0, time.UTC)
+
+		// 	mockedPaymentRequestHelper.On(
+		// 		"FetchServiceParamsForServiceItems",
+		// 		mock.AnythingOfType("*appcontext.appContext"),
+		// 		mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+		// 	// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
+		// 	mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+		// 		"90210", "30813").Return(2294, nil).Once()
+
+		// 	ppmEstimate, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+		// 	suite.NilOrNoVerrs(err)
+		// 	suite.Nil(newPPM.HasRequestedAdvance)
+		// 	suite.Nil(newPPM.AdvanceAmountRequested)
+		// 	suite.Equal(unit.Cents(38213948), *ppmEstimate)
+		// })
+
+		// suite.Run("Estimated Incentive - does not change when required fields are the same", func() {
+		// 	oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+		// 		PPMShipment: models.PPMShipment{
+		// 			Status:             models.PPMShipmentStatusDraft,
+		// 			EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+		// 		},
+		// 	})
+
+		// 	newPPM := oldPPMShipment
+		// 	newPPM.HasProGear = models.BoolPointer(false)
+
+		// 	estimatedIncentive, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+		// 	suite.NilOrNoVerrs(err)
+		// 	suite.Equal(oldPPMShipment.PickupPostalCode, newPPM.PickupPostalCode)
+		// 	suite.Equal(*oldPPMShipment.EstimatedWeight, *newPPM.EstimatedWeight)
+		// 	suite.Equal(oldPPMShipment.DestinationPostalCode, newPPM.DestinationPostalCode)
+		// 	suite.True(oldPPMShipment.ExpectedDepartureDate.Equal(newPPM.ExpectedDepartureDate))
+		// 	suite.Equal(*oldPPMShipment.EstimatedIncentive, *estimatedIncentive)
+		// 	suite.Equal(models.BoolPointer(true), newPPM.HasRequestedAdvance)
+		// 	suite.Equal(unit.Cents(598700), *newPPM.AdvanceAmountRequested)
+		// })
+
+		// suite.Run("Estimated Incentive - does not change when status is not DRAFT", func() {
+		// 	oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+		// 		PPMShipment: models.PPMShipment{
+		// 			EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+		// 		},
+		// 	})
+
+		// 	newPPM := models.PPMShipment{
+		// 		ID:                    uuid.FromStringOrNil("575c25aa-b4eb-4024-9597-43483003c773"),
+		// 		ShipmentID:            oldPPMShipment.ShipmentID,
+		// 		Status:                models.PPMShipmentStatusPaymentApproved,
+		// 		ExpectedDepartureDate: oldPPMShipment.ExpectedDepartureDate,
+		// 		PickupPostalCode:      oldPPMShipment.PickupPostalCode,
+		// 		DestinationPostalCode: "94040",
+		// 		EstimatedWeight:       oldPPMShipment.EstimatedWeight,
+		// 		SITExpected:           oldPPMShipment.SITExpected,
+		// 		EstimatedIncentive:    models.CentPointer(unit.Cents(600000)),
+		// 	}
+
+		// 	ppmEstimate, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+		// 	suite.NilOrNoVerrs(err)
+		// 		suite.Equal(oldPPMShipment.EstimatedIncentive, ppmEstimate)
+		// 	})
+
+		// 	suite.Run("Estimated Incentive - Success - is skipped when Estimated Weight is missing", func() {
+		// 		oldPPMShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+
+		// 		newPPM := oldPPMShipment
+		// 		newPPM.DestinationPostalCode = "94040"
+
+		// 		_, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+		// 		suite.NoError(err)
+		// 		suite.Nil(newPPM.EstimatedIncentive)
+		// 	})
+	})
+
 	suite.Run("SIT Estimated Cost", func() {
 		// For comparison should be priced the same as ORGSIT in devseed
 		suite.Run("Success - Origin First Day and Additional Day SIT", func() {

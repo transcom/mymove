@@ -65,8 +65,8 @@ func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, old
 
 	return oldPPMShipment.ActualMoveDate.Equal(*newPPMShipment.ActualMoveDate) &&
 		*newPPMShipment.ActualPickupPostalCode == *oldPPMShipment.ActualPickupPostalCode &&
-		*newPPMShipment.ActualDestinationPostalCode == *oldPPMShipment.ActualDestinationPostalCode &&
-		*newPPMShipment.NetWeight == *oldPPMShipment.NetWeight
+		*newPPMShipment.ActualDestinationPostalCode == *oldPPMShipment.ActualDestinationPostalCode
+	// *newPPMShipment.NetWeight == *oldPPMShipment.NetWeight
 }
 
 func shouldCalculateSITCost(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
@@ -160,7 +160,7 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 	if err != nil {
 		switch err.(type) {
 		case apperror.InvalidInputError:
-			return nil, nil
+			return nil, err
 		default:
 			return nil, err
 		}
