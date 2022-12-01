@@ -6,10 +6,47 @@
 
 readonly environment="$1"
 
-# Validate the environments
-if [[ "${environment}" != "demo" ]] && [[ "${environment}" != "loadtest" ]] && [[ "${environment}" != "exp" ]] && [[ "${environment}" != "stg" ]] && [[ "${environment}" != "prd" ]] ; then
-  echo "<environment> must be one of loadtest, demo, exp, stg, prd."
+# where is this script?
+script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+# assume that the relevant transcom-infrasec repo should be checked
+# out as a peer of mymove. This is in the mymove/scripts directory so
+# $script_dir/../.. would be the directory to find the
+# transcom-infrasec repo
+
+base_dir=$(cd -- "${script_dir}/../.." &>/dev/null && pwd)
+
+case "${environment}" in
+    "demo")
+        awsdir="${base_dir}/transcom-infrasec-gov-nonato/transcom-gov-milmove-demo"
+      ;;
+    "exp")
+        awsdir="${base_dir}/transcom-infrasec-gov-nonato/transcom-gov-milmove-exp"
+      ;;
+    "loadtest")
+        awsdir="${base_dir}/transcom-infrasec-gov-nonato/transcom-gov-milmove-loadtest"
+        ;;
+    "stg")
+        awsdir="${base_dir}/transcom-infrasec-gov/transcom-gov-milmove-stg"
+        ;;
+    "prd")
+        awsdir="${base_dir}/transcom-infrasec-gov/transcom-gov-milmove-prd"
+        ;;
+    *)
+        echo "Unknown environment '${environment}'"
+        echo "Must be one of demo, exp, loadtest, stg, prd"
+        exit 1
+    ;;
+esac
+
+doc_url="https://dp3.atlassian.net/wiki/spaces/MT/pages/1469284401/How+to+search+AWS+CloudWatch+with+Instance+ID#Login-to-AWS"
+
+if [ ! -d "${awsdir}" ]; then
+  echo "Please checkout '${awsdir}'"
+  echo "See ${doc_url}"
   exit 1
 fi
 
-open "https://console.amazonaws-us-gov.com/cloudwatch/home?region=us-gov-west-1#logsV2:log-groups/log-group/ecs-tasks-app-${environment}"
+cd "${awsdir}" || exit 1
+eval "$(direnv export bash)"
+exec aws-vault login "${AWS_PROFILE}"
