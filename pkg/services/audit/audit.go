@@ -16,6 +16,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/audit"
 	"github.com/transcom/mymove/pkg/auth"
 )
 
@@ -26,7 +27,7 @@ func Capture(appCtx appcontext.AppContext, model interface{}, payload interface{
 	msg := flect.Titleize(eventType)
 
 	logItems = append(logItems, zap.String("event_type", eventType))
-	logItems = append(logItems, extractResponsibleUser(appCtx.Session())...)
+	logItems = append(logItems, extractAuditUser(request)...)
 
 	item, err := validateInterface(model)
 	if err == nil && reflect.ValueOf(model).IsValid() && !reflect.ValueOf(model).IsNil() && !reflect.ValueOf(model).IsZero() {
@@ -101,6 +102,17 @@ func CaptureAccountStatus(appCtx appcontext.AppContext, model interface{}, activ
 
 	appCtx.Logger().Info(msg, logItems...)
 	return logItems, nil
+}
+
+func extractAuditUser(request *http.Request) []zap.Field {
+	var logItems []zap.Field
+	auditUser := audit.RetrieveAuditUserFromContext(request.Context())
+	logItems = append(logItems,
+		zap.String("audit_user_id", auditUser.ID.String()),
+		zap.String("audit_user_email", auditUser.LoginGovEmail),
+		zap.String("BLAHBLAHBLAH", "BLAH"),
+	)
+	return logItems
 }
 
 func extractResponsibleUser(session *auth.Session) []zap.Field {

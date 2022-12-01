@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/audit"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -34,15 +34,6 @@ func ClientCertFromContext(ctx context.Context) *models.ClientCert {
 		return clientCert
 	}
 	return nil
-}
-
-// SetMockSessionInContext returns a copy of the request's Context() with a mock session containing the user id of the user
-// linked to the client certificate data. This user id is used for auditing purposes.
-func SetMockSessionInContext(ctx context.Context, user models.User) context.Context {
-	mockSession := auth.Session{
-		UserID: user.ID,
-	}
-	return auth.SetSessionInContext(ctx, &mockSession)
 }
 
 // ClientCertMiddleware enforces that the incoming request includes a known client certificate, and stores the fetched permissions in the session
@@ -75,7 +66,7 @@ func ClientCertMiddleware(appCtx appcontext.AppContext) func(next http.Handler) 
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
-			ctx = SetMockSessionInContext(ctx, user)
+			ctx = audit.WithAuditUser(ctx, user)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
@@ -119,7 +110,7 @@ func DevlocalClientCertMiddleware(appCtx appcontext.AppContext) func(next http.H
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
-			ctx = SetMockSessionInContext(ctx, user)
+			ctx = audit.WithAuditUser(ctx, user)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
