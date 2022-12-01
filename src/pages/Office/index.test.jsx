@@ -503,5 +503,16 @@ describe('Office App', () => {
         expect(renderedRoute.prop('path')).toEqual(pathToMatch);
       });
     });
+
+    describe('page not found route', () => {
+      it('handles a nonexistent route by returning a 404 page', () => {
+        render(
+          <MockProviders initialEntries={['/pageNotFound']}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
+        expect(screen.getByText('Error - 404')).toBeInTheDocument();
+      });
+    });
   });
 });

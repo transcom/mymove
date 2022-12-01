@@ -4,10 +4,7 @@ DB_NAME_TEST = test_db
 DB_DOCKER_CONTAINER_DEV = milmove-db-dev
 DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS = milmove-db-deployed-migrations
 DB_DOCKER_CONTAINER_TEST = milmove-db-test
-# The version of the postgres container should match production as closely
-# as possible.
-# https://github.com/transcom/transcom-infrasec-com/blob/c32c45078f29ea6fd58b0c246f994dbea91be372/transcom-com-legacy/app-prod/main.tf#L62
-DB_DOCKER_CONTAINER_IMAGE = postgres:12.7
+DB_DOCKER_CONTAINER_IMAGE = postgres:12.11
 REDIS_DOCKER_CONTAINER_IMAGE = redis:5.0.6
 REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
@@ -293,9 +290,6 @@ bin/tls-checker: $(shell find cmd/tls-checker -name '*.go') $(PKG_GOSRC)
 bin/generate-payment-request-edi: $(shell find cmd/generate-payment-request-edi -name '*.go') $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-payment-request-edi ./cmd/generate-payment-request-edi
 
-pkg/assets/assets.go:
-	scripts/gen-assets
-
 #
 # ----- END BIN TARGETS -----
 #
@@ -327,7 +321,7 @@ endif
 
 server_generate: .server_generate.stamp
 
-.server_generate.stamp: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp pkg/assets/assets.go bin/swagger $(wildcard swagger/*.yaml) ## Generate golang server code from Swagger files
+.server_generate.stamp: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp bin/swagger $(wildcard swagger/*.yaml) ## Generate golang server code from Swagger files
 	scripts/gen-server
 	touch .server_generate.stamp
 
@@ -1131,7 +1125,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-72166d322751035f17653503d19db22dd14c049e bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-94a41a022a48dab1c05b932734b472922260f3c0 bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images

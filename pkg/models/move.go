@@ -110,6 +110,8 @@ type Move struct {
 	FinancialReviewRemarks       *string                   `db:"financial_review_remarks"`
 	ShipmentGBLOC                MoveToGBLOCs              `has_many:"move_to_gbloc" fk_id:"move_id"`
 	OriginDutyLocationGBLOC      OriginDutyLocationToGBLOC `has_one:"origin_duty_location_to_gbloc" fk_id:"move_id"`
+	CloseoutOfficeID             *uuid.UUID                `db:"closeout_office_id"`
+	CloseoutOffice               *TransportationOffice     `belongs_to:"transportation_offices" fk_id:"closeout_office_id"`
 }
 
 // MoveOptions is used when creating new moves based on parameters
@@ -130,6 +132,7 @@ func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
 		&OptionalTimeIsPresent{Field: m.ExcessWeightQualifiedAt, Name: "ExcessWeightQualifiedAt"},
 		&OptionalUUIDIsPresent{Field: m.ExcessWeightUploadID, Name: "ExcessWeightUploadID"},
+		&OptionalUUIDIsPresent{Field: m.CloseoutOfficeID, Name: "CloseoutOfficeID"},
 	), nil
 }
 

@@ -17,23 +17,34 @@ import Fieldset from 'shared/Fieldset';
 import formStyles from 'styles/form.module.scss';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole } from 'utils/formatters';
-import { InvalidZIPTypeError, UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX } from 'utils/validation';
-
-const validationSchema = Yup.object().shape({
-  actualMoveDate: Yup.date()
-    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-    .required('Required'),
-  actualPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-  actualDestinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-  hasReceivedAdvance: Yup.boolean().required('Required'),
-  advanceAmountReceived: Yup.number().when('hasReceivedAdvance', {
-    is: true,
-    then: (schema) =>
-      schema.required('Required').min(1, "The minimum advance request is $1. If you don't want an advance, select No."),
-  }),
-});
+import {
+  InvalidZIPTypeError,
+  requiredW2AddressSchema,
+  UnsupportedZipCodePPMErrorMsg,
+  ZIP5_CODE_REGEX,
+} from 'utils/validation';
+import { AddressFields } from 'components/form/AddressFields/AddressFields';
 
 const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
+  const formFieldsName = 'w2Address';
+
+  const validationSchema = Yup.object().shape({
+    actualMoveDate: Yup.date()
+      .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
+      .required('Required'),
+    actualPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+    actualDestinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+    hasReceivedAdvance: Yup.boolean().required('Required'),
+    advanceAmountReceived: Yup.number().when('hasReceivedAdvance', {
+      is: true,
+      then: (schema) =>
+        schema
+          .required('Required')
+          .min(1, "The minimum advance request is $1. If you don't want an advance, select No."),
+    }),
+    [formFieldsName]: requiredW2AddressSchema.required(),
+  });
+
   const [postalCodeValid, setPostalCodeValid] = useState({});
 
   const {
@@ -52,6 +63,13 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
     actualDestinationPostalCode: actualDestinationPostalCode || destinationPostalCode || '',
     hasReceivedAdvance: hasReceivedAdvance ? 'true' : 'false',
     advanceAmountReceived: hasReceivedAdvance ? formatCentsTruncateWhole(advanceAmountReceived) : '',
+    [formFieldsName]: {
+      streetAddress1: mtoShipment?.ppmShipment?.w2Address?.streetAddress1 || '',
+      streetAddress2: mtoShipment?.ppmShipment?.w2Address?.streetAddress2 || '',
+      city: mtoShipment?.ppmShipment?.w2Address?.city || '',
+      state: mtoShipment?.ppmShipment?.w2Address?.state || '',
+      postalCode: mtoShipment?.ppmShipment?.w2Address?.postalCode || '',
+    },
   };
 
   const postalCodeValidate = async (value, location, name) => {
@@ -77,7 +95,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
       {({ isValid, isSubmitting, handleSubmit, values }) => {
         return (
           <div className={classnames(ppmStyles.formContainer, styles.AboutForm)}>
-            <Form className={classnames(formStyles.form, ppmStyles.form)}>
+            <Form className={classnames(formStyles.form, ppmStyles.form, styles.W2Address)} data-testid="aboutForm">
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Departure date</h2>
                 <DatePickerInput
@@ -147,6 +165,9 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
                     )}
                   </Fieldset>
                 </FormGroup>
+                <h2>W-2 address</h2>
+                <p>What is the address on your W-2?</p>
+                <AddressFields name={formFieldsName} className={styles.AddressFieldSet} />
               </SectionWrapper>
               <div className={ppmStyles.buttonContainer}>
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>

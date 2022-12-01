@@ -385,10 +385,26 @@ export function formatMtoShipmentForAPI({
   return formattedMtoShipment;
 }
 
+export function getMtoShipmentLabel({ context }) {
+  if (!context) return {};
+  const mtoShipmentLabels = {};
+  if (context[0].shipment_type) {
+    mtoShipmentLabels.shipment_type = context[0].shipment_type;
+  }
+  if (context[0].shipment_id_abbr) {
+    mtoShipmentLabels.shipment_id_display = context[0].shipment_id_abbr.toUpperCase();
+  }
+  if (context[0].name) {
+    mtoShipmentLabels.service_item_name = context[0].name;
+  }
+  return mtoShipmentLabels;
+}
+
 export default {
   formatMtoShipmentForAPI,
   formatMtoShipmentForDisplay,
   formatAddressForAPI,
   formatStorageFacilityForAPI,
   removeEtag,
+  getMtoShipmentLabel,
 };

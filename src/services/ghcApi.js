@@ -446,16 +446,42 @@ export async function getMovesQueue(key, { sort, order, filters = [], currentPag
 
 export async function getServicesCounselingQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20 },
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, needsPPMCloseout = false },
 ) {
   const operationPath = 'queues.getServicesCounselingQueue';
   const paramFilters = {};
   filters.forEach((filter) => {
     paramFilters[`${filter.id}`] = filter.value;
   });
+
   return makeGHCRequest(
     operationPath,
-    { sort, order, page: currentPage, perPage: currentPageSize, ...paramFilters },
+    {
+      sort,
+      order,
+      page: currentPage,
+      perPage: currentPageSize,
+      needsPPMCloseout,
+      ...paramFilters,
+    },
+
+    { schemaKey: 'queueMovesResult', normalize: false },
+  );
+}
+
+export async function getServicesCounselingPPMQueue(
+  key,
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, needsPPMCloseout = true },
+) {
+  const operationPath = 'queues.getServicesCounselingQueue';
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+
+  return makeGHCRequest(
+    operationPath,
+    { sort, order, page: currentPage, perPage: currentPageSize, needsPPMCloseout, ...paramFilters },
     { schemaKey: 'queueMovesResult', normalize: false },
   );
 }

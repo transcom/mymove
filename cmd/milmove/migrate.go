@@ -225,23 +225,19 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 
 	// Create a connection to the DB with retry logic
 	var dbConnection *pop.Connection
-	var errDbConn error
 	retryCount := 0
 	retryMax := v.GetInt(cli.DbRetryMaxFlag)
 	retryInterval := v.GetDuration(cli.DbRetryIntervalFlag)
 
+	dbConnection, err = cli.InitDatabase(v, dbCreds, logger)
+	if err != nil {
+		logger.Fatal("Invalid DB Configuration", zap.Error(err))
+	}
 	for retryCount < retryMax {
-		dbConnection, errDbConn = cli.InitDatabase(v, dbCreds, logger)
-		if errDbConn != nil {
-			if dbConnection == nil {
-				// No connection object means that the configuraton failed to validate and we should kill server startup
-				logger.Fatal("Invalid DB Configuration", zap.Error(errDbConn))
-			} else {
-				// A valid connection object that still has an error indicates that the DB is not up and
-				// thus is not ready for migrations. Attempt to retry connecting.
-				logger.Error(fmt.Sprintf("DB is not ready for connections, sleeping for %q", retryInterval), zap.Error(errDbConn))
-				time.Sleep(retryInterval)
-			}
+		err = cli.PingPopConnection(dbConnection, logger)
+		if err != nil {
+			logger.Error(fmt.Sprintf("DB is not ready for connections, sleeping for %q", retryInterval), zap.Error(err))
+			time.Sleep(retryInterval)
 		} else {
 			break
 		}
@@ -249,7 +245,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		// Retry logic should break after max retries
 		retryCount++
 		if retryCount >= retryMax {
-			logger.Fatal(fmt.Sprintf("DB was not ready for connections after %d retries", retryMax), zap.Error(errDbConn))
+			logger.Fatal(fmt.Sprintf("DB was not ready for connections after %d retries", retryMax), zap.Error(err))
 		}
 	}
 

@@ -58,7 +58,7 @@ export class CreateOrEditMtoShipment extends Component {
           match={match}
           history={history}
           mtoShipment={mtoShipment}
-          selectedMoveType={type || mtoShipment.shipmentType}
+          shipmentType={type || mtoShipment.shipmentType}
           isCreatePage={!!type}
           currentResidence={currentResidence}
           newDutyLocationAddress={newDutyLocationAddress}

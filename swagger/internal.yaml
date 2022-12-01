@@ -686,6 +686,26 @@ definitions:
       CAR_TRAILER: Car + Trailer
       BOX_TRUCK: Box truck
       PRO_GEAR: Pro-gear
+  UpdateProGearWeightTicket:
+    type: object
+    properties:
+      belongsToSelf:
+        description: >-
+          Indicates if this information is for the customer's own pro-gear,
+          otherwise, it's the spouse's.
+        type: boolean
+      description:
+        description: Describes the pro-gear that was moved.
+        type: string
+      hasWeightTickets:
+        description: >-
+          Indicates if the user has a weight ticket for their pro-gear,
+          otherwise they have a constructed weight.
+        type: boolean
+      weight:
+        description: Weight of the vehicle not including the pro-gear.
+        type: integer
+        minimum: 0
   MoveDocumentPayload:
     type: object
     properties:
@@ -1444,7 +1464,7 @@ definitions:
       ppm_id:
         $ref: '#/definitions/PpmID'
       certification_type:
-        $ref: '#/definitions/SignedCertificationType'
+        $ref: '#/definitions/NullableSignedCertificationType'
     required:
       - id
       - move_id
@@ -1477,11 +1497,28 @@ definitions:
       - date
       - signature
       - certification_text
+  SavePPMShipmentSignedCertification:
+    type: object
+    properties:
+      certification_text:
+        description: Text that the customer is agreeing to and signing.
+        type: string
+      signature:
+        description: Customer signature
+        type: string
+      date:
+        description: Date of signature
+        type: string
+        format: date
+    required:
+      - certification_text
+      - signature
+      - date
   SignedCertifications:
     type: array
     items:
       $ref: '#/definitions/SignedCertificationPayload'
-  SignedCertificationType:
+  NullableSignedCertificationType:
     type: string
     enum:
       - PPM_PAYMENT
@@ -1811,6 +1848,8 @@ definitions:
         type: integer
         example: 7000
         x-nullable: true
+      entitlement:
+        $ref: '#/definitions/Entitlement'
     required:
       - id
       - service_member_id
@@ -1823,6 +1862,23 @@ definitions:
       - uploaded_orders
       - created_at
       - updated_at
+  Entitlement:
+    type: object
+    properties:
+      proGear:
+        type: integer
+        example: 2000
+        x-nullable: true
+        description: >
+          Pro-gear weight limit as set by an Office user, distinct from the
+          service member's default weight allotment determined by rank
+      proGearSpouse:
+        type: integer
+        example: 500
+        x-nullable: true
+        description: >
+          Spouse's pro-gear weight limit as set by an Office user, distinct from
+          the service member's default weight allotment determined by rank
   CreateUpdateOrders:
     type: object
     properties:
@@ -3191,11 +3247,11 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      createdAt:
+      updatedAt:
         type: string
         format: date-time
         readOnly: true
-      updatedAt:
+      createdAt:
         type: string
         format: date-time
         readOnly: true
@@ -3218,65 +3274,25 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
-      emptyWeight:
-        description: Weight of the vehicle not including the pro-gear.
+      weight:
+        description: Weight of the pro-gear.
         type: integer
         minimum: 0
         x-nullable: true
         x-omitempty: false
-      emptyDocumentId:
+      documentId:
         description: >-
           The ID of the document that is associated with the user uploads
-          containing the empty vehicle weight.
+          containing the pro-gear weight.
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      emptyDocument:
+      document:
         allOf:
           - description: >-
               Document that is associated with the user uploads containing the
-              empty vehicle weight.
-          - $ref: '#/definitions/Document'
-      fullWeight:
-        description: Weight of the vehicle including the pro-gear.
-        type: integer
-        minimum: 0
-        x-nullable: true
-        x-omitempty: false
-      fullDocumentId:
-        description: >-
-          The ID of the document that is associated with the user uploads
-          containing the full vehicle weight.
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      fullDocument:
-        allOf:
-          - description: >-
-              Document that is associated with the user uploads containing the
-              full vehicle weight.
-          - $ref: '#/definitions/Document'
-      constructedWeight:
-        description: Constructed weight of the pro-gear.
-        type: integer
-        minimum: 0
-        x-nullable: true
-        x-omitempty: false
-      constructedWeightDocumentId:
-        description: >-
-          The ID of the document that is associated with the user uploads
-          containing the constructed weight.
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      constructedWeightDocument:
-        allOf:
-          - description: >-
-              Document that is associated with the user uploads containing the
-              constructed weight.
+              pro-gear weight.
           - $ref: '#/definitions/Document'
       status:
         $ref: '#/definitions/OmittablePPMDocumentStatus'
@@ -3287,16 +3303,89 @@ definitions:
         type: string
         readOnly: true
     required:
-      - id
       - ppmShipmentId
       - createdAt
       - updatedAt
-      - emptyDocumentId
-      - emptyDocument
-      - fullDocumentId
-      - fullDocument
-      - constructedWeightDocumentId
-      - constructedWeightDocument
+      - documentId
+      - document
+  SignedCertificationType:
+    description: |
+      The type of signed certification:
+        - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are
+            ready to submit their documentation for review. When they submit, they will be asked to sign certifying the
+            information is correct.
+        - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.
+    type: string
+    enum:
+      - PPM_PAYMENT
+      - SHIPMENT
+    readOnly: true
+  SignedCertification:
+    description: Signed certification
+    type: object
+    properties:
+      id:
+        description: The ID of the signed certification.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      submittingUserId:
+        description: The ID of the user that signed.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      moveId:
+        description: The ID of the move associated with this signed certification.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      ppmId:
+        description: >-
+          The ID of the PPM shipment associated with this signed certification,
+          if any.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+        x-nullable: true
+        x-omitempty: false
+      certificationType:
+        $ref: '#/definitions/SignedCertificationType'
+      certificationText:
+        description: Full text that the customer agreed to and signed.
+        type: string
+      signature:
+        description: The signature that the customer provided.
+        type: string
+      date:
+        description: Date that the customer signed the certification.
+        type: string
+        format: date
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+      eTag:
+        description: A hash that should be used as the "If-Match" header for any updates.
+        type: string
+        readOnly: true
+    required:
+      - id
+      - submittingUserId
+      - moveId
+      - certificationType
+      - certificationText
+      - signature
+      - date
+      - createdAt
+      - updatedAt
       - eTag
   PPMShipment:
     description: >-
@@ -3346,8 +3435,8 @@ definitions:
         x-omitempty: false
       submittedAt:
         description: >-
-          The timestamp of when the customer submitted their move to the
-          counselor.
+          The timestamp of when the customer submitted their PPM documentation
+          to the counselor for review.
         format: date-time
         type: string
         x-nullable: true
@@ -3570,6 +3659,8 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/ProGearWeightTicket'
+      signedCertification:
+        $ref: '#/definitions/SignedCertification'
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"
@@ -5357,6 +5448,86 @@ paths:
           description: not authorized to modify this move
         '500':
           description: server error
+  /ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+    post:
+      summary: Creates a pro-gear weight ticket
+      description: >
+        Creates a PPM shipment's pro-gear weight ticket. This will only contain
+        the minimum necessary fields for a
+
+        pro-gear weight ticket. Data should be filled in using the patch
+        endpoint.
+      operationId: createProGearWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: returns a new pro-gear weight ticket object
+          schema:
+            $ref: '#/definitions/ProGearWeightTicket'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}:
+    patch:
+      summary: Updates a pro-gear weight ticket
+      description: >
+        Updates a PPM shipment's pro-gear weight ticket with new information.
+        Only some of the fields are editable
+
+        because some have to be set by the customer, e.g. the description.
+      operationId: updateProGearWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/ifMatch'
+        - $ref: '#/parameters/ppmShipmentId'
+        - $ref: '#/parameters/proGearWeightTicketId'
+        - in: body
+          name: updateProGearWeightTicket
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateProGearWeightTicket'
+      responses:
+        '201':
+          description: returns an updated pro-gear weight ticket object
+          schema:
+            $ref: '#/definitions/ProGearWeightTicket'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/moving-expenses:
     post:
       summary: Creates moving expense document
@@ -5527,6 +5698,99 @@ paths:
           $ref: '#/responses/NotFound'
         '413':
           description: payload is too large
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+    post:
+      summary: Saves signature and routes PPM shipment to service counselor
+      description: >
+        Saves customer signature along with the text they agreed to, and then
+        routes the PPM shipment to the service
+
+        counselor queue for review.
+      operationId: submitPPMShipmentDocumentation
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: savePPMShipmentSignedCertificationPayload
+          required: true
+          schema:
+            $ref: '#/definitions/SavePPMShipmentSignedCertification'
+      responses:
+        '200':
+          description: Returns the updated PPM shipment
+          schema:
+            $ref: '#/definitions/PPMShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/resubmit-ppm-shipment-documentation/{signedCertificationId}:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+    put:
+      summary: Updates signature and routes PPM shipment to service counselor
+      description: >
+        Updates customer signature along with the text they agreed to, and then
+        routes the PPM shipment to the service
+
+        counselor queue for review.
+      operationId: resubmitPPMShipmentDocumentation
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: signedCertificationId
+          description: UUID of the signed certification
+          type: string
+          format: uuid
+          required: true
+        - $ref: '#/parameters/ifMatch'
+        - in: body
+          name: savePPMShipmentSignedCertificationPayload
+          required: true
+          schema:
+            $ref: '#/definitions/SavePPMShipmentSignedCertification'
+      responses:
+        '200':
+          description: Returns the updated PPM shipment
+          schema:
+            $ref: '#/definitions/PPMShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -5803,13 +6067,6 @@ parameters:
     format: uuid
     required: true
     description: UUID of the PPM shipment
-  movingExpenseId:
-    name: movingExpenseId
-    in: path
-    type: string
-    format: uuid
-    required: true
-    description: UUID of the moving expense
   ifMatch:
     in: header
     name: If-Match
@@ -5819,6 +6076,20 @@ parameters:
       Optimistic locking is implemented via the `If-Match` header. If the ETag
       header does not match the value of the resource on the server, the server
       rejects the change with a `412 Precondition Failed` error.
+  proGearWeightTicketId:
+    name: proGearWeightTicketId
+    in: path
+    type: string
+    format: uuid
+    required: true
+    description: UUID of the pro-gear weight ticket
+  movingExpenseId:
+    name: movingExpenseId
+    in: path
+    type: string
+    format: uuid
+    required: true
+    description: UUID of the moving expense
   weightTicketId:
     name: weightTicketId
     in: path

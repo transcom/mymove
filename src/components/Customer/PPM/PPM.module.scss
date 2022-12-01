@@ -38,7 +38,7 @@
   .sectionWrapper {
     border-bottom: 1px solid $base-lighter;
 
-    @include at-media('mobile') {
+    @include at-media-max('tablet') {
       @include u-padding-bottom(4);
       @include u-margin-top(4);
     }

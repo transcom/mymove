@@ -3,55 +3,51 @@ package mtoshipment
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-type routerApproveSubtestData struct {
-	appContext      appcontext.AppContext
-	shipmentRouter  services.ShipmentRouter
-	unsavedShipment models.MTOShipment
-}
-
-func (suite *MTOShipmentServiceSuite) createRouterApproveSubtestData() (subtestData *routerApproveSubtestData) {
-	subtestData = &routerApproveSubtestData{}
-
-	subtestData.shipmentRouter = NewShipmentRouter()
-
-	subtestData.unsavedShipment = testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusAPPROVED,
-		},
-		Stub: true,
-	})
-
-	subtestData.appContext = suite.AppContextForTest()
-
-	return subtestData
-}
-
 func (suite *MTOShipmentServiceSuite) TestApprove() {
-	validStatuses := []struct {
-		desc   string
-		status models.MTOShipmentStatus
-	}{
-		{"Submitted", models.MTOShipmentStatusSubmitted},
-		{"Diversion Requested", models.MTOShipmentStatusDiversionRequested},
+	shipmentRouter := NewShipmentRouter()
+
+	setUpTestData := func(overrides testdatagen.Assertions) models.MTOShipment {
+		fullAssertions := testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusAPPROVED,
+			},
+			Stub: true,
+		}
+
+		// Merge the overrides into the base assertions
+		testdatagen.MergeModels(&fullAssertions, overrides)
+
+		return testdatagen.MakeMTOShipment(suite.DB(), fullAssertions)
 	}
+
+	validStatuses := []models.MTOShipmentStatus{
+		models.MTOShipmentStatusSubmitted,
+		models.MTOShipmentStatusDiversionRequested,
+	}
+
 	for _, validStatus := range validStatuses {
-		suite.Run("from valid status: "+string(validStatus.status), func() {
-			subtestData := suite.createRouterApproveSubtestData()
+		validStatus := validStatus
 
-			shipment := subtestData.unsavedShipment
+		suite.Run("from valid status: "+string(validStatus), func() {
+			overrides := testdatagen.Assertions{
+				MTOShipment: models.MTOShipment{
+					Status: validStatus,
+				},
+			}
 
-			shipment.Status = validStatus.status
 			// special case for diversion requested
-			shipment.Diversion = true
+			if validStatus == models.MTOShipmentStatusDiversionRequested {
+				overrides.MTOShipment.Diversion = true
+			}
 
-			err := subtestData.shipmentRouter.Approve(subtestData.appContext, &shipment)
+			shipment := setUpTestData(overrides)
+
+			err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
@@ -59,54 +55,105 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 		})
 	}
 
-	invalidStatuses := []struct {
-		desc   string
-		status models.MTOShipmentStatus
-	}{
-		{"Approved", models.MTOShipmentStatusApproved},
-		{"Draft", models.MTOShipmentStatusDraft},
-		{"Canceled", models.MTOShipmentStatusCanceled},
-		{"Rejected", models.MTOShipmentStatusRejected},
-		{"Cancellation Requested", models.MTOShipmentStatusCancellationRequested},
+	invalidStatuses := []models.MTOShipmentStatus{
+		models.MTOShipmentStatusApproved,
+		models.MTOShipmentStatusDraft,
+		models.MTOShipmentStatusCanceled,
+		models.MTOShipmentStatusRejected,
+		models.MTOShipmentStatusCancellationRequested,
 	}
 	for _, invalidStatus := range invalidStatuses {
-		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
-			subtestData := suite.createRouterApproveSubtestData()
+		invalidStatus := invalidStatus
 
-			shipment := subtestData.unsavedShipment
+		suite.Run("from invalid status: "+string(invalidStatus), func() {
+			shipment := setUpTestData(testdatagen.Assertions{
+				MTOShipment: models.MTOShipment{
+					Status: invalidStatus,
+				},
+			})
 
-			shipment.Status = invalidStatus.status
-
-			err := subtestData.shipmentRouter.Approve(subtestData.appContext, &shipment)
+			err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
 			suite.Contains(err.Error(), fmt.Sprintf("Shipment with id '%s' can only transition to status 'APPROVED' from [\"SUBMITTED\" \"DIVERSION_REQUESTED\"]", shipment.ID))
-			suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus.status))
+			suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus))
 		})
 	}
 
-	suite.Run("does not approve a shipment if the move is not Approved or Approvals Requested", func() {
-		subtestData := suite.createRouterApproveSubtestData()
+	invalidMoveStatuses := []models.MoveStatus{
+		models.MoveStatusDRAFT,
+		models.MoveStatusSUBMITTED,
+		models.MoveStatusCANCELED,
+		models.MoveStatusNeedsServiceCounseling,
+		models.MoveStatusServiceCounselingCompleted,
+	}
 
-		submittedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{Stub: true})
+	for _, invalidMoveStatus := range invalidMoveStatuses {
+		invalidMoveStatus := invalidMoveStatus
 
-		err := subtestData.shipmentRouter.Approve(subtestData.appContext, &submittedShipment)
+		suite.Run(fmt.Sprintf("Doesn't approve a shipment if the move status is %s", invalidMoveStatus), func() {
+			move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), invalidMoveStatus)
 
-		suite.Error(err)
-		suite.IsType(apperror.ConflictError{}, err)
-		suite.Contains(err.Error(), "Cannot approve a shipment if the move isn't approved")
+			overrides := testdatagen.Assertions{
+				Move: move,
+				MTOShipment: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			}
+
+			shipment := setUpTestData(overrides)
+
+			err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment)
+
+			if suite.Error(err) {
+				suite.IsType(apperror.ConflictError{}, err)
+				suite.Contains(
+					err.Error(),
+					fmt.Sprintf(
+						"Cannot approve a shipment if the move status isn't %s or %s, or if it isn't a PPM shipment with a move status of %s. The current status for the move with ID %s is %s",
+						models.MoveStatusAPPROVED,
+						models.MoveStatusAPPROVALSREQUESTED,
+						models.MoveStatusNeedsServiceCounseling,
+						move.ID,
+						move.Status,
+					),
+				)
+			}
+		})
+	}
+
+	suite.Run(fmt.Sprintf("can approve a shipment if it is a PPM shipment and the move status is %s", models.MoveStatusNeedsServiceCounseling), func() {
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), models.MoveStatusNeedsServiceCounseling)
+
+		overrides := testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+			Stub: true,
+		}
+
+		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), overrides)
+
+		err := shipmentRouter.Approve(suite.AppContextForTest(), &ppmShipment.Shipment)
+
+		if suite.NoError(err) {
+			suite.Equal(models.MTOShipmentStatusApproved, ppmShipment.Shipment.Status)
+			suite.NotNil(ppmShipment.Shipment.ApprovedDate)
+		}
 	})
 
 	suite.Run("does not approve a shipment if the shipment uses an external vendor", func() {
-		subtestData := suite.createRouterApproveSubtestData()
+		shipment := setUpTestData(testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				UsesExternalVendor: true,
+				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+				Status:             models.MTOShipmentStatusSubmitted,
+			},
+		})
 
-		shipment := subtestData.unsavedShipment
-
-		shipment.UsesExternalVendor = true
-		shipment.ShipmentType = models.MTOShipmentTypeHHGOutOfNTSDom
-
-		err := subtestData.shipmentRouter.Approve(subtestData.appContext, &shipment)
+		err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment)
 
 		suite.Contains(err.Error(), "cannot approve a shipment if it uses an external vendor")
 		suite.Equal(models.MTOShipmentStatusSubmitted, shipment.Status)
@@ -122,10 +169,13 @@ func (suite *MTOShipmentServiceSuite) TestSubmit() {
 		desc   string
 		status models.MTOShipmentStatus
 	}{
+		{"Blank", models.MTOShipmentStatus("")},
 		{"Draft", models.MTOShipmentStatusDraft},
 	}
 	for _, validStatus := range validStatuses {
-		suite.Run("from valid status: "+string(validStatus.status), func() {
+		validStatus := validStatus
+
+		suite.Run("from valid status: "+string(validStatus.desc), func() {
 			shipment := testdatagen.MakeStubbedShipment(suite.DB())
 			shipment.Status = validStatus.status
 
@@ -136,28 +186,27 @@ func (suite *MTOShipmentServiceSuite) TestSubmit() {
 		})
 	}
 
-	invalidStatuses := []struct {
-		desc   string
-		status models.MTOShipmentStatus
-	}{
-		{"Canceled", models.MTOShipmentStatusCanceled},
-		{"Rejected", models.MTOShipmentStatusRejected},
-		{"Cancellation Requested", models.MTOShipmentStatusCancellationRequested},
-		{"Diversion Requested", models.MTOShipmentStatusDiversionRequested},
-		{"Approved", models.MTOShipmentStatusApproved},
-		{"Submitted", models.MTOShipmentStatusSubmitted},
+	invalidStatuses := []models.MTOShipmentStatus{
+		models.MTOShipmentStatusCanceled,
+		models.MTOShipmentStatusRejected,
+		models.MTOShipmentStatusCancellationRequested,
+		models.MTOShipmentStatusDiversionRequested,
+		models.MTOShipmentStatusApproved,
+		models.MTOShipmentStatusSubmitted,
 	}
 	for _, invalidStatus := range invalidStatuses {
-		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
+		invalidStatus := invalidStatus
+
+		suite.Run("from invalid status: "+string(invalidStatus), func() {
 			shipment := testdatagen.MakeStubbedShipment(suite.DB())
-			shipment.Status = invalidStatus.status
+			shipment.Status = invalidStatus
 
 			err := shipmentRouter.Submit(suite.AppContextForTest(), &shipment)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
 			suite.Contains(err.Error(), fmt.Sprintf("Shipment with id '%s' can only transition to status 'SUBMITTED' from [\"DRAFT\"]", shipment.ID))
-			suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus.status))
+			suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus))
 		})
 	}
 }

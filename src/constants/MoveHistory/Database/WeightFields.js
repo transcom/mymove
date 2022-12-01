@@ -7,4 +7,5 @@ export default {
   prime_actual_weight: 'prime_actual_weight',
   required_medical_equipment_weight: 'required_medical_equipment_weight',
   reweigh_weight: 'reweigh_weight',
+  max_billable_weight: 'max_billable_weight',
 };

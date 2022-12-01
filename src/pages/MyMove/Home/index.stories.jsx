@@ -88,6 +88,9 @@ const withShipmentProps = {
     {
       id: 'testMove',
       shipmentType: 'PPM',
+      ppmShipment: {
+        status: ppmShipmentStatuses.DRAFT,
+      },
     },
     {
       id: 'testShipment2',
@@ -96,6 +99,7 @@ const withShipmentProps = {
       ppmShipment: {
         id: 'ppmShipmentIncomplete',
         hasRequestedAdvance: null,
+        status: ppmShipmentStatuses.DRAFT,
       },
     },
     {
@@ -105,6 +109,7 @@ const withShipmentProps = {
       ppmShipment: {
         id: 'ppmShipmentComplete',
         hasRequestedAdvance: true,
+        status: ppmShipmentStatuses.SUBMITTED,
       },
     },
   ],
@@ -153,7 +158,11 @@ const propsForCloseoutCompletePPMShipment = {
   mtoShipments: [
     createPPMShipmentWithFinalIncentive({
       id: 'abcd1234-0000-0000-0000-000000000000',
-      ppmShipment: { status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL },
+      ppmShipment: {
+        status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+        approvedAt: '2022-11-21',
+        submittedAt: '2022-11-25',
+      },
     }),
   ],
   move: {

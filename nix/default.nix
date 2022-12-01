@@ -43,11 +43,12 @@ buildEnv {
     (import
       (builtins.fetchGit {
         # Descriptive name to make the store path easier to identify
-        name = "go-1.19.1";
+        name = "go-1.19.3";
         url = "https://github.com/NixOS/nixpkgs/";
         ref = "refs/heads/nixpkgs-unstable";
-        rev = "b79b08f09da27e35d1a7b5e63e6aba213224436a";
-      }) {}).go_1_19
+        rev = "c4ba130a43d716a2e042222231471e2d60790aa6";
+      })
+      { }).go_1_19
 
     (import
       (builtins.fetchGit {
@@ -199,6 +200,15 @@ buildEnv {
       })
       { }).postgresql_jdbc
 
+    (import
+      (builtins.fetchGit {
+        # Descriptive name to make the store path easier to identify
+        name = "diffutils-3.8";
+        url = "https://github.com/NixOS/nixpkgs/";
+        ref = "refs/heads/nixpkgs-unstable";
+        rev = "bd4bfd814e96488febb38b4b4d0549c56b840c7f";
+      })
+      { }).diffutils
   ];
 
   # the pre-commit hooks expects the binary to be `circleci`

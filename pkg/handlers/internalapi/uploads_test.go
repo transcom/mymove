@@ -67,11 +67,11 @@ func createPPMProgearPrereqs(suite *HandlerSuite, fixtureFile string) (models.Do
 	})
 
 	params := ppmop.NewCreatePPMUploadParams()
-	params.DocumentID = strfmt.UUID(proGear.FullDocumentID.String())
+	params.DocumentID = strfmt.UUID(proGear.DocumentID.String())
 	params.PpmShipmentID = strfmt.UUID(ppmShipment.ID.String())
 	params.File = suite.Fixture(fixtureFile)
 
-	return proGear.FullDocument, params
+	return proGear.Document, params
 }
 
 func createPPMExpensePrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, ppmop.CreatePPMUploadParams) {
@@ -307,7 +307,9 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	suite.NotNil(queriedUpload.DeletedAt)
 }
 
-func (suite *HandlerSuite) TestDeleteUploadHandlerFailure() {
+func (suite *HandlerSuite) TestDeleteUploadHandlerSuccessEvenWithS3Failure() {
+	// uploader.DeleteUpload only performs soft deletes and does not use the Storer's Delete method,
+	// therefore a failure in the S3 storer will still result in a successful soft delete.
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
 	uploadUser := testdatagen.MakeDefaultUserUpload(suite.DB())
@@ -331,12 +333,12 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerFailure() {
 	response := handler.Handle(params)
 
 	_, ok := response.(*uploadop.DeleteUploadNoContent)
-	suite.False(ok)
+	suite.True(ok)
 
 	queriedUpload := models.Upload{}
 	err := suite.DB().Find(&queriedUpload, uploadUser.Upload.ID)
 	suite.Nil(err)
-	suite.Nil(queriedUpload.DeletedAt)
+	suite.NotNil(queriedUpload.DeletedAt)
 }
 
 func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {

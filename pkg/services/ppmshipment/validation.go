@@ -2,6 +2,7 @@ package ppmshipment
 
 import (
 	"github.com/gobuffalo/validate/v3"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -94,6 +95,11 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 
 	if newPPMShipment.W2Address != nil {
 		ppmShipment.W2Address = newPPMShipment.W2Address
+		if ppmShipment.W2AddressID != nil {
+			ppmShipment.W2Address.ID = *ppmShipment.W2AddressID
+		} else {
+			ppmShipment.W2Address.ID = uuid.Nil
+		}
 	}
 
 	if ppmShipment.SITExpected != nil && !*ppmShipment.SITExpected {

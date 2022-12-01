@@ -59,7 +59,6 @@ class MtoShipmentForm extends Component {
   }
 
   submitMTOShipment = ({
-    shipmentType,
     pickup,
     hasDeliveryAddress,
     delivery,
@@ -69,15 +68,14 @@ class MtoShipmentForm extends Component {
     hasSecondaryDelivery,
     secondaryDelivery,
   }) => {
-    const { history, match, selectedMoveType, isCreatePage, mtoShipment, updateMTOShipment } = this.props;
+    const { history, match, shipmentType, isCreatePage, mtoShipment, updateMTOShipment } = this.props;
     const { moveId } = match.params;
 
-    const shipmentTypeToSave = shipmentType || selectedMoveType;
-    const isNTSR = shipmentTypeToSave === SHIPMENT_OPTIONS.NTSR;
+    const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
     const saveDeliveryAddress = hasDeliveryAddress === 'yes' || isNTSR;
 
     const preformattedMtoShipment = {
-      shipmentType: shipmentTypeToSave,
+      shipmentType,
       moveId,
       customerRemarks,
       pickup,
@@ -135,7 +133,7 @@ class MtoShipmentForm extends Component {
       match,
       history,
       newDutyLocationAddress,
-      selectedMoveType,
+      shipmentType,
       isCreatePage,
       mtoShipment,
       serviceMember,
@@ -145,7 +143,6 @@ class MtoShipmentForm extends Component {
 
     const { errorMessage } = this.state;
 
-    const shipmentType = mtoShipment.shipmentType || selectedMoveType;
     const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, roleTypes.CUSTOMER);
     const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
@@ -507,7 +504,7 @@ MtoShipmentForm.propTypes = {
   isCreatePage: bool,
   currentResidence: AddressShape.isRequired,
   newDutyLocationAddress: SimpleAddressShape,
-  selectedMoveType: string.isRequired,
+  shipmentType: string.isRequired,
   mtoShipment: ShipmentShape,
   serviceMember: shape({
     weight_allotment: shape({

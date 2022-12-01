@@ -685,6 +685,22 @@ definitions:
       CAR_TRAILER: Car + Trailer
       BOX_TRUCK: Box truck
       PRO_GEAR: Pro-gear
+  UpdateProGearWeightTicket:
+    type: object
+    properties:
+      belongsToSelf:
+        description: Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.
+        type: boolean
+      description:
+        description: Describes the pro-gear that was moved.
+        type: string
+      hasWeightTickets:
+        description: Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.
+        type: boolean
+      weight:
+        description: Weight of the vehicle not including the pro-gear.
+        type: integer
+        minimum: 0
   MoveDocumentPayload:
     type: object
     properties:
@@ -1429,7 +1445,7 @@ definitions:
       ppm_id:
         $ref: 'definitions/PpmID.yaml'
       certification_type:
-        $ref: '#/definitions/SignedCertificationType'
+        $ref: '#/definitions/NullableSignedCertificationType'
     required:
       - id
       - move_id
@@ -1462,11 +1478,28 @@ definitions:
       - date
       - signature
       - certification_text
+  SavePPMShipmentSignedCertification:
+    type: object
+    properties:
+      certification_text:
+        description: Text that the customer is agreeing to and signing.
+        type: string
+      signature:
+        description: Customer signature
+        type: string
+      date:
+        description: Date of signature
+        type: string
+        format: date
+    required:
+      - certification_text
+      - signature
+      - date
   SignedCertifications:
     type: array
     items:
       $ref: '#/definitions/SignedCertificationPayload'
-  SignedCertificationType:
+  NullableSignedCertificationType:
     type: string
     enum:
       - PPM_PAYMENT
@@ -1794,6 +1827,8 @@ definitions:
         type: integer
         example: 7000
         x-nullable: true
+      entitlement:
+        $ref: '#/definitions/Entitlement'
     required:
       - id
       - service_member_id
@@ -1806,6 +1841,21 @@ definitions:
       - uploaded_orders
       - created_at
       - updated_at
+  Entitlement:
+    type: object
+    properties:
+      proGear:
+        type: integer
+        example: 2000
+        x-nullable: true
+        description: >
+          Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank
+      proGearSpouse:
+        type: integer
+        example: 500
+        x-nullable: true
+        description: >
+          Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank
   CreateUpdateOrders:
     type: object
     properties:
@@ -4227,6 +4277,81 @@ paths:
           description: not authorized to modify this move
         '500':
           description: server error
+  /ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+    post:
+      summary: Creates a pro-gear weight ticket
+      description: |
+        Creates a PPM shipment's pro-gear weight ticket. This will only contain the minimum necessary fields for a
+        pro-gear weight ticket. Data should be filled in using the patch endpoint.
+      operationId: createProGearWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: returns a new pro-gear weight ticket object
+          schema:
+            $ref: 'definitions/ProGearWeightTicket.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}:
+    patch:
+      summary: Updates a pro-gear weight ticket
+      description: |
+        Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable
+        because some have to be set by the customer, e.g. the description.
+      operationId: updateProGearWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: 'parameters/ifMatch.yaml'
+        - $ref: 'parameters/ppmShipmentId.yaml'
+        - $ref: 'parameters/proGearWeightTicketId.yaml'
+        - in: body
+          name: updateProGearWeightTicket
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateProGearWeightTicket'
+      responses:
+        '201':
+          description: returns an updated pro-gear weight ticket object
+          schema:
+            $ref: 'definitions/ProGearWeightTicket.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/moving-expenses:
     post:
       summary: Creates moving expense document
@@ -4391,6 +4516,95 @@ paths:
           $ref: '#/responses/NotFound'
         '413':
           description: payload is too large
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+    post:
+      summary: Saves signature and routes PPM shipment to service counselor
+      description: |
+        Saves customer signature along with the text they agreed to, and then routes the PPM shipment to the service
+        counselor queue for review.
+      operationId: submitPPMShipmentDocumentation
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: savePPMShipmentSignedCertificationPayload
+          required: true
+          schema:
+            $ref: '#/definitions/SavePPMShipmentSignedCertification'
+      responses:
+        '200':
+          description: Returns the updated PPM shipment
+          schema:
+            $ref: 'definitions/PPMShipment.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/resubmit-ppm-shipment-documentation/{signedCertificationId}:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+    put:
+      summary: Updates signature and routes PPM shipment to service counselor
+      description: |
+        Updates customer signature along with the text they agreed to, and then routes the PPM shipment to the service
+        counselor queue for review.
+      operationId: resubmitPPMShipmentDocumentation
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: signedCertificationId
+          description: UUID of the signed certification
+          type: string
+          format: uuid
+          required: true
+        - $ref: 'parameters/ifMatch.yaml'
+        - in: body
+          name: savePPMShipmentSignedCertificationPayload
+          required: true
+          schema:
+            $ref: '#/definitions/SavePPMShipmentSignedCertification'
+      responses:
+        '200':
+          description: Returns the updated PPM shipment
+          schema:
+            $ref: 'definitions/PPMShipment.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':

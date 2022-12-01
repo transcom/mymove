@@ -1,0 +1,45 @@
+@import 'shared/styles/_basics';
+
+.ProGearForm {
+  :global(.usa-label) {
+    max-width: none;
+  }
+
+  :global(.usa-select) {
+    width: 50%;
+  }
+
+  :global(.usa-checkbox) {
+    @include u-margin-bottom(2);
+  }
+
+  legend:global(.usa-label) {
+    @include u-margin-bottom(0);
+  }
+
+  .hint {
+    @include u-margin-top('05');
+    @include u-margin-bottom('05');
+    font-weight: normal;
+    width: 100%;
+    max-width: none;
+  }
+
+  .form {
+    .descriptionTextField {
+      width: 100%;
+    }
+  }
+
+  .labelWrapper {
+    @include u-margin-top(3);
+  }
+
+  .weightField {
+    @include u-margin-top(0);
+  }
+
+  .uploadInstructions {
+    @include u-margin-bottom(1);
+  }
+}

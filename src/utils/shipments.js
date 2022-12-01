@@ -89,3 +89,16 @@ export function hasCompletedAllExpenses(expenses) {
 
   return !!expenses?.every(isExpenseComplete);
 }
+
+export function isProGearComplete(proGear) {
+  const hasADocumentUpload = proGear.document.uploads.length > 0;
+  const hasAnOwner = proGear.belongsToSelf !== null;
+  return !!(proGear.weight && proGear.description && hasADocumentUpload && hasAnOwner);
+}
+
+export function hasCompletedAllProGear(proGear) {
+  if (!proGear?.length) {
+    return true;
+  }
+  return !!proGear?.every(isProGearComplete);
+}

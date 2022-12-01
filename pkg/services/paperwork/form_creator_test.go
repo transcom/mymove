@@ -66,7 +66,13 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 		ApplicationName: auth.MilApp,
 	}
 	moveRouter := moverouter.NewMoveRouter()
-	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move)
+	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, &newSignedCertification)
 	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
 	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -209,9 +215,9 @@ func (suite *PaperworkServiceSuite) TestCreateFormServiceFormFillerOutputFailure
 }
 
 func (suite *PaperworkServiceSuite) TestCreateFormServiceCreateAssetByteReaderFailure() {
-	badAssetPath := "pkg/paperwork/formtemplates/someUndefinedTemplatePath.png"
+	badAssetPath := "paperwork/formtemplates/someUndefinedTemplatePath.png"
 	templateBuffer, err := createAssetByteReader(badAssetPath)
 	suite.Nil(templateBuffer)
 	suite.NotNil(err)
-	suite.Equal("error creating asset from path; check image path: Asset pkg/paperwork/formtemplates/someUndefinedTemplatePath.png not found", err.Error())
+	suite.Equal("error creating asset from path; check image path: open paperwork/formtemplates/someUndefinedTemplatePath.png: file does not exist", err.Error())
 }

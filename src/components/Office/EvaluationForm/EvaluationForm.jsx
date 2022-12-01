@@ -160,6 +160,16 @@ const EvaluationForm = ({
       violations = values.violationsObserved === 'yes';
     }
 
+    let observedShipmentDeliveryDate;
+    if (values.observedShipmentDeliveryDate !== 'Invalid date') {
+      observedShipmentDeliveryDate = formatDateForSwagger(values.observedShipmentDeliveryDate);
+    }
+
+    let observedShipmentPhysicalPickupDate;
+    if (values.observedShipmentPhysicalPickupDate !== 'Invalid date') {
+      observedShipmentPhysicalPickupDate = formatDateForSwagger(values.observedShipmentPhysicalPickupDate);
+    }
+
     const body = {
       ...existingReportFields,
       location: evaluationLocation,
@@ -171,8 +181,8 @@ const EvaluationForm = ({
       inspectionDate: formatDateForSwagger(values.inspectionDate),
       evaluationLengthMinutes: evalMinutes,
       travelTimeMinutes: travelMinutes,
-      observedShipmentDeliveryDate: formatDateForSwagger(values.observedShipmentDeliveryDate),
-      observedShipmentPhysicalPickupDate: formatDateForSwagger(values.observedShipmentPhysicalPickupDate),
+      observedShipmentDeliveryDate,
+      observedShipmentPhysicalPickupDate,
     };
 
     await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
@@ -477,18 +487,23 @@ const EvaluationForm = ({
                       </Fieldset>
                     </FormGroup>
                     {showObservedDeliveryDate && (
-                      <DatePickerInput
-                        label="Observed delivery date"
-                        name="observedShipmentDeliveryDate"
-                        hint="Only enter a date here if the delivery you witnessed did not happen on the scheduled delivery date"
-                      />
+                      <div className={styles.showOptional}>
+                        <DatePickerInput
+                          label="Observed delivery date"
+                          name="observedShipmentDeliveryDate"
+                          hint="Only enter a date here if the delivery you witnessed did not happen on the scheduled delivery date"
+                          showOptional
+                        />
+                      </div>
                     )}
                     {showObservedPickupDate && (
-                      <DatePickerInput
-                        label="Observed pickup date"
-                        name="observedShipmentPhysicalPickupDate"
-                        hint="Only enter a date here if the pickup you witnessed did not happen on the scheduled pickup date"
-                      />
+                      <div className={styles.showOptional}>
+                        <DatePickerInput
+                          label="Observed pickup date"
+                          name="observedShipmentPhysicalPickupDate"
+                          hint="Only enter a date here if the pickup you witnessed did not happen on the scheduled pickup date"
+                        />
+                      </div>
                     )}
 
                     <Fieldset>
