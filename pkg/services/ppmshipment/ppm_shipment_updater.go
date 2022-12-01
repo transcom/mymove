@@ -1,6 +1,8 @@
 package ppmshipment
 
 import (
+	"fmt"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -87,6 +89,13 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 				}
 			}
 		}
+
+		finalIncentive, err := f.estimator.FinalIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("something %s", finalIncentive)
+		// updatedPPMShipment.FinalIncentive = finalIncentive
 
 		if updatedPPMShipment.W2Address != nil {
 			var updatedAddress *models.Address

@@ -33,6 +33,7 @@ func NewOfficeWeightTicketUpdater() services.WeightTicketUpdater {
 // UpdateWeightTicket updates a weightTicket
 func (f *weightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, weightTicket models.WeightTicket, eTag string) (*models.WeightTicket, error) {
 	// get existing WeightTicket
+	// tk we have the id
 	originalWeightTicket, err := FetchWeightTicketByIDExcludeDeletedUploads(appCtx, weightTicket.ID)
 	if err != nil {
 		return nil, err

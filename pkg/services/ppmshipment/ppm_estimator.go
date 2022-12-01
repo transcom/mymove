@@ -44,11 +44,30 @@ func (f *estimatePPM) EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppCo
 	return f.estimateIncentive(appCtx, oldPPMShipment, newPPMShipment, f.checks...)
 }
 
+func (f *estimatePPM) FinalIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, error) {
+	return f.finalIncentive(appCtx, oldPPMShipment, newPPMShipment, f.checks...)
+}
+
 func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
 	return oldPPMShipment.ExpectedDepartureDate.Equal(newPPMShipment.ExpectedDepartureDate) &&
 		newPPMShipment.PickupPostalCode == oldPPMShipment.PickupPostalCode &&
 		newPPMShipment.DestinationPostalCode == oldPPMShipment.DestinationPostalCode &&
 		((newPPMShipment.EstimatedWeight == nil && oldPPMShipment.EstimatedWeight == nil) || (oldPPMShipment.EstimatedWeight != nil && newPPMShipment.EstimatedWeight.Int() == oldPPMShipment.EstimatedWeight.Int()))
+}
+
+func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment, newTotalWeight unit.Pound, oldTotalWeight unit.Pound) bool {
+	if oldPPMShipment.ActualMoveDate == nil || newPPMShipment.ActualMoveDate == nil ||
+		oldPPMShipment.ActualPickupPostalCode == nil || newPPMShipment.ActualPickupPostalCode == nil ||
+		oldPPMShipment.ActualDestinationPostalCode == nil || newPPMShipment.ActualDestinationPostalCode == nil ||
+		newTotalWeight.Int() <= 0 {
+		return true
+	}
+
+	// moveDate := *oldPPMShipment.ActualMoveDate
+	return oldPPMShipment.ActualMoveDate.Equal(*newPPMShipment.ActualMoveDate) &&
+		*newPPMShipment.ActualPickupPostalCode == *oldPPMShipment.ActualPickupPostalCode &&
+		*newPPMShipment.ActualDestinationPostalCode == *oldPPMShipment.ActualDestinationPostalCode &&
+		newTotalWeight.Int() == oldTotalWeight.Int()
 }
 
 func shouldCalculateSITCost(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
@@ -79,6 +98,35 @@ func shouldCalculateSITCost(newPPMShipment *models.PPMShipment, oldPPMShipment *
 		newPPMShipment.PickupPostalCode != oldPPMShipment.PickupPostalCode ||
 		newPPMShipment.DestinationPostalCode != oldPPMShipment.DestinationPostalCode ||
 		newPPMShipment.ExpectedDepartureDate != oldPPMShipment.ExpectedDepartureDate
+}
+
+// tk move lower
+func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment, checks ...ppmShipmentValidator) (*unit.Cents, error) {
+	if newPPMShipment.Status != models.PPMShipmentStatusWaitingOnCustomer && newPPMShipment.Status != models.PPMShipmentStatusNeedsPaymentApproval {
+		return oldPPMShipment.FinalIncentive, nil
+	}
+
+	err := validatePPMShipment(appCtx, *newPPMShipment, &oldPPMShipment, &oldPPMShipment.Shipment, checks...)
+	if err != nil {
+		switch err.(type) {
+		case apperror.InvalidInputError:
+			return nil, nil
+		default:
+			return nil, err
+		}
+	}
+
+	var oldTotalWeight unit.Pound
+	if len(oldPPMShipment.WeightTickets) >= 1 {
+		for _, weightTicket := range oldPPMShipment.WeightTickets {
+			if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+				oldTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+			}
+		}
+	}
+	calculateFinalIncentive := shouldSkipCalculatingFinalIncentive(newPPMShipment, &oldPPMShipment, 0, 0)
+	fmt.Printf("should calc final incentive: %t", calculateFinalIncentive)
+	return nil, nil
 }
 
 func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment, checks ...ppmShipmentValidator) (*unit.Cents, *unit.Cents, error) {
