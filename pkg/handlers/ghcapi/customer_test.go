@@ -28,12 +28,16 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 		customerservice.NewCustomerFetcher(),
 	}
 
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
 
 	suite.Assertions.IsType(&customerops.GetCustomerOK{}, response)
 	getCustomerResponse := response.(*customerops.GetCustomerOK)
 	getCustomerPayload := getCustomerResponse.Payload
+
+	// Validate outgoing payload
 	suite.NoError(getCustomerPayload.Validate(strfmt.Default))
 
 	suite.Equal(strfmt.UUID(customer.ID.String()), getCustomerPayload.ID)
@@ -83,6 +87,10 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 		handlerConfig,
 		customerservice.NewCustomerUpdater(),
 	}
+
+	// Validate incoming payload
+	suite.NoError(params.Body.Validate(strfmt.Default))
+
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
 
@@ -91,6 +99,8 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 	suite.Assertions.IsType(&customerops.UpdateCustomerOK{}, response)
 	updateCustomerResponse := response.(*customerops.UpdateCustomerOK)
 	updateCustomerPayload := updateCustomerResponse.Payload
+
+	// Validate outgoing payload
 	suite.NoError(updateCustomerPayload.Validate(strfmt.Default))
 
 	suite.Equal(body.FirstName, updateCustomerPayload.FirstName)
