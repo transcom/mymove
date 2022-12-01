@@ -62,10 +62,13 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			Locator:     move.Locator,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveOK{}, response)
-
 		payload := response.(*moveops.GetMoveOK).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.Equal(move.ID.String(), payload.ID.String())
@@ -92,10 +95,14 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(moveops.GetMoveParams{HTTPRequest: req, Locator: ""})
 		suite.IsType(&moveops.GetMoveBadRequest{}, response)
 		payload := response.(*moveops.GetMoveBadRequest).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Unsuccessful move fetch - locator not found", func() {
@@ -119,10 +126,14 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			Locator:     move.Locator,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveNotFound{}, response)
 		payload := response.(*moveops.GetMoveNotFound).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Unsuccessful move fetch - internal server error", func() {
@@ -147,10 +158,14 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			Locator:     move.Locator,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveInternalServerError{}, response)
 		payload := response.(*moveops.GetMoveInternalServerError).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
 
@@ -191,10 +206,14 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 			},
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SearchMovesOK{}, response)
-
 		payload := response.(*moveops.SearchMovesOK).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 
 		payloadMove := *(*payload).SearchMoves[0]
@@ -236,10 +255,15 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 				DodID:   move.Orders.ServiceMember.Edipi,
 			},
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SearchMovesOK{}, response)
-
 		payload := response.(*moveops.SearchMovesOK).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.Equal(move.ID.String(), (*payload).SearchMoves[0].ID.String())
@@ -283,9 +307,15 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			},
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SetFinancialReviewFlagOK{}, response)
 		payload := response.(*moveops.SetFinancialReviewFlagOK).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
@@ -295,7 +325,8 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			HTTPRequest: req,
 			IfMatch:     &fakeEtag,
 			Body: moveops.SetFinancialReviewFlagBody{
-				Remarks: nil,
+				Remarks:       nil,
+				FlagForReview: swag.Bool(true),
 			},
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
@@ -304,9 +335,15 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			HandlerConfig:                 suite.HandlerConfig(),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
+
+		// Validate incoming payload
+		suite.NoError(paramsNilRemarks.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(paramsNilRemarks)
 		suite.IsType(&moveops.SetFinancialReviewFlagUnprocessableEntity{}, response)
 		payload := response.(*moveops.SetFinancialReviewFlagUnprocessableEntity).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
@@ -335,10 +372,15 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SetFinancialReviewFlagNotFound{}, response)
 		payload := response.(*moveops.SetFinancialReviewFlagNotFound).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Unsuccessful flag - internal server error", func() {
@@ -366,10 +408,15 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SetFinancialReviewFlagInternalServerError{}, response)
 		payload := response.(*moveops.SetFinancialReviewFlagInternalServerError).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Unsuccessful flag - bad etag", func() {
@@ -397,9 +444,14 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SetFinancialReviewFlagPreconditionFailed{}, response)
 		payload := response.(*moveops.SetFinancialReviewFlagPreconditionFailed).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
