@@ -17,36 +17,33 @@ script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 base_dir=$(cd -- "${script_dir}/../.." &>/dev/null && pwd)
 
 case "${environment}" in
-    "demo")
-        awsdir="${base_dir}/transcom-infrasec-gov-nonato/transcom-gov-milmove-demo"
-      ;;
-    "exp")
-        awsdir="${base_dir}/transcom-infrasec-gov-nonato/transcom-gov-milmove-exp"
-      ;;
-    "loadtest")
-        awsdir="${base_dir}/transcom-infrasec-gov-nonato/transcom-gov-milmove-loadtest"
-        ;;
-    "stg")
-        awsdir="${base_dir}/transcom-infrasec-gov/transcom-gov-milmove-stg"
-        ;;
-    "prd")
-        awsdir="${base_dir}/transcom-infrasec-gov/transcom-gov-milmove-prd"
-        ;;
-    *)
-        echo "Unknown environment '${environment}'"
-        echo "Must be one of demo, exp, loadtest, stg, prd"
-        exit 1
+  "demo"|"exp"|"loadtest")
+    transcom_git="git@github.com:transcom/transcom-infrasec-gov-nonato.git"
+    transcom_dir="${base_dir}/transcom-infrasec-gov-nonato"
+    awsdir="${transcom_dir}/transcom-gov-milmove-${environment}"
+    ;;
+  "stg"|"prd")
+    transcom_git="git@github.com:transcom/transcom-infrasec-gov.git"
+    transcom_dir="${base_dir}/transcom-infrasec-gov"
+    awsdir="${transcom_dir}/transcom-gov-milmove-${environment}"
+    ;;
+  *)
+    echo "Unknown environment '${environment}'"
+    echo "Must be one of demo, exp, loadtest, stg, prd"
+    exit 1
     ;;
 esac
 
 doc_url="https://dp3.atlassian.net/wiki/spaces/MT/pages/1469284401/How+to+search+AWS+CloudWatch+with+Instance+ID#Login-to-AWS"
 
-if [ ! -d "${awsdir}" ]; then
-  echo "Please checkout '${awsdir}'"
+if [ ! -d "${transcom_dir}" ]; then
+  echo "Please checkout '${transcom_git}'"
+  echo "Try running"
+  echo "    (cd ${base_dir} && git clone ${transcom_git})"
   echo "See ${doc_url}"
   exit 1
 fi
 
-cd "${awsdir}" || exit 1
+cd "${awsdir}" || (echo "Cannot access '${awsdir}'" && exit 1)
 eval "$(direnv export bash)"
 exec aws-vault login "${AWS_PROFILE}"
