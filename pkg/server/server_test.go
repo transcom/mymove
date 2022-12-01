@@ -13,7 +13,6 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -22,6 +21,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest"
 
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -29,18 +29,12 @@ import (
 type serverSuite struct {
 	logger *zap.Logger
 	testingsuite.BaseTestSuite
-	httpHandler http.Handler
 }
 
 func TestServerSuite(t *testing.T) {
-	var httpHandler http.Handler
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
+	logger := zaptest.NewLogger(t)
 	ss := &serverSuite{
-		logger:      logger,
-		httpHandler: httpHandler,
+		logger: logger,
 	}
 	suite.Run(t, ss)
 }
@@ -69,7 +63,7 @@ func (suite *serverSuite) TestParseSingleTLSCert() {
 		Host:         "127.0.0.1",
 		Port:         8443,
 		ClientAuth:   tls.NoClientCert,
-		HTTPHandler:  suite.httpHandler,
+		HTTPHandler:  http.NotFoundHandler(),
 		Logger:       suite.logger,
 		Certificates: []tls.Certificate{keyPair},
 	})
@@ -104,7 +98,7 @@ func (suite *serverSuite) TestParseMultipleTLSCerts() {
 		Host:        "127.0.0.1",
 		Port:        8443,
 		ClientAuth:  tls.NoClientCert,
-		HTTPHandler: suite.httpHandler,
+		HTTPHandler: http.NotFoundHandler(),
 		Logger:      suite.logger,
 		Certificates: []tls.Certificate{
 			keyPairLocalhost,
@@ -132,7 +126,7 @@ func (suite *serverSuite) TestTLSConfigWithClientAuth() {
 		Port:         8443,
 		ClientAuth:   tls.RequireAndVerifyClientCert,
 		ClientCAs:    caCertPool,
-		HTTPHandler:  suite.httpHandler,
+		HTTPHandler:  http.NotFoundHandler(),
 		Logger:       suite.logger,
 		Certificates: []tls.Certificate{keyPair},
 	})
@@ -151,7 +145,7 @@ func (suite *serverSuite) TestTLSConfigWithMissingCA() {
 		Host:         "127.0.0.1",
 		Port:         8443,
 		ClientAuth:   tls.RequireAndVerifyClientCert,
-		HTTPHandler:  suite.httpHandler,
+		HTTPHandler:  http.NotFoundHandler(),
 		Logger:       suite.logger,
 		Certificates: []tls.Certificate{keyPair},
 	})
@@ -176,7 +170,7 @@ func (suite *serverSuite) TestTLSConfigWithMisconfiguredCA() {
 		Port:         8443,
 		ClientAuth:   tls.RequireAndVerifyClientCert,
 		ClientCAs:    caCertPool,
-		HTTPHandler:  suite.httpHandler,
+		HTTPHandler:  http.NotFoundHandler(),
 		Logger:       suite.logger,
 		Certificates: []tls.Certificate{keyPair},
 	})
@@ -187,12 +181,12 @@ func (suite *serverSuite) TestHTTPServerConfig() {
 	httpsServer, err := CreateNamedServer(&CreateNamedServerInput{
 		Host:        "127.0.0.1",
 		Port:        8080,
-		HTTPHandler: suite.httpHandler,
+		HTTPHandler: http.NotFoundHandler(),
 		Logger:      suite.logger,
 	})
 	suite.NoError(err)
 	suite.Equal(httpsServer.Addr, "127.0.0.1:8080")
-	suite.Equal(suite.httpHandler, httpsServer.Handler)
+	suite.NotNil(httpsServer.Handler)
 }
 
 func (suite *serverSuite) testTLSConfigWithRequest(tlsVersion uint16) {
