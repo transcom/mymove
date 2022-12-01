@@ -13,6 +13,7 @@ import {
   SERVICE_COUNSELING_BRANCH_OPTIONS,
   SERVICE_COUNSELING_MOVE_STATUS_OPTIONS,
   SERVICE_COUNSELING_MOVE_STATUS_LABELS,
+  SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
 } from 'constants/queues';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useServicesCounselingQueueQueries, useServicesCounselingQueuePPMQueries, useUserQueries } from 'hooks/queries';
@@ -21,7 +22,7 @@ import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-const columns = () => [
+const counselingColumns = () => [
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
@@ -99,6 +100,73 @@ const columns = () => [
     isFilterable: true,
   }),
 ];
+const closeoutColumns = () => [
+  createHeader('ID', 'id'),
+  createHeader(
+    'Customer name',
+    (row) => {
+      return `${row.customer.last_name}, ${row.customer.first_name}`;
+    },
+    {
+      id: 'lastName',
+      isFilterable: true,
+    },
+  ),
+  createHeader('DoD ID', 'customer.dodID', {
+    id: 'dodID',
+    isFilterable: true,
+  }),
+  createHeader('Move code', 'locator', {
+    id: 'locator',
+    isFilterable: true,
+  }),
+  createHeader(
+    'Branch',
+    (row) => {
+      return serviceMemberAgencyLabel(row.customer.agency);
+    },
+    {
+      id: 'branch',
+      isFilterable: true,
+      Filter: (props) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <SelectFilter options={SERVICE_COUNSELING_BRANCH_OPTIONS} {...props} />
+      ),
+    },
+  ),
+  createHeader(
+    'Closeout initiated',
+    (row) => {
+      return formatDateFromIso(row.closeoutInitiated, DATE_FORMAT_STRING);
+    },
+    {
+      id: 'closeoutInitiated',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <DateSelectFilter dateTime {...props} />,
+    },
+  ),
+  createHeader('Full or partial PPM', 'ppmType', {
+    id: 'ppmType',
+    isFilterable: true,
+    Filter: (props) => (
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      <SelectFilter options={SERVICE_COUNSELING_PPM_TYPE_OPTIONS} {...props} />
+    ),
+  }),
+  createHeader('Origin duty location', 'originDutyLocation.name', {
+    id: 'originDutyLocation',
+    isFilterable: true,
+  }),
+  createHeader('Destination duty location', 'destinationDutyLocation.name', {
+    id: 'destinationDutyLocation',
+    isFilterable: true,
+  }),
+  createHeader('PPM closeout location', 'closeoutLocation', {
+    id: 'closeoutLocation',
+    isFilterable: true,
+  }),
+];
 
 const ServicesCounselingQueue = () => {
   const { isLoading, isError } = useUserQueries();
@@ -127,10 +195,10 @@ const ServicesCounselingQueue = () => {
             showPagination
             manualSortBy
             defaultCanSort
-            defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
+            defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
             disableMultiSort
             disableSortBy={false}
-            columns={columns()}
+            columns={closeoutColumns()}
             title="Moves"
             handleClick={handleClick}
             useQueries={useServicesCounselingQueuePPMQueries}
@@ -144,21 +212,23 @@ const ServicesCounselingQueue = () => {
           ]}
           exact
         >
-          <TableQueue
-            className={styles.ServicesCounseling}
-            showTabs
-            showFilters
-            showPagination
-            manualSortBy
-            defaultCanSort
-            defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
-            disableMultiSort
-            disableSortBy={false}
-            columns={columns()}
-            title="Moves"
-            handleClick={handleClick}
-            useQueries={useServicesCounselingQueueQueries}
-          />
+          <div>
+            <TableQueue
+              className={styles.ServicesCounseling}
+              showTabs
+              showFilters
+              showPagination
+              manualSortBy
+              defaultCanSort
+              defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
+              disableMultiSort
+              disableSortBy={false}
+              columns={counselingColumns()}
+              title="Moves"
+              handleClick={handleClick}
+              useQueries={useServicesCounselingQueueQueries}
+            />
+          </div>
         </Route>
       </Switch>
     </div>

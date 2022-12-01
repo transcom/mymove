@@ -190,7 +190,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Under test: ListOrders
 		// Set up:           Make 2 moves, one default move setup in setupTestData (show = True)
 		//                   and one specific to Airforce and make sure it's included
-		//                   Fetch filtered to Airfornce moves.
+		//                   Fetch filtered to Airforce moves.
 		// Expected outcome: Only the Airforce move should be returned
 		officeUser, _ := setupTestData()
 
@@ -274,6 +274,141 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 	})
+
+	suite.Run("returns moves filtered by ppm type", func() {
+		// Under test: ListOrders
+		// Set up:           Make 3 moves, with different submitted_at times, and search for a specific move
+		// Expected outcome: Only the one move with the right date should be returned
+		officeUser, partialPPMMove := setupTestData()
+		suite.Equal("PARTIAL", *partialPPMMove.PPMType)
+		ppmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				PPMType: swag.String("FULL"),
+				Locator: "FULLLL",
+			},
+		})
+		fullPPMMove := ppmShipment.Shipment.MoveTaskOrder
+
+		// Search for PARTIAL PPM moves
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+			PPMType: swag.String("PARTIAL"),
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(partialPPMMove.Locator, moves[0].Locator)
+
+		// Search for FULL PPM moves
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+			PPMType: swag.String("FULL"),
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(fullPPMMove.Locator, moves[0].Locator)
+	})
+	suite.Run("returns moves filtered by closeout location", func() {
+		// Under test: ListOrders
+		// Set up:           Make 3 moves, with different submitted_at times, and search for a specific ppmShipment
+		// Expected outcome: Only the one ppmShipment with the right date should be returned
+		officeUser, _ := setupTestData()
+
+		ftBragg := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
+			TransportationOffice: models.TransportationOffice{
+				Name: "Ft Bragg",
+			},
+		})
+		ppmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				CloseoutOfficeID: &ftBragg.ID,
+			},
+		})
+
+		// Search should be case insensitive and allow partial matches
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+			CloseoutLocation: models.StringPointer("fT bR"),
+			NeedsPPMCloseout: models.BoolPointer(true),
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(ppmShipment.Shipment.MoveTaskOrder.Locator, moves[0].Locator)
+	})
+
+	suite.Run("returns moves filtered by closeout initiated date", func() {
+		// Under test: ListOrders
+		// Set up:           Make 2 moves with PPM shipments ready for closeout, with different submitted_at times,
+		//                   and search for a specific move
+		// Expected outcome: Only the one move with the right date should be returned
+		officeUser, _ := setupTestData()
+
+		// Create a PPM submitted on April 1st
+		closeoutInitiatedDate := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
+		createdPPM := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				SubmittedAt: &closeoutInitiatedDate,
+			},
+		})
+
+		// Create a PPM submitted on April 2nd
+		closeoutInitiatedDate2 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
+		createdPPM2 := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				SubmittedAt: &closeoutInitiatedDate2,
+			},
+		})
+
+		// Search for PPMs submitted on April 1st
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+			CloseoutInitiated: &closeoutInitiatedDate,
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(createdPPM.Shipment.MoveTaskOrder.Locator, moves[0].Locator)
+		suite.NotEqual(createdPPM2.Shipment.MoveTaskOrder.Locator, moves[0].Locator)
+	})
+
+	suite.Run("latest closeout initiated date is used for filter", func() {
+		// Under test: ListOrders
+		// Set up:           Make 2 moves with PPM shipments ready for closeout, with different submitted_at times,
+		//                   and search for a specific move
+		// Expected outcome: Only the one move with the right date should be returned
+		officeUser, _ := setupTestData()
+
+		// Create a PPM submitted on April 1st
+		closeoutInitiatedDate := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
+		createdPPM := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				SubmittedAt: &closeoutInitiatedDate,
+			},
+		})
+		// Add another PPM for the same move submitted on April 1st
+		closeoutInitiatedDate2 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				SubmittedAt: &closeoutInitiatedDate2,
+				Status:      models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			Move: createdPPM.Shipment.MoveTaskOrder,
+		})
+
+		// Search for PPMs submitted on April 1st
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+			CloseoutInitiated: &closeoutInitiatedDate,
+		})
+		suite.Empty(moves)
+		suite.FatalNoError(err)
+
+		// Search for PPMs submitted on April 2nd
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+			CloseoutInitiated: &closeoutInitiatedDate2,
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(createdPPM.Shipment.MoveTaskOrder.Locator, moves[0].Locator)
+	})
 }
 
 func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
@@ -314,6 +449,7 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 	})
 }
 
+// TODO these tests could be simplified by using more specific testdatagen functions for PPMs
 func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 	orderFetcher := NewOrderFetcher()
 	showMove := true
@@ -893,6 +1029,8 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	})
 }
 
+func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCloseoutColumnsSort() {
+}
 func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOCSortFilter() {
 
 	suite.Run("Filter by origin GBLOC", func() {

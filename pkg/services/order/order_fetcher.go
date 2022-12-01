@@ -91,12 +91,16 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
+	destinationDutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
 	moveStatusQuery := moveStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 	requestedMoveDateQuery := requestedMoveDateFilter(params.RequestedMoveDate)
-	sortOrderQuery := sortOrder(params.Sort, params.Order)
+	closeoutInitiatedQuery := closeoutInitiatedFilter(params.CloseoutInitiated)
+	closeoutLocationQuery := closeoutLocationFilter(params.CloseoutLocation)
+	ppmTypeQuery := ppmTypeFilter(params.PPMType)
+	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [11]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, originDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, requestedMoveDateQuery, sortOrderQuery}
+	options := [14]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, sortOrderQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -111,6 +115,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 			InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 			InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
+			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			Where("show = ?", swag.Bool(true))
 	} else {
 		query = appCtx.DB().Q().EagerPreload(
@@ -125,6 +130,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"ShipmentGBLOC",
 			"OriginDutyLocationGBLOC",
 			"MTOShipments.PPMShipment",
+			"CloseoutOffice",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
@@ -141,12 +147,16 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		if params.NeedsPPMCloseout != nil {
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
+					LeftJoin("transportation_offices as closeout_to", "closeout_to.id = moves.closeout_office_id").
 					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusSubmitted, models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsPaymentApproval, models.PPMShipmentStatusPaymentApproved).
 					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 					Where("(ppm_shipments.status IS NULL OR ppm_shipments.status NOT IN (?))", models.PPMShipmentStatusSubmitted, models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsPaymentApproval, models.PPMShipmentStatusPaymentApproved)
 			}
+		} else {
+			// TODO  not sure we'll need this once we're in a situation where closeout param is always passed
+			query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id")
 		}
 	}
 
@@ -171,8 +181,16 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		groupByColumms = append(groupByColumms, "origin_dl.name")
 	}
 
+	if params.Sort != nil && *params.Sort == "destinationDutyLocation" {
+		groupByColumms = append(groupByColumms, "dest_dl.name")
+	}
+
 	if params.Sort != nil && *params.Sort == "originGBLOC" {
 		groupByColumms = append(groupByColumms, "origin_to.id")
+	}
+
+	if params.Sort != nil && *params.Sort == "closeoutLocation" && !ppmCloseoutGblocs {
+		groupByColumms = append(groupByColumms, "closeout_to.id")
 	}
 
 	err = query.GroupBy("moves.id", groupByColumms...).Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
@@ -181,6 +199,11 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	}
 	// Get the count
 	count := query.Paginator.TotalEntriesSize
+
+	overwriteCloseoutOfficeWithGBLOC := ppmCloseoutGblocs && params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout
+	closeoutOffice := models.TransportationOffice{
+		Name: officeUserGbloc,
+	}
 
 	for i := range moves {
 		// There appears to be a bug in Pop for EagerPreload when you have two or more eager paths with 3+ levels
@@ -203,6 +226,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		err := appCtx.DB().Load(&moves[i].Orders.ServiceMember, "BackupContacts")
 		if err != nil {
 			return []models.Move{}, 0, err
+		}
+
+		if overwriteCloseoutOfficeWithGBLOC {
+			moves[i].CloseoutOffice = &closeoutOffice
 		}
 	}
 
@@ -294,6 +321,15 @@ func originDutyLocationFilter(originDutyLocation *string) QueryOption {
 	}
 }
 
+func destinationDutyLocationFilter(destinationDutyLocation *string) QueryOption {
+	return func(query *pop.Query) {
+		if destinationDutyLocation != nil {
+			nameSearch := fmt.Sprintf("%s%%", *destinationDutyLocation)
+			query.Where("dest_dl.name ILIKE ?", nameSearch)
+		}
+	}
+}
+
 func moveStatusFilter(statuses []string) QueryOption {
 	return func(query *pop.Query) {
 		// If we have statuses let's use them
@@ -324,11 +360,37 @@ func submittedAtFilter(submittedAt *time.Time) QueryOption {
 		}
 	}
 }
-
 func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	return func(query *pop.Query) {
 		if requestedMoveDate != nil {
 			query.Where("mto_shipments.requested_pickup_date = ?", *requestedMoveDate)
+		}
+	}
+}
+
+func closeoutInitiatedFilter(closeoutInitiated *time.Time) QueryOption {
+	return func(query *pop.Query) {
+		if closeoutInitiated != nil {
+			// Between is inclusive, so the end date is set to 1 milsecond prior to the next day
+			closeoutInitiatedEnd := closeoutInitiated.AddDate(0, 0, 1).Add(-1 * time.Millisecond)
+			query.Having("MAX(ppm_shipments.submitted_at) between ? and ?", closeoutInitiated.Format(time.RFC3339), closeoutInitiatedEnd.Format(time.RFC3339))
+		}
+	}
+}
+
+func ppmTypeFilter(ppmType *string) QueryOption {
+	return func(query *pop.Query) {
+		if ppmType != nil {
+			query.Where("moves.ppm_type = ?", *ppmType)
+		}
+	}
+}
+
+func closeoutLocationFilter(closeoutLocation *string) QueryOption {
+	return func(query *pop.Query) {
+		if closeoutLocation != nil {
+			nameSearch := fmt.Sprintf("%s%%", *closeoutLocation)
+			query.Where("closeout_to.name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -374,22 +436,29 @@ func gblocFilterForPPMCloseoutForNavyMarineAndCG(gbloc *string) QueryOption {
 	}
 }
 
-func sortOrder(sort *string, order *string) QueryOption {
+func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption {
 	parameters := map[string]string{
-		"lastName":           "service_members.last_name",
-		"dodID":              "service_members.edipi",
-		"branch":             "service_members.affiliation",
-		"locator":            "moves.locator",
-		"status":             "moves.status",
-		"submittedAt":        "moves.submitted_at",
-		"originDutyLocation": "origin_dl.name",
-		"requestedMoveDate":  "min(mto_shipments.requested_pickup_date)",
-		"originGBLOC":        "origin_to.gbloc",
+		"lastName":                "service_members.last_name",
+		"dodID":                   "service_members.edipi",
+		"branch":                  "service_members.affiliation",
+		"locator":                 "moves.locator",
+		"status":                  "moves.status",
+		"submittedAt":             "moves.submitted_at",
+		"originDutyLocation":      "origin_dl.name",
+		"destinationDutyLocation": "dest_dl.name",
+		"requestedMoveDate":       "min(mto_shipments.requested_pickup_date)",
+		"originGBLOC":             "origin_to.gbloc",
+		"ppmType":                 "moves.ppm_type",
+		"closeoutLocation":        "closeout_to.name",
+		"closeoutInitiated":       "MAX(ppm_shipments.submitted_at)",
 	}
 
 	return func(query *pop.Query) {
 		// If we have a sort and order defined let's use it. Otherwise we'll use our default status desc sort order.
 		if sort != nil && order != nil {
+			if *sort == "closeoutLocation" && ppmCloseoutGblocs {
+				return
+			}
 			if sortTerm, ok := parameters[*sort]; ok {
 				if *sort == "lastName" {
 					query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))

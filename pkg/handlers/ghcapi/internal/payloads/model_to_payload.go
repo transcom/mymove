@@ -1327,6 +1327,20 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			// some reason, then we should get the empty string (no GBLOC).
 			gbloc = ghcmessages.GBLOC(move.OriginDutyLocationGBLOC.GBLOC)
 		}
+		var closeoutLocation string
+		if move.CloseoutOffice != nil {
+			closeoutLocation = move.CloseoutOffice.Name
+		}
+		var closeoutInitiated time.Time
+		for _, shipment := range move.MTOShipments {
+			if shipment.PPMShipment != nil {
+				if shipment.PPMShipment.SubmittedAt != nil {
+					if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
+						closeoutInitiated = *shipment.PPMShipment.SubmittedAt
+					}
+				}
+			}
+		}
 
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:                Customer(&customer),
@@ -1340,6 +1354,9 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
 			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation),
 			OriginGBLOC:             gbloc,
+			PpmType:                 move.PPMType,
+			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
+			CloseoutLocation:        &closeoutLocation,
 		}
 	}
 	return &queueMoves
