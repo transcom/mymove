@@ -67,6 +67,7 @@ export const tooRoutes = {
   SHIPMENT_EDIT_PATH: '/moves/:moveCode/shipments/:shipmentId',
   MOVE_VIEW_PATH: '/moves/:moveCode/details',
   ORDERS_EDIT_PATH: '/moves/:moveCode/orders',
+  SHIPMENT_REVIEW_PATH: `/moves/:moveCode/shipments/:shipmentId/review`,
 };
 
 export const qaeCSRRoutes = {

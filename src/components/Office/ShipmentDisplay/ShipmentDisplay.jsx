@@ -5,7 +5,7 @@ import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
-import { EditButton } from 'components/form/IconButtons';
+import { EditButton, ReviewButton } from 'components/form/IconButtons';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
@@ -27,6 +27,7 @@ const ShipmentDisplay = ({
   isSubmitted,
   allowApproval,
   editURL,
+  reviewURL,
   ordersLOA,
   warnIfMissing,
   errorIfMissing,
@@ -108,6 +109,17 @@ const ShipmentDisplay = ({
               secondary
             />
           )}
+          {reviewURL && (
+            <ReviewButton
+              onClick={() => {
+                history.push(reviewURL);
+              }}
+              className={styles.editButton}
+              data-testid={reviewURL}
+              label="Review documents"
+              secondary
+            />
+          )}
         </Restricted>
       </ShipmentContainer>
     </div>
@@ -177,6 +189,7 @@ ShipmentDisplay.propTypes = {
   ]).isRequired,
   allowApproval: PropTypes.bool,
   editURL: PropTypes.string,
+  reviewURL: PropTypes.string,
   ordersLOA: OrdersLOAShape,
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
@@ -189,6 +202,7 @@ ShipmentDisplay.defaultProps = {
   shipmentType: SHIPMENT_OPTIONS.HHG,
   allowApproval: true,
   editURL: '',
+  reviewURL: '',
   ordersLOA: {
     tac: '',
     sac: '',

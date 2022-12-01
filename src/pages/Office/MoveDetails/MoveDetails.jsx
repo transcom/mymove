@@ -11,7 +11,7 @@ import 'styles/office.scss';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import { shipmentStatuses } from 'constants/shipments';
+import { shipmentStatuses, ppmShipmentStatuses } from 'constants/shipments';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import OrdersList from 'components/Office/DefinitionLists/OrdersList';
@@ -20,6 +20,7 @@ import FinancialReviewButton from 'components/Office/FinancialReviewButton/Finan
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import ApprovedRequestedShipments from 'components/Office/RequestedShipments/ApprovedRequestedShipments';
 import SubmittedRequestedShipments from 'components/Office/RequestedShipments/SubmittedRequestedShipments';
+import NeedsApprovalShipments from 'components/Office/RequestedShipments/NeedsApprovalShipments';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatus, updateMTOShipmentStatus, updateFinancialFlag } from 'services/ghcApi';
 import LeftNav from 'components/LeftNav/LeftNav';
@@ -130,10 +131,20 @@ const MoveDetails = ({
 
   const approvedOrCanceledShipments = mtoShipments?.filter(
     (shipment) =>
-      shipment.status === shipmentStatuses.APPROVED ||
-      shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
-      shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
-      shipment.status === shipmentStatuses.CANCELED,
+      (shipment.status === shipmentStatuses.APPROVED &&
+        shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL) ||
+      (shipment.status === shipmentStatuses.DIVERSION_REQUESTED &&
+        shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL) ||
+      (shipment.status === shipmentStatuses.CANCELLATION_REQUESTED &&
+        shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL) ||
+      (shipment.status === shipmentStatuses.CANCELED &&
+        shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL),
+  );
+
+  const approvedShipments = mtoShipments?.filter((shipment) => shipment.status === shipmentStatuses.APPROVED);
+
+  const needsApprovalShipments = approvedShipments?.filter(
+    (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
   );
 
   useEffect(() => {
@@ -150,10 +161,16 @@ const MoveDetails = ({
         approvedOrCanceledShipments?.find((shipment) => shipment.id === serviceItem.mtoShipmentID)
       ) {
         serviceItemCount += 1;
+      } else if (
+        serviceItem.status === SERVICE_ITEM_STATUSES.SUBMITTED &&
+        serviceItem.mtoShipmentID &&
+        needsApprovalShipments?.find((shipment) => shipment.id === serviceItem.mtoShipmentID)
+      ) {
+        serviceItemCount += 1;
       }
     });
     setUnapprovedServiceItemCount(serviceItemCount);
-  }, [approvedOrCanceledShipments, mtoServiceItems, setUnapprovedServiceItemCount]);
+  }, [approvedOrCanceledShipments, needsApprovalShipments, mtoServiceItems, setUnapprovedServiceItemCount]);
 
   useEffect(() => {
     let estimatedWeightCalc = null;
@@ -212,6 +229,8 @@ const MoveDetails = ({
     sections = ['approved-shipments', ...sections];
   } else if (submittedShipments.length > 0) {
     sections = ['requested-shipments', ...sections];
+  } else if (needsApprovalShipments.length > 0) {
+    sections = ['needs-approval-shipments', ...sections];
   }
 
   const ordersInfo = {
@@ -348,6 +367,17 @@ const MoveDetails = ({
             <div className={styles.section} id="approved-shipments">
               <ApprovedRequestedShipments
                 mtoShipments={approvedOrCanceledShipments}
+                ordersInfo={ordersInfo}
+                mtoServiceItems={mtoServiceItems}
+                moveCode={moveCode}
+                displayDestinationType={isRetirementOrSeparation}
+              />
+            </div>
+          )}
+          {needsApprovalShipments.length > 0 && (
+            <div className={styles.section} id="needs-approval-shipments">
+              <NeedsApprovalShipments
+                mtoShipments={needsApprovalShipments}
                 ordersInfo={ordersInfo}
                 mtoServiceItems={mtoServiceItems}
                 moveCode={moveCode}

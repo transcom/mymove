@@ -10,6 +10,7 @@ const sectionLabels = {
   shipments: 'Shipments',
   'requested-shipments': 'Requested shipments',
   'approved-shipments': 'Approved shipments',
+  'needs-approval-shipments': 'Shipments',
   orders: 'Orders',
   allowances: 'Allowances',
   'customer-info': 'Customer info',
