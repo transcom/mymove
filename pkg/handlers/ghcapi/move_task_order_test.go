@@ -63,10 +63,14 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
 	moveTaskOrderResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
 	moveTaskOrderPayload := moveTaskOrderResponse.Payload
+
+	// Validate outgoing payload
 	suite.NoError(moveTaskOrderPayload.Validate(strfmt.Default))
 
 	suite.Assertions.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
@@ -129,12 +133,16 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		// make the request
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
 		moveResponse := response.(*movetaskorderops.UpdateMoveTaskOrderStatusOK)
 		movePayload := moveResponse.Payload
+
+		// Validate outgoing payload
 		suite.NoError(movePayload.Validate(strfmt.Default))
 
 		updatedMove := models.Move{}
@@ -197,9 +205,14 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 
 	// make the request
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{handlerConfig, moveUpdater}
+
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 	suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderStatusPreconditionFailed{}, response)
 	payload := response.(*movetaskorderops.UpdateMoveTaskOrderStatusPreconditionFailed).Payload
+
+	// Validate outgoing payload
 	suite.NoError(payload.Validate(strfmt.Default))
 }
 
@@ -229,11 +242,17 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{handlerConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 	}
+
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderStatusUnprocessableEntity{}, response)
 	invalidResponse := response.(*movetaskorderops.UpdateMoveTaskOrderStatusUnprocessableEntity).Payload
+
+	// Validate outgoing payload
 	suite.NoError(invalidResponse.Validate(strfmt.Default))
+
 	errorDetail := invalidResponse.Detail
 
 	suite.Contains(*errorDetail, "TransportationAccountingCode cannot be blank.")
@@ -272,10 +291,14 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 			IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		moveTaskOrderResponse := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedOK)
 		moveTaskOrderPayload := moveTaskOrderResponse.Payload
+
+		// Validate outgoing payload
 		suite.NoError(moveTaskOrderPayload.Validate(strfmt.Default))
 
 		suite.IsType(&movetaskorderops.UpdateMTOStatusServiceCounselingCompletedOK{}, response)
@@ -294,10 +317,14 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 			HTTPRequest: forbiddenRequest,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		suite.IsType(&movetaskorderops.UpdateMTOStatusServiceCounselingCompletedForbidden{}, response)
 		payload := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedForbidden).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
@@ -311,11 +338,15 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()).String(),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		suite.IsType(&movetaskorderops.UpdateMTOStatusServiceCounselingCompletedNotFound{}, response)
 		payload := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedNotFound).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Unsuccessful move status update to Service Counseling Completed, eTag does not match - Integration", func() {
@@ -334,10 +365,14 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 			IfMatch:         etag.GenerateEtag(time.Now()),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		suite.IsType(&movetaskorderops.UpdateMTOStatusServiceCounselingCompletedPreconditionFailed{}, response)
 		payload := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedPreconditionFailed).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
@@ -361,10 +396,14 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 			IfMatch:         etag.GenerateEtag(draftMove.UpdatedAt),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		suite.IsType(&movetaskorderops.UpdateMTOStatusServiceCounselingCompletedConflict{}, response)
 		payload := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedConflict).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
@@ -403,9 +442,13 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 				&mockUpdater,
 			}
 
+			// Validate incoming payload: no body to validate
+
 			response := handler.Handle(params)
 			suite.IsNotErrResponse(response)
 			suite.IsType(testCase.handlerResponse, response)
+
+			// Validate outgoing payload
 			switch response := response.(type) {
 			case *movetaskorderops.UpdateMTOStatusServiceCounselingCompletedUnprocessableEntity:
 				suite.NoError(response.Payload.Validate(strfmt.Default))
@@ -452,10 +495,16 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 			Body:            &ghcmessages.Move{TioRemarks: &remarks},
 			IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		moveTaskOrderResponse := response.(*movetaskorderops.UpdateMoveTIORemarksOK)
 		moveTaskOrderPayload := moveTaskOrderResponse.Payload
+
+		// Validate outgoing payload
 		suite.NoError(moveTaskOrderPayload.Validate(strfmt.Default))
 
 		suite.Assertions.IsType(&movetaskorderops.UpdateMoveTIORemarksOK{}, response)
@@ -474,11 +523,17 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 			MoveTaskOrderID: move.ID.String(),
 			Body:            &ghcmessages.Move{TioRemarks: &remarks},
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 
 		suite.Assertions.IsType(&movetaskorderops.UpdateMoveTIORemarksPreconditionFailed{}, response)
 		payload := response.(*movetaskorderops.UpdateMoveTIORemarksPreconditionFailed).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
@@ -492,11 +547,17 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()).String(),
 			Body:            &ghcmessages.Move{TioRemarks: &remarks},
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 
 		suite.Assertions.IsType(&movetaskorderops.UpdateMoveTIORemarksNotFound{}, response)
 		payload := response.(*movetaskorderops.UpdateMoveTIORemarksNotFound).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
