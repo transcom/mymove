@@ -172,6 +172,13 @@ func isValidForSubmission(evaluationReport models.EvaluationReport) error {
 				evaluationReport.ID))
 	}
 
+	// Required field location
+	if evaluationReport.Location == nil {
+		return errors.Wrap(models.ErrInvalidTransition,
+			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without a location.",
+				evaluationReport.ID))
+	}
+
 	if *evaluationReport.InspectionType == models.EvaluationReportInspectionTypePhysical && *evaluationReport.Location != models.EvaluationReportLocationTypeOther {
 		err := isValidEvalTimes(evaluationReport)
 		if err != nil {
@@ -179,12 +186,6 @@ func isValidForSubmission(evaluationReport models.EvaluationReport) error {
 		}
 	}
 
-	// Required field location
-	if evaluationReport.Location == nil {
-		return errors.Wrap(models.ErrInvalidTransition,
-			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without a location.",
-				evaluationReport.ID))
-	}
 	// LocationDescription is required when Location is Other
 	if *evaluationReport.Location == models.EvaluationReportLocationTypeOther && evaluationReport.LocationDescription == nil {
 		return errors.Wrap(models.ErrInvalidTransition,

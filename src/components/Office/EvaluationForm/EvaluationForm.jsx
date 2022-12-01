@@ -283,7 +283,7 @@ const EvaluationForm = ({
     minutes[i] = { key: `0${String(i)}`, value: `0${String(i)}` };
   }
 
-  for (let i = 10; i < 61; i += 1) {
+  for (let i = 10; i < 60; i += 1) {
     minutes[i] = { key: String(i), value: String(i) };
   }
 
@@ -431,7 +431,7 @@ const EvaluationForm = ({
                             />
                           </div>
                         </div>
-                        <legend className="usa-label">Time evaulation started</legend>
+                        <legend className="usa-label">Time evaluation started</legend>
                         <div className={styles.durationPickers}>
                           <div>
                             <DropdownInput
@@ -460,7 +460,7 @@ const EvaluationForm = ({
                             />
                           </div>
                         </div>
-                        <legend className="usa-label">Time evaulation ended</legend>
+                        <legend className="usa-label">Time evaluation ended</legend>
                         <div className={styles.durationPickers}>
                           <div>
                             <DropdownInput

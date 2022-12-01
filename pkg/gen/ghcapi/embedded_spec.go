@@ -5091,13 +5091,13 @@ func init() {
         },
         "evalEnd": {
           "type": "string",
-          "pattern": "/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
           "x-nullable": true,
           "example": "18:00"
         },
         "evalStart": {
           "type": "string",
-          "pattern": "/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
           "x-nullable": true,
           "example": "15:00"
         },
@@ -5195,7 +5195,7 @@ func init() {
         },
         "timeDepart": {
           "type": "string",
-          "pattern": "/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
           "x-nullable": true,
           "example": "14:30"
         },
@@ -15112,13 +15112,13 @@ func init() {
         },
         "evalEnd": {
           "type": "string",
-          "pattern": "/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
           "x-nullable": true,
           "example": "18:00"
         },
         "evalStart": {
           "type": "string",
-          "pattern": "/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
           "x-nullable": true,
           "example": "15:00"
         },
@@ -15216,7 +15216,7 @@ func init() {
         },
         "timeDepart": {
           "type": "string",
-          "pattern": "/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
           "x-nullable": true,
           "example": "14:30"
         },

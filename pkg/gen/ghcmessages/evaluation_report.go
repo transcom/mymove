@@ -32,12 +32,12 @@ type EvaluationReport struct {
 
 	// eval end
 	// Example: 18:00
-	// Pattern: /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/
+	// Pattern: ^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$
 	EvalEnd *string `json:"evalEnd,omitempty"`
 
 	// eval start
 	// Example: 15:00
-	// Pattern: /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/
+	// Pattern: ^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$
 	EvalStart *string `json:"evalStart,omitempty"`
 
 	// id
@@ -118,7 +118,7 @@ type EvaluationReport struct {
 
 	// time depart
 	// Example: 14:30
-	// Pattern: /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/
+	// Pattern: ^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$
 	TimeDepart *string `json:"timeDepart,omitempty"`
 
 	// type
@@ -261,7 +261,7 @@ func (m *EvaluationReport) validateEvalEnd(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("evalEnd", "body", *m.EvalEnd, `/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/`); err != nil {
+	if err := validate.Pattern("evalEnd", "body", *m.EvalEnd, `^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$`); err != nil {
 		return err
 	}
 
@@ -273,7 +273,7 @@ func (m *EvaluationReport) validateEvalStart(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("evalStart", "body", *m.EvalStart, `/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/`); err != nil {
+	if err := validate.Pattern("evalStart", "body", *m.EvalStart, `^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$`); err != nil {
 		return err
 	}
 
@@ -474,7 +474,7 @@ func (m *EvaluationReport) validateTimeDepart(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("timeDepart", "body", *m.TimeDepart, `/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/`); err != nil {
+	if err := validate.Pattern("timeDepart", "body", *m.TimeDepart, `^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$`); err != nil {
 		return err
 	}
 

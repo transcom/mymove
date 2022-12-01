@@ -161,8 +161,8 @@ describe('EvaluationForm', () => {
       userEvent.click(screen.getByText('Physical'));
       userEvent.click(screen.getByText('Origin'));
       expect(screen.getByText('Time departed for evaluation')).toBeInTheDocument();
-      expect(screen.getByText('Time evaulation started')).toBeInTheDocument();
-      expect(screen.getByText('Time evaulation ended')).toBeInTheDocument();
+      expect(screen.getByText('Time evaluation started')).toBeInTheDocument();
+      expect(screen.getByText('Time evaluation ended')).toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).toBeInTheDocument();
       expect(screen.getAllByTestId('textarea')).toHaveLength(1);
@@ -186,8 +186,8 @@ describe('EvaluationForm', () => {
     await waitFor(() => {
       userEvent.click(screen.getByText('Virtual'));
       expect(screen.queryByText('Time departed for evaluation')).not.toBeInTheDocument();
-      expect(screen.queryByText('Time evaulation started')).not.toBeInTheDocument();
-      expect(screen.queryByText('Time evaulation ended')).not.toBeInTheDocument();
+      expect(screen.queryByText('Time evaluation started')).not.toBeInTheDocument();
+      expect(screen.queryByText('Time evaluation ended')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
     });
