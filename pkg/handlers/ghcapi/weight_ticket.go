@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
-	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
 
 // UpdateWeightTicketHandler
@@ -28,22 +27,25 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			payload := params.UpdateWeightTicketPayload
 
-			ppmshipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
-			_, err := mtoshipment.FindShipment(appCtx, ppmshipmentID)
+			//ppmshipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
+			//_, err := mtoshipment.FindShipment(appCtx, ppmshipmentID)
 			// Can't find original weight ticket
-			if err != nil {
-				appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
-				switch err.(type) {
-				case apperror.NotFoundError:
-					return weightticketops.NewUpdateWeightTicketNotFound(), err
-				default:
-					msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
-
-					return weightticketops.NewUpdateWeightTicketInternalServerError().WithPayload(
-						&ghcmessages.Error{Message: &msg},
-					), err
-				}
-			}
+			//if err != nil {
+			//	appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
+			//	switch err.(type) {
+			//	case apperror.NotFoundError:
+			//		fmt.Println("🦋🦋🦋🦋")
+			//		fmt.Println(err)
+			//		fmt.Println("🦋🦋🦋🦋")
+			//		return weightticketops.NewUpdateWeightTicketNotFound(), err
+			//	default:
+			//		msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
+			//
+			//		return weightticketops.NewUpdateWeightTicketInternalServerError().WithPayload(
+			//			&ghcmessages.Error{Message: &msg},
+			//		), err
+			//	}
+			//}
 
 			weightTicket := payloads.WeightTicketModelFromUpdate(payload)
 
@@ -54,6 +56,9 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 
 				switch e := err.(type) {
 				case apperror.NotFoundError:
+					//fmt.Println("🦋🦋🦋🦋")
+					//fmt.Println(err)
+					//fmt.Println("🦋🦋🦋🦋")
 					return weightticketops.NewUpdateWeightTicketNotFound(), err
 				case apperror.InvalidInputError:
 					return weightticketops.NewUpdateWeightTicketUnprocessableEntity().WithPayload(
