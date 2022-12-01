@@ -4,8 +4,8 @@ import classNames from 'classnames';
 
 import styles from './index.module.scss';
 
-const TabNav = ({ items, role }) => (
-  <nav className={classNames(styles.tabNav)} role={role}>
+const TabNav = ({ items, role, className }) => (
+  <nav className={classNames(styles.tabNav, className)} role={role}>
     <div>
       <ul className={classNames(styles.tabList)}>
         {items.map((item, index) => (
@@ -21,10 +21,12 @@ const TabNav = ({ items, role }) => (
 TabNav.propTypes = {
   items: PropTypes.arrayOf(PropTypes.node).isRequired,
   role: PropTypes.string,
+  className: PropTypes.string,
 };
 
 TabNav.defaultProps = {
   role: null,
+  className: null,
 };
 
 export default TabNav;

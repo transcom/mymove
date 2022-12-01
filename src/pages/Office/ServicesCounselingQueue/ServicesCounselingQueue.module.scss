@@ -5,6 +5,6 @@
   @include u-display(flex);
   flex-direction: column;
   flex: auto;
-
+  border: (1px, solid, green);
   background-color: $bg-gray;
 }
