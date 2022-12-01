@@ -4,14 +4,14 @@ import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router';
 
-import styles from './EvaluationReportTable.module.scss';
+import styles from './QAEReportTable.module.scss';
 
 import ConnectedEvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
 import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
 import { formatCustomerDate, formatEvaluationReportLocation, formatQAReportID } from 'utils/formatters';
 import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 
-const EvaluationReportTable = ({
+const QAEReportTable = ({
   reports,
   shipments,
   emptyText,
@@ -164,7 +164,7 @@ const EvaluationReportTable = ({
           }
         />
       )}
-      <table className={styles.evaluationReportTable}>
+      <table className={styles.qaeReportTable}>
         <thead>
           <tr>
             <th className={styles.reportIDColumn}>Report ID</th>
@@ -182,7 +182,7 @@ const EvaluationReportTable = ({
   );
 };
 
-EvaluationReportTable.propTypes = {
+QAEReportTable.propTypes = {
   reports: PropTypes.arrayOf(EvaluationReportShape),
   emptyText: PropTypes.string.isRequired,
   moveCode: PropTypes.string.isRequired,
@@ -196,10 +196,10 @@ EvaluationReportTable.propTypes = {
   destinationDutyLocationPostalCode: PropTypes.string,
 };
 
-EvaluationReportTable.defaultProps = {
+QAEReportTable.defaultProps = {
   reports: [],
   shipments: null,
   destinationDutyLocationPostalCode: '',
 };
 
-export default EvaluationReportTable;
+export default QAEReportTable;

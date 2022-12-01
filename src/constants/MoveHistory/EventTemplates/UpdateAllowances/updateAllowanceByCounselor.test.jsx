@@ -1,16 +1,13 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import o from 'constants/MoveHistory/UIDisplay/Operations';
-import t from 'constants/MoveHistory/Database/Tables';
-import a from 'constants/MoveHistory/Database/Actions';
 import updateAllowanceByCounselor from 'constants/MoveHistory/EventTemplates/UpdateAllowances/updateAllowanceByCounselor';
 
 describe('When a service counselor updates shipping allowances', () => {
   const historyRecord = {
-    action: a.UPDATE,
-    eventName: o.counselingUpdateAllowance,
-    tableName: t.entitlements,
+    action: 'UPDATE',
+    eventName: 'counselingUpdateAllowance',
+    tableName: 'entitlements',
     eventNameDisplay: 'Updated allowances',
     changedValues: {
       authorized_weight: '8000',

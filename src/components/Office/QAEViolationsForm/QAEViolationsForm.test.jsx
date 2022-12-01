@@ -3,7 +3,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import EvaluationViolationsForm from './EvaluationViolationsForm';
+import QAEViolationsForm from './QAEViolationsForm';
 
 import { MockProviders } from 'testUtils';
 import { saveEvaluationReport, associateReportViolations, submitEvaluationReport } from 'services/ghcApi';
@@ -174,7 +174,7 @@ const renderForm = (props) => {
 
   return render(
     <MockProviders initialEntries={[`/moves/A12345/evaluation-reports/db30c135-1d6d-4a0d-a6d5-f408474f6ee2`]}>
-      <EvaluationViolationsForm {...defaultProps} {...props} />
+      <QAEViolationsForm {...defaultProps} {...props} />
     </MockProviders>,
   );
 };
@@ -183,7 +183,7 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-describe('EvaluationViolationsForm', () => {
+describe('QAEViolationsForm', () => {
   it('renders the form content', async () => {
     renderForm();
 
@@ -275,7 +275,7 @@ describe('EvaluationViolationsForm', () => {
   });
 });
 
-describe('EvaluationViolationsForm Buttons', () => {
+describe('QAEViolationsForm Buttons', () => {
   it('re-routes back to the eval report', async () => {
     renderForm();
     // Click back button
