@@ -333,6 +333,37 @@ export async function deleteWeightTicket() {
   return Promise.resolve();
 }
 
+export async function createProGearWeightTicket(ppmShipmentId) {
+  return makeInternalRequest(
+    'ppm.createProGearWeightTicket',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function patchProGearWeightTicket(ppmShipmentId, proGearWeightTicketId, payload, eTag) {
+  return makeInternalRequest(
+    'ppm.updateProGearWeightTicket',
+    {
+      ppmShipmentId,
+      proGearWeightTicketId,
+      'If-Match': eTag,
+      updateProGearWeightTicket: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteProGearWeightTicket() {
+  return Promise.resolve();
+}
+
 /** PPMS */
 export async function getPPMsForMove(moveId) {
   return makeInternalRequest(
