@@ -39,6 +39,29 @@ func (_m *WeightTicketFetcher) GetWeightTicket(appCtx appcontext.AppContext, wei
 	return r0, r1
 }
 
+// ListWeightTickets provides a mock function with given fields: appCtx, ppmShipmentID
+func (_m *WeightTicketFetcher) ListWeightTickets(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (models.WeightTickets, error) {
+	ret := _m.Called(appCtx, ppmShipmentID)
+
+	var r0 models.WeightTickets
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) models.WeightTickets); ok {
+		r0 = rf(appCtx, ppmShipmentID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(models.WeightTickets)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, ppmShipmentID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 type mockConstructorTestingTNewWeightTicketFetcher interface {
 	mock.TestingT
 	Cleanup(func())
