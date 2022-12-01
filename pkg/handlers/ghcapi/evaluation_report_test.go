@@ -28,6 +28,7 @@ func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
 		handlerConfig := suite.createS3HandlerConfig()
 		return officeUser, move, handlerConfig
 	}
+
 	suite.Run("Successful list fetch", func() {
 		officeUser, move, handlerConfig := setupTestData()
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -50,11 +51,19 @@ func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
 			HTTPRequest: request,
 			MoveID:      *handlers.FmtUUID(move.ID),
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&moveop.GetMoveShipmentEvaluationReportsListOK{}, response)
-		suite.NoError(response.(*moveop.GetMoveShipmentEvaluationReportsListOK).Payload.Validate(strfmt.Default))
-		suite.Len(response.(*moveop.GetMoveShipmentEvaluationReportsListOK).Payload, 1)
+		payload := response.(*moveop.GetMoveShipmentEvaluationReportsListOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Len(payload, 1)
 	})
+
 	suite.Run("Request error", func() {
 		officeUser, move, handlerConfig := setupTestData()
 		mockFetcher := mocks.EvaluationReportFetcher{}
@@ -75,10 +84,15 @@ func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
 			HTTPRequest: request,
 			MoveID:      *handlers.FmtUUID(move.ID),
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&moveop.GetMoveShipmentEvaluationReportsListInternalServerError{}, response)
 		payload := response.(*moveop.GetMoveShipmentEvaluationReportsListInternalServerError).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
 
@@ -89,6 +103,7 @@ func (suite *HandlerSuite) TestGetCounselingEvaluationReportsHandler() {
 		handlerConfig := suite.HandlerConfig()
 		return officeUser, move, handlerConfig
 	}
+
 	suite.Run("Successful list fetch", func() {
 		officeUser, move, handlerConfig := setupTestData()
 		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
@@ -107,11 +122,19 @@ func (suite *HandlerSuite) TestGetCounselingEvaluationReportsHandler() {
 			HTTPRequest: request,
 			MoveID:      *handlers.FmtUUID(move.ID),
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&moveop.GetMoveCounselingEvaluationReportsListOK{}, response)
-		suite.NoError(response.(*moveop.GetMoveCounselingEvaluationReportsListOK).Payload.Validate(strfmt.Default))
-		suite.Len(response.(*moveop.GetMoveCounselingEvaluationReportsListOK).Payload, 1)
+		payload := response.(*moveop.GetMoveCounselingEvaluationReportsListOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Len(payload, 1)
 	})
+
 	suite.Run("Request error", func() {
 		officeUser, move, handlerConfig := setupTestData()
 		mockFetcher := mocks.EvaluationReportFetcher{}
@@ -132,10 +155,15 @@ func (suite *HandlerSuite) TestGetCounselingEvaluationReportsHandler() {
 			HTTPRequest: request,
 			MoveID:      *handlers.FmtUUID(move.ID),
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&moveop.GetMoveCounselingEvaluationReportsListInternalServerError{}, response)
 		payload := response.(*moveop.GetMoveCounselingEvaluationReportsListInternalServerError).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
 
@@ -165,9 +193,14 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 			HTTPRequest: request,
 			ReportID:    strfmt.UUID(evaluationReport.ID.String()),
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&evaluationReportop.GetEvaluationReportOK{}, response)
 		payload := response.(*evaluationReportop.GetEvaluationReportOK).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
@@ -195,9 +228,13 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 			EvaluationReportFetcher: &mockFetcher,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&evaluationReportop.GetEvaluationReportNotFound{}, response)
 		payload := response.(*evaluationReportop.GetEvaluationReportNotFound).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
@@ -225,9 +262,13 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 			EvaluationReportFetcher: &mockFetcher,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&evaluationReportop.GetEvaluationReportForbidden{}, response)
 		payload := response.(*evaluationReportop.GetEvaluationReportForbidden).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
@@ -281,10 +322,15 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 			mock.AnythingOfType("string"),
 		).Return(&returnReport, nil).Once()
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.CreateEvaluationReportOK{}, response)
 		payload := response.(*evaluationReportop.CreateEvaluationReportOK).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
@@ -315,11 +361,16 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 			mock.AnythingOfType("string"),
 		).Return(nil, fmt.Errorf("error")).Once()
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.CreateEvaluationReportInternalServerError{}, response)
 		payload := response.(*evaluationReportop.CreateEvaluationReportInternalServerError).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
 
@@ -344,10 +395,13 @@ func (suite *HandlerSuite) TestDeleteEvaluationReportHandler() {
 			mock.Anything,
 		).Return(nil).Once()
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.DeleteEvaluationReportNoContent{}, response)
-		// No payload to validate
+
+		// Validate outgoing payload: no payload
 	})
 }
 
@@ -376,9 +430,12 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 			mock.AnythingOfType("string"),
 		).Return(nil).Once()
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportNoContent{}, response)
-		// No payload to validate
+
+		// Validate outgoing payload: no payload
 	})
 
 	suite.Run("Precondition failed", func() {
@@ -405,10 +462,14 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 			mock.AnythingOfType("string"),
 		).Return(apperror.NewPreconditionFailedError(reportID, nil)).Once()
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportPreconditionFailed{}, response)
 		payload := response.(*evaluationReportop.SubmitEvaluationReportPreconditionFailed).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Not found error", func() {
@@ -435,10 +496,14 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 			mock.AnythingOfType("string"),
 		).Return(apperror.NewNotFoundError(reportID, "message")).Once()
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportNotFound{}, response)
 		payload := response.(*evaluationReportop.SubmitEvaluationReportNotFound).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Invalid input", func() {
@@ -465,10 +530,14 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 			mock.AnythingOfType("string"),
 		).Return(apperror.NewInvalidInputError(reportID, nil, nil, "message")).Once()
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportUnprocessableEntity{}, response)
 		payload := response.(*evaluationReportop.SubmitEvaluationReportUnprocessableEntity).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Forbidden error", func() {
@@ -495,10 +564,14 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 			mock.AnythingOfType("string"),
 		).Return(apperror.NewForbiddenError("message")).Once()
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportForbidden{}, response)
 		payload := response.(*evaluationReportop.SubmitEvaluationReportForbidden).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Internal server error", func() {
@@ -525,10 +598,14 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 			mock.AnythingOfType("string"),
 		).Return(apperror.NewInternalServerError("message")).Once()
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportInternalServerError{}, response)
 		payload := response.(*evaluationReportop.SubmitEvaluationReportInternalServerError).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
 
@@ -576,10 +653,14 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 			mock.AnythingOfType("string"),
 		).Return(nil).Once()
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportNoContent{}, response)
-		// No payload to validate
+
+		// Validate outgoing payload: no payload
 	})
 
 	suite.Run("Not found error", func() {
@@ -608,11 +689,16 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 			mock.AnythingOfType("string"),
 		).Return(apperror.NewNotFoundError(reportID, "message")).Once()
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportNotFound{}, response)
 		payload := response.(*evaluationReportop.SaveEvaluationReportNotFound).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Invalid input error", func() {
@@ -641,11 +727,16 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 			mock.AnythingOfType("string"),
 		).Return(apperror.NewInvalidInputError(reportID, nil, nil, "message")).Once()
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportUnprocessableEntity{}, response)
 		payload := response.(*evaluationReportop.SaveEvaluationReportUnprocessableEntity).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Precondition failed error", func() {
@@ -674,11 +765,16 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 			mock.AnythingOfType("string"),
 		).Return(apperror.NewPreconditionFailedError(reportID, nil)).Once()
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportPreconditionFailed{}, response)
 		payload := response.(*evaluationReportop.SaveEvaluationReportPreconditionFailed).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Forbidden error", func() {
@@ -707,11 +803,16 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 			mock.AnythingOfType("string"),
 		).Return(apperror.NewForbiddenError("")).Once()
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportForbidden{}, response)
 		payload := response.(*evaluationReportop.SaveEvaluationReportForbidden).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Conflict error", func() {
@@ -740,11 +841,16 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 			mock.AnythingOfType("string"),
 		).Return(apperror.NewConflictError(reportID, "")).Once()
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportConflict{}, response)
 		payload := response.(*evaluationReportop.SaveEvaluationReportConflict).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Unknown error", func() {
@@ -773,11 +879,16 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 			mock.AnythingOfType("string"),
 		).Return(fmt.Errorf("this is some sort of error")).Once()
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportInternalServerError{}, response)
 		payload := response.(*evaluationReportop.SaveEvaluationReportInternalServerError).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
 
@@ -829,11 +940,14 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 			mock.AnythingOfType("uuid.UUID"),
 		).Return([]models.MTOShipment{}, nil)
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.DownloadEvaluationReportOK{}, response)
-		// Payload should be an instance of a ReadCloser interface
 		payload := response.(*evaluationReportop.DownloadEvaluationReportOK).Payload
+
+		// Validate outgoing payload: payload should be an instance of a ReadCloser interface
 		suite.NotNil(payload)
 	})
 
@@ -861,10 +975,14 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 			mock.AnythingOfType("uuid.UUID"),
 		).Return(nil, apperror.NewNotFoundError(uuid.Nil, "not found")).Once()
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.DownloadEvaluationReportNotFound{}, response)
 		payload := response.(*evaluationReportop.DownloadEvaluationReportNotFound).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
@@ -892,11 +1010,15 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 			mock.AnythingOfType("uuid.UUID"),
 		).Return(nil, apperror.NewQueryError("", nil, "")).Once()
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.DownloadEvaluationReportInternalServerError{}, response)
 		payload := response.(*evaluationReportop.DownloadEvaluationReportInternalServerError).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Unknown error should result in 500", func() {
@@ -923,10 +1045,14 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 			mock.AnythingOfType("uuid.UUID"),
 		).Return(nil, fmt.Errorf("an error")).Once()
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.DownloadEvaluationReportInternalServerError{}, response)
 		payload := response.(*evaluationReportop.DownloadEvaluationReportInternalServerError).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
