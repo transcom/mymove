@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	weightticketops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	progearops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -87,36 +86,6 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		suite.Equal(params.UpdateWeightTicketPayload.EmptyWeight, updatedWeightTicket.EmptyWeight)
 	})
 
-	suite.Run("PATCH failure -400 - nil body", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
-		subtestData.params.UpdateWeightTicketPayload = nil
-		response := subtestData.handler.Handle(subtestData.params)
-
-		suite.IsType(&weightticketops.UpdateWeightTicketBadRequest{}, response)
-	})
-
-	suite.Run("POST failure - 401 - permission denied - not authenticated", func() {
-		appCtx := suite.AppContextForTest()
-		subtestData := makeUpdateSubtestData(appCtx, false)
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		unauthorizedReq := suite.AuthenticateOfficeRequest(subtestData.params.HTTPRequest, officeUser)
-		unauthorizedParams := weightticketops.UpdateWeightTicketParams{
-			HTTPRequest:    unauthorizedReq,
-			WeightTicketID: *handlers.FmtUUID(subtestData.weightTicket.ID),
-		}
-		mockWeightTicketUpdater := &mocks.WeightTicketUpdater{}
-		handler := UpdateWeightTicketHandler{
-			suite.HandlerConfig(),
-			mockWeightTicketUpdater,
-		}
-
-		response := handler.Handle(unauthorizedParams)
-
-		suite.IsType(&weightticketops.UpdateWeightTicketUnauthorized{}, response)
-	})
-
 	suite.Run("PATCH failure - 404- not found", func() {
 		appCtx := suite.AppContextForTest()
 
@@ -164,9 +133,9 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		err := errors.New("ServerError")
 
 		// Might remove the mocks:
-		mockUpdater.On("UpdateProgearWeightTicket",
+		mockUpdater.On("UpdateWeightTicket",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("models.ProgearWeightTicket"),
+			mock.AnythingOfType("models.WeightTicket"),
 			mock.AnythingOfType("string"),
 		).Return(nil, err)
 
@@ -177,8 +146,6 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 
 		response := handler.Handle(params)
 
-		suite.IsType(&progearops.UpdateWeightTicketInternalServerError{}, response)
-		errResponse := response.(*progearops.UpdateWeightTicketInternalServerError)
-		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
+		suite.IsType(&weightticketops.UpdateWeightTicketInternalServerError{}, response)
 	})
 }
