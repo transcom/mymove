@@ -705,17 +705,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.NilOrNoVerrs(err)
 			suite.Equal(oldPPMShipment.FinalIncentive, finalIncentive)
 		})
-
-		// suite.Run("Estimated Incentive - Success - is skipped when Estimated Weight is missing", func() {
-		// 	oldPPMShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
-
-		// 	newPPM := oldPPMShipment
-		// 	newPPM.DestinationPostalCode = "94040"
-
-		// 	_, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
-		// 	suite.NoError(err)
-		// 	suite.Nil(newPPM.EstimatedIncentive)
-		// })
 	})
 
 	suite.Run("SIT Estimated Cost", func() {

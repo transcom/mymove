@@ -119,3 +119,46 @@ func FetchWeightTicketByIDExcludeDeletedUploads(appContext appcontext.AppContext
 
 	return &weightTicket, nil
 }
+
+func FetchWeightTicketAndPPMShipment(appContext appcontext.AppContext, weightTicketID uuid.UUID) (*models.WeightTicket, *models.PPMShipment, error) {
+	var weightTicket models.WeightTicket
+
+	err := appContext.DB().Scope(utilities.ExcludeDeletedScope()).
+		EagerPreload(
+			"EmptyDocument.UserUploads.Upload",
+			"FullDocument.UserUploads.Upload",
+			"ProofOfTrailerOwnershipDocument.UserUploads.Upload",
+		).
+		Find(&weightTicket, weightTicketID)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, nil, apperror.NewNotFoundError(weightTicketID, "while looking for WeightTicket")
+		default:
+			return nil, nil, apperror.NewQueryError("WeightTicket fetch original", err, "")
+		}
+	}
+
+	weightTicket.EmptyDocument.UserUploads = weightTicket.EmptyDocument.UserUploads.FilterDeleted()
+	weightTicket.FullDocument.UserUploads = weightTicket.FullDocument.UserUploads.FilterDeleted()
+	weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightTicket.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
+
+	var ppmShipment models.PPMShipment
+
+	err = appContext.DB().Scope(utilities.ExcludeDeletedScope()).
+		EagerPreload(
+			"Shipment",
+		).
+		Find(&ppmShipment, weightTicket.PPMShipmentID)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, nil, apperror.NewNotFoundError(ppmShipment.ID, "while looking for PPMShipment")
+		default:
+			return nil, nil, apperror.NewQueryError("PPMShipment fetch original", err, "")
+		}
+	}
+	return &weightTicket, &ppmShipment, nil
+}
