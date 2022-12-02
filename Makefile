@@ -105,7 +105,7 @@ endif
 
 .PHONY: check_node_version
 check_node_version: .check_node_version.stamp ## Check that the correct Node version is installed
-.check_node_version.stamp: scripts/check-node-version
+.check_node_version.stamp: scripts/check-node-version .node-version
 	scripts/check-node-version
 	touch .check_node_version.stamp
 
