@@ -96,7 +96,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 	requestedMoveDateQuery := requestedMoveDateFilter(params.RequestedMoveDate)
 	closeoutInitiatedQuery := closeoutInitiatedFilter(params.CloseoutInitiated)
-	closeoutLocationQuery := closeoutLocationFilter(params.CloseoutLocation)
+	closeoutLocationQuery := closeoutLocationFilter(params.CloseoutLocation, ppmCloseoutGblocs)
 	ppmTypeQuery := ppmTypeFilter(params.PPMType)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
@@ -386,9 +386,12 @@ func ppmTypeFilter(ppmType *string) QueryOption {
 	}
 }
 
-func closeoutLocationFilter(closeoutLocation *string) QueryOption {
+func closeoutLocationFilter(closeoutLocation *string, ppmCloseoutGblocs bool) QueryOption {
 	return func(query *pop.Query) {
-		if closeoutLocation != nil {
+		// If the office user is in a closeout gbloc, every single result they're seeing will have
+		// the same closeout location, which will be identical to their gbloc, so there's no reason
+		// to do this search.
+		if closeoutLocation != nil && !ppmCloseoutGblocs {
 			nameSearch := fmt.Sprintf("%s%%", *closeoutLocation)
 			query.Where("closeout_to.name ILIKE ?", nameSearch)
 		}
