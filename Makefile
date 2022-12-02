@@ -89,7 +89,7 @@ endif
 
 .PHONY: check_go_version
 check_go_version: .check_go_version.stamp ## Check that the correct Golang version is installed
-.check_go_version.stamp: scripts/check-go-version
+.check_go_version.stamp: scripts/check-go-version .go-version
 	scripts/check-go-version
 	touch .check_go_version.stamp
 
