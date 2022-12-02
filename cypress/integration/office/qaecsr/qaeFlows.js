@@ -79,7 +79,10 @@ const submitReportFromPreview = () => {
     .click({ force: true });
 
   // Wait for the submit
-  cy.wait(['@submitEvaluationReport']);
+  cy.wait(['@submitEvaluationReport']).then((intercept) => {
+    const { statusCode } = intercept.response;
+    expect(statusCode).to.eq(204);
+  });
 
   // Should be back on the quality assurance tab
   cy.url().should('include', `/moves/${moveCode}/evaluation-reports`);
