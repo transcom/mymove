@@ -34,11 +34,17 @@ func (suite *HandlerSuite) TestTacValidation() {
 			}
 			handlerConfig := suite.HandlerConfig()
 			handler := TacValidationHandler{handlerConfig}
+
+			// Validate incoming payload: no body to validate
+
 			response := handler.Handle(params)
 
-			suite.Assertions.IsType(&tacop.TacValidationOK{}, response)
+			suite.IsType(&tacop.TacValidationOK{}, response)
 			okResponse := response.(*tacop.TacValidationOK)
+
+			// Validate outgoing payload
 			suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
 			suite.Equal(tc.isValid, *okResponse.Payload.IsValid,
 				"Expected %v validation to return %v, got %v", tc.tacCode, tc.isValid, *okResponse.Payload.IsValid)
 		}
@@ -54,11 +60,16 @@ func (suite *HandlerSuite) TestTacValidation() {
 		}
 		handlerConfig := suite.HandlerConfig()
 		handler := TacValidationHandler{handlerConfig}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
-		suite.Assertions.IsType(&tacop.TacValidationUnauthorized{}, response)
+		suite.IsType(&tacop.TacValidationUnauthorized{}, response)
 		payload := response.(*tacop.TacValidationUnauthorized).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Unauthorized user for TAC validation is forbidden", func() {
@@ -73,10 +84,15 @@ func (suite *HandlerSuite) TestTacValidation() {
 		}
 		handlerConfig := suite.HandlerConfig()
 		handler := TacValidationHandler{handlerConfig}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
-		suite.Assertions.IsType(&tacop.TacValidationForbidden{}, response)
+		suite.IsType(&tacop.TacValidationForbidden{}, response)
 		payload := response.(*tacop.TacValidationForbidden).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
