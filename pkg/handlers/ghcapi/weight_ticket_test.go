@@ -72,12 +72,15 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 			FullWeight:  handlers.FmtInt64(4000),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := subtestData.handler.Handle(params)
-
 		suite.IsType(&weightticketops.UpdateWeightTicketOK{}, response)
-
 		updatedWeightTicket := response.(*weightticketops.UpdateWeightTicketOK).Payload
+
+		// Validate outgoing payload
 		suite.NoError(updatedWeightTicket.Validate(strfmt.Default))
+
 		suite.Equal(subtestData.weightTicket.ID.String(), updatedWeightTicket.ID.String())
 		suite.Equal(params.UpdateWeightTicketPayload.FullWeight, updatedWeightTicket.FullWeight)
 		suite.Equal(params.UpdateWeightTicketPayload.EmptyWeight, updatedWeightTicket.EmptyWeight)
