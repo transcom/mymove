@@ -13,20 +13,10 @@ then
   key="${1}"
   cert="${2}"
 
-  # README: We'll create a temporary directory here and push it into the stack.
-  pushd "$(mktemp -d)"
+  key_md5=$(echo "${key}" | base64 --decode | openssl rsa -noout -modulus | openssl md5)
+  cert_md5=$(echo "${cert}" | base64 --decode | openssl x509 -noout -modulus | openssl md5)
 
-  echo "${key}" | base64 --decode > ./KEY_FILE
-  echo "${cert}" | base64 --decode > ./CERT_FILE
-
-  key_mod=$(openssl rsa -noout -modulus -in ./KEY_FILE | openssl md5)
-  cert_mod=$(openssl x509 -noout -modulus -in ./CERT_FILE | openssl md5)
-
-  # README: We're done with the temporary directory here so we'll pop it off
-  # the stack.
-  popd
-
-  if [ "${key_mod}" != "${cert_mod}" ]; then
+  if [ "${key_md5}" != "${cert_md5}" ]; then
     # README: This will echo out the message to STDERR.
     echo "The KEY_FILE and the CERT_FILE for this environment do not match" >&2
     exit 1
