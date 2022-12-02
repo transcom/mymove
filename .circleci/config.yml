@@ -748,8 +748,18 @@ jobs:
 
   check_tls_certificate_dp3:
     executor: av_medium
+    parameters:
+      dp3-env:
+        type: string
+        default: *dp3-env
     steps:
       - checkout
+      - run:
+          name: Check if we are using a dp3 environment at all
+          command: |
+            if [ << parameters.dp3-env >> != "demo" && << parameters.dp3-env >> != "exp" && << parameters.dp3-env >> != "loadtest" ]; then
+              exit 0
+            fi
       - tls_vars_dp3
       - run: scripts/check-tls-pair ${TLS_KEY} ${TLS_CERT}
       - announce_failure
