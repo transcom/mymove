@@ -153,18 +153,18 @@ client_deps_update: .check_node_version.stamp ## Update client dependencies
 	yarn upgrade
 
 .PHONY: client_deps
-client_deps: .check_hosts.stamp .check_node_version.stamp .client_deps.stamp ## Install client dependencies
-.client_deps.stamp: yarn.lock
+client_deps: .check_hosts.stamp .client_deps.stamp ## Install client dependencies
+.client_deps.stamp: yarn.lock .check_node_version.stamp
 	yarn install
 	scripts/copy-swagger-ui
 	touch .client_deps.stamp
 
-.client_build.stamp: .check_node_version.stamp $(shell find src -type f)
+.client_build.stamp: .client_deps.stamp $(shell find src -type f)
 	yarn build
 	touch .client_build.stamp
 
 .PHONY: client_build
-client_build: .client_deps.stamp .client_build.stamp ## Build the client
+client_build: .client_build.stamp ## Build the client
 
 build/index.html: ## milmove serve requires this file to boot, but it isn't used during local development
 	mkdir -p build
