@@ -1761,11 +1761,23 @@ workflows:
 
   app:
     jobs:
-      - pre_deps_golang
-
-      - pre_deps_yarn
-
       - check_tls_certificate_dp3
+
+      - check_tls_certificate_stg
+
+      - check_tls_certificate_prd
+
+      - pre_deps_golang:
+          requires:
+            - check_tls_certificate_dp3
+            - check_tls_certificate_stg
+            - check_tls_certificate_prd
+
+      - pre_deps_yarn:
+          requires:
+            - check_tls_certificate_dp3
+            - check_tls_certificate_stg
+            - check_tls_certificate_prd
 
       - check_generated_code:
           requires:
