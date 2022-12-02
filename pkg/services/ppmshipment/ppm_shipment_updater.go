@@ -88,16 +88,11 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 			}
 		}
 
-		// TODO: Replace with call to calculate net weight
-		if oldPPMShipment.NetWeight != nil && updatedPPMShipment.NetWeight != nil {
-			if *updatedPPMShipment.NetWeight != *oldPPMShipment.NetWeight {
-				finalIncentive, finalIncentiveErr := f.estimator.FinalIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
-				if finalIncentiveErr != nil {
-					return finalIncentiveErr
-				}
-				updatedPPMShipment.FinalIncentive = finalIncentive
-			}
+		finalIncentive, err := f.estimator.FinalIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
+		if err != nil {
+			return err
 		}
+		updatedPPMShipment.FinalIncentive = finalIncentive
 
 		if updatedPPMShipment.W2Address != nil {
 			var updatedAddress *models.Address
