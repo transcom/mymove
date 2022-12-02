@@ -17,7 +17,7 @@ func BuildTariff400ngZip3(db *pop.Connection, customs []Customization, traits []
 	customs = setupCustomizations(customs, traits)
 
 	var cTariff models.Tariff400ngZip3
-	if result := findValidCustomization(customs, User); result != nil {
+	if result := findValidCustomization(customs, Tariff400ngZip3); result != nil {
 		cTariff = result.Model.(models.Tariff400ngZip3)
 	}
 
