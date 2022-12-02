@@ -58,6 +58,11 @@ export const SERVICE_COUNSELING_PPM_TYPE_OPTIONS = [
   { value: 'PARTIAL', label: 'Partial' },
 ];
 
+export const SERVICE_COUNSELING_PPM_TYPE_LABELS = {
+  FULL: 'Full',
+  PARTIAL: 'Partial',
+};
+
 export const GBLOC = {
   USMC: 'USMC',
 };

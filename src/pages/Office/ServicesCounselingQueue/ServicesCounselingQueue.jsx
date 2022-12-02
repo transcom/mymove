@@ -14,6 +14,7 @@ import {
   SERVICE_COUNSELING_MOVE_STATUS_OPTIONS,
   SERVICE_COUNSELING_MOVE_STATUS_LABELS,
   SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
+  SERVICE_COUNSELING_PPM_TYPE_LABELS,
 } from 'constants/queues';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useServicesCounselingQueueQueries, useServicesCounselingQueuePPMQueries, useUserQueries } from 'hooks/queries';
@@ -146,14 +147,20 @@ const closeoutColumns = () => [
       Filter: (props) => <DateSelectFilter dateTime {...props} />,
     },
   ),
-  createHeader('Full or partial PPM', 'ppmType', {
-    id: 'ppmType',
-    isFilterable: true,
-    Filter: (props) => (
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      <SelectFilter options={SERVICE_COUNSELING_PPM_TYPE_OPTIONS} {...props} />
-    ),
-  }),
+  createHeader(
+    'Full or partial PPM',
+    (row) => {
+      return SERVICE_COUNSELING_PPM_TYPE_LABELS[`${row.ppmType}`];
+    },
+    {
+      id: 'ppmType',
+      isFilterable: true,
+      Filter: (props) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <SelectFilter options={SERVICE_COUNSELING_PPM_TYPE_OPTIONS} {...props} />
+      ),
+    },
+  ),
   createHeader('Origin duty location', 'originDutyLocation.name', {
     id: 'originDutyLocation',
     isFilterable: true,
