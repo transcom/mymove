@@ -276,9 +276,9 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 		physicalInspection := models.EvaluationReportInspectionTypePhysical
 		virtualInspection := models.EvaluationReportInspectionTypeVirtual
 		inspectionTime := time.Now().AddDate(0, 0, -4)
-		timeDepart := inspectionTime
-		evalStart := inspectionTime
-		evalEnd := inspectionTime
+		timeDepart := inspectionTime.Add(time.Hour * 1)
+		evalStart := inspectionTime.Add(time.Hour * 3)
+		evalEnd := inspectionTime.Add(time.Hour * 5)
 
 		remark := "this is a submitted counseling report"
 		location := models.EvaluationReportLocationTypeOrigin
