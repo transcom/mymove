@@ -19,6 +19,7 @@ const mockOrders = {
   grade: 'E_1',
   agency: 'COAST_GUARD',
 };
+const destinationDutyLocationPostalCode = '90210';
 
 jest.mock('hooks/queries', () => ({
   useEvaluationReportShipmentListQueries: jest.fn(),
@@ -137,7 +138,12 @@ describe('EvaluationReport', () => {
 
     render(
       <MockProviders initialEntries={[`/moves/LR4T8V/evaluation-reports/${mockReportId}`]}>
-        <EvaluationReport customerInfo={mockCustomer} orders={mockOrders} grade={mockOrders.grade} />
+        <EvaluationReport
+          customerInfo={mockCustomer}
+          orders={mockOrders}
+          grade={mockOrders.grade}
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
+        />
       </MockProviders>,
     );
 
@@ -162,7 +168,11 @@ describe('EvaluationReport', () => {
     jest.spyOn(ReactRouter, 'useParams').mockReturnValue({ reportId: mockReportId });
     render(
       <MockProviders initialEntries={[`/moves/LR4T8V/evaluation-reports/${mockReportId}`]}>
-        <EvaluationReport grade={mockOrders.grade} customerInfo={mockCustomer} />
+        <EvaluationReport
+          grade={mockOrders.grade}
+          customerInfo={mockCustomer}
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
+        />
       </MockProviders>,
     );
 

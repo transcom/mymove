@@ -77,7 +77,7 @@ func (suite *ModelSuite) TestReport() {
 				"type": {"COUNSELING does not equal SHIPMENT."},
 			},
 		},
-		"Physical inspection at origin location must record time departed, eval start and end time": {
+		"Physical inspection with time departed": {
 			report: models.EvaluationReport{
 				ID:             uuid.Must(uuid.NewV4()),
 				OfficeUser:     officeUser,
@@ -86,13 +86,10 @@ func (suite *ModelSuite) TestReport() {
 				MoveID:         move.ID,
 				Type:           models.EvaluationReportTypeCounseling,
 				InspectionType: &physicalInspection,
+				TimeDepart:     swag.Time(time.Now()),
 				Location:       &location,
 			},
-			expectedErrors: map[string][]string{
-				"time_depart": {"TimeDepart cannot be nil"},
-				"eval_start":  {"EvalStart cannot be nil"},
-				"eval_end":    {"EvalEnd cannot be nil"},
-			},
+			expectedErrors: map[string][]string{},
 		},
 		"ObservedDate cannot be set for virtual inspections": {
 			report: models.EvaluationReport{

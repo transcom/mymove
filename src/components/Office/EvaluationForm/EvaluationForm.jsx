@@ -131,11 +131,17 @@ const EvaluationForm = ({
     }
 
     let timeDepart;
-    let evalStart;
-    let evalEnd;
-    if (inspectionType === 'PHYSICAL' && values.evaluationLocation !== 'other') {
+    if (values.timeDepartHour && values.timeDepartMinute && inspectionType === 'PHYSICAL') {
       timeDepart = `${values.timeDepartHour}:${values.timeDepartMinute}`;
+    }
+
+    let evalStart;
+    if (values.evalStartHour && values.evalStartMinute) {
       evalStart = `${values.evalStartHour}:${values.evalStartMinute}`;
+    }
+
+    let evalEnd;
+    if (values.evalEndHour && values.evalEndMinute) {
       evalEnd = `${values.evalEndHour}:${values.evalEndMinute}`;
     }
 
@@ -240,8 +246,8 @@ const EvaluationForm = ({
     initialValues.violationsObserved = evaluationReport.violationsObserved ? 'yes' : 'no';
   }
 
-  const EvalDurationSchema = Yup.string().when(['evaluationType', 'evaluationLocation'], {
-    is: (evaluationType, evaluationLocation) => evaluationType === 'physical' && evaluationLocation !== 'other',
+  const EvalDurationSchema = Yup.string().when(['evaluationType'], {
+    is: (evaluationType) => evaluationType === 'physical',
     then: Yup.string().required(),
   });
 
@@ -251,10 +257,10 @@ const EvaluationForm = ({
       evaluationType: Yup.string().required(),
       timeDepartHour: EvalDurationSchema,
       timeDepartMinute: EvalDurationSchema,
-      evalStartHour: EvalDurationSchema,
-      evalStartMinute: EvalDurationSchema,
-      evalEndMinute: EvalDurationSchema,
-      evalEndHour: EvalDurationSchema,
+      evalStartHour: Yup.string().required(),
+      evalStartMinute: Yup.string().required(),
+      evalEndMinute: Yup.string().required(),
+      evalEndHour: Yup.string().required(),
       evaluationLocation: Yup.string().required(),
       violationsObserved: Yup.string().required(),
       remarks: Yup.string().required(),
@@ -268,12 +274,6 @@ const EvaluationForm = ({
       ['timeDepartMinute', 'evaluationLocation'],
       ['timeDepartHour', 'evaluationType'],
       ['timeDepartHour', 'evaluationLocation'],
-      ['evalStartMinute', 'evaluationType'],
-      ['evalStartMinute', 'evaluationLocation'],
-      ['evalEndMinute', 'evaluationType'],
-      ['evalEndMinute', 'evaluationLocation'],
-      ['evalEndHour', 'evaluationType'],
-      ['evalEndHour', 'evaluationLocation'],
     ],
   );
 
@@ -293,7 +293,7 @@ const EvaluationForm = ({
     hours[i] = { key: `0${String(i)}`, value: `0${String(i)}` };
   }
 
-  for (let i = 10; i < 25; i += 1) {
+  for (let i = 10; i < 24; i += 1) {
     hours[i] = { key: String(i), value: String(i) };
   }
 
@@ -355,7 +355,7 @@ const EvaluationForm = ({
           const showObservedPickupDate =
             values.evaluationType === 'physical' && values.evaluationLocation === 'origin' && isShipment;
 
-          const showTimeDepartStartEnd = values.evaluationType === 'physical' && values.evaluationLocation !== 'other';
+          const showTimeDepartStartEnd = values.evaluationType === 'physical';
 
           return (
             <Form className={classnames(formStyles.form, styles.form)} data-testid="evaluationReportForm">
@@ -431,66 +431,66 @@ const EvaluationForm = ({
                             />
                           </div>
                         </div>
-                        <legend className="usa-label">Time evaluation started</legend>
-                        <div className={styles.durationPickers}>
-                          <div>
-                            <DropdownInput
-                              id="evalStartHour"
-                              name="evalStartHour"
-                              label="Hours"
-                              className={styles.hourPicker}
-                              onChange={(e) => {
-                                setFieldValue('evalStartHour', e.target.value);
-                              }}
-                              disableErrorLabel
-                              options={hours}
-                            />
-                          </div>
-                          <div>
-                            <DropdownInput
-                              id="evalStartMinute"
-                              name="evalStartMinute"
-                              label="Minutes"
-                              className={styles.minutePicker}
-                              onChange={(e) => {
-                                setFieldValue('evalStartMinute', e.target.value);
-                              }}
-                              disableErrorLabel
-                              options={minutes}
-                            />
-                          </div>
-                        </div>
-                        <legend className="usa-label">Time evaluation ended</legend>
-                        <div className={styles.durationPickers}>
-                          <div>
-                            <DropdownInput
-                              id="evalEndHour"
-                              name="evalEndHour"
-                              label="Hours"
-                              className={styles.hourPicker}
-                              onChange={(e) => {
-                                setFieldValue('evalEndHour', e.target.value);
-                              }}
-                              disableErrorLabel
-                              options={hours}
-                            />
-                          </div>
-                          <div>
-                            <DropdownInput
-                              id="evalEndMinute"
-                              name="evalEndMinute"
-                              label="Minutes"
-                              className={styles.minutePicker}
-                              onChange={(e) => {
-                                setFieldValue('evalEndMinute', e.target.value);
-                              }}
-                              disableErrorLabel
-                              options={minutes}
-                            />
-                          </div>
-                        </div>
                       </>
                     )}
+                    <legend className="usa-label">Time evaluation started</legend>
+                    <div className={styles.durationPickers}>
+                      <div>
+                        <DropdownInput
+                          id="evalStartHour"
+                          name="evalStartHour"
+                          label="Hours"
+                          className={styles.hourPicker}
+                          onChange={(e) => {
+                            setFieldValue('evalStartHour', e.target.value);
+                          }}
+                          disableErrorLabel
+                          options={hours}
+                        />
+                      </div>
+                      <div>
+                        <DropdownInput
+                          id="evalStartMinute"
+                          name="evalStartMinute"
+                          label="Minutes"
+                          className={styles.minutePicker}
+                          onChange={(e) => {
+                            setFieldValue('evalStartMinute', e.target.value);
+                          }}
+                          disableErrorLabel
+                          options={minutes}
+                        />
+                      </div>
+                    </div>
+                    <legend className="usa-label">Time evaluation ended</legend>
+                    <div className={styles.durationPickers}>
+                      <div>
+                        <DropdownInput
+                          id="evalEndHour"
+                          name="evalEndHour"
+                          label="Hours"
+                          className={styles.hourPicker}
+                          onChange={(e) => {
+                            setFieldValue('evalEndHour', e.target.value);
+                          }}
+                          disableErrorLabel
+                          options={hours}
+                        />
+                      </div>
+                      <div>
+                        <DropdownInput
+                          id="evalEndMinute"
+                          name="evalEndMinute"
+                          label="Minutes"
+                          className={styles.minutePicker}
+                          onChange={(e) => {
+                            setFieldValue('evalEndMinute', e.target.value);
+                          }}
+                          disableErrorLabel
+                          options={minutes}
+                        />
+                      </div>
+                    </div>
                     <FormGroup>
                       <Fieldset className={styles.radioGroup}>
                         <legend className="usa-label">Evaluation location</legend>

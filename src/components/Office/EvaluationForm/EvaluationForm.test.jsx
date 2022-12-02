@@ -48,6 +48,8 @@ const mockEvaluationReport = {
   type: 'SHIPMENT',
   updatedAt: '2022-09-07T18:06:37.864Z',
   violationsObserved: false,
+  evalStart: '10:30',
+  evalEnd: '22:00',
 };
 
 const customerInfo = {
@@ -130,6 +132,8 @@ describe('EvaluationForm', () => {
       expect(screen.getByText('Evaluation location')).toBeInTheDocument();
       expect(screen.getByText('Violations observed')).toBeInTheDocument();
       expect(screen.getByText('Evaluation remarks')).toBeInTheDocument();
+      expect(screen.getByText('Time evaluation started')).toBeInTheDocument();
+      expect(screen.getByText('Time evaluation ended')).toBeInTheDocument();
 
       // Conditionally shown fields should not be displayed initially
       expect(screen.queryByText('Travel time to evaluation')).not.toBeInTheDocument();
@@ -186,8 +190,6 @@ describe('EvaluationForm', () => {
     await waitFor(() => {
       userEvent.click(screen.getByText('Virtual'));
       expect(screen.queryByText('Time departed for evaluation')).not.toBeInTheDocument();
-      expect(screen.queryByText('Time evaluation started')).not.toBeInTheDocument();
-      expect(screen.queryByText('Time evaluation ended')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
     });
@@ -236,6 +238,9 @@ describe('EvaluationForm', () => {
         observedDate: undefined,
         remarks: mockEvaluationReport.remarks,
         violationsObserved: true,
+        evalStart: mockEvaluationReport.evalStart,
+        evalEnd: mockEvaluationReport.evalEnd,
+        timeDepart: undefined,
       },
       ifMatchETag: mockEvaluationReport.eTag,
       reportID: mockReportId,
@@ -261,6 +266,9 @@ describe('EvaluationForm', () => {
           observedDate: undefined,
           remarks: 'test',
           violationsObserved: false,
+          evalStart: mockEvaluationReport.evalStart,
+          evalEnd: mockEvaluationReport.evalEnd,
+          timeDepart: undefined,
         },
         ifMatchETag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
         reportID: mockReportId,

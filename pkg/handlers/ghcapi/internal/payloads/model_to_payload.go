@@ -161,7 +161,7 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 	}
 
 	var evalStart *string
-	if evaluationReport.TimeDepart != nil {
+	if evaluationReport.EvalStart != nil {
 		es := evaluationReport.EvalStart.Format(timeHHMMFormat)
 		evalStart = &es
 	}

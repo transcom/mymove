@@ -23,7 +23,6 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 		inspectionType := models.EvaluationReportInspectionTypeVirtual
 		location := models.EvaluationReportLocationTypeOrigin
 		inspectionTime := time.Now().AddDate(0, 0, -4)
-		timeDepart := inspectionTime
 		evalStart := inspectionTime
 		evalEnd := inspectionTime
 
@@ -33,7 +32,6 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 				InspectionDate:     swag.Time(time.Now()),
 				InspectionType:     &inspectionType,
 				Location:           &location,
-				TimeDepart:         &timeDepart,
 				EvalStart:          &evalStart,
 				EvalEnd:            &evalEnd,
 				ViolationsObserved: swag.Bool(false),
@@ -69,18 +67,24 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
-	suite.Run("Missing required field", func() {
+	suite.Run("Missing inspection date", func() {
 		// Create office user
 		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
 		// Create a report
 		inspectionType := models.EvaluationReportInspectionTypeVirtual
 		location := models.EvaluationReportLocationTypeOrigin
+		inspectionTime := time.Now().AddDate(0, 0, -4)
+		evalStart := inspectionTime
+		evalEnd := inspectionTime
+
 		// Missing inspection date
 		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
 			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
 				OfficeUserID:       officeUser.ID,
 				InspectionType:     &inspectionType,
 				Location:           &location,
+				EvalStart:          &evalStart,
+				EvalEnd:            &evalEnd,
 				ViolationsObserved: swag.Bool(false),
 				Remarks:            swag.String("This is a remark."),
 			}})
@@ -97,6 +101,9 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 		// Create a report
 		inspectionType := models.EvaluationReportInspectionTypeVirtual
 		location := models.EvaluationReportLocationTypeOther
+		inspectionTime := time.Now().AddDate(0, 0, -4)
+		evalStart := inspectionTime
+		evalEnd := inspectionTime
 		// Missing location description
 		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
 			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
@@ -104,6 +111,36 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 				InspectionDate:     swag.Time(time.Now()),
 				InspectionType:     &inspectionType,
 				Location:           &location,
+				EvalStart:          &evalStart,
+				EvalEnd:            &evalEnd,
+				ViolationsObserved: swag.Bool(false),
+				Remarks:            swag.String("This is a remark."),
+			}})
+		// Generate an etag
+		eTag := etag.GenerateEtag(evaluationReport.UpdatedAt)
+		// Submit the report
+		err := updater.SubmitEvaluationReport(suite.AppContextForTest(), evaluationReport.ID, officeUser.ID, eTag)
+		suite.Equal(models.ErrInvalidTransition, errors.Cause(err))
+	})
+
+	suite.Run("Missing time depart for physical inspection", func() {
+		// Create office user
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		// Create a report
+		inspectionType := models.EvaluationReportInspectionTypePhysical
+		location := models.EvaluationReportLocationTypeOther
+		inspectionTime := time.Now().AddDate(0, 0, -4)
+		evalStart := inspectionTime
+		evalEnd := inspectionTime
+		// Missing location description
+		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
+			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
+				OfficeUserID:       officeUser.ID,
+				InspectionDate:     swag.Time(time.Now()),
+				InspectionType:     &inspectionType,
+				Location:           &location,
+				EvalStart:          &evalStart,
+				EvalEnd:            &evalEnd,
 				ViolationsObserved: swag.Bool(false),
 				Remarks:            swag.String("This is a remark."),
 			}})
@@ -267,7 +304,6 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 
 	physical := models.EvaluationReportInspectionTypePhysical
 	virtual := models.EvaluationReportInspectionTypeVirtual
-	origin := models.EvaluationReportLocationTypeOrigin
 	dataReview := models.EvaluationReportInspectionTypeDataReview
 	currentTime := time.Now()
 
@@ -278,11 +314,6 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		expectedError     bool
 		location          *models.EvaluationReportLocationType
 	}{
-		"physical inspection at origin without time depart, eval start, end should fail": {
-			inspectionType: &physical,
-			location:       &origin,
-			expectedError:  true,
-		},
 		"observed date set for physical report type should succeed": {
 			inspectionType: &physical,
 			observedDate:   &currentTime,
