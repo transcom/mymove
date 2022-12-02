@@ -2,6 +2,7 @@ package routing
 
 import (
 	"encoding/hex"
+	"io"
 	"net/http"
 	"net/http/pprof"
 	"path"
@@ -401,6 +402,36 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 
 	// Serve index.html to all requests that haven't matches a previous route,
 	root.PathPrefix("/").Handler(indexHandler(routingConfig, appCtx.Logger())).Methods("GET", "HEAD")
+
+	return site, nil
+}
+
+// InitHealthRouting sets up the routing for the health server. The
+// health server should only listen on localhost and not be available publicly
+func InitHealthRouting(appCtx appcontext.AppContext, redisPool *redis.Pool, routingConfig *Config) (http.Handler, error) {
+
+	// site is the base
+	site := mux.NewRouter()
+
+	// Stub health check
+	healthHandler := handlers.NewHealthHandler(appCtx, redisPool,
+		routingConfig.GitBranch, routingConfig.GitCommit)
+	requestLoggerMiddlware := middleware.RequestLogger(appCtx.Logger())
+	site.Handle("/health", requestLoggerMiddlware(healthHandler)).Methods("GET")
+
+	// this handler will only be called if the health check fails. It
+	// is helpful to see in the logs why the health check fails
+	// because otherwise the health check failure reason is lost
+	logHandler := func(w http.ResponseWriter, r *http.Request) {
+		data, err := io.ReadAll(r.Body)
+		if err != nil {
+			appCtx.Logger().Error("logs handler error", zap.Error(err))
+		} else {
+			appCtx.Logger().Info("Health Check Log", zap.Any("logdata", string(data)))
+		}
+	}
+
+	site.Handle("/logs", requestLoggerMiddlware(http.HandlerFunc(logHandler))).Methods("POST")
 
 	return site, nil
 }

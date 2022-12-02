@@ -626,7 +626,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		containerDefinitions[0].HealthCheck = &ecs.HealthCheck{
 			Command: []*string{
 				aws.String("CMD"),
-				aws.String("/bin/milmove"),
+				aws.String(binMilMove),
 				aws.String("health"),
 			},
 			// Interval defaults to 30 seconds

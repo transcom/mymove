@@ -55,7 +55,9 @@ func NewHealthHandler(appCtx appcontext.AppContext, redisPool *redis.Pool, gitBr
 		// Always show DB unless key set to "false"
 		if !ok || (ok && showDB[0] != "false") {
 			appCtx.Logger().Info("Health check connecting to the DB")
-			dbErr := appCtx.DB().RawQuery("SELECT 1;").Exec()
+			// include the request context for helpful tracing
+			db := appCtx.DB().WithContext(r.Context())
+			dbErr := db.RawQuery("SELECT 1;").Exec()
 			if dbErr != nil {
 				appCtx.Logger().Error("Failed database health check", zap.Error(dbErr))
 				data["database"] = false

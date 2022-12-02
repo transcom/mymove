@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -12,22 +13,54 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 )
 
-func healthCheck(httpClient *http.Client, protocol string, host string, port int) error {
-	url := fmt.Sprintf("%s://%s:%d/health", protocol, host, port)
+var logURL string
+
+var logMessages []string
+
+// a shared httpClient
+var httpClient = &http.Client{
+	Timeout: time.Duration(5 * time.Second),
+}
+
+// sendLog POSTs the `msg` to the the logURL endpoint, which is only
+// available in the healthServer configured in cmd/milmove/serve.go
+//
+// The stdout/stderr logs from the health check run in AWS are not
+// captured or available anywhere, so for debugging why the health
+// check failed, having a logs endpoint is super helpful
+func sendLog(msg string) {
+	if logURL != "" {
+		rdr := strings.NewReader(msg)
+		// it doesn't matter if this succeeds or fails, we are doing
+		// best effort delivery of the log
+		_, _ = httpClient.Post(logURL, "text/plain", rdr)
+	}
+}
+
+// reportError sends the `msg` to the logURL and writes to stderr so
+// that the health check fails
+func reportError(msg string) {
+	sendLog(msg)
+	// The docs for the AWS health check says
+	//
+	// An exit code of 0, with no stderr output, indicates
+	// success, and a non-zero exit code indicates failure
+	//
+	// thus, print to stderr when the health check fails
+	fmt.Fprintln(os.Stderr, msg)
+}
+
+// healthCheck does an HTTP GET on the provided `url`. Any response
+// other than 200 OK is considered unhealthy
+func healthCheck(url string) error {
 	r, err := httpClient.Get(url)
 	if err != nil {
-		// The docs for the AWS health check says
-		//
-		// An exit code of 0, with no stderr output, indicates
-		// success, and a non-zero exit code indicates failure
-		//
-		// thus, print to stderr when the health check fails
-		fmt.Fprintf(os.Stderr, "Error checking noTLS health for url `%s`: %s", url, err)
-		return err
+		werr := fmt.Errorf("Error checking health for url `%s` error: %w", url, err)
+		return werr
 	}
 	if r.StatusCode != http.StatusOK {
-		fmt.Fprintf(os.Stderr, "Health NOT OK for url `%s`, status `%d`", url, r.StatusCode)
-		return errors.New("Health check failed")
+		werr := fmt.Errorf("Health failed for url `%s`, status `%d`", url, r.StatusCode)
+		return werr
 	}
 
 	return nil
@@ -41,13 +74,6 @@ func healthCheck(httpClient *http.Client, protocol string, host string, port int
 //  2. We want to use the same command line options used to start the
 //     server as when checking health
 func healthFunction(cmd *cobra.Command, args []string) error {
-	// cleanup that runs when this function ends
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Fprintf(os.Stderr, "health recovered from panic: %v", r)
-		}
-	}()
-
 	// Prepare to parse command line options / environment variables
 	// using the viper library
 	v, err := initializeViper(cmd, args)
@@ -55,42 +81,41 @@ func healthFunction(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	httpClient := &http.Client{
-		Timeout: time.Duration(5 * time.Second),
+	healthEnabled := v.GetBool(cli.HealthListenerFlag)
+	if !healthEnabled {
+		err = errors.New("Health Check Listener Not Enabled")
+		fmt.Fprintln(os.Stderr, err)
+		return err
 	}
 
-	listenInterface := v.GetString(cli.InterfaceFlag)
-	host := "localhost"
-	if listenInterface != "" {
-		host = listenInterface
-	}
-	noTLSEnabled := v.GetBool(cli.NoTLSListenerFlag)
-	if noTLSEnabled {
-		fmt.Println("Checking noTLS server health")
-		port := v.GetInt(cli.NoTLSPortFlag)
-		err := healthCheck(httpClient, "http", host, port)
-		if err != nil {
-			return err
+	// cleanup that runs when this function ends
+	defer func() {
+		// if this function panics, try to log why before reporting
+		// the error
+		if r := recover(); r != nil {
+			msg := fmt.Sprintf("health recovered from panic: %v\n", r)
+			reportError(msg)
 		}
-	}
 
-	tlsEnabled := v.GetBool(cli.TLSListenerFlag)
-	if tlsEnabled {
-		fmt.Println("Checking TLS server health")
-		port := v.GetInt(cli.TLSPortFlag)
-		err := healthCheck(httpClient, "https", host, port)
-		if err != nil {
-			return err
+		// send all log messages before exit if possible
+		if len(logMessages) > 0 {
+			for i := range logMessages {
+				reportError(logMessages[i])
+			}
 		}
-	}
+	}()
 
-	// To test mutualTLS, we would need a valid client cert for each
-	// environment, but today those aren't included in the container,
-	// so skip the health check. In the future maybe we could inject
-	// them via environment variables
-	mutualTLSEnabled := v.GetBool(cli.MutualTLSListenerFlag)
-	if mutualTLSEnabled {
-		fmt.Println("WARNING: Skipping mutualTLS server health")
+	// configure the logURL based on the configured HealthPort
+	port := v.GetInt(cli.HealthPortFlag)
+	logURL = fmt.Sprintf("http://localhost:%d/logs", port)
+
+	// configure the health check endpoint URL based on the configured HealthPort
+	url := fmt.Sprintf("http://localhost:%d/health", port)
+
+	err = healthCheck(url)
+	if err != nil {
+		logMessages = append(logMessages, err.Error())
+		return err
 	}
 
 	return nil
