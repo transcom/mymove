@@ -1748,7 +1748,7 @@ paths:
       description: >-
         Changes move (move task order) billableWeightsReviewedAt field to a
         timestamp
-      operationId: UpdateMTOReviewedBillableWeightsAt
+      operationId: updateMTOReviewedBillableWeightsAt
   /move-task-orders/{moveTaskOrderID}/tio-remarks:
     patch:
       consumes:
