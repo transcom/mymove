@@ -59,14 +59,15 @@ func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, old
 	if oldPPMShipment.ActualMoveDate == nil || newPPMShipment.ActualMoveDate == nil ||
 		oldPPMShipment.ActualPickupPostalCode == nil || newPPMShipment.ActualPickupPostalCode == nil ||
 		oldPPMShipment.ActualDestinationPostalCode == nil || newPPMShipment.ActualDestinationPostalCode == nil ||
+		oldPPMShipment.NetWeight == nil ||
 		*newPPMShipment.NetWeight <= 0 {
 		return true
 	}
 
 	return oldPPMShipment.ActualMoveDate.Equal(*newPPMShipment.ActualMoveDate) &&
 		*newPPMShipment.ActualPickupPostalCode == *oldPPMShipment.ActualPickupPostalCode &&
-		*newPPMShipment.ActualDestinationPostalCode == *oldPPMShipment.ActualDestinationPostalCode
-	// *newPPMShipment.NetWeight == *oldPPMShipment.NetWeight
+		*newPPMShipment.ActualDestinationPostalCode == *oldPPMShipment.ActualDestinationPostalCode &&
+		*newPPMShipment.NetWeight == *oldPPMShipment.NetWeight
 }
 
 func shouldCalculateSITCost(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
@@ -166,10 +167,10 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 		}
 	}
 
-	calculateFinalIncentive := shouldSkipCalculatingFinalIncentive(newPPMShipment, &oldPPMShipment)
+	skipCalculateFinalIncentive := shouldSkipCalculatingFinalIncentive(newPPMShipment, &oldPPMShipment)
 
 	finalIncentive := oldPPMShipment.FinalIncentive
-	if calculateFinalIncentive {
+	if !skipCalculateFinalIncentive {
 		finalIncentive, err = f.calculatePrice(appCtx, newPPMShipment, true)
 		if err != nil {
 			return nil, err
