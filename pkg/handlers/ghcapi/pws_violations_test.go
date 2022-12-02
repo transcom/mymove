@@ -22,9 +22,14 @@ func (suite *HandlerSuite) TestGetPWSViolationsHandler() {
 			HandlerConfig:        handlerConfig,
 			PWSViolationsFetcher: fetcher,
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&pwsviolationsop.GetPWSViolationsOK{}, response)
 		payload := response.(*pwsviolationsop.GetPWSViolationsOK).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
