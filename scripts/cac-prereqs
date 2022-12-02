@@ -9,40 +9,36 @@ set -eu -o pipefail
 #
 
 INSTALL_MSG=
-PKCS11=
-PKCS15=
 if [ ! -r .nix-disable ] && [ -f ~/.nix-profile/bin/nix-env ]; then
   INSTALL_MSG="./nix/update.sh"
-  PKCS11=/nix/var/nix/profiles/mymove/bin/pkcs11-tool
-  PKCS15=/nix/var/nix/profiles/mymove/bin/pkcs15-tool
 else
   INSTALL_MSG="make prereqs"
-  PKCS11=/usr/local/bin/pkcs11-tool
-  PKCS15=/usr/local/bin/pkcs15-tool
 fi
 
+PKCS11=$(command -v pkcs11-tool)
+PKCS15=$(command -v pkcs15-tool)
 if [[ ! -x "${PKCS11}" ]]; then
-  echo "${PKCS11} has not been installed"
+  echo "pkcs11-tool has not been installed"
   echo "Please install with '${INSTALL_MSG}'"
   exit 1
 fi
 
 if [[ ! -x "${PKCS15}" ]]; then
-  echo "${PKCS15} has not been installed"
+  echo "pkcs15-tool has not been installed"
   echo "Please install with '${INSTALL_MSG}'"
   exit 1
 fi
 
-# Looks like placement of this module can vary by versions. Some even have both. The module's docs don't really have
-# info on this, so we'll just have to check both. It seems though, like if we move in the direction of using the cask
-# version of opensc, that one may only use the /usr/local/lib/opensc-pkcs11.so path.
+# Looks like non-nix placement of this module can vary by versions. Some even have both. The module's docs don't really
+# have info on this, so we'll just have to check both. It seems though, like if we move in the direction of using the
+# cask version of opensc, that one may only use the /usr/local/lib/opensc-pkcs11.so path.
 MODULE=
-if [[ -f /usr/local/lib/opensc-pkcs11.so ]]; then
+if [ ! -r .nix-disable ] && [[ -f "${PKCS11MODULE}" ]]; then
+  MODULE="${PKCS11MODULE}"
+elif [[ -f /usr/local/lib/opensc-pkcs11.so ]]; then
   MODULE=/usr/local/lib/opensc-pkcs11.so
 elif [[ -f /usr/local/lib/pkcs11/opensc-pkcs11.so ]]; then
   MODULE=/usr/local/lib/pkcs11/opensc-pkcs11.so
-elif [ ! -r .nix-disable ] && [[ -f /nix/var/nix/profiles/mymove/lib/opensc-pkcs11.so ]]; then
-  MODULE=/nix/var/nix/profiles/mymove/lib/opensc-pkcs11.so
 fi
 
 readonly MODULE
