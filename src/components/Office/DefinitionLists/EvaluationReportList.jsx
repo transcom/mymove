@@ -45,9 +45,13 @@ const EvaluationReportList = ({ evaluationReport }) => {
             </>
           }
         />
-        <PreviewRow label="Time departed for evaluation" data={evaluationReport.timeDepart} />
-        <PreviewRow label="Time evaluation started" data={evaluationReport.evalEnd} />
-        <PreviewRow label="Time evaluation ended" data={evaluationReport.evalEnd} />
+        {evaluationReport.inspectionType === 'PHYSICAL' && (
+          <>
+            <PreviewRow label="Time departed for evaluation" data={evaluationReport.timeDepart} />
+            <PreviewRow label="Time evaluation started" data={evaluationReport.evalEnd} />
+            <PreviewRow label="Time evaluation ended" data={evaluationReport.evalEnd} />
+          </>
+        )}
       </dl>
     </div>
   );
