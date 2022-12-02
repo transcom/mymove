@@ -61,11 +61,17 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 			HandlerConfig:                   suite.HandlerConfig(),
 			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
+
+		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(subtestData.params)
 		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusOK{}, response)
 		okResponse := response.(*paymentServiceItemOp.UpdatePaymentServiceItemStatusOK)
+
+		// Validate outgoing payload
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
 		suite.Equal(subtestData.paymentServiceItem.ID.String(), okResponse.Payload.ID.String())
 		suite.Equal(ghcmessages.PaymentServiceItemStatusAPPROVED, okResponse.Payload.Status)
 	})
@@ -79,10 +85,14 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		}
 		subtestData.params.PaymentServiceItemID = uuid.Nil.String()
 
+		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(subtestData.params)
 		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusNotFound{}, response)
 		payload := response.(*paymentServiceItemOp.UpdatePaymentServiceItemStatusNotFound).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
@@ -96,10 +106,15 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 
 		subtestData.params.Body.Status = ghcmessages.PaymentServiceItemStatusDENIED
 		subtestData.params.Body.RejectionReason = nil
+
+		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(subtestData.params)
 		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusUnprocessableEntity{}, response)
 		payload := response.(*paymentServiceItemOp.UpdatePaymentServiceItemStatusUnprocessableEntity).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
@@ -116,11 +131,16 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		subtestData.params.Body.Status = ghcmessages.PaymentServiceItemStatusDENIED
 		subtestData.params.Body.RejectionReason = swag.String("Because reasons")
 
+		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(subtestData.params)
 		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusOK{}, response)
 		okResponse := response.(*paymentServiceItemOp.UpdatePaymentServiceItemStatusOK)
+
+		// Validate outgoing payload
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
 		suite.Equal(paymentServiceItem.ID.String(), okResponse.Payload.ID.String())
 		suite.Equal(ghcmessages.PaymentServiceItemStatusDENIED, okResponse.Payload.Status)
 		suite.Equal("Because reasons", *okResponse.Payload.RejectionReason)
@@ -142,11 +162,16 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		subtestData.params.PaymentServiceItemID = deniedPaymentServiceItem.ID.String()
 		subtestData.params.Body.Status = ghcmessages.PaymentServiceItemStatusAPPROVED
 
+		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(subtestData.params)
 		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusOK{}, response)
 		okResponse := response.(*paymentServiceItemOp.UpdatePaymentServiceItemStatusOK)
+
+		// Validate outgoing payload
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
 		suite.Equal(deniedPaymentServiceItem.ID.String(), okResponse.Payload.ID.String())
 		suite.Equal(ghcmessages.PaymentServiceItemStatusAPPROVED, okResponse.Payload.Status)
 		suite.Nil(okResponse.Payload.RejectionReason)
@@ -182,11 +207,16 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusOK{}, response)
 		okResponse := response.(*paymentServiceItemOp.UpdatePaymentServiceItemStatusOK)
+
+		// Validate outgoing payload
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
 		suite.Equal(availablePaymentServiceItem.ID.String(), okResponse.Payload.ID.String())
 		suite.Equal(ghcmessages.PaymentServiceItemStatusAPPROVED, okResponse.Payload.Status)
 		suite.Nil(okResponse.Payload.RejectionReason)
