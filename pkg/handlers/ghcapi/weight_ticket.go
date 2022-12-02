@@ -34,9 +34,6 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 			//	appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
 			//	switch err.(type) {
 			//	case apperror.NotFoundError:
-			//		fmt.Println("🦋🦋🦋🦋")
-			//		fmt.Println(err)
-			//		fmt.Println("🦋🦋🦋🦋")
 			//		return weightticketops.NewUpdateWeightTicketNotFound(), err
 			//	default:
 			//		msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
