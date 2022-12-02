@@ -75,6 +75,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 			FullDocumentID:                    fullDocument.ID,
 			ProofOfTrailerOwnershipDocumentID: proofOfOwnership.ID,
 			PPMShipmentID:                     ppmShipment.ID,
+			PPMShipment:                       ppmShipment,
 		}
 
 		if overrides != nil {
@@ -391,5 +392,43 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 				suite.Equal("invalid input found while updating the WeightTicket", updateErr.Error())
 			})
 		})
+	})
+
+	suite.Run("FetchWeightTicketAndPPMShipment -- Success", func() {
+		appCtx := suite.AppContextForTest()
+
+		originalWeightTicket := setupForTest(appCtx, nil, true, true, false)
+		fetchedWeightTicket, err := FetchWeightTicketAndPPMShipment(appCtx, originalWeightTicket.ID)
+
+		suite.Nil(err)
+		suite.Equal(originalWeightTicket.ID, fetchedWeightTicket.ID)
+		suite.Equal(originalWeightTicket.EmptyDocumentID, fetchedWeightTicket.EmptyDocumentID)
+		suite.Equal(originalWeightTicket.FullDocumentID, fetchedWeightTicket.FullDocumentID)
+		suite.Equal(originalWeightTicket.ProofOfTrailerOwnershipDocumentID, fetchedWeightTicket.ProofOfTrailerOwnershipDocumentID)
+		suite.Equal(originalWeightTicket.PPMShipment.ID, fetchedWeightTicket.PPMShipment.ID)
+		suite.Equal(originalWeightTicket.PPMShipment.Status, fetchedWeightTicket.PPMShipment.Status)
+		suite.Equal(originalWeightTicket.PPMShipment.PickupPostalCode, fetchedWeightTicket.PPMShipment.PickupPostalCode)
+		suite.Equal(originalWeightTicket.PPMShipment.DestinationPostalCode, fetchedWeightTicket.PPMShipment.DestinationPostalCode)
+	})
+
+	suite.Run("FetchWeightTicketAndPPMShipment -- Returns an error if the original weight ticket doesn't exist", func() {
+		appCtx := suite.AppContextForTest()
+
+		badWeightTicket := models.WeightTicket{
+			ID: uuid.Must(uuid.NewV4()),
+		}
+
+		fetchedWeightTicket, err := FetchWeightTicketAndPPMShipment(appCtx, badWeightTicket.ID)
+
+		suite.Nil(fetchedWeightTicket)
+
+		if suite.Error(err) {
+			suite.IsType(apperror.NotFoundError{}, err)
+
+			suite.Equal(
+				fmt.Sprintf("ID: %s not found while looking for WeightTicket", badWeightTicket.ID.String()),
+				err.Error(),
+			)
+		}
 	})
 }
