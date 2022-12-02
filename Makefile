@@ -266,28 +266,28 @@ bin/iws: cmd/iws
 
 PKG_GOSRC := $(shell find pkg -name '*.go')
 
-bin/milmove: $(shell find cmd/milmove -name '*.go') $(PKG_GOSRC)
+bin/milmove: $(shell find cmd/milmove -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
-bin/milmove-tasks: $(shell find cmd/milmove-tasks -name '*.go') $(PKG_GOSRC)
+bin/milmove-tasks: $(shell find cmd/milmove-tasks -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin/prime-api-client: $(shell find cmd/prime-api-client -name '*.go') $(PKG_GOSRC)
+bin/prime-api-client: $(shell find cmd/prime-api-client -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/prime-api-client ./cmd/prime-api-client
 
-bin/webhook-client: $(shell find cmd/webhook-client -name '*.go') $(PKG_GOSRC)
+bin/webhook-client: $(shell find cmd/webhook-client -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/webhook-client ./cmd/webhook-client
 
-bin/read-alb-logs: $(shell find cmd/read-alb-logs -name '*.go') $(PKG_GOSRC)
+bin/read-alb-logs: $(shell find cmd/read-alb-logs -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
 
-bin/send-to-gex: $(shell find cmd/send-to-gex -name '*.go') $(PKG_GOSRC)
+bin/send-to-gex: $(shell find cmd/send-to-gex -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send-to-gex
 
-bin/tls-checker: $(shell find cmd/tls-checker -name '*.go') $(PKG_GOSRC)
+bin/tls-checker: $(shell find cmd/tls-checker -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
-bin/generate-payment-request-edi: $(shell find cmd/generate-payment-request-edi -name '*.go') $(PKG_GOSRC)
+bin/generate-payment-request-edi: $(shell find cmd/generate-payment-request-edi -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-payment-request-edi ./cmd/generate-payment-request-edi
 
 #
