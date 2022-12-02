@@ -45,16 +45,8 @@ const EvaluationReportList = ({ evaluationReport }) => {
             </>
           }
         />
-        <PreviewRow
-          isShown={evaluationReport.travelTimeMinutes >= 0}
-          label="Travel time to inspection"
-          data={convertToHoursAndMinutes(evaluationReport.travelTimeMinutes)}
-        />
-        <PreviewRow
-          isShown={evaluationReport.evaluationLengthMinutes >= 0}
-          label="Evaluation length"
-          data={convertToHoursAndMinutes(evaluationReport.evaluationLengthMinutes)}
-        />
+        <PreviewRow label="Time departed for evaluation" data={evaluationReport.EvalStart} />
+        <PreviewRow label="Time evaluation started" data={evaluationReport.EvalEnd} />
       </dl>
     </div>
   );
