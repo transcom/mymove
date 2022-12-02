@@ -47,9 +47,13 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 			ListFetcher:   listFetcher,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(mtoagentop.NewFetchMTOAgentListOK(), response)
 		payload := response.(*mtoagentop.FetchMTOAgentListOK).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
@@ -73,11 +77,16 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 			HandlerConfig: suite.HandlerConfig(),
 			ListFetcher:   listFetcher,
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		expectedResponse := mtoagentop.NewFetchMTOAgentListInternalServerError()
 		suite.Equal(expectedResponse, response)
 		payload := response.(*mtoagentop.FetchMTOAgentListInternalServerError).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("404 Response", func() {
@@ -100,10 +109,15 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 			HandlerConfig: suite.HandlerConfig(),
 			ListFetcher:   listFetcher,
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		expectedResponse := mtoagentop.NewFetchMTOAgentListNotFound()
 		suite.Equal(expectedResponse, response)
 		payload := response.(*mtoagentop.FetchMTOAgentListNotFound).Payload
-		suite.Nil(payload) // No payload to validate
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
