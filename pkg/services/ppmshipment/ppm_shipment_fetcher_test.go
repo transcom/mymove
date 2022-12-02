@@ -188,4 +188,26 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 		suite.Equal(retrievedPPM.ShipmentID, ppm.ShipmentID)
 
 	})
+
+	suite.Run("FetchPPMShipmentFromMTOShipmentID  - returns not found for unknown id", func() {
+		badID := uuid.Must(uuid.NewV4())
+		_, err := FetchPPMShipmentFromMTOShipmentID(suite.AppContextForTest(), badID)
+		suite.Error(err)
+
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Equal(fmt.Sprintf("ID: %s not found while looking for PPMShipment", badID), err.Error())
+	})
+
+	suite.Run("FetchPPMShipmentFromMTOShipmentID  - returns not found for deleted shipment", func() {
+		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+
+		err := utilities.SoftDestroy(suite.DB(), &ppmShipment)
+		suite.NoError(err)
+
+		_, err = FetchPPMShipmentFromMTOShipmentID(suite.AppContextForTest(), ppmShipment.ShipmentID)
+		suite.Error(err)
+
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Equal(fmt.Sprintf("ID: %s not found while looking for PPMShipment", ppmShipment.ShipmentID), err.Error())
+	})
 }

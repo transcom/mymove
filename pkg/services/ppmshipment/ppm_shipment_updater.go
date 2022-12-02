@@ -95,7 +95,6 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 				if finalIncentiveErr != nil {
 					return finalIncentiveErr
 				}
-
 				updatedPPMShipment.FinalIncentive = finalIncentive
 			}
 		}
