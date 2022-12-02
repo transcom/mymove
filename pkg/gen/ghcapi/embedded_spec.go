@@ -714,7 +714,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "operationId": "UpdateMTOReviewedBillableWeightsAt",
+        "operationId": "updateMTOReviewedBillableWeightsAt",
         "parameters": [
           {
             "type": "string",
@@ -9823,7 +9823,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "operationId": "UpdateMTOReviewedBillableWeightsAt",
+        "operationId": "updateMTOReviewedBillableWeightsAt",
         "parameters": [
           {
             "type": "string",

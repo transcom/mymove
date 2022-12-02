@@ -15,7 +15,9 @@ describe('Services counselor user', () => {
 
   beforeEach(() => {
     cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc').as('getSortedMoves');
+    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&needsPPMCloseout=false').as(
+      'getSortedMoves',
+    );
 
     cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&locator=**').as(
       'getFilterSortedMoves',
