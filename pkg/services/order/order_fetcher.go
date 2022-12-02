@@ -456,6 +456,8 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 	return func(query *pop.Query) {
 		// If we have a sort and order defined let's use it. Otherwise we'll use our default status desc sort order.
 		if sort != nil && order != nil {
+			// If an office user is in a closeout GBLOC, every move they see will have the same closeout location
+			// so we can skip the sorting.
 			if *sort == "closeoutLocation" && ppmCloseoutGblocs {
 				return
 			}

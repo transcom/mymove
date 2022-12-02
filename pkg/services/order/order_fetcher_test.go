@@ -277,8 +277,8 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 	suite.Run("returns moves filtered by ppm type", func() {
 		// Under test: ListOrders
-		// Set up:           Make 3 moves, with different submitted_at times, and search for a specific move
-		// Expected outcome: Only the one move with the right date should be returned
+		// Set up:           Make 2 moves, with different ppm types, and search for both types
+		// Expected outcome: search results should only include the move with the PPM type that was searched for
 		officeUser, partialPPMMove := setupTestData()
 		suite.Equal("PARTIAL", *partialPPMMove.PPMType)
 		ppmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
@@ -310,8 +310,8 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 	suite.Run("returns moves filtered by closeout location", func() {
 		// Under test: ListOrders
-		// Set up:           Make 3 moves, with different submitted_at times, and search for a specific ppmShipment
-		// Expected outcome: Only the one ppmShipment with the right date should be returned
+		// Set up:           Make a move with a closeout office. Search for that closeout office.
+		// Expected outcome: Only the one ppmShipment with the right closeout office should be returned
 		officeUser, _ := setupTestData()
 
 		ftBragg := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
@@ -372,9 +372,9 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 	suite.Run("latest closeout initiated date is used for filter", func() {
 		// Under test: ListOrders
-		// Set up:           Make 2 moves with PPM shipments ready for closeout, with different submitted_at times,
-		//                   and search for a specific move
-		// Expected outcome: Only the one move with the right date should be returned
+		// Set up:           Make one move with multiple ppm shipments with different closeout initiated times, and
+		//                   search for multiple different times
+		// Expected outcome: Only a search for the latest of the closeout dates should find the move
 		officeUser, _ := setupTestData()
 
 		// Create a PPM submitted on April 1st
@@ -450,7 +450,6 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 	})
 }
 
-// TODO these tests could be simplified by using more specific testdatagen functions for PPMs
 func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 	orderFetcher := NewOrderFetcher()
 	showMove := true
