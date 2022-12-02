@@ -123,6 +123,11 @@ const verifySubmittedReportPresent = () => {
 // Fills out the first page of the Evaluation Report Form providing basic content in minimal required fields
 const fillInForm = () => {
   cy.get('input[name="inspectionDate"]').clear().type('01 Oct 2022').blur(); // Date of inspection
+  // evaluation start and end times
+  cy.get('select[name="evalStartHour"]').select('04').blur();
+  cy.get('select[name="evalStartMinute"]').select('25').blur();
+  cy.get('select[name="evalEndHour"]').select('12').blur();
+  cy.get('select[name="evalEndMinute"]').select('38').blur();
   cy.get('[data-testid="radio"] [for="dataReview"]').click(); // Evaluation type
   cy.get('[data-testid="radio"] [for="origin"]').click(); // Evaluation location
   cy.get('[data-testid="radio"] [for="noViolations"]').click(); // Violations observed
@@ -276,13 +281,9 @@ describe('Quality Evaluation Report', () => {
       cy.get('[data-testid="radio"] [for="physical"]').click();
       cy.get('[data-testid="radio"] [for="origin"]').click();
 
-      // Time departed for eval, time started and finished
+      // Time departed needed for physical inspection
       cy.get('select[name="timeDepartHour"]').select('02').blur();
       cy.get('select[name="timeDepartMinute"]').select('15').blur();
-      cy.get('select[name="evalStartHour"]').select('04').blur();
-      cy.get('select[name="evalStartMinute"]').select('25').blur();
-      cy.get('select[name="evalEndHour"]').select('12').blur();
-      cy.get('select[name="evalEndMinute"]').select('38').blur();
 
       // Evaluation location, has up to 3 conditional fields displayed dependent upon selection
       cy.get('[data-testid="radio"] [for="destination"]').click();
@@ -471,12 +472,14 @@ describe('Quality Evaluation Report', () => {
     it('does not prompt to delete report after first save', () => {
       // Create a new shipment report
       createShipmentReport();
+      // Fill out the eval report form with minimal info
+      fillInForm();
 
       // Save draft
       saveAsDraft();
 
       // Edit draft report
-      cy.get('[data-testid="editReport"]').first().click();
+      cy.get('[data-testid="editReport"]').last().click();
 
       // Verify the form to edit is displayed
       cy.wait(['@getEvaluationReport']);
