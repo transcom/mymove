@@ -7,10 +7,12 @@ describe('Services counselor user', () => {
 
   beforeEach(() => {
     cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc').as('getSortedMoves');
-    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&locator=SCE4ET').as(
-      'getFilterSortedMoves',
+    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&needsPPMCloseout=false').as(
+      'getSortedMoves',
     );
+    cy.intercept(
+      '**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&locator=SCE4ET&needsPPMCloseout=false',
+    ).as('getFilterSortedMoves');
     cy.intercept('**/ghc/v1/move/**').as('getMoves');
     cy.intercept('**/ghc/v1/orders/**').as('getOrders');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
