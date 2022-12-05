@@ -99,6 +99,7 @@ These scripts are primarily used for CircleCI workflows.
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `check-deployed-commit`            | checks that the deployed commit and given commit match.                                                 |
 | `check-generated-code`             | checks that the generated code has not changed                                                          |
+| `check-tls-pair`                   | checks that the TLS CERT and KEY match using openssl                                                    |
 | `circleci-announce-broken-branch`  | announce that a branch is broken                                                                        |
 | `compare-deployed-commit`          | checks that the given commit is ahead of the currently deployed commit                                  |
 | `do-exclusively`                   | CircleCI's current recommendation for roughly serializing a subset of build commands for a given branch |
