@@ -30,6 +30,14 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	// setUpForTests - Sets up objects/mocks that need to be set up on a per-test basis.
 	setUpForTests := func(estimatedIncentiveAmount *unit.Cents, sitEstimatedCost *unit.Cents, estimatedIncentiveError error) (subtestData updateSubtestData) {
 		ppmEstimator := mocks.PPMEstimator{}
+		ppmEstimator.
+			On(
+				"FinalIncentiveWithDefaultChecks",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("models.PPMShipment"),
+				mock.AnythingOfType("*models.PPMShipment"),
+			).
+			Return(nil, nil)
 
 		ppmEstimator.
 			On(
@@ -49,7 +57,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 	setUpForFinalIncentiveTests := func(finalIncentiveAmount *unit.Cents, finalIncentiveError error, estimatedIncentiveAmount *unit.Cents, sitEstimatedCost *unit.Cents, estimatedIncentiveError error) (subtestData updateSubtestData) {
 		ppmEstimator := mocks.PPMEstimator{}
-
 		ppmEstimator.
 			On(
 				"FinalIncentiveWithDefaultChecks",
