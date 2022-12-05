@@ -38,18 +38,18 @@ Blank.args = {
 export const FilledIn = Template.bind({});
 FilledIn.args = {
   ppmShipment: {
-    actualMoveDate: Date.now(),
+    actualMoveDate: '2022-04-30',
     actualPickupPostalCode: '90210',
     actualDestinationPostalCode: '94611',
     hasReceivedAdvance: true,
     advanceAmountReceived: 60000,
   },
-  tripNumber: '1',
-  ppmNumber: '1',
+  tripNumber: 1,
+  ppmNumber: 1,
   weightTicket: {
     vehicleDescription: 'Kia Forte',
-    emptyWeight: '600',
-    fullWeight: '1200',
+    emptyWeight: 600,
+    fullWeight: 1200,
     ownsTrailer: true,
     trailerMeetsCriteria: false,
   },
