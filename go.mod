@@ -51,7 +51,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.5
 	github.com/pterm/pterm v0.12.50
-	github.com/rickar/cal/v2 v2.1.8
+	github.com/rickar/cal/v2 v2.1.9
 	github.com/spf13/afero v1.9.3
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
