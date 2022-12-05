@@ -66,7 +66,15 @@ func (cfs CustomFileSystem) Open(path string) (http.File, error) {
 			}
 
 			logger.Error("Unable to open index.html in the directory", zap.Error(indexOpenErr))
-			return nil, indexOpenErr
+
+			indexPath := filepath.Join(path, "index.html")
+			indexFile, buildRootIndexOpenErr := cfs.fs.Open(filepath.Clean(indexPath))
+
+			if buildRootIndexOpenErr != nil {
+				return nil, buildRootIndexOpenErr
+			}
+
+			return indexFile, indexOpenErr
 		}
 	}
 
