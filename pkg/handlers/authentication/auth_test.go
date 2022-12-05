@@ -1021,8 +1021,16 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
-	// user is in office_users but is inactive and has never logged into the app
-	adminUser := testdatagen.MakeAdminUserWithNoUser(suite.DB(), testdatagen.Assertions{})
+	// Create an admin user that is inactive and has never logged into the app
+	adminUser := models.AdminUser{
+		FirstName: "Leo",
+		LastName:  "Spaceman",
+		Email:     "leo_spaceman_admin@example.com",
+		Role:      "SYSTEM_ADMIN",
+	}
+	verrs, err := suite.DB().ValidateAndCreate(&adminUser)
+	suite.NoError(err)
+	suite.False(verrs.HasAny())
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -1130,15 +1138,18 @@ func (suite *AuthSuite) TestAuthorizeKnownUserAdminNotFound() {
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
-	user := factory.BuildDefaultUser(suite.DB())
 	// user is in admin_users but has not logged into the app before
-	adminUser := testdatagen.MakeAdminUser(suite.DB(), testdatagen.Assertions{
-		AdminUser: models.AdminUser{
-			Active: true,
-			UserID: &user.ID,
+	adminUser := factory.BuildAdminUser(suite.DB(), []factory.Customization{
+		{
+			Model: models.AdminUser{
+				Active: true,
+			},
 		},
-		User: user,
+	}, []factory.Trait{
+		factory.GetTraitActiveUser,
+		factory.GetTraitAdminUserEmail,
 	})
+	user := adminUser.User
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()

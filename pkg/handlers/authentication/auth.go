@@ -879,7 +879,8 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 	// Loads the User and Roles associations of the office or admin user
 	conn := appCtx.DB().Eager("User", "User.Roles")
 
-	if appCtx.Session().IsOfficeApp() { // Look to see if we have OfficeUser with this email address
+	if appCtx.Session().IsOfficeApp() {
+		// Look to see if we have OfficeUser with this email address
 		officeUser, err = models.FetchOfficeUserByEmail(conn, appCtx.Session().Email)
 		if err == models.ErrFetchNotFound {
 			appCtx.Logger().Error("Unauthorized: No Office user found",
@@ -907,12 +908,14 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 
 	var adminUser models.AdminUser
 	if appCtx.Session().IsAdminApp() {
+		// Look to see if we have AdminUser with this email address
 		queryBuilder := query.NewQueryBuilder()
 		filters := []services.QueryFilter{
 			query.NewQueryFilter("email", "=", appCtx.Session().Email),
 		}
 		err = queryBuilder.FetchOne(appCtx, &adminUser, filters)
 
+		// Log error and return if no AdminUser found with this email
 		if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			appCtx.Logger().Error("Unauthorized: No admin user found",
 				zap.String("OID_User", openIDUser.UserID),
@@ -927,6 +930,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return false
 		}
+		// Log error and return if adminUser was found but deactivated
 		if !adminUser.Active {
 			appCtx.Logger().Error("Unauthorized: Admin user deactivated",
 				zap.String("OID_User", openIDUser.UserID),
@@ -975,6 +979,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 		}
 		appCtx.Session().ServiceMemberID = newServiceMember.ID
 	} else {
+		// If in Office App or Admin App with valid user - update user's LoginGovUUID
 		appCtx.Logger().Error("Authorization associating login.gov UUID with user",
 			zap.String("OID_User", openIDUser.UserID),
 			zap.String("OID_Email", openIDUser.Email),

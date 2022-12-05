@@ -14,6 +14,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -46,7 +47,7 @@ func (suite *HandlerSuite) makeCreatePaymentRequestHandlerSubtestData() (subtest
 	subtestData.moveTaskOrderID, _ = uuid.FromString("96e21765-3e29-4acf-89a2-1317a9f7f0da")
 	subtestData.paymentRequestID, _ = uuid.FromString("70c0c9c1-cf3f-4195-b15c-d185dc5cd0bf")
 
-	subtestData.requestUser = testdatagen.MakeStubbedUser(suite.DB())
+	subtestData.requestUser = factory.BuildUser(nil, nil, nil)
 
 	subtestData.serviceItemID1, _ = uuid.FromString("1b7b134a-7c44-45f2-9114-bb0831cc5db3")
 	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
@@ -242,7 +243,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	})
 
 	suite.Run("failed create payment request -- nil body", func() {
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequestCheck",
@@ -643,7 +644,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		move, mtoServiceItems := suite.setupDomesticLinehaulData()
 		moveTaskOrderID := move.ID
 
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
@@ -711,7 +712,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 		move, mtoServiceItems := suite.setupDomesticLinehaulData()
 		moveTaskOrderID := move.ID
 
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
@@ -768,7 +769,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 		move, mtoServiceItems := suite.setupDomesticLinehaulData()
 		moveTaskOrderID := move.ID
 
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)

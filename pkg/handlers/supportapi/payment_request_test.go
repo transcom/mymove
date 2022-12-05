@@ -25,6 +25,7 @@ import (
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_request"
 	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -114,7 +115,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequest.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -147,7 +148,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequest.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -177,7 +178,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequest.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -206,7 +207,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequest.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 

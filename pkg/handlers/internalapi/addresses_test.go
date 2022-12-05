@@ -6,11 +6,11 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	addressop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func fakeAddressPayload() *internalmessages.Address {
@@ -35,7 +35,7 @@ func (suite *HandlerSuite) TestShowAddressHandler() {
 		}
 		suite.MustSave(&address)
 
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		fakeUUID, _ := uuid.FromString("not-valid-uuid")
 
