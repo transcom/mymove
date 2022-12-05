@@ -14,6 +14,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -390,7 +391,7 @@ func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 	suite.Run("Successful patch - Integration Test", func() {
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		mto := testdatagen.MakeAvailableMove(suite.DB())
 		eTag := etag.GenerateEtag(mto.UpdatedAt)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
@@ -459,7 +460,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	})
 
 	suite.Run("Unsuccessful patch - Integration Test - patch fail MTO not available", func() {
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		defaultMTO := testdatagen.MakeDefaultMove(suite.DB())
 		eTag := etag.GenerateEtag(defaultMTO.UpdatedAt)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", defaultMTO.ID.String()), nil)
@@ -489,7 +490,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	})
 
 	suite.Run("Patch failure - 500", func() {
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		mto := testdatagen.MakeAvailableMove(suite.DB())
 		eTag := etag.GenerateEtag(mto.UpdatedAt)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
@@ -524,7 +525,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	})
 
 	suite.Run("Patch failure - 404", func() {
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		mto := testdatagen.MakeAvailableMove(suite.DB())
 		eTag := etag.GenerateEtag(mto.UpdatedAt)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
@@ -557,7 +558,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	})
 
 	suite.Run("Patch failure - 409", func() {
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		mto := testdatagen.MakeAvailableMove(suite.DB())
 		eTag := etag.GenerateEtag(mto.UpdatedAt)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
@@ -589,7 +590,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	})
 
 	suite.Run("Patch failure - 422", func() {
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		mto := testdatagen.MakeAvailableMove(suite.DB())
 		eTag := etag.GenerateEtag(mto.UpdatedAt)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
