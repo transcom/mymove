@@ -19,14 +19,6 @@ const inspectionTypeFormatting = (inspectionType) => {
   return capitalizeFirstLetterOnly(inspectionType);
 };
 
-const convertToHoursAndMinutes = (totalMinutes) => {
-  // divide and round down to get hours
-  const hours = Math.floor(totalMinutes / 60);
-  // use modulus operator to get the remainder for minutes
-  const minutes = totalMinutes % 60;
-  return `${hours} hr ${minutes} min`;
-};
-
 const EvaluationReportList = ({ evaluationReport }) => {
   return (
     <div className={styles.OfficeDefinitionLists}>
