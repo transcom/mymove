@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { v4 } from 'uuid';
 
@@ -16,6 +16,7 @@ beforeEach(() => {
 const defaultProps = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
+  initialValues: { date: '2022-11-01', signature: '' },
 };
 
 describe('FinalCloseoutForm component', () => {
@@ -26,10 +27,7 @@ describe('FinalCloseoutForm component', () => {
 
     const weightTicket = createCompleteWeightTicket({ serviceMemberId }, { emptyWeight: 14000, fullWeight: 18000 });
     const movingExpense = createCompleteMovingExpense({ serviceMemberId }, { amount: 30000 });
-    const proGearWeightTicket = createCompleteProGearWeightTicket(
-      { serviceMemberId },
-      { emptyWeight: 14000, fullWeight: 16000 },
-    );
+    const proGearWeightTicket = createCompleteProGearWeightTicket({ serviceMemberId }, { weight: 1500 });
 
     const mtoShipment = createPPMShipmentWithFinalIncentive({
       ppmShipment: {
@@ -52,7 +50,7 @@ describe('FinalCloseoutForm component', () => {
     const findListItemWithText = prepListSearchForItem(screen.getAllByRole('listitem'));
 
     expect(findListItemWithText('4,000 lbs total net weight')).toBeInTheDocument();
-    expect(findListItemWithText('2,000 lbs of pro-gear')).toBeInTheDocument();
+    expect(findListItemWithText('1,500 lbs of pro-gear')).toBeInTheDocument();
     expect(findListItemWithText('$300.00 in expenses claimed')).toBeInTheDocument();
 
     expect(
@@ -74,10 +72,9 @@ describe('FinalCloseoutForm component', () => {
       createCompleteMovingExpense({ serviceMemberId }, fieldOverrides),
     );
 
-    const proGearWeightTickets = [
-      { emptyWeight: 15000, fullWeight: 15500 },
-      { emptyWeight: 15000, fullWeight: 16000 },
-    ].map((fieldOverrides) => createCompleteProGearWeightTicket({ serviceMemberId }, fieldOverrides));
+    const proGearWeightTickets = [{ weight: 750 }, { weight: 750 }].map((fieldOverrides) =>
+      createCompleteProGearWeightTicket({ serviceMemberId }, fieldOverrides),
+    );
 
     const mtoShipment = createPPMShipmentWithFinalIncentive({
       ppmShipment: {
@@ -104,5 +101,55 @@ describe('FinalCloseoutForm component', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
 
     expect(defaultProps.onBack).toHaveBeenCalled();
+  });
+
+  it('calls onBack func when "Return To Homepage" button is clicked', async () => {
+    const mtoShipment = createPPMShipmentWithFinalIncentive();
+
+    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+
+    expect(defaultProps.onBack).toHaveBeenCalled();
+  });
+
+  it('validates the form after user input', async () => {
+    const mtoShipment = createPPMShipmentWithFinalIncentive();
+    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
+
+    // Save should be visibly enabled when form is clean, but validate on submit attempt
+    const saveButton = screen.getByRole('button', { name: 'Submit PPM Documentation' });
+    expect(saveButton).toBeEnabled();
+    await userEvent.click(saveButton);
+
+    // Save should be disabled after invalid input
+    expect(await screen.findByText('Required')).toBeInTheDocument();
+    expect(saveButton).toBeDisabled();
+
+    // Save should be re-enabbled after valid input
+    const signatureField = screen.getByRole('textbox', { name: 'Signature' });
+    await userEvent.type(signatureField, 'Grace Griffin');
+    await waitFor(() => expect(saveButton).toBeEnabled());
+    expect(screen.queryByText('Required')).not.toBeInTheDocument();
+  });
+
+  it('calls onSubmit func when "Submit PPM Documentation" button is clicked', async () => {
+    const mtoShipment = createPPMShipmentWithFinalIncentive();
+    const modifiedProps = {
+      ...defaultProps,
+      initialValues: {
+        ...defaultProps.initialValues,
+        signature: 'Grace Griffin',
+      },
+    };
+
+    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...modifiedProps} />);
+
+    const signatureField = screen.getByRole('textbox', { name: 'Signature' });
+    await waitFor(() => expect(signatureField).toHaveValue('Grace Griffin'));
+
+    const saveButton = screen.getByRole('button', { name: 'Submit PPM Documentation' });
+    await userEvent.click(saveButton);
+    await waitFor(() => expect(modifiedProps.onSubmit).toHaveBeenCalled());
   });
 });

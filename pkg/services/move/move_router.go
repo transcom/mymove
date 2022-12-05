@@ -31,51 +31,75 @@ func NewMoveRouter() services.MoveRouter {
 // amended orders.
 func (router moveRouter) Submit(appCtx appcontext.AppContext, move *models.Move, newSignedCertification *models.SignedCertification) error {
 	router.logMove(appCtx, move)
-
-	needsServicesCounseling, err := router.needsServiceCounseling(appCtx, move)
-	if err != nil {
-		appCtx.Logger().Error("failure determining if a move needs services counseling", zap.Error(err))
-		return err
-	}
-	appCtx.Logger().Info("SUCCESS: Determining if move needs services counseling or not")
 	var verrs *validate.Errors
-	if needsServicesCounseling {
-		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			// when a move is submitted and needs to be routed to a service counselor, the move status is updated,
-			// ppm shipment statuses are updated (both the ppm shipment and the parent mtoShipment),
-			// and a signedCertification is created. sendToServiceCounselor handles the move and shipment status changes
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+
+		// when a move is submitted and needs to be routed to a service counselor, the move status is updated,
+		// ppm shipment statuses are updated (both the ppm shipment and the parent mtoShipment),
+		// and a signedCertification is created. sendToServiceCounselor handles the move and shipment status changes
+		needsServicesCounseling, err := router.needsServiceCounseling(appCtx, move)
+		if err != nil {
+			appCtx.Logger().Error("failure determining if a move needs services counseling", zap.Error(err))
+			return err
+		}
+		if needsServicesCounseling {
 			err = router.sendToServiceCounselor(txnAppCtx, move)
 			if err != nil {
 				appCtx.Logger().Error("failure routing move to services counseling", zap.Error(err))
 				return err
 			}
 
-			if newSignedCertification == nil {
-				msg := "signedCertification is required"
-				appCtx.Logger().Error(msg, zap.Error(err))
-				return apperror.NewInvalidInputError(move.ID, err, verrs, msg)
-			}
-
-			verrs, err = txnAppCtx.DB().ValidateAndCreate(newSignedCertification)
-			if err != nil || verrs.HasAny() {
-				txnAppCtx.Logger().Error("error saving signed certification: %w", zap.Error(err))
-				return err
-			}
-
-			return nil
-		})
-		if transactionError != nil {
-			return transactionError
-		}
-		appCtx.Logger().Info("SUCCESS: Move sent to services counseling")
-	} else if move.Orders.UploadedAmendedOrders != nil {
-		appCtx.Logger().Info("Move has amended orders")
-		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			err = router.SendToOfficeUser(txnAppCtx, move)
+			appCtx.Logger().Info("SUCCESS: Move sent to services counselor")
+		} else {
+			err = router.sendNewMoveToOfficeUser(txnAppCtx, move)
 			if err != nil {
-				txnAppCtx.Logger().Error("failure routing move submission with amended orders", zap.Error(err))
+				txnAppCtx.Logger().Error("failure routing move to office user", zap.Error(err))
 				return err
 			}
+			appCtx.Logger().Info("SUCCESS: Move sent to office user")
+		}
+
+		if newSignedCertification == nil {
+			msg := "signedCertification is required"
+			appCtx.Logger().Error(msg, zap.Error(err))
+			return apperror.NewInvalidInputError(move.ID, err, verrs, msg)
+		}
+		verrs, err = txnAppCtx.DB().ValidateAndCreate(newSignedCertification)
+		if err != nil || verrs.HasAny() {
+			txnAppCtx.Logger().Error("error saving signed certification: %w", zap.Error(err))
+		}
+		return err
+	})
+
+	if transactionError != nil {
+		return transactionError
+	}
+	appCtx.Logger().Info("SUCCESS: Move submitted and routed to the appropriate queue")
+	return nil
+}
+
+func (router moveRouter) RouteAfterAmendingOrders(appCtx appcontext.AppContext, move *models.Move) error {
+	return appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		needsServicesCounseling, err := router.needsServiceCounseling(appCtx, move)
+		if err != nil {
+			appCtx.Logger().Error("failure determining if a move needs services counseling", zap.Error(err))
+			return err
+		}
+		if needsServicesCounseling {
+			err = router.sendToServiceCounselor(txnAppCtx, move)
+			if err != nil {
+				appCtx.Logger().Error("failure routing move to services counseling", zap.Error(err))
+				return err
+			}
+			appCtx.Logger().Info("SUCCESS: Move sent to services counselor")
+		} else {
+			err := router.SendToOfficeUser(txnAppCtx, move)
+			if err != nil {
+				txnAppCtx.Logger().Error("failure routing move to office user", zap.Error(err))
+				return err
+			}
+			appCtx.Logger().Info("SUCCESS: Move sent to office user")
+
 			// Let's get the orders for this move so we can wipe out the acknowledgement if it exists already (from a prior orders amendment process)
 			var ordersForMove models.Order
 			err = txnAppCtx.DB().Find(&ordersForMove, move.OrdersID)
@@ -89,7 +113,6 @@ func (router moveRouter) Submit(appCtx appcontext.AppContext, move *models.Move,
 			}
 			// Here we'll nil out the value (if it's set already) so that on the client-side we'll see view this change
 			// in status as 'new orders' that need acknowledging by the TOO.
-			// We shouldn't need more complicated logic here since we only hit this point from calling Submit().
 			// Other circumstances like new MTOServiceItems will be calling SendToOfficeUser() directly.
 			txnAppCtx.Logger().Info("Determining whether there is a preexisting orders acknowledgement")
 			if ordersForMove.AmendedOrdersAcknowledgedAt != nil {
@@ -102,45 +125,9 @@ func (router moveRouter) Submit(appCtx appcontext.AppContext, move *models.Move,
 				}
 				txnAppCtx.Logger().Info("Successfully reset orders acknowledgement")
 			}
-			return nil
-		})
-		if transactionError != nil {
-			return transactionError
 		}
-		appCtx.Logger().Info("SUCCESS: Move with amended orders sent to office user / TOO queue")
-	} else {
-		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			// when a move is submitted and needs to be routed to a TOO, the move status is updated,
-			// ppm shipment statuses are updated (both the ppm shipment and the parent mtoShipment),
-			// and a signedCertification is created. sendNewMoveToOfficeUser handles the move and shipment status changes
-			err = router.sendNewMoveToOfficeUser(txnAppCtx, move)
-			if err != nil {
-				appCtx.Logger().Error("failure routing move to office user / TOO queue", zap.Error(err))
-				return err
-			}
-
-			if newSignedCertification == nil {
-				msg := "signedCertification is required"
-				appCtx.Logger().Error(msg, zap.Error(err))
-				return apperror.NewInvalidInputError(move.ID, err, verrs, msg)
-			}
-
-			verrs, err = txnAppCtx.DB().ValidateAndCreate(newSignedCertification)
-			if err != nil || verrs.HasAny() {
-				txnAppCtx.Logger().Error("error saving signed certification: %w", zap.Error(err))
-				return err
-			}
-
-			return nil
-		})
-		if transactionError != nil {
-			return transactionError
-		}
-		appCtx.Logger().Info("SUCCESS: Move sent to office user / TOO queue")
-	}
-
-	appCtx.Logger().Info("SUCCESS: Move submitted and routed to the appropriate queue")
-	return nil
+		return nil
+	})
 }
 
 func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, move *models.Move) (bool, error) {

@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -1356,7 +1357,7 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 	})
 
 	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2, ppmShipment.Shipment, ppmShipment2.Shipment, ppmShipment3.Shipment}
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	requestUser := factory.BuildUser(nil, nil, nil)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/mto_shipments", mto.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)

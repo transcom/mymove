@@ -23,3 +23,9 @@
     }
   }
 }
+
+.tableTabs {
+  @include u-margin-x(1);
+  @include u-margin-bottom(2);
+  border-bottom: (2px solid rgb(236, 234, 234));
+}

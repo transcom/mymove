@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/factory"
 	adminuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -17,15 +18,14 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 	// test that everything is wired up
 	suite.Run("integration test ok response", func() {
 		adminUsers := models.AdminUsers{
-			testdatagen.MakeDefaultAdminUser(suite.DB()),
-			testdatagen.MakeDefaultAdminUser(suite.DB()),
+			factory.BuildDefaultAdminUser(suite.DB()),
+			factory.BuildDefaultAdminUser(suite.DB()),
 		}
 		params := adminuserop.IndexAdminUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/admin_users"),
@@ -84,7 +84,7 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 func (suite *HandlerSuite) TestGetAdminUserHandler() {
 	// test that everything is wired up
 	suite.Run("integration test ok response", func() {
-		adminUser := testdatagen.MakeDefaultAdminUser(suite.DB())
+		adminUser := factory.BuildDefaultAdminUser(suite.DB())
 		params := adminuserop.GetAdminUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/admin_users/%s", adminUser.ID)),
 			AdminUserID: strfmt.UUID(adminUser.ID.String()),
@@ -129,7 +129,7 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 	})
 
 	suite.Run("unsuccessful response when fetch fails", func() {
-		adminUser := testdatagen.MakeDefaultAdminUser(suite.DB())
+		adminUser := factory.BuildDefaultAdminUser(suite.DB())
 		params := adminuserop.GetAdminUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/admin_users/%s", adminUser.ID)),
 			AdminUserID: strfmt.UUID(adminUser.ID.String()),

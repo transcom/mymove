@@ -1,8 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import o from 'constants/MoveHistory/UIDisplay/Operations';
-import t from 'constants/MoveHistory/Database/Tables';
 import patchServiceMember from 'constants/MoveHistory/EventTemplates/PatchServiceMember/patchServiceMember';
 
 const PROFILE = {
@@ -29,8 +27,8 @@ const PROFILE = {
 describe('When a service members updates their profile', () => {
   const template = {
     action: 'UPDATE',
-    eventName: o.patchServiceMember,
-    tableName: t.service_members,
+    eventName: 'patchServiceMember',
+    tableName: 'service_members',
     eventNameDisplay: 'Updated profile',
   };
   it('correctly matches the patch service member event template', () => {

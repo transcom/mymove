@@ -132,14 +132,14 @@ const Template = (args) => <ShipmentForm {...args} />;
 export const HHGShipment = Template.bind({});
 HHGShipment.args = {
   ...defaultProps,
-  selectedMoveType: SHIPMENT_OPTIONS.HHG,
+  shipmentType: SHIPMENT_OPTIONS.HHG,
 };
 
 // edit shipment stories (form should prefill)
 export const EditHHGShipment = Template.bind({});
 EditHHGShipment.args = {
   ...defaultProps,
-  selectedMoveType: SHIPMENT_OPTIONS.HHG,
+  shipmentType: SHIPMENT_OPTIONS.HHG,
   isCreatePage: false,
   mtoShipment: mockMtoShipment,
   userRole: roleTypes.SERVICES_COUNSELOR,
@@ -149,7 +149,7 @@ EditHHGShipment.args = {
 export const EditHHGShipmentNoCustRemarks = Template.bind({});
 EditHHGShipmentNoCustRemarks.args = {
   ...defaultProps,
-  selectedMoveType: SHIPMENT_OPTIONS.HHG,
+  shipmentType: SHIPMENT_OPTIONS.HHG,
   isCreatePage: false,
   mtoShipment: mockMtoShipmentNoCustomerRemarks,
   userRole: roleTypes.SERVICES_COUNSELOR,
@@ -158,21 +158,21 @@ EditHHGShipmentNoCustRemarks.args = {
 export const HHGShipmentAsTOO = Template.bind({});
 HHGShipmentAsTOO.args = {
   ...defaultProps,
-  selectedMoveType: SHIPMENT_OPTIONS.HHG,
+  shipmentType: SHIPMENT_OPTIONS.HHG,
   userRole: roleTypes.TOO,
 };
 
 export const NTSShipmentWithoutCodes = Template.bind({});
 NTSShipmentWithoutCodes.args = {
   ...defaultProps,
-  selectedMoveType: SHIPMENT_OPTIONS.NTS,
+  shipmentType: SHIPMENT_OPTIONS.NTS,
   userRole: roleTypes.SERVICES_COUNSELOR,
 };
 
 export const NTSShipmentWithCodes = Template.bind({});
 NTSShipmentWithCodes.args = {
   ...defaultProps,
-  selectedMoveType: SHIPMENT_OPTIONS.NTS,
+  shipmentType: SHIPMENT_OPTIONS.NTS,
   TACs: { HHG: '1234', NTS: '5678' },
   SACs: { HHG: '000012345' },
   userRole: roleTypes.SERVICES_COUNSELOR,
@@ -181,7 +181,7 @@ NTSShipmentWithCodes.args = {
 export const NTSReleaseShipment = Template.bind({});
 NTSReleaseShipment.args = {
   ...defaultProps,
-  selectedMoveType: SHIPMENT_OPTIONS.NTSR,
+  shipmentType: SHIPMENT_OPTIONS.NTSR,
   TACs: { HHG: '1234', NTS: '5678' },
   SACs: { HHG: '000012345', NTS: '6789ABC' },
   userRole: roleTypes.SERVICES_COUNSELOR,
@@ -190,7 +190,7 @@ NTSReleaseShipment.args = {
 export const NTSShipmentAsTOO = Template.bind({});
 NTSShipmentAsTOO.args = {
   ...defaultProps,
-  selectedMoveType: SHIPMENT_OPTIONS.NTS,
+  shipmentType: SHIPMENT_OPTIONS.NTS,
   TACs: { HHG: '1234', NTS: '5678' },
   SACs: { HHG: '000012345' },
   userRole: roleTypes.TOO,
@@ -199,7 +199,7 @@ NTSShipmentAsTOO.args = {
 export const ExternalVendorShipment = Template.bind({});
 ExternalVendorShipment.args = {
   ...defaultProps,
-  selectedMoveType: SHIPMENT_OPTIONS.NTSR,
+  shipmentType: SHIPMENT_OPTIONS.NTSR,
   TACs: { HHG: '1234', NTS: '5678' },
   SACs: { HHG: '000012345', NTS: '6789ABC' },
   mtoShipment: { ...mockMtoShipment, usesExternalVendor: true },
@@ -209,7 +209,7 @@ ExternalVendorShipment.args = {
 export const PPMShipment = Template.bind({});
 PPMShipment.args = {
   ...defaultProps,
-  selectedMoveType: SHIPMENT_OPTIONS.PPM,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
   userRole: roleTypes.SERVICES_COUNSELOR,
 };
 
@@ -217,7 +217,7 @@ export const PPMShipmentAdvance = Template.bind({});
 PPMShipmentAdvance.args = {
   ...defaultProps,
   isCreatePage: false,
-  selectedMoveType: SHIPMENT_OPTIONS.PPM,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
   userRole: roleTypes.SERVICES_COUNSELOR,
   isAdvancePage: true,
   mtoShipment: mockMtoShipmentTypePPM,

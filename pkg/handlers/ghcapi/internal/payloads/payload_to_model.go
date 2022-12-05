@@ -1,16 +1,22 @@
 package payloads
 
 import (
+	"errors"
 	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
+)
+
+const (
+	timeHHMMFormat = "15:04"
 )
 
 // MTOAgentModel model
@@ -487,9 +493,10 @@ func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense
 	return model
 }
 
-func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) *models.EvaluationReport {
+func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) (*models.EvaluationReport, error) {
 	if evaluationReport == nil {
-		return nil
+		err := apperror.NewPreconditionFailedError(uuid.UUID{}, errors.New("Cannot update empty report"))
+		return nil, err
 	}
 
 	var inspectionType *models.EvaluationReportInspectionType
@@ -498,20 +505,43 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 		inspectionType = &tempInspectionType
 	}
 
-	var travelTimeMinutes *int
-	if evaluationReport.TravelTimeMinutes != nil {
-		tempTravelTime := int(*evaluationReport.TravelTimeMinutes)
-		travelTimeMinutes = &tempTravelTime
-	}
-	var evaluationLengthMinutes *int
-	if evaluationReport.EvaluationLengthMinutes != nil {
-		tempEvaluationLength := int(*evaluationReport.EvaluationLengthMinutes)
-		evaluationLengthMinutes = &tempEvaluationLength
-	}
 	var location *models.EvaluationReportLocationType
 	if evaluationReport.Location != nil {
 		tempLocation := models.EvaluationReportLocationType(*evaluationReport.Location)
 		location = &tempLocation
+	}
+
+	var timeDepart *time.Time
+	if evaluationReport.TimeDepart != nil {
+		td, err := time.Parse(timeHHMMFormat, *evaluationReport.TimeDepart)
+
+		if err != nil {
+			return nil, apperror.NewPreconditionFailedError(uuid.UUID{}, err)
+		}
+
+		timeDepart = &td
+	}
+
+	var evalStart *time.Time
+	if evaluationReport.EvalStart != nil {
+		es, err := time.Parse(timeHHMMFormat, *evaluationReport.EvalStart)
+
+		if err != nil {
+			return nil, apperror.NewPreconditionFailedError(uuid.UUID{}, err)
+		}
+
+		evalStart = &es
+	}
+
+	var evalEnd *time.Time
+	if evaluationReport.EvalEnd != nil {
+		ee, err := time.Parse(timeHHMMFormat, *evaluationReport.EvalEnd)
+
+		if err != nil {
+			return nil, apperror.NewPreconditionFailedError(uuid.UUID{}, err)
+		}
+
+		evalEnd = &ee
 	}
 
 	model := models.EvaluationReport{
@@ -525,11 +555,12 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 		Type:                          models.EvaluationReportType(evaluationReport.Type),
 		InspectionDate:                (*time.Time)(evaluationReport.InspectionDate),
 		InspectionType:                inspectionType,
-		TravelTimeMinutes:             travelTimeMinutes,
+		TimeDepart:                    timeDepart,
+		EvalStart:                     evalStart,
+		EvalEnd:                       evalEnd,
 		Location:                      location,
 		LocationDescription:           evaluationReport.LocationDescription,
 		ObservedDate:                  (*time.Time)(evaluationReport.ObservedDate),
-		EvaluationLengthMinutes:       evaluationLengthMinutes,
 		ViolationsObserved:            evaluationReport.ViolationsObserved,
 		Remarks:                       evaluationReport.Remarks,
 		SeriousIncident:               evaluationReport.SeriousIncident,
@@ -541,5 +572,5 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 		ObservedDeliveryDate:          (*time.Time)(evaluationReport.ObservedDeliveryDate),
 		SubmittedAt:                   handlers.FmtDateTimePtrToPopPtr(evaluationReport.SubmittedAt),
 	}
-	return &model
+	return &model, nil
 }

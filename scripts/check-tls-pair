@@ -1,0 +1,27 @@
+#! /usr/bin/env bash
+#
+#   check-tls-pair confirms that the TLS cert and key pair are a match.
+#   This will allow us to trigger a failure quickly instead of finding out that the keypair doesn't work 30 minutes into the deploy.
+#
+# README: Can't set the unbound `set -u` here as $1 and #2 are coming from
+# outside the script.
+set -e -o pipefail
+
+# Let's make sure that openssl is installed wherever we run this script.
+if type openssl &> /dev/null
+then
+  key="${1}"
+  cert="${2}"
+
+  key_md5=$(echo "${key}" | base64 --decode | openssl rsa -noout -modulus | openssl md5)
+  cert_md5=$(echo "${cert}" | base64 --decode | openssl x509 -noout -modulus | openssl md5)
+
+  if [ "${key_md5}" != "${cert_md5}" ]; then
+    # README: This will echo out the message to STDERR.
+    echo "The KEY_FILE and the CERT_FILE for this environment do not match" >&2
+    exit 1
+  fi
+else
+  echo "openssl is not installed on this system" >&2
+  exit 2
+fi
