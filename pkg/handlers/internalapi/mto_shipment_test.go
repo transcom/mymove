@@ -14,12 +14,14 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -65,7 +67,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	ppmEstimator := mocks.PPMEstimator{}
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 
-	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator)
+	shipmentRouter := mtoshipment.NewShipmentRouter()
+	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter)
 
 	type mtoCreateSubtestData struct {
 		serviceMember models.ServiceMember
@@ -538,7 +541,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	ppmEstimator := mocks.PPMEstimator{}
 
-	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+	addressCreator := address.NewAddressCreator()
+	addressUpdater := address.NewAddressUpdater()
+	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 
 	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 
@@ -1033,6 +1038,68 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					suite.Equal(desiredShipment.W2Address.State, updatedShipment.PpmShipment.W2Address.State)
 				},
 			},
+			"Allows updates to W2 Address": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+						PPMShipment: models.PPMShipment{
+							W2Address:   &address,
+							W2AddressID: &address.ID,
+						},
+					})
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					W2Address: &internalmessages.Address{
+						ID:             "92c9d4db-1ae4-41b1-991e-3ed645ee910a",
+						StreetAddress1: &street1,
+						City:           &city,
+						State:          &state,
+						PostalCode:     &zipcode,
+					},
+				},
+				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					// check existing fields didn't change
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
+					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
+					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
+
+					// check expected fields were updated
+					suite.Equal(desiredShipment.W2Address.StreetAddress1, updatedShipment.PpmShipment.W2Address.StreetAddress1)
+					suite.Equal(desiredShipment.W2Address.City, updatedShipment.PpmShipment.W2Address.City)
+					suite.Equal(desiredShipment.W2Address.PostalCode, updatedShipment.PpmShipment.W2Address.PostalCode)
+					suite.Equal(desiredShipment.W2Address.State, updatedShipment.PpmShipment.W2Address.State)
+					suite.Equal(originalShipment.PPMShipment.W2Address.ID, uuid.FromStringOrNil(updatedShipment.PpmShipment.W2Address.ID.String()))
+				},
+			},
+			"Prevents arbitrary address updates": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					return testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					W2Address: &internalmessages.Address{
+						ID:             "92c9d4db-1ae4-41b1-991e-3ed645ee910a",
+						StreetAddress1: &street1,
+						City:           &city,
+						State:          &state,
+						PostalCode:     &zipcode,
+					},
+				},
+				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					// check existing fields didn't change
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
+					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
+					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
+
+					// check expected fields were updated
+					suite.Equal(desiredShipment.W2Address.StreetAddress1, updatedShipment.PpmShipment.W2Address.StreetAddress1)
+					suite.Equal(desiredShipment.W2Address.City, updatedShipment.PpmShipment.W2Address.City)
+					suite.Equal(desiredShipment.W2Address.PostalCode, updatedShipment.PpmShipment.W2Address.PostalCode)
+					suite.Equal(desiredShipment.W2Address.State, updatedShipment.PpmShipment.W2Address.State)
+					suite.NotEqual(desiredShipment.W2Address.ID, updatedShipment.PpmShipment.W2Address.ID)
+				},
+			},
 			"Remove actual advance": {
 				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
 					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
@@ -1279,7 +1346,7 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 		Move: mto,
 	})
 
-	ppmShipment2 := testdatagen.MakeApprovedPPMShipment(suite.DB(), testdatagen.Assertions{
+	ppmShipment2 := testdatagen.MakeApprovedPPMShipmentWaitingOnCustomer(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 	})
 
@@ -1290,7 +1357,7 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 	})
 
 	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2, ppmShipment.Shipment, ppmShipment2.Shipment, ppmShipment3.Shipment}
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	requestUser := factory.BuildUser(nil, nil, nil)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/mto_shipments", mto.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)

@@ -239,6 +239,12 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
 		suite.Assertions.NotNil(okResponse.Payload.SubmittedAt)
 
+		// And: SignedCertification was created
+		signedCertification := models.SignedCertification{}
+		err = suite.DB().Where("move_id = $1", move.ID).First(&signedCertification)
+		suite.NoError(err)
+		suite.NotNil(signedCertification)
+
 		// Test that the move was submitted within a few seconds of the current time.
 		// This is better than asserting that it's not Nil, and avoids trying to mock
 		// time.Now() or having to pass in a date to MoveRouter.Submit just to be able to test it.
@@ -280,6 +286,12 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 
 		// And: Returned query to have a submitted status
 		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
+
+		// And: SignedCertification was created
+		signedCertification := models.SignedCertification{}
+		err := suite.DB().Where("move_id = $1", move.ID).First(&signedCertification)
+		suite.NoError(err)
+		suite.NotNil(signedCertification)
 	})
 
 }
@@ -342,6 +354,12 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		// And: Returned query to have a needs service counseling status
 		suite.Equal(internalmessages.MoveStatusNEEDSSERVICECOUNSELING, okResponse.Payload.Status)
 		suite.NotNil(okResponse.Payload.SubmittedAt)
+
+		// And: SignedCertification was created
+		signedCertification := models.SignedCertification{}
+		err = suite.DB().Where("move_id = $1", move.ID).First(&signedCertification)
+		suite.NoError(err)
+		suite.NotNil(signedCertification)
 	})
 }
 

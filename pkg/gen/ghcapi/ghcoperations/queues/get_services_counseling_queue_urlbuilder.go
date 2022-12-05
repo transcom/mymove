@@ -20,6 +20,7 @@ type GetServicesCounselingQueueURL struct {
 	DodID              *string
 	LastName           *string
 	Locator            *string
+	NeedsPPMCloseout   *bool
 	Order              *string
 	OriginDutyLocation *string
 	OriginGBLOC        *string
@@ -94,6 +95,14 @@ func (o *GetServicesCounselingQueueURL) Build() (*url.URL, error) {
 	}
 	if locatorQ != "" {
 		qs.Set("locator", locatorQ)
+	}
+
+	var needsPPMCloseoutQ string
+	if o.NeedsPPMCloseout != nil {
+		needsPPMCloseoutQ = swag.FormatBool(*o.NeedsPPMCloseout)
+	}
+	if needsPPMCloseoutQ != "" {
+		qs.Set("needsPPMCloseout", needsPPMCloseoutQ)
 	}
 
 	var orderQ string

@@ -212,6 +212,13 @@ export const formatMoveHistoryFullAddress = (address) => {
 };
 
 export const formatMoveHistoryAgent = (agent) => {
+  let agentLabel = '';
+  if (agent.agent_type === 'RECEIVING_AGENT') {
+    agentLabel = 'receiving_agent';
+  } else if (agent.agent_type === 'RELEASING_AGENT') {
+    agentLabel = 'releasing_agent';
+  }
+
   let formattedAgent = '';
 
   if (agent.first_name) {
@@ -236,7 +243,10 @@ export const formatMoveHistoryAgent = (agent) => {
 
   formattedAgent = formattedAgent.trim();
 
-  return formattedAgent;
+  const formattedAgentValues = {};
+  formattedAgentValues[agentLabel] = formattedAgent;
+
+  return formattedAgentValues;
 };
 
 export const dropdownInputOptions = (options) => {
@@ -266,6 +276,13 @@ export function formatCustomerSupportRemarksDate(date) {
 export function formatSignatureDate(date) {
   return moment(date).format('YYYY-MM-DD');
 }
+
+// Translate boolean (true/false) into capitalized "Yes"/"No" string
+export const formatYesNoMoveHistoryValue = (value) => {
+  if (value === true) return 'Yes';
+  if (value === false) return 'No';
+  return null;
+};
 
 // Translate boolean (true/false) into "yes"/"no" string
 export const formatYesNoInputValue = (value) => {

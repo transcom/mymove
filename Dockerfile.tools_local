@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM milmove/circleci-docker:milmove-app-8c7fe3e662d4eb84cae022c7eb00a5afc952e8f5 as builder
+FROM milmove/circleci-docker:milmove-app-94a41a022a48dab1c05b932734b472922260f3c0 as builder
 
 ENV CIRCLECI=true
 
@@ -10,7 +10,6 @@ COPY --chown=circleci:circleci . /home/circleci/project
 WORKDIR /home/circleci/project
 
 RUN make clean
-RUN rm -f pkg/assets/assets.go && make pkg/assets/assets.go
 RUN make server_generate
 RUN rm -f bin/generate-test-data && make bin/generate-test-data
 RUN rm -f bin/prime-api-client && make bin/prime-api-client
@@ -19,7 +18,7 @@ RUN rm -f bin/prime-api-client && make bin/prime-api-client
 # FINAL #
 #########
 
-FROM alpine:3.16.2
+FROM alpine:3.17.0
 
 # hadolint ignore=DL3017
 RUN apk upgrade --no-cache busybox

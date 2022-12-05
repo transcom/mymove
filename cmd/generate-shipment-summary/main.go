@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,6 +16,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
@@ -112,8 +114,6 @@ func main() {
 	// DB connection
 	dbConnection, err := cli.InitDatabase(v, nil, logger)
 	if err != nil {
-		// No connection object means that the configuraton failed to validate and we should not startup
-		// A valid connection object that still has an error indicates that the DB is not up and we should not startup
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
@@ -121,7 +121,7 @@ func main() {
 
 	moveID := v.GetString(moveIDFlag)
 	if moveID == "" {
-		log.Fatal("Usage: generate_shipment_summary -move <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
+		log.Fatalf("Usage: %s --move <29cb984e-c70d-46f0-926d-cd89e07a6ec3>", os.Args[0])
 	}
 
 	// Define the data here that you want to populate the form with. Data will only be populated
@@ -164,44 +164,29 @@ func main() {
 
 	// page 1
 	page1Layout := paperwork.ShipmentSummaryPage1Layout
-	page1Template, err := os.Open(page1Layout.TemplateImagePath)
+	page1Template, err := assets.Asset(page1Layout.TemplateImagePath)
 	noErr(err)
 
-	defer func() {
-		if closeErr := page1Template.Close(); closeErr != nil {
-			logger.Error("Could not close page1Template file", zap.Error(closeErr))
-		}
-	}()
-
-	err = formFiller.AppendPage(page1Template, page1Layout.FieldsLayout, page1Data)
+	page1Reader := bytes.NewReader(page1Template)
+	err = formFiller.AppendPage(page1Reader, page1Layout.FieldsLayout, page1Data)
 	noErr(err)
 
 	// page 2
 	page2Layout := paperwork.ShipmentSummaryPage2Layout
-	page2Template, err := os.Open(page2Layout.TemplateImagePath)
+	page2Template, err := assets.Asset(page2Layout.TemplateImagePath)
 	noErr(err)
 
-	defer func() {
-		if closeErr := page2Template.Close(); closeErr != nil {
-			logger.Error("Could not close page2Template file", zap.Error(closeErr))
-		}
-	}()
-
-	err = formFiller.AppendPage(page2Template, page2Layout.FieldsLayout, page2Data)
+	page2Reader := bytes.NewReader(page2Template)
+	err = formFiller.AppendPage(page2Reader, page2Layout.FieldsLayout, page2Data)
 	noErr(err)
 
 	// page 3
 	page3Layout := paperwork.ShipmentSummaryPage3Layout
-	page3Template, err := os.Open(page3Layout.TemplateImagePath)
+	page3Template, err := assets.Asset(page3Layout.TemplateImagePath)
 	noErr(err)
 
-	defer func() {
-		if closeErr := page3Template.Close(); closeErr != nil {
-			logger.Error("Could not close page3Template file", zap.Error(closeErr))
-		}
-	}()
-
-	err = formFiller.AppendPage(page3Template, page3Layout.FieldsLayout, page3Data)
+	page3Reader := bytes.NewReader(page3Template)
+	err = formFiller.AppendPage(page3Reader, page3Layout.FieldsLayout, page3Data)
 	noErr(err)
 
 	filename := fmt.Sprintf("shipment-summary-worksheet-%s.pdf", time.Now().Format(time.RFC3339))

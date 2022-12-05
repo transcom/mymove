@@ -119,7 +119,7 @@ function getShipmentOptions(shipmentType, userRole) {
       }
 
     default:
-      throw new Error('unrecognized move type');
+      throw new Error('unrecognized shipment type');
   }
 }
 

@@ -25,7 +25,7 @@ func NewUpdateMTOReviewedBillableWeightsAtParams() UpdateMTOReviewedBillableWeig
 // UpdateMTOReviewedBillableWeightsAtParams contains all the bound params for the update m t o reviewed billable weights at operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters UpdateMTOReviewedBillableWeightsAt
+// swagger:parameters updateMTOReviewedBillableWeightsAt
 type UpdateMTOReviewedBillableWeightsAtParams struct {
 
 	// HTTP Request Object

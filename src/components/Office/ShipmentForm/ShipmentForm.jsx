@@ -55,7 +55,7 @@ const ShipmentForm = (props) => {
     history,
     originDutyLocationAddress,
     newDutyLocationAddress,
-    selectedMoveType,
+    shipmentType,
     isCreatePage,
     isForServicesCounseling,
     mtoShipment,
@@ -112,8 +112,6 @@ const ShipmentForm = (props) => {
   const handleShowCancellationModal = () => {
     setIsCancelModalVisible(true);
   };
-
-  const shipmentType = mtoShipment.shipmentType || selectedMoveType;
 
   const isHHG = shipmentType === SHIPMENT_OPTIONS.HHG;
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
@@ -216,7 +214,6 @@ const ShipmentForm = (props) => {
     }
 
     const {
-      shipmentOption,
       pickup,
       hasDeliveryAddress,
       delivery,
@@ -244,7 +241,7 @@ const ShipmentForm = (props) => {
     }
 
     const pendingMtoShipment = formatMtoShipmentForAPI({
-      shipmentType: shipmentOption || selectedMoveType,
+      shipmentType,
       moveCode,
       customerRemarks,
       counselorRemarks,
@@ -639,7 +636,7 @@ ShipmentForm.propTypes = {
   currentResidence: AddressShape.isRequired,
   originDutyLocationAddress: SimpleAddressShape,
   newDutyLocationAddress: SimpleAddressShape,
-  selectedMoveType: string.isRequired,
+  shipmentType: string.isRequired,
   mtoShipment: ShipmentShape,
   moveTaskOrderID: string.isRequired,
   mtoShipments: arrayOf(ShipmentShape).isRequired,

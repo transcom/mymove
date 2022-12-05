@@ -140,7 +140,7 @@ describe('ServicesCounselingQueue', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
     useServicesCounselingQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
     const wrapper = mount(
-      <MockProviders initialEntries={['counseling/queue']}>
+      <MockProviders initialEntries={['/counseling/queue']}>
         <ServicesCounselingQueue />
       </MockProviders>,
     );
@@ -162,7 +162,7 @@ describe('ServicesCounselingQueue', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
     useServicesCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
     const wrapper = mount(
-      <MockProviders initialEntries={['counseling/queue']}>
+      <MockProviders initialEntries={['/counseling/queue']}>
         <ServicesCounselingQueue />
       </MockProviders>,
     );
@@ -247,7 +247,7 @@ describe('ServicesCounselingQueue', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
     useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
     const wrapper = mount(
-      <MockProviders initialEntries={['counseling/queue']}>
+      <MockProviders initialEntries={['/counseling/queue']}>
         <ServicesCounselingQueue />
       </MockProviders>,
     );

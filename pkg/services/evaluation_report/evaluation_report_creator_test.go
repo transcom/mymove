@@ -29,7 +29,6 @@ func (suite *EvaluationReportSuite) TestEvaluationReportCreator() {
 		suite.NotNil(createdEvaluationReport.ShipmentID)
 		suite.NotNil(createdEvaluationReport.CreatedAt)
 		suite.NotNil(createdEvaluationReport.UpdatedAt)
-		suite.Nil(createdEvaluationReport.DeletedAt)
 		suite.Nil(createdEvaluationReport.SubmittedAt)
 	})
 

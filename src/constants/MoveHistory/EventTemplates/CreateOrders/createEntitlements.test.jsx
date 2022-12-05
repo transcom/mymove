@@ -1,15 +1,13 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import o from 'constants/MoveHistory/UIDisplay/Operations';
-import t from 'constants/MoveHistory/Database/Tables';
 import e from 'constants/MoveHistory/EventTemplates/CreateOrders/createEntitlements';
 
 describe('When given a created orders event for the entitlements table', () => {
   const item = {
     action: 'INSERT',
-    eventName: o.createOrders,
-    tableName: t.entitlements,
+    eventName: 'createOrders',
+    tableName: 'entitlements',
     eventNameDisplay: 'Created allowances',
     changedValues: {
       authorized_weight: 8000,
@@ -23,7 +21,7 @@ describe('When given a created orders event for the entitlements table', () => {
   });
   describe('When given a specific set of details', () => {
     it.each([
-      ['Authorized weight', ': 8000 lbs'],
+      ['Authorized weight', ': 8,000 lbs'],
       ['Storage in transit (SIT)', ': 90 days'],
       ['Dependents', ': Yes'],
     ])('displays the proper details value for %s', async (label, value) => {

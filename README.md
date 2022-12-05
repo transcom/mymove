@@ -1,6 +1,6 @@
 # Personal Property Prototype
 
-[![CircleCI](https://circleci.com/gh/transcom/mymove/tree/master.svg?style=shield&circle-token=8782cc55afd824ba48e89fc4e49b466c5e2ce7b1)](https://circleci.com/gh/transcom/mymove/tree/master)
+[![CircleCI](https://circleci.com/gh/transcom/mymove/tree/main.svg?style=shield&circle-token=8782cc55afd824ba48e89fc4e49b466c5e2ce7b1)](https://circleci.com/gh/transcom/mymove/tree/main)
 
 [![GoDoc](https://godoc.org/github.com/transcom/mymove?status.svg)](https://godoc.org/github.com/transcom/mymove)
 
@@ -37,6 +37,7 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
     * [Nix: Initial Setup](#nix-initial-setup)
     * [Nix: Clean Up Local Env](#nix-clean-up-local-env)
     * [Nix: Installing Dependencies](#nix-installing-dependencies)
+    * [Nix: Add Or Update Packages](#nix-add-or-update-packages)
   * [Setup: Manual](#setup-manual)
     * [Manual: Prerequisites](#manual-prerequisites)
   * [Setup: Shared](#setup-shared)
@@ -224,7 +225,7 @@ You will then find the code at `~/Projects/mymove`.
 #### Setup: Editor Config
 
 [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes) with a
-[file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your
+[file](https://github.com/transcom/ppp/blob/main/.editorconfig) in the repo. Install the appropriate plugin in your
 editor to take advantage of that if you wish.
 
 ### Setup: Nix
@@ -235,6 +236,7 @@ If you need help with this setup, you can ask for help in the
 1. [Initial Setup](#nix-initial-setup)
 1. [Clean Up Local Env](#nix-clean-up-local-env)
 1. [Install Dependencies](#nix-installing-dependencies)
+1. [Add or Update Packages](#nix-add-or-update-packages)
 1. [Run the app](#setup-run-the-app)
 
 #### Nix: Initial Setup
@@ -300,6 +302,21 @@ other steps necessary which aren't documented here.
 
    1. This will install some things like `pre-commit` hooks, `node_modules`, etc. You can see
       [Setup: Dependencies](#setup-dependencies) for more info on some of the parts.
+
+#### Nix: Add Or Update Packages
+
+First, you need to find the package you are looking for.
+
+Visit [nix-package-search](https://ahobson.github.io/nix-package-search/#/search)
+
+Search for a package, e.g. `go-`. The first time you search, it may be
+slow and take almost a minute to get results, but it will be faster
+after that.
+
+When you see the version of the package you want, click on the eye
+icon to unfold the settings.
+
+Add or update the package to `nix/default.nix`
 
 ### Setup: Manual
 
@@ -720,7 +737,7 @@ This background job is built as a separate binary which can be built using `make
 When creating new features, it is helpful to have sample data for the feature to interact with. The TSP Award Queue is an example of that--it matches shipments to TSPs, and it's hard to tell if it's working without some shipments and TSPs in the database!
 
 * `make bin/generate-test-data` will build the fake data generator binary
-* `bin/generate-test-data --named-scenario="dev_seed"` will populate the development database with a handful of users in various stages of progress along the flow. The emails are named accordingly (see [`devseed.go`](https://github.com/transcom/mymove/blob/master/pkg/testdatagen/scenario/devseed.go)). Alternatively, run `make db_dev_e2e_populate` to reset your db and populate it.
+* `bin/generate-test-data --named-scenario="dev_seed"` will populate the development database with a handful of users in various stages of progress along the flow. The emails are named accordingly (see [`devseed.go`](https://github.com/transcom/mymove/blob/main/pkg/testdatagen/scenario/devseed.go)). Alternatively, run `make db_dev_e2e_populate` to reset your db and populate it.
 * `bin/generate-test-data` will run binary and create a preconfigured set of test data. To determine the data scenario you'd like to use, check out scenarios in the `testdatagen` package. Each scenario contains a description of what data will be created when the scenario is run. Pass the scenario in as a flag to the generate-test-data function. A sample command: `./bin/generate-test-data --scenario=2`.
 
 There is also a package (`/pkg/testdatagen`) that can be imported to create arbitrary test data. This could be used in tests, so as not to duplicate functionality.
@@ -941,7 +958,7 @@ To get Goland to play nicely with `nix`, there's a few things you can set up:
 
 * Update `GOROOT` to `/nix/var/nix/profiles/mymove/bin/go`
   * Note that once you add it, Goland will resolve it to the actual path (the one above is a link), so it’ll look
-    something like `/nix/store/rv16prybnsmav8w1sqdgr80jcwsja98q-go-1.19.2/bin/go`
+    something like `/nix/store/rv16prybnsmav8w1sqdgr80jcwsja98q-go-1.19.3/bin/go`
 * Update `GOPATH` to point to the `.gopath` dir in the `mymove` repo
   * You may need to create the `.gopath` dir yourself.
 * Update Node and NPM:
@@ -956,7 +973,7 @@ To get Goland to play nicely with `nix`, there's a few things you can set up:
 We use [Storybook](https://storybook.js.org) for reviewing our
 component library. The current components are deployed to
 [https://storybook.dp3.us](https://storybook.dp3.us) after each build
-of the master branch.
+of the main branch.
 
 Each PR saves storybook as an artifact in CircleCI. Find the
 `build_storybook` task and then go to the "ARTIFACTS" tab. Find the

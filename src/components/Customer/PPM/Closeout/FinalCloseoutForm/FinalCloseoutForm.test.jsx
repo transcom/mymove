@@ -16,18 +16,7 @@ beforeEach(() => {
 const defaultProps = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
-};
-
-const testProps = {
-  initialValues: {
-    w2_address: {
-      streetAddress1: '',
-      streetAddress2: '',
-      city: '',
-      state: '',
-      postalCode: '',
-    },
-  },
+  initialValues: { date: '2022-11-01', signature: '' },
 };
 
 describe('FinalCloseoutForm component', () => {
@@ -38,10 +27,7 @@ describe('FinalCloseoutForm component', () => {
 
     const weightTicket = createCompleteWeightTicket({ serviceMemberId }, { emptyWeight: 14000, fullWeight: 18000 });
     const movingExpense = createCompleteMovingExpense({ serviceMemberId }, { amount: 30000 });
-    const proGearWeightTicket = createCompleteProGearWeightTicket(
-      { serviceMemberId },
-      { emptyWeight: 14000, fullWeight: 16000 },
-    );
+    const proGearWeightTicket = createCompleteProGearWeightTicket({ serviceMemberId }, { weight: 1500 });
 
     const mtoShipment = createPPMShipmentWithFinalIncentive({
       ppmShipment: {
@@ -64,7 +50,7 @@ describe('FinalCloseoutForm component', () => {
     const findListItemWithText = prepListSearchForItem(screen.getAllByRole('listitem'));
 
     expect(findListItemWithText('4,000 lbs total net weight')).toBeInTheDocument();
-    expect(findListItemWithText('2,000 lbs of pro-gear')).toBeInTheDocument();
+    expect(findListItemWithText('1,500 lbs of pro-gear')).toBeInTheDocument();
     expect(findListItemWithText('$300.00 in expenses claimed')).toBeInTheDocument();
 
     expect(
@@ -86,10 +72,9 @@ describe('FinalCloseoutForm component', () => {
       createCompleteMovingExpense({ serviceMemberId }, fieldOverrides),
     );
 
-    const proGearWeightTickets = [
-      { emptyWeight: 15000, fullWeight: 15500 },
-      { emptyWeight: 15000, fullWeight: 16000 },
-    ].map((fieldOverrides) => createCompleteProGearWeightTicket({ serviceMemberId }, fieldOverrides));
+    const proGearWeightTickets = [{ weight: 750 }, { weight: 750 }].map((fieldOverrides) =>
+      createCompleteProGearWeightTicket({ serviceMemberId }, fieldOverrides),
+    );
 
     const mtoShipment = createPPMShipmentWithFinalIncentive({
       ppmShipment: {
@@ -118,56 +103,53 @@ describe('FinalCloseoutForm component', () => {
     expect(defaultProps.onBack).toHaveBeenCalled();
   });
 
-  it('"Submit PPM Documentation" is disabled when form data has not been filled out', async () => {
+  it('calls onBack func when "Return To Homepage" button is clicked', async () => {
     const mtoShipment = createPPMShipmentWithFinalIncentive();
 
     render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
-    await userEvent.tab();
-    await userEvent.tab();
-    await userEvent.tab();
-    await userEvent.tab();
-    await userEvent.tab();
-    await userEvent.tab();
 
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Submit PPM Documentation' })).toBeDisabled();
-    });
+    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+
+    expect(defaultProps.onBack).toHaveBeenCalled();
   });
 
-  it('renders the W2 Address form inputs', async () => {
+  it('validates the form after user input', async () => {
     const mtoShipment = createPPMShipmentWithFinalIncentive();
-    const { getByLabelText } = render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} {...testProps} />);
+    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
 
-    await waitFor(() => {
-      expect(getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
+    // Save should be visibly enabled when form is clean, but validate on submit attempt
+    const saveButton = screen.getByRole('button', { name: 'Submit PPM Documentation' });
+    expect(saveButton).toBeEnabled();
+    await userEvent.click(saveButton);
 
-      expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
+    // Save should be disabled after invalid input
+    expect(await screen.findByText('Required')).toBeInTheDocument();
+    expect(saveButton).toBeDisabled();
 
-      expect(getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
-
-      expect(getByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
-
-      expect(getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
-    });
+    // Save should be re-enabbled after valid input
+    const signatureField = screen.getByRole('textbox', { name: 'Signature' });
+    await userEvent.type(signatureField, 'Grace Griffin');
+    await waitFor(() => expect(saveButton).toBeEnabled());
+    expect(screen.queryByText('Required')).not.toBeInTheDocument();
   });
 
-  it('shows an error message if trying to submit an invalid form', async () => {
+  it('calls onSubmit func when "Submit PPM Documentation" button is clicked', async () => {
     const mtoShipment = createPPMShipmentWithFinalIncentive();
-    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} {...testProps} />);
-    const submitBtn = screen.getByRole('button', { name: 'Submit PPM Documentation' });
+    const modifiedProps = {
+      ...defaultProps,
+      initialValues: {
+        ...defaultProps.initialValues,
+        signature: 'Grace Griffin',
+      },
+    };
 
-    userEvent.click(submitBtn);
+    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...modifiedProps} />);
 
-    const alerts = await screen.findAllByRole('alert');
+    const signatureField = screen.getByRole('textbox', { name: 'Signature' });
+    await waitFor(() => expect(signatureField).toHaveValue('Grace Griffin'));
 
-    expect(alerts.length).toBe(4);
-
-    alerts.forEach((alert) => {
-      expect(alert).toHaveTextContent('Required');
-    });
-
-    await waitFor(() => {
-      expect(defaultProps.onSubmit).not.toHaveBeenCalled();
-    });
+    const saveButton = screen.getByRole('button', { name: 'Submit PPM Documentation' });
+    await userEvent.click(saveButton);
+    await waitFor(() => expect(modifiedProps.onSubmit).toHaveBeenCalled());
   });
 });

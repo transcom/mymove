@@ -99,6 +99,7 @@ These scripts are primarily used for CircleCI workflows.
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `check-deployed-commit`            | checks that the deployed commit and given commit match.                                                 |
 | `check-generated-code`             | checks that the generated code has not changed                                                          |
+| `check-tls-pair`                   | checks that the TLS CERT and KEY match using openssl                                                    |
 | `circleci-announce-broken-branch`  | announce that a branch is broken                                                                        |
 | `compare-deployed-commit`          | checks that the given commit is ahead of the currently deployed commit                                  |
 | `do-exclusively`                   | CircleCI's current recommendation for roughly serializing a subset of build commands for a given branch |
@@ -139,7 +140,6 @@ This subset of development scripts is used primarily for building the app.
 | Script Name       | Description                                                       |
 | ----------------- | ----------------------------------------------------------------- |
 | `copy-swagger-ui` | Copies the assets (other than xxx.html) into the public directory |
-| `gen-assets`      | generate assets from packages using go-bindata                    |
 | `gen-server`      | generate swagger code from yaml files                             |
 | `openapi`         | invokes the openapi redoc swagger tool                            |
 

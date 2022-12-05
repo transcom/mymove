@@ -23,7 +23,7 @@ describe('when getting the routes for the current workflow', () => {
   describe('given a complete service member', () => {
     describe('given a PPM', () => {
       const props = {
-        selectedMoveType: SHIPMENT_OPTIONS.PPM,
+        move: { mtoShipments: [{ shipmentType: SHIPMENT_OPTIONS.PPM }] },
         context: ppmContext,
       };
       const pages = getPagesInFlow(props);
@@ -47,7 +47,11 @@ describe('when getting the routes for the current workflow', () => {
       });
     });
     describe('given a canceled PPM', () => {
-      const props = { lastMoveIsCanceled: true, selectedMoveType: SHIPMENT_OPTIONS.PPM, context: ppmContext };
+      const props = {
+        lastMoveIsCanceled: true,
+        move: { mtoShipments: [{ shipmentType: SHIPMENT_OPTIONS.PPM }] },
+        context: ppmContext,
+      };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns profile review, the order and move pages', () => {
         expect(pages).toEqual([
@@ -66,7 +70,6 @@ describe('when getting the routes for the current workflow', () => {
   describe('given an incomplete service member', () => {
     describe('given no move', () => {
       const props = {
-        selectedMoveType: null,
         context: ppmContext,
       };
       const pages = getPagesInFlow(props);
@@ -116,7 +119,7 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given a PPM', () => {
       const props = {
-        selectedMoveType: SHIPMENT_OPTIONS.PPM,
+        move: { mtoShipments: [{ shipmentType: SHIPMENT_OPTIONS.PPM }] },
         context: ppmContext,
       };
       const pages = getPagesInFlow(props);
@@ -257,7 +260,7 @@ describe('when getting the next incomplete page', () => {
     describe('when contact-info is complete', () => {
       it('returns the next page of the user profile', () => {
         const result = getNextIncompletePage({
-          selectedMoveType: SHIPMENT_OPTIONS.PPM,
+          move: { mtoShipments: [{ shipmentType: SHIPMENT_OPTIONS.PPM }] },
           serviceMember: {
             ...serviceMember,
             is_profile_complete: false,
@@ -481,7 +484,6 @@ describe('when getting the next incomplete page', () => {
     describe('when ppm date is complete', () => {
       it('returns the next page', () => {
         const result = getNextIncompletePage({
-          selectedMoveType: SHIPMENT_OPTIONS.PPM,
           serviceMember: {
             ...serviceMember,
             is_profile_complete: true,
@@ -497,7 +499,7 @@ describe('when getting the next incomplete page', () => {
           },
           move: {
             id: 'bar',
-            selected_move_type: SHIPMENT_OPTIONS.PPM,
+            mtoShipments: [{ shipmentType: SHIPMENT_OPTIONS.PPM }],
           },
           ppm: {
             id: 'baz',
@@ -513,7 +515,6 @@ describe('when getting the next incomplete page', () => {
     describe('when ppm incentive is complete', () => {
       it('returns the next page', () => {
         const result = getNextIncompletePage({
-          selectedMoveType: SHIPMENT_OPTIONS.PPM,
           serviceMember: {
             ...serviceMember,
             is_profile_complete: true,
@@ -529,7 +530,7 @@ describe('when getting the next incomplete page', () => {
           },
           move: {
             id: 'bar',
-            selected_move_type: SHIPMENT_OPTIONS.PPM,
+            mtoShipments: [{ shipmentType: SHIPMENT_OPTIONS.PPM }],
           },
           ppm: {
             id: 'baz',

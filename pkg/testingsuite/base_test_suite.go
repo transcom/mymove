@@ -19,6 +19,19 @@ func (suite *BaseTestSuite) FatalNil(object interface{}, messages ...string) {
 		if len(messages) > 0 {
 			t.Fatal(strings.Join(messages, ","))
 		} else {
+			t.Fatal("expected a nil value")
+		}
+	}
+}
+
+// FatalNotNil ends a test if an object is nil
+func (suite *BaseTestSuite) FatalNotNil(object interface{}, messages ...string) {
+	t := suite.T()
+	t.Helper()
+	if !suite.NotNil(object) {
+		if len(messages) > 0 {
+			t.Fatal(strings.Join(messages, ","))
+		} else {
 			t.Fatal("expected a not-nil value")
 		}
 	}

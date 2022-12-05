@@ -56,11 +56,6 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	api.BinProducer = runtime.ByteStreamProducer()
 	api.JSONProducer = runtime.JSONProducer()
 
-	if api.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler == nil {
-		api.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler = move_task_order.UpdateMTOReviewedBillableWeightsAtHandlerFunc(func(params move_task_order.UpdateMTOReviewedBillableWeightsAtParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.UpdateMTOReviewedBillableWeightsAt has not yet been implemented")
-		})
-	}
 	if api.OrderAcknowledgeExcessWeightRiskHandler == nil {
 		api.OrderAcknowledgeExcessWeightRiskHandler = order.AcknowledgeExcessWeightRiskHandlerFunc(func(params order.AcknowledgeExcessWeightRiskParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
@@ -326,6 +321,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation customer_support_remarks.UpdateCustomerSupportRemarkForMove has not yet been implemented")
 		})
 	}
+	if api.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler == nil {
+		api.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler = move_task_order.UpdateMTOReviewedBillableWeightsAtHandlerFunc(func(params move_task_order.UpdateMTOReviewedBillableWeightsAtParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.UpdateMTOReviewedBillableWeightsAt has not yet been implemented")
+		})
+	}
 	if api.MtoServiceItemUpdateMTOServiceItemHandler == nil {
 		api.MtoServiceItemUpdateMTOServiceItemHandler = mto_service_item.UpdateMTOServiceItemHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItem has not yet been implemented")
@@ -354,11 +354,6 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.MoveTaskOrderUpdateMoveTIORemarksHandler == nil {
 		api.MoveTaskOrderUpdateMoveTIORemarksHandler = move_task_order.UpdateMoveTIORemarksHandlerFunc(func(params move_task_order.UpdateMoveTIORemarksParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMoveTIORemarks has not yet been implemented")
-		})
-	}
-	if api.MoveTaskOrderUpdateMoveTaskOrderHandler == nil {
-		api.MoveTaskOrderUpdateMoveTaskOrderHandler = move_task_order.UpdateMoveTaskOrderHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrder has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderUpdateMoveTaskOrderStatusHandler == nil {

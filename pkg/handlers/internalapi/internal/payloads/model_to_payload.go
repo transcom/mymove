@@ -108,7 +108,8 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
 		WeightTickets:                  WeightTickets(storer, ppmShipment.WeightTickets),
 		MovingExpenses:                 MovingExpenses(storer, ppmShipment.MovingExpenses),
-		ProGearWeightTickets:           ProGearWeightTickets(ppmShipment.ProgearExpenses),
+		ProGearWeightTickets:           ProGearWeightTickets(storer, ppmShipment.ProgearExpenses),
+		SignedCertification:            SignedCertification(ppmShipment.SignedCertification),
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
@@ -403,8 +404,77 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 }
 
 // ProGearWeightTickets sets up a ProGearWeightTicket slice for the api using model data.
-func ProGearWeightTickets(proGearWeightTickets models.ProgearWeightTickets) []*internalmessages.ProGearWeightTicket {
+func ProGearWeightTickets(storer storage.FileStorer, proGearWeightTickets models.ProgearWeightTickets) []*internalmessages.ProGearWeightTicket {
 	payload := make([]*internalmessages.ProGearWeightTicket, len(proGearWeightTickets))
-	// TODO: MB-14168 will fill this in. Needed to at least have this for MB-13773, but the goal wasn't to get this working fully until MB-14168 and related tickets are done.
+	for i, proGearWeightTicket := range proGearWeightTickets {
+		copyOfProGearWeightTicket := proGearWeightTicket
+		proGearWeightTicketPayload := ProGearWeightTicket(storer, &copyOfProGearWeightTicket)
+		payload[i] = proGearWeightTicketPayload
+	}
 	return payload
+}
+
+// ProGearWeightTicket payload
+func ProGearWeightTicket(storer storage.FileStorer, progear *models.ProgearWeightTicket) *internalmessages.ProGearWeightTicket {
+	ppmShipmentID := strfmt.UUID(progear.PPMShipmentID.String())
+
+	document, err := PayloadForDocumentModel(storer, progear.Document)
+	if err != nil {
+		return nil
+	}
+
+	payload := &internalmessages.ProGearWeightTicket{
+		ID:               strfmt.UUID(progear.ID.String()),
+		PpmShipmentID:    ppmShipmentID,
+		CreatedAt:        *handlers.FmtDateTime(progear.CreatedAt),
+		UpdatedAt:        *handlers.FmtDateTime(progear.UpdatedAt),
+		DocumentID:       *handlers.FmtUUID(progear.DocumentID),
+		Document:         document,
+		Weight:           handlers.FmtPoundPtr(progear.Weight),
+		BelongsToSelf:    progear.BelongsToSelf,
+		HasWeightTickets: progear.HasWeightTickets,
+		Description:      progear.Description,
+		ETag:             etag.GenerateEtag(progear.UpdatedAt),
+	}
+
+	if progear.Status != nil {
+		status := internalmessages.OmittablePPMDocumentStatus(*progear.Status)
+		payload.Status = &status
+	}
+
+	if progear.Reason != nil {
+		reason := internalmessages.PPMDocumentStatusReason(*progear.Reason)
+		payload.Reason = &reason
+	}
+
+	return payload
+}
+
+// SignedCertification converts a model to the api payload type
+func SignedCertification(signedCertification *models.SignedCertification) *internalmessages.SignedCertification {
+	if signedCertification == nil {
+		return nil
+	}
+
+	model := &internalmessages.SignedCertification{
+		ID:                handlers.FmtUUIDValue(signedCertification.ID),
+		SubmittingUserID:  handlers.FmtUUIDValue(signedCertification.SubmittingUserID),
+		MoveID:            handlers.FmtUUIDValue(signedCertification.MoveID),
+		PpmID:             handlers.FmtUUIDPtr(signedCertification.PpmID),
+		CertificationText: &signedCertification.CertificationText,
+		Signature:         &signedCertification.Signature,
+		Date:              handlers.FmtDate(signedCertification.Date),
+		CreatedAt:         strfmt.DateTime(signedCertification.CreatedAt),
+		UpdatedAt:         strfmt.DateTime(signedCertification.UpdatedAt),
+		ETag:              etag.GenerateEtag(signedCertification.UpdatedAt),
+	}
+
+	// CertificationType is required from the api perspective, but at the model and DB level, it's nullable. In
+	// practice, it shouldn't ever actually be null though, so we should always be matching the API spec, but
+	// regardless, we need to do this nil check. It would be good to go back and make it required in the model/table.
+	if signedCertification.CertificationType != nil {
+		model.CertificationType = internalmessages.SignedCertificationType(*signedCertification.CertificationType)
+	}
+
+	return model
 }

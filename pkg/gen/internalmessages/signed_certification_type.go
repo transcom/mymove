@@ -14,7 +14,11 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// SignedCertificationType signed certification type
+// SignedCertificationType The type of signed certification:
+//   - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are
+//     ready to submit their documentation for review. When they submit, they will be asked to sign certifying the
+//     information is correct.
+//   - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.
 //
 // swagger:model SignedCertificationType
 type SignedCertificationType string
@@ -35,12 +39,6 @@ const (
 
 	// SignedCertificationTypeSHIPMENT captures enum value "SHIPMENT"
 	SignedCertificationTypeSHIPMENT SignedCertificationType = "SHIPMENT"
-
-	// SignedCertificationTypePPM captures enum value "PPM"
-	SignedCertificationTypePPM SignedCertificationType = "PPM"
-
-	// SignedCertificationTypeHHG captures enum value "HHG"
-	SignedCertificationTypeHHG SignedCertificationType = "HHG"
 )
 
 // for schema
@@ -48,7 +46,7 @@ var signedCertificationTypeEnum []interface{}
 
 func init() {
 	var res []SignedCertificationType
-	if err := json.Unmarshal([]byte(`["PPM_PAYMENT","SHIPMENT","PPM","HHG"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PPM_PAYMENT","SHIPMENT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -78,7 +76,16 @@ func (m SignedCertificationType) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this signed certification type based on context it is used
+// ContextValidate validate this signed certification type based on the context it is used
 func (m SignedCertificationType) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := validate.ReadOnly(ctx, "", "body", SignedCertificationType(m)); err != nil {
+		return err
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }

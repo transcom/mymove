@@ -15,9 +15,9 @@ import (
 )
 
 func payloadForSignedCertificationModel(cert models.SignedCertification) *internalmessages.SignedCertificationPayload {
-	var ptrCertificationType *internalmessages.SignedCertificationType
+	var ptrCertificationType *internalmessages.NullableSignedCertificationType
 	if cert.CertificationType != nil {
-		certificationType := internalmessages.SignedCertificationType(*cert.CertificationType)
+		certificationType := internalmessages.NullableSignedCertificationType(*cert.CertificationType)
 		ptrCertificationType = &certificationType
 	}
 

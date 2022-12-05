@@ -138,11 +138,19 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
 	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(appCtx.Logger())
 	clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
+	addAuditUserToRequestContextMiddleware := authentication.AddAuditUserToRequestContextMiddleware(appCtx)
 
 	// Serves files out of build folder
+	cfs := handlers.NewCustomFileSystem(
+		http.Dir(routingConfig.BuildRoot),
+		"index.html",
+		appCtx.Logger(),
+	)
+
 	clientHandler := handlers.NewSpaHandler(
 		routingConfig.BuildRoot,
 		"index.html",
+		cfs,
 	)
 
 	// Stub health check
@@ -297,6 +305,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		// Mux for internal API that enforces auth
 		internalAPIMux := internalMux.PathPrefix("/").Subrouter()
 		internalAPIMux.Use(userAuthMiddleware)
+		internalAPIMux.Use(addAuditUserToRequestContextMiddleware)
 		internalAPIMux.Use(middleware.NoCache(appCtx.Logger()))
 		api := internalapi.NewInternalAPI(routingConfig.HandlerConfig)
 		tracingMiddleware := middleware.OpenAPITracing(api)
@@ -317,6 +326,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		// Mux for admin API that enforces auth
 		adminAPIMux := adminMux.PathPrefix("/").Subrouter()
 		adminAPIMux.Use(userAuthMiddleware)
+		adminAPIMux.Use(addAuditUserToRequestContextMiddleware)
 		adminAPIMux.Use(authentication.AdminAuthMiddleware(appCtx.Logger()))
 		adminAPIMux.Use(middleware.NoCache(appCtx.Logger()))
 		api := adminapi.NewAdminAPI(routingConfig.HandlerConfig)
@@ -339,6 +349,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		// Mux for prime simulator API that enforces auth
 		primeSimulatorAPIMux := primeSimulatorMux.PathPrefix("/").Subrouter()
 		primeSimulatorAPIMux.Use(userAuthMiddleware)
+		primeSimulatorAPIMux.Use(addAuditUserToRequestContextMiddleware)
 		primeSimulatorAPIMux.Use(authentication.PrimeSimulatorAuthorizationMiddleware(appCtx.Logger()))
 		primeSimulatorAPIMux.Use(middleware.NoCache(appCtx.Logger()))
 		api := primeapi.NewPrimeAPI(routingConfig.HandlerConfig)
@@ -359,6 +370,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		// Mux for GHC API that enforces auth
 		ghcAPIMux := ghcMux.PathPrefix("/").Subrouter()
 		ghcAPIMux.Use(userAuthMiddleware)
+		ghcAPIMux.Use(addAuditUserToRequestContextMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(appCtx.Logger()))
 		api := ghcapi.NewGhcAPIHandler(routingConfig.HandlerConfig)
 		permissionsMiddleware := authentication.PermissionsMiddleware(appCtx, api)

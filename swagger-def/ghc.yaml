@@ -592,45 +592,6 @@ paths:
       description: Gets a move
       operationId: getMoveTaskOrder
       summary: Gets a move by ID
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-      responses:
-        '200':
-          description: Successfully retrieved move task order
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '401':
-          $ref: '#/responses/PermissionDenied'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '412':
-          $ref: '#/responses/PreconditionFailed'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-      description: Updates a move by ID
-      operationId: updateMoveTaskOrder
-      summary: Updates a move by ID
   '/move_task_orders/{moveTaskOrderID}/mto_service_items':
     parameters:
       - description: ID of move for mto service item to use
@@ -1741,7 +1702,7 @@ paths:
       tags:
         - moveTaskOrder
       description: Changes move (move task order) billableWeightsReviewedAt field to a timestamp
-      operationId: UpdateMTOReviewedBillableWeightsAt
+      operationId: updateMTOReviewedBillableWeightsAt
   '/move-task-orders/{moveTaskOrderID}/tio-remarks':
     patch:
       consumes:
@@ -2071,8 +2032,8 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
     delete:
-      summary: Soft deletes an evaluation report by ID
-      description: Soft deletes an evaluation report by ID
+      summary: Deletes an evaluation report by ID
+      description: Deletes an evaluation report by ID
       operationId: deleteEvaluationReport
       x-permissions:
         - delete.evaluationReport
@@ -2082,7 +2043,7 @@ paths:
         - application/json
       responses:
         '204':
-          description: Successfully soft deleted the report
+          description: Successfully deleted the report
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':
@@ -2534,6 +2495,10 @@ paths:
             enum:
               - NEEDS SERVICE COUNSELING
               - SERVICE COUNSELING COMPLETED
+        - in: query
+          name: needsPPMCloseout
+          type: boolean
+          description: Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -2932,7 +2897,8 @@ definitions:
         example: David
         x-nullable: true
       current_address:
-        $ref: 'definitions/Address.yaml'
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       backup_contact:
         $ref: '#/definitions/BackupContact'
   Entitlements:
@@ -4153,16 +4119,8 @@ definitions:
       hasWeightTickets:
         description: Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.
         type: boolean
-      emptyWeight:
-        description: Weight of the vehicle not including the pro-gear.
-        type: integer
-        minimum: 0
-      fullWeight:
-        description: Weight of the vehicle including the pro-gear.
-        type: integer
-        minimum: 0
-      constructedWeight:
-        description: Constructed weight of the pro-gear.
+      weight:
+        description: Weight of the pro-gear contained in the shipment.
         type: integer
         minimum: 0
       status:
@@ -4698,10 +4656,6 @@ definitions:
         type: string
         format: date
         x-nullable: true
-      travelTimeMinutes:
-        type: integer
-        minimum: 0
-        x-nullable: true
       officeUser:
         $ref: '#/definitions/EvaluationReportOfficeUser'
       location:
@@ -4718,10 +4672,21 @@ definitions:
         type: string
         format: date
         x-nullable: true
-      evaluationLengthMinutes:
-        type: integer
-        minimum: 0
+      timeDepart:
+        type: string
         x-nullable: true
+        pattern: '^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$'
+        example: '14:30'
+      evalStart:
+        type: string
+        x-nullable: true
+        pattern: '^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$'
+        example: '15:00'
+      evalEnd:
+        type: string
+        x-nullable: true
+        pattern: '^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$'
+        example: '18:00'
       violationsObserved:
         type: boolean
         x-nullable: true

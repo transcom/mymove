@@ -109,6 +109,12 @@ jest.mock('hooks/queries', () => ({
               uses_external_vendor: '',
             },
             tableName: 'mto_shipments',
+            context: [
+              {
+                shipment_id_abbr: '2fa5c',
+                shipment_type: 'HHG',
+              },
+            ],
           },
         ],
       },

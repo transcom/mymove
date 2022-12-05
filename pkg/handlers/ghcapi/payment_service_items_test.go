@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	paymentServiceItemOp "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -29,7 +30,7 @@ func (suite *HandlerSuite) makeUpdatePaymentSubtestData() (subtestData *updatePa
 	mto := testdatagen.MakeDefaultMove(suite.DB())
 	paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
 	subtestData.paymentServiceItem = paymentServiceItem
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	requestUser := factory.BuildUser(nil, nil, nil)
 
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/payment-service-items/%s/status", mto.ID.String(), paymentServiceItem.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
@@ -152,7 +153,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		availablePaymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			Move: availableMTO,
 		})
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/payment-service-items/%s/status", availableMTO.ID.String(), availablePaymentServiceItem.ID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)

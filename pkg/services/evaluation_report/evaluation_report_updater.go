@@ -10,7 +10,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -26,7 +25,7 @@ func NewEvaluationReportUpdater() services.EvaluationReportUpdater {
 
 func (u evaluationReportUpdater) UpdateEvaluationReport(appCtx appcontext.AppContext, evaluationReport *models.EvaluationReport, officeUserID uuid.UUID, eTag string) error {
 	var originalReport models.EvaluationReport
-	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Find(&originalReport, evaluationReport.ID)
+	err := appCtx.DB().Find(&originalReport, evaluationReport.ID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -57,20 +56,20 @@ func (u evaluationReportUpdater) UpdateEvaluationReport(appCtx appcontext.AppCon
 		existingReportViolations := models.ReportViolations{}
 		err = appCtx.DB().Where("report_id = ?", evaluationReport.ID).All(&existingReportViolations)
 		if err != nil {
-			return err
+			return apperror.NewQueryError("EvaluationReport", err, "Unable to find existing report violations")
 		}
 		// Delete the existing reportViolations
 		if len(existingReportViolations) > 0 {
 			err = appCtx.DB().Destroy(existingReportViolations)
 			if err != nil {
-				return err
+				return apperror.NewQueryError("EvaluationReport", err, "failed to delete existing report violations")
 			}
 		}
 	}
 
 	verrs, err := appCtx.DB().ValidateAndSave(evaluationReport)
 	if err != nil {
-		return err
+		return apperror.NewQueryError("EvaluationReport", err, "failed to save the evaluation report")
 	}
 	if verrs.HasAny() {
 		return apperror.NewInvalidInputError(evaluationReport.ID, err, verrs, "")
@@ -82,7 +81,7 @@ func (u evaluationReportUpdater) UpdateEvaluationReport(appCtx appcontext.AppCon
 // sharing with others.
 func (u evaluationReportUpdater) SubmitEvaluationReport(appCtx appcontext.AppContext, evaluationReportID uuid.UUID, officeUserID uuid.UUID, eTag string) error {
 	var originalReport models.EvaluationReport
-	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Find(&originalReport, evaluationReportID)
+	err := appCtx.DB().Find(&originalReport, evaluationReportID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -138,28 +137,39 @@ func isValidForSubmission(evaluationReport models.EvaluationReport) error {
 			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without an Inspection Type.",
 				evaluationReport.ID))
 	}
-	// Travel time required when inspection type is physical
-	if *evaluationReport.InspectionType == models.EvaluationReportInspectionTypePhysical && evaluationReport.TravelTimeMinutes == nil {
+
+	// Physical evaluations must have time depart recorded
+	if *evaluationReport.InspectionType == models.EvaluationReportInspectionTypePhysical && evaluationReport.TimeDepart == nil {
 		return errors.Wrap(models.ErrInvalidTransition,
-			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without travel time if the location is physical.",
+			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without departure time if the location is physical.",
 				evaluationReport.ID))
 	}
+
+	// Required field evaluation start
+	if evaluationReport.EvalStart == nil {
+		return errors.Wrap(models.ErrInvalidTransition,
+			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without an evaluation start time.",
+				evaluationReport.ID))
+	}
+
+	// Required field evaluation end time
+	if evaluationReport.EvalEnd == nil {
+		return errors.Wrap(models.ErrInvalidTransition,
+			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without an evaluation end time.",
+				evaluationReport.ID))
+	}
+
 	// Required field location
 	if evaluationReport.Location == nil {
 		return errors.Wrap(models.ErrInvalidTransition,
 			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without a location.",
 				evaluationReport.ID))
 	}
+
 	// LocationDescription is required when Location is Other
 	if *evaluationReport.Location == models.EvaluationReportLocationTypeOther && evaluationReport.LocationDescription == nil {
 		return errors.Wrap(models.ErrInvalidTransition,
 			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without location description if the location is other.",
-				evaluationReport.ID))
-	}
-	// Required field EvaluationLengthMinutes
-	if evaluationReport.EvaluationLengthMinutes == nil {
-		return errors.Wrap(models.ErrInvalidTransition,
-			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without an evaluation length.",
 				evaluationReport.ID))
 	}
 	// Required field ViolationsObserved

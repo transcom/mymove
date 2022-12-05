@@ -8,13 +8,13 @@ describe('NotFound component', () => {
   const handleOnClick = jest.fn();
   it('Renders page not found', () => {
     render(<NotFound handleOnClick={handleOnClick} />);
-    expect(screen.getByText('Page not found')).toBeInTheDocument();
+    expect(screen.getByText('Error - 404')).toBeInTheDocument();
   });
 
   it('calls the handleOnClick when Go Back is clicked', async () => {
     render(<NotFound handleOnClick={handleOnClick} />);
 
-    const goBackButton = screen.getByRole('button', { name: 'Go Back' });
+    const goBackButton = screen.getByRole('button', { name: 'back home.' });
     await waitFor(() => {
       userEvent.click(goBackButton);
     });

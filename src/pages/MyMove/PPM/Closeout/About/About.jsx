@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
+import classnames from 'classnames';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
@@ -42,6 +43,7 @@ const About = () => {
         actualDestinationPostalCode: values.actualDestinationPostalCode,
         hasReceivedAdvance,
         advanceAmountReceived: hasReceivedAdvance ? values.advanceAmountReceived * 100 : null,
+        w2Address: values.w2Address,
       },
     };
 
@@ -74,8 +76,9 @@ const About = () => {
                 {errorMessage}
               </Alert>
             )}
-            <div className={closingPageStyles['closing-section']}>
+            <div className={classnames(closingPageStyles['closing-section'], closingPageStyles['about-ppm'])}>
               <p>Finish moving this PPM before you start documenting it.</p>
+              <h2>How to complete your PPM</h2>
               <p>To complete your PPM, you will:</p>
               <ul>
                 <li>Upload weight tickets for each trip</li>
@@ -84,6 +87,19 @@ const About = () => {
                 <li>Upload any other documentation (such as proof of ownership for a trailer, if you used your own)</li>
                 <li>Complete your PPM to send it to a counselor for review</li>
               </ul>
+              <h2>About your final payment</h2>
+              <p>Your final payment will be:</p>
+              <ul>
+                <li>based on your final incentive</li>
+                <li>modified by expenses submitted (authorized expenses reduce your tax burden)</li>
+                <li>minus any taxes withheld (the IRS considers your incentive to be taxable income)</li>
+                <li>plus any reimbursements you receive</li>
+              </ul>
+              <p>
+                Verified expenses reduce the taxable income you report to the IRS on form W-2. They may not be claimed
+                again as moving expenses. Federal tax withholding will be deducted from the profit (entitlement less
+                eligible operating expenses.)
+              </p>
             </div>
             <AboutForm
               mtoShipment={mtoShipment}

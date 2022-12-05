@@ -20,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -2108,7 +2109,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
+		shipmentRouter := mtoshipment.NewShipmentRouter()
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
@@ -2164,7 +2166,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
+		shipmentRouter := mtoshipment.NewShipmentRouter()
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
@@ -2199,7 +2202,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
+		shipmentRouter := mtoshipment.NewShipmentRouter()
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
@@ -2231,7 +2235,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
+		shipmentRouter := mtoshipment.NewShipmentRouter()
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
@@ -2257,7 +2262,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
+		shipmentRouter := mtoshipment.NewShipmentRouter()
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
@@ -2290,7 +2296,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveservices.NewMoveRouter())
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
+		shipmentRouter := mtoshipment.NewShipmentRouter()
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
@@ -2403,7 +2410,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveservices.NewMoveRouter())
 		ppmEstimator := mocks.PPMEstimator{}
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator))
+		shipmentRouter := mtoshipment.NewShipmentRouter()
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator), shipmentRouter)
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
@@ -2570,7 +2578,9 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mockSender := suite.TestNotificationSender()
 		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+		addressCreator := address.NewAddressCreator()
+		addressUpdater := address.NewAddressUpdater()
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -2626,7 +2636,10 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mockSender := suite.TestNotificationSender()
 		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+		addressCreator := address.NewAddressCreator()
+		addressUpdater := address.NewAddressUpdater()
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -2717,7 +2730,10 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mockSender := suite.TestNotificationSender()
 		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+		addressCreator := address.NewAddressCreator()
+		addressUpdater := address.NewAddressUpdater()
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -2744,7 +2760,10 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mockSender := suite.TestNotificationSender()
 		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+		addressCreator := address.NewAddressCreator()
+		addressUpdater := address.NewAddressUpdater()
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -2775,7 +2794,10 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mockSender := suite.TestNotificationSender()
 		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+		addressCreator := address.NewAddressCreator()
+		addressUpdater := address.NewAddressUpdater()
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -2805,7 +2827,10 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mockSender := suite.TestNotificationSender()
 		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+		addressCreator := address.NewAddressCreator()
+		addressUpdater := address.NewAddressUpdater()
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),

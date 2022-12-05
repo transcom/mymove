@@ -12,7 +12,7 @@ import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import scrollToTop from 'shared/scrollToTop';
 import { selectConusStatus } from 'store/onboarding/selectors';
-import { selectServiceMemberFromLoggedInUser, selectHasCanceledMove, selectMoveType } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectHasCanceledMove } from 'store/entities/selectors';
 
 class ProfileReview extends Component {
   componentDidMount() {
@@ -23,7 +23,6 @@ class ProfileReview extends Component {
   };
   getNextIncompletePage = () => {
     const {
-      selectedMoveType,
       conusStatus,
       lastMoveIsCanceled,
       serviceMember,
@@ -36,7 +35,6 @@ class ProfileReview extends Component {
       context,
     } = this.props;
     return getNextIncompletePageInternal({
-      selectedMoveType,
       conusStatus,
       lastMoveIsCanceled,
       serviceMember,
@@ -96,7 +94,6 @@ function mapStateToProps(state) {
   return {
     serviceMember,
     lastMoveIsCanceled: selectHasCanceledMove(state),
-    selectedMoveType: selectMoveType(state),
     conusStatus: selectConusStatus(state),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),

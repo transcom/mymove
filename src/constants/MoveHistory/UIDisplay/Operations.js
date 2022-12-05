@@ -9,6 +9,7 @@ export default {
   createOrders: 'createOrders', // internal.yaml
   createPaymentRequest: 'createPaymentRequest', // prime.yaml
   createUpload: 'createUpload',
+  deleteUpload: 'deleteUpload',
   deleteShipment: 'deleteShipment',
   requestShipmentCancellation: 'requestShipmentCancellation', // ghc.yaml
   requestShipmentDiversion: 'requestShipmentDiversion', // ghc.yaml
@@ -19,9 +20,10 @@ export default {
   updateAllowance: 'updateAllowance', // ghc.yaml
   updateBillableWeight: 'updateBillableWeight', // ghc.yaml
   updateBillableWeightAsTIO: 'updateMaxBillableWeightAsTIO',
+  updateCustomer: 'updateCustomer',
   updateMoveTaskOrder: 'updateMoveTaskOrder', // ghc.yaml
   updateMoveTaskOrderStatus: 'updateMoveTaskOrderStatus', // ghc.yaml
-  updateMTOReviewedBillableWeightsAt: 'UpdateMTOReviewedBillableWeightsAt',
+  updateMTOReviewedBillableWeightsAt: 'updateMTOReviewedBillableWeightsAt',
   updateMTOServiceItemStatus: 'updateMTOServiceItemStatus', // ghc.yaml
   updateMTOServiceItem: 'updateMTOServiceItem', // ghc.yaml
   updateMTOShipment: 'updateMTOShipment', // ghc.yaml internal.yaml prime.yaml
@@ -36,4 +38,6 @@ export default {
   uploadAmendedOrders: 'uploadAmendedOrders', // internal.yaml
   patchServiceMember: 'patchServiceMember', // internal.yaml
   createServiceMember: 'createServiceMember', // internal.yaml
+  createServiceMemberBackupContact: 'createServiceMemberBackupContact', // internal.yaml
+  updateServiceMemberBackupContact: 'updateServiceMemberBackupContact', // internal.yaml
 };

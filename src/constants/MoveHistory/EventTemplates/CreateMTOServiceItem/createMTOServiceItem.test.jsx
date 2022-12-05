@@ -1,14 +1,11 @@
 import { render, screen } from '@testing-library/react';
 
-import a from 'constants/MoveHistory/Database/Actions';
-import t from 'constants/MoveHistory/Database/Tables';
 import e from 'constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItem';
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import o from 'constants/MoveHistory/UIDisplay/Operations';
 
 describe('when given a Create basic service item history record', () => {
   const historyRecord = {
-    action: a.INSERT,
+    action: 'INSERT',
     changedValues: {
       reason: 'Test',
       status: 'SUBMITTED',
@@ -20,8 +17,8 @@ describe('when given a Create basic service item history record', () => {
         shipment_id_abbr: 'a1b2c',
       },
     ],
-    eventName: o.createMTOServiceItem,
-    tableName: t.mto_service_items,
+    eventName: 'createMTOServiceItem',
+    tableName: 'mto_service_items',
   };
 
   const template = getTemplate(historyRecord);
