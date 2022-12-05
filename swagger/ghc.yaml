@@ -1748,7 +1748,7 @@ paths:
       description: >-
         Changes move (move task order) billableWeightsReviewedAt field to a
         timestamp
-      operationId: UpdateMTOReviewedBillableWeightsAt
+      operationId: updateMTOReviewedBillableWeightsAt
   /move-task-orders/{moveTaskOrderID}/tio-remarks:
     patch:
       consumes:
@@ -4863,10 +4863,6 @@ definitions:
         type: string
         format: date
         x-nullable: true
-      travelTimeMinutes:
-        type: integer
-        minimum: 0
-        x-nullable: true
       officeUser:
         $ref: '#/definitions/EvaluationReportOfficeUser'
       location:
@@ -4883,10 +4879,21 @@ definitions:
         type: string
         format: date
         x-nullable: true
-      evaluationLengthMinutes:
-        type: integer
-        minimum: 0
+      timeDepart:
+        type: string
         x-nullable: true
+        pattern: ^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$
+        example: '14:30'
+      evalStart:
+        type: string
+        x-nullable: true
+        pattern: ^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$
+        example: '15:00'
+      evalEnd:
+        type: string
+        x-nullable: true
+        pattern: ^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$
+        example: '18:00'
       violationsObserved:
         type: boolean
         x-nullable: true
