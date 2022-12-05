@@ -55,19 +55,17 @@ func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShi
 		((newPPMShipment.EstimatedWeight == nil && oldPPMShipment.EstimatedWeight == nil) || (oldPPMShipment.EstimatedWeight != nil && newPPMShipment.EstimatedWeight.Int() == oldPPMShipment.EstimatedWeight.Int()))
 }
 
-func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
+func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment, totalWeight unit.Pound) bool {
 	if oldPPMShipment.ActualMoveDate == nil || newPPMShipment.ActualMoveDate == nil ||
 		oldPPMShipment.ActualPickupPostalCode == nil || newPPMShipment.ActualPickupPostalCode == nil ||
 		oldPPMShipment.ActualDestinationPostalCode == nil || newPPMShipment.ActualDestinationPostalCode == nil ||
-		oldPPMShipment.NetWeight == nil ||
-		*newPPMShipment.NetWeight <= 0 {
+		totalWeight <= 0 {
 		return true
 	}
 
 	return oldPPMShipment.ActualMoveDate.Equal(*newPPMShipment.ActualMoveDate) &&
 		*newPPMShipment.ActualPickupPostalCode == *oldPPMShipment.ActualPickupPostalCode &&
-		*newPPMShipment.ActualDestinationPostalCode == *oldPPMShipment.ActualDestinationPostalCode &&
-		*newPPMShipment.NetWeight == *oldPPMShipment.NetWeight
+		*newPPMShipment.ActualDestinationPostalCode == *oldPPMShipment.ActualDestinationPostalCode
 }
 
 func shouldCalculateSITCost(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
@@ -135,7 +133,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		newPPMShipment.HasRequestedAdvance = nil
 		newPPMShipment.AdvanceAmountRequested = nil
 
-		estimatedIncentive, err = f.calculatePrice(appCtx, newPPMShipment, false)
+		estimatedIncentive, err = f.calculatePrice(appCtx, newPPMShipment, 0)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -166,12 +164,13 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 			return nil, err
 		}
 	}
-
-	skipCalculateFinalIncentive := shouldSkipCalculatingFinalIncentive(newPPMShipment, &oldPPMShipment)
+	totalWeight := SumWeightTickets(oldPPMShipment)
+	skipCalculateFinalIncentive := shouldSkipCalculatingFinalIncentive(newPPMShipment, &oldPPMShipment, totalWeight)
 
 	finalIncentive := oldPPMShipment.FinalIncentive
 	if !skipCalculateFinalIncentive {
-		finalIncentive, err = f.calculatePrice(appCtx, newPPMShipment, true)
+
+		finalIncentive, err = f.calculatePrice(appCtx, newPPMShipment, totalWeight)
 		if err != nil {
 			return nil, err
 		}
@@ -179,10 +178,22 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 	return finalIncentive, nil
 }
 
+// SumWeightTickets return the total weight of all weightTickets associated with a PPMShipment, returns 0 if there is no valid weight
+func SumWeightTickets(ppmShipment models.PPMShipment) (totalWeight unit.Pound) {
+	if len(ppmShipment.WeightTickets) >= 1 {
+		for _, weightTicket := range ppmShipment.WeightTickets {
+			if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+				totalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+			}
+		}
+	}
+	return totalWeight
+}
+
 // calculatePrice returns an incentive value for the ppm shipment as if we were pricing the service items for
 // an HHG shipment with the same values for a payment request.  In this case we're not persisting service items,
 // MTOServiceItems or PaymentRequestServiceItems, to the database to avoid unnecessary work and get a quicker result.
-func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, isFinalIncentive bool) (*unit.Cents, error) {
+func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, totalWeightFromWeightTickets unit.Pound) (*unit.Cents, error) {
 	logger := appCtx.Logger()
 
 	serviceItemsToPrice := baseServiceItems(ppmShipment.ShipmentID)
@@ -195,9 +206,9 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	}
 
 	var mtoShipment models.MTOShipment
-	if isFinalIncentive {
+	if totalWeightFromWeightTickets > 0 {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
-		mtoShipment = mapPPMShipmentFinalFields(*ppmShipment)
+		mtoShipment = mapPPMShipmentFinalFields(*ppmShipment, totalWeightFromWeightTickets)
 	} else {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
 		mtoShipment = mapPPMShipmentEstimatedFields(*ppmShipment)
@@ -392,13 +403,13 @@ func mapPPMShipmentEstimatedFields(ppmShipment models.PPMShipment) models.MTOShi
 
 // mapPPMShipmentFinalFields remaps our PPMShipment specific information into the fields where the service param lookups
 // expect to find them on the MTOShipment model.  This is only in-memory and shouldn't get saved to the database.
-func mapPPMShipmentFinalFields(ppmShipment models.PPMShipment) models.MTOShipment {
+func mapPPMShipmentFinalFields(ppmShipment models.PPMShipment, totalWeight unit.Pound) models.MTOShipment {
 
 	ppmShipment.Shipment.ActualPickupDate = ppmShipment.ActualMoveDate
 	ppmShipment.Shipment.RequestedPickupDate = ppmShipment.ActualMoveDate
 	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: *ppmShipment.ActualPickupPostalCode}
 	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: *ppmShipment.ActualDestinationPostalCode}
-	ppmShipment.Shipment.PrimeActualWeight = ppmShipment.NetWeight
+	ppmShipment.Shipment.PrimeActualWeight = &totalWeight
 
 	return ppmShipment.Shipment
 }

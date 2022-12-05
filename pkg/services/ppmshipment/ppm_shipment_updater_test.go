@@ -746,14 +746,13 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				ActualMoveDate:              models.TimePointer(testdatagen.NextValidMoveDate),
 				ActualPickupPostalCode:      models.StringPointer("79912"),
 				ActualDestinationPostalCode: models.StringPointer("90909"),
-				NetWeight:                   models.PoundPointer(unit.Pound(5000)),
 				EstimatedWeight:             models.PoundPointer(unit.Pound(5000)),
 			},
 		})
 
 		newPPM := originalPPM
 
-		newPPM.NetWeight = models.PoundPointer(unit.Pound(8000))
+		newPPM.ActualDestinationPostalCode = models.StringPointer("90210")
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
 
