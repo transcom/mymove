@@ -5089,9 +5089,17 @@ func init() {
         "eTag": {
           "type": "string"
         },
-        "evaluationLengthMinutes": {
-          "type": "integer",
-          "x-nullable": true
+        "evalEnd": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "18:00"
+        },
+        "evalStart": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "15:00"
         },
         "id": {
           "type": "string",
@@ -5185,9 +5193,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
-        "travelTimeMinutes": {
-          "type": "integer",
-          "x-nullable": true
+        "timeDepart": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "14:30"
         },
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
@@ -15100,10 +15110,17 @@ func init() {
         "eTag": {
           "type": "string"
         },
-        "evaluationLengthMinutes": {
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true
+        "evalEnd": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "18:00"
+        },
+        "evalStart": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "15:00"
         },
         "id": {
           "type": "string",
@@ -15197,10 +15214,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
-        "travelTimeMinutes": {
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true
+        "timeDepart": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "14:30"
         },
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
