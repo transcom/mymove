@@ -110,7 +110,6 @@ func extractAuditUser(request *http.Request) []zap.Field {
 	logItems = append(logItems,
 		zap.String("audit_user_id", auditUser.ID.String()),
 		zap.String("audit_user_email", auditUser.LoginGovEmail),
-		zap.String("BLAHBLAHBLAH", "BLAH"),
 	)
 	return logItems
 }
