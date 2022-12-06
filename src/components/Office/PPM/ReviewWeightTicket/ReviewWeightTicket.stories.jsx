@@ -25,14 +25,14 @@ const Template = (args) => <ReviewWeightTicket {...args} />;
 export const Blank = Template.bind({});
 Blank.args = {
   ppmShipment: {
-    actualMoveDate: Date.now(),
+    actualMoveDate: '2022-04-30',
     actualPickupPostalCode: '90210',
     actualDestinationPostalCode: '94611',
     hasReceivedAdvance: true,
     advanceAmountReceived: 60000,
   },
-  tripNumber: '1',
-  ppmNumber: '1',
+  tripNumber: 1,
+  ppmNumber: 1,
 };
 
 export const FilledIn = Template.bind({});

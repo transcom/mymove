@@ -11,8 +11,11 @@
         }
     }
 
+    section {
+        color: $base-darker;
+    }
+
     .light {
         @include u-font('body', '3xs');
-        color: $base;
     }
 }

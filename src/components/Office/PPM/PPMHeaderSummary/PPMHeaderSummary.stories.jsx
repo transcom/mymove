@@ -24,22 +24,22 @@ const Template = (args) => <PPMHeaderSummary {...args} />;
 export const WithAdvance = Template.bind({});
 WithAdvance.args = {
   ppmShipment: {
-    actualMoveDate: Date.now(),
+    actualMoveDate: '2022-04-30',
     actualPickupPostalCode: '90210',
     actualDestinationPostalCode: '94611',
     hasReceivedAdvance: true,
     advanceAmountReceived: 60000,
   },
-  ppmNumber: '1',
+  ppmNumber: 1,
 };
 
 export const WithNoAdvance = Template.bind({});
 WithNoAdvance.args = {
   ppmShipment: {
-    actualMoveDate: Date.now(),
+    actualMoveDate: '2022-04-30',
     actualPickupPostalCode: '90210',
     actualDestinationPostalCode: '94611',
     hasReceivedAdvance: false,
   },
-  ppmNumber: '1',
+  ppmNumber: 1,
 };

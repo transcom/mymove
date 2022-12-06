@@ -1,5 +1,6 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/colors';
+@import 'shared/styles/variables';
 
 .ReviewWeightTicket {
     @include u-padding(2);
@@ -34,7 +35,25 @@
         @include u-margin-top(1);
     }
 
+    .reason{
+        &:global(.usa-form-group) {
+            @include u-margin-top(0);
+        }
+    }
+
+    .hint {
+        color: $base;
+        font-size: 13px;
+        line-height: 18px;
+        @include u-margin-top(1);
+        @include u-margin-bottom(0);
+    }
+
     .reviewHeader {
         @include u-margin-top(3);
+    }
+
+    div.reject {
+        @include u-margin-top(2);
     }
 }

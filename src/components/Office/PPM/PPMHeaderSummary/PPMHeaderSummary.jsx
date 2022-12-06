@@ -20,11 +20,11 @@ export default function PPMHeaderSummary({ ppmShipment, ppmNumber }) {
   return (
     <header className={classnames(styles.PPMHeaderSummary)}>
       <div className={styles.header}>
-        <h2>PPM {ppmNumber}</h2>
+        <h3>PPM {ppmNumber}</h3>
         <section>
           <div>
             <Label className={styles.headerLabel}>Departure date</Label>
-            <span className={styles.light}>{formatDate(actualMoveDate)}</span>
+            <span className={styles.light}>{formatDate(actualMoveDate, null, 'DD-MMM-YYYY')}</span>
           </div>
           <div>
             <Label className={styles.headerLabel}>Starting ZIP</Label>
