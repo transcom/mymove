@@ -58,8 +58,8 @@ const ServicesCounselingQueue = lazy(() => import('pages/Office/ServicesCounseli
 const ServicesCounselingAddShipment = lazy(() =>
   import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
 );
-const EditShipmentDetails = lazy(() => import('pages/Office/EditShipmentDetails/EditShipmentDetails'));
 const ReviewDocuments = lazy(() => import('pages/Office/ReviewDocuments/ReviewDocuments'));
+const EditShipmentDetails = lazy(() => import('pages/Office/EditShipmentDetails/EditShipmentDetails'));
 const PrimeSimulatorAvailableMoves = lazy(() => import('pages/PrimeUI/AvailableMoves/AvailableMovesQueue'));
 const PrimeSimulatorMoveDetails = lazy(() => import('pages/PrimeUI/MoveTaskOrder/MoveDetails'));
 const PrimeSimulatorCreatePaymentRequest = lazy(() =>
@@ -263,6 +263,13 @@ export class OfficeApp extends Component {
                       component={ServicesCounselingMoveInfo}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
+                    <PrivateRoute
+                      key="servicesCounselingReviewDocumentsRoute"
+                      exact
+                      path={servicesCounselingRoutes.SHIPMENT_REVIEW_PATH}
+                      component={ReviewDocuments}
+                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
+                    />
 
                     {/* TOO */}
                     <PrivateRoute
@@ -270,13 +277,6 @@ export class OfficeApp extends Component {
                       exact
                       path={tooRoutes.SHIPMENT_EDIT_PATH}
                       component={EditShipmentDetails}
-                      requiredRoles={[roleTypes.TOO]}
-                    />
-                    <PrivateRoute
-                      key="tooReviewDocumentsRoute"
-                      exact
-                      path={tooRoutes.SHIPMENT_REVIEW_PATH}
-                      component={ReviewDocuments}
                       requiredRoles={[roleTypes.TOO]}
                     />
 

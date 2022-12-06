@@ -59,6 +59,7 @@ export const servicesCounselingRoutes = {
   SHIPMENT_ADVANCE_PATH: `${BASE_MOVE_PATH}/shipments/:shipmentId/advance`,
   MOVE_HISTORY_PATH: `${BASE_MOVE_PATH}/history`,
   CUSTOMER_SUPPORT_REMARKS_PATH: `/counseling/moves/:moveCode/customer-support-remarks`,
+  SHIPMENT_REVIEW_PATH: `/moves/:moveCode/shipments/:shipmentId/review`,
 };
 
 export const tioRoutes = {
@@ -70,7 +71,6 @@ export const tooRoutes = {
   SHIPMENT_EDIT_PATH: '/moves/:moveCode/shipments/:shipmentId',
   MOVE_VIEW_PATH: '/moves/:moveCode/details',
   ORDERS_EDIT_PATH: '/moves/:moveCode/orders',
-  SHIPMENT_REVIEW_PATH: `/moves/:moveCode/shipments/:shipmentId/review`,
 };
 
 export const qaeCSRRoutes = {

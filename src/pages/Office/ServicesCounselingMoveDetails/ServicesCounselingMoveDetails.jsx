@@ -25,6 +25,7 @@ import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirm
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import { ppmShipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
@@ -49,7 +50,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const { order, move, mtoShipments, isLoading, isError } = useMoveDetailsQueries(moveCode);
   const { customer, entitlement: allowances } = order;
 
-  const counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
+  // const counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
+  let counselorCanEdit;
 
   const sections = useMemo(() => {
     return ['shipments', 'orders', 'allowances', 'customer-info'];
@@ -71,6 +73,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const errorIfMissing = { HHG_OUTOF_NTS_DOMESTIC: ['storageFacility'] };
 
   let shipmentsInfo = [];
+  let ppmShipmentsInfo = [];
   let disableSubmit = false;
   let disableSubmitDueToMissingOrderInfo = false;
   let numberOfErrorIfMissingForAllShipments = 0;
@@ -93,8 +96,74 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
+    const submittedShipmentsNonPPM = submittedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
+    const ppmNeedsApprovalShipments = submittedShipments?.filter(
+      (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+    );
 
-    shipmentsInfo = submittedShipments.map((shipment) => {
+    ppmShipmentsInfo = ppmNeedsApprovalShipments.map((shipment) => {
+      const reviewURL = generatePath(servicesCounselingRoutes.SHIPMENT_REVIEW_PATH, {
+        moveCode,
+        shipmentId: shipment.id,
+      });
+
+      const indexNum = ppmNeedsApprovalShipments.indexOf(shipment);
+
+      const numberofPPMShipments = ppmNeedsApprovalShipments.length;
+
+      const displayInfo = {
+        heading: getShipmentTypeLabel(shipment.shipmentType),
+        destinationAddress: shipment.destinationAddress || {
+          postalCode: order.destinationDutyLocation.address.postalCode,
+        },
+        ...shipment,
+        displayDestinationType: isRetirementOrSeparation,
+      };
+
+      const errorIfMissingList = errorIfMissing[shipment.shipmentType];
+      if (errorIfMissingList) {
+        errorIfMissingList.forEach((fieldToCheck) => {
+          if (!displayInfo[fieldToCheck]) {
+            numberOfErrorIfMissingForAllShipments += 1;
+            // Since storage facility gets split into two fields - the name and the address
+            // it needs to be counted twice.
+            if (fieldToCheck === 'storageFacility') {
+              numberOfErrorIfMissingForAllShipments += 1;
+            }
+          }
+        });
+      }
+
+      const warnIfMissingList = warnIfMissing[shipment.shipmentType];
+      if (warnIfMissingList) {
+        warnIfMissingList.forEach((fieldToCheck) => {
+          if (!displayInfo[fieldToCheck]) {
+            numberOfWarnIfMissingForAllShipments += 1;
+          }
+          // Since storage facility gets split into two fields - the name and the address
+          // it needs to be counted twice.
+          if (fieldToCheck === 'storageFacility') {
+            numberOfErrorIfMissingForAllShipments += 1;
+          }
+        });
+      }
+
+      disableSubmit = numberOfErrorIfMissingForAllShipments !== 0;
+
+      return {
+        id: shipment.id,
+        displayInfo,
+        reviewURL,
+        indexNum,
+        numberofPPMShipments,
+        shipmentType: shipment.shipmentType,
+      };
+    });
+
+    const counselorCanReview = ppmShipmentsInfo.length > 0;
+    counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
+
+    shipmentsInfo = submittedShipmentsNonPPM.map((shipment) => {
       const editURL = counselorCanEdit
         ? generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
             moveCode,
@@ -145,6 +214,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
         id: shipment.id,
         displayInfo,
         editURL,
+        counselorCanReview,
         shipmentType: shipment.shipmentType,
       };
     });
@@ -316,19 +386,21 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <Grid col={6} className={scMoveDetailsStyles.pageTitle}>
               <h1>Move details</h1>
             </Grid>
-            <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
-              {counselorCanEdit && (
-                <Button
-                  disabled={
-                    !mtoShipments.length || allShipmentsDeleted || disableSubmit || disableSubmitDueToMissingOrderInfo
-                  }
-                  type="button"
-                  onClick={handleShowCancellationModal}
-                >
-                  Submit move details
-                </Button>
-              )}
-            </Grid>
+            {ppmShipmentsInfo.length > 0 ? null : (
+              <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
+                {counselorCanEdit && (
+                  <Button
+                    disabled={
+                      !mtoShipments.length || allShipmentsDeleted || disableSubmit || disableSubmitDueToMissingOrderInfo
+                    }
+                    type="button"
+                    onClick={handleShowCancellationModal}
+                  >
+                    Submit move details
+                  </Button>
+                )}
+              </Grid>
+            )}
           </Grid>
 
           <div className={styles.section} id="shipments">
@@ -349,6 +421,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
               }
               financialReviewOpen={handleShowFinancialReviewModal}
               title="Shipments"
+              shipmentsInfoNonPpm={shipmentsInfo}
             >
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
                 <div className={scMoveDetailsStyles.scFinancialReviewContainer}>
@@ -375,6 +448,25 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                     neverShow={neverShow[shipment.shipmentType]}
                   />
                 ))}
+                {ppmShipmentsInfo.length > 0 &&
+                  ppmShipmentsInfo.map((shipment) => (
+                    <ShipmentDisplay
+                      indexNum={shipment.indexNum}
+                      numberofPPMShipments={shipment.numberofPPMShipments}
+                      displayInfo={shipment.displayInfo}
+                      reviewURL={shipment.reviewURL}
+                      isSubmitted={false}
+                      key={shipment.id}
+                      shipmentId={shipment.id}
+                      shipmentType={shipment.shipmentType}
+                      allowApproval={false}
+                      ordersLOA={ordersLOA}
+                      warnIfMissing={warnIfMissing[shipment.shipmentType]}
+                      errorIfMissing={errorIfMissing[shipment.shipmentType]}
+                      showWhenCollapsed={showWhenCollapsed[shipment.shipmentType]}
+                      neverShow={neverShow[shipment.shipmentType]}
+                    />
+                  ))}
               </div>
             </DetailsPanel>
           </div>
@@ -392,6 +484,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   </Link>
                 )
               }
+              shipmentsInfoNonPpm={shipmentsInfo}
             >
               <OrdersList ordersInfo={ordersInfo} />
             </DetailsPanel>
@@ -410,6 +503,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   </Link>
                 )
               }
+              shipmentsInfoNonPpm={shipmentsInfo}
             >
               <AllowancesList info={allowancesInfo} showVisualCues />
             </DetailsPanel>
@@ -428,6 +522,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   </Link>
                 )
               }
+              shipmentsInfoNonPpm={shipmentsInfo}
             >
               <CustomerInfoList customerInfo={customerInfo} />
             </DetailsPanel>

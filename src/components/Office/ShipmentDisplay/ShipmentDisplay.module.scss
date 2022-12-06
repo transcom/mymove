@@ -20,6 +20,13 @@
       @include u-margin-x(1);
     }
 
+    .serviceCounselingShipments {
+      h3 {
+        font-weight: 700;
+        font-size: 17px;
+      }
+    }
+
     :global(.usa-tag) {
       @include u-font-size('body', 3xs);
       background-color: $info-light;
@@ -74,4 +81,11 @@
     @include u-margin-x(3);
     @include u-margin-y(3);
   }
+
+}
+
+.storyBookWrap {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
 }

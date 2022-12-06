@@ -11,6 +11,8 @@ import {
   diversionInfo,
   cancelledInfo,
   ppmInfo,
+  ppmInfoMultiple,
+  ppmInfoMultiple2,
 } from './ShipmentDisplayTestData';
 
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
@@ -266,6 +268,47 @@ export const PPMShipmentWithCounselorRemarks = () => (
       allowApproval={false}
       warnIfMissing={['counselorRemarks']}
     />
+  </div>
+);
+
+export const PPMShipmentServiceCounselorWithReviewButton = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay
+      displayInfo={ppmInfo}
+      ordersLOA={ordersLOA}
+      shipmentType={SHIPMENT_OPTIONS.PPM}
+      isSubmitted
+      allowApproval={false}
+      warnIfMissing={['counselorRemarks']}
+      reviewURL="/"
+    />
+  </div>
+);
+
+export const MultiplePPMShipmentsServiceCounselorWithReviewButton = () => (
+  <div className="shipmentCards_shipmentCards__ok-yC">
+    <div style={{ padding: '20px' }}>
+      <ShipmentDisplay
+        displayInfo={ppmInfoMultiple}
+        ordersLOA={ordersLOA}
+        shipmentType={SHIPMENT_OPTIONS.PPM}
+        isSubmitted
+        allowApproval={false}
+        warnIfMissing={['counselorRemarks']}
+        reviewURL="/"
+      />
+    </div>
+    <div style={{ padding: '20px' }}>
+      <ShipmentDisplay
+        displayInfo={ppmInfoMultiple2}
+        ordersLOA={ordersLOA}
+        shipmentType={SHIPMENT_OPTIONS.PPM}
+        isSubmitted
+        allowApproval={false}
+        warnIfMissing={['counselorRemarks']}
+        reviewURL="/"
+      />
+    </div>
   </div>
 );
 
