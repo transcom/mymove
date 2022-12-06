@@ -23,8 +23,8 @@ describe('Services counselor user', () => {
       '**/ghc/v1/queues/counseling?page=1&perPage=20&sort=closeoutInitiated&order=asc&needsPPMCloseout=true&closeoutLocation=**',
     ).as('getCloseoutLocationFilteredMoves');
     cy.intercept(
-      '**/ghc/v1/queues/counseling?page=1&perPage=20&sort=closeoutInitiated&order=asc&destinationDutyLocation=**&needsPPMCloseout=true',
-    ).as('getDestinationDutyLocationFilteredMoves');
+      '**/ghc/v1/queues/counseling?page=1&perPage=20&sort=closeoutInitiated&order=asc&locator=**&destinationDutyLocation=**&needsPPMCloseout=true',
+    ).as('getDestinationDutyLocationAndLocatorFilteredMoves');
     cy.intercept('**/ghc/v1/move/**').as('getMoves');
     cy.intercept('**/ghc/v1/orders/**').as('getOrders');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
@@ -56,19 +56,32 @@ describe('Services counselor user', () => {
     cy.wait(['@getPPMTypeAndLocatorFilteredMoves']);
     cy.get('h1').contains('Moves (0)');
   });
+
   it('is able to filter moves based on Closeout initiated', () => {
     cy.get('th[data-testid="closeoutInitiated"] > div > div > input').type('01 Dec 2020');
     cy.wait(['@getCloseoutInitiatedFilteredMoves']);
     cy.get('h1').contains('Moves (0)');
   });
+
   it('is able to filter moves based on Closeout location', () => {
     cy.get('th[data-testid="closeoutLocation"] > div > input').type('j').blur();
     cy.wait(['@getCloseoutLocationFilteredMoves']);
     cy.get('h1').contains('Moves (0)');
   });
+
   it('is able to filter moves based on destination duty location', () => {
-    cy.get('th[data-testid="destinationDutyLocation"] > div > input').type('Fort').blur();
+    // add filter for move code PPMSC1 (which has Fort Gordon as its destination duty location)
+    cy.get('th[data-testid="locator"] > div > input').type('PPMSC1').blur();
+    cy.wait(['@getLocatorFilteredMoves']);
+    // Add destination duty location filter 'fort'
+    cy.get('th[data-testid="destinationDutyLocation"] > div > input').type('fort').blur();
     cy.wait(['@getDestinationDutyLocationFilteredMoves']);
-    cy.get('h1').contains('Moves (4)');
+    // We should still see our move
+    cy.get('td').contains('PPMSC1');
+    // Add nonsense string to our filter (so now we're searching for 'fortzzzz')
+    cy.get('th[data-testid="destinationDutyLocation"] > div > input').type('zzzz').blur();
+    cy.wait(['@getDestinationDutyLocationAndLocatorFilteredMoves']);
+    // Now we shouldn't see any results
+    cy.get('h1').contains('Moves (0)');
   });
 });
