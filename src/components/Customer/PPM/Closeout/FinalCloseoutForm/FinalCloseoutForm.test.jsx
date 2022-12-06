@@ -34,7 +34,7 @@ describe('FinalCloseoutForm component', () => {
     const mtoShipment = createPPMShipmentWithFinalIncentive({
       ppmShipment: {
         advanceAmountReceived: 90000000,
-        finalEstimatedIncentive: 200000000,
+        finalIncentive: 200000000,
         weightTickets: [weightTicket],
         movingExpenses: [movingExpense],
         proGearWeightTickets: [proGearWeightTicket],
