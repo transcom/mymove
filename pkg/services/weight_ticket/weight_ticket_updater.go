@@ -14,19 +14,22 @@ import (
 )
 
 type weightTicketUpdater struct {
-	checks []weightTicketValidator
+	checks             []weightTicketValidator
+	ppmShipmentUpdater services.PPMShipmentUpdater
 }
 
 // NewCustomerWeightTicketUpdater creates a new weightTicketUpdater struct with the checks it needs for a customer
-func NewCustomerWeightTicketUpdater() services.WeightTicketUpdater {
+func NewCustomerWeightTicketUpdater(ppmUpdater services.PPMShipmentUpdater) services.WeightTicketUpdater {
 	return &weightTicketUpdater{
-		checks: basicChecksForCustomer(),
+		checks:             basicChecksForCustomer(),
+		ppmShipmentUpdater: ppmUpdater,
 	}
 }
 
-func NewOfficeWeightTicketUpdater() services.WeightTicketUpdater {
+func NewOfficeWeightTicketUpdater(ppmUpdater services.PPMShipmentUpdater) services.WeightTicketUpdater {
 	return &weightTicketUpdater{
-		checks: basicChecksForOffice(),
+		checks:             basicChecksForOffice(),
+		ppmShipmentUpdater: ppmUpdater,
 	}
 }
 

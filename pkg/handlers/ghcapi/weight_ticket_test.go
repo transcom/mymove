@@ -12,13 +12,15 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	// Reusable objects
-	weightTicketUpdater := weightticket.NewCustomerWeightTicketUpdater()
+	ppmShipmentUpdater := mocks.PPMShipmentUpdater{}
+	weightTicketUpdater := weightticket.NewCustomerWeightTicketUpdater(&ppmShipmentUpdater)
 
 	type weightTicketUpdateSubtestData struct {
 		ppmShipment  models.PPMShipment

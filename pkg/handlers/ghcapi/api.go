@@ -404,7 +404,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.PpmUpdateWeightTicketHandler = UpdateWeightTicketHandler{
 		handlerConfig,
-		weightticket.NewOfficeWeightTicketUpdater(),
+		weightticket.NewOfficeWeightTicketUpdater(ppmShipmentUpdater),
 	}
 
 	ghcAPI.PpmUpdateMovingExpenseHandler = UpdateMovingExpenseHandler{

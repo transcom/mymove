@@ -10,10 +10,13 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite WeightTicketSuite) TestUpdateWeightTicket() {
+	ppmShipmentUpdater := mocks.PPMShipmentUpdater{}
+
 	setupForTest := func(appCtx appcontext.AppContext, overrides *models.WeightTicket, hasEmptyFiles bool, hasFullFiles bool, hasProofFiles bool) *models.WeightTicket {
 		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
@@ -96,7 +99,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 			ID: uuid.Must(uuid.NewV4()),
 		}
 
-		updater := NewCustomerWeightTicketUpdater()
+		updater := NewCustomerWeightTicketUpdater(&ppmShipmentUpdater)
 
 		updatedWeightTicket, err := updater.UpdateWeightTicket(suite.AppContextForTest(), badWeightTicket, "")
 
@@ -117,7 +120,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 
 		originalWeightTicket := setupForTest(appCtx, nil, false, false, false)
 
-		updater := NewCustomerWeightTicketUpdater()
+		updater := NewCustomerWeightTicketUpdater(&ppmShipmentUpdater)
 
 		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *originalWeightTicket, "")
 
@@ -138,7 +141,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 
 		originalWeightTicket := setupForTest(appCtx, nil, true, true, false)
 
-		updater := NewCustomerWeightTicketUpdater()
+		updater := NewCustomerWeightTicketUpdater(&ppmShipmentUpdater)
 
 		desiredWeightTicket := &models.WeightTicket{
 			ID:                       originalWeightTicket.ID,
@@ -172,7 +175,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 
 		originalWeightTicket := setupForTest(appCtx, nil, true, true, true)
 
-		updater := NewCustomerWeightTicketUpdater()
+		updater := NewCustomerWeightTicketUpdater(&ppmShipmentUpdater)
 
 		desiredWeightTicket := &models.WeightTicket{
 			ID:                       originalWeightTicket.ID,
@@ -209,7 +212,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 
 		originalWeightTicket := setupForTest(appCtx, nil, false, false, false)
 
-		updater := NewCustomerWeightTicketUpdater()
+		updater := NewCustomerWeightTicketUpdater(&ppmShipmentUpdater)
 
 		desiredWeightTicket := &models.WeightTicket{
 			ID:                       originalWeightTicket.ID,
@@ -238,7 +241,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 
 				originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
 
-				updater := NewOfficeWeightTicketUpdater()
+				updater := NewOfficeWeightTicketUpdater(&ppmShipmentUpdater)
 
 				status := models.PPMDocumentStatusExcluded
 
@@ -267,7 +270,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 					},
 				})
 
-				updater := NewOfficeWeightTicketUpdater()
+				updater := NewOfficeWeightTicketUpdater(&ppmShipmentUpdater)
 
 				desiredWeightTicket := &models.WeightTicket{
 					ID:     originalWeightTicket.ID,
@@ -293,7 +296,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 					},
 				})
 
-				updater := NewOfficeWeightTicketUpdater()
+				updater := NewOfficeWeightTicketUpdater(&ppmShipmentUpdater)
 
 				desiredStatus := models.PPMDocumentStatusApproved
 				desiredWeightTicket := &models.WeightTicket{
@@ -317,7 +320,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 
 				originalWeightTicket := setupForTest(appCtx, nil, true, true, false)
 
-				updater := NewCustomerWeightTicketUpdater()
+				updater := NewCustomerWeightTicketUpdater(&ppmShipmentUpdater)
 
 				status := models.PPMDocumentStatusExcluded
 
@@ -353,7 +356,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 					},
 				})
 
-				updater := NewOfficeWeightTicketUpdater()
+				updater := NewOfficeWeightTicketUpdater(&ppmShipmentUpdater)
 
 				desiredStatus := models.PPMDocumentStatusApproved
 				desiredWeightTicket := &models.WeightTicket{
@@ -375,7 +378,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 
 				originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
 
-				updater := NewOfficeWeightTicketUpdater()
+				updater := NewOfficeWeightTicketUpdater(&ppmShipmentUpdater)
 
 				status := models.PPMDocumentStatus("invalid status")
 				desiredWeightTicket := &models.WeightTicket{
