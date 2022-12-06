@@ -118,6 +118,11 @@ func loadPPMAssociations(appCtx appcontext.AppContext, ppmShipment *models.PPMSh
 
 	// We can't load SignedCertification with EagerPreload because of a bug in Pop, so we'll load it directly next.
 	loadErr := appCtx.DB().Load(ppmShipment, "SignedCertification")
+	// Pop will load an empty struct here and we'll get validation errors when attempting to save, if we don't set the
+	// field to nil
+	if ppmShipment.SignedCertification != nil && ppmShipment.SignedCertification.ID.IsNil() {
+		ppmShipment.SignedCertification = nil
+	}
 
 	if loadErr != nil {
 		return apperror.NewQueryError("PPMShipment", loadErr, "unable to load SignedCertification")
