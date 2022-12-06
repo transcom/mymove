@@ -11,6 +11,28 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+func FindPPMShipmentAndWeightTickets(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShipment, error) {
+	var ppmShipment models.PPMShipment
+
+	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
+		EagerPreload(
+			"Shipment",
+			"WeightTickets",
+		).
+		Find(&ppmShipment, id)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(id, "while looking for PPMShipmentAndWeightTickets")
+		default:
+			return nil, apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipmentAndWeightTickets")
+		}
+	}
+
+	return &ppmShipment, nil
+}
+
 // FindPPMShipment returns a PPMShipment with associations by ID
 func FindPPMShipment(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShipment, error) {
 	var ppmShipment models.PPMShipment

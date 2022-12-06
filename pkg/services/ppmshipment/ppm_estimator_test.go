@@ -664,8 +664,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
 			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
-			suite.Equal(unit.Pound(5000), SumWeightTickets(oldPPMShipment))
-			suite.Equal(unit.Pound(5000), SumWeightTickets(newPPM))
+			suite.Equal(unit.Pound(5000), SumWeightTickets(oldPPMShipment, newPPM))
 			suite.Equal(unit.Cents(70064364), *ppmFinal)
 		})
 

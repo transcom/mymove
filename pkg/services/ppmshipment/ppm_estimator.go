@@ -56,6 +56,10 @@ func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShi
 }
 
 func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment, totalWeight unit.Pound) bool {
+	if len(newPPMShipment.WeightTickets) == 1 {
+		return false
+	}
+
 	if oldPPMShipment.ActualMoveDate == nil || newPPMShipment.ActualMoveDate == nil ||
 		oldPPMShipment.ActualPickupPostalCode == nil || newPPMShipment.ActualPickupPostalCode == nil ||
 		oldPPMShipment.ActualDestinationPostalCode == nil || newPPMShipment.ActualDestinationPostalCode == nil ||
@@ -164,7 +168,8 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 			return nil, err
 		}
 	}
-	totalWeight := SumWeightTickets(oldPPMShipment)
+	totalWeight := SumWeightTickets(oldPPMShipment, *newPPMShipment)
+
 	skipCalculateFinalIncentive := shouldSkipCalculatingFinalIncentive(newPPMShipment, &oldPPMShipment, totalWeight)
 
 	finalIncentive := oldPPMShipment.FinalIncentive
@@ -179,14 +184,28 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 }
 
 // SumWeightTickets return the total weight of all weightTickets associated with a PPMShipment, returns 0 if there is no valid weight
-func SumWeightTickets(ppmShipment models.PPMShipment) (totalWeight unit.Pound) {
+// when the second argument has a weight ticket that means a weight ticket was updated
+func SumWeightTickets(ppmShipment, newPPMShipment models.PPMShipment) (totalWeight unit.Pound) {
+	var updatedWeightTicketID uuid.UUID
+	var changedWeight unit.Pound
+	if len(newPPMShipment.WeightTickets) == 1 {
+		weightTicket := newPPMShipment.WeightTickets[0]
+		updatedWeightTicketID = weightTicket.ID
+		if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+			changedWeight = *weightTicket.FullWeight - *weightTicket.EmptyWeight
+		}
+	}
+
 	if len(ppmShipment.WeightTickets) >= 1 {
 		for _, weightTicket := range ppmShipment.WeightTickets {
-			if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+			if weightTicket.ID == updatedWeightTicketID {
+				totalWeight += changedWeight
+			} else if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
 				totalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
 			}
 		}
 	}
+
 	return totalWeight
 }
 
