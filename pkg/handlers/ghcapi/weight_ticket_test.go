@@ -113,7 +113,6 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		suite.IsType(&weightticketops.UpdateWeightTicketPreconditionFailed{}, response)
 	})
 
-	// TODO: Add 500 failure - Server Error
 	suite.Run("PATCH failure - 500", func() {
 		mockUpdater := mocks.WeightTicketUpdater{}
 		appCtx := suite.AppContextForTest()
