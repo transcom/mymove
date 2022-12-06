@@ -26,11 +26,11 @@ const validationSchema = Yup.object().shape({
         ? schema.min(emptyWeight + 1, 'The full weight must be greater than the empty weight')
         : schema;
     }),
-  status: Yup.string().required('Reviewing this weight ticket is required'),
   rejectionReason: Yup.string().when('status', {
     is: ppmDocumentStatus.REJECTED,
     then: (schema) => schema.required('Add a reason why this weight ticket is rejected'),
   }),
+  status: Yup.string().required('Reviewing this weight ticket is required'),
 });
 
 export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumber, ppmNumber }) {

@@ -25,11 +25,11 @@ describe('PPMHeaderSummary component', () => {
       render(<PPMHeaderSummary {...defaultProps} />);
 
       await waitFor(() => {
-        expect(screen.getByRole('heading', { level: 2, name: 'PPM 1' })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { level: 3, name: 'PPM 1' })).toBeInTheDocument();
       });
 
       expect(screen.getByText('Departure date')).toBeInTheDocument();
-      expect(screen.getByText('30-Nov-22')).toBeInTheDocument();
+      expect(screen.getByText('06-Dec-2022')).toBeInTheDocument();
       expect(screen.getByText('Starting ZIP')).toBeInTheDocument();
       expect(screen.getByText('90210')).toBeInTheDocument();
       expect(screen.getByText('94611')).toBeInTheDocument();
