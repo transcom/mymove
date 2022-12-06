@@ -43,7 +43,7 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		return nil, nil
 	}
 
-	oldPPMShipment, err := models.FetchPPMShipmentFromMTOShipmentID(appCtx.DB(), mtoShipmentID)
+	oldPPMShipment, err := FindPPMShipmentByMTOID(appCtx, mtoShipmentID)
 	if err != nil {
 		return nil, err
 	}
