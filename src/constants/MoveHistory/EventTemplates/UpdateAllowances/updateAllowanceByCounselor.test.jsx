@@ -1,20 +1,17 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import o from 'constants/MoveHistory/UIDisplay/Operations';
-import t from 'constants/MoveHistory/Database/Tables';
-import a from 'constants/MoveHistory/Database/Actions';
 import updateAllowanceByCounselor from 'constants/MoveHistory/EventTemplates/UpdateAllowances/updateAllowanceByCounselor';
 
 describe('When a service counselor updates shipping allowances', () => {
   const historyRecord = {
-    action: a.UPDATE,
-    eventName: o.counselingUpdateAllowance,
-    tableName: t.entitlements,
+    action: 'UPDATE',
+    eventName: 'counselingUpdateAllowance',
+    tableName: 'entitlements',
     eventNameDisplay: 'Updated allowances',
     changedValues: {
       authorized_weight: '8000',
-      dependents_authorized: 'true',
+      dependents_authorized: true,
       pro_gear_weight: '100',
       pro_gear_weight_spouse: '85',
       required_medical_equipment_weight: '10',
@@ -29,7 +26,7 @@ describe('When a service counselor updates shipping allowances', () => {
   describe('it correctly renders the details component', () => {
     it.each([
       ['Authorized weight', ': 8,000 lbs'],
-      ['Dependents', ': true'],
+      ['Dependents', ': Yes'],
       ['Pro-gear', ': 100 lbs'],
       ['Spouse pro-gear', ': 85 lbs'],
       ['RME', ': 10 lbs'],

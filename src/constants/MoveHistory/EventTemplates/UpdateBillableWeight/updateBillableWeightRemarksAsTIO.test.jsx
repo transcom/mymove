@@ -1,18 +1,15 @@
 import { render, screen } from '@testing-library/react';
 
-import o from 'constants/MoveHistory/UIDisplay/Operations';
-import t from 'constants/MoveHistory/Database/Tables';
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import e from 'constants/MoveHistory/EventTemplates/UpdateBillableWeight/updateBillableWeightRemarksAsTIO';
-import a from 'constants/MoveHistory/Database/Actions';
 
 describe('when given an update billable weight remarks as a TIO', () => {
   const historyRecord = {
-    action: a.UPDATE,
-    // To-do: Change to max billable weight once available in database.
+    action: 'UPDATE',
+    // To-do: Update changedValue key to max_billable_weight once available in database.
     changedValues: { authorized_weight: '8000' },
-    eventName: o.updateBillableWeightAsTIO,
-    tableName: t.moves,
+    eventName: 'updateMaxBillableWeightAsTIO',
+    tableName: 'moves',
   };
   it('correctly matches the update billable weights event', () => {
     const result = getTemplate(historyRecord);

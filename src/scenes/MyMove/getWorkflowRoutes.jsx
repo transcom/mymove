@@ -64,7 +64,9 @@ const never = () => false;
 // Todo: update this when moves can be completed
 const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
-const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === SHIPMENT_OPTIONS.PPM;
+const hasPPM = ({ move }) => {
+  return Boolean(move?.mtoShipments?.some((mtoShipment) => mtoShipment.shipmentType === SHIPMENT_OPTIONS.PPM));
+};
 const inGhcFlow = (props) => props.context.flags.ghcFlow;
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
@@ -200,16 +202,14 @@ const pages = {
   },
   [customerRoutes.SHIPMENT_SELECT_TYPE_PATH]: {
     isInFlow: always,
-    isComplete: ({ sm, orders, move }) => get(move, 'selected_move_type', null),
+    isComplete: ({ sm, orders, move }) => get(move, 'mtoShipments', []).length > 0,
     render:
       () =>
       ({ history }) =>
         <SelectShipmentType push={history.push} />,
   },
   '/moves/:moveId/ppm-start': {
-    isInFlow: (state) => {
-      return state.selectedMoveType === SHIPMENT_OPTIONS.PPM;
-    },
+    isInFlow: hasPPM,
     isComplete: ({ sm, orders, move, ppm }) => {
       return ppm && every([ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },
@@ -241,14 +241,13 @@ const pages = {
   },
 };
 
-export const getPagesInFlow = ({ selectedMoveType, conusStatus, lastMoveIsCanceled, context }) =>
+export const getPagesInFlow = ({ move, conusStatus, lastMoveIsCanceled, context }) =>
   Object.keys(pages).filter((pageKey) => {
     const page = pages[pageKey];
-    return page.isInFlow({ selectedMoveType, conusStatus, lastMoveIsCanceled, context });
+    return page.isInFlow({ move, conusStatus, lastMoveIsCanceled, context });
   });
 
 export const getNextIncompletePage = ({
-  selectedMoveType = undefined,
   conusStatus = '',
   lastMoveIsCanceled = false,
   serviceMember = {},
@@ -265,7 +264,7 @@ export const getNextIncompletePage = ({
   const rawPath = findKey(
     pages,
     (p) =>
-      p.isInFlow({ selectedMoveType, conusStatus, lastMoveIsCanceled, context }) &&
+      p.isInFlow({ move, conusStatus, lastMoveIsCanceled, context }) &&
       !p.isComplete({ sm: serviceMember, orders, uploads, move, ppm, mtoShipment, backupContacts }),
   );
   const compiledPath = generatePath(rawPath, {
@@ -276,7 +275,7 @@ export const getNextIncompletePage = ({
 };
 
 export const getWorkflowRoutes = (props) => {
-  const flowProps = pick(props, ['selectedMoveType', 'conusStatus', 'lastMoveIsCanceled', 'context']);
+  const flowProps = pick(props, ['move', 'conusStatus', 'lastMoveIsCanceled', 'context']);
   const pageList = getPagesInFlow(flowProps);
   return Object.keys(pages).map((key) => {
     const currPage = pages[key];

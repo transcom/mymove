@@ -12,10 +12,13 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { generalRoutes } from 'constants/routes';
 import { shipmentTypes } from 'constants/shipments';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
-import { getMTOShipmentsForMove, getResponseError, patchMTOShipment } from 'services/internalApi';
+import { ppmSubmissionCertificationText } from 'scenes/Legalese/legaleseText';
+import { getMTOShipmentsForMove, getResponseError, submitPPMShipmentSignedCertification } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { updateMTOShipment } from 'store/entities/actions';
 import { selectMTOShipmentById } from 'store/entities/selectors';
+import { formatSwaggerDate } from 'utils/formatters';
+import { setFlashMessage } from 'store/flash/actions';
 
 const FinalCloseout = () => {
   const history = useHistory();
@@ -47,27 +50,39 @@ const FinalCloseout = () => {
     history.push(generalRoutes.HOME_PATH);
   };
 
-  const handleSubmit = (values, { setSubmitting }) => {
+  const handleSubmit = (values) => {
     setErrorMessage(null);
+    const ppmShipmentId = mtoShipment.ppmShipment.id;
 
     const payload = {
-      ppmShipment: {
-        id: mtoShipment.ppmShipment.id,
-      },
+      certification_text: ppmSubmissionCertificationText,
+      signature: values.signature,
+      date: values.date,
     };
 
-    patchMTOShipment(mtoShipmentId, payload, mtoShipment.eTag)
+    submitPPMShipmentSignedCertification(ppmShipmentId, payload)
       .then((response) => {
-        setSubmitting(false);
+        dispatch(
+          updateMTOShipment({
+            ...mtoShipment,
+            ppmShipment: response,
+          }),
+        );
 
-        dispatch(updateMTOShipment(response));
+        dispatch(
+          setFlashMessage('PPM_SUBMITTED', 'success', 'You submitted documentation for review.', undefined, false),
+        );
 
         history.push(generalRoutes.HOME_PATH);
       })
       .catch((err) => {
-        setSubmitting(false);
         setErrorMessage(getResponseError(err.response, 'Failed to submit PPM documentation due to server error.'));
       });
+  };
+
+  const initialValues = {
+    signature: '',
+    date: formatSwaggerDate(new Date()),
   };
 
   return (
@@ -87,7 +102,12 @@ const FinalCloseout = () => {
               </Alert>
             )}
 
-            <FinalCloseoutForm mtoShipment={mtoShipment} onBack={handleBack} onSubmit={handleSubmit} />
+            <FinalCloseoutForm
+              initialValues={initialValues}
+              mtoShipment={mtoShipment}
+              onBack={handleBack}
+              onSubmit={handleSubmit}
+            />
           </Grid>
         </Grid>
       </GridContainer>

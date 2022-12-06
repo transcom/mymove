@@ -179,7 +179,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 			documentID := uuid.FromStringOrNil(params.DocumentID.String())
 
 			// Fetch document to ensure user has access to it
-			document, docErr := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID, false)
+			document, docErr := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID, true)
 			if docErr != nil {
 				docNotFoundErr := fmt.Errorf("documentId %q was not found for this user", documentID)
 				return ppmop.NewCreatePPMUploadNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, docNotFoundErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), docNotFoundErr

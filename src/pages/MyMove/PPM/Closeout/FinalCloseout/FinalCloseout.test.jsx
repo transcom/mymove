@@ -5,26 +5,40 @@ import { useParams } from 'react-router-dom';
 
 import { generalRoutes } from 'constants/routes';
 import FinalCloseout from 'pages/MyMove/PPM/Closeout/FinalCloseout/FinalCloseout';
-import { getMTOShipmentsForMove } from 'services/internalApi';
 import { selectMTOShipmentById } from 'store/entities/selectors';
+import { updateMTOShipment } from 'store/entities/actions';
 import { MockProviders, setUpProvidersWithHistory } from 'testUtils';
 import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
+import { getMTOShipmentsForMove, submitPPMShipmentSignedCertification } from 'services/internalApi';
+import { ppmSubmissionCertificationText } from 'scenes/Legalese/legaleseText';
+import { formatDateForSwagger } from 'shared/dates';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: jest.fn(),
 }));
 
+const mockDispatch = jest.fn();
+jest.mock('react-redux', () => ({
+  ...jest.requireActual('react-redux'),
+  useDispatch: jest.fn().mockImplementation(() => mockDispatch),
+}));
+
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   getResponseError: jest.fn(),
-  patchMTOShipment: jest.fn(),
+  submitPPMShipmentSignedCertification: jest.fn(),
   getMTOShipmentsForMove: jest.fn(),
 }));
 
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectMTOShipmentById: jest.fn(),
+}));
+
+jest.mock('store/entities/actions', () => ({
+  ...jest.requireActual('store/entities/actions'),
+  updateMTOShipment: jest.fn(),
 }));
 
 beforeEach(() => {
@@ -76,6 +90,31 @@ describe('Final Closeout page', () => {
     await waitFor(async () => {
       await userEvent.click(screen.getByText('Return To Homepage'));
     });
+
+    expect(memoryHistory.location.pathname).toEqual(generalRoutes.HOME_PATH);
+  });
+
+  it('submits the ppm signed certification', async () => {
+    const mockShipment = setUpMocks();
+    submitPPMShipmentSignedCertification.mockResolvedValueOnce(mockShipment.ppmShipment);
+
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
+    render(<FinalCloseout />, { wrapper: mockProviderWithHistory });
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'Signature' }), 'Grace Griffin');
+    await userEvent.click(screen.getByRole('button', { name: 'Submit PPM Documentation' }));
+
+    await waitFor(() =>
+      expect(submitPPMShipmentSignedCertification).toHaveBeenCalledWith(mockShipment.ppmShipment.id, {
+        certification_text: ppmSubmissionCertificationText,
+        signature: 'Grace Griffin',
+        date: formatDateForSwagger(new Date()),
+      }),
+    );
+
+    expect(updateMTOShipment).toHaveBeenCalledWith(mockShipment);
+    expect(mockDispatch).toHaveBeenCalledTimes(2);
 
     expect(memoryHistory.location.pathname).toEqual(generalRoutes.HOME_PATH);
   });

@@ -47,6 +47,21 @@ func (v *OptionalTimeIsPresent) IsValid(errors *validate.Errors) {
 	}
 }
 
+type OptionalTimeIsPresentAndNotNil struct {
+	Name    string
+	Field   *time.Time
+	Message string
+}
+
+func (v *OptionalTimeIsPresentAndNotNil) IsValid(errors *validate.Errors) {
+	if v.Field == nil {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s cannot be nil", v.Name))
+	} else {
+		timeIsPresent := validators.TimeIsPresent{Name: v.Name, Field: *v.Field, Message: v.Message}
+		timeIsPresent.IsValid(errors)
+	}
+}
+
 // OptionalInt64IsPositive adds an error if the Field is less than or equal to zero
 type OptionalInt64IsPositive struct {
 	Name  string
