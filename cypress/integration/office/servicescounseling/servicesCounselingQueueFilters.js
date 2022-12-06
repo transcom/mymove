@@ -11,8 +11,11 @@ describe('Services counselor user', () => {
       'getSortedMoves',
     );
     cy.intercept(
-      '**/ghc/v1/queues/counseling?page=1&perPage=20&sort=closeoutInitiated&order=asc&needsPPMCloseout=true&ppmType=**',
-    ).as('getPPMTypeFilteredMoves');
+      '**/ghc/v1/queues/counseling?page=1&perPage=20&sort=closeoutInitiated&order=asc&locator=**&needsPPMCloseout=true',
+    ).as('getLocatorFilteredMoves');
+    cy.intercept(
+      '**/ghc/v1/queues/counseling?page=1&perPage=20&sort=closeoutInitiated&order=asc&locator=**&needsPPMCloseout=true&ppmType=**',
+    ).as('getPPMTypeAndLocatorFilteredMoves');
     cy.intercept(
       '**/ghc/v1/queues/counseling?page=1&perPage=20&sort=closeoutInitiated&order=asc&needsPPMCloseout=true&closeoutInitiated=**',
     ).as('getCloseoutInitiatedFilteredMoves');
@@ -41,8 +44,16 @@ describe('Services counselor user', () => {
   });
 
   it('is able to filter moves based on ppm type', () => {
+    // PPMSC1 is a Partial PPM move, so when we search for Partial, we should see it in the results
+    cy.get('th[data-testid="locator"] > div > input').type('PPMSC1').blur();
+    cy.wait(['@getLocatorFilteredMoves']);
+    cy.get('th[data-testid="ppmType"] > div > select').select('Partial');
+    cy.wait(['@getPPMTypeAndLocatorFilteredMoves']);
+    cy.get('td').contains('PPMSC1');
+
+    // When we search for Full PPM moves, PPMSC1 should not come up
     cy.get('th[data-testid="ppmType"] > div > select').select('Full');
-    cy.wait(['@getPPMTypeFilteredMoves']);
+    cy.wait(['@getPPMTypeAndLocatorFilteredMoves']);
     cy.get('h1').contains('Moves (0)');
   });
   it('is able to filter moves based on Closeout initiated', () => {
