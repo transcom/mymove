@@ -101,7 +101,7 @@ const counselingColumns = () => [
     isFilterable: true,
   }),
 ];
-const closeoutColumns = () => [
+const closeoutColumns = (ppmCloseoutGBLOC) => [
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
@@ -171,12 +171,14 @@ const closeoutColumns = () => [
   }),
   createHeader('PPM closeout location', 'closeoutLocation', {
     id: 'closeoutLocation',
-    isFilterable: true,
+    // This filter only makes sense if we're not in a closeout GBLOC. Users in a closeout GBLOC will
+    // see the same value in this column for every move.
+    isFilterable: !ppmCloseoutGBLOC,
   }),
 ];
 
 const ServicesCounselingQueue = () => {
-  const { isLoading, isError } = useUserQueries();
+  const { data, isLoading, isError } = useUserQueries();
 
   const history = useHistory();
 
@@ -190,6 +192,11 @@ const ServicesCounselingQueue = () => {
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
+  // If the office user is in a closeout GBLOC and on the closeout tab, then we will want to disable
+  // the column filter for the closeout location column because it will have no effect.
+  const officeUserGBLOC = data.office_user.transportation_office.gbloc;
+  const inPPMCloseoutGBLOC = officeUserGBLOC === 'TVCB' || officeUserGBLOC === 'NAVY' || officeUserGBLOC === 'USCG';
 
   return (
     // TODO: Pull out header count and add new move button
@@ -205,7 +212,7 @@ const ServicesCounselingQueue = () => {
             defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
             disableMultiSort
             disableSortBy={false}
-            columns={closeoutColumns()}
+            columns={closeoutColumns(inPPMCloseoutGBLOC)}
             title="Moves"
             handleClick={handleClick}
             useQueries={useServicesCounselingQueuePPMQueries}
