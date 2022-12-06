@@ -11,6 +11,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -42,7 +43,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{ID: mtoShipmentID},
 		})
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOServiceItem: models.MTOServiceItem{
 				ID: serviceItemID, MoveTaskOrderID: mto.ID, ReServiceID: reService.ID, MTOShipmentID: &mtoShipment.ID,
@@ -164,7 +165,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	var requestUser models.User
 
 	setupTestData := func() mtoserviceitemop.UpdateMTOServiceItemStatusParams {
-		requestUser = testdatagen.MakeStubbedUser(suite.DB())
+		requestUser = factory.BuildUser(nil, nil, nil)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
 			moveTaskOrderID, serviceItemID), nil)
 
@@ -310,7 +311,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		mtoServiceItem, move := suite.createServiceItem()
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
 			moveTaskOrderID, serviceItemID), nil)
@@ -349,7 +350,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		mtoServiceItem, availableMove := suite.createServiceItem()
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		availableMoveID := availableMove.ID
 		mtoServiceItemID := mtoServiceItem.ID
 

@@ -353,7 +353,7 @@ func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersPara
 
 			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
-			err = h.MoveRouter.Submit(appCtx, move, nil)
+			err = h.MoveRouter.RouteAfterAmendingOrders(appCtx, move)
 			if err != nil {
 				return handlers.ResponseForError(logger, err), err
 			}

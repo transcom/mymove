@@ -24,7 +24,8 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
+// Test the expected functionality of the move history fetcher
+func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 	moveHistoryFetcher := NewMoveHistoryFetcher()
 
 	suite.Run("successfully returns submitted move history available to prime", func() {
@@ -210,7 +211,481 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.Run("returns Orders fields and context", func() {
+	suite.Run("returns paginated results", func() {
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+
+		// update move
+		tioRemarks := "updating TIO remarks for test"
+		approvedMove.TIORemarks = &tioRemarks
+		suite.MustSave(&approvedMove)
+
+		// update move
+		tioRemarks = "updating TIO remarks for test AGAIN"
+		approvedMove.TIORemarks = &tioRemarks
+		suite.MustSave(&approvedMove)
+
+		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(2)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+		suite.Equal(2, len(moveHistoryData.AuditHistories))
+	})
+
+	suite.Run("filters shipments and service items from different move", func() {
+
+		auditHistoryContains := func(auditHistories models.AuditHistories, keyword string) func() (success bool) {
+			return func() (success bool) {
+				for _, record := range auditHistories {
+					if strings.Contains(*record.ChangedData, keyword) {
+						return true
+					}
+				}
+				return false
+			}
+		}
+
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedShipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{})
+		serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: approvedMove,
+		})
+
+		approvedMoveToFilter := testdatagen.MakeAvailableMove(suite.DB())
+		approvedShipmentToFilter := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMoveToFilter, testdatagen.Assertions{})
+		serviceItemToFilter := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: approvedMoveToFilter,
+		})
+
+		reason := "heavy"
+		serviceItem.Reason = &reason
+		suite.MustSave(&serviceItem)
+
+		reasonFilter := "light"
+		serviceItemToFilter.Reason = &reasonFilter
+		suite.MustSave(&serviceItemToFilter)
+
+		customerRemarks := "fragile"
+		approvedShipment.CustomerRemarks = &customerRemarks
+		suite.MustSave(&approvedShipment)
+
+		customerRemarksFilter := "sturdy"
+		approvedShipmentToFilter.CustomerRemarks = &customerRemarksFilter
+		suite.MustSave(&approvedShipmentToFilter)
+
+		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		suite.Condition(auditHistoryContains(moveHistoryData.AuditHistories, "fragile"), "should contain fragile")
+		containsSturdy := auditHistoryContains(moveHistoryData.AuditHistories, "sturdy")()
+		suite.False(containsSturdy, "should not contain sturdy")
+
+		suite.Condition(auditHistoryContains(moveHistoryData.AuditHistories, "heavy"), "should contain heavy")
+		containsLight := auditHistoryContains(moveHistoryData.AuditHistories, "light")()
+		suite.False(containsLight, "should not contain light")
+
+	})
+
+	suite.Run("returns Audit History with session information", func() {
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		fakeRole, _ := testdatagen.LookupOrMakeRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
+		fakeUser := factory.BuildUser(suite.DB(), nil, nil)
+		_ = testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
+			User: fakeUser,
+			UsersRoles: models.UsersRoles{
+				RoleID: fakeRole.ID,
+			},
+		})
+		_ = testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+			OfficeUser: models.OfficeUser{
+				User:   fakeUser,
+				UserID: &fakeUser.ID,
+			},
+		})
+
+		_ = testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
+			User: fakeUser,
+			Move: models.Move{
+				ID: approvedMove.ID,
+			},
+		})
+
+		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		suite.NotEmpty(moveHistoryData.AuditHistories, "AuditHistories should not be empty")
+		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserID, "AuditHistories contains an AuditHistory with a SessionUserID")
+		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserFirstName, "AuditHistories contains an AuditHistory with a SessionUserFirstName")
+		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserLastName, "AuditHistories contains an AuditHistory with a SessionUserLastName")
+		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserEmail, "AuditHistories contains an AuditHistory with a SessionUserEmail")
+		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserTelephone, "AuditHistories contains an AuditHistory with a SessionUserTelephone")
+	})
+}
+
+// Test specific move history data scenarios
+func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
+	moveHistoryFetcher := NewMoveHistoryFetcher()
+
+	suite.Run("has audit history records for service item", func() {
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+
+		updater := mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter)
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+		rejectionReason := swag.String("")
+		shipmentIDAbbr := serviceItem.MTOShipment.ID.String()[0:5]
+
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		params := services.FetchMoveHistoryParams{Locator: move.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		suite.NotEmpty(moveHistoryData.AuditHistories, "AuditHistories should not be empty")
+		verifyServiceItemStatusContext := false
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "mto_service_items" {
+				if *h.ObjectID == updatedServiceItem.ID {
+					if h.Context != nil {
+						context := removeEscapeJSONtoArray(h.Context)
+						if context != nil && context[0]["name"] == serviceItem.ReService.Name &&
+							context[0]["shipment_type"] == string(serviceItem.MTOShipment.ShipmentType) &&
+							context[0]["shipment_id_abbr"] == shipmentIDAbbr {
+							verifyServiceItemStatusContext = true
+						}
+					}
+				}
+			}
+		}
+		suite.True(verifyServiceItemStatusContext, "AuditHistories contains an AuditHistory with a Context when a service item is approved")
+	})
+
+	suite.Run("has audit history records for approved payment request", func() {
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		cents := unit.Cents(1000)
+		approvedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusPending,
+			},
+			Move: approvedMove,
+		})
+
+		testServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: approvedMove,
+		})
+
+		paymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Name: "Test",
+			},
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status:     models.PaymentServiceItemStatusRequested,
+				PriceCents: &cents,
+			},
+			PaymentRequest: approvedPaymentRequest,
+			MTOServiceItem: testServiceItem,
+		})
+		shipmentIDAbbr := paymentServiceItem.MTOServiceItem.MTOShipment.ID.String()[0:5]
+
+		approvedPaymentRequest.Status = models.PaymentRequestStatusReviewed
+		suite.MustSave(&approvedPaymentRequest)
+		paymentServiceItem.Status = models.PaymentServiceItemStatusApproved
+		suite.MustSave(&paymentServiceItem)
+
+		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		verifyPaymentRequestHistoryFound := false
+		verifyPaymentRequestContext := false
+
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "payment_requests" {
+				if *h.ObjectID == approvedPaymentRequest.ID {
+					if h.ChangedData != nil {
+						verifyPaymentRequestHistoryFound = true
+
+						if h.Context != nil {
+							context := removeEscapeJSONtoArray(h.Context)
+							if context[0]["status"] == paymentServiceItem.Status.String() &&
+								context[0]["name"] == paymentServiceItem.MTOServiceItem.ReService.Name &&
+								context[0]["price"] == paymentServiceItem.PriceCents.String() &&
+								context[0]["shipment_type"] == string(paymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType) &&
+								context[0]["shipment_id_abbr"] == shipmentIDAbbr {
+								verifyPaymentRequestContext = true
+							}
+						}
+					}
+					break
+				}
+			}
+		}
+		suite.True(verifyPaymentRequestHistoryFound, "AuditHistories contains an AuditHistory with an approved payment request")
+		suite.True(verifyPaymentRequestContext, "Approved payment request creation AuditHistory contains a context with the appropriate values")
+	})
+
+	suite.Run("has audit history records for reweighs", func() {
+		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), nil, testdatagen.Assertions{})
+		shipmentIDAbbr := shipment.ID.String()[0:5]
+		// Create a valid reweigh for the move
+		newReweigh := &models.Reweigh{
+			RequestedAt: time.Now(),
+			RequestedBy: models.ReweighRequesterTOO,
+			Shipment:    shipment,
+			ShipmentID:  shipment.ID,
+		}
+		reweighCreator := reweigh.NewReweighCreator()
+		createdReweigh, err := reweighCreator.CreateReweighCheck(suite.AppContextForTest(), newReweigh)
+		suite.NoError(err)
+
+		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		verifyReweighHistoryFound := false
+		verifyReweighContext := false
+
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "reweighs" && *h.ObjectID == createdReweigh.ID {
+				verifyReweighHistoryFound = true
+				if h.Context != nil {
+					context := removeEscapeJSONtoArray(h.Context)
+					if context != nil && context[0]["shipment_type"] == string(shipment.ShipmentType) && context[0]["shipment_id_abbr"] == shipmentIDAbbr {
+						verifyReweighContext = true
+					}
+				}
+				break
+			}
+		}
+		suite.True(verifyReweighHistoryFound, "AuditHistories contains an AuditHistory with a Reweigh creation")
+		suite.True(verifyReweighContext, "Reweigh creation AuditHistory contains a context with the appropriate shipment type")
+	})
+
+	suite.Run("has audit history records for service item dimensions", func() {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+
+		dimension := models.MTOServiceItemDimension{
+			Type:      models.DimensionTypeItem,
+			Length:    12000,
+			Height:    12000,
+			Width:     12000,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+		reServiceDDFSIT := testdatagen.MakeDDFSITReService(suite.DB())
+
+		serviceItem := models.MTOServiceItem{
+			MoveTaskOrderID: move.ID,
+			MoveTaskOrder:   move,
+			ReService:       reServiceDDFSIT,
+			MTOShipmentID:   &shipment.ID,
+			MTOShipment:     shipment,
+			Dimensions:      models.MTOServiceItemDimensions{dimension},
+			Status:          models.MTOServiceItemStatusSubmitted,
+		}
+		shipmentIDAbbr := serviceItem.MTOShipment.ID.String()[0:5]
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		verifyServiceItemDimensionsHistoryFound := false
+		verifyServiceItemDimensionContext := false
+
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "mto_service_item_dimensions" {
+				if h.ChangedData != nil {
+					changedData := removeEscapeJSONtoObject(h.ChangedData)
+					if changedData["type"] == "ITEM" {
+						verifyServiceItemDimensionsHistoryFound = true
+					}
+
+					if h.Context != nil {
+						context := removeEscapeJSONtoArray(h.Context)
+						if context[0]["shipment_type"] == string(serviceItem.MTOShipment.ShipmentType) && context[0]["shipment_id_abbr"] == shipmentIDAbbr {
+							verifyServiceItemDimensionContext = true
+						}
+					}
+				}
+				break
+			}
+		}
+		suite.True(verifyServiceItemDimensionsHistoryFound, "AuditHistories contains an AuditHistory with a service item dimensions creation")
+		suite.True(verifyServiceItemDimensionContext, "Service item dimensions creation AuditHistory contains a context with the appropriate shipment type")
+	})
+
+	suite.Run("has audit history records for service item customer contacts", func() {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+
+		reService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeMS,
+			},
+		})
+
+		sitEntryDate := time.Now()
+		contact1 := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeFirst,
+			FirstAvailableDeliveryDate: sitEntryDate,
+			TimeMilitary:               "0815Z",
+		}
+		contact2 := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeSecond,
+			FirstAvailableDeliveryDate: sitEntryDate,
+			TimeMilitary:               "0815Z",
+		}
+		var contacts models.MTOServiceItemCustomerContacts
+		contacts = append(contacts, contact1, contact2)
+
+		serviceItem := models.MTOServiceItem{
+			MoveTaskOrderID:  move.ID,
+			MoveTaskOrder:    move,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			CustomerContacts: contacts,
+			ReService:        reService,
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		verifyServiceItemDimensionsHistoryFound := false
+
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "mto_service_item_customer_contacts" {
+				if h.ChangedData != nil {
+					changedData := removeEscapeJSONtoObject(h.ChangedData)
+					if changedData["time_military"] == "0815Z" {
+						verifyServiceItemDimensionsHistoryFound = true
+						break
+					}
+				}
+			}
+		}
+		suite.True(verifyServiceItemDimensionsHistoryFound, "AuditHistories contains an AuditHistory with a service item customer contacts creation")
+	})
+
+	suite.Run("has audit history records for service members", func() {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		serviceMember := move.Orders.ServiceMember
+		suite.NotNil(serviceMember)
+
+		params := services.FetchMoveHistoryParams{Locator: move.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		verifyServiceMemberHistoryFound := false
+		verifyServiceMemberContextFound := false
+
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "service_members" && *h.ObjectID == serviceMember.ID {
+				verifyServiceMemberHistoryFound = true
+
+				if h.Context != nil {
+					context := removeEscapeJSONtoArray(h.Context)
+					if context[0]["current_duty_location_name"] != "" {
+						verifyServiceMemberContextFound = true
+					}
+				}
+				break
+			}
+		}
+		suite.True(verifyServiceMemberHistoryFound, "AuditHistories contains an AuditHistory when a service member is created")
+		suite.True(verifyServiceMemberContextFound, "Service member creation AuditHistory contains a context with current duty location name")
+	})
+
+	suite.Run("has audit history records for mto_agents", func() {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		mtoAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+
+		// Make two audit history entries, one with an event name we should find
+		// and another with the eventName we are intentionally not returning in our query.
+		eventNameToFind := "updateShipment"
+		eventNameToNotFind := "deleteShipment"
+		tableName := "mto_agents"
+		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
+			TestDataAuditHistory: testdatagen.TestDataAuditHistory{
+				EventName:   &eventNameToFind,
+				TableNameDB: tableName,
+				ObjectID:    &mtoAgent.ID,
+			},
+			Move: models.Move{
+				ID: move.ID,
+			},
+		})
+		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
+			TestDataAuditHistory: testdatagen.TestDataAuditHistory{
+				EventName:   &eventNameToNotFind,
+				TableNameDB: tableName,
+				ObjectID:    &mtoAgent.ID,
+			},
+			Move: models.Move{
+				ID: move.ID,
+			},
+		})
+
+		params := services.FetchMoveHistoryParams{Locator: move.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		verifyEventNameFound := false
+		verifyEventNameNotFound := false
+
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "mto_agents" {
+				if h.EventName != nil && *h.EventName == eventNameToFind {
+					verifyEventNameFound = true
+				}
+				if h.EventName != nil && *h.EventName == eventNameToNotFind {
+					verifyEventNameNotFound = true
+				}
+			}
+		}
+		suite.True(verifyEventNameFound, "MTO Agent event name to find.")
+		suite.False(verifyEventNameNotFound, "MTO Agent event name to NOT find.")
+	})
+
+	suite.Run("has audit history records for orders with context", func() {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		order := approvedMove.Orders
 		now := time.Now()
@@ -231,7 +706,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// README: This list of properties below here is taken from
 		// swagger-def/ghc.yaml#UpdateOrderPayload
 		// README: issueDate, reportByDate, ordersType, ordersTypeDetail,
-		// originDutyLocationId, newDutyLocationId, ordersNumber, tac, sac,
+		// originDutyLocationID, newDutyLocationID, ordersNumber, tac, sac,
 		// ntsTac, ntsSac, departmentIndicator, ordersAcknowledgement
 		orderNumber := "030-00362"
 		tac := "1234"
@@ -323,7 +798,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// double check that we found the record we're looking for
 		suite.True(foundUpdateOrderRecord)
 	})
-	suite.Run("returns user uploads fields and context", func() {
+
+	suite.Run("has audit history records for user uploads with context", func() {
 		// Make an approved move and get the associated orders, service member, uploaded orders and related document
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		orders := approvedMove.Orders
@@ -375,448 +851,207 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 
 	})
 
-}
+	suite.Run("has audit history records for proof of service documents", func() {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		priceCents := unit.Cents(1000000)
 
-func removeEscapeJSONtoObject(data *string) map[string]interface{} {
-	var result map[string]interface{}
-	if data == nil || *data == "" {
-		return result
-	}
-	var byteData = []byte(*data)
-
-	_ = json.Unmarshal(byteData, &result)
-	return result
-}
-
-func removeEscapeJSONtoArray(data *string) []map[string]string {
-	var result []map[string]string
-	if data == nil || *data == "" {
-		return result
-	}
-	var byteData = []byte(*data)
-
-	_ = json.Unmarshal(byteData, &result)
-	return result
-}
-
-func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
-	moveHistoryFetcher := NewMoveHistoryFetcher()
-
-	suite.Run("returns Audit History with session information", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
-		fakeRole, _ := testdatagen.LookupOrMakeRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
-		fakeUser := factory.BuildUser(suite.DB(), nil, nil)
-		_ = testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
-			User: fakeUser,
-			UsersRoles: models.UsersRoles{
-				RoleID: fakeRole.ID,
-			},
-		})
-		_ = testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-			OfficeUser: models.OfficeUser{
-				User:   fakeUser,
-				UserID: &fakeUser.ID,
-			},
-		})
-
-		_ = testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
-			User: fakeUser,
-			Move: models.Move{
-				ID: approvedMove.ID,
-			},
-		})
-
-		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
-		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
-		suite.NotNil(moveHistoryData)
-		suite.NoError(err)
-
-		suite.NotEmpty(moveHistoryData.AuditHistories, "AuditHistories should not be empty")
-		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserID, "AuditHistories contains an AuditHistory with a SessionUserID")
-		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserFirstName, "AuditHistories contains an AuditHistory with a SessionUserFirstName")
-		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserLastName, "AuditHistories contains an AuditHistory with a SessionUserLastName")
-		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserEmail, "AuditHistories contains an AuditHistory with a SessionUserEmail")
-		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserTelephone, "AuditHistories contains an AuditHistory with a SessionUserTelephone")
-	})
-
-	suite.Run("filters shipments and service items from different move ", func() {
-
-		auditHistoryContains := func(auditHistories models.AuditHistories, keyword string) func() (success bool) {
-			return func() (success bool) {
-				for _, record := range auditHistories {
-					if strings.Contains(*record.ChangedData, keyword) {
-						return true
-					}
-				}
-				return false
-			}
-		}
-
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
-		approvedShipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{})
-		serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: approvedMove,
-		})
-
-		approvedMoveToFilter := testdatagen.MakeAvailableMove(suite.DB())
-		approvedShipmentToFilter := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMoveToFilter, testdatagen.Assertions{})
-		serviceItemToFilter := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: approvedMoveToFilter,
-		})
-
-		reason := "heavy"
-		serviceItem.Reason = &reason
-		suite.MustSave(&serviceItem)
-
-		reasonFilter := "light"
-		serviceItemToFilter.Reason = &reasonFilter
-		suite.MustSave(&serviceItemToFilter)
-
-		customerRemarks := "fragile"
-		approvedShipment.CustomerRemarks = &customerRemarks
-		suite.MustSave(&approvedShipment)
-
-		customerRemarksFilter := "sturdy"
-		approvedShipmentToFilter.CustomerRemarks = &customerRemarksFilter
-		suite.MustSave(&approvedShipmentToFilter)
-
-		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
-		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
-		suite.NotNil(moveHistoryData)
-		suite.NoError(err)
-
-		suite.Condition(auditHistoryContains(moveHistoryData.AuditHistories, "fragile"), "should contain fragile")
-		containsSturdy := auditHistoryContains(moveHistoryData.AuditHistories, "sturdy")()
-		suite.False(containsSturdy, "should not contain sturdy")
-
-		suite.Condition(auditHistoryContains(moveHistoryData.AuditHistories, "heavy"), "should contain heavy")
-		containsLight := auditHistoryContains(moveHistoryData.AuditHistories, "light")()
-		suite.False(containsLight, "should not contain light")
-
-	})
-
-	suite.Run("has context", func() {
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
-
-		updater := mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter)
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
-		serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		// Create a payment request
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
-		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
-		rejectionReason := swag.String("")
 
-		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
-			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
-		suite.NoError(err)
+		// Create service item and payment service item to associate payment correctly to move
+		testServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
 
-		params := services.FetchMoveHistoryParams{Locator: move.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
-		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status:     models.PaymentServiceItemStatusRequested,
+				PriceCents: &priceCents,
+			},
+			PaymentRequest: paymentRequest,
+			MTOServiceItem: testServiceItem,
+		})
+
+		// Create proof of service doc
+		proofOfServiceDoc := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
+			ProofOfServiceDoc: models.ProofOfServiceDoc{
+				PaymentRequestID: paymentRequest.ID,
+			},
+		})
+
+		parameters := services.FetchMoveHistoryParams{
+			Locator: move.Locator,
+			Page:    swag.Int64(1),
+			PerPage: swag.Int64(100),
+		}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &parameters)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
 
-		suite.NotEmpty(moveHistoryData.AuditHistories, "AuditHistories should not be empty")
-		verifyServiceItemStatusContext := false
+		foundProofOfServiceDoc := false
+		foundPaymentRequestIDInContext := false
 		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "mto_service_items" {
-				if *h.ObjectID == updatedServiceItem.ID {
-					if h.Context != nil {
-						context := removeEscapeJSONtoArray(h.Context)
-						if context != nil && context[0]["name"] == serviceItem.ReService.Name && context[0]["shipment_type"] == string(serviceItem.MTOShipment.ShipmentType) {
-							verifyServiceItemStatusContext = true
+			if h.TableName == "proof_of_service_docs" && *h.ObjectID == proofOfServiceDoc.ID {
+				foundProofOfServiceDoc = true
+
+				if h.Context != nil {
+					context := removeEscapeJSONtoArray(h.Context)
+					if context != nil && context[0]["payment_request_number"] == string(paymentRequest.PaymentRequestNumber) {
+						foundPaymentRequestIDInContext = true
+					}
+				}
+
+				break
+			}
+		}
+		// double check that we found the records we're looking for
+		suite.True(foundProofOfServiceDoc, "AuditHistories contains an AuditHistory with a proof of service document creation")
+		suite.True(foundPaymentRequestIDInContext, "Proof of service document creation AuditHistory contains a context with the appropriate payment request number")
+	})
+
+	suite.Run("has audit history records for shipment addresses", func() {
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		now := time.Now()
+		pickupDate := now.AddDate(0, 0, 10)
+		secondaryPickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		secondaryDestinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		approvedShipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:              models.MTOShipmentStatusApproved,
+				ApprovedDate:        &now,
+				ScheduledPickupDate: &pickupDate,
+			},
+			Move:                     approvedMove,
+			SecondaryPickupAddress:   secondaryPickupAddress,
+			DestinationAddress:       destinationAddress,
+			SecondaryDeliveryAddress: secondaryDestinationAddress,
+		})
+		shipmentIDAbbr := approvedShipment.ID.String()[0:5]
+
+		foundPickupAddress := false
+		foundSecondaryPickupAddress := false
+		foundDestinationAddress := false
+		foundSecondaryDestinationAddress := false
+
+		parameters := services.FetchMoveHistoryParams{
+			Locator: approvedMove.Locator,
+			Page:    swag.Int64(1),
+			PerPage: swag.Int64(100),
+		}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &parameters)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "addresses" {
+				if h.Context != nil {
+					context := removeEscapeJSONtoArray(h.Context)
+					if context != nil && context[0]["shipment_type"] == string(approvedShipment.ShipmentType) && context[0]["shipment_id_abbr"] == shipmentIDAbbr {
+
+						switch context[0]["address_type"] {
+						case "pickupAddress":
+							foundPickupAddress = true
+						case "secondaryPickupAddress":
+							foundSecondaryPickupAddress = true
+						case "destinationAddress":
+							foundDestinationAddress = true
+						case "secondaryDestinationAddress":
+							foundSecondaryDestinationAddress = true
 						}
 					}
 				}
 			}
 		}
-		suite.True(verifyServiceItemStatusContext, "AuditHistories contains an AuditHistory with a Context when a service item is approved")
+
+		suite.True(foundPickupAddress, "AuditHistories contains an AuditHistory with an MTO Shipment pickup address creation with correct shipment context")
+		suite.True(foundSecondaryPickupAddress, "AuditHistories contains an AuditHistory with an MTO Shipment secondary pickup address creation with correct shipment context")
+		suite.True(foundDestinationAddress, "AuditHistories contains an AuditHistory with an MTO Shipment destination address creation with correct shipment context")
+		suite.True(foundSecondaryDestinationAddress, "AuditHistories contains an AuditHistory with an MTO Shipment secondary destination address creation with correct shipment context")
 	})
 
-	suite.Run("has paginated results", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+	suite.Run("has audit history records for service member addresses", func() {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		serviceMember := move.Orders.ServiceMember
+		suite.NotNil(serviceMember)
 
-		// update move
-		tioRemarks := "updating TIO remarks for test"
-		approvedMove.TIORemarks = &tioRemarks
-		suite.MustSave(&approvedMove)
+		residentialAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		backupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 
-		// update move
-		tioRemarks = "updating TIO remarks for test AGAIN"
-		approvedMove.TIORemarks = &tioRemarks
-		suite.MustSave(&approvedMove)
+		serviceMember.ResidentialAddress = &residentialAddress
+		serviceMember.BackupMailingAddress = &backupAddress
+		suite.MustSave(&move.Orders.ServiceMember)
 
-		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(2)}
-		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
-		suite.NotNil(moveHistoryData)
-		suite.NoError(err)
-		suite.Equal(2, len(moveHistoryData.AuditHistories))
-	})
+		foundResidentialAddress := false
+		foundBackupMailingAddress := false
 
-	suite.Run("approved payment request shows up", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
-		cents := unit.Cents(1000)
-		approvedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusPending,
-			},
-			Move: approvedMove,
-		})
-
-		testServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: approvedMove,
-		})
-
-		paymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Name: "Test",
-			},
-			PaymentServiceItem: models.PaymentServiceItem{
-				Status:     models.PaymentServiceItemStatusRequested,
-				PriceCents: &cents,
-			},
-			PaymentRequest: approvedPaymentRequest,
-			MTOServiceItem: testServiceItem,
-		})
-
-		approvedPaymentRequest.Status = models.PaymentRequestStatusReviewed
-		suite.MustSave(&approvedPaymentRequest)
-		paymentServiceItem.Status = models.PaymentServiceItemStatusApproved
-		suite.MustSave(&paymentServiceItem)
-
-		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
-		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		parameters := services.FetchMoveHistoryParams{
+			Locator: move.Locator,
+			Page:    swag.Int64(1),
+			PerPage: swag.Int64(100),
+		}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &parameters)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
 
-		verifyPaymentRequestHistoryFound := false
 		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "payment_requests" && *h.ObjectID == approvedPaymentRequest.ID {
+			if h.TableName == "addresses" && *h.ContextID == serviceMember.ID.String() {
 				if h.Context != nil {
 					context := removeEscapeJSONtoArray(h.Context)
-					if context != nil {
-						suite.Contains(context[0]["status"], paymentServiceItem.Status)
-						verifyPaymentRequestHistoryFound = true
+					if context[0]["address_type"] == "residentialAddress" {
+						foundResidentialAddress = true
+					} else if context[0]["address_type"] == "backupMailingAddress" {
+						foundBackupMailingAddress = true
 					}
 				}
+			}
+		}
+
+		suite.True(foundResidentialAddress, "AuditHistories contains an AuditHistory with service member residential address creation")
+		suite.True(foundBackupMailingAddress, "AuditHistories contains an AuditHistory with service member backup mailing address creation")
+	})
+
+	suite.Run("has audit history records for backup contacts", func() {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		serviceMember := move.Orders.ServiceMember
+		suite.NotNil(serviceMember)
+
+		backupContact := testdatagen.MakeBackupContact(suite.DB(), testdatagen.Assertions{
+			BackupContact: models.BackupContact{
+				ServiceMember:   serviceMember,
+				ServiceMemberID: serviceMember.ID,
+			},
+		})
+		suite.NotNil(backupContact)
+
+		foundBackupContact := false
+
+		parameters := services.FetchMoveHistoryParams{
+			Locator: move.Locator,
+			Page:    swag.Int64(1),
+			PerPage: swag.Int64(100),
+		}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &parameters)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "backup_contacts" && *h.ObjectID == backupContact.ID {
+				foundBackupContact = true
 				break
 			}
 		}
-		suite.True(verifyPaymentRequestHistoryFound, "AuditHistories contains an AuditHistory with an approved payment request")
-	})
 
-	suite.Run("has audit history records for reweighs", func() {
-		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), nil, testdatagen.Assertions{})
-		// Create a valid reweigh for the move
-		newReweigh := &models.Reweigh{
-			RequestedAt: time.Now(),
-			RequestedBy: models.ReweighRequesterTOO,
-			Shipment:    shipment,
-			ShipmentID:  shipment.ID,
-		}
-		reweighCreator := reweigh.NewReweighCreator()
-		createdReweigh, err := reweighCreator.CreateReweighCheck(suite.AppContextForTest(), newReweigh)
-		suite.NoError(err)
-
-		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
-		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
-		suite.NotNil(moveHistoryData)
-		suite.NoError(err)
-
-		verifyReweighHistoryFound := false
-		verifyReweighContext := false
-
-		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "reweighs" && *h.ObjectID == createdReweigh.ID {
-				verifyReweighHistoryFound = true
-				if h.Context != nil {
-					context := removeEscapeJSONtoArray(h.Context)
-					if context != nil && context[0]["shipment_type"] == string(shipment.ShipmentType) {
-						verifyReweighContext = true
-					}
-				}
-				break
-			}
-		}
-		suite.True(verifyReweighHistoryFound, "AuditHistories contains an AuditHistory with a Reweigh creation")
-		suite.True(verifyReweighContext, "Reweigh creation AuditHistory contains a context with the appropriate shipment type")
-	})
-
-	suite.Run("has audit history records for service item dimensions", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
-
-		dimension := models.MTOServiceItemDimension{
-			Type:      models.DimensionTypeItem,
-			Length:    12000,
-			Height:    12000,
-			Width:     12000,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		}
-		reServiceDDFSIT := testdatagen.MakeDDFSITReService(suite.DB())
-
-		serviceItem := models.MTOServiceItem{
-			MoveTaskOrderID: move.ID,
-			MoveTaskOrder:   move,
-			ReService:       reServiceDDFSIT,
-			MTOShipmentID:   &shipment.ID,
-			MTOShipment:     shipment,
-			Dimensions:      models.MTOServiceItemDimensions{dimension},
-			Status:          models.MTOServiceItemStatusSubmitted,
-		}
-
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem)
-		suite.NotNil(createdServiceItems)
-		suite.NoError(err)
-
-		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
-		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
-		suite.NotNil(moveHistoryData)
-		suite.NoError(err)
-
-		verifyServiceItemDimensionsHistoryFound := false
-
-		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "mto_service_item_dimensions" {
-				if h.ChangedData != nil {
-					changedData := removeEscapeJSONtoObject(h.ChangedData)
-					if changedData["type"] == "ITEM" {
-						verifyServiceItemDimensionsHistoryFound = true
-						break
-					}
-				}
-			}
-		}
-		suite.True(verifyServiceItemDimensionsHistoryFound, "AuditHistories contains an AuditHistory with a service item dimensions creation")
-	})
-
-	suite.Run("has audit history records for service item customer contacts", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
-
-		reService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeMS,
-			},
-		})
-
-		sitEntryDate := time.Now()
-		contact1 := models.MTOServiceItemCustomerContact{
-			Type:                       models.CustomerContactTypeFirst,
-			FirstAvailableDeliveryDate: sitEntryDate,
-			TimeMilitary:               "0815Z",
-		}
-		contact2 := models.MTOServiceItemCustomerContact{
-			Type:                       models.CustomerContactTypeSecond,
-			FirstAvailableDeliveryDate: sitEntryDate,
-			TimeMilitary:               "0815Z",
-		}
-		var contacts models.MTOServiceItemCustomerContacts
-		contacts = append(contacts, contact1, contact2)
-
-		serviceItem := models.MTOServiceItem{
-			MoveTaskOrderID:  move.ID,
-			MoveTaskOrder:    move,
-			MTOShipmentID:    &shipment.ID,
-			MTOShipment:      shipment,
-			CustomerContacts: contacts,
-			ReService:        reService,
-			Status:           models.MTOServiceItemStatusSubmitted,
-		}
-
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem)
-		suite.NotNil(createdServiceItems)
-		suite.NoError(err)
-
-		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
-		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
-		suite.NotNil(moveHistoryData)
-		suite.NoError(err)
-
-		verifyServiceItemDimensionsHistoryFound := false
-
-		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "mto_service_item_customer_contacts" {
-				if h.ChangedData != nil {
-					changedData := removeEscapeJSONtoObject(h.ChangedData)
-					if changedData["time_military"] == "0815Z" {
-						verifyServiceItemDimensionsHistoryFound = true
-						break
-					}
-				}
-			}
-		}
-		suite.True(verifyServiceItemDimensionsHistoryFound, "AuditHistories contains an AuditHistory with a service item customer contacts creation")
-	})
-
-	suite.Run("has audit history records for mto_agents", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
-		mtoAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
-
-		// Make two audit history entries, one with an event name we should find
-		// and another with the eventName we are intentionally not returning in our query.
-		eventNameToFind := "updateShipment"
-		eventNameToNotFind := "deleteShipment"
-		tableName := "mto_agents"
-		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
-			TestDataAuditHistory: testdatagen.TestDataAuditHistory{
-				EventName:   &eventNameToFind,
-				TableNameDB: tableName,
-				ObjectID:    &mtoAgent.ID,
-			},
-			Move: models.Move{
-				ID: move.ID,
-			},
-		})
-		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
-			TestDataAuditHistory: testdatagen.TestDataAuditHistory{
-				EventName:   &eventNameToNotFind,
-				TableNameDB: tableName,
-				ObjectID:    &mtoAgent.ID,
-			},
-			Move: models.Move{
-				ID: move.ID,
-			},
-		})
-		params := services.FetchMoveHistoryParams{Locator: move.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
-		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
-		suite.NotNil(moveHistoryData)
-		suite.NoError(err)
-
-		verifyEventNameFound := false
-		verifyEventNameNotFound := false
-
-		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "mto_agents" {
-				if h.EventName != nil && *h.EventName == eventNameToFind {
-					verifyEventNameFound = true
-				}
-				if h.EventName != nil && *h.EventName == eventNameToNotFind {
-					verifyEventNameNotFound = true
-				}
-			}
-		}
-		suite.True(verifyEventNameFound, "MTO Agent event name to find.")
-		suite.False(verifyEventNameNotFound, "MTO Agent event name to NOT find.")
+		suite.True(foundBackupContact, "AuditHistories contains an AuditHistory with service member backup contact creation")
 	})
 }
 
 func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 	moveHistoryFetcher := NewMoveHistoryFetcher()
 
+	//region Helper functions
 	setupTestData := func(userID *uuid.UUID, userFirstName string, roleTypes []roles.RoleType, isOfficeUser bool) string {
 		assertions := testdatagen.Assertions{
 			OfficeUser: models.OfficeUser{
@@ -864,6 +1099,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 		})
 		return move.Locator, user
 	}
+	//endregion
 
 	suite.Run("Test with TOO user", func() {
 		userID, _ := uuid.NewV4()
@@ -927,6 +1163,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 	})
 }
 
+//region Private Functions
+
 func filterAuditHistoryByUserID(auditHistories models.AuditHistories, userID uuid.UUID) models.AuditHistories {
 	auditHistoriesForUser := models.AuditHistories{}
 	for _, auditHistory := range auditHistories {
@@ -936,3 +1174,27 @@ func filterAuditHistoryByUserID(auditHistories models.AuditHistories, userID uui
 	}
 	return auditHistoriesForUser
 }
+
+func removeEscapeJSONtoObject(data *string) map[string]interface{} {
+	var result map[string]interface{}
+	if data == nil || *data == "" {
+		return result
+	}
+	var byteData = []byte(*data)
+
+	_ = json.Unmarshal(byteData, &result)
+	return result
+}
+
+func removeEscapeJSONtoArray(data *string) []map[string]string {
+	var result []map[string]string
+	if data == nil || *data == "" {
+		return result
+	}
+	var byteData = []byte(*data)
+
+	_ = json.Unmarshal(byteData, &result)
+	return result
+}
+
+//endregion

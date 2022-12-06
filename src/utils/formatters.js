@@ -277,6 +277,13 @@ export function formatSignatureDate(date) {
   return moment(date).format('YYYY-MM-DD');
 }
 
+// Translate boolean (true/false) into capitalized "Yes"/"No" string
+export const formatYesNoMoveHistoryValue = (value) => {
+  if (value === true) return 'Yes';
+  if (value === false) return 'No';
+  return null;
+};
+
 // Translate boolean (true/false) into "yes"/"no" string
 export const formatYesNoInputValue = (value) => {
   if (value === true) return 'yes';
