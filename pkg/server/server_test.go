@@ -9,6 +9,7 @@
 package server
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -284,6 +285,8 @@ func (suite *serverSuite) testTLSConfigWithRequest(tlsVersion uint16) {
 	}()
 
 	suite.NoError(err)
+
+	suite.NoError(srv.Shutdown(context.Background()))
 }
 
 func (suite *serverSuite) TestTLSConfigWithRequest() {
@@ -351,6 +354,7 @@ func (suite *serverSuite) TestTLSConfigWithRequestNoClientAuth() {
 	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), &config)
 	suite.Nil(conn)
 	suite.Error(err)
+	suite.NoError(srv.Shutdown(context.Background()))
 }
 
 func (suite *serverSuite) TestTLSConfigWithInvalidAuth() {
