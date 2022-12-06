@@ -1,6 +1,8 @@
 package factory
 
 import (
+	"database/sql"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -31,17 +33,24 @@ func (suite *FactorySuite) TestBuildTariff() {
 
 		suite.Equal(customState, zip3Tariff.State)
 	})
-}
 
-func (suite *FactorySuite) TestFetchOrBuildDefaultTariff400ngZip3() {
-	defaultState := "CA"
-	suite.Run("Successful creation of default Tariff400ngZip3", func() {
-		// Under test:      FetchOrBuildDefaultTariff400ngZip3
-		// Mocked:          None
-		// Set up:          Use helper function FetchOrBuildDefaultTariff400ngZip3
-		// Expected outcome:Tariff should be created with default values
+	suite.Run("Two tariffs should not be created", func() {
+		// Under test:      FetchOrBuildTariff400ngZip3
+		// Set up:          Create a Tariff400ngZip3 with no customized state or traits
+		// Expected outcome:Only 1 Tariff400ngZip3 should be created
+		zip3Tariff := FetchOrBuildTariff400ngZip3(suite.DB(), nil, nil)
 
-		zip3Tariff := FetchOrBuildDefaultTariff400ngZip3(suite.DB())
-		suite.Equal(defaultState, zip3Tariff.State)
+		zip3Tariff1 := FetchOrBuildTariff400ngZip3(suite.DB(), nil, nil)
+
+		var existingZip3s models.Tariff400ngZip3s
+		zip3 := DefaultZip3
+		err := suite.DB().Where("zip3 = ?", zip3).All(&existingZip3s)
+
+		if err != nil && err != sql.ErrNoRows {
+			suite.Fail("Failed to gather Tariff400ngZip3 rows from DB", err)
+		}
+
+		suite.Equal(zip3Tariff.ID, zip3Tariff1.ID)
+		suite.Equal(1, len(existingZip3s))
 	})
 }

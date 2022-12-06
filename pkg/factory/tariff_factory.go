@@ -13,6 +13,7 @@ import (
 // DefaultZip3 is the default zip3 for testing
 var DefaultZip3 = "902"
 
+// BuildTariff400ngZip3 finds or makes a single Tariff400ngZip3 record
 func BuildTariff400ngZip3(db *pop.Connection, customs []Customization, traits []Trait) models.Tariff400ngZip3 {
 	customs = setupCustomizations(customs, traits)
 
@@ -41,6 +42,7 @@ func BuildTariff400ngZip3(db *pop.Connection, customs []Customization, traits []
 	return zip3
 }
 
+// FetchOrBuildTariff400ngZip3 tries fetching an existing zip3 first, then falls back to creating one
 func FetchOrBuildTariff400ngZip3(db *pop.Connection, customs []Customization, traits []Trait) models.Tariff400ngZip3 {
 	var existingZip3s models.Tariff400ngZip3s
 	zip3 := DefaultZip3
@@ -55,8 +57,4 @@ func FetchOrBuildTariff400ngZip3(db *pop.Connection, customs []Customization, tr
 	}
 
 	return existingZip3s[0]
-}
-
-func FetchOrBuildDefaultTariff400ngZip3(db *pop.Connection) models.Tariff400ngZip3 {
-	return FetchOrBuildTariff400ngZip3(db, nil, []Trait{})
 }
