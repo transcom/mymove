@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -142,6 +143,14 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 		originalWeightTicket := setupForTest(appCtx, nil, true, true, false)
 
 		updater := NewCustomerWeightTicketUpdater(&ppmShipmentUpdater)
+		ppmShipmentUpdater.
+			On(
+				"UpdatePPMShipmentWithDefaultCheck",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("*models.PPMShipment"),
+				mock.AnythingOfType("uuid.UUID"),
+			).
+			Return(nil, nil)
 
 		desiredWeightTicket := &models.WeightTicket{
 			ID:                       originalWeightTicket.ID,
@@ -176,6 +185,14 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 		originalWeightTicket := setupForTest(appCtx, nil, true, true, true)
 
 		updater := NewCustomerWeightTicketUpdater(&ppmShipmentUpdater)
+		ppmShipmentUpdater.
+			On(
+				"UpdatePPMShipmentWithDefaultCheck",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("*models.PPMShipment"),
+				mock.AnythingOfType("uuid.UUID"),
+			).
+			Return(nil, nil)
 
 		desiredWeightTicket := &models.WeightTicket{
 			ID:                       originalWeightTicket.ID,
