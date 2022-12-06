@@ -4221,6 +4221,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	serviceMemberWithOrdersAndPPMMove07(appCtx, userUploader)
 	serviceMemberWithOrdersAndPPMMove08(appCtx, userUploader)
 	createMoveWithPPMShipmentReadyForFinalCloseout(appCtx, userUploader)
+	createMoveWithCloseoutOffice(appCtx, userUploader)
 
 	//destination type
 	hos := models.DestinationTypeHomeOfSelection

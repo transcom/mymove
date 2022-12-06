@@ -20,7 +20,7 @@ describe('Services counselor user', () => {
       '**/ghc/v1/queues/counseling?page=1&perPage=20&sort=closeoutInitiated&order=asc&needsPPMCloseout=true&closeoutInitiated=**',
     ).as('getCloseoutInitiatedFilteredMoves');
     cy.intercept(
-      '**/ghc/v1/queues/counseling?page=1&perPage=20&sort=closeoutInitiated&order=asc&needsPPMCloseout=true&closeoutLocation=**',
+      '**/ghc/v1/queues/counseling?page=1&perPage=20&sort=closeoutInitiated&order=asc&locator=**&needsPPMCloseout=true&closeoutLocation=**',
     ).as('getCloseoutLocationFilteredMoves');
     cy.intercept(
       '**/ghc/v1/queues/counseling?page=1&perPage=20&sort=closeoutInitiated&order=asc&locator=**&destinationDutyLocation=**&needsPPMCloseout=true',
@@ -64,8 +64,16 @@ describe('Services counselor user', () => {
   });
 
   it('is able to filter moves based on Closeout location', () => {
-    cy.get('th[data-testid="closeoutLocation"] > div > input').type('j').blur();
+    // add filter for move code CLSOFF (which has a closeout office set to JPPSO Testy McTest)
+    cy.get('th[data-testid="locator"] > div > input').type('CLSOFF').blur();
+    // add another filter for the closeout office column
+    cy.get('th[data-testid="closeoutLocation"] > div > input').type('jppso testy').blur();
     cy.wait(['@getCloseoutLocationFilteredMoves']);
+    cy.get('td').contains('CLSOFF');
+    // Add some nonsense text to our filter
+    cy.get('th[data-testid="closeoutLocation"] > div > input').type('z').blur();
+    cy.wait(['@getCloseoutLocationFilteredMoves']);
+    // now we should get no results
     cy.get('h1').contains('Moves (0)');
   });
 
@@ -75,7 +83,7 @@ describe('Services counselor user', () => {
     cy.wait(['@getLocatorFilteredMoves']);
     // Add destination duty location filter 'fort'
     cy.get('th[data-testid="destinationDutyLocation"] > div > input').type('fort').blur();
-    cy.wait(['@getDestinationDutyLocationFilteredMoves']);
+    cy.wait(['@getDestinationDutyLocationAndLocatorFilteredMoves']);
     // We should still see our move
     cy.get('td').contains('PPMSC1');
     // Add nonsense string to our filter (so now we're searching for 'fortzzzz')
