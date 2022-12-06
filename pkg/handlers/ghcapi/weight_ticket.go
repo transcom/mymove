@@ -53,9 +53,6 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 
 				switch e := err.(type) {
 				case apperror.NotFoundError:
-					//fmt.Println("🦋🦋🦋🦋")
-					//fmt.Println(err)
-					//fmt.Println("🦋🦋🦋🦋")
 					return weightticketops.NewUpdateWeightTicketNotFound(), err
 				case apperror.InvalidInputError:
 					return weightticketops.NewUpdateWeightTicketUnprocessableEntity().WithPayload(
