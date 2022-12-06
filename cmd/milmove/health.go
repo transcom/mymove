@@ -53,7 +53,13 @@ func reportError(msg string) {
 // healthCheck does an HTTP GET on the provided `url`. Any response
 // other than 200 OK is considered unhealthy
 func healthCheck(url string) error {
-	r, err := httpClient.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		werr := fmt.Errorf("Error create request for url `%s` error: %w", url, err)
+		return werr
+	}
+	req.Header.Set("User-Agent", "milmove-ecs-health-check/1.0")
+	r, err := httpClient.Do(req)
 	if err != nil {
 		werr := fmt.Errorf("Error checking health for url `%s` error: %w", url, err)
 		return werr
@@ -73,6 +79,34 @@ func healthCheck(url string) error {
 //     for health checks
 //  2. We want to use the same command line options used to start the
 //     server as when checking health
+//
+// Why use a separate health listener thread in cmd/milmove/serve.go
+// instead of using one of the existing listeners?
+//
+// We current deploy two ECS services: one for the my/office/admin
+// apps and one for the prime api. It turns out that both have
+// TLS_ENABLED=true so the tlsListener is enabled. Why is the TLS
+// listener enabled for the prime api when it only terminates mTLS
+// connections? Because the AWS ELB-HealthChecker needs an endpoint to
+// connect to and we cannot configure it to use mTLS.
+//
+// So why not use that listener if it is enabled in both ECS services?
+// The health checker would need to use SSL to connect. We could
+// configure it with the proper certificate authorities, but then if
+// the SSL certificate ever expired, the health check would fail
+// immediately and the service would restart continuously, effectively
+// being unavailable. That seems like too drastic a failure mode for
+// an expired certificate.
+//
+// We could have the health check client ignore the ssl certificate,
+// connecting insecurely, but then we would need to get RA approval.
+//
+// Finally, when the health check runs, its logs are not captured
+// anywhere. If the health check fails, it's very difficult to
+// troubleshoot. Having a separate health server means we can easily
+// have an unauthenticated logs endpoint that the health check client
+// can send logs to. It is not ideal or guaranteed to work, but it is
+// better than nothing.
 func healthFunction(cmd *cobra.Command, args []string) error {
 	// Prepare to parse command line options / environment variables
 	// using the viper library
