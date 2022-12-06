@@ -200,6 +200,13 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	// Get the count
 	count := query.Paginator.TotalEntriesSize
 
+	// Services Counselors in PPM Closeout GBLOCs should see their closeout GBLOC in the CloseoutOffice field for every
+	// move.
+	// We send that field back as a Transportation Office, and the transportation office's name gets displayed.
+	// There are transportation offices corresponding to each of the closeout GBLOCs, but their names don't match what
+	// we want displayed. So our options are to either fake a transportation office here that has the closeout GBLOC for
+	// its name, or use a real transportation office, and have the frontend render it differently if it detects that
+	// it's a closeout office. We went with the former approach to keep the logic contained on the backend.
 	overwriteCloseoutOfficeWithGBLOC := ppmCloseoutGblocs && params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout
 	closeoutOffice := models.TransportationOffice{
 		Name: officeUserGbloc,
@@ -228,6 +235,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			return []models.Move{}, 0, err
 		}
 
+		// Overwrite each move's closeout office if we are in a PPM closeout GBLOC
 		if overwriteCloseoutOfficeWithGBLOC {
 			moves[i].CloseoutOffice = &closeoutOffice
 		}
