@@ -1352,11 +1352,9 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		}
 		var closeoutInitiated time.Time
 		for _, shipment := range move.MTOShipments {
-			if shipment.PPMShipment != nil {
-				if shipment.PPMShipment.SubmittedAt != nil {
-					if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
-						closeoutInitiated = *shipment.PPMShipment.SubmittedAt
-					}
+			if shipment.PPMShipment != nil && shipment.PPMShipment.SubmittedAt != nil {
+				if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
+					closeoutInitiated = *shipment.PPMShipment.SubmittedAt
 				}
 			}
 		}
