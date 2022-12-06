@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
@@ -12,7 +12,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { generalRoutes } from 'constants/routes';
 import { shipmentTypes } from 'constants/shipments';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
-import { getResponseError, patchMTOShipment } from 'services/internalApi';
+import { getMTOShipmentsForMove, getResponseError, patchMTOShipment } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { updateMTOShipment } from 'store/entities/actions';
 import { selectMTOShipmentById } from 'store/entities/selectors';
@@ -21,11 +21,25 @@ const FinalCloseout = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState(null);
-  const { mtoShipmentId } = useParams();
+  const [isLoading, setIsLoading] = useState(true);
+  const { moveId, mtoShipmentId } = useParams();
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
-  if (!mtoShipment) {
+  useEffect(() => {
+    getMTOShipmentsForMove(moveId)
+      .then((response) => {
+        dispatch(updateMTOShipment(response.mtoShipments[mtoShipmentId]));
+      })
+      .catch(() => {
+        setErrorMessage('Failed to fetch shipment information');
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [moveId, mtoShipmentId, dispatch]);
+
+  if (!mtoShipment || isLoading) {
     return <LoadingPlaceholder />;
   }
 

@@ -28,7 +28,7 @@ const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit }) => {
 
   return (
     <div className={styles.FinalCloseoutForm}>
-      <h2>Your final estimated incentive: ${formatCents(mtoShipment?.ppmShipment?.finalEstimatedIncentive || 0)}</h2>
+      <h2>Your final estimated incentive: ${formatCents(mtoShipment?.ppmShipment?.finalIncentive || 0)}</h2>
       <div className={styles.incentiveFactors}>
         <p className={styles.listDescription}>Your incentive is calculated using:</p>
         <dl>
