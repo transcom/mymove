@@ -676,10 +676,14 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					ActualPickupPostalCode:      models.StringPointer("90211"),
 					ActualDestinationPostalCode: models.StringPointer("30814"),
 					ActualMoveDate:              models.TimePointer(actualMoveDate),
+					WeightTickets: models.WeightTickets{
+						testdatagen.MakeDefaultWeightTicket(suite.DB()),
+					},
 				},
 			})
 
 			newPPM := oldPPMShipment
+			newPPM.WeightTickets = nil
 
 			finalIncentive, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NilOrNoVerrs(err)

@@ -140,6 +140,86 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 	suite.Run("Successfully updates", func() {
 		appCtx := suite.AppContextForTest()
 
+		override := models.WeightTicket{
+			EmptyWeight: models.PoundPointer(3000),
+			FullWeight:  models.PoundPointer(4200),
+		}
+
+		originalWeightTicket := setupForTest(appCtx, &override, true, true, false)
+
+		updater := NewCustomerWeightTicketUpdater(&ppmShipmentUpdater)
+
+		desiredWeightTicket := &models.WeightTicket{
+			ID:                       originalWeightTicket.ID,
+			VehicleDescription:       models.StringPointer("2004 Toyota Prius"),
+			EmptyWeight:              models.PoundPointer(3000),
+			MissingEmptyWeightTicket: models.BoolPointer(true),
+			FullWeight:               models.PoundPointer(4200),
+			MissingFullWeightTicket:  models.BoolPointer(true),
+			OwnsTrailer:              models.BoolPointer(false),
+			TrailerMeetsCriteria:     models.BoolPointer(false),
+		}
+
+		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
+
+		suite.Nil(updateErr)
+		suite.Equal(originalWeightTicket.ID, updatedWeightTicket.ID)
+		suite.Equal(originalWeightTicket.EmptyDocumentID, updatedWeightTicket.EmptyDocumentID)
+		suite.Equal(originalWeightTicket.FullDocumentID, updatedWeightTicket.FullDocumentID)
+		suite.Equal(originalWeightTicket.ProofOfTrailerOwnershipDocumentID, updatedWeightTicket.ProofOfTrailerOwnershipDocumentID)
+		suite.Equal(*desiredWeightTicket.VehicleDescription, *updatedWeightTicket.VehicleDescription)
+		suite.Equal(*desiredWeightTicket.EmptyWeight, *updatedWeightTicket.EmptyWeight)
+		suite.Equal(*desiredWeightTicket.MissingEmptyWeightTicket, *updatedWeightTicket.MissingEmptyWeightTicket)
+		suite.Equal(*desiredWeightTicket.FullWeight, *updatedWeightTicket.FullWeight)
+		suite.Equal(*desiredWeightTicket.MissingFullWeightTicket, *updatedWeightTicket.MissingFullWeightTicket)
+		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.OwnsTrailer)
+		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.TrailerMeetsCriteria)
+	})
+
+	suite.Run("Succesfully updates when files are required", func() {
+		appCtx := suite.AppContextForTest()
+
+		override := models.WeightTicket{
+			EmptyWeight: models.PoundPointer(3000),
+			FullWeight:  models.PoundPointer(4200),
+		}
+		originalWeightTicket := setupForTest(appCtx, &override, true, true, true)
+
+		updater := NewCustomerWeightTicketUpdater(&ppmShipmentUpdater)
+
+		desiredWeightTicket := &models.WeightTicket{
+			ID:                       originalWeightTicket.ID,
+			VehicleDescription:       models.StringPointer("2004 Toyota Prius"),
+			EmptyWeight:              models.PoundPointer(3000),
+			MissingEmptyWeightTicket: models.BoolPointer(false),
+			FullWeight:               models.PoundPointer(4200),
+			MissingFullWeightTicket:  models.BoolPointer(false),
+			OwnsTrailer:              models.BoolPointer(true),
+			TrailerMeetsCriteria:     models.BoolPointer(true),
+		}
+
+		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
+
+		suite.Nil(updateErr)
+		suite.Equal(originalWeightTicket.ID, updatedWeightTicket.ID)
+		suite.Equal(originalWeightTicket.EmptyDocumentID, updatedWeightTicket.EmptyDocumentID)
+		suite.Equal(originalWeightTicket.FullDocumentID, updatedWeightTicket.FullDocumentID)
+		suite.Equal(originalWeightTicket.ProofOfTrailerOwnershipDocumentID, updatedWeightTicket.ProofOfTrailerOwnershipDocumentID)
+		suite.Equal(*desiredWeightTicket.VehicleDescription, *updatedWeightTicket.VehicleDescription)
+		suite.Equal(*desiredWeightTicket.EmptyWeight, *updatedWeightTicket.EmptyWeight)
+		suite.Equal(*desiredWeightTicket.MissingEmptyWeightTicket, *updatedWeightTicket.MissingEmptyWeightTicket)
+		suite.Equal(*desiredWeightTicket.FullWeight, *updatedWeightTicket.FullWeight)
+		suite.Equal(*desiredWeightTicket.MissingFullWeightTicket, *updatedWeightTicket.MissingFullWeightTicket)
+		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.OwnsTrailer)
+		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.TrailerMeetsCriteria)
+		suite.Equal(1, len(updatedWeightTicket.EmptyDocument.UserUploads))
+		suite.Equal(2, len(updatedWeightTicket.FullDocument.UserUploads))
+		suite.Equal(2, len(updatedWeightTicket.ProofOfTrailerOwnershipDocument.UserUploads))
+	})
+
+	suite.Run("Successfully updates and calls the ppmShipmentUpdater when weights are updated", func() {
+		appCtx := suite.AppContextForTest()
+
 		originalWeightTicket := setupForTest(appCtx, nil, true, true, false)
 
 		updater := NewCustomerWeightTicketUpdater(&ppmShipmentUpdater)
@@ -179,30 +259,26 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.TrailerMeetsCriteria)
 	})
 
-	suite.Run("Succesfully updates when files are required", func() {
+	suite.Run("Successfully updates and does not call ppmShipmentUpdater when total weight is unchanged", func() {
 		appCtx := suite.AppContextForTest()
 
-		originalWeightTicket := setupForTest(appCtx, nil, true, true, true)
+		override := models.WeightTicket{
+			EmptyWeight: models.PoundPointer(3000),
+			FullWeight:  models.PoundPointer(4200),
+		}
+		originalWeightTicket := setupForTest(appCtx, &override, true, true, false)
 
 		updater := NewCustomerWeightTicketUpdater(&ppmShipmentUpdater)
-		ppmShipmentUpdater.
-			On(
-				"UpdatePPMShipmentWithDefaultCheck",
-				mock.AnythingOfType("*appcontext.appContext"),
-				mock.AnythingOfType("*models.PPMShipment"),
-				mock.AnythingOfType("uuid.UUID"),
-			).
-			Return(nil, nil)
 
 		desiredWeightTicket := &models.WeightTicket{
 			ID:                       originalWeightTicket.ID,
 			VehicleDescription:       models.StringPointer("2004 Toyota Prius"),
-			EmptyWeight:              models.PoundPointer(3000),
-			MissingEmptyWeightTicket: models.BoolPointer(false),
-			FullWeight:               models.PoundPointer(4200),
-			MissingFullWeightTicket:  models.BoolPointer(false),
-			OwnsTrailer:              models.BoolPointer(true),
-			TrailerMeetsCriteria:     models.BoolPointer(true),
+			EmptyWeight:              models.PoundPointer(1000),
+			MissingEmptyWeightTicket: models.BoolPointer(true),
+			FullWeight:               models.PoundPointer(2200),
+			MissingFullWeightTicket:  models.BoolPointer(true),
+			OwnsTrailer:              models.BoolPointer(false),
+			TrailerMeetsCriteria:     models.BoolPointer(false),
 		}
 
 		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
@@ -219,9 +295,6 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(*desiredWeightTicket.MissingFullWeightTicket, *updatedWeightTicket.MissingFullWeightTicket)
 		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.OwnsTrailer)
 		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.TrailerMeetsCriteria)
-		suite.Equal(1, len(updatedWeightTicket.EmptyDocument.UserUploads))
-		suite.Equal(2, len(updatedWeightTicket.FullDocument.UserUploads))
-		suite.Equal(2, len(updatedWeightTicket.ProofOfTrailerOwnershipDocument.UserUploads))
 	})
 
 	suite.Run("Fails to update when files are missing", func() {
