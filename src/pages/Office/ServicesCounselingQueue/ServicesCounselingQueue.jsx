@@ -13,6 +13,8 @@ import {
   SERVICE_COUNSELING_BRANCH_OPTIONS,
   SERVICE_COUNSELING_MOVE_STATUS_OPTIONS,
   SERVICE_COUNSELING_MOVE_STATUS_LABELS,
+  SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
+  SERVICE_COUNSELING_PPM_TYPE_LABELS,
 } from 'constants/queues';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useServicesCounselingQueueQueries, useServicesCounselingQueuePPMQueries, useUserQueries } from 'hooks/queries';
@@ -21,7 +23,7 @@ import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-const columns = () => [
+const counselingColumns = () => [
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
@@ -99,9 +101,84 @@ const columns = () => [
     isFilterable: true,
   }),
 ];
+const closeoutColumns = (ppmCloseoutGBLOC) => [
+  createHeader('ID', 'id'),
+  createHeader(
+    'Customer name',
+    (row) => {
+      return `${row.customer.last_name}, ${row.customer.first_name}`;
+    },
+    {
+      id: 'lastName',
+      isFilterable: true,
+    },
+  ),
+  createHeader('DoD ID', 'customer.dodID', {
+    id: 'dodID',
+    isFilterable: true,
+  }),
+  createHeader('Move code', 'locator', {
+    id: 'locator',
+    isFilterable: true,
+  }),
+  createHeader(
+    'Branch',
+    (row) => {
+      return serviceMemberAgencyLabel(row.customer.agency);
+    },
+    {
+      id: 'branch',
+      isFilterable: true,
+      Filter: (props) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <SelectFilter options={SERVICE_COUNSELING_BRANCH_OPTIONS} {...props} />
+      ),
+    },
+  ),
+  createHeader(
+    'Closeout initiated',
+    (row) => {
+      return formatDateFromIso(row.closeoutInitiated, DATE_FORMAT_STRING);
+    },
+    {
+      id: 'closeoutInitiated',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <DateSelectFilter dateTime {...props} />,
+    },
+  ),
+  createHeader(
+    'Full or partial PPM',
+    (row) => {
+      return SERVICE_COUNSELING_PPM_TYPE_LABELS[`${row.ppmType}`];
+    },
+    {
+      id: 'ppmType',
+      isFilterable: true,
+      Filter: (props) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <SelectFilter options={SERVICE_COUNSELING_PPM_TYPE_OPTIONS} {...props} />
+      ),
+    },
+  ),
+  createHeader('Origin duty location', 'originDutyLocation.name', {
+    id: 'originDutyLocation',
+    isFilterable: true,
+  }),
+  createHeader('Destination duty location', 'destinationDutyLocation.name', {
+    id: 'destinationDutyLocation',
+    isFilterable: true,
+  }),
+  createHeader('PPM closeout location', 'closeoutLocation', {
+    id: 'closeoutLocation',
+    // This filter only makes sense if we're not in a closeout GBLOC. Users in a closeout GBLOC will
+    // see the same value in this column for every move.
+    isFilterable: !ppmCloseoutGBLOC,
+  }),
+];
 
 const ServicesCounselingQueue = () => {
-  const { isLoading, isError } = useUserQueries();
+  const { data, isLoading, isError } = useUserQueries();
 
   const history = useHistory();
 
@@ -116,6 +193,11 @@ const ServicesCounselingQueue = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  // If the office user is in a closeout GBLOC and on the closeout tab, then we will want to disable
+  // the column filter for the closeout location column because it will have no effect.
+  const officeUserGBLOC = data.office_user.transportation_office.gbloc;
+  const inPPMCloseoutGBLOC = officeUserGBLOC === 'TVCB' || officeUserGBLOC === 'NAVY' || officeUserGBLOC === 'USCG';
+
   return (
     // TODO: Pull out header count and add new move button
     <div className={styles.ServicesCounselingQueue}>
@@ -127,10 +209,10 @@ const ServicesCounselingQueue = () => {
             showPagination
             manualSortBy
             defaultCanSort
-            defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
+            defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
             disableMultiSort
             disableSortBy={false}
-            columns={columns()}
+            columns={closeoutColumns(inPPMCloseoutGBLOC)}
             title="Moves"
             handleClick={handleClick}
             useQueries={useServicesCounselingQueuePPMQueries}
@@ -144,21 +226,23 @@ const ServicesCounselingQueue = () => {
           ]}
           exact
         >
-          <TableQueue
-            className={styles.ServicesCounseling}
-            showTabs
-            showFilters
-            showPagination
-            manualSortBy
-            defaultCanSort
-            defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
-            disableMultiSort
-            disableSortBy={false}
-            columns={columns()}
-            title="Moves"
-            handleClick={handleClick}
-            useQueries={useServicesCounselingQueueQueries}
-          />
+          <div>
+            <TableQueue
+              className={styles.ServicesCounseling}
+              showTabs
+              showFilters
+              showPagination
+              manualSortBy
+              defaultCanSort
+              defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
+              disableMultiSort
+              disableSortBy={false}
+              columns={counselingColumns()}
+              title="Moves"
+              handleClick={handleClick}
+              useQueries={useServicesCounselingQueueQueries}
+            />
+          </div>
         </Route>
       </Switch>
     </div>

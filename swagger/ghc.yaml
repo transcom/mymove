@@ -2528,6 +2528,10 @@ paths:
             - submittedAt
             - originGBLOC
             - originDutyLocation
+            - destinationDutyLocation
+            - ppmType
+            - closeoutInitiated
+            - closeoutLocation
           description: field that results should be sorted by
         - in: query
           name: order
@@ -2572,6 +2576,10 @@ paths:
           type: string
           description: filters the name of the origin duty location on the orders
         - in: query
+          name: destinationDutyLocation
+          type: string
+          description: filters the name of the destination duty location on the orders
+        - in: query
           name: status
           type: array
           description: filters the status of the move
@@ -2587,6 +2595,22 @@ paths:
           description: >-
             Only used for Services Counseling queue. If true, show PPM moves
             that are ready for closeout. Otherwise, show all other moves.
+        - in: query
+          name: ppmType
+          type: string
+          enum:
+            - FULL
+            - PARTIAL
+          description: filters PPM type
+        - in: query
+          name: closeoutInitiated
+          type: string
+          format: date-time
+          description: Latest date that closeout was initiated on a PPM on the move
+        - in: query
+          name: closeoutLocation
+          type: string
+          description: closeout location
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4592,6 +4616,19 @@ definitions:
         $ref: '#/definitions/DutyLocation'
       originGBLOC:
         $ref: '#/definitions/GBLOC'
+      ppmType:
+        type: string
+        enum:
+          - FULL
+          - PARTIAL
+        x-nullable: true
+      closeoutInitiated:
+        format: date-time
+        type: string
+        x-nullable: true
+      closeoutLocation:
+        type: string
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:

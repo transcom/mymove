@@ -1,9 +1,10 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import ServicesCounselingQueue from './ServicesCounselingQueue';
 
-import { useUserQueries, useServicesCounselingQueueQueries } from 'hooks/queries';
+import { useUserQueries, useServicesCounselingQueueQueries, useServicesCounselingQueuePPMQueries } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
 import { MOVE_STATUSES } from 'shared/constants';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
@@ -11,6 +12,7 @@ import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 jest.mock('hooks/queries', () => ({
   useUserQueries: jest.fn(),
   useServicesCounselingQueueQueries: jest.fn(),
+  useServicesCounselingQueuePPMQueries: jest.fn(),
 }));
 
 const serviceCounselorUser = {
@@ -267,6 +269,22 @@ describe('ServicesCounselingQueue', () => {
 
       const secondMove = moves.at(1);
       expect(secondMove.find('td.status').text()).toBe('Service counseling completed');
+    });
+  });
+  describe('service counseling closeout tab', () => {
+    it('shows closeout columns', () => {
+      useUserQueries.mockReturnValue(serviceCounselorUser);
+      useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
+      useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
+      render(
+        <MockProviders initialEntries={['/PPM-closeout']}>
+          <ServicesCounselingQueue />
+        </MockProviders>,
+      );
+      expect(screen.getByText(/Closeout initiated/)).toBeInTheDocument();
+      expect(screen.getByText(/PPM closeout location/)).toBeInTheDocument();
+      expect(screen.getByText(/Full or partial PPM/)).toBeInTheDocument();
+      expect(screen.getByText(/Destination duty location/)).toBeInTheDocument();
     });
   });
 });
