@@ -17,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
@@ -267,8 +266,6 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		eTag := etag.GenerateEtag(subtestData.weightTicket.UpdatedAt)
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(db)
-		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		subtestData.params = weightticketops.UpdateWeightTicketParams{
 			HTTPRequest:    req,
 			PpmShipmentID:  *handlers.FmtUUID(subtestData.ppmShipment.ID),
