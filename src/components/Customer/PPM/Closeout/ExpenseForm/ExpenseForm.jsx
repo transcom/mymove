@@ -162,9 +162,7 @@ const ExpenseForm = ({
                         onChange={(err, upload) => {
                           formikProps.setFieldTouched('document', true);
                           onUploadComplete(err);
-                          if (documentRef.current) {
-                            documentRef.current.removeFile(upload.id);
-                          }
+                          documentRef?.current?.removeFile(upload.id);
                         }}
                         ref={documentRef}
                       />
