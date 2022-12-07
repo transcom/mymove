@@ -143,34 +143,6 @@ func FetchWeightTicketByIDExcludeDeletedUploads(appContext appcontext.AppContext
 	return &weightTicket, nil
 }
 
-func FetchWeightTicketAndPPMShipment(appContext appcontext.AppContext, weightTicketID uuid.UUID) (*models.WeightTicket, error) {
-	var weightTicket models.WeightTicket
-
-	err := appContext.DB().Scope(utilities.ExcludeDeletedScope()).
-		EagerPreload(
-			"EmptyDocument.UserUploads.Upload",
-			"FullDocument.UserUploads.Upload",
-			"ProofOfTrailerOwnershipDocument.UserUploads.Upload",
-			"PPMShipment.Shipment",
-		).
-		Find(&weightTicket, weightTicketID)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(weightTicketID, "while looking for WeightTicket")
-		default:
-			return nil, apperror.NewQueryError("WeightTicket fetch original", err, "")
-		}
-	}
-
-	weightTicket.EmptyDocument.UserUploads = weightTicket.EmptyDocument.UserUploads.FilterDeleted()
-	weightTicket.FullDocument.UserUploads = weightTicket.FullDocument.UserUploads.FilterDeleted()
-	weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightTicket.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
-
-	return &weightTicket, nil
-}
-
 func hasTotalWeightChanged(originalWeightTicket, newWeightTicket models.WeightTicket) bool {
 	var newWeight unit.Pound
 	var oldWeight unit.Pound
