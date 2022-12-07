@@ -26,13 +26,13 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			payload := params.UpdateWeightTicketPayload
-			//errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
-			//errPayload := &ghcmessages.Error{Message: &errInstance}
+			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+			errPayload := &ghcmessages.Error{Message: &errInstance}
 			weightTicket := payloads.WeightTicketModelFromUpdate(payload)
 
-			//if !appCtx.Session().IsOfficeApp() {
-			//	return weightticketops.NewUpdateWeightTicketForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
-			//}
+			if !appCtx.Session().IsOfficeApp() {
+				return weightticketops.NewUpdateWeightTicketForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
+			}
 
 			weightTicket.ID = uuid.FromStringOrNil(params.WeightTicketID.String())
 

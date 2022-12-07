@@ -36,7 +36,10 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		subtestData.weightTicket = testdatagen.MakeWeightTicket(db, testdatagen.Assertions{})
 		subtestData.ppmShipment = subtestData.weightTicket.PPMShipment
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/weight-ticket/%s", subtestData.ppmShipment.ID.String(), subtestData.weightTicket.ID.String())
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
 		req := httptest.NewRequest("PATCH", endpoint, nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		eTag := etag.GenerateEtag(subtestData.weightTicket.UpdatedAt)
 
 		subtestData.params = weightticketops.UpdateWeightTicketParams{
