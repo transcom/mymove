@@ -1,8 +1,7 @@
 import {
-  navigateFromCloseoutReviewPageToProGearPage,
   setMobileViewport,
-  signInAndNavigateToPPMReviewPage,
-  signInAndNavigateToWeightTicketPage,
+  signInAndNavigateToProgearPage,
+  submitProgearPage,
 } from '../../../support/ppmCustomerShared';
 
 describe('Progear', function () {
@@ -11,6 +10,8 @@ describe('Progear', function () {
   });
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
+    cy.intercept('PATCH', '**/internal/ppm-shipments/**/pro-gear-weight-tickets/**').as('patchProgearWeightTicket');
+    cy.intercept('POST', '**/internal/ppm-shipments/**/uploads**').as('uploadFile');
   });
   const viewportType = [
     { viewport: 'desktop', isMobile: false, userId: '33eabbb6-416d-4d91-ba5b-bfd7d35e3037' }, // progearWeightTicket@ppm.approved
@@ -21,17 +22,17 @@ describe('Progear', function () {
       if (isMobile) {
         setMobileViewport();
       }
+      signInAndNavigateToProgearPage(userId);
+      submitProgearPage({ belongsToSelf: true });
 
-      signInAndNavigateToPPMReviewPage(userId);
-      navigateFromCloseoutReviewPageToProGearPage();
-      cy.get('[data-testid="selfProGear"]').should('not.be.checked');
-      cy.get('[data-testid="spouseProGear"]').should('not.be.checked');
-      cy.get('label[for="ownerOfProGearSelf"').click();
-      cy.get('[data-testid="selfProGear"]').should('be.checked');
-      cy.get('[data-testid="spouseProGear"]').should('not.be.checked');
-      cy.get('label[for="ownerOfProGearSpouse"').click();
-      cy.get('[data-testid="selfProGear"]').should('not.be.checked');
-      cy.get('[data-testid="spouseProGear"]').should('be.checked');
+      cy.wait('@patchProgearWeightTicket');
+
+      cy.get('.progearSection h4').contains('Set 2');
+      cy.get('.progearSection dl').eq(-1).as('progearSet').contains('Pro-gear');
+      cy.get('@progearSet').contains('Radio equipment');
+      // contains won't work when text content is divided between multiple semantic html elements
+      cy.get('@progearSet').contains('Weight:');
+      cy.get('@progearSet').contains('2,000 lbs');
     });
   });
 });
