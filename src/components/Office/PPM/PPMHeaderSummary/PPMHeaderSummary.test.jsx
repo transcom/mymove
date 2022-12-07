@@ -10,7 +10,7 @@ beforeEach(() => {
 const defaultProps = {
   ppmShipment: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
-    actualMoveDate: Date.now(),
+    actualMoveDate: '2022-12-06',
     actualPickupPostalCode: '90210',
     actualDestinationPostalCode: '94611',
     hasReceivedAdvance: true,
