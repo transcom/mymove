@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"errors"
 	"fmt"
 	"net/http/httptest"
 	"strings"
@@ -260,11 +261,12 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		subtestData.weightTicket = testdatagen.MakeWeightTicket(db, testdatagen.Assertions{})
 		subtestData.ppmShipment = subtestData.weightTicket.PPMShipment
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/weight-ticket/%s", subtestData.ppmShipment.ID.String(), subtestData.weightTicket.ID.String())
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
 		req := httptest.NewRequest("PATCH", endpoint, nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		eTag := etag.GenerateEtag(subtestData.weightTicket.UpdatedAt)
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(db)
-		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		subtestData.params = weightticketops.UpdateWeightTicketParams{
 			HTTPRequest:    req,
 			PpmShipmentID:  *handlers.FmtUUID(subtestData.ppmShipment.ID),
@@ -302,7 +304,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 			},
 		})
 
-		// Add vehicleDescription
+		// Add full and empty weights
 		params.UpdateWeightTicketPayload = &ghcmessages.UpdateWeightTicket{
 			EmptyWeight: handlers.FmtInt64(1),
 			FullWeight:  handlers.FmtInt64(4000),
@@ -320,5 +322,67 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		suite.Equal(subtestData.weightTicket.ID.String(), updatedWeightTicket.ID.String())
 		suite.Equal(params.UpdateWeightTicketPayload.FullWeight, updatedWeightTicket.FullWeight)
 		suite.Equal(params.UpdateWeightTicketPayload.EmptyWeight, updatedWeightTicket.EmptyWeight)
+	})
+
+	suite.Run("PATCH failure - 404- not found", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateWeightTicketPayload = &ghcmessages.UpdateWeightTicket{}
+		wrongUUIDString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("cde78daf-802f-491f-a230-fc1fdcfe6595"))
+		params.WeightTicketID = *wrongUUIDString
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&weightticketops.UpdateWeightTicketNotFound{}, response)
+	})
+
+	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateWeightTicketPayload = &ghcmessages.UpdateWeightTicket{}
+		params.IfMatch = "wrong-if-match-header-value"
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&weightticketops.UpdateWeightTicketPreconditionFailed{}, response)
+	})
+
+	suite.Run("PATCH failure - 500", func() {
+		mockUpdater := mocks.WeightTicketUpdater{}
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		ownsTrailer := true
+		trailerMeetsCriteria := true
+
+		params.UpdateWeightTicketPayload = &ghcmessages.UpdateWeightTicket{
+			EmptyWeight:          handlers.FmtInt64(1),
+			FullWeight:           handlers.FmtInt64(1000),
+			OwnsTrailer:          ownsTrailer,
+			TrailerMeetsCriteria: trailerMeetsCriteria,
+		}
+
+		err := errors.New("ServerError")
+
+		// Might remove the mocks:
+		mockUpdater.On("UpdateWeightTicket",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.WeightTicket"),
+			mock.AnythingOfType("string"),
+		).Return(nil, err)
+
+		handler := UpdateWeightTicketHandler{
+			suite.HandlerConfig(),
+			&mockUpdater,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&weightticketops.UpdateWeightTicketInternalServerError{}, response)
 	})
 }
