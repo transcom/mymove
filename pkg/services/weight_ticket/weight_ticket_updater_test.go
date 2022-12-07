@@ -252,7 +252,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 
 		originalWeightTicket := setupForTest(appCtx, nil, true, true, false)
 
-		updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
+		updater := NewOfficeWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
 		ppmShipmentUpdater.
 			On(
 				"UpdatePPMShipmentWithDefaultCheck",
@@ -298,7 +298,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 		}
 		originalWeightTicket := setupForTest(appCtx, &override, true, true, false)
 
-		updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
+		updater := NewOfficeWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
 
 		desiredWeightTicket := &models.WeightTicket{
 			ID:                       originalWeightTicket.ID,
