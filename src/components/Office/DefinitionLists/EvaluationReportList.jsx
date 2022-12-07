@@ -19,14 +19,6 @@ const inspectionTypeFormatting = (inspectionType) => {
   return capitalizeFirstLetterOnly(inspectionType);
 };
 
-const convertToHoursAndMinutes = (totalMinutes) => {
-  // divide and round down to get hours
-  const hours = Math.floor(totalMinutes / 60);
-  // use modulus operator to get the remainder for minutes
-  const minutes = totalMinutes % 60;
-  return `${hours} hr ${minutes} min`;
-};
-
 const EvaluationReportList = ({ evaluationReport }) => {
   return (
     <div className={styles.OfficeDefinitionLists}>
@@ -45,16 +37,11 @@ const EvaluationReportList = ({ evaluationReport }) => {
             </>
           }
         />
-        <PreviewRow
-          isShown={evaluationReport.travelTimeMinutes >= 0}
-          label="Travel time to inspection"
-          data={convertToHoursAndMinutes(evaluationReport.travelTimeMinutes)}
-        />
-        <PreviewRow
-          isShown={evaluationReport.evaluationLengthMinutes >= 0}
-          label="Evaluation length"
-          data={convertToHoursAndMinutes(evaluationReport.evaluationLengthMinutes)}
-        />
+        {evaluationReport.inspectionType === 'PHYSICAL' && (
+          <PreviewRow label="Time departed for evaluation" data={evaluationReport.timeDepart} />
+        )}
+        <PreviewRow label="Time evaluation started" data={evaluationReport.evalStart} />
+        <PreviewRow label="Time evaluation ended" data={evaluationReport.evalEnd} />
       </dl>
     </div>
   );

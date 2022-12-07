@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	moveops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -37,7 +38,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 				Orders:             models.Order{ID: ordersID},
 			},
 		})
-		requestUser = testdatagen.MakeStubbedUser(suite.DB())
+		requestUser = factory.BuildUser(nil, nil, nil)
 	}
 
 	suite.Run("Successful move fetch", func() {
@@ -173,7 +174,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 
 	var requestUser models.User
 	setupTestData := func() *http.Request {
-		requestUser = testdatagen.MakeStubbedUser(suite.DB())
+		requestUser = factory.BuildUser(nil, nil, nil)
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 		return req
@@ -275,7 +276,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 	var requestUser models.User
 	setupTestData := func() (*http.Request, models.Move) {
 		move = testdatagen.MakeDefaultMove(suite.DB())
-		requestUser = testdatagen.MakeStubbedUser(suite.DB())
+		requestUser = factory.BuildUser(nil, nil, nil)
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 		return req, move

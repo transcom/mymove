@@ -7,6 +7,7 @@ package ghcmessages
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -18,6 +19,13 @@ import (
 //
 // swagger:model QueueMove
 type QueueMove struct {
+
+	// closeout initiated
+	// Format: date-time
+	CloseoutInitiated *strfmt.DateTime `json:"closeoutInitiated,omitempty"`
+
+	// closeout location
+	CloseoutLocation *string `json:"closeoutLocation,omitempty"`
 
 	// customer
 	Customer *Customer `json:"customer,omitempty"`
@@ -41,6 +49,10 @@ type QueueMove struct {
 	// origin g b l o c
 	OriginGBLOC GBLOC `json:"originGBLOC,omitempty"`
 
+	// ppm type
+	// Enum: [FULL PARTIAL]
+	PpmType *string `json:"ppmType,omitempty"`
+
 	// requested move date
 	// Format: date
 	RequestedMoveDate *strfmt.Date `json:"requestedMoveDate,omitempty"`
@@ -59,6 +71,10 @@ type QueueMove struct {
 // Validate validates this queue move
 func (m *QueueMove) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateCloseoutInitiated(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateCustomer(formats); err != nil {
 		res = append(res, err)
@@ -84,6 +100,10 @@ func (m *QueueMove) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validatePpmType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateRequestedMoveDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -99,6 +119,18 @@ func (m *QueueMove) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *QueueMove) validateCloseoutInitiated(formats strfmt.Registry) error {
+	if swag.IsZero(m.CloseoutInitiated) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("closeoutInitiated", "body", "date-time", m.CloseoutInitiated.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -201,6 +233,48 @@ func (m *QueueMove) validateOriginGBLOC(formats strfmt.Registry) error {
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("originGBLOC")
 		}
+		return err
+	}
+
+	return nil
+}
+
+var queueMoveTypePpmTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["FULL","PARTIAL"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		queueMoveTypePpmTypePropEnum = append(queueMoveTypePpmTypePropEnum, v)
+	}
+}
+
+const (
+
+	// QueueMovePpmTypeFULL captures enum value "FULL"
+	QueueMovePpmTypeFULL string = "FULL"
+
+	// QueueMovePpmTypePARTIAL captures enum value "PARTIAL"
+	QueueMovePpmTypePARTIAL string = "PARTIAL"
+)
+
+// prop value enum
+func (m *QueueMove) validatePpmTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, queueMoveTypePpmTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *QueueMove) validatePpmType(formats strfmt.Registry) error {
+	if swag.IsZero(m.PpmType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validatePpmTypeEnum("ppmType", "body", *m.PpmType); err != nil {
 		return err
 	}
 

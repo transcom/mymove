@@ -1,0 +1,98 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.statusOption {
+    @include u-padding(0);
+    @include u-border(1px);
+    border-color: $base-light;
+    border-radius: units(2px);
+
+    :global {
+      .usa-radio__label {
+        @include u-padding-y(2);
+        @include u-padding-left(6);
+        margin: 0;
+      }
+
+      .usa-radio__input:checked+.usa-radio__label {
+        background-color: $link-light;
+      }
+
+      .usa-radio__label:before {
+        left: 10px;
+      }
+
+      .usa-form-group {
+        @include u-padding(2);
+
+        .usa-label {
+          margin-top: 0;
+        }
+      }
+    }
+
+    p {
+      @include u-margin-top(1);
+      @include u-margin-bottom(0);
+      white-space: pre-wrap;
+    }
+
+    &.selected {
+      @include u-shadow(2);
+    }
+  }
+
+  .rejectionButtonGroup {
+    display: flex;
+    align-items: center;
+  }
+
+  .statusOption+.statusOption {
+    @include u-margin-top(1);
+  }
+
+  .clearStatus {
+    padding: 0;
+    @include u-padding-top(2);
+    @include u-text('light');
+  }
+
+  .statusOption+.clearStatus {
+    margin-top: 3px;
+  }
+
+  .completeContainer {
+    @include u-margin(0);
+    @include u-margin-top(4);
+    @include u-padding(2);
+    background-color: $bg-gray;
+    color: $base-darkest;
+    border: 1px solid $base-lighter;
+    @include u-radius('05');
+
+    svg {
+      @include u-margin-right(1);
+      height: 16px;
+      width: 16px;
+    }
+
+    .statusHeading {
+      @include u-font-weight(bold);
+      @include u-display(flex);
+      align-items: center;
+    }
+
+    .statusApproved svg {
+      color: $success;
+    }
+
+    .statusRejected svg {
+      color: $error;
+    }
+
+    .rejectionReason {
+      @include u-font-size('base', 2);
+      @include u-margin-bottom(0);
+      white-space: pre-wrap;
+    }
+}

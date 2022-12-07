@@ -154,34 +154,54 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 
 	evaluationReportOfficeUserPayload := EvaluationReportOfficeUser(evaluationReport.OfficeUser)
 
+	var timeDepart *string
+	if evaluationReport.TimeDepart != nil {
+		td := evaluationReport.TimeDepart.Format(timeHHMMFormat)
+		timeDepart = &td
+	}
+
+	var evalStart *string
+	if evaluationReport.EvalStart != nil {
+		es := evaluationReport.EvalStart.Format(timeHHMMFormat)
+		evalStart = &es
+	}
+
+	var evalEnd *string
+	if evaluationReport.EvalEnd != nil {
+		ee := evaluationReport.EvalEnd.Format(timeHHMMFormat)
+		evalEnd = &ee
+	}
+
 	payload := &ghcmessages.EvaluationReport{
-		CreatedAt:                     strfmt.DateTime(evaluationReport.CreatedAt),
-		EvaluationLengthMinutes:       handlers.FmtIntPtrToInt64(evaluationReport.EvaluationLengthMinutes),
-		ID:                            id,
-		InspectionDate:                handlers.FmtDatePtr(evaluationReport.InspectionDate),
-		InspectionType:                inspectionType,
-		Location:                      location,
-		LocationDescription:           evaluationReport.LocationDescription,
-		MoveID:                        moveID,
-		ObservedDate:                  handlers.FmtDatePtr(evaluationReport.ObservedDate),
-		Remarks:                       evaluationReport.Remarks,
-		ShipmentID:                    shipmentID,
-		SubmittedAt:                   handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),
-		TravelTimeMinutes:             handlers.FmtIntPtrToInt64(evaluationReport.TravelTimeMinutes),
-		Type:                          reportType,
-		ViolationsObserved:            evaluationReport.ViolationsObserved,
-		MoveReferenceID:               evaluationReport.Move.ReferenceID,
-		OfficeUser:                    &evaluationReportOfficeUserPayload,
-		SeriousIncident:               evaluationReport.SeriousIncident,
-		SeriousIncidentDesc:           evaluationReport.SeriousIncidentDesc,
-		ObservedClaimsResponseDate:    handlers.FmtDatePtr(evaluationReport.ObservedClaimsResponseDate),
-		ObservedPickupDate:            handlers.FmtDatePtr(evaluationReport.ObservedPickupDate),
-		ObservedPickupSpreadStartDate: handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadStartDate),
-		ObservedPickupSpreadEndDate:   handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadEndDate),
-		ObservedDeliveryDate:          handlers.FmtDatePtr(evaluationReport.ObservedDeliveryDate),
-		ETag:                          etag.GenerateEtag(evaluationReport.UpdatedAt),
-		UpdatedAt:                     strfmt.DateTime(evaluationReport.UpdatedAt),
-		ReportViolations:              ReportViolations(evaluationReport.ReportViolations),
+		CreatedAt:                          strfmt.DateTime(evaluationReport.CreatedAt),
+		ID:                                 id,
+		InspectionDate:                     handlers.FmtDatePtr(evaluationReport.InspectionDate),
+		InspectionType:                     inspectionType,
+		Location:                           location,
+		LocationDescription:                evaluationReport.LocationDescription,
+		MoveID:                             moveID,
+		ObservedShipmentPhysicalPickupDate: handlers.FmtDatePtr(evaluationReport.ObservedShipmentPhysicalPickupDate),
+		ObservedShipmentDeliveryDate:       handlers.FmtDatePtr(evaluationReport.ObservedShipmentDeliveryDate),
+		Remarks:                            evaluationReport.Remarks,
+		ShipmentID:                         shipmentID,
+		SubmittedAt:                        handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),
+		TimeDepart:                         timeDepart,
+		EvalStart:                          evalStart,
+		EvalEnd:                            evalEnd,
+		Type:                               reportType,
+		ViolationsObserved:                 evaluationReport.ViolationsObserved,
+		MoveReferenceID:                    evaluationReport.Move.ReferenceID,
+		OfficeUser:                         &evaluationReportOfficeUserPayload,
+		SeriousIncident:                    evaluationReport.SeriousIncident,
+		SeriousIncidentDesc:                evaluationReport.SeriousIncidentDesc,
+		ObservedClaimsResponseDate:         handlers.FmtDatePtr(evaluationReport.ObservedClaimsResponseDate),
+		ObservedPickupDate:                 handlers.FmtDatePtr(evaluationReport.ObservedPickupDate),
+		ObservedPickupSpreadStartDate:      handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadStartDate),
+		ObservedPickupSpreadEndDate:        handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadEndDate),
+		ObservedDeliveryDate:               handlers.FmtDatePtr(evaluationReport.ObservedDeliveryDate),
+		ETag:                               etag.GenerateEtag(evaluationReport.UpdatedAt),
+		UpdatedAt:                          strfmt.DateTime(evaluationReport.UpdatedAt),
+		ReportViolations:                   ReportViolations(evaluationReport.ReportViolations),
 	}
 	return payload
 }
@@ -1327,6 +1347,18 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			// some reason, then we should get the empty string (no GBLOC).
 			gbloc = ghcmessages.GBLOC(move.OriginDutyLocationGBLOC.GBLOC)
 		}
+		var closeoutLocation string
+		if move.CloseoutOffice != nil {
+			closeoutLocation = move.CloseoutOffice.Name
+		}
+		var closeoutInitiated time.Time
+		for _, shipment := range move.MTOShipments {
+			if shipment.PPMShipment != nil && shipment.PPMShipment.SubmittedAt != nil {
+				if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
+					closeoutInitiated = *shipment.PPMShipment.SubmittedAt
+				}
+			}
+		}
 
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:                Customer(&customer),
@@ -1340,6 +1372,9 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
 			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation),
 			OriginGBLOC:             gbloc,
+			PpmType:                 move.PPMType,
+			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
+			CloseoutLocation:        &closeoutLocation,
 		}
 	}
 	return &queueMoves

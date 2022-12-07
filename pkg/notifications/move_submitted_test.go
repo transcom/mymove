@@ -2,6 +2,7 @@ package notifications
 
 import (
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -27,7 +28,7 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 }
 
 func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
-	approver := testdatagen.MakeStubbedUser(suite.DB())
+	approver := factory.BuildUser(nil, nil, nil)
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	notification := NewMoveSubmitted(move.ID)
 
@@ -149,7 +150,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 }
 
 func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocation() {
-	approver := testdatagen.MakeStubbedUser(suite.DB())
+	approver := factory.BuildUser(nil, nil, nil)
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	notification := NewMoveSubmitted(move.ID)
 
@@ -266,7 +267,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
 
 func (suite *NotificationSuite) TestMoveSubmittedTextTemplateRender() {
 
-	approver := testdatagen.MakeStubbedUser(suite.DB())
+	approver := factory.BuildUser(nil, nil, nil)
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	notification := NewMoveSubmitted(move.ID)
 

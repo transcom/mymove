@@ -133,7 +133,9 @@ func (o moveTaskOrderUpdater) UpdateReviewedBillableWeightsAt(appCtx appcontext.
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// update field for move
 		now := time.Now()
-		move.BillableWeightsReviewedAt = &now
+		if move.BillableWeightsReviewedAt == nil {
+			move.BillableWeightsReviewedAt = &now
+		}
 
 		// Check the If-Match header against existing eTag before updating
 		encodedUpdatedAt := etag.GenerateEtag(move.UpdatedAt)
