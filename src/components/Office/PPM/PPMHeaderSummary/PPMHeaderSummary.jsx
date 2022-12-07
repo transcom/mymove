@@ -24,11 +24,7 @@ export default function PPMHeaderSummary({ ppmShipment, ppmNumber }) {
         <section>
           <div>
             <Label className={styles.headerLabel}>Departure date</Label>
-<<<<<<< HEAD
-            <span className={styles.light}>{formatDate(actualMoveDate, null, 'DD-MMM-YYYY')}</span>
-=======
             <span className={styles.light}>{actualMoveDate}</span>
->>>>>>> 0c4108e48e (Add PPM review story and tests.)
           </div>
           <div>
             <Label className={styles.headerLabel}>Starting ZIP</Label>

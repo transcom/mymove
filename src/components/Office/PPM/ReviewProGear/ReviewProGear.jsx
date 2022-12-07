@@ -23,8 +23,8 @@ const validationSchema = Yup.object().shape({
     .min(0, 'Enter a weight 0 lbs or greater')
     .when('missingWeightTicket', {
       is: 'true',
-      then: (schema) => schema.required('Enter the pro-gear weight'),
-      other: (schema) => schema.required('Enter the constructed pro-gear weight'),
+      then: (schema) => schema.required('Enter the constructed pro-gear weight'),
+      otherwise: (schema) => schema.required('Enter the pro-gear weight'),
     }),
   description: Yup.string().required('Required'),
   missingWeightTicket: Yup.string(),
@@ -147,7 +147,7 @@ export default function ReviewProGear({ ppmShipment, proGear, tripNumber, ppmNum
                   />
                 </div>
                 <div
-                  className={classnames(approveRejectStyles.statusOption, {
+                  className={classnames(approveRejectStyles.statusOption, styles.reject, {
                     [approveRejectStyles.selected]: values.status === ppmDocumentStatus.REJECTED,
                   })}
                 >

@@ -46,4 +46,8 @@
   .characters {
     color: $base-darker;
   }
+
+  div.reject {
+    @include u-margin-top(2);
+  }
 }
