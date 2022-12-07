@@ -1,8 +1,9 @@
 import React from 'react';
-import { BooleanField, DateField, Show, SimpleShowLayout, TextField } from 'react-admin';
+import { BooleanField, DateField, Show, SimpleShowLayout, TextField, useRecordContext } from 'react-admin';
 import PropTypes from 'prop-types';
 
-const AdminUserShowTitle = ({ record }) => {
+const AdminUserShowTitle = () => {
+  const record = useRecordContext();
   return <span>{`${record.firstName} ${record.lastName}`}</span>;
 };
 

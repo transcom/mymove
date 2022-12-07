@@ -1,8 +1,9 @@
 import React from 'react';
-import { DateField, NumberField, Show, SimpleShowLayout, TextField } from 'react-admin';
+import { DateField, NumberField, Show, SimpleShowLayout, TextField, useRecordContext } from 'react-admin';
 import PropTypes from 'prop-types';
 
-const WebhookSubscriptionShowTitle = ({ record }) => {
+const WebhookSubscriptionShowTitle = () => {
+  const record = useRecordContext();
   return <span>{`Webhook Subscription ID: ${record.id}`}</span>;
 };
 

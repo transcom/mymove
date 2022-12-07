@@ -1,7 +1,8 @@
 import React from 'react';
-import { TextField, DateField, NumberField, Show, SimpleShowLayout } from 'react-admin';
+import { TextField, DateField, NumberField, Show, SimpleShowLayout, useRecordContext } from 'react-admin';
 
-const TSPPShowTitle = ({ record }) => {
+const TSPPShowTitle = () => {
+  const record = useRecordContext();
   return <span>{`TSPP ID: ${record.id}`}</span>;
 };
 

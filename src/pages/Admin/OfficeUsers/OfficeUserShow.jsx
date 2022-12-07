@@ -8,10 +8,12 @@ import {
   Show,
   SimpleShowLayout,
   TextField,
+  useRecordContext,
 } from 'react-admin';
 import PropTypes from 'prop-types';
 
-const OfficeUserShowTitle = ({ record }) => {
+const OfficeUserShowTitle = () => {
+  const record = useRecordContext();
   return <span>{`${record.firstName} ${record.lastName}`}</span>;
 };
 
