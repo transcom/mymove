@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	evaluationReportop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
 	moveop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -506,12 +507,13 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 
 	suite.Run("Successful save", func() {
-		reportID := uuid.Must(uuid.NewV4())
+		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		reportID := report.ID
 
 		updater := &mocks.EvaluationReportUpdater{}
 		handlerConfig := suite.HandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil) //Build stubbed user
 
 		request := httptest.NewRequest("PUT", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
@@ -520,23 +522,15 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		params := evaluationReportop.SaveEvaluationReportParams{
 			HTTPRequest: request,
 			Body: &ghcmessages.EvaluationReport{
-				EvaluationLengthMinutes:            handlers.FmtInt64(45),
 				InspectionDate:                     &now,
-				InspectionType:                     ghcmessages.EvaluationReportInspectionTypePHYSICAL.Pointer().Pointer(),
-				Location:                           ghcmessages.EvaluationReportLocationORIGIN.Pointer(),
+				InspectionType:                     ghcmessages.EvaluationReportInspectionTypePHYSICAL.Pointer(),
+				Location:                           ghcmessages.EvaluationReportLocationOTHER.Pointer(),
 				LocationDescription:                swag.String("location description"),
-				ObservedClaimsResponseDate:         handlers.FmtDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)),
 				ObservedShipmentDeliveryDate:       handlers.FmtDate(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)),
-				ObservedShipmentPhysicalPickupDate: handlers.FmtDate(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)),
-				ObservedPickupDate:                 handlers.FmtDate(time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC)),
-				ObservedPickupSpreadStartDate:      handlers.FmtDate(time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC)),
-				ObservedPickupSpreadEndDate:        handlers.FmtDate(time.Date(2020, 2, 5, 0, 0, 0, 0, time.UTC)),
-				ObservedDeliveryDate:               handlers.FmtDate(time.Date(2020, 2, 5, 0, 0, 0, 0, time.UTC)),
-				Remarks:                            swag.String("new remarks"),
-				SeriousIncident:                    handlers.FmtBool(true),
-				SeriousIncidentDesc:                swag.String("serious incident description"),
-				TravelTimeMinutes:                  handlers.FmtInt64(30),
-				ViolationsObserved:                 handlers.FmtBool(true),
+				ObservedShipmentPhysicalPickupDate: handlers.FmtDate(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)), Remarks: swag.String("new remarks"),
+				SeriousIncident:     handlers.FmtBool(true),
+				SeriousIncidentDesc: swag.String("serious incident description"),
+				ViolationsObserved:  handlers.FmtBool(false),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
 		}
@@ -558,7 +552,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		updater := &mocks.EvaluationReportUpdater{}
 		handlerConfig := suite.HandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		request := httptest.NewRequest("PUT", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
@@ -588,7 +582,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		updater := &mocks.EvaluationReportUpdater{}
 		handlerConfig := suite.HandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		request := httptest.NewRequest("PUT", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
@@ -618,7 +612,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		updater := &mocks.EvaluationReportUpdater{}
 		handlerConfig := suite.HandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		request := httptest.NewRequest("PUT", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
@@ -648,7 +642,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		updater := &mocks.EvaluationReportUpdater{}
 		handlerConfig := suite.HandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		request := httptest.NewRequest("PUT", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
@@ -678,7 +672,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		updater := &mocks.EvaluationReportUpdater{}
 		handlerConfig := suite.HandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		request := httptest.NewRequest("PUT", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
@@ -708,7 +702,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		updater := &mocks.EvaluationReportUpdater{}
 		handlerConfig := suite.HandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		request := httptest.NewRequest("PUT", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
@@ -751,7 +745,7 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 			OrderFetcher:            orderFetcher,
 			ReportViolationFetcher:  violationsFetcher,
 		}
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		request := httptest.NewRequest("GET", fmt.Sprintf("/evaluation-reports/%s/download", reportID), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
@@ -794,7 +788,7 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 			HandlerConfig:           handlerConfig,
 			EvaluationReportFetcher: reportFetcher,
 		}
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		request := httptest.NewRequest("GET", fmt.Sprintf("/evaluation-reports/%s/download", reportID), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
@@ -822,7 +816,7 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 			HandlerConfig:           handlerConfig,
 			EvaluationReportFetcher: reportFetcher,
 		}
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		request := httptest.NewRequest("GET", fmt.Sprintf("/evaluation-reports/%s/download", reportID), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
@@ -850,7 +844,7 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 			HandlerConfig:           handlerConfig,
 			EvaluationReportFetcher: reportFetcher,
 		}
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 
 		request := httptest.NewRequest("GET", fmt.Sprintf("/evaluation-reports/%s/download", reportID), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)

@@ -22,6 +22,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -101,7 +102,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: validStatus.status}})
 
 		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveID}/status", nil)
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 
 		traceID, err := uuid.NewV4()
@@ -173,7 +174,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 	})
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	requestUser := factory.BuildUser(nil, nil, nil)
 	request = suite.AuthenticateUserRequest(request, requestUser)
 	params := movetaskorderops.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
@@ -209,7 +210,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 	})
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	requestUser := factory.BuildUser(nil, nil, nil)
 	request = suite.AuthenticateUserRequest(request, requestUser)
 	params := movetaskorderops.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
@@ -407,7 +408,7 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 			},
 			Order: order,
 		})
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		handlerConfig := suite.HandlerConfig()
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()

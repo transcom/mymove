@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	moveops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -56,7 +57,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 
 	suite.Run("Successful move history fetch", func() {
 		mockHistoryFetcher := mocks.MoveHistoryFetcher{}
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 		params := moveops.GetMoveHistoryParams{
@@ -108,7 +109,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 
 	suite.Run("Unsuccessful move history fetch - empty string bad request", func() {
 		mockHistoryFetcher := mocks.MoveHistoryFetcher{}
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -129,7 +130,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 
 	suite.Run("Unsuccessful move history fetch - locator not found", func() {
 		mockHistoryFetcher := mocks.MoveHistoryFetcher{}
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 		params := moveops.GetMoveHistoryParams{
@@ -155,7 +156,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 
 	suite.Run("Unsuccessful move history fetch - internal server error", func() {
 		mockHistoryFetcher := mocks.MoveHistoryFetcher{}
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 		params := moveops.GetMoveHistoryParams{

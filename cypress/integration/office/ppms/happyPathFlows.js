@@ -19,7 +19,7 @@ describe('Services counselor user', () => {
       'getSortedMoves',
     );
 
-    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&locator=**').as(
+    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=**&order=asc&locator=**&needsPPMCloseout=**').as(
       'getFilterSortedMoves',
     );
     cy.intercept('GET', '**/ghc/v1/move/**').as('getMoves');

@@ -10,6 +10,7 @@ import (
 const (
 	controlledUnclassifiedInformationText = "CONTROLLED UNCLASSIFIED INFORMATION"
 	dateFormat                            = "02 January 2006"
+	timeFormat                            = "15:04"
 )
 
 // The following data structures are set up for EvaluationReportFormFiller.subsection
@@ -40,10 +41,14 @@ type InspectionInformationValues struct {
 	DateOfInspection                   string
 	ReportSubmission                   string
 	EvaluationType                     string
-	TravelTimeToEvaluation             string
+	TimeDepart                         string
+	EvalStart                          string
+	EvalEnd                            string
 	EvaluationLocation                 string
 	ObservedShipmentDeliveryDate       string
 	ObservedShipmentPhysicalPickupDate string
+	ObservedPickupDate                 string
+	ObservedDeliveryDate               string
 	EvaluationLength                   string
 	QAERemarks                         string
 	ViolationsObserved                 string
@@ -55,20 +60,26 @@ var InspectionInformationFields = []string{
 	"DateOfInspection",
 	"ReportSubmission",
 	"EvaluationType",
-	"TravelTimeToEvaluation",
 	"ObservedShipmentDeliveryDate",
 	"ObservedShipmentPhysicalPickupDate",
+	"TimeDepart",
+	"EvalStart",
+	"EvalEnd",
 	"EvaluationLocation",
 	"EvaluationLength",
 }
 var InspectionInformationFieldLabels = map[string]string{
+	"ObservedShipmentPhysicalPickupDate": "Observed pickup date",
+	"ObservedShipmentDeliveryDate":       "Observed delivery date",
 	"DateOfInspection":                   "Date of inspection",
 	"ReportSubmission":                   "Report submission",
 	"EvaluationType":                     "Evaluation type",
-	"TravelTimeToEvaluation":             "Travel time to evaluation",
+	"TimeDepart":                         "Time departed for evaluation",
+	"EvalStart":                          "Time evaluation started",
+	"EvalEnd":                            "Time evaluation ended",
 	"EvaluationLocation":                 "Evaluation location",
-	"ObservedShipmentPhysicalPickupDate": "Observed pickup date",
-	"ObservedShipmentDeliveryDate":       "Observed delivery date",
+	"ObservedPickupDate":                 "Observed pickup date",
+	"ObservedDeliveryDate":               "Observed delivery date",
 	"EvaluationLength":                   "Evaluation length",
 }
 
@@ -267,8 +278,17 @@ func FormatValuesInspectionInformation(report models.EvaluationReport) Inspectio
 	if report.InspectionType != nil {
 		inspectionInfo.EvaluationType = formatEnum(string(*report.InspectionType))
 	}
-	if report.TravelTimeMinutes != nil {
-		inspectionInfo.TravelTimeToEvaluation = formatDuration(*report.TravelTimeMinutes)
+
+	if report.TimeDepart != nil {
+		inspectionInfo.TimeDepart = report.TimeDepart.Format(timeFormat)
+	}
+
+	if report.EvalStart != nil {
+		inspectionInfo.EvalStart = report.EvalStart.Format(timeFormat)
+	}
+
+	if report.EvalEnd != nil {
+		inspectionInfo.EvalEnd = report.EvalEnd.Format(timeFormat)
 	}
 	if report.Location != nil {
 		inspectionInfo.EvaluationLocation = formatEnum(string(*report.Location))
@@ -283,10 +303,6 @@ func FormatValuesInspectionInformation(report models.EvaluationReport) Inspectio
 
 	if report.ObservedShipmentPhysicalPickupDate != nil {
 		inspectionInfo.ObservedShipmentPhysicalPickupDate = report.ObservedShipmentPhysicalPickupDate.Format(dateFormat)
-	}
-
-	if report.EvaluationLengthMinutes != nil {
-		inspectionInfo.EvaluationLength = formatDuration(*report.EvaluationLengthMinutes)
 	}
 	if report.Remarks != nil {
 		inspectionInfo.QAERemarks = *report.Remarks
@@ -303,12 +319,6 @@ func FormatValuesInspectionInformation(report models.EvaluationReport) Inspectio
 		}
 	}
 	return inspectionInfo
-}
-
-func formatDuration(minutes int) string {
-	hours := minutes / 60
-	remainingMinutes := minutes % 60
-	return fmt.Sprintf("%d hr %d min", hours, remainingMinutes)
 }
 
 func formatEnum(e string) string {

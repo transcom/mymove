@@ -154,9 +154,26 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 
 	evaluationReportOfficeUserPayload := EvaluationReportOfficeUser(evaluationReport.OfficeUser)
 
+	var timeDepart *string
+	if evaluationReport.TimeDepart != nil {
+		td := evaluationReport.TimeDepart.Format(timeHHMMFormat)
+		timeDepart = &td
+	}
+
+	var evalStart *string
+	if evaluationReport.EvalStart != nil {
+		es := evaluationReport.EvalStart.Format(timeHHMMFormat)
+		evalStart = &es
+	}
+
+	var evalEnd *string
+	if evaluationReport.EvalEnd != nil {
+		ee := evaluationReport.EvalEnd.Format(timeHHMMFormat)
+		evalEnd = &ee
+	}
+
 	payload := &ghcmessages.EvaluationReport{
 		CreatedAt:                          strfmt.DateTime(evaluationReport.CreatedAt),
-		EvaluationLengthMinutes:            handlers.FmtIntPtrToInt64(evaluationReport.EvaluationLengthMinutes),
 		ID:                                 id,
 		InspectionDate:                     handlers.FmtDatePtr(evaluationReport.InspectionDate),
 		InspectionType:                     inspectionType,
@@ -168,7 +185,9 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		Remarks:                            evaluationReport.Remarks,
 		ShipmentID:                         shipmentID,
 		SubmittedAt:                        handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),
-		TravelTimeMinutes:                  handlers.FmtIntPtrToInt64(evaluationReport.TravelTimeMinutes),
+		TimeDepart:                         timeDepart,
+		EvalStart:                          evalStart,
+		EvalEnd:                            evalEnd,
 		Type:                               reportType,
 		ViolationsObserved:                 evaluationReport.ViolationsObserved,
 		MoveReferenceID:                    evaluationReport.Move.ReferenceID,
@@ -1328,6 +1347,18 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			// some reason, then we should get the empty string (no GBLOC).
 			gbloc = ghcmessages.GBLOC(move.OriginDutyLocationGBLOC.GBLOC)
 		}
+		var closeoutLocation string
+		if move.CloseoutOffice != nil {
+			closeoutLocation = move.CloseoutOffice.Name
+		}
+		var closeoutInitiated time.Time
+		for _, shipment := range move.MTOShipments {
+			if shipment.PPMShipment != nil && shipment.PPMShipment.SubmittedAt != nil {
+				if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
+					closeoutInitiated = *shipment.PPMShipment.SubmittedAt
+				}
+			}
+		}
 
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:                Customer(&customer),
@@ -1341,6 +1372,9 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
 			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation),
 			OriginGBLOC:             gbloc,
+			PpmType:                 move.PPMType,
+			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
+			CloseoutLocation:        &closeoutLocation,
 		}
 	}
 	return &queueMoves

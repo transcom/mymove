@@ -118,6 +118,33 @@ func TestDateIsWorkday_IsValid(t *testing.T) {
 	})
 }
 
+func TestOptionalTimeIsPresentAndNotNil(t *testing.T) {
+	t.Run("Valid time", func(t *testing.T) {
+		present := time.Now()
+		validator := models.OptionalTimeIsPresentAndNotNil{Field: &present, Name: "test_time"}
+		errs := validate.NewErrors()
+		validator.IsValid(errs)
+
+		if errs.Count() != 0 {
+			t.Fatal("There should be no errors")
+		}
+	})
+
+	t.Run("Nil time should fail", func(t *testing.T) {
+		var present *time.Time
+		validator := models.OptionalTimeIsPresentAndNotNil{Field: present, Name: "test_time"}
+		errs := validate.NewErrors()
+		validator.IsValid(errs)
+		testErrors := errs.Get("test_time")
+		if len(testErrors) != 1 {
+			t.Fatal("There should be an error")
+		}
+		if testErrors[0] != "test_time cannot be nil" {
+			t.Fatal("Nil times should trigger a failure")
+		}
+	})
+}
+
 func TestOptionalDateIsWorkday_IsValid(t *testing.T) {
 	calendar := dates.NewUSCalendar()
 	t.Run("Valid date", func(t *testing.T) {

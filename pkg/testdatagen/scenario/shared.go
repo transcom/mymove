@@ -863,7 +863,6 @@ func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUpl
 	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
 }
 
-// MB-13354: verify if this data (specifically move status) needs to be updated to align with the actual data post closeout
 func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("f8af6fb0-101e-489c-9d9c-051931c52cf7"),
@@ -1514,10 +1513,31 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		},
 	})
 
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "2 Second St",
+			StreetAddress2: swag.String("Apt 2"),
+			StreetAddress3: swag.String("Suite B"),
+			City:           "Columbia",
+			State:          "SC",
+			PostalCode:     "29212",
+			Country:        swag.String("US"),
+		},
+	})
+
+	newDutyLocation := testdatagen.MakeDutyLocation(appCtx.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
+			AddressID: address.ID,
+			Address:   address,
+		},
+	})
+
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ServiceMemberID: smWithPPM.ID,
-			ServiceMember:   smWithPPM,
+			ServiceMemberID:   smWithPPM.ID,
+			ServiceMember:     smWithPPM,
+			NewDutyLocationID: newDutyLocation.ID,
+			NewDutyLocation:   newDutyLocation,
 		},
 		UserUploader: userUploader,
 		Move: models.Move{
@@ -1525,6 +1545,7 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 			SelectedMoveType: &ppmMoveType,
 			Status:           models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt:      &submittedAt,
+			PPMType:          models.StringPointer("FULL"),
 		},
 	})
 
@@ -1540,7 +1561,8 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		Move:        move,
 		MTOShipment: mtoShipment,
 		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:      models.PPMShipmentStatusNeedsPaymentApproval,
+			SubmittedAt: models.TimePointer(time.Now()),
 		},
 	})
 
@@ -1826,6 +1848,7 @@ func createMoveWithCloseoutOffice(appCtx appcontext.AppContext, userUploader *up
 			CloseoutOfficeID: &closeoutOffice.ID,
 			CloseoutOffice:   &closeoutOffice,
 			SubmittedAt:      &submittedAt,
+			Status:           models.MoveStatusNeedsServiceCounseling,
 		},
 	})
 

@@ -714,7 +714,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "operationId": "UpdateMTOReviewedBillableWeightsAt",
+        "operationId": "updateMTOReviewedBillableWeightsAt",
         "parameters": [
           {
             "type": "string",
@@ -2923,7 +2923,11 @@ func init() {
               "requestedMoveDate",
               "submittedAt",
               "originGBLOC",
-              "originDutyLocation"
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "ppmType",
+              "closeoutInitiated",
+              "closeoutLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -2990,6 +2994,12 @@ func init() {
             "in": "query"
           },
           {
+            "type": "string",
+            "description": "filters the name of the destination duty location on the orders",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
             "uniqueItems": true,
             "type": "array",
             "items": {
@@ -3007,6 +3017,29 @@ func init() {
             "type": "boolean",
             "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
             "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "FULL",
+              "PARTIAL"
+            ],
+            "type": "string",
+            "description": "filters PPM type",
+            "name": "ppmType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Latest date that closeout was initiated on a PPM on the move",
+            "name": "closeoutInitiated",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "closeout location",
+            "name": "closeoutLocation",
             "in": "query"
           }
         ],
@@ -5089,9 +5122,17 @@ func init() {
         "eTag": {
           "type": "string"
         },
-        "evaluationLengthMinutes": {
-          "type": "integer",
-          "x-nullable": true
+        "evalEnd": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "18:00"
+        },
+        "evalStart": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "15:00"
         },
         "id": {
           "type": "string",
@@ -5190,9 +5231,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
-        "travelTimeMinutes": {
-          "type": "integer",
-          "x-nullable": true
+        "timeDepart": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "14:30"
         },
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
@@ -7354,6 +7397,15 @@ func init() {
     "QueueMove": {
       "type": "object",
       "properties": {
+        "closeoutInitiated": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "closeoutLocation": {
+          "type": "string",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -7375,6 +7427,14 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ],
+          "x-nullable": true
         },
         "requestedMoveDate": {
           "type": "string",
@@ -9828,7 +9888,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "operationId": "UpdateMTOReviewedBillableWeightsAt",
+        "operationId": "updateMTOReviewedBillableWeightsAt",
         "parameters": [
           {
             "type": "string",
@@ -12680,7 +12740,11 @@ func init() {
               "requestedMoveDate",
               "submittedAt",
               "originGBLOC",
-              "originDutyLocation"
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "ppmType",
+              "closeoutInitiated",
+              "closeoutLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -12747,6 +12811,12 @@ func init() {
             "in": "query"
           },
           {
+            "type": "string",
+            "description": "filters the name of the destination duty location on the orders",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
             "uniqueItems": true,
             "type": "array",
             "items": {
@@ -12764,6 +12834,29 @@ func init() {
             "type": "boolean",
             "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
             "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "FULL",
+              "PARTIAL"
+            ],
+            "type": "string",
+            "description": "filters PPM type",
+            "name": "ppmType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Latest date that closeout was initiated on a PPM on the move",
+            "name": "closeoutInitiated",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "closeout location",
+            "name": "closeoutLocation",
             "in": "query"
           }
         ],
@@ -15105,10 +15198,17 @@ func init() {
         "eTag": {
           "type": "string"
         },
-        "evaluationLengthMinutes": {
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true
+        "evalEnd": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "18:00"
+        },
+        "evalStart": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "15:00"
         },
         "id": {
           "type": "string",
@@ -15207,10 +15307,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
-        "travelTimeMinutes": {
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true
+        "timeDepart": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "14:30"
         },
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
@@ -17373,6 +17474,15 @@ func init() {
     "QueueMove": {
       "type": "object",
       "properties": {
+        "closeoutInitiated": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "closeoutLocation": {
+          "type": "string",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -17394,6 +17504,14 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ],
+          "x-nullable": true
         },
         "requestedMoveDate": {
           "type": "string",

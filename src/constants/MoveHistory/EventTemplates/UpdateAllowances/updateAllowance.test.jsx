@@ -11,7 +11,7 @@ describe('When a service counselor updates shipping allowances', () => {
     eventNameDisplay: 'Updated allowances',
     changedValues: {
       authorized_weight: '4000',
-      dependents_authorized: 'false',
+      dependents_authorized: true,
       pro_gear_weight: '10',
       pro_gear_weight_spouse: '80',
       required_medical_equipment_weight: '100',
@@ -26,7 +26,7 @@ describe('When a service counselor updates shipping allowances', () => {
     it.each([
       ['Authorized weight', ': 4,000 lbs'],
       ['Storage in transit (SIT)', ': 80 days'],
-      ['Dependents', ': false'],
+      ['Dependents', ': Yes'],
       ['Pro-gear', ': 10 lbs'],
       ['Spouse pro-gear', ': 80 lbs'],
       ['RME', ': 100 lbs'],
