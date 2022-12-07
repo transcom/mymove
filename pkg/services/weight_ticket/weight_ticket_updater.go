@@ -6,25 +6,30 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 type weightTicketUpdater struct {
 	checks []weightTicketValidator
 	services.WeightTicketFetcher
+	ppmShipmentUpdater services.PPMShipmentUpdater
 }
 
 // NewCustomerWeightTicketUpdater creates a new weightTicketUpdater struct with the checks it needs for a customer
-func NewCustomerWeightTicketUpdater(fetcher services.WeightTicketFetcher) services.WeightTicketUpdater {
+func NewCustomerWeightTicketUpdater(fetcher services.WeightTicketFetcher, ppmUpdater services.PPMShipmentUpdater) services.WeightTicketUpdater {
 	return &weightTicketUpdater{
 		checks:              basicChecksForCustomer(),
 		WeightTicketFetcher: fetcher,
+		ppmShipmentUpdater:  ppmUpdater,
 	}
 }
 
-func NewOfficeWeightTicketUpdater(fetcher services.WeightTicketFetcher) services.WeightTicketUpdater {
+func NewOfficeWeightTicketUpdater(fetcher services.WeightTicketFetcher, ppmUpdater services.PPMShipmentUpdater) services.WeightTicketUpdater {
 	return &weightTicketUpdater{
 		checks:              basicChecksForOffice(),
 		WeightTicketFetcher: fetcher,
+		ppmShipmentUpdater:  ppmUpdater,
 	}
 }
 
@@ -44,12 +49,31 @@ func (f *weightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, w
 	mergedWeightTicket := mergeWeightTicket(weightTicket, *originalWeightTicket)
 
 	// validate updated model
-	if err := validateWeightTicket(appCtx, &mergedWeightTicket, originalWeightTicket, f.checks...); err != nil {
+	if err = validateWeightTicket(appCtx, &mergedWeightTicket, originalWeightTicket, f.checks...); err != nil {
 		return nil, err
+	}
+
+	hasTotalWeightChanged := hasTotalWeightChanged(*originalWeightTicket, mergedWeightTicket)
+	var currentPPMShipment models.PPMShipment
+	if hasTotalWeightChanged {
+		ppmShipmentFromDB, issue := ppmshipment.FindPPMShipmentAndWeightTickets(appCtx, originalWeightTicket.PPMShipmentID)
+		if issue != nil {
+			return nil, issue
+		}
+		currentPPMShipment = *ppmShipmentFromDB
+		currentPPMShipment.WeightTickets = models.WeightTickets{mergedWeightTicket}
 	}
 
 	// update the DB record
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+		// if weight changes call update PPMShipment with new weightTicket
+		if hasTotalWeightChanged {
+			_, err = f.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(txnCtx, &currentPPMShipment, currentPPMShipment.ShipmentID)
+			if err != nil {
+				return err
+			}
+		}
+
 		verrs, err := txnCtx.DB().ValidateAndUpdate(&mergedWeightTicket)
 
 		if verrs != nil && verrs.HasAny() {
@@ -88,4 +112,18 @@ func mergeWeightTicket(weightTicket models.WeightTicket, originalWeightTicket mo
 	}
 
 	return mergedWeightTicket
+}
+
+func hasTotalWeightChanged(originalWeightTicket, newWeightTicket models.WeightTicket) bool {
+	var newWeight unit.Pound
+	var oldWeight unit.Pound
+
+	if newWeightTicket.FullWeight != nil && newWeightTicket.EmptyWeight != nil {
+		newWeight = *newWeightTicket.FullWeight - *newWeightTicket.EmptyWeight
+	}
+	if originalWeightTicket.FullWeight != nil && originalWeightTicket.EmptyWeight != nil {
+		oldWeight = *originalWeightTicket.FullWeight - *originalWeightTicket.EmptyWeight
+	}
+
+	return newWeight != oldWeight
 }

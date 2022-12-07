@@ -44,11 +44,32 @@ func (f *estimatePPM) EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppCo
 	return f.estimateIncentive(appCtx, oldPPMShipment, newPPMShipment, f.checks...)
 }
 
+func (f *estimatePPM) FinalIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, error) {
+	return f.finalIncentive(appCtx, oldPPMShipment, newPPMShipment, f.checks...)
+}
+
 func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
 	return oldPPMShipment.ExpectedDepartureDate.Equal(newPPMShipment.ExpectedDepartureDate) &&
 		newPPMShipment.PickupPostalCode == oldPPMShipment.PickupPostalCode &&
 		newPPMShipment.DestinationPostalCode == oldPPMShipment.DestinationPostalCode &&
 		((newPPMShipment.EstimatedWeight == nil && oldPPMShipment.EstimatedWeight == nil) || (oldPPMShipment.EstimatedWeight != nil && newPPMShipment.EstimatedWeight.Int() == oldPPMShipment.EstimatedWeight.Int()))
+}
+
+func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment, totalWeight unit.Pound) bool {
+	if len(newPPMShipment.WeightTickets) == 1 {
+		return false
+	}
+
+	if oldPPMShipment.ActualMoveDate == nil || newPPMShipment.ActualMoveDate == nil ||
+		oldPPMShipment.ActualPickupPostalCode == nil || newPPMShipment.ActualPickupPostalCode == nil ||
+		oldPPMShipment.ActualDestinationPostalCode == nil || newPPMShipment.ActualDestinationPostalCode == nil ||
+		totalWeight <= 0 {
+		return true
+	}
+
+	return oldPPMShipment.ActualMoveDate.Equal(*newPPMShipment.ActualMoveDate) &&
+		*newPPMShipment.ActualPickupPostalCode == *oldPPMShipment.ActualPickupPostalCode &&
+		*newPPMShipment.ActualDestinationPostalCode == *oldPPMShipment.ActualDestinationPostalCode
 }
 
 func shouldCalculateSITCost(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
@@ -116,7 +137,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		newPPMShipment.HasRequestedAdvance = nil
 		newPPMShipment.AdvanceAmountRequested = nil
 
-		estimatedIncentive, err = f.calculatePrice(appCtx, newPPMShipment)
+		estimatedIncentive, err = f.calculatePrice(appCtx, newPPMShipment, 0)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -133,13 +154,68 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 	return estimatedIncentive, estimatedSITCost, nil
 }
 
-// calculatePrice returns an estimated incentive value for the ppm shipment as if we were pricing the service items for
+func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment, checks ...ppmShipmentValidator) (*unit.Cents, error) {
+	if newPPMShipment.Status != models.PPMShipmentStatusWaitingOnCustomer && newPPMShipment.Status != models.PPMShipmentStatusNeedsPaymentApproval {
+		return oldPPMShipment.FinalIncentive, nil
+	}
+
+	err := validatePPMShipment(appCtx, *newPPMShipment, &oldPPMShipment, &oldPPMShipment.Shipment, checks...)
+	if err != nil {
+		switch err.(type) {
+		case apperror.InvalidInputError:
+			return nil, err
+		default:
+			return nil, err
+		}
+	}
+	totalWeight := SumWeightTickets(oldPPMShipment, *newPPMShipment)
+
+	skipCalculateFinalIncentive := shouldSkipCalculatingFinalIncentive(newPPMShipment, &oldPPMShipment, totalWeight)
+
+	finalIncentive := oldPPMShipment.FinalIncentive
+	if !skipCalculateFinalIncentive {
+
+		finalIncentive, err = f.calculatePrice(appCtx, newPPMShipment, totalWeight)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return finalIncentive, nil
+}
+
+// SumWeightTickets return the total weight of all weightTickets associated with a PPMShipment, returns 0 if there is no valid weight
+// when the second argument has a weight ticket that means a weight ticket was updated
+func SumWeightTickets(ppmShipment, newPPMShipment models.PPMShipment) (totalWeight unit.Pound) {
+	var updatedWeightTicketID uuid.UUID
+	var changedWeight unit.Pound
+	if len(newPPMShipment.WeightTickets) == 1 {
+		weightTicket := newPPMShipment.WeightTickets[0]
+		updatedWeightTicketID = weightTicket.ID
+		if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+			changedWeight = *weightTicket.FullWeight - *weightTicket.EmptyWeight
+		}
+	}
+
+	if len(ppmShipment.WeightTickets) >= 1 {
+		for _, weightTicket := range ppmShipment.WeightTickets {
+			if weightTicket.ID == updatedWeightTicketID {
+				totalWeight += changedWeight
+			} else if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+				totalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+			}
+		}
+	}
+
+	return totalWeight
+}
+
+// calculatePrice returns an incentive value for the ppm shipment as if we were pricing the service items for
 // an HHG shipment with the same values for a payment request.  In this case we're not persisting service items,
 // MTOServiceItems or PaymentRequestServiceItems, to the database to avoid unnecessary work and get a quicker result.
-func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*unit.Cents, error) {
+func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, totalWeightFromWeightTickets unit.Pound) (*unit.Cents, error) {
 	logger := appCtx.Logger()
 
-	serviceItemsToPrice := estimateServiceItems(ppmShipment.ShipmentID)
+	serviceItemsToPrice := baseServiceItems(ppmShipment.ShipmentID)
 
 	// Get a list of all the pricing params needed to calculate the price for each service item
 	paramsForServiceItems, err := f.paymentRequestHelper.FetchServiceParamsForServiceItems(appCtx, serviceItemsToPrice)
@@ -148,8 +224,14 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 		return nil, err
 	}
 
-	// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
-	mtoShipment := mapPPMShipmentFields(*ppmShipment)
+	var mtoShipment models.MTOShipment
+	if totalWeightFromWeightTickets > 0 {
+		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
+		mtoShipment = mapPPMShipmentFinalFields(*ppmShipment, totalWeightFromWeightTickets)
+	} else {
+		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
+		mtoShipment = mapPPMShipmentEstimatedFields(*ppmShipment)
+	}
 
 	totalPrice := unit.Cents(0)
 	for _, serviceItem := range serviceItemsToPrice {
@@ -325,9 +407,9 @@ func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsP
 	return &price, nil
 }
 
-// mapPPMShipmentFields remaps our PPMShipment specific information into the fields where the service param lookups
+// mapPPMShipmentEstimatedFields remaps our PPMShipment specific information into the fields where the service param lookups
 // expect to find them on the MTOShipment model.  This is only in-memory and shouldn't get saved to the database.
-func mapPPMShipmentFields(ppmShipment models.PPMShipment) models.MTOShipment {
+func mapPPMShipmentEstimatedFields(ppmShipment models.PPMShipment) models.MTOShipment {
 
 	ppmShipment.Shipment.ActualPickupDate = &ppmShipment.ExpectedDepartureDate
 	ppmShipment.Shipment.RequestedPickupDate = &ppmShipment.ExpectedDepartureDate
@@ -338,9 +420,22 @@ func mapPPMShipmentFields(ppmShipment models.PPMShipment) models.MTOShipment {
 	return ppmShipment.Shipment
 }
 
-// estimateServiceItems returns a list of the MTOServiceItems that makeup the price of the estimated incentive.  These
+// mapPPMShipmentFinalFields remaps our PPMShipment specific information into the fields where the service param lookups
+// expect to find them on the MTOShipment model.  This is only in-memory and shouldn't get saved to the database.
+func mapPPMShipmentFinalFields(ppmShipment models.PPMShipment, totalWeight unit.Pound) models.MTOShipment {
+
+	ppmShipment.Shipment.ActualPickupDate = ppmShipment.ActualMoveDate
+	ppmShipment.Shipment.RequestedPickupDate = ppmShipment.ActualMoveDate
+	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: *ppmShipment.ActualPickupPostalCode}
+	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: *ppmShipment.ActualDestinationPostalCode}
+	ppmShipment.Shipment.PrimeActualWeight = &totalWeight
+
+	return ppmShipment.Shipment
+}
+
+// baseServiceItems returns a list of the MTOServiceItems that makeup the price of the estimated incentive.  These
 // are the same non-accesorial service items that get auto-created and approved when the TOO approves an HHG shipment.
-func estimateServiceItems(mtoShipmentID uuid.UUID) []models.MTOServiceItem {
+func baseServiceItems(mtoShipmentID uuid.UUID) []models.MTOServiceItem {
 	return []models.MTOServiceItem{
 		{ReService: models.ReService{Code: models.ReServiceCodeDLH}, MTOShipmentID: &mtoShipmentID},
 		{ReService: models.ReService{Code: models.ReServiceCodeFSC}, MTOShipmentID: &mtoShipmentID},

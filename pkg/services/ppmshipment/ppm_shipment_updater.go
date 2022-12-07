@@ -88,6 +88,12 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 			}
 		}
 
+		finalIncentive, err := f.estimator.FinalIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
+		if err != nil {
+			return err
+		}
+		updatedPPMShipment.FinalIncentive = finalIncentive
+
 		if updatedPPMShipment.W2Address != nil {
 			var updatedAddress *models.Address
 			var error error

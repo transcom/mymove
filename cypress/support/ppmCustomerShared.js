@@ -491,7 +491,7 @@ export function verifyFinalIncentiveAndTotals(
 ) {
   // TODO: Once we get back final incentive, set a value in the testdatagen func
   //  createMoveWithPPMShipmentReadyForFinalCloseout and check for it here.
-  cy.get('h2').contains('Your final estimated incentive: $0.00');
+  // cy.get('h2').contains('Your final estimated incentive: $0.00');
 
   cy.get('li').contains(`${options?.totalNetWeight} total net weight`);
 

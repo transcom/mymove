@@ -16,7 +16,9 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
+func (suite WeightTicketSuite) TestUpdateWeightTicket() {
+	ppmShipmentUpdater := mocks.PPMShipmentUpdater{}
+
 	setupForTest := func(appCtx appcontext.AppContext, overrides *models.WeightTicket, hasEmptyFiles bool, hasFullFiles bool, hasProofFiles bool) *models.WeightTicket {
 		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
@@ -93,6 +95,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			ProofOfTrailerOwnershipDocumentID: proofOfOwnership.ID,
 			ProofOfTrailerOwnershipDocument:   proofOfOwnership,
 			PPMShipmentID:                     ppmShipment.ID,
+			PPMShipment:                       ppmShipment,
 		}
 
 		if overrides != nil {
@@ -127,7 +130,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 		notFoundErr := apperror.NewNotFoundError(badWeightTicket.ID, "while looking for weight ticket")
 
-		updater := NewCustomerWeightTicketUpdater(setUpFetcher(nil, notFoundErr))
+		updater := NewCustomerWeightTicketUpdater(setUpFetcher(nil, notFoundErr), &ppmShipmentUpdater)
 
 		updatedWeightTicket, err := updater.UpdateWeightTicket(suite.AppContextForTest(), badWeightTicket, "")
 
@@ -148,7 +151,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 		originalWeightTicket := setupForTest(appCtx, nil, false, false, false)
 
-		updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil))
+		updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
 
 		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *originalWeightTicket, "")
 
@@ -167,9 +170,14 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 	suite.Run("Successfully updates", func() {
 		appCtx := suite.AppContextForTest()
 
-		originalWeightTicket := setupForTest(appCtx, nil, true, true, false)
+		override := models.WeightTicket{
+			EmptyWeight: models.PoundPointer(3000),
+			FullWeight:  models.PoundPointer(4200),
+		}
 
-		updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil))
+		originalWeightTicket := setupForTest(appCtx, &override, true, true, false)
+
+		updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
 
 		desiredWeightTicket := &models.WeightTicket{
 			ID:                       originalWeightTicket.ID,
@@ -201,9 +209,13 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 	suite.Run("Succesfully updates when files are required", func() {
 		appCtx := suite.AppContextForTest()
 
-		originalWeightTicket := setupForTest(appCtx, nil, true, true, true)
+		override := models.WeightTicket{
+			EmptyWeight: models.PoundPointer(3000),
+			FullWeight:  models.PoundPointer(4200),
+		}
+		originalWeightTicket := setupForTest(appCtx, &override, true, true, true)
 
-		updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil))
+		updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
 
 		desiredWeightTicket := &models.WeightTicket{
 			ID:                       originalWeightTicket.ID,
@@ -235,12 +247,92 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(2, len(updatedWeightTicket.ProofOfTrailerOwnershipDocument.UserUploads))
 	})
 
+	suite.Run("Successfully updates and calls the ppmShipmentUpdater when weights are updated", func() {
+		appCtx := suite.AppContextForTest()
+
+		originalWeightTicket := setupForTest(appCtx, nil, true, true, false)
+
+		updater := NewOfficeWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
+		ppmShipmentUpdater.
+			On(
+				"UpdatePPMShipmentWithDefaultCheck",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("*models.PPMShipment"),
+				mock.AnythingOfType("uuid.UUID"),
+			).
+			Return(nil, nil)
+
+		desiredWeightTicket := &models.WeightTicket{
+			ID:                       originalWeightTicket.ID,
+			VehicleDescription:       models.StringPointer("2004 Toyota Prius"),
+			EmptyWeight:              models.PoundPointer(3000),
+			MissingEmptyWeightTicket: models.BoolPointer(true),
+			FullWeight:               models.PoundPointer(4200),
+			MissingFullWeightTicket:  models.BoolPointer(true),
+			OwnsTrailer:              models.BoolPointer(false),
+			TrailerMeetsCriteria:     models.BoolPointer(false),
+		}
+
+		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
+
+		suite.Nil(updateErr)
+		suite.Equal(originalWeightTicket.ID, updatedWeightTicket.ID)
+		suite.Equal(originalWeightTicket.EmptyDocumentID, updatedWeightTicket.EmptyDocumentID)
+		suite.Equal(originalWeightTicket.FullDocumentID, updatedWeightTicket.FullDocumentID)
+		suite.Equal(originalWeightTicket.ProofOfTrailerOwnershipDocumentID, updatedWeightTicket.ProofOfTrailerOwnershipDocumentID)
+		suite.Equal(*desiredWeightTicket.VehicleDescription, *updatedWeightTicket.VehicleDescription)
+		suite.Equal(*desiredWeightTicket.EmptyWeight, *updatedWeightTicket.EmptyWeight)
+		suite.Equal(*desiredWeightTicket.MissingEmptyWeightTicket, *updatedWeightTicket.MissingEmptyWeightTicket)
+		suite.Equal(*desiredWeightTicket.FullWeight, *updatedWeightTicket.FullWeight)
+		suite.Equal(*desiredWeightTicket.MissingFullWeightTicket, *updatedWeightTicket.MissingFullWeightTicket)
+		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.OwnsTrailer)
+		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.TrailerMeetsCriteria)
+	})
+
+	suite.Run("Successfully updates and does not call ppmShipmentUpdater when total weight is unchanged", func() {
+		appCtx := suite.AppContextForTest()
+
+		override := models.WeightTicket{
+			EmptyWeight: models.PoundPointer(3000),
+			FullWeight:  models.PoundPointer(4200),
+		}
+		originalWeightTicket := setupForTest(appCtx, &override, true, true, false)
+
+		updater := NewOfficeWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
+
+		desiredWeightTicket := &models.WeightTicket{
+			ID:                       originalWeightTicket.ID,
+			VehicleDescription:       models.StringPointer("2004 Toyota Prius"),
+			EmptyWeight:              models.PoundPointer(1000),
+			MissingEmptyWeightTicket: models.BoolPointer(true),
+			FullWeight:               models.PoundPointer(2200),
+			MissingFullWeightTicket:  models.BoolPointer(true),
+			OwnsTrailer:              models.BoolPointer(false),
+			TrailerMeetsCriteria:     models.BoolPointer(false),
+		}
+
+		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
+
+		suite.Nil(updateErr)
+		suite.Equal(originalWeightTicket.ID, updatedWeightTicket.ID)
+		suite.Equal(originalWeightTicket.EmptyDocumentID, updatedWeightTicket.EmptyDocumentID)
+		suite.Equal(originalWeightTicket.FullDocumentID, updatedWeightTicket.FullDocumentID)
+		suite.Equal(originalWeightTicket.ProofOfTrailerOwnershipDocumentID, updatedWeightTicket.ProofOfTrailerOwnershipDocumentID)
+		suite.Equal(*desiredWeightTicket.VehicleDescription, *updatedWeightTicket.VehicleDescription)
+		suite.Equal(*desiredWeightTicket.EmptyWeight, *updatedWeightTicket.EmptyWeight)
+		suite.Equal(*desiredWeightTicket.MissingEmptyWeightTicket, *updatedWeightTicket.MissingEmptyWeightTicket)
+		suite.Equal(*desiredWeightTicket.FullWeight, *updatedWeightTicket.FullWeight)
+		suite.Equal(*desiredWeightTicket.MissingFullWeightTicket, *updatedWeightTicket.MissingFullWeightTicket)
+		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.OwnsTrailer)
+		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.TrailerMeetsCriteria)
+	})
+
 	suite.Run("Fails to update when files are missing", func() {
 		appCtx := suite.AppContextForTest()
 
 		originalWeightTicket := setupForTest(appCtx, nil, false, false, false)
 
-		updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil))
+		updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
 
 		desiredWeightTicket := &models.WeightTicket{
 			ID:                       originalWeightTicket.ID,
@@ -269,7 +361,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 				originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
 
-				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil))
+				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
 
 				status := models.PPMDocumentStatusExcluded
 
@@ -298,7 +390,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 					},
 				})
 
-				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil))
+				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
 
 				desiredWeightTicket := &models.WeightTicket{
 					ID:     originalWeightTicket.ID,
@@ -324,7 +416,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 					},
 				})
 
-				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil))
+				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
 
 				desiredStatus := models.PPMDocumentStatusApproved
 				desiredWeightTicket := &models.WeightTicket{
@@ -348,7 +440,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 				originalWeightTicket := setupForTest(appCtx, nil, true, true, false)
 
-				updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil))
+				updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
 
 				status := models.PPMDocumentStatusExcluded
 
@@ -384,7 +476,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 					},
 				})
 
-				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil))
+				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
 
 				desiredStatus := models.PPMDocumentStatusApproved
 				desiredWeightTicket := &models.WeightTicket{
@@ -406,7 +498,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 				originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
 
-				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil))
+				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
 
 				status := models.PPMDocumentStatus("invalid status")
 				desiredWeightTicket := &models.WeightTicket{

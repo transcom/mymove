@@ -243,8 +243,9 @@ func (suite *HandlerSuite) TestGetWeightTicketsHandlerIntegration() {
 
 func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	// Reusable objects
+	ppmShipmentUpdater := mocks.PPMShipmentUpdater{}
 	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
-	weightTicketUpdater := weightticket.NewCustomerWeightTicketUpdater(weightTicketFetcher)
+	weightTicketUpdater := weightticket.NewCustomerWeightTicketUpdater(weightTicketFetcher, &ppmShipmentUpdater)
 
 	type weightTicketUpdateSubtestData struct {
 		ppmShipment  models.PPMShipment
@@ -285,6 +286,13 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		subtestData := makeUpdateSubtestData(appCtx, true)
 
 		params := subtestData.params
+
+		ppmShipmentUpdater.On(
+			"UpdatePPMShipmentWithDefaultCheck",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.PPMShipment"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(nil, nil)
 
 		// An upload must exist if trailer is owned and qualifies to be claimed
 		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
