@@ -38,8 +38,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 		req := httptest.NewRequest("PATCH", endpoint, nil)
 		eTag := etag.GenerateEtag(subtestData.movingExpense.UpdatedAt)
 
-		subtestData.params = movingexpenseops.
-			UpdateMovingExpenseParams{
+		subtestData.params = movingexpenseops.UpdateMovingExpenseParams{
 			HTTPRequest:     req,
 			PpmShipmentID:   *handlers.FmtUUID(subtestData.ppmShipment.ID),
 			MovingExpenseID: *handlers.FmtUUID(subtestData.movingExpense.ID),
@@ -66,12 +65,17 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 		params.UpdateMovingExpense = &ghcmessages.UpdateMovingExpense{
 			Amount: *handlers.FmtCost(&amount),
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := subtestData.handler.Handle(params)
 
 		suite.IsType(&movingexpenseops.UpdateMovingExpenseOK{}, response)
-
 		updatedMovingExpense := response.(*movingexpenseops.UpdateMovingExpenseOK).Payload
+
+		// Validate outgoing payload
 		suite.NoError(updatedMovingExpense.Validate(strfmt.Default))
+
 		suite.Equal(subtestData.movingExpense.ID.String(), updatedMovingExpense.ID.String())
 		suite.Equal(params.UpdateMovingExpense.Amount, *updatedMovingExpense.Amount)
 	})
