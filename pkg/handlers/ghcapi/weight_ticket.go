@@ -52,11 +52,9 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 						&ghcmessages.Error{Message: &msg},
 					), err
 				default:
-					msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
+					//msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
 
-					return weightticketops.NewUpdateWeightTicketInternalServerError().WithPayload(
-						&ghcmessages.Error{Message: &msg},
-					), err
+					return weightticketops.NewUpdateWeightTicketInternalServerError(), err
 				}
 			}
 
