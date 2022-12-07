@@ -2,6 +2,7 @@ import {
   navigateFromCloseoutReviewPageToExpensesPage,
   setMobileViewport,
   signInAndNavigateToPPMReviewPage,
+  submitExpensePage,
 } from '../../../support/ppmCustomerShared';
 
 describe('Expenses', function () {
@@ -24,28 +25,7 @@ describe('Expenses', function () {
 
       signInAndNavigateToPPMReviewPage(userId);
       navigateFromCloseoutReviewPageToExpensesPage();
-
-      cy.get('select[name="expenseType"]').as('expenseType').should('have.value', '');
-      cy.get('@expenseType').select('Storage');
-
-      cy.get('input[name="description"]').type('Cloud storage');
-      cy.get('input[name="paidWithGTCC"][value="true"]').click({ force: true });
-      cy.get('input[name="amount"]').type('675.99');
-
-      cy.upload_file('.receiptDocument.filepond--root', 'sampleWeightTicket.jpg');
-      cy.wait('@uploadFile');
-
-      cy.get('input[name="sitStartDate"]').type('14 Aug 2022').blur();
-      cy.get('input[name="sitEndDate"]').type('20 Aug 2022').blur();
-
-      cy.get('button').contains('Save & Continue').should('be.enabled').click();
-      cy.location().should((loc) => {
-        expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/review/);
-      });
-
-      cy.contains('Cloud storage');
-      cy.contains('dt', 'Days in storage:');
-      cy.contains('dd', '7');
+      submitExpensePage();
     });
 
     it(`edit expense page loads - ${viewport}`, () => {

@@ -16,29 +16,32 @@ import (
 )
 
 type weightTicketUpdater struct {
-	checks             []weightTicketValidator
+	checks []weightTicketValidator
+	services.WeightTicketFetcher
 	ppmShipmentUpdater services.PPMShipmentUpdater
 }
 
 // NewCustomerWeightTicketUpdater creates a new weightTicketUpdater struct with the checks it needs for a customer
-func NewCustomerWeightTicketUpdater(ppmUpdater services.PPMShipmentUpdater) services.WeightTicketUpdater {
+func NewCustomerWeightTicketUpdater(fetcher services.WeightTicketFetcher, ppmUpdater services.PPMShipmentUpdater) services.WeightTicketUpdater {
 	return &weightTicketUpdater{
-		checks:             basicChecksForCustomer(),
-		ppmShipmentUpdater: ppmUpdater,
+		checks:              basicChecksForCustomer(),
+		WeightTicketFetcher: fetcher,
+		ppmShipmentUpdater:  ppmUpdater,
 	}
 }
 
-func NewOfficeWeightTicketUpdater(ppmUpdater services.PPMShipmentUpdater) services.WeightTicketUpdater {
+func NewOfficeWeightTicketUpdater(fetcher services.WeightTicketFetcher, ppmUpdater services.PPMShipmentUpdater) services.WeightTicketUpdater {
 	return &weightTicketUpdater{
-		checks:             basicChecksForOffice(),
-		ppmShipmentUpdater: ppmUpdater,
+		checks:              basicChecksForOffice(),
+		WeightTicketFetcher: fetcher,
+		ppmShipmentUpdater:  ppmUpdater,
 	}
 }
 
 // UpdateWeightTicket updates a weightTicket
 func (f *weightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, weightTicket models.WeightTicket, eTag string) (*models.WeightTicket, error) {
 	// get existing WeightTicket
-	originalWeightTicket, err := FetchWeightTicketByIDExcludeDeletedUploads(appCtx, weightTicket.ID)
+	originalWeightTicket, err := f.GetWeightTicket(appCtx, weightTicket.ID)
 	if err != nil {
 		return nil, err
 	}

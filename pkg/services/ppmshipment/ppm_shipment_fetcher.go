@@ -33,6 +33,36 @@ func FindPPMShipmentAndWeightTickets(appCtx appcontext.AppContext, id uuid.UUID)
 	return &ppmShipment, nil
 }
 
+func FindPPMShipmentByMTOID(appCtx appcontext.AppContext, mtoID uuid.UUID) (*models.PPMShipment, error) {
+	var ppmShipment models.PPMShipment
+
+	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
+		EagerPreload(
+			"Shipment",
+			"WeightTickets",
+			"MovingExpenses",
+			"ProgearExpenses",
+			"W2Address",
+		).
+		Where("shipment_id = ?", mtoID).First(&ppmShipment)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(mtoID, "while looking for PPMShipment by MTO ShipmentID")
+		default:
+			return nil, apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipment")
+		}
+	}
+
+	err = loadPPMAssociations(appCtx, &ppmShipment)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ppmShipment, nil
+}
+
 // FindPPMShipment returns a PPMShipment with associations by ID
 func FindPPMShipment(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShipment, error) {
 	var ppmShipment models.PPMShipment
@@ -43,6 +73,7 @@ func FindPPMShipment(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShi
 			"WeightTickets",
 			"MovingExpenses",
 			"ProgearExpenses",
+			"W2Address",
 		).
 		Find(&ppmShipment, id)
 
@@ -55,6 +86,15 @@ func FindPPMShipment(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShi
 		}
 	}
 
+	err = loadPPMAssociations(appCtx, &ppmShipment)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ppmShipment, nil
+}
+
+func loadPPMAssociations(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error {
 	for i := range ppmShipment.WeightTickets {
 		if weightTicket := &ppmShipment.WeightTickets[i]; weightTicket.DeletedAt == nil {
 			err := appCtx.DB().Load(weightTicket,
@@ -63,7 +103,7 @@ func FindPPMShipment(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShi
 				"ProofOfTrailerOwnershipDocument.UserUploads.Upload")
 
 			if err != nil {
-				return nil, apperror.NewQueryError("WeightTicket", err, "failed to load WeightTicket document uploads")
+				return apperror.NewQueryError("WeightTicket", err, "failed to load WeightTicket document uploads")
 			}
 
 			weightTicket.EmptyDocument.UserUploads = weightTicket.EmptyDocument.UserUploads.FilterDeleted()
@@ -78,7 +118,7 @@ func FindPPMShipment(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShi
 				"Document.UserUploads.Upload")
 
 			if err != nil {
-				return nil, apperror.NewQueryError("ProgearExpenses", err, "failed to load ProgearExpenses document uploads")
+				return apperror.NewQueryError("ProgearExpenses", err, "failed to load ProgearExpenses document uploads")
 			}
 
 			progearExpense.Document.UserUploads = progearExpense.Document.UserUploads.FilterDeleted()
@@ -91,7 +131,7 @@ func FindPPMShipment(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShi
 				"Document.UserUploads.Upload")
 
 			if err != nil {
-				return nil, apperror.NewQueryError("MovingExpenses", err, "failed to load ProgearExpenses document uploads")
+				return apperror.NewQueryError("MovingExpenses", err, "failed to load ProgearExpenses document uploads")
 			}
 
 			movingExpense.Document.UserUploads = movingExpense.Document.UserUploads.FilterDeleted()
@@ -99,13 +139,18 @@ func FindPPMShipment(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShi
 	}
 
 	// We can't load SignedCertification with EagerPreload because of a bug in Pop, so we'll load it directly next.
-	loadErr := appCtx.DB().Load(&ppmShipment, "SignedCertification")
-
-	if loadErr != nil {
-		return nil, apperror.NewQueryError("PPMShipment", loadErr, "unable to load SignedCertification")
+	loadErr := appCtx.DB().Load(ppmShipment, "SignedCertification")
+	// Pop will load an empty struct here and we'll get validation errors when attempting to save, if we don't set the
+	// field to nil
+	if ppmShipment.SignedCertification != nil && ppmShipment.SignedCertification.ID.IsNil() {
+		ppmShipment.SignedCertification = nil
 	}
 
-	return &ppmShipment, nil
+	if loadErr != nil {
+		return apperror.NewQueryError("PPMShipment", loadErr, "unable to load SignedCertification")
+	}
+
+	return nil
 }
 
 func FindPPMShipmentWithDocument(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, documentID uuid.UUID) error {

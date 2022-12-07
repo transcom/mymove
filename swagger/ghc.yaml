@@ -1263,6 +1263,38 @@ paths:
       summary: Denies a SIT extension
       x-permissions:
         - update.SITExtension
+  /ppm-shipments/{ppmShipmentId}/weight-tickets:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+    get:
+      summary: Gets all the weight tickets for a PPM shipment
+      description: >
+        Retrieves all of the weight tickets and associated uploads for each one
+        for the specified PPM shipment. This
+
+        excludes any deleted weight tickets or uploads.
+      operationId: getWeightTickets
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: >-
+            All weight tickets and associated uploads for the specified PPM
+            shipment.
+          schema:
+            $ref: '#/definitions/WeightTickets'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}:
     parameters:
       - $ref: '#/parameters/ppmShipmentId'
@@ -5917,6 +5949,12 @@ definitions:
       - fullDocumentId
       - proofOfTrailerOwnershipDocument
       - proofOfTrailerOwnershipDocumentId
+  WeightTickets:
+    description: All weight tickets associated with a PPM shipment.
+    type: array
+    items:
+      $ref: '#/definitions/WeightTicket'
+    x-omitempty: false
   OmittableMovingExpenseType:
     type: string
     description: Moving Expense Type
@@ -6457,12 +6495,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
       weightTickets:
-        description: >-
-          All weight ticket documentation records belonging to vehicles of this
-          PPM shipment
-        items:
-          $ref: '#/definitions/WeightTicket'
-        type: array
+        $ref: '#/definitions/WeightTickets'
       movingExpenses:
         description: All expense documentation receipt records of this PPM shipment.
         items:

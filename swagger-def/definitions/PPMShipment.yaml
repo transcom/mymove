@@ -215,10 +215,7 @@ properties:
     x-nullable: true
     x-omitempty: false
   weightTickets:
-    description: All weight ticket documentation records belonging to vehicles of this PPM shipment
-    items:
-      $ref: 'WeightTicket.yaml'
-    type: array
+    $ref: 'WeightTickets.yaml'
   movingExpenses:
     description: All expense documentation receipt records of this PPM shipment.
     items:
