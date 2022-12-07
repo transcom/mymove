@@ -14,6 +14,14 @@ type WeightTicketCreator interface {
 	CreateWeightTicket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.WeightTicket, error)
 }
 
+// WeightTicketFetcher fetches a WeightTicket that is associated with a PPMShipment
+//
+//go:generate mockery --name WeightTicketFetcher --disable-version-string
+type WeightTicketFetcher interface {
+	GetWeightTicket(appCtx appcontext.AppContext, weightTicketID uuid.UUID) (*models.WeightTicket, error)
+	ListWeightTickets(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (models.WeightTickets, error)
+}
+
 // WeightTicketUpdater updates a WeightTicket
 //
 //go:generate mockery --name WeightTicketUpdater --disable-version-string

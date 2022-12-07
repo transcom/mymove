@@ -1,0 +1,5 @@
+description: All weight tickets associated with a PPM shipment.
+type: array
+items:
+  $ref: 'WeightTicket.yaml'
+x-omitempty: false

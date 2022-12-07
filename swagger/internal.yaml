@@ -3101,6 +3101,12 @@ definitions:
       - fullDocumentId
       - proofOfTrailerOwnershipDocument
       - proofOfTrailerOwnershipDocumentId
+  WeightTickets:
+    description: All weight tickets associated with a PPM shipment.
+    type: array
+    items:
+      $ref: '#/definitions/WeightTicket'
+    x-omitempty: false
   OmittableMovingExpenseType:
     type: string
     description: Moving Expense Type
@@ -3641,12 +3647,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
       weightTickets:
-        description: >-
-          All weight ticket documentation records belonging to vehicles of this
-          PPM shipment
-        items:
-          $ref: '#/definitions/WeightTicket'
-        type: array
+        $ref: '#/definitions/WeightTickets'
       movingExpenses:
         description: All expense documentation receipt records of this PPM shipment.
         items:
