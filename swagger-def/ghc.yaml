@@ -4700,7 +4700,11 @@ definitions:
         type: string
         example: 'Route 66 at crash inspection site 3'
         x-nullable: true
-      observedDate:
+      observedShipmentDeliveryDate:
+        type: string
+        format: date
+        x-nullable: true
+      observedShipmentPhysicalPickupDate:
         type: string
         format: date
         x-nullable: true

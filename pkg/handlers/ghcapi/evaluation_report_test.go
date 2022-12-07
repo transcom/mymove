@@ -522,12 +522,12 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		params := evaluationReportop.SaveEvaluationReportParams{
 			HTTPRequest: request,
 			Body: &ghcmessages.EvaluationReport{
-				InspectionDate:      &now,
-				InspectionType:      ghcmessages.EvaluationReportInspectionTypePHYSICAL.Pointer(),
-				Location:            ghcmessages.EvaluationReportLocationOTHER.Pointer(),
-				LocationDescription: swag.String("location description"),
-				ObservedDate:        handlers.FmtDate(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)),
-				Remarks:             swag.String("new remarks"),
+				InspectionDate:                     &now,
+				InspectionType:                     ghcmessages.EvaluationReportInspectionTypePHYSICAL.Pointer(),
+				Location:                           ghcmessages.EvaluationReportLocationOTHER.Pointer(),
+				LocationDescription:                swag.String("location description"),
+				ObservedShipmentDeliveryDate:       handlers.FmtDate(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)),
+				ObservedShipmentPhysicalPickupDate: handlers.FmtDate(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)), Remarks: swag.String("new remarks"),
 				SeriousIncident:     handlers.FmtBool(true),
 				SeriousIncidentDesc: swag.String("serious incident description"),
 				ViolationsObserved:  handlers.FmtBool(false),
