@@ -17,7 +17,7 @@ describe('when given an Order update history record', () => {
         orders_type: 'PERMANENT_CHANGE_OF_STATION',
         origin_duty_location_id: 'ID2',
         new_duty_location_id: 'ID2',
-        has_dependents: 'false',
+        has_dependents: true,
         grade: 'E_2',
       },
       context: [
@@ -62,7 +62,7 @@ describe('when given an Order update history record', () => {
       ['Orders type', ': Permanent Change Of Station (PCS)', historyRecord.RELOCATION],
       ['Origin duty location name', ': Los Angeles AFB', historyRecord.RELOCATION],
       ['New duty location name', ': Fairchild AFB', historyRecord.RELOCATION],
-      ['Dependents included', ': false', historyRecord.RELOCATION],
+      ['Dependents included', ': Yes', historyRecord.RELOCATION],
       ['Rank', ': E-2', historyRecord.RELOCATION],
       ['Date of separation', ': 12 Oct 2022', historyRecord.SEPARATION],
       ['Orders type', ': Retirement', historyRecord.RETIREMENT],
