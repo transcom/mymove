@@ -102,6 +102,10 @@ describe('Final Closeout page', () => {
 
     render(<FinalCloseout />, { wrapper: mockProviderWithHistory });
 
+    await waitFor(() => {
+      expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
+    });
+
     await userEvent.type(screen.getByRole('textbox', { name: 'Signature' }), 'Grace Griffin');
     await userEvent.click(screen.getByRole('button', { name: 'Submit PPM Documentation' }));
 

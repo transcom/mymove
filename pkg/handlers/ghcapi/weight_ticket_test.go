@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
@@ -59,6 +60,13 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		subtestData := makeUpdateSubtestData(appCtx, true)
 
 		params := subtestData.params
+
+		ppmShipmentUpdater.On(
+			"UpdatePPMShipmentWithDefaultCheck",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.PPMShipment"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(nil, nil)
 
 		// An upload must exist if trailer is owned and qualifies to be claimed
 		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{

@@ -182,6 +182,13 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 
 		subtestData := makeUpdateSubtestData(appCtx, true)
 
+		ppmShipmentUpdater.On(
+			"UpdatePPMShipmentWithDefaultCheck",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.PPMShipment"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(nil, nil)
+
 		params := subtestData.params
 
 		// An upload must exist if trailer is owned and qualifies to be claimed
