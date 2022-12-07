@@ -7,11 +7,11 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -36,7 +36,7 @@ func (hs *HandlerSuite) AfterTest() {
 }
 
 func (hs *HandlerSuite) setupAuthenticatedRequest(method string, url string) *http.Request {
-	requestUser := testdatagen.MakeStubbedUser(hs.DB())
+	requestUser := factory.BuildUser(nil, nil, nil)
 	req := httptest.NewRequest(method, url, nil)         // We never need to set a body here for these tests, instead
 	return hs.AuthenticateAdminRequest(req, requestUser) // we use the generated Params types to set the request body.
 }

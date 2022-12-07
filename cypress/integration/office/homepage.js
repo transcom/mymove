@@ -34,7 +34,7 @@ describe('Office authorization', () => {
 
   beforeEach(() => {
     cy.clearAllCookies();
-    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc').as(
+    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&needsPPMCloseout=false').as(
       'getCounselingSortedOrders',
     );
   });

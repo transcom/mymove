@@ -52,6 +52,17 @@ export const SERVICE_COUNSELING_BRANCH_OPTIONS = [
   { value: 'MARINES', label: 'Marine Corps' },
 ];
 
+export const SERVICE_COUNSELING_PPM_TYPE_OPTIONS = [
+  { value: '', label: 'All' },
+  { value: 'FULL', label: 'Full' },
+  { value: 'PARTIAL', label: 'Partial' },
+];
+
+export const SERVICE_COUNSELING_PPM_TYPE_LABELS = {
+  FULL: 'Full',
+  PARTIAL: 'Partial',
+};
+
 export const GBLOC = {
   USMC: 'USMC',
 };

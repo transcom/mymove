@@ -13,6 +13,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -107,18 +108,20 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo moveCrea
 		log.Panic("All moveInfo fields must have non-zero values.")
 	}
 
-	userAssertions := testdatagen.Assertions{
-		User: models.User{
-			ID:            moveInfo.userID,
-			LoginGovUUID:  models.UUIDPointer(uuid.Must(uuid.NewV4())),
-			LoginGovEmail: moveInfo.email,
-			Active:        true,
-		},
+	user := models.User{
+		ID:            moveInfo.userID,
+		LoginGovUUID:  models.UUIDPointer(uuid.Must(uuid.NewV4())),
+		LoginGovEmail: moveInfo.email,
+		Active:        true,
 	}
 
-	testdatagen.MergeModels(&userAssertions, assertions)
+	testdatagen.MergeModels(&user, assertions.User)
 
-	testdatagen.MakeUser(appCtx.DB(), userAssertions)
+	factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: user,
+		},
+	}, nil)
 
 	smAssertions := testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -237,14 +240,14 @@ func createServiceMemberWithOrdersButNoMoveType(appCtx appcontext.AppContext) {
 	uuidStr := "9ceb8321-6a82-4f6d-8bb3-a1d85922a202"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+			}},
+	}, nil)
 
 	testdatagen.MakeMoveWithoutMoveType(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -270,14 +273,16 @@ func createServiceMemberWithNoUploadedOrders(appCtx appcontext.AppContext) {
 	email := "needs@orde.rs"
 	uuidStr := "feac0e92-66ec-4cab-ad29-538129bf918e"
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
+	factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			},
 		},
-	})
+	}, nil)
 
 	testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -299,14 +304,16 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	uuidStr := "6016e423-f8d5-44ca-98a8-af03c8445c94"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
+	factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			},
 		},
-	})
+	}, nil)
 
 	smIDCombo := "f6bd793f-7042-4523-aa30-34946e7339c9"
 	smWithCombo := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
@@ -810,6 +817,70 @@ func createApprovedMoveWithPPM5(appCtx appcontext.AppContext, userUploader *uplo
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
+func createApprovedMoveWithPPM6(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("1dca189a-ca7e-4e70-b98e-be3829e4b6cc"),
+		email:       "readyForCloseout@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("6b4ce016-9b76-44a8-a870-f378313aa1a8"),
+		firstName:   "Ready",
+		lastName:    "Closeout",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("5b718175-8bc5-4ca9-a1f0-8b70d064ee92"),
+		moveLocator: "PPMCL0",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("04592d80-f67f-443e-b9d6-967a9befcc3a"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:         testdatagen.ConvertUUIDStringToUUID("cdc68d38-21d9-4bd8-bd56-5b5c224ab2ab"),
+			ApprovedAt: &approvedAt,
+			Status:     models.PPMShipmentStatusWaitingOnCustomer,
+		},
+	}
+
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+}
+
+func createApprovedMoveWithPPM7(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("fe825617-a53a-49bf-bf2e-c271afee344d"),
+		email:       "readyForCloseout2@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("c1ba0a4b-4873-479a-a3d8-4158afdbe7b0"),
+		firstName:   "Ready",
+		lastName:    "Closeout",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("dabe45ab-aeab-4f83-b446-f1f70e265beb"),
+		moveLocator: "PPMRC2",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("0097e9d1-7579-4f6f-a71e-1b63aea0d4c7"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:         testdatagen.ConvertUUIDStringToUUID("7276375a-932f-4b93-b706-3da2774dfd92"),
+			ApprovedAt: &approvedAt,
+			Status:     models.PPMShipmentStatusWaitingOnCustomer,
+		},
+	}
+
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+}
+
 func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("33f39cca-3908-4cf5-b7d9-839741f51911"),
@@ -856,7 +927,6 @@ func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUpl
 	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
 }
 
-// MB-13354: verify if this data (specifically move status) needs to be updated to align with the actual data post closeout
 func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("f8af6fb0-101e-489c-9d9c-051931c52cf7"),
@@ -1438,6 +1508,134 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 	})
 }
 
+func createMoveWithPPMShipmentReadyForFinalCloseout2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("6f48be45-8ee0-4792-a961-ec6856e5435d"),
+		email:       "closeoutHappyPathWithEdits@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("0b17c7fe-24ae-4feb-a37a-154aa720867e"),
+		firstName:   "ReadyFor",
+		lastName:    "PPMFinalCloseout",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("02c71fd2-a0dc-4975-bcd2-2b7edde22be1"),
+		moveLocator: "PPMCHE",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("f2bb3b05-e858-4717-966f-95e3f7054152"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          testdatagen.ConvertUUIDStringToUUID("5d05071f-2042-40b0-a765-a17e95ec7959"),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	testdatagen.MakeWeightTicket(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		WeightTicket: models.WeightTicket{
+			EmptyWeight: models.PoundPointer(14000),
+			FullWeight:  models.PoundPointer(18000),
+		},
+	})
+
+	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		MovingExpense: models.MovingExpense{
+			Amount: models.CentPointer(45000),
+		},
+	})
+
+	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		ProgearWeightTicket: models.ProgearWeightTicket{
+			Weight: models.PoundPointer(1500),
+		},
+	})
+}
+
+func createMoveWithPPMShipmentReadyForFinalCloseout3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("917da44e-7e44-41be-b912-1486a72b69d8"),
+		email:       "closeoutHappyPathWithEditsMobile@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("15fee9c1-626a-4e0e-a3fa-5409312ff955"),
+		firstName:   "ReadyFor",
+		lastName:    "PPMFinalCloseout",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("15d39793-0ff1-4546-a48e-3de1fe157d95"),
+		moveLocator: "PPMCEM",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("4da930b2-d227-4a0f-87b9-c09357e105d9"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          testdatagen.ConvertUUIDStringToUUID("15b3355f-8c7d-4a22-ac30-85aad77185ca"),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	testdatagen.MakeWeightTicket(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		WeightTicket: models.WeightTicket{
+			EmptyWeight: models.PoundPointer(14000),
+			FullWeight:  models.PoundPointer(18000),
+		},
+	})
+
+	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		MovingExpense: models.MovingExpense{
+			Amount: models.CentPointer(45000),
+		},
+	})
+
+	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		ProgearWeightTicket: models.ProgearWeightTicket{
+			Weight: models.PoundPointer(1500),
+		},
+	})
+}
+
 func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	/*
 	 * A service member with orders and a full PPM Shipment.
@@ -1487,14 +1685,15 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            userID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:            userID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
 
 	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -1506,10 +1705,31 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		},
 	})
 
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "2 Second St",
+			StreetAddress2: swag.String("Apt 2"),
+			StreetAddress3: swag.String("Suite B"),
+			City:           "Columbia",
+			State:          "SC",
+			PostalCode:     "29212",
+			Country:        swag.String("US"),
+		},
+	})
+
+	newDutyLocation := testdatagen.MakeDutyLocation(appCtx.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
+			AddressID: address.ID,
+			Address:   address,
+		},
+	})
+
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ServiceMemberID: smWithPPM.ID,
-			ServiceMember:   smWithPPM,
+			ServiceMemberID:   smWithPPM.ID,
+			ServiceMember:     smWithPPM,
+			NewDutyLocationID: newDutyLocation.ID,
+			NewDutyLocation:   newDutyLocation,
 		},
 		UserUploader: userUploader,
 		Move: models.Move{
@@ -1517,6 +1737,7 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 			SelectedMoveType: &ppmMoveType,
 			Status:           models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt:      &submittedAt,
+			PPMType:          models.StringPointer("FULL"),
 		},
 	})
 
@@ -1532,7 +1753,8 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		Move:        move,
 		MTOShipment: mtoShipment,
 		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:      models.PPMShipmentStatusNeedsPaymentApproval,
+			SubmittedAt: models.TimePointer(time.Now()),
 		},
 	})
 
@@ -1550,15 +1772,15 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            userID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
+	factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:            userID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
 	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			UserID:        userID,
@@ -1629,14 +1851,15 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            userID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:            userID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
 
 	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -1708,14 +1931,15 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            userID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:            userID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
 
 	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -1779,14 +2003,15 @@ func createMoveWithCloseoutOffice(appCtx appcontext.AppContext, userUploader *up
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            userID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:            userID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
 
 	branch := models.AffiliationAIRFORCE
 	serviceMember := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
@@ -1815,6 +2040,7 @@ func createMoveWithCloseoutOffice(appCtx appcontext.AppContext, userUploader *up
 			CloseoutOfficeID: &closeoutOffice.ID,
 			CloseoutOffice:   &closeoutOffice,
 			SubmittedAt:      &submittedAt,
+			Status:           models.MoveStatusNeedsServiceCounseling,
 		},
 	})
 
@@ -1858,14 +2084,15 @@ func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            userID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:            userID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
 
 	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -1923,14 +2150,15 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 	submittedAt := time.Now()
 	sitLocationType := models.SITLocationTypeOrigin
 
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            userID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:            userID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
 
 	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -2052,14 +2280,15 @@ func createSubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext
 	email := "complete@ppm.submitted"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            userID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:            userID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
 
 	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -2184,14 +2413,15 @@ func createUnsubmittedHHGMove(appCtx appcontext.AppContext) {
 	uuidStr := "f08146cf-4d6b-43d5-9ca5-c8d239d37b3e"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
 
 	smWithHHGID := "1d06ab96-cb72-4013-b159-321d6d29c6eb"
 	smWithHHG := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
@@ -2243,14 +2473,15 @@ func createUnsubmittedHHGMoveMultipleDestinations(appCtx appcontext.AppContext) 
 	userID := "81fe79a1-faaa-4735-8426-fd159e641002"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(userID)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            uuid.Must(uuid.FromString(userID)),
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
 
 	smID := "af8f37bc-d29a-4a8a-90ac-5336a2a912b3"
 	smWithHHG := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
@@ -2314,14 +2545,15 @@ func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
 	uuidStr := "47fb0e80-6675-4ceb-b4eb-4f8e164c0f6e"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
 
 	smWithHHGID := "92927bbd-5271-4a8c-b06b-fea07df84691"
 	smWithHHG := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
@@ -2399,14 +2631,15 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 	uuidStr := "c5f202b3-90d3-46aa-8e3b-83e937fcca99"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
 
 	smWithHHGID := "cfb9024b-39f3-47ca-b14b-a4e78a41e9db"
 	smWithHHG := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
@@ -2489,12 +2722,13 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 	db := appCtx.DB()
 
 	email := fmt.Sprintf("nts.%s@nstr.%s", opts.shipmentMoveCode, opts.moveStatus)
-	user := testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	user := factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
 	smWithNTS := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			UserID:        user.ID,
@@ -2628,14 +2862,15 @@ func createPPMUsers(appCtx appcontext.AppContext, userUploader *uploader.UserUpl
 		uuidStr := uuids[0]
 		loginGovID := uuid.Must(uuid.NewV4())
 
-		testdatagen.MakeUser(db, testdatagen.Assertions{
-			User: models.User{
-				ID:            uuid.Must(uuid.FromString(uuidStr)),
-				LoginGovUUID:  &loginGovID,
-				LoginGovEmail: email,
-				Active:        true,
-			},
-		})
+		factory.BuildUser(db, []factory.Customization{
+			{
+				Model: models.User{
+					ID:            uuid.Must(uuid.FromString(uuidStr)),
+					LoginGovUUID:  &loginGovID,
+					LoginGovEmail: email,
+					Active:        true,
+				}},
+		}, nil)
 
 		testdatagen.MakeMove(db, testdatagen.Assertions{
 			ServiceMember: models.ServiceMember{
@@ -5704,15 +5939,16 @@ func createTOO(appCtx appcontext.AppContext) {
 
 	tooUUID := uuid.Must(uuid.FromString("dcf86235-53d3-43dd-8ee8-54212ae3078f"))
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            tooUUID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         []roles.Role{tooRole},
-		},
-	})
+	factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            tooUUID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{tooRole},
+			}},
+	}, nil)
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
 			ID:     uuid.FromStringOrNil("144503a6-485c-463e-b943-d3c3bad11b09"),
@@ -5745,15 +5981,16 @@ func createTIO(appCtx appcontext.AppContext) {
 
 	tioUUID := uuid.Must(uuid.FromString("3b2cc1b0-31a2-4d1b-874f-0591f9127374"))
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            tioUUID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         []roles.Role{tioRole},
-		},
-	})
+	factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            tioUUID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{tioRole},
+			}},
+	}, nil)
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
 			ID:     uuid.FromStringOrNil("f1828a35-43fd-42be-8b23-af4d9d51f0f3"),
@@ -5786,15 +6023,16 @@ func createServicesCounselor(appCtx appcontext.AppContext) {
 
 	servicesCounselorUUID := uuid.Must(uuid.FromString("a6c8663f-998f-4626-a978-ad60da2476ec"))
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            servicesCounselorUUID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         []roles.Role{servicesCounselorRole},
-		},
-	})
+	factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            servicesCounselorUUID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{servicesCounselorRole},
+			}},
+	}, nil)
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
 			ID:     uuid.FromStringOrNil("c70d9a38-4bff-4d37-8dcc-456f317d7935"),
@@ -5827,15 +6065,16 @@ func createQaeCsr(appCtx appcontext.AppContext) {
 
 	qaeCsrUUID := uuid.Must(uuid.FromString("8dbf1648-7527-4a92-b4eb-524edb703982"))
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            qaeCsrUUID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         []roles.Role{qaeCsrRole},
-		},
-	})
+	factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            qaeCsrUUID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{qaeCsrRole},
+			}},
+	}, nil)
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
 			ID:     uuid.FromStringOrNil("ef4f6d1f-4ac3-4159-a364-5403e7d958ff"),
@@ -5874,15 +6113,16 @@ func createTXO(appCtx appcontext.AppContext) {
 
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	user := testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            tooTioUUID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         []roles.Role{tooRole, tioRole},
-		},
-	})
+	user := factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            tooTioUUID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{tooRole, tioRole},
+			}},
+	}, nil)
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
 			ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
@@ -5935,15 +6175,16 @@ func createTXOUSMC(appCtx appcontext.AppContext) {
 
 	tooTioWithUsmcUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-bbbbbbbbbbbb"))
 	loginGovWithUsmcUUID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            tooTioWithUsmcUUID,
-			LoginGovUUID:  &loginGovWithUsmcUUID,
-			LoginGovEmail: emailUSMC,
-			Active:        true,
-			Roles:         []roles.Role{tooRole, tioRole},
-		},
-	})
+	factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:            tooTioWithUsmcUUID,
+				LoginGovUUID:  &loginGovWithUsmcUUID,
+				LoginGovEmail: emailUSMC,
+				Active:        true,
+				Roles:         []roles.Role{tooRole, tioRole},
+			}},
+	}, nil)
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
 			ID:                   uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-bbbbbbbbbbbb"),
@@ -5981,15 +6222,16 @@ func createTXOServicesCounselor(appCtx appcontext.AppContext) {
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
 	// Make a user
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            tooTioServicesUUID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         userRoles,
-		},
-	})
+	factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            tooTioServicesUUID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         userRoles,
+			}},
+	}, nil)
 
 	// Make and office user associated with the previously created user
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
@@ -6033,15 +6275,16 @@ func createTXOServicesUSMCCounselor(appCtx appcontext.AppContext) {
 	loginGovWithUsmcUUID := uuid.Must(uuid.NewV4())
 
 	// Makes a user with all office roles that is associated with USMC
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            tooTioServicesWithUsmcUUID,
-			LoginGovUUID:  &loginGovWithUsmcUUID,
-			LoginGovEmail: emailUSMC,
-			Active:        true,
-			Roles:         userRoles,
-		},
-	})
+	factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            tooTioServicesWithUsmcUUID,
+				LoginGovUUID:  &loginGovWithUsmcUUID,
+				LoginGovEmail: emailUSMC,
+				Active:        true,
+				Roles:         userRoles,
+			}},
+	}, nil)
 
 	// Makes an office user with the previously created user
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
@@ -6070,15 +6313,16 @@ func createPrimeUser(appCtx appcontext.AppContext) models.User {
 	email := "prime_role@office.mil"
 
 	// Make a user
-	primeUser := testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            userUUID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         roles.Roles{userRole},
-		},
-	})
+	primeUser := factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            userUUID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         roles.Roles{userRole},
+			}},
+	}, nil)
 	return primeUser
 }
 
@@ -6502,15 +6746,15 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 	email := "deprecatedPaymentRequest@hhg.hhg"
 	uuidStr := "6995a480-2e90-4d9b-90df-0f9b42277653"
 	loginGovUUID := uuid.Must(uuid.NewV4())
-
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
 
 	smID := "6c4074fe-ba11-471f-89f2-cf4f8c075377"
 	sm := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{

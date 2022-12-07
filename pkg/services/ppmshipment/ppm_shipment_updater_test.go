@@ -719,7 +719,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(fmt.Sprintf("ID: %s not found while looking for PPMShipment", badMTOShipmentID.String()), err.Error())
+		suite.Equal(fmt.Sprintf("ID: %s not found while looking for PPMShipment by MTO ShipmentID", badMTOShipmentID.String()), err.Error())
 	})
 
 	suite.Run("Can't update if there is invalid input", func() {

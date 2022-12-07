@@ -30,9 +30,15 @@ type EvaluationReport struct {
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
-	// evaluation length minutes
-	// Minimum: 0
-	EvaluationLengthMinutes *int64 `json:"evaluationLengthMinutes,omitempty"`
+	// eval end
+	// Example: 18:00
+	// Pattern: ^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$
+	EvalEnd *string `json:"evalEnd,omitempty"`
+
+	// eval start
+	// Example: 15:00
+	// Pattern: ^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$
+	EvalStart *string `json:"evalStart,omitempty"`
 
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -68,10 +74,6 @@ type EvaluationReport struct {
 	// Format: date
 	ObservedClaimsResponseDate *strfmt.Date `json:"observedClaimsResponseDate,omitempty"`
 
-	// observed date
-	// Format: date
-	ObservedDate *strfmt.Date `json:"observedDate,omitempty"`
-
 	// observed delivery date
 	// Format: date
 	ObservedDeliveryDate *strfmt.Date `json:"observedDeliveryDate,omitempty"`
@@ -87,6 +89,14 @@ type EvaluationReport struct {
 	// observed pickup spread start date
 	// Format: date
 	ObservedPickupSpreadStartDate *strfmt.Date `json:"observedPickupSpreadStartDate,omitempty"`
+
+	// observed shipment delivery date
+	// Format: date
+	ObservedShipmentDeliveryDate *strfmt.Date `json:"observedShipmentDeliveryDate,omitempty"`
+
+	// observed shipment physical pickup date
+	// Format: date
+	ObservedShipmentPhysicalPickupDate *strfmt.Date `json:"observedShipmentPhysicalPickupDate,omitempty"`
 
 	// office user
 	OfficeUser *EvaluationReportOfficeUser `json:"officeUser,omitempty"`
@@ -110,9 +120,10 @@ type EvaluationReport struct {
 	// Format: date-time
 	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
 
-	// travel time minutes
-	// Minimum: 0
-	TravelTimeMinutes *int64 `json:"travelTimeMinutes,omitempty"`
+	// time depart
+	// Example: 14:30
+	// Pattern: ^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$
+	TimeDepart *string `json:"timeDepart,omitempty"`
 
 	// type
 	Type EvaluationReportType `json:"type,omitempty"`
@@ -138,7 +149,11 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateEvaluationLengthMinutes(formats); err != nil {
+	if err := m.validateEvalEnd(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateEvalStart(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -166,10 +181,6 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateObservedDate(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateObservedDeliveryDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -186,6 +197,14 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateObservedShipmentDeliveryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateObservedShipmentPhysicalPickupDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateOfficeUser(formats); err != nil {
 		res = append(res, err)
 	}
@@ -198,7 +217,7 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateTravelTimeMinutes(formats); err != nil {
+	if err := m.validateTimeDepart(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -245,12 +264,24 @@ func (m *EvaluationReport) validateCreatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *EvaluationReport) validateEvaluationLengthMinutes(formats strfmt.Registry) error {
-	if swag.IsZero(m.EvaluationLengthMinutes) { // not required
+func (m *EvaluationReport) validateEvalEnd(formats strfmt.Registry) error {
+	if swag.IsZero(m.EvalEnd) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("evaluationLengthMinutes", "body", *m.EvaluationLengthMinutes, 0, false); err != nil {
+	if err := validate.Pattern("evalEnd", "body", *m.EvalEnd, `^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateEvalStart(formats strfmt.Registry) error {
+	if swag.IsZero(m.EvalStart) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("evalStart", "body", *m.EvalStart, `^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$`); err != nil {
 		return err
 	}
 
@@ -343,18 +374,6 @@ func (m *EvaluationReport) validateObservedClaimsResponseDate(formats strfmt.Reg
 	return nil
 }
 
-func (m *EvaluationReport) validateObservedDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.ObservedDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("observedDate", "body", "date", m.ObservedDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *EvaluationReport) validateObservedDeliveryDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.ObservedDeliveryDate) { // not required
 		return nil
@@ -397,6 +416,30 @@ func (m *EvaluationReport) validateObservedPickupSpreadStartDate(formats strfmt.
 	}
 
 	if err := validate.FormatOf("observedPickupSpreadStartDate", "body", "date", m.ObservedPickupSpreadStartDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateObservedShipmentDeliveryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ObservedShipmentDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("observedShipmentDeliveryDate", "body", "date", m.ObservedShipmentDeliveryDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateObservedShipmentPhysicalPickupDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ObservedShipmentPhysicalPickupDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("observedShipmentPhysicalPickupDate", "body", "date", m.ObservedShipmentPhysicalPickupDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -446,12 +489,12 @@ func (m *EvaluationReport) validateSubmittedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *EvaluationReport) validateTravelTimeMinutes(formats strfmt.Registry) error {
-	if swag.IsZero(m.TravelTimeMinutes) { // not required
+func (m *EvaluationReport) validateTimeDepart(formats strfmt.Registry) error {
+	if swag.IsZero(m.TimeDepart) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("travelTimeMinutes", "body", *m.TravelTimeMinutes, 0, false); err != nil {
+	if err := validate.Pattern("timeDepart", "body", *m.TimeDepart, `^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$`); err != nil {
 		return err
 	}
 

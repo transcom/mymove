@@ -16,20 +16,24 @@ import (
 
 // GetServicesCounselingQueueURL generates an URL for the get services counseling queue operation
 type GetServicesCounselingQueueURL struct {
-	Branch             *string
-	DodID              *string
-	LastName           *string
-	Locator            *string
-	NeedsPPMCloseout   *bool
-	Order              *string
-	OriginDutyLocation *string
-	OriginGBLOC        *string
-	Page               *int64
-	PerPage            *int64
-	RequestedMoveDate  *string
-	Sort               *string
-	Status             []string
-	SubmittedAt        *strfmt.DateTime
+	Branch                  *string
+	CloseoutInitiated       *strfmt.DateTime
+	CloseoutLocation        *string
+	DestinationDutyLocation *string
+	DodID                   *string
+	LastName                *string
+	Locator                 *string
+	NeedsPPMCloseout        *bool
+	Order                   *string
+	OriginDutyLocation      *string
+	OriginGBLOC             *string
+	Page                    *int64
+	PerPage                 *int64
+	PpmType                 *string
+	RequestedMoveDate       *string
+	Sort                    *string
+	Status                  []string
+	SubmittedAt             *strfmt.DateTime
 
 	_basePath string
 	// avoid unkeyed usage
@@ -71,6 +75,30 @@ func (o *GetServicesCounselingQueueURL) Build() (*url.URL, error) {
 	}
 	if branchQ != "" {
 		qs.Set("branch", branchQ)
+	}
+
+	var closeoutInitiatedQ string
+	if o.CloseoutInitiated != nil {
+		closeoutInitiatedQ = o.CloseoutInitiated.String()
+	}
+	if closeoutInitiatedQ != "" {
+		qs.Set("closeoutInitiated", closeoutInitiatedQ)
+	}
+
+	var closeoutLocationQ string
+	if o.CloseoutLocation != nil {
+		closeoutLocationQ = *o.CloseoutLocation
+	}
+	if closeoutLocationQ != "" {
+		qs.Set("closeoutLocation", closeoutLocationQ)
+	}
+
+	var destinationDutyLocationQ string
+	if o.DestinationDutyLocation != nil {
+		destinationDutyLocationQ = *o.DestinationDutyLocation
+	}
+	if destinationDutyLocationQ != "" {
+		qs.Set("destinationDutyLocation", destinationDutyLocationQ)
 	}
 
 	var dodIDQ string
@@ -143,6 +171,14 @@ func (o *GetServicesCounselingQueueURL) Build() (*url.URL, error) {
 	}
 	if perPageQ != "" {
 		qs.Set("perPage", perPageQ)
+	}
+
+	var ppmTypeQ string
+	if o.PpmType != nil {
+		ppmTypeQ = *o.PpmType
+	}
+	if ppmTypeQ != "" {
+		qs.Set("ppmType", ppmTypeQ)
 	}
 
 	var requestedMoveDateQ string

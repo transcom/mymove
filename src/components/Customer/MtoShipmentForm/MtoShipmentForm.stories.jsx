@@ -97,35 +97,35 @@ function renderStory(props) {
 }
 
 // create shipment stories (form should not prefill customer data)
-export const HHGShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.HHG });
+export const HHGShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.HHG });
 export const HHGShipmentRetiree = () =>
-  renderStory({ selectedMoveType: SHIPMENT_OPTIONS.HHG, orders: { orders_type: 'RETIREMENT' } });
-export const NTSReleaseShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTSR });
-export const NTSShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTS });
+  renderStory({ shipmentType: SHIPMENT_OPTIONS.HHG, orders: { orders_type: 'RETIREMENT' } });
+export const NTSReleaseShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.NTSR });
+export const NTSShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.NTS });
 
 // edit shipment stories (form should prefill)
 export const EditHHGShipment = () =>
   renderStory({
-    selectedMoveType: SHIPMENT_OPTIONS.HHG,
+    shipmentType: SHIPMENT_OPTIONS.HHG,
     isCreatePage: false,
     mtoShipment: mockMtoShipment,
   });
 export const EditNTSReleaseShipment = () =>
   renderStory({
-    selectedMoveType: SHIPMENT_OPTIONS.NTSR,
+    shipmentType: SHIPMENT_OPTIONS.NTSR,
     isCreatePage: false,
     mtoShipment: mockMtoShipment,
   });
 export const EditNTSShipment = () =>
   renderStory({
-    selectedMoveType: SHIPMENT_OPTIONS.NTS,
+    shipmentType: SHIPMENT_OPTIONS.NTS,
     isCreatePage: false,
     mtoShipment: mockMtoShipment,
   });
 
 export const EditShipmentAsSeparatee = () =>
   renderStory({
-    selectedMoveType: SHIPMENT_OPTIONS.HHG,
+    shipmentType: SHIPMENT_OPTIONS.HHG,
     isCreatePage: false,
     mtoShipment: mockMtoShipment,
     orders: { orders_type: 'SEPARATION' },
@@ -151,7 +151,7 @@ export const EditHHGShipmentWithSecondaryAddresses = () => {
   };
 
   return renderStory({
-    selectedMoveType: SHIPMENT_OPTIONS.HHG,
+    shipmentType: SHIPMENT_OPTIONS.HHG,
     isCreatePage: false,
     mtoShipment: extendedShipment,
   });

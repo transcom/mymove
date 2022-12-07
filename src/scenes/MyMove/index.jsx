@@ -30,7 +30,6 @@ import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentMove,
   selectHasCanceledMove,
-  selectMoveType,
 } from 'store/entities/selectors';
 import { generalRoutes, customerRoutes } from 'constants/routes';
 /** Pages */
@@ -292,7 +291,6 @@ const mapStateToProps = (state) => {
     currentServiceMemberId: serviceMemberId,
     lastMoveIsCanceled: selectHasCanceledMove(state),
     moveId: move?.id,
-    selectedMoveType: selectMoveType(state),
     conusStatus: selectConusStatus(state),
     swaggerError: state.swaggerInternal.hasErrored,
   };

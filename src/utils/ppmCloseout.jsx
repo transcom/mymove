@@ -46,7 +46,7 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
           value: getW2Address(ppmShipment.w2Address),
         },
       ],
-      renderEditLink: () => <Link to={generatePath(editPath, editParams)}>Edit</Link>,
+      renderEditLink: () => (editPath ? <Link to={generatePath(editPath, editParams)}>Edit</Link> : ''),
     },
   ];
 };
@@ -80,8 +80,8 @@ export const formatWeightTicketItems = (weightTickets, editPath, editParams, han
 export const formatProGearItems = (proGears, editPath, editParams, handleDelete) => {
   return proGears?.map((proGear, i) => {
     const weightValues = proGear.hasWeightTickets
-      ? { id: 'weight', label: 'Weight:', value: formatWeight(proGear.fullWeight - proGear.emptyWeight) }
-      : { id: 'constructedWeight', label: 'Constructed weight:', value: formatWeight(proGear.constructedWeight) };
+      ? { id: 'weight', label: 'Weight:', value: formatWeight(proGear.weight) }
+      : { id: 'constructedWeight', label: 'Constructed weight:', value: formatWeight(proGear.weight) };
     return {
       id: proGear.id,
       subheading: <h4 className="text-bold">Set {i + 1}</h4>,
@@ -89,7 +89,7 @@ export const formatProGearItems = (proGears, editPath, editParams, handleDelete)
         {
           id: 'proGearType',
           label: 'Pro-gear Type:',
-          value: proGear.selfProGear ? 'Pro-gear' : 'Spouse pro-gear',
+          value: proGear.belongsToSelf ? 'Pro-gear' : 'Spouse pro-gear',
           hideLabel: true,
         },
         { id: 'description', label: 'Description:', value: proGear.description, hideLabel: true },
@@ -144,27 +144,18 @@ export const calculateNetWeightForWeightTicket = (weightTicket) => {
   return weightTicket.fullWeight - weightTicket.emptyWeight;
 };
 
+export const calculateNetWeightForProGearWeightTicket = (weightTicket) => {
+  if (weightTicket.weight == null || Number.isNaN(Number(weightTicket.weight))) {
+    return 0;
+  }
+
+  return weightTicket.weight;
+};
+
 export const calculateTotalNetWeightForWeightTickets = (weightTickets = []) => {
   return weightTickets.reduce((prev, curr) => {
     return prev + calculateNetWeightForWeightTicket(curr);
   }, 0);
-};
-
-export const calculateNetWeightForProGearWeightTicket = (proGearWeightTicket) => {
-  if (proGearWeightTicket.constructedWeight != null && !Number.isNaN(Number(proGearWeightTicket.constructedWeight))) {
-    return proGearWeightTicket.constructedWeight;
-  }
-
-  if (
-    proGearWeightTicket.emptyWeight == null ||
-    proGearWeightTicket.fullWeight == null ||
-    Number.isNaN(Number(proGearWeightTicket.emptyWeight)) ||
-    Number.isNaN(Number(proGearWeightTicket.fullWeight))
-  ) {
-    return 0;
-  }
-
-  return proGearWeightTicket.fullWeight - proGearWeightTicket.emptyWeight;
 };
 
 export const calculateTotalNetWeightForProGearWeightTickets = (proGearWeightTickets = []) => {

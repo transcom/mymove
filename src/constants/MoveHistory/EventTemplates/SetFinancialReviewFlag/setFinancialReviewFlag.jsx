@@ -12,7 +12,7 @@ export default {
   getEventNameDisplay: () => 'Updated shipment',
   getDetails: (historyRecord) => (
     <>
-      {historyRecord.changedValues?.financial_review_flag === 'true'
+      {historyRecord.changedValues?.financial_review_flag
         ? 'Move flagged for financial review'
         : 'Move unflagged for financial review'}
       <LabeledDetails historyRecord={historyRecord} />
