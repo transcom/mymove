@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -73,10 +74,15 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 			fetcher,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.ListMTOServiceItemsOK{}, response)
-
 		okResponse := response.(*mtoserviceitemop.ListMTOServiceItemsOK)
+
+		// Validate outgoing payload
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
 		suite.Len(okResponse.Payload, 1)
 		suite.Equal(serviceItems[0].ID.String(), okResponse.Payload[0].ID.String())
 	})
@@ -115,8 +121,14 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 			mock.Anything,
 		).Return(internalServerErr)
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.ListMTOServiceItemsInternalServerError{}, response)
+		payload := response.(*mtoserviceitemop.ListMTOServiceItemsInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Failure list fetch - 404 Not Found - Move Task Order ID", func() {
@@ -145,8 +157,14 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 			mock.Anything,
 		).Return(notfound)
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.ListMTOServiceItemsNotFound{}, response)
+		payload := response.(*mtoserviceitemop.ListMTOServiceItemsNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
 
@@ -197,8 +215,16 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusNotFound{}, response)
+		payload := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("200 - success response", func() {
@@ -224,8 +250,16 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
+		payload := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("412 - precondition failed response", func() {
@@ -252,8 +286,16 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusPreconditionFailed{}, response)
+		payload := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("500 - internal server error response", func() {
@@ -280,8 +322,16 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusInternalServerError{}, response)
+		payload := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("422 - unprocessable entity response", func() {
@@ -301,8 +351,16 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusUnprocessableEntity{}, response)
+		payload := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	// With this we'll do a happy path integration test to ensure that the use of the service object
@@ -336,9 +394,16 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			Fetcher:               fetcher,
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
 		okResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusOK)
+
+		// Validate outgoing payload
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
 		suite.Equal(string(models.MTOServiceItemStatusRejected), string(okResponse.Payload.Status))
 		suite.NotNil(okResponse.Payload.RejectedAt)
 		suite.Equal(rejectionReason, *okResponse.Payload.RejectionReason)
@@ -378,9 +443,16 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			Fetcher:               fetcher,
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
 		okResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusOK)
+
+		// Validate outgoing payload
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
 		suite.Equal(string(models.MTOServiceItemStatusApproved), string(okResponse.Payload.Status))
 		suite.NotNil(okResponse.Payload.ApprovedAt)
 		suite.HasWebhookNotification(mtoServiceItemID, traceID)

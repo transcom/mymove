@@ -2923,7 +2923,11 @@ func init() {
               "requestedMoveDate",
               "submittedAt",
               "originGBLOC",
-              "originDutyLocation"
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "ppmType",
+              "closeoutInitiated",
+              "closeoutLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -2990,6 +2994,12 @@ func init() {
             "in": "query"
           },
           {
+            "type": "string",
+            "description": "filters the name of the destination duty location on the orders",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
             "uniqueItems": true,
             "type": "array",
             "items": {
@@ -3007,6 +3017,29 @@ func init() {
             "type": "boolean",
             "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
             "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "FULL",
+              "PARTIAL"
+            ],
+            "type": "string",
+            "description": "filters PPM type",
+            "name": "ppmType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Latest date that closeout was initiated on a PPM on the move",
+            "name": "closeoutInitiated",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "closeout location",
+            "name": "closeoutLocation",
             "in": "query"
           }
         ],
@@ -5141,11 +5174,6 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "observedDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
         "observedDeliveryDate": {
           "type": "string",
           "format": "date",
@@ -5162,6 +5190,16 @@ func init() {
           "x-nullable": true
         },
         "observedPickupSpreadStartDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedShipmentDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedShipmentPhysicalPickupDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -7359,6 +7397,15 @@ func init() {
     "QueueMove": {
       "type": "object",
       "properties": {
+        "closeoutInitiated": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "closeoutLocation": {
+          "type": "string",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -7380,6 +7427,14 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ],
+          "x-nullable": true
         },
         "requestedMoveDate": {
           "type": "string",
@@ -7454,13 +7509,23 @@ func init() {
           "$ref": "#/definitions/GBLOC"
         },
         "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
+          "$ref": "#/definitions/QueuePaymentRequestStatus"
         },
         "submittedAt": {
           "type": "string",
           "format": "date-time"
         }
       }
+    },
+    "QueuePaymentRequestStatus": {
+      "type": "string",
+      "title": "Queue Payment Request Status",
+      "enum": [
+        "Payment requested",
+        "Reviewed",
+        "Rejected",
+        "Paid"
+      ]
     },
     "QueuePaymentRequests": {
       "type": "array",
@@ -12685,7 +12750,11 @@ func init() {
               "requestedMoveDate",
               "submittedAt",
               "originGBLOC",
-              "originDutyLocation"
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "ppmType",
+              "closeoutInitiated",
+              "closeoutLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -12752,6 +12821,12 @@ func init() {
             "in": "query"
           },
           {
+            "type": "string",
+            "description": "filters the name of the destination duty location on the orders",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
             "uniqueItems": true,
             "type": "array",
             "items": {
@@ -12769,6 +12844,29 @@ func init() {
             "type": "boolean",
             "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
             "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "FULL",
+              "PARTIAL"
+            ],
+            "type": "string",
+            "description": "filters PPM type",
+            "name": "ppmType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Latest date that closeout was initiated on a PPM on the move",
+            "name": "closeoutInitiated",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "closeout location",
+            "name": "closeoutLocation",
             "in": "query"
           }
         ],
@@ -15162,11 +15260,6 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "observedDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
         "observedDeliveryDate": {
           "type": "string",
           "format": "date",
@@ -15183,6 +15276,16 @@ func init() {
           "x-nullable": true
         },
         "observedPickupSpreadStartDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedShipmentDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedShipmentPhysicalPickupDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -17381,6 +17484,15 @@ func init() {
     "QueueMove": {
       "type": "object",
       "properties": {
+        "closeoutInitiated": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "closeoutLocation": {
+          "type": "string",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -17402,6 +17514,14 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ],
+          "x-nullable": true
         },
         "requestedMoveDate": {
           "type": "string",
@@ -17476,13 +17596,23 @@ func init() {
           "$ref": "#/definitions/GBLOC"
         },
         "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
+          "$ref": "#/definitions/QueuePaymentRequestStatus"
         },
         "submittedAt": {
           "type": "string",
           "format": "date-time"
         }
       }
+    },
+    "QueuePaymentRequestStatus": {
+      "type": "string",
+      "title": "Queue Payment Request Status",
+      "enum": [
+        "Payment requested",
+        "Reviewed",
+        "Rejected",
+        "Paid"
+      ]
     },
     "QueuePaymentRequests": {
       "type": "array",
