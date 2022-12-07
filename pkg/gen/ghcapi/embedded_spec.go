@@ -2856,6 +2856,47 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/weight-tickets": {
+      "get": {
+        "description": "Retrieves all of the weight tickets and associated uploads for each one for the specified PPM shipment. This\nexcludes any deleted weight tickets or uploads.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Gets all the weight tickets for a PPM shipment",
+        "operationId": "getWeightTickets",
+        "responses": {
+          "200": {
+            "description": "All weight tickets and associated uploads for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/WeightTickets"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
     "/pws-violations": {
       "get": {
         "description": "Fetch the possible PWS violations for an evaluation report",
@@ -6990,11 +7031,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "weightTickets": {
-          "description": "All weight ticket documentation records belonging to vehicles of this PPM shipment",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/WeightTicket"
-          }
+          "$ref": "#/definitions/WeightTickets"
         }
       },
       "x-nullable": true
@@ -8867,6 +8904,14 @@ func init() {
           "x-omitempty": false
         }
       }
+    },
+    "WeightTickets": {
+      "description": "All weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WeightTicket"
+      },
+      "x-omitempty": false
     }
   },
   "parameters": {
@@ -12671,6 +12716,64 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/weight-tickets": {
+      "get": {
+        "description": "Retrieves all of the weight tickets and associated uploads for each one for the specified PPM shipment. This\nexcludes any deleted weight tickets or uploads.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Gets all the weight tickets for a PPM shipment",
+        "operationId": "getWeightTickets",
+        "responses": {
+          "200": {
+            "description": "All weight tickets and associated uploads for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/WeightTickets"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/pws-violations": {
       "get": {
         "description": "Fetch the possible PWS violations for an evaluation report",
@@ -17076,11 +17179,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "weightTickets": {
-          "description": "All weight ticket documentation records belonging to vehicles of this PPM shipment",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/WeightTicket"
-          }
+          "$ref": "#/definitions/WeightTickets"
         }
       },
       "x-nullable": true
@@ -18969,6 +19068,14 @@ func init() {
           "x-omitempty": false
         }
       }
+    },
+    "WeightTickets": {
+      "description": "All weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WeightTicket"
+      },
+      "x-omitempty": false
     }
   },
   "parameters": {

@@ -139,7 +139,8 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 
 func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	// Reusable objects
-	weightTicketUpdater := weightticket.NewCustomerWeightTicketUpdater()
+	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
+	weightTicketUpdater := weightticket.NewCustomerWeightTicketUpdater(weightTicketFetcher)
 
 	type weightTicketUpdateSubtestData struct {
 		ppmShipment  models.PPMShipment

@@ -1,13 +1,8 @@
 package weightticket
 
 import (
-	"database/sql"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -15,25 +10,28 @@ import (
 
 type weightTicketUpdater struct {
 	checks []weightTicketValidator
+	services.WeightTicketFetcher
 }
 
 // NewCustomerWeightTicketUpdater creates a new weightTicketUpdater struct with the checks it needs for a customer
-func NewCustomerWeightTicketUpdater() services.WeightTicketUpdater {
+func NewCustomerWeightTicketUpdater(fetcher services.WeightTicketFetcher) services.WeightTicketUpdater {
 	return &weightTicketUpdater{
-		checks: basicChecksForCustomer(),
+		checks:              basicChecksForCustomer(),
+		WeightTicketFetcher: fetcher,
 	}
 }
 
-func NewOfficeWeightTicketUpdater() services.WeightTicketUpdater {
+func NewOfficeWeightTicketUpdater(fetcher services.WeightTicketFetcher) services.WeightTicketUpdater {
 	return &weightTicketUpdater{
-		checks: basicChecksForOffice(),
+		checks:              basicChecksForOffice(),
+		WeightTicketFetcher: fetcher,
 	}
 }
 
 // UpdateWeightTicket updates a weightTicket
 func (f *weightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, weightTicket models.WeightTicket, eTag string) (*models.WeightTicket, error) {
 	// get existing WeightTicket
-	originalWeightTicket, err := FetchWeightTicketByIDExcludeDeletedUploads(appCtx, weightTicket.ID)
+	originalWeightTicket, err := f.GetWeightTicket(appCtx, weightTicket.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -90,31 +88,4 @@ func mergeWeightTicket(weightTicket models.WeightTicket, originalWeightTicket mo
 	}
 
 	return mergedWeightTicket
-}
-
-func FetchWeightTicketByIDExcludeDeletedUploads(appContext appcontext.AppContext, weightTicketID uuid.UUID) (*models.WeightTicket, error) {
-	var weightTicket models.WeightTicket
-
-	err := appContext.DB().Scope(utilities.ExcludeDeletedScope()).
-		EagerPreload(
-			"EmptyDocument.UserUploads.Upload",
-			"FullDocument.UserUploads.Upload",
-			"ProofOfTrailerOwnershipDocument.UserUploads.Upload",
-		).
-		Find(&weightTicket, weightTicketID)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(weightTicketID, "while looking for WeightTicket")
-		default:
-			return nil, apperror.NewQueryError("WeightTicket fetch original", err, "")
-		}
-	}
-
-	weightTicket.EmptyDocument.UserUploads = weightTicket.EmptyDocument.UserUploads.FilterDeleted()
-	weightTicket.FullDocument.UserUploads = weightTicket.FullDocument.UserUploads.FilterDeleted()
-	weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightTicket.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
-
-	return &weightTicket, nil
 }
