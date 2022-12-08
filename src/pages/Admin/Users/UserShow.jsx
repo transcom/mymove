@@ -26,12 +26,12 @@ const UserShow = (props) => {
       <SimpleShowLayout>
         <TextField source="id" label="User ID" />
         <TextField source="loginGovEmail" label="User email" />
-        <BooleanField source="active" addLabel />
+        <BooleanField source="active" />
         <TextField source="currentAdminSessionId" label="User current admin session ID" />
         <TextField source="currentOfficeSessionId" label="User current office session ID" />
         <TextField source="currentMilSessionId" label="User current mil session ID" />
-        <DateField source="createdAt" showTime addLabel />
-        <DateField source="updatedAt" showTime addLabel />
+        <DateField source="createdAt" showTime />
+        <DateField source="updatedAt" showTime />
       </SimpleShowLayout>
     </Show>
   );
