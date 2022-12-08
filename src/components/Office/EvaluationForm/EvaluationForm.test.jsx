@@ -136,7 +136,7 @@ describe('EvaluationForm', () => {
       expect(screen.getByText('Time evaluation ended')).toBeInTheDocument();
 
       // Conditionally shown fields should not be displayed initially
-      expect(screen.queryByText('Travel time to evaluation')).not.toBeInTheDocument();
+      expect(screen.queryByText('Time departed for evaluation')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
 
