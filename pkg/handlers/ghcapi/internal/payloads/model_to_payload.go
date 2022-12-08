@@ -2,6 +2,7 @@ package payloads
 
 import (
 	"encoding/json"
+	"errors"
 	"math"
 	"time"
 
@@ -153,34 +154,54 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 
 	evaluationReportOfficeUserPayload := EvaluationReportOfficeUser(evaluationReport.OfficeUser)
 
+	var timeDepart *string
+	if evaluationReport.TimeDepart != nil {
+		td := evaluationReport.TimeDepart.Format(timeHHMMFormat)
+		timeDepart = &td
+	}
+
+	var evalStart *string
+	if evaluationReport.EvalStart != nil {
+		es := evaluationReport.EvalStart.Format(timeHHMMFormat)
+		evalStart = &es
+	}
+
+	var evalEnd *string
+	if evaluationReport.EvalEnd != nil {
+		ee := evaluationReport.EvalEnd.Format(timeHHMMFormat)
+		evalEnd = &ee
+	}
+
 	payload := &ghcmessages.EvaluationReport{
-		CreatedAt:                     strfmt.DateTime(evaluationReport.CreatedAt),
-		EvaluationLengthMinutes:       handlers.FmtIntPtrToInt64(evaluationReport.EvaluationLengthMinutes),
-		ID:                            id,
-		InspectionDate:                handlers.FmtDatePtr(evaluationReport.InspectionDate),
-		InspectionType:                inspectionType,
-		Location:                      location,
-		LocationDescription:           evaluationReport.LocationDescription,
-		MoveID:                        moveID,
-		ObservedDate:                  handlers.FmtDatePtr(evaluationReport.ObservedDate),
-		Remarks:                       evaluationReport.Remarks,
-		ShipmentID:                    shipmentID,
-		SubmittedAt:                   handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),
-		TravelTimeMinutes:             handlers.FmtIntPtrToInt64(evaluationReport.TravelTimeMinutes),
-		Type:                          reportType,
-		ViolationsObserved:            evaluationReport.ViolationsObserved,
-		MoveReferenceID:               evaluationReport.Move.ReferenceID,
-		OfficeUser:                    &evaluationReportOfficeUserPayload,
-		SeriousIncident:               evaluationReport.SeriousIncident,
-		SeriousIncidentDesc:           evaluationReport.SeriousIncidentDesc,
-		ObservedClaimsResponseDate:    handlers.FmtDatePtr(evaluationReport.ObservedClaimsResponseDate),
-		ObservedPickupDate:            handlers.FmtDatePtr(evaluationReport.ObservedPickupDate),
-		ObservedPickupSpreadStartDate: handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadStartDate),
-		ObservedPickupSpreadEndDate:   handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadEndDate),
-		ObservedDeliveryDate:          handlers.FmtDatePtr(evaluationReport.ObservedDeliveryDate),
-		ETag:                          etag.GenerateEtag(evaluationReport.UpdatedAt),
-		UpdatedAt:                     strfmt.DateTime(evaluationReport.UpdatedAt),
-		ReportViolations:              ReportViolations(evaluationReport.ReportViolations),
+		CreatedAt:                          strfmt.DateTime(evaluationReport.CreatedAt),
+		ID:                                 id,
+		InspectionDate:                     handlers.FmtDatePtr(evaluationReport.InspectionDate),
+		InspectionType:                     inspectionType,
+		Location:                           location,
+		LocationDescription:                evaluationReport.LocationDescription,
+		MoveID:                             moveID,
+		ObservedShipmentPhysicalPickupDate: handlers.FmtDatePtr(evaluationReport.ObservedShipmentPhysicalPickupDate),
+		ObservedShipmentDeliveryDate:       handlers.FmtDatePtr(evaluationReport.ObservedShipmentDeliveryDate),
+		Remarks:                            evaluationReport.Remarks,
+		ShipmentID:                         shipmentID,
+		SubmittedAt:                        handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),
+		TimeDepart:                         timeDepart,
+		EvalStart:                          evalStart,
+		EvalEnd:                            evalEnd,
+		Type:                               reportType,
+		ViolationsObserved:                 evaluationReport.ViolationsObserved,
+		MoveReferenceID:                    evaluationReport.Move.ReferenceID,
+		OfficeUser:                         &evaluationReportOfficeUserPayload,
+		SeriousIncident:                    evaluationReport.SeriousIncident,
+		SeriousIncidentDesc:                evaluationReport.SeriousIncidentDesc,
+		ObservedClaimsResponseDate:         handlers.FmtDatePtr(evaluationReport.ObservedClaimsResponseDate),
+		ObservedPickupDate:                 handlers.FmtDatePtr(evaluationReport.ObservedPickupDate),
+		ObservedPickupSpreadStartDate:      handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadStartDate),
+		ObservedPickupSpreadEndDate:        handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadEndDate),
+		ObservedDeliveryDate:               handlers.FmtDatePtr(evaluationReport.ObservedDeliveryDate),
+		ETag:                               etag.GenerateEtag(evaluationReport.UpdatedAt),
+		UpdatedAt:                          strfmt.DateTime(evaluationReport.UpdatedAt),
+		ReportViolations:                   ReportViolations(evaluationReport.ReportViolations),
 	}
 	return payload
 }
@@ -688,6 +709,172 @@ func PPMShipment(ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 	return payloadPPMShipment
 }
 
+// ProGearWeightTickets sets up a ProGearWeightTicket slice for the api using model data.
+func ProGearWeightTickets(storer storage.FileStorer, proGearWeightTickets models.ProgearWeightTickets) []*ghcmessages.ProGearWeightTicket {
+	payload := make([]*ghcmessages.ProGearWeightTicket, len(proGearWeightTickets))
+	for i, proGearWeightTicket := range proGearWeightTickets {
+		copyOfProGearWeightTicket := proGearWeightTicket
+		proGearWeightTicketPayload := ProGearWeightTicket(storer, &copyOfProGearWeightTicket)
+		payload[i] = proGearWeightTicketPayload
+	}
+	return payload
+}
+
+// ProGearWeightTicket payload
+func ProGearWeightTicket(storer storage.FileStorer, progear *models.ProgearWeightTicket) *ghcmessages.ProGearWeightTicket {
+	ppmShipmentID := strfmt.UUID(progear.PPMShipmentID.String())
+
+	document, err := PayloadForDocumentModel(storer, progear.Document)
+	if err != nil {
+		return nil
+	}
+
+	payload := &ghcmessages.ProGearWeightTicket{
+		ID:               strfmt.UUID(progear.ID.String()),
+		PpmShipmentID:    ppmShipmentID,
+		CreatedAt:        *handlers.FmtDateTime(progear.CreatedAt),
+		UpdatedAt:        *handlers.FmtDateTime(progear.UpdatedAt),
+		DocumentID:       *handlers.FmtUUID(progear.DocumentID),
+		Document:         document,
+		Weight:           handlers.FmtPoundPtr(progear.Weight),
+		BelongsToSelf:    progear.BelongsToSelf,
+		HasWeightTickets: progear.HasWeightTickets,
+		Description:      progear.Description,
+		ETag:             etag.GenerateEtag(progear.UpdatedAt),
+	}
+
+	if progear.Status != nil {
+		status := ghcmessages.OmittablePPMDocumentStatus(*progear.Status)
+		payload.Status = &status
+	}
+
+	if progear.Reason != nil {
+		reason := ghcmessages.PPMDocumentStatusReason(*progear.Reason)
+		payload.Reason = &reason
+	}
+
+	return payload
+}
+
+// MovingExpense payload
+func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpense) *ghcmessages.MovingExpense {
+
+	document, err := PayloadForDocumentModel(storer, movingExpense.Document)
+	if err != nil {
+		return nil
+	}
+
+	payload := &ghcmessages.MovingExpense{
+		ID:             *handlers.FmtUUID(movingExpense.ID),
+		PpmShipmentID:  *handlers.FmtUUID(movingExpense.PPMShipmentID),
+		DocumentID:     *handlers.FmtUUID(movingExpense.DocumentID),
+		Document:       document,
+		CreatedAt:      strfmt.DateTime(movingExpense.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(movingExpense.UpdatedAt),
+		Description:    movingExpense.Description,
+		PaidWithGtcc:   movingExpense.PaidWithGTCC,
+		Amount:         handlers.FmtCost(movingExpense.Amount),
+		MissingReceipt: movingExpense.MissingReceipt,
+		ETag:           etag.GenerateEtag(movingExpense.UpdatedAt),
+	}
+	if movingExpense.MovingExpenseType != nil {
+		movingExpenseType := ghcmessages.OmittableMovingExpenseType(*movingExpense.MovingExpenseType)
+		payload.MovingExpenseType = &movingExpenseType
+	}
+
+	if movingExpense.Status != nil {
+		status := ghcmessages.OmittablePPMDocumentStatus(*movingExpense.Status)
+		payload.Status = &status
+	}
+
+	if movingExpense.Reason != nil {
+		reason := ghcmessages.PPMDocumentStatusReason(*movingExpense.Reason)
+		payload.Reason = &reason
+	}
+
+	if movingExpense.SITStartDate != nil {
+		payload.SitStartDate = handlers.FmtDatePtr(movingExpense.SITStartDate)
+	}
+
+	if movingExpense.SITEndDate != nil {
+		payload.SitEndDate = handlers.FmtDatePtr(movingExpense.SITEndDate)
+	}
+
+	return payload
+}
+
+func MovingExpenses(storer storage.FileStorer, movingExpenses models.MovingExpenses) []*ghcmessages.MovingExpense {
+	payload := make([]*ghcmessages.MovingExpense, len(movingExpenses))
+	for i, movingExpense := range movingExpenses {
+		copyOfMovingExpense := movingExpense
+		payload[i] = MovingExpense(storer, &copyOfMovingExpense)
+	}
+	return payload
+}
+
+func WeightTickets(storer storage.FileStorer, weightTickets models.WeightTickets) []*ghcmessages.WeightTicket {
+	payload := make([]*ghcmessages.WeightTicket, len(weightTickets))
+	for i, weightTicket := range weightTickets {
+		copyOfWeightTicket := weightTicket
+		weightTicketPayload := WeightTicket(storer, &copyOfWeightTicket)
+		payload[i] = weightTicketPayload
+	}
+	return payload
+}
+
+// WeightTicket payload
+func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) *ghcmessages.WeightTicket {
+	ppmShipment := strfmt.UUID(weightTicket.PPMShipmentID.String())
+
+	emptyDocument, err := PayloadForDocumentModel(storer, weightTicket.EmptyDocument)
+	if err != nil {
+		return nil
+	}
+
+	fullDocument, err := PayloadForDocumentModel(storer, weightTicket.FullDocument)
+	if err != nil {
+		return nil
+	}
+
+	proofOfTrailerOwnershipDocument, err := PayloadForDocumentModel(storer, weightTicket.ProofOfTrailerOwnershipDocument)
+	if err != nil {
+		return nil
+	}
+
+	payload := &ghcmessages.WeightTicket{
+		ID:                                strfmt.UUID(weightTicket.ID.String()),
+		PpmShipmentID:                     ppmShipment,
+		CreatedAt:                         *handlers.FmtDateTime(weightTicket.CreatedAt),
+		UpdatedAt:                         *handlers.FmtDateTime(weightTicket.UpdatedAt),
+		VehicleDescription:                weightTicket.VehicleDescription,
+		EmptyWeight:                       handlers.FmtPoundPtr(weightTicket.EmptyWeight),
+		MissingEmptyWeightTicket:          weightTicket.MissingEmptyWeightTicket,
+		EmptyDocumentID:                   *handlers.FmtUUID(weightTicket.EmptyDocumentID),
+		EmptyDocument:                     emptyDocument,
+		FullWeight:                        handlers.FmtPoundPtr(weightTicket.FullWeight),
+		MissingFullWeightTicket:           weightTicket.MissingFullWeightTicket,
+		FullDocumentID:                    *handlers.FmtUUID(weightTicket.FullDocumentID),
+		FullDocument:                      fullDocument,
+		OwnsTrailer:                       weightTicket.OwnsTrailer,
+		TrailerMeetsCriteria:              weightTicket.TrailerMeetsCriteria,
+		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
+		ProofOfTrailerOwnershipDocument:   proofOfTrailerOwnershipDocument,
+		ETag:                              etag.GenerateEtag(weightTicket.UpdatedAt),
+	}
+
+	if weightTicket.Status != nil {
+		status := ghcmessages.OmittablePPMDocumentStatus(*weightTicket.Status)
+		payload.Status = &status
+	}
+
+	if weightTicket.Reason != nil {
+		reason := ghcmessages.PPMDocumentStatusReason(*weightTicket.Reason)
+		payload.Reason = &reason
+	}
+
+	return payload
+}
+
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
 
@@ -1064,6 +1251,52 @@ func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.F
 	}, nil
 }
 
+func PayloadForUploadModel(
+	storer storage.FileStorer,
+	upload models.Upload,
+	url string,
+) *ghcmessages.Upload {
+	uploadPayload := &ghcmessages.Upload{
+		ID:          handlers.FmtUUIDValue(upload.ID),
+		Filename:    upload.Filename,
+		ContentType: upload.ContentType,
+		URL:         strfmt.URI(url),
+		Bytes:       upload.Bytes,
+		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
+		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
+	}
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || len(tags) == 0 {
+		uploadPayload.Status = "PROCESSING"
+	} else {
+		uploadPayload.Status = tags["av-status"]
+	}
+	return uploadPayload
+}
+
+func PayloadForDocumentModel(storer storage.FileStorer, document models.Document) (*ghcmessages.Document, error) {
+	uploads := make([]*ghcmessages.Upload, len(document.UserUploads))
+	for i, userUpload := range document.UserUploads {
+		if userUpload.Upload.ID == uuid.Nil {
+			return nil, errors.New("no uploads for user")
+		}
+		url, err := storer.PresignedURL(userUpload.Upload.StorageKey, userUpload.Upload.ContentType)
+		if err != nil {
+			return nil, err
+		}
+
+		uploadPayload := PayloadForUploadModel(storer, userUpload.Upload, url)
+		uploads[i] = uploadPayload
+	}
+
+	documentPayload := &ghcmessages.Document{
+		ID:              handlers.FmtUUID(document.ID),
+		ServiceMemberID: handlers.FmtUUID(document.ServiceMemberID),
+		Uploads:         uploads,
+	}
+	return documentPayload, nil
+}
+
 // In the TOO queue response we only want to count shipments in these statuses (excluding draft and cancelled)
 // For the Services Counseling queue we will find the earliest move date from shipments in these statuses
 func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
@@ -1114,6 +1347,18 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			// some reason, then we should get the empty string (no GBLOC).
 			gbloc = ghcmessages.GBLOC(move.OriginDutyLocationGBLOC.GBLOC)
 		}
+		var closeoutLocation string
+		if move.CloseoutOffice != nil {
+			closeoutLocation = move.CloseoutOffice.Name
+		}
+		var closeoutInitiated time.Time
+		for _, shipment := range move.MTOShipments {
+			if shipment.PPMShipment != nil && shipment.PPMShipment.SubmittedAt != nil {
+				if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
+					closeoutInitiated = *shipment.PPMShipment.SubmittedAt
+				}
+			}
+		}
 
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:                Customer(&customer),
@@ -1127,6 +1372,9 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
 			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation),
 			OriginGBLOC:             gbloc,
+			PpmType:                 move.PPMType,
+			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
+			CloseoutLocation:        &closeoutLocation,
 		}
 	}
 	return &queueMoves
@@ -1180,7 +1428,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			ID:                 *handlers.FmtUUID(paymentRequest.ID),
 			MoveID:             *handlers.FmtUUID(moveTaskOrder.ID),
 			Customer:           Customer(&orders.ServiceMember),
-			Status:             ghcmessages.PaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
+			Status:             ghcmessages.QueuePaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
 			Age:                math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0),
 			SubmittedAt:        *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:            moveTaskOrder.Locator,

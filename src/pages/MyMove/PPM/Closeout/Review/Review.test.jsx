@@ -117,7 +117,7 @@ const mockMTOShipmentWithProGear = {
     hasProGear: true,
     proGearWeight: 100,
     spouseProGearWeight: null,
-    proGear: [createBaseProGearWeightTicket()],
+    proGearWeightTickets: [createBaseProGearWeightTicket()],
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -276,7 +276,7 @@ describe('Review page', () => {
     const editProGearWeightTicket = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH, {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
-      proGearId: mockMTOShipmentWithProGear.ppmShipment.proGear[0].id,
+      proGearId: mockMTOShipmentWithProGear.ppmShipment.proGearWeightTickets[0].id,
     });
 
     const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();

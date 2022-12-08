@@ -71,11 +71,18 @@ const openSubmissionPreview = (isViolationsPage) => {
 };
 
 const submitReportFromPreview = () => {
-  // Click submit button in the modal
-  cy.get('[data-testid="modalSubmitButton"]').click();
+  // Click submit button in the modal (waits for button to be attached to DOM before clicking)
+  cy.get('[data-testid="modalSubmitButton"]')
+    .should(($el) => {
+      expect(Cypress.dom.isDetached($el)).to.eq(false);
+    })
+    .click({ force: true });
 
   // Wait for the submit
-  cy.wait(['@submitEvaluationReport']);
+  cy.wait(['@submitEvaluationReport']).then((intercept) => {
+    const { statusCode } = intercept.response;
+    expect(statusCode).to.eq(204);
+  });
 
   // Should be back on the quality assurance tab
   cy.url().should('include', `/moves/${moveCode}/evaluation-reports`);
@@ -116,10 +123,13 @@ const verifySubmittedReportPresent = () => {
 // Fills out the first page of the Evaluation Report Form providing basic content in minimal required fields
 const fillInForm = () => {
   cy.get('input[name="inspectionDate"]').clear().type('01 Oct 2022').blur(); // Date of inspection
+  // evaluation start and end times
+  cy.get('select[name="evalStartHour"]').select('04').blur();
+  cy.get('select[name="evalStartMinute"]').select('25').blur();
+  cy.get('select[name="evalEndHour"]').select('12').blur();
+  cy.get('select[name="evalEndMinute"]').select('38').blur();
   cy.get('[data-testid="radio"] [for="dataReview"]').click(); // Evaluation type
   cy.get('[data-testid="radio"] [for="origin"]').click(); // Evaluation location
-  cy.get('select[name="evalLengthHour"]').select('1').blur(); // Evaluation length Hours
-  cy.get('select[name="evalLengthMinute"]').select('15').blur(); // Evaluation length Minutes
   cy.get('[data-testid="radio"] [for="noViolations"]').click(); // Violations observed
   cy.get('textarea[name="remarks"]').type('This is a test evaluation report'); // Evaluation remarks
 };
@@ -169,7 +179,6 @@ describe('Quality Evaluation Report', () => {
         cy.get('td').contains('01 Oct 2022');
         cy.get('dd').contains('Data review');
         cy.get('dd').contains('Origin');
-        cy.get('dd').contains('1 hr 15 min');
         cy.get('dd').contains('No');
         cy.get('dd').contains('This is a test evaluation report');
       });
@@ -251,7 +260,6 @@ describe('Quality Evaluation Report', () => {
         cy.get('td').contains('01 Oct 2022');
         cy.get('dd').contains('Data review');
         cy.get('dd').contains('Origin');
-        cy.get('dd').contains('1 hr 15 min');
         cy.get('dd').contains('No');
         cy.get('dd').contains('This is a test evaluation report');
       });
@@ -263,23 +271,25 @@ describe('Quality Evaluation Report', () => {
     });
 
     // Create new report, fill out all conditional fields on 1st page fields, on second page select correct violations to display/fill out date fields, serious violations = true, submit
-    it('can complete an evaluation report with all field populated, including conditionally displayed fields', () => {
+    it('can complete an evaluation report with all fields populated, including conditionally displayed fields', () => {
       // Create a new shipment report
       createShipmentReport();
 
       // Fill out the eval report form with minimal info required to submit
       fillInForm();
 
-      // Fill out the eval report form displaying/using all possible fields
-      cy.get('[data-testid="radio"] [for="physical"]').click(); // Evaluation type
-      cy.get('select[name="travelTimeHour"]').select('2').blur(); // Travel time to evaluation
-      cy.get('select[name="travelTimeMinute"]').select('15').blur(); // Travel time to evaluation
+      cy.get('[data-testid="radio"] [for="physical"]').click();
+      cy.get('[data-testid="radio"] [for="origin"]').click();
+
+      // Time departed needed for physical inspection
+      cy.get('select[name="timeDepartHour"]').select('02').blur();
+      cy.get('select[name="timeDepartMinute"]').select('15').blur();
 
       // Evaluation location, has up to 3 conditional fields displayed dependent upon selection
       cy.get('[data-testid="radio"] [for="destination"]').click();
-      cy.get('input[name="observedDate"]').clear().type('02 Oct 2022').blur(); // Observed delivery date
+      cy.get('input[name="observedShipmentDeliveryDate"]').clear().type('02 Oct 2022').blur(); // Observed delivery date
       cy.get('[data-testid="radio"] [for="origin"]').click(); // Evaluation location
-      cy.get('input[name="observedDate"]').clear().type('02 Oct 2022').blur(); // Observed pickup date
+      cy.get('input[name="observedShipmentPhysicalPickupDate"]').clear().type('02 Oct 2022').blur(); // Observed pickup date
       cy.get('[data-testid="radio"] [for="other"]').click(); // Evaluation location
       cy.get('textarea[name="otherEvaluationLocation"]').type('This is a test other location text');
 
@@ -321,7 +331,6 @@ describe('Quality Evaluation Report', () => {
         cy.contains('dd', 'Physical');
         cy.contains('dd', 'Other');
         cy.contains('dd', 'This is a test other location text');
-        cy.contains('dd', '1 hr 15 min');
         cy.contains('dd', 'This is a test evaluation report');
 
         //  kpi dates
@@ -463,12 +472,14 @@ describe('Quality Evaluation Report', () => {
     it('does not prompt to delete report after first save', () => {
       // Create a new shipment report
       createShipmentReport();
+      // Fill out the eval report form with minimal info
+      fillInForm();
 
       // Save draft
       saveAsDraft();
 
       // Edit draft report
-      cy.get('[data-testid="editReport"]').first().click();
+      cy.get('[data-testid="editReport"]').last().click();
 
       // Verify the form to edit is displayed
       cy.wait(['@getEvaluationReport']);

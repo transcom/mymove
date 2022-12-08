@@ -31,7 +31,7 @@ jest.mock('react-router-dom', () => ({
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   createMovingExpense: jest.fn(),
-  createUploadForDocument: jest.fn(),
+  createUploadForPPMDocument: jest.fn(),
   deleteUpload: jest.fn(),
   patchMovingExpense: jest.fn(),
 }));

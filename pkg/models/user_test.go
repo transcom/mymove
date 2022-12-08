@@ -6,6 +6,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/dberr"
+	"github.com/transcom/mymove/pkg/factory"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	userroles "github.com/transcom/mymove/pkg/services/users_roles"
@@ -91,7 +92,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(ErrFetchNotFound, err, "Expected not to find missing Identity")
 	suite.Nil(identity)
 
-	alice := testdatagen.MakeDefaultUser(suite.DB())
+	alice := factory.BuildDefaultUser(suite.DB())
 	identity, err = FetchUserIdentity(suite.DB(), alice.LoginGovUUID.String())
 	suite.Nil(err, "loading alice's identity")
 	suite.NotNil(identity)
@@ -109,7 +110,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(bob.ID, *identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
 
-	carolUser := testdatagen.MakeDefaultUser(suite.DB())
+	carolUser := factory.BuildDefaultUser(suite.DB())
 	carol := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
 		OfficeUser: OfficeUser{
 			UserID: &carolUser.ID,
@@ -124,13 +125,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(identity.ServiceMemberID)
 	suite.Equal(carol.ID, *identity.OfficeUserID)
 
-	adminUser := testdatagen.MakeDefaultUser(suite.DB())
-	systemAdmin := testdatagen.MakeAdminUser(suite.DB(), testdatagen.Assertions{
-		AdminUser: AdminUser{
-			User:   adminUser,
-			UserID: &adminUser.ID,
-		},
-	})
+	systemAdmin := factory.BuildDefaultAdminUser(suite.DB())
 	identity, err = FetchUserIdentity(suite.DB(), systemAdmin.User.LoginGovUUID.String())
 	suite.Nil(err, "loading systemAdmin's identity")
 	suite.NotNil(identity)
@@ -150,13 +145,15 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.NoError(suite.DB().Create(&rs))
 	customerRole := rs[0]
 	patUUID := uuid.Must(uuid.NewV4())
-	pat := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
-		User: User{
-			LoginGovUUID: &patUUID,
-			Active:       true,
-			Roles:        []roles.Role{customerRole},
+	pat := factory.BuildUser(suite.DB(), []factory.Customization{
+		{
+			Model: User{
+				LoginGovUUID: &patUUID,
+				Active:       true,
+				Roles:        []roles.Role{customerRole},
+			},
 		},
-	})
+	}, nil)
 
 	identity, err = FetchUserIdentity(suite.DB(), pat.LoginGovUUID.String())
 	suite.Nil(err, "loading pat's identity")
@@ -165,13 +162,15 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 
 	tooRole := rs[1]
 	billyUUID := uuid.Must(uuid.NewV4())
-	billy := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
-		User: User{
-			LoginGovUUID: &billyUUID,
-			Active:       true,
-			Roles:        []roles.Role{tooRole},
+	billy := factory.BuildUser(suite.DB(), []factory.Customization{
+		{
+			Model: User{
+				LoginGovUUID: &billyUUID,
+				Active:       true,
+				Roles:        []roles.Role{tooRole},
+			},
 		},
-	})
+	}, nil)
 
 	suite.DB().MigrationURL()
 	identity, err = FetchUserIdentity(suite.DB(), billy.LoginGovUUID.String())
@@ -257,11 +256,12 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 
 		// Create a user email that won't be filtered out of the devlocal user query w/ a default value of
 		// first.last@login.gov.test
-		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
-			User: User{
-				LoginGovEmail: "test@example.com",
-			},
-		})
+		user := factory.BuildUser(suite.DB(), []factory.Customization{
+			{
+				Model: User{
+					LoginGovEmail: "test@example.com",
+				},
+			}}, nil)
 
 		testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
 			ServiceMember: ServiceMember{
@@ -300,7 +300,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 	})
 
 	suite.Run("admin user", func() {
-		testdatagen.MakeDefaultAdminUser(suite.DB())
+		factory.BuildDefaultAdminUser(suite.DB())
 		identities, err := FetchAppUserIdentities(suite.DB(), auth.AdminApp, 5)
 		suite.Nil(err)
 		suite.NotEmpty(identities)
@@ -315,7 +315,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 }
 
 func (suite *ModelSuite) TestGetUser() {
-	alice := testdatagen.MakeDefaultUser(suite.DB())
+	alice := factory.BuildDefaultUser(suite.DB())
 
 	user1, err := GetUserFromEmail(suite.DB(), alice.LoginGovEmail)
 	suite.Nil(err, "loading alice's user")

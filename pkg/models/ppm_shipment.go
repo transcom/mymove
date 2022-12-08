@@ -1,14 +1,10 @@
 package models
 
 import (
-	"database/sql"
 	"time"
 
-	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -114,7 +110,7 @@ type PPMShipment struct {
 	WeightTickets                  WeightTickets        `has_many:"weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	MovingExpenses                 MovingExpenses       `has_many:"moving_expenses" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	ProgearExpenses                ProgearWeightTickets `has_many:"progear_weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
-	SignedCertifications           SignedCertifications `has_many:"signed_certifications" fk_id:"ppm_id" order_by:"created_at desc"`
+	SignedCertification            *SignedCertification `has_one:"signed_certification" fk_id:"ppm_id"`
 }
 
 // PPMShipments is a list of PPMs
@@ -123,22 +119,4 @@ type PPMShipments []PPMShipment
 // TableName overrides the table name used by Pop. By default it tries using the name `ppmshipments`.
 func (p PPMShipment) TableName() string {
 	return "ppm_shipments"
-}
-
-func FetchPPMShipmentFromMTOShipmentID(db *pop.Connection, mtoShipmentID uuid.UUID) (*PPMShipment, error) {
-	var ppmShipment PPMShipment
-
-	err := db.Scope(utilities.ExcludeDeletedScope()).EagerPreload("Shipment").
-		Where("ppm_shipments.shipment_id = ?", mtoShipmentID).
-		First(&ppmShipment)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(mtoShipmentID, "while looking for PPMShipment")
-		default:
-			return nil, apperror.NewQueryError("PPMShipment", err, "")
-		}
-	}
-	return &ppmShipment, nil
 }

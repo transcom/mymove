@@ -2,7 +2,6 @@ import React from 'react';
 
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
-import o from 'constants/MoveHistory/UIDisplay/Operations';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 
 const formatChangedValues = (historyRecord) => {
@@ -25,7 +24,7 @@ const formatChangedValues = (historyRecord) => {
 };
 export default {
   action: a.UPDATE,
-  eventName: o.updateServiceMemberBackupContact,
+  eventName: '*', // Needs wild card to handle both updateServiceMemberBackupContact and updateCustomer event
   tableName: t.backup_contacts,
   getEventNameDisplay: () => 'Updated profile',
   getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,

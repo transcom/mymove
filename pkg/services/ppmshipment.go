@@ -27,4 +27,29 @@ type PPMShipmentUpdater interface {
 //go:generate mockery --name PPMEstimator --disable-version-string
 type PPMEstimator interface {
 	EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, *unit.Cents, error)
+	FinalIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, error)
+}
+
+// PPMShipmentRouter routes a PPM shipment
+//
+//go:generate mockery --name PPMShipmentRouter --disable-version-string
+type PPMShipmentRouter interface {
+	SetToDraft(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error
+	Submit(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error
+	SendToCustomer(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error
+	SubmitCloseOutDocumentation(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error
+}
+
+// PPMShipmentNewSubmitter handles a new submission for a PPM shipment
+//
+//go:generate mockery --name PPMShipmentNewSubmitter --disable-version-string
+type PPMShipmentNewSubmitter interface {
+	SubmitNewCustomerCloseOut(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, signedCertification models.SignedCertification) (*models.PPMShipment, error)
+}
+
+// PPMShipmentUpdatedSubmitter handles a submission for a PPM shipment that has been submitted before
+//
+//go:generate mockery --name PPMShipmentUpdatedSubmitter --disable-version-string
+type PPMShipmentUpdatedSubmitter interface {
+	SubmitUpdatedCustomerCloseOut(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, signedCertification models.SignedCertification, eTag string) (*models.PPMShipment, error)
 }

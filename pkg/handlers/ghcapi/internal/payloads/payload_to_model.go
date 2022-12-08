@@ -1,16 +1,22 @@
 package payloads
 
 import (
+	"errors"
 	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
+)
+
+const (
+	timeHHMMFormat = "15:04"
 )
 
 // MTOAgentModel model
@@ -47,20 +53,7 @@ func MTOAgentsModel(mtoAgents *ghcmessages.MTOAgents) *models.MTOAgents {
 
 // CustomerToServiceMember transforms UpdateCustomerPayload to ServiceMember model
 func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.ServiceMember {
-
-	var address models.Address
-	if payload.CurrentAddress != nil {
-		address = models.Address{
-			ID:             uuid.FromStringOrNil(payload.CurrentAddress.ID.String()),
-			StreetAddress1: *payload.CurrentAddress.StreetAddress1,
-			StreetAddress2: payload.CurrentAddress.StreetAddress2,
-			StreetAddress3: payload.CurrentAddress.StreetAddress3,
-			City:           *payload.CurrentAddress.City,
-			State:          *payload.CurrentAddress.State,
-			PostalCode:     *payload.CurrentAddress.PostalCode,
-			Country:        payload.CurrentAddress.Country,
-		}
-	}
+	address := AddressModel(&payload.CurrentAddress.Address)
 
 	var backupContacts []models.BackupContact
 	if payload.BackupContact != nil {
@@ -72,7 +65,7 @@ func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.S
 	}
 
 	return models.ServiceMember{
-		ResidentialAddress: &address,
+		ResidentialAddress: address,
 		BackupContacts:     backupContacts,
 		FirstName:          &payload.FirstName,
 		LastName:           &payload.LastName,
@@ -452,9 +445,58 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 	return model
 }
 
-func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) *models.EvaluationReport {
-	if evaluationReport == nil {
+// ProgearWeightTicketModelFromUpdate model
+func ProgearWeightTicketModelFromUpdate(progearWeightTicket *ghcmessages.UpdateProGearWeightTicket) *models.ProgearWeightTicket {
+	if progearWeightTicket == nil {
 		return nil
+	}
+
+	model := &models.ProgearWeightTicket{
+		Weight:           handlers.PoundPtrFromInt64Ptr(progearWeightTicket.Weight),
+		HasWeightTickets: handlers.FmtBool(progearWeightTicket.HasWeightTickets),
+		BelongsToSelf:    handlers.FmtBool(progearWeightTicket.BelongsToSelf),
+		Status:           (*models.PPMDocumentStatus)(handlers.FmtString(string(progearWeightTicket.Status))),
+		Reason:           handlers.FmtString(progearWeightTicket.Reason),
+	}
+	return model
+}
+
+// WeightTicketModelFromUpdate
+func WeightTicketModelFromUpdate(weightTicket *ghcmessages.UpdateWeightTicket) *models.WeightTicket {
+	if weightTicket == nil {
+		return nil
+	}
+	model := &models.WeightTicket{
+		EmptyWeight:          handlers.PoundPtrFromInt64Ptr(weightTicket.EmptyWeight),
+		FullWeight:           handlers.PoundPtrFromInt64Ptr(weightTicket.FullWeight),
+		OwnsTrailer:          handlers.FmtBool(weightTicket.OwnsTrailer),
+		TrailerMeetsCriteria: handlers.FmtBool(weightTicket.TrailerMeetsCriteria),
+		Status:               (*models.PPMDocumentStatus)(handlers.FmtString(string(weightTicket.Status))),
+		Reason:               handlers.FmtString(weightTicket.Reason),
+	}
+	return model
+}
+
+// MovingExpenseModelFromUpdate
+func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense) *models.MovingExpense {
+	if movingExpense == nil {
+		return nil
+	}
+	model := &models.MovingExpense{
+		Amount:       handlers.FmtInt64PtrToPopPtr(&movingExpense.Amount),
+		SITStartDate: handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
+		SITEndDate:   handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
+		Status:       (*models.PPMDocumentStatus)(handlers.FmtString(string(movingExpense.Status))),
+		Reason:       handlers.FmtString(movingExpense.Reason),
+	}
+
+	return model
+}
+
+func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) (*models.EvaluationReport, error) {
+	if evaluationReport == nil {
+		err := apperror.NewPreconditionFailedError(uuid.UUID{}, errors.New("Cannot update empty report"))
+		return nil, err
 	}
 
 	var inspectionType *models.EvaluationReportInspectionType
@@ -463,48 +505,73 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 		inspectionType = &tempInspectionType
 	}
 
-	var travelTimeMinutes *int
-	if evaluationReport.TravelTimeMinutes != nil {
-		tempTravelTime := int(*evaluationReport.TravelTimeMinutes)
-		travelTimeMinutes = &tempTravelTime
-	}
-	var evaluationLengthMinutes *int
-	if evaluationReport.EvaluationLengthMinutes != nil {
-		tempEvaluationLength := int(*evaluationReport.EvaluationLengthMinutes)
-		evaluationLengthMinutes = &tempEvaluationLength
-	}
 	var location *models.EvaluationReportLocationType
 	if evaluationReport.Location != nil {
 		tempLocation := models.EvaluationReportLocationType(*evaluationReport.Location)
 		location = &tempLocation
 	}
 
-	model := models.EvaluationReport{
-		ID:                            uuid.FromStringOrNil(evaluationReport.ID.String()),
-		OfficeUser:                    models.OfficeUser{},
-		OfficeUserID:                  uuid.Nil,
-		Move:                          models.Move{},
-		MoveID:                        uuid.Nil,
-		Shipment:                      nil,
-		ShipmentID:                    nil,
-		Type:                          models.EvaluationReportType(evaluationReport.Type),
-		InspectionDate:                (*time.Time)(evaluationReport.InspectionDate),
-		InspectionType:                inspectionType,
-		TravelTimeMinutes:             travelTimeMinutes,
-		Location:                      location,
-		LocationDescription:           evaluationReport.LocationDescription,
-		ObservedDate:                  (*time.Time)(evaluationReport.ObservedDate),
-		EvaluationLengthMinutes:       evaluationLengthMinutes,
-		ViolationsObserved:            evaluationReport.ViolationsObserved,
-		Remarks:                       evaluationReport.Remarks,
-		SeriousIncident:               evaluationReport.SeriousIncident,
-		SeriousIncidentDesc:           evaluationReport.SeriousIncidentDesc,
-		ObservedClaimsResponseDate:    (*time.Time)(evaluationReport.ObservedClaimsResponseDate),
-		ObservedPickupDate:            (*time.Time)(evaluationReport.ObservedPickupDate),
-		ObservedPickupSpreadStartDate: (*time.Time)(evaluationReport.ObservedPickupSpreadStartDate),
-		ObservedPickupSpreadEndDate:   (*time.Time)(evaluationReport.ObservedPickupSpreadEndDate),
-		ObservedDeliveryDate:          (*time.Time)(evaluationReport.ObservedDeliveryDate),
-		SubmittedAt:                   handlers.FmtDateTimePtrToPopPtr(evaluationReport.SubmittedAt),
+	var timeDepart *time.Time
+	if evaluationReport.TimeDepart != nil {
+		td, err := time.Parse(timeHHMMFormat, *evaluationReport.TimeDepart)
+
+		if err != nil {
+			return nil, apperror.NewPreconditionFailedError(uuid.UUID{}, err)
+		}
+
+		timeDepart = &td
 	}
-	return &model
+
+	var evalStart *time.Time
+	if evaluationReport.EvalStart != nil {
+		es, err := time.Parse(timeHHMMFormat, *evaluationReport.EvalStart)
+
+		if err != nil {
+			return nil, apperror.NewPreconditionFailedError(uuid.UUID{}, err)
+		}
+
+		evalStart = &es
+	}
+
+	var evalEnd *time.Time
+	if evaluationReport.EvalEnd != nil {
+		ee, err := time.Parse(timeHHMMFormat, *evaluationReport.EvalEnd)
+
+		if err != nil {
+			return nil, apperror.NewPreconditionFailedError(uuid.UUID{}, err)
+		}
+
+		evalEnd = &ee
+	}
+
+	model := models.EvaluationReport{
+		ID:                                 uuid.FromStringOrNil(evaluationReport.ID.String()),
+		OfficeUser:                         models.OfficeUser{},
+		OfficeUserID:                       uuid.Nil,
+		Move:                               models.Move{},
+		MoveID:                             uuid.Nil,
+		Shipment:                           nil,
+		ShipmentID:                         nil,
+		Type:                               models.EvaluationReportType(evaluationReport.Type),
+		InspectionDate:                     (*time.Time)(evaluationReport.InspectionDate),
+		InspectionType:                     inspectionType,
+		TimeDepart:                         timeDepart,
+		EvalStart:                          evalStart,
+		EvalEnd:                            evalEnd,
+		Location:                           location,
+		LocationDescription:                evaluationReport.LocationDescription,
+		ObservedShipmentDeliveryDate:       (*time.Time)(evaluationReport.ObservedShipmentDeliveryDate),
+		ObservedShipmentPhysicalPickupDate: (*time.Time)(evaluationReport.ObservedShipmentPhysicalPickupDate),
+		ViolationsObserved:                 evaluationReport.ViolationsObserved,
+		Remarks:                            evaluationReport.Remarks,
+		SeriousIncident:                    evaluationReport.SeriousIncident,
+		SeriousIncidentDesc:                evaluationReport.SeriousIncidentDesc,
+		ObservedClaimsResponseDate:         (*time.Time)(evaluationReport.ObservedClaimsResponseDate),
+		ObservedPickupDate:                 (*time.Time)(evaluationReport.ObservedPickupDate),
+		ObservedPickupSpreadStartDate:      (*time.Time)(evaluationReport.ObservedPickupSpreadStartDate),
+		ObservedPickupSpreadEndDate:        (*time.Time)(evaluationReport.ObservedPickupSpreadEndDate),
+		ObservedDeliveryDate:               (*time.Time)(evaluationReport.ObservedDeliveryDate),
+		SubmittedAt:                        handlers.FmtDateTimePtrToPopPtr(evaluationReport.SubmittedAt),
+	}
+	return &model, nil
 }

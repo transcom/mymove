@@ -95,7 +95,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
       {({ isValid, isSubmitting, handleSubmit, values }) => {
         return (
           <div className={classnames(ppmStyles.formContainer, styles.AboutForm)}>
-            <Form className={classnames(formStyles.form, ppmStyles.form, styles.W2Address)}>
+            <Form className={classnames(formStyles.form, ppmStyles.form, styles.W2Address)} data-testid="aboutForm">
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Departure date</h2>
                 <DatePickerInput

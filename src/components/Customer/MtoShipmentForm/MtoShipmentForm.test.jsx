@@ -61,7 +61,7 @@ const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
 describe('MtoShipmentForm component', () => {
   describe('when creating a new HHG shipment', () => {
     it('renders the HHG shipment form', async () => {
-      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      render(<MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
 
@@ -120,7 +120,7 @@ describe('MtoShipmentForm component', () => {
 
     it('renders the correct weight allowance when there are dependents', async () => {
       render(
-        <MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} orders={{ has_dependents: true }} />,
+        <MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} orders={{ has_dependents: true }} />,
       );
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
@@ -132,7 +132,7 @@ describe('MtoShipmentForm component', () => {
       render(
         <MtoShipmentForm
           {...defaultProps}
-          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
           orders={{ orders_type: 'RETIREMENT' }}
         />,
       );
@@ -148,7 +148,7 @@ describe('MtoShipmentForm component', () => {
       render(
         <MtoShipmentForm
           {...defaultProps}
-          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
           orders={{ orders_type: 'SEPARATION' }}
         />,
       );
@@ -162,7 +162,7 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('does not render special NTS What to expect section', async () => {
-      const { queryByTestId } = render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      const { queryByTestId } = render(<MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       await waitFor(() => {
         expect(queryByTestId('nts-what-to-expect')).not.toBeInTheDocument();
@@ -171,7 +171,7 @@ describe('MtoShipmentForm component', () => {
 
     it('uses the current residence address for pickup address when checked', async () => {
       const { queryByLabelText, queryAllByLabelText } = render(
-        <MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />,
+        <MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />,
       );
 
       await userEvent.click(queryByLabelText('Use my current address'));
@@ -186,7 +186,7 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('renders a second address fieldset when the user has a second pickup address', async () => {
-      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      render(<MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       await userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
 
@@ -207,7 +207,7 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('renders a second address fieldset when the user has a delivery address', async () => {
-      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      render(<MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
 
@@ -233,7 +233,7 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('renders the secondary destination address question once a user says they have a primary destination address', async () => {
-      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      render(<MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       expect(screen.queryByRole('heading', { level: 4, name: 'Second Destination Location' })).not.toBeInTheDocument();
       expect(screen.queryByTitle('Yes, I have a second destination location')).not.toBeInTheDocument();
@@ -247,7 +247,7 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('renders another address fieldset when the user has a second destination address', async () => {
-      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      render(<MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
       await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
@@ -274,7 +274,7 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('goes back when the back button is clicked', async () => {
-      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      render(<MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       const backButton = await screen.findByRole('button', { name: 'Back' });
       await userEvent.click(backButton);
@@ -323,7 +323,7 @@ describe('MtoShipmentForm component', () => {
 
       createMTOShipment.mockImplementation(() => Promise.resolve(expectedCreateResponse));
 
-      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      render(<MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       const pickupDateInput = await screen.findByLabelText('Preferred pickup date');
       await userEvent.type(pickupDateInput, shipmentInfo.requestedPickupDate);
@@ -377,7 +377,7 @@ describe('MtoShipmentForm component', () => {
       createMTOShipment.mockImplementation(() => Promise.reject(errorResponse));
       getResponseError.mockImplementation(() => errorMessage);
 
-      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      render(<MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       const pickupDateInput = await screen.findByLabelText('Preferred pickup date');
       await userEvent.type(pickupDateInput, shipmentInfo.requestedPickupDate);
@@ -450,7 +450,7 @@ describe('MtoShipmentForm component', () => {
         <MtoShipmentForm
           {...defaultProps}
           isCreatePage={false}
-          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={mockMtoShipment}
         />,
       );
@@ -481,7 +481,7 @@ describe('MtoShipmentForm component', () => {
         <MtoShipmentForm
           {...defaultProps}
           isCreatePage={false}
-          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={{
             ...mockMtoShipment,
             secondaryPickupAddress: {
@@ -548,7 +548,7 @@ describe('MtoShipmentForm component', () => {
             {...defaultProps}
             isCreatePage={false}
             mtoShipment={mockMtoShipment}
-            selectedMoveType={SHIPMENT_OPTIONS.HHG}
+            shipmentType={SHIPMENT_OPTIONS.HHG}
           />,
         );
 
@@ -593,7 +593,7 @@ describe('MtoShipmentForm component', () => {
           {...defaultProps}
           isCreatePage={false}
           mtoShipment={mockMtoShipment}
-          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
         />,
       );
       // Verify that the form is good to submit by checking that the save button is not disabled.
@@ -633,7 +633,7 @@ describe('MtoShipmentForm component', () => {
         <MtoShipmentForm
           {...defaultProps}
           isCreatePage={false}
-          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={mockMtoShipment}
         />,
       );
@@ -687,7 +687,7 @@ describe('MtoShipmentForm component', () => {
         <MtoShipmentForm
           {...defaultProps}
           isCreatePage={false}
-          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={mockMtoShipment}
         />,
       );
@@ -744,7 +744,7 @@ describe('MtoShipmentForm component', () => {
         <MtoShipmentForm
           {...defaultProps}
           isCreatePage={false}
-          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={mockMtoShipment}
         />,
       );
@@ -787,7 +787,7 @@ describe('MtoShipmentForm component', () => {
 
   describe('creating a new NTS shipment', () => {
     it('renders the NTS shipment form', async () => {
-      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
+      render(<MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} />);
 
       expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
 
@@ -828,7 +828,7 @@ describe('MtoShipmentForm component', () => {
 
     it('renders the correct weight allowance when there are dependents', async () => {
       render(
-        <MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} orders={{ has_dependents: true }} />,
+        <MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} orders={{ has_dependents: true }} />,
       );
 
       expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
@@ -837,7 +837,7 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('renders special NTS What to expect section', async () => {
-      const { queryByTestId } = render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
+      const { queryByTestId } = render(<MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} />);
 
       await waitFor(() => {
         expect(queryByTestId('nts-what-to-expect')).toBeInTheDocument();
@@ -847,7 +847,7 @@ describe('MtoShipmentForm component', () => {
 
   describe('creating a new NTS-release shipment', () => {
     it('renders the NTS-release shipment form', async () => {
-      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
+      render(<MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} />);
 
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
 
@@ -888,11 +888,7 @@ describe('MtoShipmentForm component', () => {
 
     it('renders the correct weight allowance when there are dependents', async () => {
       render(
-        <MtoShipmentForm
-          {...defaultProps}
-          selectedMoveType={SHIPMENT_OPTIONS.NTSR}
-          orders={{ has_dependents: true }}
-        />,
+        <MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} orders={{ has_dependents: true }} />,
       );
 
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
@@ -901,7 +897,7 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('does not render special NTS What to expect section', async () => {
-      const { queryByTestId } = render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
+      const { queryByTestId } = render(<MtoShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} />);
 
       await waitFor(() => {
         expect(queryByTestId('nts-what-to-expect')).not.toBeInTheDocument();

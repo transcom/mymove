@@ -280,13 +280,19 @@ func (h SaveEvaluationReportHandler) Handle(params evaluationReportop.SaveEvalua
 			eTag := params.IfMatch
 			payload := params.Body
 			payload.ID = params.ReportID
-			report := payloads.EvaluationReportFromUpdate(payload)
+			report, err := payloads.EvaluationReportFromUpdate(payload)
+
+			// catch errors in the payload to model transition
+			if err != nil {
+				appCtx.Logger().Error("Error saving evaluation report: ", zap.Error(err))
+				return evaluationReportop.NewSaveEvaluationReportPreconditionFailed(), err
+			}
 
 			if appCtx.Session() != nil {
 				report.OfficeUserID = appCtx.Session().OfficeUserID
 			}
 
-			err := h.UpdateEvaluationReport(appCtx, report, appCtx.Session().OfficeUserID, eTag)
+			err = h.UpdateEvaluationReport(appCtx, report, appCtx.Session().OfficeUserID, eTag)
 			if err != nil {
 				appCtx.Logger().Error("Error saving evaluation report: ", zap.Error(err))
 

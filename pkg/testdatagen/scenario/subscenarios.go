@@ -83,6 +83,7 @@ func subScenarioPPMCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 
 		// PPM Closeout
 		createMovesForEachBranch(appCtx, userUploader)
+		createMoveWithCloseoutOffice(appCtx, userUploader)
 	}
 }
 
@@ -111,12 +112,12 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx, userUploader, moveRouter, "PPMSIT")
 		// Post-onboarding
 		createApprovedMoveWithPPM(appCtx, userUploader)
-		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx, userUploader)
-		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo2(appCtx, userUploader)
-		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo3(appCtx, userUploader)
-		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo4(appCtx, userUploader)
-		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo5(appCtx, userUploader)
-		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo6(appCtx, userUploader)
+		createApprovedMoveWithPPMWithAboutFormComplete(appCtx, userUploader)
+		createApprovedMoveWithPPMWithAboutFormComplete2(appCtx, userUploader)
+		createApprovedMoveWithPPMWithAboutFormComplete3(appCtx, userUploader)
+		createApprovedMoveWithPPMWithAboutFormComplete4(appCtx, userUploader)
+		createApprovedMoveWithPPMWithAboutFormComplete5(appCtx, userUploader)
+		createApprovedMoveWithPPMWithAboutFormComplete6(appCtx, userUploader)
 		createApprovedMoveWithPPM2(appCtx, userUploader)
 		createApprovedMoveWithPPMWeightTicket(appCtx, userUploader)
 		createApprovedMoveWithPPMMovingExpense(appCtx, nil, userUploader)
@@ -274,22 +275,26 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 		dataReviewInspection := models.EvaluationReportInspectionTypeDataReview
 		physicalInspection := models.EvaluationReportInspectionTypePhysical
 		virtualInspection := models.EvaluationReportInspectionTypeVirtual
+		inspectionTime := time.Now().AddDate(0, 0, -4)
+		timeDepart := inspectionTime.Add(time.Hour * 1)
+		evalStart := inspectionTime.Add(time.Hour * 3)
+		evalEnd := inspectionTime.Add(time.Hour * 5)
 
 		remark := "this is a submitted counseling report"
 		location := models.EvaluationReportLocationTypeOrigin
 		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
-				SubmittedAt:             &submittedTime,
-				InspectionDate:          &submittedTime,
-				InspectionType:          &dataReviewInspection,
-				Location:                &location,
-				EvaluationLengthMinutes: swag.Int(45),
-				ViolationsObserved:      swag.Bool(false),
-				Remarks:                 &remark,
+				SubmittedAt:        &submittedTime,
+				InspectionDate:     &submittedTime,
+				InspectionType:     &dataReviewInspection,
+				Location:           &location,
+				ViolationsObserved: swag.Bool(false),
+				Remarks:            &remark,
 			},
 			Move:       move,
 			OfficeUser: officeUser,
 		})
+
 		remark1 := "this is a draft counseling report"
 		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
@@ -298,17 +303,17 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 			Move:       move,
 			OfficeUser: officeUser,
 		})
+
 		location = models.EvaluationReportLocationTypeDestination
 		remark2 := "this is a submitted shipment report"
 		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
-				SubmittedAt:             &submittedTime,
-				InspectionDate:          &submittedTime,
-				InspectionType:          &virtualInspection,
-				EvaluationLengthMinutes: swag.Int(45),
-				Location:                &location,
-				ViolationsObserved:      swag.Bool(true),
-				Remarks:                 &remark2,
+				SubmittedAt:        &submittedTime,
+				InspectionDate:     &submittedTime,
+				InspectionType:     &virtualInspection,
+				Location:           &location,
+				ViolationsObserved: swag.Bool(true),
+				Remarks:            &remark2,
 			},
 			Move:        move,
 			OfficeUser:  officeUser,
@@ -324,20 +329,39 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 			MTOShipment: shipment,
 		})
 
+		location = models.EvaluationReportLocationTypeOrigin
+		remark4 := "this is a report with eval times recorded"
+		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
+			EvaluationReport: models.EvaluationReport{
+				Remarks:            &remark4,
+				InspectionDate:     &submittedTime,
+				InspectionType:     &physicalInspection,
+				TimeDepart:         &timeDepart,
+				EvalStart:          &evalStart,
+				EvalEnd:            &evalEnd,
+				Location:           &location,
+				ViolationsObserved: swag.Bool(true),
+			},
+			Move:        move,
+			OfficeUser:  officeUser,
+			MTOShipment: shipment,
+		})
+
 		location = models.EvaluationReportLocationTypeOther
 		locationDescription := "Route 66 at crash inspection site 3"
 		remark = "this is a submitted NTS shipment report"
 		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
-				SubmittedAt:             &submittedTime,
-				InspectionDate:          &submittedTime,
-				InspectionType:          &physicalInspection,
-				TravelTimeMinutes:       swag.Int(60),
-				EvaluationLengthMinutes: swag.Int(45),
-				Location:                &location,
-				LocationDescription:     &locationDescription,
-				ViolationsObserved:      swag.Bool(true),
-				Remarks:                 &remark,
+				SubmittedAt:         &submittedTime,
+				InspectionDate:      &submittedTime,
+				InspectionType:      &physicalInspection,
+				TimeDepart:          &timeDepart,
+				EvalStart:           &evalStart,
+				EvalEnd:             &evalEnd,
+				Location:            &location,
+				LocationDescription: &locationDescription,
+				ViolationsObserved:  swag.Bool(true),
+				Remarks:             &remark,
 			},
 			Move:        move,
 			OfficeUser:  officeUser,

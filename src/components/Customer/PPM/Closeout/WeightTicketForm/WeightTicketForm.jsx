@@ -273,7 +273,7 @@ const WeightTicketForm = ({
                                 labelIdleMobile={UploadDropZoneLabelMobile}
                                 onChange={(err, upload) => {
                                   onUploadComplete(err);
-                                  proofOfTrailerOwnershipDocumentRef.current.removeFile(upload.id);
+                                  proofOfTrailerOwnershipDocumentRef?.current?.removeFile(upload.id);
                                 }}
                                 acceptedFileTypes={acceptableFileTypes}
                                 ref={proofOfTrailerOwnershipDocumentRef}

@@ -2359,6 +2359,254 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets": {
+      "post": {
+        "description": "Creates a PPM shipment's pro-gear weight ticket. This will only contain the minimum necessary fields for a\npro-gear weight ticket. Data should be filled in using the patch endpoint.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a pro-gear weight ticket",
+        "operationId": "createProGearWeightTicket",
+        "responses": {
+          "201": {
+            "description": "returns a new pro-gear weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/ProGearWeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
+      "patch": {
+        "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a pro-gear weight ticket",
+        "operationId": "updateProGearWeightTicket",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ifMatch"
+          },
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "$ref": "#/parameters/proGearWeightTicketId"
+          },
+          {
+            "name": "updateProGearWeightTicket",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateProGearWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "returns an updated pro-gear weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/ProGearWeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/ppm-shipments/{ppmShipmentId}/resubmit-ppm-shipment-documentation/{signedCertificationId}": {
+      "put": {
+        "description": "Updates customer signature along with the text they agreed to, and then routes the PPM shipment to the service\ncounselor queue for review.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates signature and routes PPM shipment to service counselor",
+        "operationId": "resubmitPPMShipmentDocumentation",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the signed certification",
+            "name": "signedCertificationId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/ifMatch"
+          },
+          {
+            "name": "savePPMShipmentSignedCertificationPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SavePPMShipmentSignedCertification"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the updated PPM shipment",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation": {
+      "post": {
+        "description": "Saves customer signature along with the text they agreed to, and then routes the PPM shipment to the service\ncounselor queue for review.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Saves signature and routes PPM shipment to service counselor",
+        "operationId": "submitPPMShipmentDocumentation",
+        "parameters": [
+          {
+            "name": "savePPMShipmentSignedCertificationPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SavePPMShipmentSignedCertification"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the updated PPM shipment",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.",
@@ -4077,6 +4325,23 @@ func init() {
         "$ref": "#/definitions/DutyLocationPayload"
       }
     },
+    "Entitlement": {
+      "type": "object",
+      "properties": {
+        "proGear": {
+          "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearSpouse": {
+          "description": "Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
+        }
+      }
+    },
     "Error": {
       "type": "object",
       "required": [
@@ -5007,6 +5272,16 @@ func init() {
         "WEIGHING_FEE": "Weighing fee"
       }
     },
+    "NullableSignedCertificationType": {
+      "type": "string",
+      "enum": [
+        "PPM_PAYMENT",
+        "SHIPMENT",
+        "PPM",
+        "HHG"
+      ],
+      "x-nullable": true
+    },
     "NullableString": {
       "type": "string",
       "x-go-type": {
@@ -5147,6 +5422,9 @@ func init() {
         },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "entitlement": {
+          "$ref": "#/definitions/Entitlement"
         },
         "grade": {
           "type": "string",
@@ -5545,6 +5823,9 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "signedCertification": {
+          "$ref": "#/definitions/SignedCertification"
+        },
         "sitEstimatedCost": {
           "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
           "type": "integer",
@@ -5600,7 +5881,7 @@ func init() {
           "$ref": "#/definitions/PPMShipmentStatus"
         },
         "submittedAt": {
-          "description": "The timestamp of when the customer submitted their move to the counselor.",
+          "description": "The timestamp of when the customer submitted their PPM documentation to the counselor for review.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
@@ -5617,11 +5898,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "weightTickets": {
-          "description": "All weight ticket documentation records belonging to vehicles of this PPM shipment",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/WeightTicket"
-          }
+          "$ref": "#/definitions/WeightTickets"
         }
       },
       "x-nullable": true
@@ -6124,13 +6401,11 @@ func init() {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
       "required": [
-        "id",
         "ppmShipmentId",
         "createdAt",
         "updatedAt",
         "documentId",
-        "document",
-        "eTag"
+        "document"
       ],
       "properties": {
         "belongsToSelf": {
@@ -6321,6 +6596,29 @@ func init() {
         "ORIGIN",
         "DESTINATION"
       ]
+    },
+    "SavePPMShipmentSignedCertification": {
+      "type": "object",
+      "required": [
+        "certification_text",
+        "signature",
+        "date"
+      ],
+      "properties": {
+        "certification_text": {
+          "description": "Text that the customer is agreeing to and signing.",
+          "type": "string"
+        },
+        "date": {
+          "description": "Date of signature",
+          "type": "string",
+          "format": "date"
+        },
+        "signature": {
+          "description": "Customer signature",
+          "type": "string"
+        }
+      }
     },
     "SelectedMoveType": {
       "type": "string",
@@ -6600,6 +6898,85 @@ func init() {
       },
       "x-nullable": true
     },
+    "SignedCertification": {
+      "description": "Signed certification",
+      "type": "object",
+      "required": [
+        "id",
+        "submittingUserId",
+        "moveId",
+        "certificationType",
+        "certificationText",
+        "signature",
+        "date",
+        "createdAt",
+        "updatedAt",
+        "eTag"
+      ],
+      "properties": {
+        "certificationText": {
+          "description": "Full text that the customer agreed to and signed.",
+          "type": "string"
+        },
+        "certificationType": {
+          "$ref": "#/definitions/SignedCertificationType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "date": {
+          "description": "Date that the customer signed the certification.",
+          "type": "string",
+          "format": "date"
+        },
+        "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "description": "The ID of the signed certification.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "moveId": {
+          "description": "The ID of the move associated with this signed certification.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmId": {
+          "description": "The ID of the PPM shipment associated with this signed certification, if any.",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "signature": {
+          "description": "The signature that the customer provided.",
+          "type": "string"
+        },
+        "submittingUserId": {
+          "description": "The ID of the user that signed.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "SignedCertificationPayload": {
       "type": "object",
       "required": [
@@ -6616,7 +6993,7 @@ func init() {
           "type": "string"
         },
         "certification_type": {
-          "$ref": "#/definitions/SignedCertificationType"
+          "$ref": "#/definitions/NullableSignedCertificationType"
         },
         "created_at": {
           "type": "string",
@@ -6655,14 +7032,13 @@ func init() {
       }
     },
     "SignedCertificationType": {
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT",
-        "PPM",
-        "HHG"
+        "SHIPMENT"
       ],
-      "x-nullable": true
+      "readOnly": true
     },
     "SignedCertificationTypeCreate": {
       "type": "string",
@@ -7050,6 +7426,27 @@ func init() {
         }
       }
     },
+    "UpdateProGearWeightTicket": {
+      "type": "object",
+      "properties": {
+        "belongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean"
+        },
+        "description": {
+          "description": "Describes the pro-gear that was moved.",
+          "type": "string"
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean"
+        },
+        "weight": {
+          "description": "Weight of the vehicle not including the pro-gear.",
+          "type": "integer"
+        }
+      }
+    },
     "UpdateServiceMemberBackupContactPayload": {
       "type": "object",
       "required": [
@@ -7431,6 +7828,14 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    },
+    "WeightTickets": {
+      "description": "All weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WeightTicket"
+      },
+      "x-omitempty": false
     }
   },
   "parameters": {
@@ -7454,6 +7859,14 @@ func init() {
       "format": "uuid",
       "description": "UUID of the PPM shipment",
       "name": "ppmShipmentId",
+      "in": "path",
+      "required": true
+    },
+    "proGearWeightTicketId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the pro-gear weight ticket",
+      "name": "proGearWeightTicketId",
       "in": "path",
       "required": true
     },
@@ -9977,6 +10390,374 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets": {
+      "post": {
+        "description": "Creates a PPM shipment's pro-gear weight ticket. This will only contain the minimum necessary fields for a\npro-gear weight ticket. Data should be filled in using the patch endpoint.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a pro-gear weight ticket",
+        "operationId": "createProGearWeightTicket",
+        "responses": {
+          "201": {
+            "description": "returns a new pro-gear weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/ProGearWeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
+      "patch": {
+        "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a pro-gear weight ticket",
+        "operationId": "updateProGearWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the pro-gear weight ticket",
+            "name": "proGearWeightTicketId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "updateProGearWeightTicket",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateProGearWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "returns an updated pro-gear weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/ProGearWeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/ppm-shipments/{ppmShipmentId}/resubmit-ppm-shipment-documentation/{signedCertificationId}": {
+      "put": {
+        "description": "Updates customer signature along with the text they agreed to, and then routes the PPM shipment to the service\ncounselor queue for review.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates signature and routes PPM shipment to service counselor",
+        "operationId": "resubmitPPMShipmentDocumentation",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the signed certification",
+            "name": "signedCertificationId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "savePPMShipmentSignedCertificationPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SavePPMShipmentSignedCertification"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the updated PPM shipment",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation": {
+      "post": {
+        "description": "Saves customer signature along with the text they agreed to, and then routes the PPM shipment to the service\ncounselor queue for review.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Saves signature and routes PPM shipment to service counselor",
+        "operationId": "submitPPMShipmentDocumentation",
+        "parameters": [
+          {
+            "name": "savePPMShipmentSignedCertificationPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SavePPMShipmentSignedCertification"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the updated PPM shipment",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.",
@@ -11769,6 +12550,23 @@ func init() {
         "$ref": "#/definitions/DutyLocationPayload"
       }
     },
+    "Entitlement": {
+      "type": "object",
+      "properties": {
+        "proGear": {
+          "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearSpouse": {
+          "description": "Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
+        }
+      }
+    },
     "Error": {
       "type": "object",
       "required": [
@@ -12712,6 +13510,16 @@ func init() {
         "WEIGHING_FEE": "Weighing fee"
       }
     },
+    "NullableSignedCertificationType": {
+      "type": "string",
+      "enum": [
+        "PPM_PAYMENT",
+        "SHIPMENT",
+        "PPM",
+        "HHG"
+      ],
+      "x-nullable": true
+    },
     "NullableString": {
       "type": "string",
       "x-go-type": {
@@ -12852,6 +13660,9 @@ func init() {
         },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "entitlement": {
+          "$ref": "#/definitions/Entitlement"
         },
         "grade": {
           "type": "string",
@@ -13250,6 +14061,9 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "signedCertification": {
+          "$ref": "#/definitions/SignedCertification"
+        },
         "sitEstimatedCost": {
           "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
           "type": "integer",
@@ -13305,7 +14119,7 @@ func init() {
           "$ref": "#/definitions/PPMShipmentStatus"
         },
         "submittedAt": {
-          "description": "The timestamp of when the customer submitted their move to the counselor.",
+          "description": "The timestamp of when the customer submitted their PPM documentation to the counselor for review.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
@@ -13322,11 +14136,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "weightTickets": {
-          "description": "All weight ticket documentation records belonging to vehicles of this PPM shipment",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/WeightTicket"
-          }
+          "$ref": "#/definitions/WeightTickets"
         }
       },
       "x-nullable": true
@@ -13833,13 +14643,11 @@ func init() {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
       "required": [
-        "id",
         "ppmShipmentId",
         "createdAt",
         "updatedAt",
         "documentId",
-        "document",
-        "eTag"
+        "document"
       ],
       "properties": {
         "belongsToSelf": {
@@ -14031,6 +14839,29 @@ func init() {
         "ORIGIN",
         "DESTINATION"
       ]
+    },
+    "SavePPMShipmentSignedCertification": {
+      "type": "object",
+      "required": [
+        "certification_text",
+        "signature",
+        "date"
+      ],
+      "properties": {
+        "certification_text": {
+          "description": "Text that the customer is agreeing to and signing.",
+          "type": "string"
+        },
+        "date": {
+          "description": "Date of signature",
+          "type": "string",
+          "format": "date"
+        },
+        "signature": {
+          "description": "Customer signature",
+          "type": "string"
+        }
+      }
     },
     "SelectedMoveType": {
       "type": "string",
@@ -14310,6 +15141,85 @@ func init() {
       },
       "x-nullable": true
     },
+    "SignedCertification": {
+      "description": "Signed certification",
+      "type": "object",
+      "required": [
+        "id",
+        "submittingUserId",
+        "moveId",
+        "certificationType",
+        "certificationText",
+        "signature",
+        "date",
+        "createdAt",
+        "updatedAt",
+        "eTag"
+      ],
+      "properties": {
+        "certificationText": {
+          "description": "Full text that the customer agreed to and signed.",
+          "type": "string"
+        },
+        "certificationType": {
+          "$ref": "#/definitions/SignedCertificationType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "date": {
+          "description": "Date that the customer signed the certification.",
+          "type": "string",
+          "format": "date"
+        },
+        "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "description": "The ID of the signed certification.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "moveId": {
+          "description": "The ID of the move associated with this signed certification.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmId": {
+          "description": "The ID of the PPM shipment associated with this signed certification, if any.",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "signature": {
+          "description": "The signature that the customer provided.",
+          "type": "string"
+        },
+        "submittingUserId": {
+          "description": "The ID of the user that signed.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "SignedCertificationPayload": {
       "type": "object",
       "required": [
@@ -14326,7 +15236,7 @@ func init() {
           "type": "string"
         },
         "certification_type": {
-          "$ref": "#/definitions/SignedCertificationType"
+          "$ref": "#/definitions/NullableSignedCertificationType"
         },
         "created_at": {
           "type": "string",
@@ -14365,14 +15275,13 @@ func init() {
       }
     },
     "SignedCertificationType": {
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT",
-        "PPM",
-        "HHG"
+        "SHIPMENT"
       ],
-      "x-nullable": true
+      "readOnly": true
     },
     "SignedCertificationTypeCreate": {
       "type": "string",
@@ -14760,6 +15669,28 @@ func init() {
           "title": "Weight Estimate",
           "minimum": 0,
           "x-nullable": true
+        }
+      }
+    },
+    "UpdateProGearWeightTicket": {
+      "type": "object",
+      "properties": {
+        "belongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean"
+        },
+        "description": {
+          "description": "Describes the pro-gear that was moved.",
+          "type": "string"
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean"
+        },
+        "weight": {
+          "description": "Weight of the vehicle not including the pro-gear.",
+          "type": "integer",
+          "minimum": 0
         }
       }
     },
@@ -15151,6 +16082,14 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    },
+    "WeightTickets": {
+      "description": "All weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WeightTicket"
+      },
+      "x-omitempty": false
     }
   },
   "parameters": {
@@ -15174,6 +16113,14 @@ func init() {
       "format": "uuid",
       "description": "UUID of the PPM shipment",
       "name": "ppmShipmentId",
+      "in": "path",
+      "required": true
+    },
+    "proGearWeightTicketId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the pro-gear weight ticket",
+      "name": "proGearWeightTicketId",
       "in": "path",
       "required": true
     },

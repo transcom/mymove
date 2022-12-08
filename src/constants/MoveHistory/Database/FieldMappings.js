@@ -58,6 +58,7 @@ export default {
   item_size: 'Item size',
   crate_size: 'Crate size',
   first_available_delivery_date: 'First available delivery date',
+  second_available_delivery_date: 'Second available delivery date',
   first_available_delivery_time: 'First available delivery time',
   second_available_delivery_time: 'Second available delivery time',
   reweigh_weight: 'Reweigh weight',
@@ -82,4 +83,6 @@ export default {
   backup_contact_email: 'Backup contact email',
   backup_contact_phone: 'Backup contact phone',
   max_billable_weight: 'Max billable weight',
+  retirement_date: 'Date of retirement',
+  separation_date: 'Date of separation',
 };

@@ -156,6 +156,9 @@ type PPMShipment struct {
 	// Format: uuid
 	ShipmentID strfmt.UUID `json:"shipmentId"`
 
+	// signed certification
+	SignedCertification *SignedCertification `json:"signedCertification,omitempty"`
+
 	// The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.
 	SitEstimatedCost *int64 `json:"sitEstimatedCost"`
 
@@ -188,7 +191,7 @@ type PPMShipment struct {
 	// Required: true
 	Status PPMShipmentStatus `json:"status"`
 
-	// The timestamp of when the customer submitted their move to the counselor.
+	// The timestamp of when the customer submitted their PPM documentation to the counselor for review.
 	// Format: date-time
 	SubmittedAt *strfmt.DateTime `json:"submittedAt"`
 
@@ -200,8 +203,8 @@ type PPMShipment struct {
 	// w2 address
 	W2Address *Address `json:"w2Address,omitempty"`
 
-	// All weight ticket documentation records belonging to vehicles of this PPM shipment
-	WeightTickets []*WeightTicket `json:"weightTickets"`
+	// weight tickets
+	WeightTickets WeightTickets `json:"weightTickets"`
 }
 
 // Validate validates this p p m shipment
@@ -273,6 +276,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateShipmentID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSignedCertification(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -558,6 +565,25 @@ func (m *PPMShipment) validateShipmentID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *PPMShipment) validateSignedCertification(formats strfmt.Registry) error {
+	if swag.IsZero(m.SignedCertification) { // not required
+		return nil
+	}
+
+	if m.SignedCertification != nil {
+		if err := m.SignedCertification.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("signedCertification")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("signedCertification")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) validateSitEstimatedDepartureDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.SitEstimatedDepartureDate) { // not required
 		return nil
@@ -676,22 +702,13 @@ func (m *PPMShipment) validateWeightTickets(formats strfmt.Registry) error {
 		return nil
 	}
 
-	for i := 0; i < len(m.WeightTickets); i++ {
-		if swag.IsZero(m.WeightTickets[i]) { // not required
-			continue
+	if err := m.WeightTickets.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("weightTickets")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("weightTickets")
 		}
-
-		if m.WeightTickets[i] != nil {
-			if err := m.WeightTickets[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("weightTickets" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("weightTickets" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
+		return err
 	}
 
 	return nil
@@ -730,6 +747,10 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	}
 
 	if err := m.contextValidateShipmentID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSignedCertification(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -858,6 +879,22 @@ func (m *PPMShipment) contextValidateShipmentID(ctx context.Context, formats str
 	return nil
 }
 
+func (m *PPMShipment) contextValidateSignedCertification(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SignedCertification != nil {
+		if err := m.SignedCertification.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("signedCertification")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("signedCertification")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) contextValidateSitLocation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SitLocation != nil {
@@ -915,19 +952,13 @@ func (m *PPMShipment) contextValidateW2Address(ctx context.Context, formats strf
 
 func (m *PPMShipment) contextValidateWeightTickets(ctx context.Context, formats strfmt.Registry) error {
 
-	for i := 0; i < len(m.WeightTickets); i++ {
-
-		if m.WeightTickets[i] != nil {
-			if err := m.WeightTickets[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("weightTickets" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("weightTickets" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
+	if err := m.WeightTickets.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("weightTickets")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("weightTickets")
 		}
-
+		return err
 	}
 
 	return nil

@@ -57,4 +57,8 @@ type ListOrderParams struct {
 	PerPage                 *int64
 	Sort                    *string
 	Order                   *string
+	NeedsPPMCloseout        *bool
+	PPMType                 *string
+	CloseoutInitiated       *time.Time
+	CloseoutLocation        *string
 }

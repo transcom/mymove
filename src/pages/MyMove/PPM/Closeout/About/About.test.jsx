@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
 import { v4 } from 'uuid';
@@ -111,42 +111,32 @@ const weightTicketsPath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKET
   mtoShipmentId: mockMTOShipmentId,
 });
 
-const fillOutBasicForm = async () => {
-  const actualMoveDate = screen.getByLabelText('When did you leave your origin?');
-  await userEvent.clear(actualMoveDate);
-  await userEvent.type(actualMoveDate, '31 May 2022');
+const fillOutBasicForm = async (form) => {
+  await userEvent.paste(within(form).getByLabelText('When did you leave your origin?'), '31 May 2022');
 
-  const actualStartingZip = screen.getByLabelText('Starting ZIP');
-  await userEvent.clear(actualStartingZip);
-  await userEvent.type(actualStartingZip, '10001');
+  await userEvent.paste(within(form).getByLabelText('Starting ZIP'), '10001', {
+    initialSelectionStart: 0,
+    initialSelectionEnd: 5,
+  });
 
-  const actualDestinationZip = screen.getByLabelText('Ending ZIP');
-  await userEvent.clear(actualDestinationZip);
-  await userEvent.type(actualDestinationZip, '10002');
+  await userEvent.paste(within(form).getByLabelText('Ending ZIP'), '10002', {
+    initialSelectionStart: 0,
+    initialSelectionEnd: 5,
+  });
 
-  const streetAddress1 = screen.getByLabelText('Address 1');
-  await userEvent.clear(streetAddress1);
-  await userEvent.type(streetAddress1, '10642 N Second Ave');
+  await userEvent.paste(within(form).getByLabelText('Address 1'), '10642 N Second Ave');
 
-  const city = screen.getByLabelText('City');
-  await userEvent.clear(city);
-  await userEvent.type(city, 'Goldsboro');
+  await userEvent.paste(within(form).getByLabelText('City'), 'Goldsboro');
 
-  const state = screen.getByLabelText('State');
-  await userEvent.selectOptions(state, 'NC');
+  await userEvent.selectOptions(within(form).getByLabelText('State'), 'NC');
 
-  const postalCode = screen.getByLabelText('ZIP');
-  await userEvent.clear(postalCode);
-  await userEvent.type(postalCode, '27534');
+  await userEvent.paste(within(form).getByLabelText('ZIP'), '27534');
 };
 
-const fillOutAdvanceSections = async () => {
-  const hasReceivedAdvance = screen.getByLabelText('Yes');
-  await userEvent.click(hasReceivedAdvance);
+const fillOutAdvanceSections = async (form) => {
+  await userEvent.click(within(form).getByLabelText('Yes'));
 
-  const advanceAmountReceived = screen.getByLabelText('How much did you receive?');
-  await userEvent.clear(advanceAmountReceived);
-  await userEvent.type(advanceAmountReceived, '7500');
+  await userEvent.paste(within(form).getByLabelText('How much did you receive?'), '7500');
 };
 
 describe('About page', () => {
@@ -162,12 +152,15 @@ describe('About page', () => {
     expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('About your PPM');
     expect(screen.getByText('Finish moving this PPM before you start documenting it.')).toBeInTheDocument();
+    const headings = screen.getAllByRole('heading', { level: 2 });
+    expect(headings[0]).toHaveTextContent('How to complete your PPM');
+    expect(headings[1]).toHaveTextContent('About your final payment');
 
     // renders form content
-    expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Departure date');
-    expect(screen.getAllByRole('heading', { level: 2 })[1]).toHaveTextContent('Locations');
-    expect(screen.getAllByRole('heading', { level: 2 })[2]).toHaveTextContent('Advance (AOA)');
-    expect(screen.getAllByRole('heading', { level: 2 })[3]).toHaveTextContent('W-2 address');
+    expect(headings[2]).toHaveTextContent('Departure date');
+    expect(headings[3]).toHaveTextContent('Locations');
+    expect(headings[4]).toHaveTextContent('Advance (AOA)');
+    expect(headings[5]).toHaveTextContent('W-2 address');
   });
 
   it('routes back to home when return to homepage is clicked', async () => {
@@ -181,11 +174,12 @@ describe('About page', () => {
     patchMTOShipment.mockResolvedValueOnce(mockMTOShipmentResponse);
 
     render(<About />, { wrapper: MockProviders });
+    const form = screen.getByTestId('aboutForm');
 
-    await fillOutBasicForm();
-    await fillOutAdvanceSections();
+    await fillOutBasicForm(form);
+    await fillOutAdvanceSections(form);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    await userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
     await waitFor(() => {
       expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, mockPayload, mockMTOShipment.eTag);
     });
@@ -201,9 +195,10 @@ describe('About page', () => {
 
     render(<About />, { wrapper: MockProviders });
 
-    await fillOutBasicForm();
+    const form = screen.getByTestId('aboutForm');
+    await fillOutBasicForm(form);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    await userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
     const payload = {
       ...mockPayload,
       ppmShipment: {

@@ -79,6 +79,20 @@ func (_m *MoveRouter) CompleteServiceCounseling(appCtx appcontext.AppContext, mo
 	return r0
 }
 
+// RouteAfterAmendingOrders provides a mock function with given fields: appCtx, move
+func (_m *MoveRouter) RouteAfterAmendingOrders(appCtx appcontext.AppContext, move *models.Move) error {
+	ret := _m.Called(appCtx, move)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move) error); ok {
+		r0 = rf(appCtx, move)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // SendToOfficeUser provides a mock function with given fields: appCtx, move
 func (_m *MoveRouter) SendToOfficeUser(appCtx appcontext.AppContext, move *models.Move) error {
 	ret := _m.Called(appCtx, move)
@@ -93,13 +107,13 @@ func (_m *MoveRouter) SendToOfficeUser(appCtx appcontext.AppContext, move *model
 	return r0
 }
 
-// Submit provides a mock function with given fields: appCtx, move
-func (_m *MoveRouter) Submit(appCtx appcontext.AppContext, move *models.Move) error {
-	ret := _m.Called(appCtx, move)
+// Submit provides a mock function with given fields: appCtx, move, newSignedCertification
+func (_m *MoveRouter) Submit(appCtx appcontext.AppContext, move *models.Move, newSignedCertification *models.SignedCertification) error {
+	ret := _m.Called(appCtx, move, newSignedCertification)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move) error); ok {
-		r0 = rf(appCtx, move)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move, *models.SignedCertification) error); ok {
+		r0 = rf(appCtx, move, newSignedCertification)
 	} else {
 		r0 = ret.Error(0)
 	}

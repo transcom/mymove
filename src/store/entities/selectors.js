@@ -148,8 +148,6 @@ export const selectHasCanceledMove = createSelector(selectMovesForLoggedInUser, 
   moves.some((m) => m.status === 'CANCELED'),
 );
 
-export const selectMoveType = createSelector(selectCurrentMove, (move) => move?.selected_move_type);
-
 /** MTO Shipments */
 export const selectMTOShipmentsForCurrentMove = (state) => {
   const currentMove = selectCurrentMove(state);
@@ -206,6 +204,22 @@ export const selectPPMForMove = (state, moveId) => {
   return null;
 };
 
+export const selectProGearWeightTicketAndIndexById = (state, mtoShipmentId, proGearWeightId) => {
+  let proGearWeightTicket = null;
+  let index = -1;
+  if (proGearWeightId == null) {
+    return { proGearWeightTicket, index };
+  }
+
+  const mtoShipment = selectMTOShipmentById(state, mtoShipmentId);
+  const proGearWeightTickets = mtoShipment?.ppmShipment?.proGearWeightTickets;
+  if (Array.isArray(proGearWeightTickets)) {
+    index = proGearWeightTickets.findIndex((ele) => ele.id === proGearWeightId);
+    proGearWeightTicket = proGearWeightTickets?.[index] || null;
+  }
+  return { proGearWeightTicket, index };
+};
+
 export const selectCurrentPPM = (state) => {
   const move = selectCurrentMove(state);
   return selectPPMForMove(state, move?.id);
@@ -227,26 +241,31 @@ export function selectReimbursementById(state, reimbursementId) {
   return state.entities?.reimbursements?.[`${reimbursementId}`] || null;
 }
 
-export const selectEntitlementsForLoggedInUser = createSelector(
+export const selectWeightAllotmentsForLoggedInUser = createSelector(
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
   (serviceMember, orders) => {
-    const entitlement = {
+    const weightAllotment = {
       pro_gear: serviceMember.weight_allotment?.pro_gear_weight,
       pro_gear_spouse: orders?.spouse_has_pro_gear ? serviceMember.weight_allotment?.pro_gear_weight_spouse : 0,
     };
 
     if (orders?.has_dependents) {
-      entitlement.weight = serviceMember.weight_allotment?.total_weight_self_plus_dependents;
+      weightAllotment.weight = serviceMember.weight_allotment?.total_weight_self_plus_dependents;
     } else {
-      entitlement.weight = serviceMember.weight_allotment?.total_weight_self;
+      weightAllotment.weight = serviceMember.weight_allotment?.total_weight_self;
     }
 
-    entitlement.sum = [entitlement.weight, entitlement.pro_gear, entitlement.pro_gear_spouse].reduce(
+    weightAllotment.sum = [weightAllotment.weight, weightAllotment.pro_gear, weightAllotment.pro_gear_spouse].reduce(
       (acc, num) => acc + num,
       0,
     );
 
-    return entitlement;
+    return weightAllotment;
   },
 );
+
+export const selectProGearEntitlements = (state) => {
+  const orders = selectCurrentOrders(state);
+  return orders?.entitlement || null;
+};

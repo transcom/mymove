@@ -5,7 +5,7 @@ import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 
-// To-do: Remove one max_billable_weight is its own value
+// To-do: Remove set authorized_weight as max_billable_weight once max_billable_weight is its own value
 const formatChangedValues = (historyRecord) => {
   const { changedValues } = historyRecord;
   const newChangedValues = { ...changedValues };

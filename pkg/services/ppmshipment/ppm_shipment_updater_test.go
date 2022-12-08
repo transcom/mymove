@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -29,6 +30,14 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	// setUpForTests - Sets up objects/mocks that need to be set up on a per-test basis.
 	setUpForTests := func(estimatedIncentiveAmount *unit.Cents, sitEstimatedCost *unit.Cents, estimatedIncentiveError error) (subtestData updateSubtestData) {
 		ppmEstimator := mocks.PPMEstimator{}
+		ppmEstimator.
+			On(
+				"FinalIncentiveWithDefaultChecks",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("models.PPMShipment"),
+				mock.AnythingOfType("*models.PPMShipment"),
+			).
+			Return(nil, nil)
 
 		ppmEstimator.
 			On(
@@ -39,7 +48,36 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			).
 			Return(estimatedIncentiveAmount, sitEstimatedCost, estimatedIncentiveError)
 
-		subtestData.ppmShipmentUpdater = NewPPMShipmentUpdater(&ppmEstimator)
+		addressCreator := address.NewAddressCreator()
+		addressUpdater := address.NewAddressUpdater()
+		subtestData.ppmShipmentUpdater = NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+
+		return subtestData
+	}
+
+	setUpForFinalIncentiveTests := func(finalIncentiveAmount *unit.Cents, finalIncentiveError error, estimatedIncentiveAmount *unit.Cents, sitEstimatedCost *unit.Cents, estimatedIncentiveError error) (subtestData updateSubtestData) {
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmEstimator.
+			On(
+				"FinalIncentiveWithDefaultChecks",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("models.PPMShipment"),
+				mock.AnythingOfType("*models.PPMShipment"),
+			).
+			Return(finalIncentiveAmount, finalIncentiveError)
+
+		ppmEstimator.
+			On(
+				"EstimateIncentiveWithDefaultChecks",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("models.PPMShipment"),
+				mock.AnythingOfType("*models.PPMShipment"),
+			).
+			Return(estimatedIncentiveAmount, sitEstimatedCost, estimatedIncentiveError)
+
+		addressCreator := address.NewAddressCreator()
+		addressUpdater := address.NewAddressUpdater()
+		subtestData.ppmShipmentUpdater = NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 
 		return subtestData
 	}
@@ -705,6 +743,32 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*newFakeSITEstimatedCost, *updatedPPM.SITEstimatedCost)
 	})
 
+	suite.Run("Can successfully update a PPMShipment - final incentive", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		subtestData := setUpForFinalIncentiveTests(nil, nil, nil, nil, nil)
+
+		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				ActualMoveDate:              models.TimePointer(testdatagen.NextValidMoveDate),
+				ActualPickupPostalCode:      models.StringPointer("79912"),
+				ActualDestinationPostalCode: models.StringPointer("90909"),
+				EstimatedWeight:             models.PoundPointer(unit.Pound(5000)),
+			},
+		})
+
+		newPPM := originalPPM
+
+		newPPM.ActualDestinationPostalCode = models.StringPointer("90210")
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Fields that should now be updated
+		suite.Equal(newPPM.FinalIncentive, updatedPPM.FinalIncentive)
+	})
+
 	suite.Run("Can't update if Shipment can't be found", func() {
 		badMTOShipmentID := uuid.Must(uuid.NewV4())
 
@@ -716,7 +780,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(fmt.Sprintf("ID: %s not found while looking for PPMShipment", badMTOShipmentID.String()), err.Error())
+		suite.Equal(fmt.Sprintf("ID: %s not found while looking for PPMShipment by MTO ShipmentID", badMTOShipmentID.String()), err.Error())
 	})
 
 	suite.Run("Can't update if there is invalid input", func() {
@@ -788,13 +852,49 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		suite.NilOrNoVerrs(err)
 
-		suite.Equal(*newPPM.W2Address, *updatedPPM.W2Address)
 		suite.NotNil(updatedPPM.W2AddressID)
 		suite.Equal(streetAddress1, updatedPPM.W2Address.StreetAddress1)
 		suite.Equal(streetAddress2, *updatedPPM.W2Address.StreetAddress2)
 		suite.Equal(city, updatedPPM.W2Address.City)
 		suite.Equal(state, updatedPPM.W2Address.State)
 		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
+	})
+
+	suite.Run("Can successfully update a PPMShipment - add W-2 address with empty strings for optional fields", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		subtestData := setUpForTests(fakeEstimatedIncentive, nil, nil)
+
+		originalPPM := testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+
+		streetAddress1 := "1819 S Cedar Street"
+		city := "Fayetteville"
+		state := "NC"
+		postalCode := "28314"
+
+		newPPM := models.PPMShipment{
+			W2Address: &models.Address{
+				StreetAddress1: streetAddress1,
+				StreetAddress2: models.StringPointer(""),
+				StreetAddress3: models.StringPointer(""),
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+				Country:        models.StringPointer(""),
+			},
+		}
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		suite.NotNil(updatedPPM.W2AddressID)
+		suite.Equal(streetAddress1, updatedPPM.W2Address.StreetAddress1)
+		suite.Equal(city, updatedPPM.W2Address.City)
+		suite.Equal(state, updatedPPM.W2Address.State)
+		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
+		suite.Nil(updatedPPM.W2Address.StreetAddress2)
+		suite.Nil(updatedPPM.W2Address.StreetAddress3)
+		suite.Nil(updatedPPM.W2Address.Country)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - modify W-2 address", func() {
@@ -830,12 +930,13 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		suite.NilOrNoVerrs(err)
 
-		suite.Equal(*newPPM.W2Address, *updatedPPM.W2Address)
 		suite.Equal(address.ID, *updatedPPM.W2AddressID)
 		suite.Equal(streetAddress1, updatedPPM.W2Address.StreetAddress1)
 		suite.Equal(streetAddress2, *updatedPPM.W2Address.StreetAddress2)
 		suite.Equal(city, updatedPPM.W2Address.City)
 		suite.Equal(state, updatedPPM.W2Address.State)
 		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
+		suite.Equal(*address.StreetAddress3, *updatedPPM.W2Address.StreetAddress3)
+		suite.Equal(*address.Country, *updatedPPM.W2Address.Country)
 	})
 }

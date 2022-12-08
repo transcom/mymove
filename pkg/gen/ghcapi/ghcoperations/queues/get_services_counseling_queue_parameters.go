@@ -38,6 +38,18 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	Branch *string
+	/*Latest date that closeout was initiated on a PPM on the move
+	  In: query
+	*/
+	CloseoutInitiated *strfmt.DateTime
+	/*closeout location
+	  In: query
+	*/
+	CloseoutLocation *string
+	/*filters the name of the destination duty location on the orders
+	  In: query
+	*/
+	DestinationDutyLocation *string
 	/*filters to match the unique service member's DoD ID
 	  In: query
 	*/
@@ -50,6 +62,10 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	Locator *string
+	/*Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.
+	  In: query
+	*/
+	NeedsPPMCloseout *bool
 	/*direction of sort order if applied
 	  In: query
 	*/
@@ -70,6 +86,10 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	PerPage *int64
+	/*filters PPM type
+	  In: query
+	*/
+	PpmType *string
 	/*filters the requested pickup date of a shipment on the move
 	  In: query
 	*/
@@ -105,6 +125,21 @@ func (o *GetServicesCounselingQueueParams) BindRequest(r *http.Request, route *m
 		res = append(res, err)
 	}
 
+	qCloseoutInitiated, qhkCloseoutInitiated, _ := qs.GetOK("closeoutInitiated")
+	if err := o.bindCloseoutInitiated(qCloseoutInitiated, qhkCloseoutInitiated, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qCloseoutLocation, qhkCloseoutLocation, _ := qs.GetOK("closeoutLocation")
+	if err := o.bindCloseoutLocation(qCloseoutLocation, qhkCloseoutLocation, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qDestinationDutyLocation, qhkDestinationDutyLocation, _ := qs.GetOK("destinationDutyLocation")
+	if err := o.bindDestinationDutyLocation(qDestinationDutyLocation, qhkDestinationDutyLocation, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qDodID, qhkDodID, _ := qs.GetOK("dodID")
 	if err := o.bindDodID(qDodID, qhkDodID, route.Formats); err != nil {
 		res = append(res, err)
@@ -117,6 +152,11 @@ func (o *GetServicesCounselingQueueParams) BindRequest(r *http.Request, route *m
 
 	qLocator, qhkLocator, _ := qs.GetOK("locator")
 	if err := o.bindLocator(qLocator, qhkLocator, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qNeedsPPMCloseout, qhkNeedsPPMCloseout, _ := qs.GetOK("needsPPMCloseout")
+	if err := o.bindNeedsPPMCloseout(qNeedsPPMCloseout, qhkNeedsPPMCloseout, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -142,6 +182,11 @@ func (o *GetServicesCounselingQueueParams) BindRequest(r *http.Request, route *m
 
 	qPerPage, qhkPerPage, _ := qs.GetOK("perPage")
 	if err := o.bindPerPage(qPerPage, qhkPerPage, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qPpmType, qhkPpmType, _ := qs.GetOK("ppmType")
+	if err := o.bindPpmType(qPpmType, qhkPpmType, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -184,6 +229,79 @@ func (o *GetServicesCounselingQueueParams) bindBranch(rawData []string, hasKey b
 		return nil
 	}
 	o.Branch = &raw
+
+	return nil
+}
+
+// bindCloseoutInitiated binds and validates parameter CloseoutInitiated from query.
+func (o *GetServicesCounselingQueueParams) bindCloseoutInitiated(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	// Format: date-time
+	value, err := formats.Parse("date-time", raw)
+	if err != nil {
+		return errors.InvalidType("closeoutInitiated", "query", "strfmt.DateTime", raw)
+	}
+	o.CloseoutInitiated = (value.(*strfmt.DateTime))
+
+	if err := o.validateCloseoutInitiated(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateCloseoutInitiated carries on validations for parameter CloseoutInitiated
+func (o *GetServicesCounselingQueueParams) validateCloseoutInitiated(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("closeoutInitiated", "query", "date-time", o.CloseoutInitiated.String(), formats); err != nil {
+		return err
+	}
+	return nil
+}
+
+// bindCloseoutLocation binds and validates parameter CloseoutLocation from query.
+func (o *GetServicesCounselingQueueParams) bindCloseoutLocation(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.CloseoutLocation = &raw
+
+	return nil
+}
+
+// bindDestinationDutyLocation binds and validates parameter DestinationDutyLocation from query.
+func (o *GetServicesCounselingQueueParams) bindDestinationDutyLocation(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.DestinationDutyLocation = &raw
 
 	return nil
 }
@@ -238,6 +356,29 @@ func (o *GetServicesCounselingQueueParams) bindLocator(rawData []string, hasKey 
 		return nil
 	}
 	o.Locator = &raw
+
+	return nil
+}
+
+// bindNeedsPPMCloseout binds and validates parameter NeedsPPMCloseout from query.
+func (o *GetServicesCounselingQueueParams) bindNeedsPPMCloseout(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertBool(raw)
+	if err != nil {
+		return errors.InvalidType("needsPPMCloseout", "query", "bool", raw)
+	}
+	o.NeedsPPMCloseout = &value
 
 	return nil
 }
@@ -356,6 +497,38 @@ func (o *GetServicesCounselingQueueParams) bindPerPage(rawData []string, hasKey 
 	return nil
 }
 
+// bindPpmType binds and validates parameter PpmType from query.
+func (o *GetServicesCounselingQueueParams) bindPpmType(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.PpmType = &raw
+
+	if err := o.validatePpmType(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validatePpmType carries on validations for parameter PpmType
+func (o *GetServicesCounselingQueueParams) validatePpmType(formats strfmt.Registry) error {
+
+	if err := validate.EnumCase("ppmType", "query", *o.PpmType, []interface{}{"FULL", "PARTIAL"}, true); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // bindRequestedMoveDate binds and validates parameter RequestedMoveDate from query.
 func (o *GetServicesCounselingQueueParams) bindRequestedMoveDate(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
@@ -399,7 +572,7 @@ func (o *GetServicesCounselingQueueParams) bindSort(rawData []string, hasKey boo
 // validateSort carries on validations for parameter Sort
 func (o *GetServicesCounselingQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "requestedMoveDate", "submittedAt", "originGBLOC", "originDutyLocation"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "requestedMoveDate", "submittedAt", "originGBLOC", "originDutyLocation", "destinationDutyLocation", "ppmType", "closeoutInitiated", "closeoutLocation"}, true); err != nil {
 		return err
 	}
 

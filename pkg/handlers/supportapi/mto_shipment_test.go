@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -69,7 +70,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	}
 
 	setupParams := func(shipment models.MTOShipment) mtoshipmentops.UpdateMTOShipmentStatusParams {
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)

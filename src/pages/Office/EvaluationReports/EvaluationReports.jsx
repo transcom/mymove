@@ -9,8 +9,8 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import evaluationReportsStyles from './EvaluationReports.module.scss';
 
 import { useEvaluationReportsQueries } from 'hooks/queries';
-import ShipmentEvaluationReports from 'components/Office/EvaluationReportTable/ShipmentEvaluationReports';
-import EvaluationReportTable from 'components/Office/EvaluationReportTable/EvaluationReportTable';
+import ShipmentQAEReports from 'components/Office/QAEReportTable/ShipmentQAEReports';
+import QAEReportTable from 'components/Office/QAEReportTable/QAEReportTable';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import Alert from 'shared/Alert';
@@ -115,7 +115,7 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
             </Restricted>
           </Grid>
           <Grid row>
-            <EvaluationReportTable
+            <QAEReportTable
               reports={counselingEvaluationReports}
               moveCode={moveCode}
               customerInfo={customerInfo}
@@ -132,7 +132,7 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
         </GridContainer>
         <GridContainer className={evaluationReportsStyles.evaluationReportSection}>
           <Grid row>
-            <ShipmentEvaluationReports
+            <ShipmentQAEReports
               reports={shipmentEvaluationReports}
               shipments={shipments}
               moveCode={moveCode}

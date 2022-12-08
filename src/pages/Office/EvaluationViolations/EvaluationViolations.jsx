@@ -12,7 +12,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useEvaluationReportShipmentListQueries, usePWSViolationsQueries } from 'hooks/queries';
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
-import EvaluationViolationsForm from 'components/Office/EvaluationViolationsForm/EvaluationViolationsForm';
+import QAEViolationsForm from 'components/Office/QAEViolationsForm/QAEViolationsForm';
 
 const EvaluationViolations = ({ customerInfo, grade, destinationDutyLocationPostalCode }) => {
   const { reportId } = useParams();
@@ -33,7 +33,7 @@ const EvaluationViolations = ({ customerInfo, grade, destinationDutyLocationPost
       <GridContainer>
         <QaeReportHeader report={evaluationReport} />
 
-        <EvaluationViolationsForm
+        <QAEViolationsForm
           violations={violations}
           evaluationReport={evaluationReport}
           reportViolations={reportViolations}

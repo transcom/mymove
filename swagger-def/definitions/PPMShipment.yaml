@@ -42,7 +42,7 @@ properties:
     x-nullable: true
     x-omitempty: false
   submittedAt:
-    description: The timestamp of when the customer submitted their move to the counselor.
+    description: The timestamp of when the customer submitted their PPM documentation to the counselor for review.
     format: date-time
     type: string
     x-nullable: true
@@ -215,10 +215,7 @@ properties:
     x-nullable: true
     x-omitempty: false
   weightTickets:
-    description: All weight ticket documentation records belonging to vehicles of this PPM shipment
-    items:
-      $ref: 'WeightTicket.yaml'
-    type: array
+    $ref: 'WeightTickets.yaml'
   movingExpenses:
     description: All expense documentation receipt records of this PPM shipment.
     items:
@@ -229,6 +226,8 @@ properties:
     type: array
     items:
       $ref: 'ProGearWeightTicket.yaml'
+  signedCertification:
+    $ref: 'SignedCertification.yaml'
   eTag:
     description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
     type: string

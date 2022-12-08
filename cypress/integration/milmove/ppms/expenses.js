@@ -2,7 +2,7 @@ import {
   navigateFromCloseoutReviewPageToExpensesPage,
   setMobileViewport,
   signInAndNavigateToPPMReviewPage,
-  signInAndNavigateToWeightTicketPage,
+  submitExpensePage,
 } from '../../../support/ppmCustomerShared';
 
 describe('Expenses', function () {
@@ -11,6 +11,7 @@ describe('Expenses', function () {
   });
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
+    cy.intercept('POST', '**/internal/ppm-shipments/**/uploads**').as('uploadFile');
   });
   const viewportType = [
     { viewport: 'desktop', isMobile: false, userId: '146c2665-5b8a-4653-8434-9a4460de30b5' }, // movingExpensePPM@ppm.approved
@@ -24,18 +25,7 @@ describe('Expenses', function () {
 
       signInAndNavigateToPPMReviewPage(userId);
       navigateFromCloseoutReviewPageToExpensesPage();
-
-      cy.get('select[name="expenseType"]').as('expenseType').should('have.value', '');
-      cy.get('@expenseType').select('Storage');
-
-      cy.get('input[name="description"]').type('Cloud storage');
-      cy.get('input[name="paidWithGTCC"][value="true"]').click({ force: true });
-      cy.get('input[name="amount"]').type('675.99');
-
-      // TODO: Add receipt document upload when integrated
-
-      cy.get('input[name="sitStartDate"]').type('14 Aug 2022').blur();
-      cy.get('input[name="sitEndDate"]').type('20 Aug 2022').blur();
+      submitExpensePage();
     });
 
     it(`edit expense page loads - ${viewport}`, () => {
@@ -65,6 +55,13 @@ describe('Expenses', function () {
 
       cy.get('input[name="missingReceipt"]').as('missingReceipt').should('not.be.checked');
       cy.get('@missingReceipt').click({ force: true });
+
+      cy.get('button').contains('Save & Continue').should('be.enabled').click();
+      cy.location().should((loc) => {
+        expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+      });
+
+      cy.contains('PA Turnpike EZ-Pass');
     });
   });
 });

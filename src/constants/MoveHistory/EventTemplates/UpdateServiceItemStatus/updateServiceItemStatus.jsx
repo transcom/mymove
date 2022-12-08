@@ -5,6 +5,7 @@ import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import { shipmentTypes as s } from 'constants/shipments';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 
 const formatChangedValues = (historyRecord, formattedContext) => {
   const { changedValues } = historyRecord;
@@ -26,18 +27,14 @@ export default {
     return changedValues?.status === 'APPROVED' ? <> Approved service item </> : <> Rejected service item </>;
   },
   getDetails: (historyRecord) => {
-    const { context, changedValues } = historyRecord;
-    const formattedContext = {
-      shipment_type: s[context[0]?.shipment_type],
-      shipment_id_display: context[0]?.shipment_id_abbr.toUpperCase(),
-      service_item_name: context[0]?.name,
-    };
+    const { changedValues } = historyRecord;
+    const formattedContext = getMtoShipmentLabel(historyRecord);
 
     return changedValues?.status === 'REJECTED' ? (
       <LabeledDetails historyRecord={formatChangedValues(historyRecord, formattedContext)} />
     ) : (
       <>
-        {formattedContext.shipment_type} shipment #{formattedContext.shipment_id_display},{' '}
+        {s[formattedContext.shipment_type]} shipment #{formattedContext.shipment_id_display},{' '}
         {formattedContext.service_item_name}
       </>
     );

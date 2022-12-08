@@ -779,13 +779,13 @@ describe('Home component', () => {
   });
 
   describe('if PPM closeout is complete', () => {
-    // MB-13354: verify if this data (specifically move status) needs to be updated to align with the actual data post closeout
     const props = {
       ...defaultProps,
       move: { ...defaultProps.move, status: MOVE_STATUSES.APPROVED, submitted_at: new Date().toISOString() },
       orders,
       uploadedOrderDocuments,
     };
+
     it('will render the correct helper text', () => {
       const propsForCloseoutCompleteShipment = {
         ...props,

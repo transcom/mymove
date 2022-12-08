@@ -37,6 +37,7 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
     * [Nix: Initial Setup](#nix-initial-setup)
     * [Nix: Clean Up Local Env](#nix-clean-up-local-env)
     * [Nix: Installing Dependencies](#nix-installing-dependencies)
+    * [Nix: Add Or Update Packages](#nix-add-or-update-packages)
   * [Setup: Manual](#setup-manual)
     * [Manual: Prerequisites](#manual-prerequisites)
   * [Setup: Shared](#setup-shared)
@@ -235,6 +236,7 @@ If you need help with this setup, you can ask for help in the
 1. [Initial Setup](#nix-initial-setup)
 1. [Clean Up Local Env](#nix-clean-up-local-env)
 1. [Install Dependencies](#nix-installing-dependencies)
+1. [Add or Update Packages](#nix-add-or-update-packages)
 1. [Run the app](#setup-run-the-app)
 
 #### Nix: Initial Setup
@@ -300,6 +302,21 @@ other steps necessary which aren't documented here.
 
    1. This will install some things like `pre-commit` hooks, `node_modules`, etc. You can see
       [Setup: Dependencies](#setup-dependencies) for more info on some of the parts.
+
+#### Nix: Add Or Update Packages
+
+First, you need to find the package you are looking for.
+
+Visit [nix-package-search](https://ahobson.github.io/nix-package-search/#/search)
+
+Search for a package, e.g. `go-`. The first time you search, it may be
+slow and take almost a minute to get results, but it will be faster
+after that.
+
+When you see the version of the package you want, click on the eye
+icon to unfold the settings.
+
+Add or update the package to `nix/default.nix`
 
 ### Setup: Manual
 
@@ -941,7 +958,7 @@ To get Goland to play nicely with `nix`, there's a few things you can set up:
 
 * Update `GOROOT` to `/nix/var/nix/profiles/mymove/bin/go`
   * Note that once you add it, Goland will resolve it to the actual path (the one above is a link), so it’ll look
-    something like `/nix/store/rv16prybnsmav8w1sqdgr80jcwsja98q-go-1.19.2/bin/go`
+    something like `/nix/store/rv16prybnsmav8w1sqdgr80jcwsja98q-go-1.19.3/bin/go`
 * Update `GOPATH` to point to the `.gopath` dir in the `mymove` repo
   * You may need to create the `.gopath` dir yourself.
 * Update Node and NPM:

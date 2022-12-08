@@ -30,7 +30,6 @@ const evaluationReportShipment = {
 const mockEvaluationReport = {
   createdAt: '2022-09-07T15:17:37.484Z',
   eTag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
-  evaluationLengthMinutes: 240,
   id: '6739d7fc-6067-4e84-996d-f4f70b8ec6fd',
   inspectionDate: '2022-09-08',
   inspectionType: 'DATA_REVIEW',
@@ -49,6 +48,8 @@ const mockEvaluationReport = {
   type: 'SHIPMENT',
   updatedAt: '2022-09-07T18:06:37.864Z',
   violationsObserved: false,
+  evalStart: '10:30',
+  evalEnd: '22:00',
 };
 
 const customerInfo = {
@@ -77,6 +78,7 @@ const customerInfo = {
 
 const grade = 'E_4';
 const moveCode = 'FAKEIT';
+const destinationDutyLocationPostalCode = '90210';
 
 const mockPush = jest.fn();
 jest.mock('react-router', () => ({
@@ -98,6 +100,7 @@ const renderForm = (props) => {
     customerInfo,
     grade,
     moveCode,
+    destinationDutyLocationPostalCode,
   };
 
   return render(
@@ -127,9 +130,10 @@ describe('EvaluationForm', () => {
       expect(screen.getByText('Date of inspection')).toBeInTheDocument();
       expect(screen.getByText('Evaluation type')).toBeInTheDocument();
       expect(screen.getByText('Evaluation location')).toBeInTheDocument();
-      expect(screen.getByText('Evaluation length')).toBeInTheDocument();
       expect(screen.getByText('Violations observed')).toBeInTheDocument();
       expect(screen.getByText('Evaluation remarks')).toBeInTheDocument();
+      expect(screen.getByText('Time evaluation started')).toBeInTheDocument();
+      expect(screen.getByText('Time evaluation ended')).toBeInTheDocument();
 
       // Conditionally shown fields should not be displayed initially
       expect(screen.queryByText('Travel time to evaluation')).not.toBeInTheDocument();
@@ -151,25 +155,20 @@ describe('EvaluationForm', () => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Evaluation form');
       expect(screen.getAllByTestId('textarea')).toHaveLength(1);
 
-      expect(screen.queryByText('Travel time to evaluation')).not.toBeInTheDocument();
+      expect(screen.queryByText('Time departed for evaluation')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
     });
 
-    // Select Physical Evaluation type, should show Travel time to evaluation picker
+    // Select Physical Evaluation type and origin location, ensure time depart, evaluation start and end are in the doc
     await userEvent.click(screen.getByText('Physical'));
-    await waitFor(() => {
-      expect(screen.getByText('Travel time to evaluation')).toBeInTheDocument();
-      expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
-      expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
-      expect(screen.getAllByTestId('textarea')).toHaveLength(1);
-    });
-
-    // Select Eval locations and validate correct fields are shown
     await userEvent.click(screen.getByText('Origin'));
     await waitFor(() => {
-      expect(screen.getByText('Observed pickup date')).toBeInTheDocument();
+      expect(screen.getByText('Time departed for evaluation')).toBeInTheDocument();
+      expect(screen.getByText('Time evaluation started')).toBeInTheDocument();
+      expect(screen.getByText('Time evaluation ended')).toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
+      expect(screen.queryByText('Observed pickup date')).toBeInTheDocument();
       expect(screen.getAllByTestId('textarea')).toHaveLength(1);
     });
 
@@ -230,15 +229,17 @@ describe('EvaluationForm', () => {
     expect(mockSaveEvaluationReport).toHaveBeenCalledTimes(1);
     expect(mockSaveEvaluationReport).toHaveBeenCalledWith({
       body: {
-        evaluationLengthMinutes: mockEvaluationReport.evaluationLengthMinutes,
         inspectionDate: mockEvaluationReport.inspectionDate,
         inspectionType: mockEvaluationReport.inspectionType,
         location: mockEvaluationReport.location,
         locationDescription: undefined,
-        observedDate: undefined,
+        observedShipmentDeliveryDate: undefined,
+        observedShipmentPhysicalPickupDate: undefined,
         remarks: mockEvaluationReport.remarks,
-        travelTimeMinutes: undefined,
         violationsObserved: true,
+        evalStart: mockEvaluationReport.evalStart,
+        evalEnd: mockEvaluationReport.evalEnd,
+        timeDepart: undefined,
       },
       ifMatchETag: mockEvaluationReport.eTag,
       reportID: mockReportId,
@@ -257,15 +258,17 @@ describe('EvaluationForm', () => {
       expect(mockSaveEvaluationReport).toHaveBeenCalledTimes(1);
       expect(mockSaveEvaluationReport).toHaveBeenCalledWith({
         body: {
-          evaluationLengthMinutes: 240,
           inspectionDate: '2022-09-08',
           inspectionType: 'DATA_REVIEW',
           location: 'ORIGIN',
           locationDescription: undefined,
-          observedDate: undefined,
+          observedShipmentDeliveryDate: undefined,
+          observedShipmentPhysicalPickupDate: undefined,
           remarks: 'test',
-          travelTimeMinutes: undefined,
           violationsObserved: false,
+          evalStart: mockEvaluationReport.evalStart,
+          evalEnd: mockEvaluationReport.evalEnd,
+          timeDepart: undefined,
         },
         ifMatchETag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
         reportID: mockReportId,
