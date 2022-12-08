@@ -150,9 +150,14 @@ const EvaluationForm = ({
       violations = values.violationsObserved === 'yes';
     }
 
-    let observedDate;
-    if (values.observedDate !== 'Invalid date') {
-      observedDate = formatDateForSwagger(values.observedDate);
+    let observedShipmentDeliveryDate;
+    if (values.observedShipmentDeliveryDate !== 'Invalid date') {
+      observedShipmentDeliveryDate = formatDateForSwagger(values.observedShipmentDeliveryDate);
+    }
+
+    let observedShipmentPhysicalPickupDate;
+    if (values.observedShipmentPhysicalPickupDate !== 'Invalid date') {
+      observedShipmentPhysicalPickupDate = formatDateForSwagger(values.observedShipmentPhysicalPickupDate);
     }
 
     const body = {
@@ -164,10 +169,11 @@ const EvaluationForm = ({
       // this is a yes or no boolean and not a list of the violations
       violationsObserved: violations,
       inspectionDate: formatDateForSwagger(values.inspectionDate),
+      observedShipmentDeliveryDate,
+      observedShipmentPhysicalPickupDate,
       timeDepart,
       evalStart,
       evalEnd,
-      observedDate,
     };
 
     await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
@@ -209,7 +215,8 @@ const EvaluationForm = ({
   const initialValues = {
     remarks: evaluationReport.remarks,
     inspectionDate: evaluationReport.inspectionDate,
-    observedDate: evaluationReport.observedDate,
+    observedShipmentDeliveryDate: evaluationReport.observedShipmentDeliveryDate,
+    observedShipmentPhysicalPickupDate: evaluationReport.observedShipmentPhysicalPickupDate,
   };
 
   if (evaluationReport.location) {
@@ -540,7 +547,7 @@ const EvaluationForm = ({
                       <div className={styles.showOptional}>
                         <DatePickerInput
                           label="Observed delivery date"
-                          name="observedDate"
+                          name="observedShipmentDeliveryDate"
                           hint="Only enter a date here if the delivery you witnessed did not happen on the scheduled delivery date"
                           showOptional
                         />
@@ -550,9 +557,8 @@ const EvaluationForm = ({
                       <div className={styles.showOptional}>
                         <DatePickerInput
                           label="Observed pickup date"
-                          name="observedDate"
+                          name="observedShipmentPhysicalPickupDate"
                           hint="Only enter a date here if the pickup you witnessed did not happen on the scheduled pickup date"
-                          showOptional
                         />
                       </div>
                     )}

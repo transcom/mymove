@@ -5898,11 +5898,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "weightTickets": {
-          "description": "All weight ticket documentation records belonging to vehicles of this PPM shipment",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/WeightTicket"
-          }
+          "$ref": "#/definitions/WeightTickets"
         }
       },
       "x-nullable": true
@@ -7832,6 +7828,14 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    },
+    "WeightTickets": {
+      "description": "All weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WeightTicket"
+      },
+      "x-omitempty": false
     }
   },
   "parameters": {
@@ -14132,11 +14136,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "weightTickets": {
-          "description": "All weight ticket documentation records belonging to vehicles of this PPM shipment",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/WeightTicket"
-          }
+          "$ref": "#/definitions/WeightTickets"
         }
       },
       "x-nullable": true
@@ -16082,6 +16082,14 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    },
+    "WeightTickets": {
+      "description": "All weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WeightTicket"
+      },
+      "x-omitempty": false
     }
   },
   "parameters": {

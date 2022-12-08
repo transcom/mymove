@@ -1,0 +1,21 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.PPMHeaderSummary {
+    .header {
+        :global(.usa-label) {
+            width: auto;
+            display: inline-block;
+            @include u-margin-top(.5);
+            @include u-margin-right(1);
+        }
+    }
+
+    section {
+        color: $base-darker;
+    }
+
+    .light {
+        @include u-font('body', '3xs');
+    }
+}

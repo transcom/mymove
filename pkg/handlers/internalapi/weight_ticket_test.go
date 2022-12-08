@@ -139,7 +139,9 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 
 func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	// Reusable objects
-	weightTicketUpdater := weightticket.NewCustomerWeightTicketUpdater()
+	ppmShipmentUpdater := mocks.PPMShipmentUpdater{}
+	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
+	weightTicketUpdater := weightticket.NewCustomerWeightTicketUpdater(weightTicketFetcher, &ppmShipmentUpdater)
 
 	type weightTicketUpdateSubtestData struct {
 		ppmShipment  models.PPMShipment
@@ -180,6 +182,13 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		appCtx := suite.AppContextForTest()
 
 		subtestData := makeUpdateSubtestData(appCtx, true)
+
+		ppmShipmentUpdater.On(
+			"UpdatePPMShipmentWithDefaultCheck",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.PPMShipment"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(nil, nil)
 
 		params := subtestData.params
 

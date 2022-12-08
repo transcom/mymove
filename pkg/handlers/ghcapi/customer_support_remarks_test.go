@@ -50,9 +50,16 @@ func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
 			HandlerConfig:                 handlerConfig,
 			CustomerSupportRemarksFetcher: fetcher,
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&customersupportremarksop.GetCustomerSupportRemarksForMoveOK{}, response)
 		responsePayload := response.(*customersupportremarksop.GetCustomerSupportRemarksForMoveOK)
+
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+
 		suite.Equal(remark.ID.String(), responsePayload.Payload[0].ID.String())
 		suite.Equal(remark.OfficeUserID.String(), responsePayload.Payload[0].OfficeUserID.String())
 	})
@@ -69,19 +76,22 @@ func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
 			HandlerConfig:                 handlerConfig,
 			CustomerSupportRemarksFetcher: fetcher,
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&customersupportremarksop.GetCustomerSupportRemarksForMoveNotFound{}, response)
-	})
+		payload := response.(*customersupportremarksop.GetCustomerSupportRemarksForMoveNotFound).Payload
 
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
+	})
 }
 
 func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
-	var move models.Move
-	var officeUser models.OfficeUser
-
 	suite.Run("Successful POST", func() {
-		move = testdatagen.MakeDefaultMove(suite.DB())
-		officeUser = testdatagen.MakeDefaultOfficeUser(suite.DB())
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		handlerConfig := suite.HandlerConfig()
 
 		creator := &mocks.CustomerSupportRemarksCreator{}
@@ -89,9 +99,14 @@ func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 
 		request := httptest.NewRequest("POST", fmt.Sprintf("/moves/%s/customer-support-remarks/", move.Locator), nil)
 
+		remarkContent := "This is a customer support remark"
 		params := customersupportremarksop.CreateCustomerSupportRemarkForMoveParams{
 			HTTPRequest: request,
 			Locator:     move.Locator,
+			Body: &ghcmessages.CreateCustomerSupportRemark{
+				Content:      &remarkContent,
+				OfficeUserID: handlers.FmtUUID(officeUser.ID),
+			},
 		}
 
 		remarkID := uuid.Must(uuid.NewV4())
@@ -99,7 +114,7 @@ func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 			ID:           remarkID,
 			MoveID:       move.ID,
 			Move:         move,
-			Content:      "This is a customer support remark.",
+			Content:      remarkContent,
 			CreatedAt:    time.Now(),
 			UpdatedAt:    time.Now(),
 			OfficeUser:   officeUser,
@@ -108,17 +123,27 @@ func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 
 		creator.On("CreateCustomerSupportRemark",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("*models.CustomerSupportRemark"),
-			mock.AnythingOfType("string"),
+			&models.CustomerSupportRemark{
+				Content:      remarkContent,
+				OfficeUserID: officeUser.ID,
+			},
+			move.Locator,
 		).Return(&returnRemark, nil).Once()
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.CreateCustomerSupportRemarkForMoveOK{}, response)
+		payload := response.(*customersupportremarksop.CreateCustomerSupportRemarkForMoveOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("unsuccessful POST", func() {
-		move = testdatagen.MakeDefaultMove(suite.DB())
+		move := testdatagen.MakeDefaultMove(suite.DB())
 
 		handlerConfig := suite.HandlerConfig()
 
@@ -127,20 +152,36 @@ func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 
 		request := httptest.NewRequest("POST", fmt.Sprintf("/moves/%s/customer-support-remarks/", move.Locator), nil)
 
+		remarkContent := "This is a customer support remark"
+		officeUserID := uuid.Must(uuid.NewV4())
 		params := customersupportremarksop.CreateCustomerSupportRemarkForMoveParams{
 			HTTPRequest: request,
 			Locator:     move.Locator,
+			Body: &ghcmessages.CreateCustomerSupportRemark{
+				Content:      &remarkContent,
+				OfficeUserID: handlers.FmtUUID(officeUserID),
+			},
 		}
 
 		creator.On("CreateCustomerSupportRemark",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("*models.CustomerSupportRemark"),
-			mock.AnythingOfType("string"),
+			&models.CustomerSupportRemark{
+				Content:      remarkContent,
+				OfficeUserID: officeUserID,
+			},
+			move.Locator,
 		).Return(nil, fmt.Errorf("error")).Once()
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.CreateCustomerSupportRemarkForMoveInternalServerError{}, response)
+		payload := response.(*customersupportremarksop.CreateCustomerSupportRemarkForMoveInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
 
@@ -186,12 +227,19 @@ func (suite *HandlerSuite) TestUpdateCustomerSupportRemarksHandler() {
 
 		updater.On("UpdateCustomerSupportRemark",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams"),
+			params,
 		).Return(&updatedRemark, nil)
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.UpdateCustomerSupportRemarkForMoveOK{}, response)
+		responsePayload := response.(*customersupportremarksop.UpdateCustomerSupportRemarkForMoveOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("unsuccessful PATCH", func() {
@@ -207,18 +255,26 @@ func (suite *HandlerSuite) TestUpdateCustomerSupportRemarksHandler() {
 		handler := UpdateCustomerSupportRemarkHandler{handlerConfig, updater}
 
 		params := customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams{
-			HTTPRequest: request,
-			Body:        &payload,
+			HTTPRequest:             request,
+			Body:                    &payload,
+			CustomerSupportRemarkID: strfmt.UUID(badRemarkID.String()),
 		}
 
 		updater.On("UpdateCustomerSupportRemark",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams"),
+			params,
 		).Return(nil, fmt.Errorf("error"))
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.UpdateCustomerSupportRemarkForMoveInternalServerError{}, response)
+		responsePayload := response.(*customersupportremarksop.UpdateCustomerSupportRemarkForMoveInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(responsePayload)
 	})
 }
 
@@ -239,12 +295,16 @@ func (suite *HandlerSuite) TestDeleteCustomerSupportRemarksHandler() {
 
 		deleter.On("DeleteCustomerSupportRemark",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
+			remarkID,
 		).Return(nil).Once()
+
+		// Validate incoming payload: no body to validate
 
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.DeleteCustomerSupportRemarkNoContent{}, response)
+
+		// Validate outgoing payload: no payload
 	})
 
 	suite.Run("unsuccessful DELETE", func() {
@@ -263,11 +323,17 @@ func (suite *HandlerSuite) TestDeleteCustomerSupportRemarksHandler() {
 
 		deleter.On("DeleteCustomerSupportRemark",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
+			remarkID,
 		).Return(fmt.Errorf("error")).Once()
+
+		// Validate incoming payload: no body to validate
 
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.DeleteCustomerSupportRemarkInternalServerError{}, response)
+		payload := response.(*customersupportremarksop.DeleteCustomerSupportRemarkInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }

@@ -139,17 +139,14 @@ func (c *Config) AuditableAppContextFromRequestWithErrors(
 	var resp middleware.Responder
 	appCtx := c.AppContextFromRequest(r)
 	err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		var userID uuid.UUID
-		if txnAppCtx.Session() != nil {
-			userID = txnAppCtx.Session().UserID
-		}
+		auditUser := audit.RetrieveAuditUserFromContext(r.Context())
 		// not sure why, but using RawQuery("SET LOCAL foo = ?",
 		// thing) did not work
-		err := txnAppCtx.DB().RawQuery("SET LOCAL audit.current_user_id = '" + userID.String() + "'").Exec()
+		err := txnAppCtx.DB().RawQuery("SET LOCAL audit.current_user_id = '" + auditUser.ID.String() + "'").Exec()
 		if err != nil {
 			return err
 		}
-		eventName := audit.EventNameFromContext(r.Context())
+		eventName := audit.RetrieveEventNameFromContext(r.Context())
 		err = txnAppCtx.DB().RawQuery("SET LOCAL audit.current_event_name = '" + eventName + "'").Exec()
 		if err != nil {
 			return err
