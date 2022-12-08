@@ -38,19 +38,25 @@ func (suite *FactorySuite) TestBuildTariff() {
 		// Under test:      FetchOrBuildTariff400ngZip3
 		// Set up:          Create a Tariff400ngZip3 with no customized state or traits
 		// Expected outcome:Only 1 Tariff400ngZip3 should be created
+		var modelZip3s models.Tariff400ngZip3s
+		defaultZip3 := DefaultZip3
+		potentialErr := suite.DB().Where("zip3 = ?", defaultZip3).All(&modelZip3s)
+		if potentialErr != nil && potentialErr != sql.ErrNoRows {
+			suite.Fail("Failed to gather Tariff400ngZip3 rows from DB", potentialErr)
+		}
+		suite.Equal(0, len(modelZip3s))
+
 		zip3Tariff := FetchOrBuildTariff400ngZip3(suite.DB(), nil, nil)
 
 		zip3Tariff1 := FetchOrBuildTariff400ngZip3(suite.DB(), nil, nil)
 
-		var existingZip3s models.Tariff400ngZip3s
-		zip3 := DefaultZip3
-		err := suite.DB().Where("zip3 = ?", zip3).All(&existingZip3s)
+		suite.Equal(zip3Tariff.ID, zip3Tariff1.ID)
 
+		var existingZip3s models.Tariff400ngZip3s
+		err := suite.DB().Where("zip3 = ?", defaultZip3).All(&existingZip3s)
 		if err != nil && err != sql.ErrNoRows {
 			suite.Fail("Failed to gather Tariff400ngZip3 rows from DB", err)
 		}
-
-		suite.Equal(zip3Tariff.ID, zip3Tariff1.ID)
 		suite.Equal(1, len(existingZip3s))
 	})
 }
