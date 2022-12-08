@@ -10,7 +10,6 @@ const WebhookSubscriptionEditToolbar = (props) => (
 );
 
 const WebhookSubscriptionEdit = () => (
-  /* eslint-disable-next-line react/jsx-props-no-spreading */
   <Edit>
     <SimpleForm toolbar={<WebhookSubscriptionEditToolbar />}>
       <TextInput source="id" disabled />

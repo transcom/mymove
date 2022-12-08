@@ -12,14 +12,8 @@ const OfficeFilter = (props) => (
 );
 
 const OfficeList = () => (
-  <List
-    filters={<OfficeFilter />}
-    pagination={<AdminPagination />}
-    perPage={25}
-    sort={defaultSort}
-    bulkActionButtons={false}
-  >
-    <Datagrid>
+  <List filters={<OfficeFilter />} pagination={<AdminPagination />} perPage={25} sort={defaultSort}>
+    <Datagrid bulkActionButtons={false}>
       <TextField source="id" />
       <TextField source="name" />
       <TextField source="latitude" />
