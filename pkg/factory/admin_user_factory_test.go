@@ -101,7 +101,9 @@ func (suite *FactorySuite) TestBuildAdminUserExtra() {
 		// Under test:       BuildAdminUser
 		// Set up:           Create an adminUser and pass in a precreated user
 		// Expected outcome: adminUser should link in the precreated user
+		//                   No new user should be created
 
+		// SETUP
 		user := BuildUser(suite.DB(), []Customization{
 			{
 				Model: models.User{
@@ -109,6 +111,11 @@ func (suite *FactorySuite) TestBuildAdminUserExtra() {
 				},
 			},
 		}, nil)
+		// Count how many users we have
+		precount, err := suite.DB().Count(&models.User{})
+		suite.NoError(err)
+
+		// FUNCTION UNDER TEST
 		adminUser := BuildAdminUser(suite.DB(), []Customization{
 			{
 				Model:    user,
@@ -117,6 +124,13 @@ func (suite *FactorySuite) TestBuildAdminUserExtra() {
 		}, []Trait{
 			GetTraitAdminUserEmail,
 		})
+
+		// VALIDATION
+		// Check that no new user was created
+		count, err := suite.DB().Count(&models.User{})
+		suite.NoError(err)
+		suite.Equal(precount, count)
+
 		// Check that the linked user was used
 		suite.Equal(user.ID, *adminUser.UserID)
 		suite.Equal(user.ID, adminUser.User.ID)
