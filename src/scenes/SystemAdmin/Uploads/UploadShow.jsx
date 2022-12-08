@@ -1,12 +1,13 @@
 import React from 'react';
 import { ShowController, ShowView, SimpleShowLayout, TextField, DateField } from 'react-admin';
 
-const UploadShow = (props) => (
-  <ShowController {...props}>
-    {(controllerProps) => (
-      <ShowView {...props} {...controllerProps}>
+const UploadShow = (props) => {
+  const { record } = useRecordContext();
+  return (
+    <ShowController {...props}>
+      <ShowView {...props} {...record}>
         <SimpleShowLayout>
-          {controllerProps.record && controllerProps.record.serviceMemberId
+          {record && record.serviceMemberId
             ? [
                 <TextField source="serviceMemberId" label="Service Member ID" />,
                 <TextField source="serviceMemberFirstName" label="Service Member First Name" />,
@@ -28,8 +29,8 @@ const UploadShow = (props) => (
           <DateField source="upload.createdAt" showTime label="Created At" />
         </SimpleShowLayout>
       </ShowView>
-    )}
-  </ShowController>
-);
+    </ShowController>
+  );
+};
 
 export default UploadShow;

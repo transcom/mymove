@@ -2,7 +2,8 @@ import React from 'react';
 import { BooleanField, DateField, Show, SimpleShowLayout, TextField } from 'react-admin';
 import PropTypes from 'prop-types';
 
-const UserShowTitle = ({ record }) => {
+const UserShowTitle = () => {
+  const record = useRecordContext();
   return <span>{`${record.loginGovEmail}`}</span>;
 };
 
