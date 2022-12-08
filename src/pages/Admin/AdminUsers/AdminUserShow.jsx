@@ -31,9 +31,9 @@ const AdminUserShow = () => {
         <TextField source="firstName" />
         <TextField source="lastName" />
         <TextField source="organizationId" label="Organization Id" />
-        <BooleanField source="active" addLabel label="Active" />
-        <DateField source="createdAt" showTime addLabel />
-        <DateField source="updatedAt" showTime addLabel />
+        <BooleanField source="active" label="Active" />
+        <DateField source="createdAt" showTime />
+        <DateField source="updatedAt" showTime />
       </SimpleShowLayout>
     </Show>
   );
