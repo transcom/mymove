@@ -4,7 +4,6 @@ import { Create, SimpleForm, TextInput, SelectInput, required } from 'react-admi
 import { WEBHOOK_SUBSCRIPTION_STATUS } from 'shared/constants';
 
 const WebhookSubscriptionCreate = () => (
-  /* eslint-disable-next-line react/jsx-props-no-spreading */
   <Create>
     <SimpleForm>
       <TextInput label="Subscriber Id" source="subscriberId" validate={required()} />
