@@ -8,6 +8,7 @@ import {
   Show,
   SimpleShowLayout,
   TextField,
+  useRecordContext,
 } from 'react-admin';
 import PropTypes from 'prop-types';
 
