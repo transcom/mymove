@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShowController, ShowView, SimpleShowLayout, TextField, DateField } from 'react-admin';
+import { ShowController, ShowView, SimpleShowLayout, TextField, DateField, useRecordContext } from 'react-admin';
 
 const UploadShow = (props) => {
   const { record } = useRecordContext();
