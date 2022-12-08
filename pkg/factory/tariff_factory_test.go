@@ -1,8 +1,6 @@
 package factory
 
 import (
-	"database/sql"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -38,13 +36,9 @@ func (suite *FactorySuite) TestBuildTariff() {
 		// Under test:      FetchOrBuildTariff400ngZip3
 		// Set up:          Create a Tariff400ngZip3 with no customized state or traits
 		// Expected outcome:Only 1 Tariff400ngZip3 should be created
-		var modelZip3s models.Tariff400ngZip3s
-		defaultZip3 := DefaultZip3
-		potentialErr := suite.DB().Where("zip3 = ?", defaultZip3).All(&modelZip3s)
-		if potentialErr != nil && potentialErr != sql.ErrNoRows {
-			suite.Fail("Failed to gather Tariff400ngZip3 rows from DB", potentialErr)
-		}
-		suite.Equal(0, len(modelZip3s))
+		count, potentialErr := suite.DB().Where("zip3 = ?", DefaultZip3).Count(&models.Tariff400ngZip3s{})
+		suite.NoError(potentialErr)
+		suite.Zero(count)
 
 		zip3Tariff := FetchOrBuildTariff400ngZip3(suite.DB(), nil, nil)
 
@@ -52,11 +46,8 @@ func (suite *FactorySuite) TestBuildTariff() {
 
 		suite.Equal(zip3Tariff.ID, zip3Tariff1.ID)
 
-		var existingZip3s models.Tariff400ngZip3s
-		err := suite.DB().Where("zip3 = ?", defaultZip3).All(&existingZip3s)
-		if err != nil && err != sql.ErrNoRows {
-			suite.Fail("Failed to gather Tariff400ngZip3 rows from DB", err)
-		}
-		suite.Equal(1, len(existingZip3s))
+		existingZip3sCount, err := suite.DB().Where("zip3 = ?", DefaultZip3).Count(&models.Tariff400ngZip3s{})
+		suite.NoError(err)
+		suite.Equal(1, existingZip3sCount)
 	})
 }
