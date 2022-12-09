@@ -508,18 +508,18 @@ func init() {
         ]
       },
       "delete": {
-        "description": "Soft deletes an evaluation report by ID",
+        "description": "Deletes an evaluation report by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
           "evaluationReports"
         ],
-        "summary": "Soft deletes an evaluation report by ID",
+        "summary": "Deletes an evaluation report by ID",
         "operationId": "deleteEvaluationReport",
         "responses": {
           "204": {
-            "description": "Successfully soft deleted the report"
+            "description": "Successfully deleted the report"
           },
           "400": {
             "$ref": "#/responses/InvalidRequest"
@@ -692,65 +692,6 @@ func init() {
           }
         }
       },
-      "patch": {
-        "description": "Updates a move by ID",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "Updates a move by ID",
-        "operationId": "updateMoveTaskOrder",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved move task order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "412": {
-            "$ref": "#/responses/PreconditionFailed"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
       "parameters": [
         {
           "type": "string",
@@ -773,7 +714,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "operationId": "UpdateMTOReviewedBillableWeightsAt",
+        "operationId": "updateMTOReviewedBillableWeightsAt",
         "parameters": [
           {
             "type": "string",
@@ -3061,6 +3002,12 @@ func init() {
             "description": "filters the status of the move",
             "name": "status",
             "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
+            "name": "needsPPMCloseout",
+            "in": "query"
           }
         ],
         "responses": {
@@ -5142,9 +5089,17 @@ func init() {
         "eTag": {
           "type": "string"
         },
-        "evaluationLengthMinutes": {
-          "type": "integer",
-          "x-nullable": true
+        "evalEnd": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "18:00"
+        },
+        "evalStart": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "15:00"
         },
         "id": {
           "type": "string",
@@ -5238,9 +5193,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
-        "travelTimeMinutes": {
-          "type": "integer",
-          "x-nullable": true
+        "timeDepart": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "14:30"
         },
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
@@ -5861,6 +5818,11 @@ func init() {
               "x-nullable": true
             }
           ]
+        },
+        "scheduledDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "scheduledPickupDate": {
           "type": "string",
@@ -6915,6 +6877,9 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "signedCertification": {
+          "$ref": "#/definitions/SignedCertification"
+        },
         "sitEstimatedCost": {
           "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
           "type": "integer",
@@ -6970,7 +6935,7 @@ func init() {
           "$ref": "#/definitions/PPMShipmentStatus"
         },
         "submittedAt": {
-          "description": "The timestamp of when the customer submitted their move to the counselor.",
+          "description": "The timestamp of when the customer submitted their PPM documentation to the counselor for review.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
@@ -7290,17 +7255,11 @@ func init() {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
       "required": [
-        "id",
         "ppmShipmentId",
         "createdAt",
         "updatedAt",
-        "emptyDocumentId",
-        "emptyDocument",
-        "fullDocumentId",
-        "fullDocument",
-        "constructedWeightDocumentId",
-        "constructedWeightDocument",
-        "eTag"
+        "documentId",
+        "document"
       ],
       "properties": {
         "belongsToSelf": {
@@ -7308,29 +7267,6 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "constructedWeight": {
-          "description": "Constructed weight of the pro-gear.",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "constructedWeightDocument": {
-          "allOf": [
-            {
-              "description": "Document that is associated with the user uploads containing the constructed weight."
-            },
-            {
-              "$ref": "#/definitions/Document"
-            }
-          ]
-        },
-        "constructedWeightDocumentId": {
-          "description": "The ID of the document that is associated with the user uploads containing the constructed weight.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "createdAt": {
           "type": "string",
@@ -7343,56 +7279,27 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "document": {
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the pro-gear weight."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
+        },
+        "documentId": {
+          "description": "The ID of the document that is associated with the user uploads containing the pro-gear weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "eTag": {
           "description": "A hash that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
-        },
-        "emptyDocument": {
-          "allOf": [
-            {
-              "description": "Document that is associated with the user uploads containing the empty vehicle weight."
-            },
-            {
-              "$ref": "#/definitions/Document"
-            }
-          ]
-        },
-        "emptyDocumentId": {
-          "description": "The ID of the document that is associated with the user uploads containing the empty vehicle weight.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "emptyWeight": {
-          "description": "Weight of the vehicle not including the pro-gear.",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "fullDocument": {
-          "allOf": [
-            {
-              "description": "Document that is associated with the user uploads containing the full vehicle weight."
-            },
-            {
-              "$ref": "#/definitions/Document"
-            }
-          ]
-        },
-        "fullDocumentId": {
-          "description": "The ID of the document that is associated with the user uploads containing the full vehicle weight.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "fullWeight": {
-          "description": "Weight of the vehicle including the pro-gear.",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
         },
         "hasWeightTickets": {
           "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
@@ -7424,6 +7331,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weight": {
+          "description": "Weight of the pro-gear.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -7994,6 +7907,94 @@ func init() {
         "$ref": "#/definitions/ShipmentPaymentSITBalance"
       }
     },
+    "SignedCertification": {
+      "description": "Signed certification",
+      "type": "object",
+      "required": [
+        "id",
+        "submittingUserId",
+        "moveId",
+        "certificationType",
+        "certificationText",
+        "signature",
+        "date",
+        "createdAt",
+        "updatedAt",
+        "eTag"
+      ],
+      "properties": {
+        "certificationText": {
+          "description": "Full text that the customer agreed to and signed.",
+          "type": "string"
+        },
+        "certificationType": {
+          "$ref": "#/definitions/SignedCertificationType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "date": {
+          "description": "Date that the customer signed the certification.",
+          "type": "string",
+          "format": "date"
+        },
+        "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "description": "The ID of the signed certification.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "moveId": {
+          "description": "The ID of the move associated with this signed certification.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmId": {
+          "description": "The ID of the PPM shipment associated with this signed certification, if any.",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "signature": {
+          "description": "The signature that the customer provided.",
+          "type": "string"
+        },
+        "submittingUserId": {
+          "description": "The ID of the user that signed.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "SignedCertificationType": {
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
+      "type": "string",
+      "enum": [
+        "PPM_PAYMENT",
+        "SHIPMENT"
+      ],
+      "readOnly": true
+    },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
       "type": "object",
@@ -8117,7 +8118,11 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "email": {
           "type": "string",
@@ -8436,18 +8441,6 @@ func init() {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean"
         },
-        "constructedWeight": {
-          "description": "Constructed weight of the pro-gear.",
-          "type": "integer"
-        },
-        "emptyWeight": {
-          "description": "Weight of the vehicle not including the pro-gear.",
-          "type": "integer"
-        },
-        "fullWeight": {
-          "description": "Weight of the vehicle including the pro-gear.",
-          "type": "integer"
-        },
         "hasWeightTickets": {
           "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
           "type": "boolean"
@@ -8458,6 +8451,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weight": {
+          "description": "Weight of the pro-gear contained in the shipment.",
+          "type": "integer"
         }
       }
     },
@@ -9572,18 +9569,18 @@ func init() {
         ]
       },
       "delete": {
-        "description": "Soft deletes an evaluation report by ID",
+        "description": "Deletes an evaluation report by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
           "evaluationReports"
         ],
-        "summary": "Soft deletes an evaluation report by ID",
+        "summary": "Deletes an evaluation report by ID",
         "operationId": "deleteEvaluationReport",
         "responses": {
           "204": {
-            "description": "Successfully soft deleted the report"
+            "description": "Successfully deleted the report"
           },
           "400": {
             "description": "The request payload is invalid",
@@ -9813,86 +9810,6 @@ func init() {
           }
         }
       },
-      "patch": {
-        "description": "Updates a move by ID",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "Updates a move by ID",
-        "operationId": "updateMoveTaskOrder",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved move task order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
       "parameters": [
         {
           "type": "string",
@@ -9915,7 +9832,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "operationId": "UpdateMTOReviewedBillableWeightsAt",
+        "operationId": "updateMTOReviewedBillableWeightsAt",
         "parameters": [
           {
             "type": "string",
@@ -12846,6 +12763,12 @@ func init() {
             "description": "filters the status of the move",
             "name": "status",
             "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
+            "name": "needsPPMCloseout",
+            "in": "query"
           }
         ],
         "responses": {
@@ -15186,10 +15109,17 @@ func init() {
         "eTag": {
           "type": "string"
         },
-        "evaluationLengthMinutes": {
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true
+        "evalEnd": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "18:00"
+        },
+        "evalStart": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "15:00"
         },
         "id": {
           "type": "string",
@@ -15283,10 +15213,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
-        "travelTimeMinutes": {
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true
+        "timeDepart": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "14:30"
         },
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
@@ -15907,6 +15838,11 @@ func init() {
               "x-nullable": true
             }
           ]
+        },
+        "scheduledDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "scheduledPickupDate": {
           "type": "string",
@@ -16961,6 +16897,9 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "signedCertification": {
+          "$ref": "#/definitions/SignedCertification"
+        },
         "sitEstimatedCost": {
           "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
           "type": "integer",
@@ -17016,7 +16955,7 @@ func init() {
           "$ref": "#/definitions/PPMShipmentStatus"
         },
         "submittedAt": {
-          "description": "The timestamp of when the customer submitted their move to the counselor.",
+          "description": "The timestamp of when the customer submitted their PPM documentation to the counselor for review.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
@@ -17336,17 +17275,11 @@ func init() {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
       "required": [
-        "id",
         "ppmShipmentId",
         "createdAt",
         "updatedAt",
-        "emptyDocumentId",
-        "emptyDocument",
-        "fullDocumentId",
-        "fullDocument",
-        "constructedWeightDocumentId",
-        "constructedWeightDocument",
-        "eTag"
+        "documentId",
+        "document"
       ],
       "properties": {
         "belongsToSelf": {
@@ -17354,30 +17287,6 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "constructedWeight": {
-          "description": "Constructed weight of the pro-gear.",
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "constructedWeightDocument": {
-          "allOf": [
-            {
-              "description": "Document that is associated with the user uploads containing the constructed weight."
-            },
-            {
-              "$ref": "#/definitions/Document"
-            }
-          ]
-        },
-        "constructedWeightDocumentId": {
-          "description": "The ID of the document that is associated with the user uploads containing the constructed weight.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "createdAt": {
           "type": "string",
@@ -17390,58 +17299,27 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "document": {
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the pro-gear weight."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
+        },
+        "documentId": {
+          "description": "The ID of the document that is associated with the user uploads containing the pro-gear weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "eTag": {
           "description": "A hash that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
-        },
-        "emptyDocument": {
-          "allOf": [
-            {
-              "description": "Document that is associated with the user uploads containing the empty vehicle weight."
-            },
-            {
-              "$ref": "#/definitions/Document"
-            }
-          ]
-        },
-        "emptyDocumentId": {
-          "description": "The ID of the document that is associated with the user uploads containing the empty vehicle weight.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "emptyWeight": {
-          "description": "Weight of the vehicle not including the pro-gear.",
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "fullDocument": {
-          "allOf": [
-            {
-              "description": "Document that is associated with the user uploads containing the full vehicle weight."
-            },
-            {
-              "$ref": "#/definitions/Document"
-            }
-          ]
-        },
-        "fullDocumentId": {
-          "description": "The ID of the document that is associated with the user uploads containing the full vehicle weight.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "fullWeight": {
-          "description": "Weight of the vehicle including the pro-gear.",
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true,
-          "x-omitempty": false
         },
         "hasWeightTickets": {
           "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
@@ -17473,6 +17351,13 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weight": {
+          "description": "Weight of the pro-gear.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -18046,6 +17931,94 @@ func init() {
         "$ref": "#/definitions/ShipmentPaymentSITBalance"
       }
     },
+    "SignedCertification": {
+      "description": "Signed certification",
+      "type": "object",
+      "required": [
+        "id",
+        "submittingUserId",
+        "moveId",
+        "certificationType",
+        "certificationText",
+        "signature",
+        "date",
+        "createdAt",
+        "updatedAt",
+        "eTag"
+      ],
+      "properties": {
+        "certificationText": {
+          "description": "Full text that the customer agreed to and signed.",
+          "type": "string"
+        },
+        "certificationType": {
+          "$ref": "#/definitions/SignedCertificationType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "date": {
+          "description": "Date that the customer signed the certification.",
+          "type": "string",
+          "format": "date"
+        },
+        "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "description": "The ID of the signed certification.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "moveId": {
+          "description": "The ID of the move associated with this signed certification.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmId": {
+          "description": "The ID of the PPM shipment associated with this signed certification, if any.",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "signature": {
+          "description": "The signature that the customer provided.",
+          "type": "string"
+        },
+        "submittingUserId": {
+          "description": "The ID of the user that signed.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "SignedCertificationType": {
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
+      "type": "string",
+      "enum": [
+        "PPM_PAYMENT",
+        "SHIPMENT"
+      ],
+      "readOnly": true
+    },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
       "type": "object",
@@ -18173,7 +18146,11 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "email": {
           "type": "string",
@@ -18492,21 +18469,6 @@ func init() {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean"
         },
-        "constructedWeight": {
-          "description": "Constructed weight of the pro-gear.",
-          "type": "integer",
-          "minimum": 0
-        },
-        "emptyWeight": {
-          "description": "Weight of the vehicle not including the pro-gear.",
-          "type": "integer",
-          "minimum": 0
-        },
-        "fullWeight": {
-          "description": "Weight of the vehicle including the pro-gear.",
-          "type": "integer",
-          "minimum": 0
-        },
         "hasWeightTickets": {
           "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
           "type": "boolean"
@@ -18517,6 +18479,11 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weight": {
+          "description": "Weight of the pro-gear contained in the shipment.",
+          "type": "integer",
+          "minimum": 0
         }
       }
     },
