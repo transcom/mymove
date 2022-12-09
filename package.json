@@ -98,6 +98,8 @@
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "build": "react-app-rewired build",
+    "clean": "rm -rvf ./node_modules",
+    "clean:reset": "rm -rvf ./node_modules && yarn",
     "eject": "react-scripts eject",
     "start": "react-app-rewired start",
     "test": "react-app-rewired test --env=jsdom",
