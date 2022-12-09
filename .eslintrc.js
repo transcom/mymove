@@ -1,5 +1,5 @@
 module.exports = {
-  plugins: ['prettier', 'security', 'no-only-tests', 'you-dont-need-lodash-underscore', 'ato'],
+  plugins: ['prettier', 'security', 'no-only-tests', 'you-dont-need-lodash-underscore', 'ato', 'import'],
   extends: [
     'react-app',
     'airbnb',
@@ -51,6 +51,7 @@ module.exports = {
         'newlines-between': 'always',
       },
     ],
+    'import/named': 'warn',
     'import/no-extraneous-dependencies': [
       'error',
       {
