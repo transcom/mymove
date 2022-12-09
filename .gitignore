@@ -66,6 +66,11 @@ cypress/screenshots
 cypress/results
 cypress/reports
 
+# Playwright integration tests
+playwright/.cache
+playwright/html-report
+playwright/results
+
 # XLSX backup files
 ~$*.xlsx
 
