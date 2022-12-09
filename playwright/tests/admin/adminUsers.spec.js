@@ -7,7 +7,7 @@ test('Admin Users List Page', async ({ page }) => {
   await page.goto('/');
   await signInAsNewAdminUser(page);
 
-  await page.locator('a[href*="system/admin_users"]').click();
+  await page.getByRole('menuitem', { name: 'Admin Users' }).click();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
   const columnLabels = ['Id', 'Email', 'First name', 'Last name', 'User Id', 'Active'];
@@ -21,10 +21,10 @@ test('Admin User Create Page', async ({ page }) => {
   await page.goto('/');
   await signInAsNewAdminUser(page);
 
-  await page.locator('a[href*="system/admin_users"]').click();
+  await page.getByRole('menuitem', { name: 'Admin Users' }).click();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
-  await page.locator('a[href*="system/admin_users/create"]').first().click();
+  await page.getByRole('button', { name: 'Create' }).click();
   await expect(page.getByRole('heading', { name: 'Create Admin Users' })).toBeVisible();
 
   // we need to add the date to the email so that it is unique every time (only one record per email allowed in db)
@@ -54,8 +54,10 @@ test('Admin Users Show Page', async ({ page }) => {
   await page.goto('/');
   await signInAsNewAdminUser(page);
 
-  await page.locator('a[href*="system/admin_users"]').click();
+  await page.getByRole('menuitem', { name: 'Admin Users' }).click();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
+
+  // click on first row
   await page.locator('tr[resource="admin_users"]').first().click();
 
   const firstName = await page.locator('label:has-text("First name") + div').textContent();
@@ -84,14 +86,16 @@ test('Admin Users Edit Page', async ({ page }) => {
   await page.goto('/');
   await signInAsNewAdminUser(page);
 
-  await page.locator('a[href*="system/admin_users"]').click();
+  await page.getByRole('menuitem', { name: 'Admin Users' }).click();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
+
+  // click on first row
   await page.locator('tr[resource="admin_users"]').first().click();
 
   const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();
 
   await page.getByRole('button', { name: 'Edit' }).click();
-  await expect(page).toHaveURL(new RegExp(id));
+  expect(page.url()).toContain(id);
 
   const disabledFields = ['id', 'email', 'userId', 'createdAt', 'updatedAt'];
   for (const field of disabledFields) {
@@ -113,7 +117,7 @@ test('Admin Users Edit Page', async ({ page }) => {
   await page.getByRole('button', { name: 'Save' }).click();
 
   // back to list of all users
-  await expect(page).not.toHaveURL(new RegExp(id));
+  expect(page.url()).not.toContain(id);
 
   await expect(page.locator(`tr:has(:text("${id}")) >> td.column-active >> svg`)).toHaveAttribute(
     'data-testid',
