@@ -112,31 +112,38 @@ const weightTicketsPath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKET
 });
 
 const fillOutBasicForm = async (form) => {
-  await userEvent.paste(within(form).getByLabelText('When did you leave your origin?'), '31 May 2022');
+  within(form).getByLabelText('When did you leave your origin?').focus();
+  await userEvent.paste('31 May 2022');
 
-  await userEvent.paste(within(form).getByLabelText('Starting ZIP'), '10001', {
+  within(form).getByLabelText('Starting ZIP').focus();
+  await userEvent.paste('10001', {
     initialSelectionStart: 0,
     initialSelectionEnd: 5,
   });
 
-  await userEvent.paste(within(form).getByLabelText('Ending ZIP'), '10002', {
+  within(form).getByLabelText('Ending ZIP').focus();
+  await userEvent.paste('10002', {
     initialSelectionStart: 0,
     initialSelectionEnd: 5,
   });
 
-  await userEvent.paste(within(form).getByLabelText('Address 1'), '10642 N Second Ave');
+  within(form).getByLabelText('Address 1').focus();
+  await userEvent.paste('10642 N Second Ave');
 
-  await userEvent.paste(within(form).getByLabelText('City'), 'Goldsboro');
+  within(form).getByLabelText('City').focus();
+  await userEvent.paste('Goldsboro');
 
   await userEvent.selectOptions(within(form).getByLabelText('State'), 'NC');
 
-  await userEvent.paste(within(form).getByLabelText('ZIP'), '27534');
+  within(form).getByLabelText('ZIP').focus();
+  await userEvent.paste('27534');
 };
 
 const fillOutAdvanceSections = async (form) => {
   await userEvent.click(within(form).getByLabelText('Yes'));
 
-  await userEvent.paste(within(form).getByLabelText('How much did you receive?'), '7500');
+  within(form).getByLabelText('How much did you receive?').focus();
+  await userEvent.paste('7500');
 };
 
 describe('About page', () => {
