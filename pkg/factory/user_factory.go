@@ -24,7 +24,6 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 	}
 
 	// create user
-	// MYTODO: Add forceUUID functionality
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	user := models.User{
 		LoginGovUUID:  &loginGovUUID,
