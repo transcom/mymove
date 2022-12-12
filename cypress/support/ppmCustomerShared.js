@@ -1,4 +1,4 @@
-import { signAgreement } from '../integration/mymove/utilities/customer';
+import { signAgreement } from '../e2e/mymove/utilities/customer.cy';
 import { fileUploadTimeout } from './constants';
 
 export function setMobileViewport() {
