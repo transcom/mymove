@@ -60,6 +60,61 @@ type MTOShipmentUpdate struct {
 	DeletedAt                        *time.Time
 }
 
+// Helper function for converting an Update model to a Data model
+// Created to aid in server testing
+func (m *MTOShipmentUpdate) GetShipmentModelFromUpdateModel() (*MTOShipment, error) {
+	mtoShipment := MTOShipment{
+		ID:                               m.ID,
+		MoveTaskOrder:                    m.MoveTaskOrder,
+		MoveTaskOrderID:                  m.MoveTaskOrderID,
+		ScheduledPickupDate:              m.ScheduledPickupDate,
+		RequestedPickupDate:              m.RequestedPickupDate,
+		RequestedDeliveryDate:            m.RequestedDeliveryDate,
+		ApprovedDate:                     m.ApprovedDate,
+		FirstAvailableDeliveryDate:       m.FirstAvailableDeliveryDate,
+		ActualPickupDate:                 m.ActualPickupDate,
+		RequiredDeliveryDate:             m.RequiredDeliveryDate,
+		ScheduledDeliveryDate:            m.ScheduledDeliveryDate,
+		ActualDeliveryDate:               m.ActualDeliveryDate,
+		CustomerRemarks:                  m.CustomerRemarks,
+		CounselorRemarks:                 m.CounselorRemarks.Value,
+		PickupAddress:                    m.PickupAddress,
+		PickupAddressID:                  m.PickupAddressID,
+		DestinationAddress:               m.DestinationAddress,
+		DestinationAddressID:             m.DestinationAddressID,
+		DestinationType:                  m.DestinationType,
+		MTOAgents:                        m.MTOAgents,
+		MTOServiceItems:                  m.MTOServiceItems,
+		SecondaryPickupAddress:           m.SecondaryPickupAddress,
+		SecondaryPickupAddressID:         m.SecondaryPickupAddressID,
+		SecondaryDeliveryAddress:         m.SecondaryDeliveryAddress,
+		SecondaryDeliveryAddressID:       m.SecondaryDeliveryAddressID,
+		SITDaysAllowance:                 m.SITDaysAllowance,
+		SITExtensions:                    m.SITExtensions,
+		PrimeEstimatedWeight:             m.PrimeEstimatedWeight,
+		PrimeEstimatedWeightRecordedDate: m.PrimeEstimatedWeightRecordedDate,
+		PrimeActualWeight:                m.PrimeActualWeight,
+		BillableWeightCap:                m.BillableWeightCap,
+		BillableWeightJustification:      m.BillableWeightJustification,
+		NTSRecordedWeight:                m.NTSRecordedWeight,
+		ShipmentType:                     m.ShipmentType,
+		Status:                           m.Status,
+		Diversion:                        m.Diversion,
+		RejectionReason:                  m.RejectionReason,
+		Distance:                         m.Distance,
+		Reweigh:                          m.Reweigh,
+		UsesExternalVendor:               m.UsesExternalVendor,
+		StorageFacility:                  m.StorageFacility,
+		StorageFacilityID:                m.StorageFacilityID,
+		ServiceOrderNumber:               m.ServiceOrderNumber,
+		TACType:                          m.TACType,
+		SACType:                          m.SACType,
+		PPMShipment:                      m.PPMShipment,
+	}
+
+	return &mtoShipment, nil
+}
+
 type Nullable[T any] struct {
 	Present bool
 	Value   T
