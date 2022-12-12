@@ -1543,7 +1543,7 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		Move: models.Move{
 			Locator:          locator,
 			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusNeedsServiceCounseling,
+			Status:           models.MoveStatusAPPROVED,
 			SubmittedAt:      &submittedAt,
 			PPMType:          models.StringPointer("FULL"),
 		},
@@ -1608,7 +1608,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 		Move: models.Move{
 			Locator:          locator,
 			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusNeedsServiceCounseling,
+			Status:           models.MoveStatusAPPROVED,
 			SubmittedAt:      &submittedAt,
 		},
 	})
@@ -1641,7 +1641,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 		Move:        move,
 		MTOShipment: mtoShipment2,
 		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusSubmitted,
+			Status: models.PPMShipmentStatusWaitingOnCustomer,
 		},
 	})
 
@@ -1688,7 +1688,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		Move: models.Move{
 			Locator:          locator,
 			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusNeedsServiceCounseling,
+			Status:           models.MoveStatusAPPROVED,
 			SubmittedAt:      &submittedAt,
 		},
 	})
@@ -1768,7 +1768,7 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 		Move: models.Move{
 			Locator:          locator,
 			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusNeedsServiceCounseling,
+			Status:           models.MoveStatusAPPROVED,
 			SubmittedAt:      &submittedAt,
 		},
 	})
