@@ -30,15 +30,17 @@ type CustomType string
 var control CustomType = "Control"
 var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
-var User CustomType = "User"
-var ServiceMember CustomType = "ServiceMember"
+var Entitlement CustomType = "Entitlement"
 var OfficeUser CustomType = "OfficeUser"
+var ServiceMember CustomType = "ServiceMember"
 var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
+var User CustomType = "User"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
 	"models.Address":         Address,
 	"models.AdminUser":       AdminUser,
+	"models.Entitlement":     Entitlement,
 	"models.OfficeUser":      OfficeUser,
 	"models.ServiceMember":   ServiceMember,
 	"models.Tariff400ngZip3": Tariff400ngZip3,
