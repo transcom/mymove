@@ -30,7 +30,8 @@ const mockEvaluationReport = {
   id: mockReportId,
   createdAt: '2022-09-07T15:17:37.484Z',
   eTag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
-  evaluationLengthMinutes: 240,
+  evalEnd: '09:00',
+  evalStart: '10:00',
   inspectionDate: '2022-09-08',
   inspectionType: 'DATA_REVIEW',
   location: mockMoveCode,
@@ -128,7 +129,8 @@ const mockShipmentData = [
 ];
 
 const savedReportBody = {
-  evaluationLengthMinutes: mockEvaluationReport.evaluationLengthMinutes,
+  evalStart: mockEvaluationReport.evalStart,
+  evalEnd: mockEvaluationReport.evalEnd,
   inspectionDate: mockEvaluationReport.inspectionDate,
   inspectionType: mockEvaluationReport.inspectionType,
   location: mockMoveCode,
