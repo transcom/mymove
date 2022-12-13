@@ -2,6 +2,7 @@
 const { test, expect } = require('@playwright/test');
 
 const { signInAsNewAdminUser } = require('../utils/signIn');
+const { buildDefaultAdminUser } = require('../utils/testharness');
 
 test('Admin Users List Page', async ({ page }) => {
   await page.goto('/');
@@ -82,20 +83,25 @@ test('Admin Users Show Page', async ({ page }) => {
   }
 });
 
-test('Admin Users Edit Page', async ({ page }) => {
+test('Admin Users Edit Page', async ({ page, request }) => {
   await page.goto('/');
   await signInAsNewAdminUser(page);
+
+  // create a new admin user to edit
+  // using an existing one may stop on a concurrent playwright session
+  const adminUser = await buildDefaultAdminUser(request);
+  const adminUserId = adminUser.id;
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
-  // click on first row
-  await page.locator('tr[resource="admin_users"]').first().click();
-
-  const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();
+  // click on row for newly created admin user
+  // if this test has been run many times locally, this might fail
+  // because the new user is not on the first page of results
+  await page.locator(`tr:has(:text("${adminUserId}"))`).click();
 
   await page.getByRole('button', { name: 'Edit' }).click();
-  expect(page.url()).toContain(id);
+  expect(page.url()).toContain(adminUserId);
 
   const disabledFields = ['id', 'email', 'userId', 'createdAt', 'updatedAt'];
   for (const field of disabledFields) {
@@ -117,13 +123,13 @@ test('Admin Users Edit Page', async ({ page }) => {
   await page.getByRole('button', { name: 'Save' }).click();
 
   // back to list of all users
-  expect(page.url()).not.toContain(id);
+  expect(page.url()).not.toContain(adminUserId);
 
-  await expect(page.locator(`tr:has(:text("${id}")) >> td.column-active >> svg`)).toHaveAttribute(
+  await expect(page.locator(`tr:has(:text("${adminUserId}")) >> td.column-active >> svg`)).toHaveAttribute(
     'data-testid',
     newStatus,
   );
 
-  await expect(page.locator(`tr:has(:text("${id}")) >> td.column-firstName`)).toHaveText('NewFirst');
-  await expect(page.locator(`tr:has(:text("${id}")) >> td.column-lastName`)).toHaveText('NewLast');
+  await expect(page.locator(`tr:has(:text("${adminUserId}")) >> td.column-firstName`)).toHaveText('NewFirst');
+  await expect(page.locator(`tr:has(:text("${adminUserId}")) >> td.column-lastName`)).toHaveText('NewLast');
 });
