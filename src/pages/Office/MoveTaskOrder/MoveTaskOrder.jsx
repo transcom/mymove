@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { withRouter, Link } from 'react-router-dom';
 import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { queryCache, useMutation } from 'react-query';
+import { queryCache, useMutation } from '@tanstack/react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 import classnames from 'classnames';

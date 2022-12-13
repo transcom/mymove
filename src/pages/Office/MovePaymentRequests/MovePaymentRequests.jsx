@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { queryCache, useMutation } from 'react-query';
+import { queryCache, useMutation } from '@tanstack/react-query';
 import { useParams, useHistory } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';

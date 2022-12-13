@@ -3,7 +3,7 @@ import 'styles/office.scss';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { useParams } from 'react-router-dom';
 import classnames from 'classnames';
-import { queryCache, useMutation } from 'react-query';
+import { queryCache, useMutation } from '@tanstack/react-query';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 

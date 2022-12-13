@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useParams, useHistory } from 'react-router-dom';
-import { queryCache, useMutation } from 'react-query';
+import { queryCache, useMutation } from '@tanstack/react-query';
 import { generatePath } from 'react-router';
 import { func } from 'prop-types';
 import classnames from 'classnames';

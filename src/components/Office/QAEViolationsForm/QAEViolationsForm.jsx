@@ -5,7 +5,7 @@ import { useParams, useHistory } from 'react-router';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
 import classnames from 'classnames';
-import { useMutation, queryCache } from 'react-query';
+import { useMutation, queryCache } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './QAEViolationsForm.module.scss';

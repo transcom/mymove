@@ -3,7 +3,7 @@ import { useParams, useHistory, withRouter } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
-import { queryCache, useMutation } from 'react-query';
+import { queryCache, useMutation } from '@tanstack/react-query';
 import moment from 'moment';
 import { generatePath } from 'react-router';
 import { connect } from 'react-redux';

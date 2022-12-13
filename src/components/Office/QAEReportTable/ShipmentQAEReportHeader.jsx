@@ -1,7 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@trussworks/react-uswds';
-import { useMutation, queryCache } from 'react-query';
+import { useMutation, queryCache } from '@tanstack/react-query';
 import { useHistory, useParams } from 'react-router-dom';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';

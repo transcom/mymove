@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Button, Textarea, ErrorMessage } from '@trussworks/react-uswds';
-import { queryCache, useMutation } from 'react-query';
+import { queryCache, useMutation } from '@tanstack/react-query';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import * as Yup from 'yup';

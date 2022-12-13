@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 
 import {
   getPaymentRequest,

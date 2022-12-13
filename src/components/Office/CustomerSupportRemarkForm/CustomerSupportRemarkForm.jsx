@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Button, Textarea, ErrorMessage } from '@trussworks/react-uswds';
-import { queryCache, useMutation } from 'react-query';
+import { queryCache, useMutation } from '@tanstack/react-query';
 import { Field, Formik } from 'formik';
 import { useParams } from 'react-router-dom';
 import * as Yup from 'yup';

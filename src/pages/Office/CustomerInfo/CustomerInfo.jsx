@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { queryCache, useMutation } from 'react-query';
+import { queryCache, useMutation } from '@tanstack/react-query';
 import { generatePath } from 'react-router';
 import { useHistory, useParams } from 'react-router-dom';
 import { GridContainer } from '@trussworks/react-uswds';

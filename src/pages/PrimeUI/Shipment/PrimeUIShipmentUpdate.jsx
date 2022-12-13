@@ -3,7 +3,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useHistory, useParams, withRouter } from 'react-router-dom';
 import { generatePath } from 'react-router';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { Alert, Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';

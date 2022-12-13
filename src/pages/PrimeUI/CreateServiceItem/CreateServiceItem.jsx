@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useHistory, withRouter } from 'react-router-dom';
 import classnames from 'classnames';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { generatePath } from 'react-router';
 import { Alert } from '@trussworks/react-uswds';
 import { func } from 'prop-types';

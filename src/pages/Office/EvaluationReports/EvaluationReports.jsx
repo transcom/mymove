@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useHistory, useLocation } from 'react-router-dom';
 import { Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
-import { useMutation, queryCache } from 'react-query';
+import { useMutation, queryCache } from '@tanstack/react-query';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 

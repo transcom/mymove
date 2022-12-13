@@ -3,7 +3,7 @@ import * as PropTypes from 'prop-types';
 import 'styles/office.scss';
 import { GridContainer, Grid, Button, Radio, FormGroup, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 import { useParams, useHistory, useLocation } from 'react-router';
-import { useMutation, queryCache } from 'react-query';
+import { useMutation, queryCache } from '@tanstack/react-query';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import classnames from 'classnames';
