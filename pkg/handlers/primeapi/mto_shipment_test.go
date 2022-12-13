@@ -338,7 +338,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// TODO: Can't validate the response because of the issue noted below. Figure out a way to
 		//   either alter the service or relax the swagger requirements.
 		// suite.NoError(unprocessableEntity.Payload.Validate(strfmt.Default))
-		// CreateMTOShipment is returning services.NewInvalidInputError without any validation errors
+		// CreateShipment is returning apperror.InvalidInputError without any validation errors
 		// so InvalidFields won't be added to the payload.
 
 		suite.Contains(*unprocessableEntity.Payload.Detail, "PickupAddress is required")
