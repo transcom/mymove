@@ -1,0 +1,16 @@
+async function buildDefault(request, action) {
+  const r = await request.post(`/testharness/build/${action}`);
+  if (!r.ok()) {
+    const body = await r.body();
+    throw Error(`Error with testharness build for '${action}': ${body}`);
+  }
+  return r.json();
+}
+
+export async function buildDefaultAdminUser(request) {
+  return buildDefault(request, 'DefaultAdminUser');
+}
+
+export async function buildDefaultMove(request) {
+  return buildDefault(request, 'DefaultMove');
+}

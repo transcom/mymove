@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
 	"github.com/transcom/mymove/pkg/handlers/supportapi"
+	"github.com/transcom/mymove/pkg/handlers/testharnessapi"
 	"github.com/transcom/mymove/pkg/middleware"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/telemetry"
@@ -233,6 +234,12 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	}
 
 	if routingConfig.ServeSupport {
+		testHarnessMux := site.PathPrefix("/testharness").Subrouter()
+		testHarnessMux.Use(middleware.RequestLogger(appCtx.Logger()))
+		testHarnessMux.Use(addAuditUserToRequestContextMiddleware)
+		testHarnessMux.Handle("/build/{action}",
+			testharnessapi.NewDefaultBuilder(routingConfig.HandlerConfig)).Methods("POST")
+
 		primeServerName := routingConfig.HandlerConfig.AppNames().PrimeServername
 		supportMux := site.Host(primeServerName).PathPrefix("/support/v1/").Subrouter()
 

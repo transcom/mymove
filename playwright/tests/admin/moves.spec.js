@@ -2,6 +2,7 @@
 const { test, expect } = require('@playwright/test');
 
 const { signInAsNewAdminUser } = require('../utils/signIn');
+const { buildDefaultMove } = require('../utils/testharness');
 
 test('Moves Page', async ({ page }) => {
   await page.goto('/');
@@ -49,18 +50,23 @@ test('Moves Details Show Page', async ({ page }) => {
   }
 });
 
-test('Moves Details Edit Page', async ({ page }) => {
+test('Moves Details Edit Page', async ({ page, request }) => {
   await page.goto('/');
   await signInAsNewAdminUser(page);
 
-  await page.getByRole('menuitem', { name: 'Moves' }).click();
-  await page.locator('span[reference="moves"]').first().click();
+  const move = await buildDefaultMove(request);
+  const moveId = move.id;
 
-  const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();
-  expect(page.url()).toContain(id);
+  await page.getByRole('menuitem', { name: 'Moves' }).click();
+
+  // click on row for newly created mvoe
+  // if this test has been run many times locally, this might fail
+  // because the new move is not on the first page of results
+  await page.locator(`tr:has(:text("${moveId}"))`).click();
+  expect(page.url()).toContain(moveId);
 
   await page.getByRole('button', { name: 'Edit' }).click();
-  expect(page.url()).toContain(id);
+  expect(page.url()).toContain(moveId);
 
   const disabledFields = [
     'id',
@@ -89,7 +95,7 @@ test('Moves Details Edit Page', async ({ page }) => {
   await page.getByRole('button', { name: 'Save' }).click();
 
   // back to list of all moves
-  expect(page.url()).not.toContain(id);
+  expect(page.url()).not.toContain(moveId);
 
-  await expect(page.locator(`tr:has(:text("${id}")) >> td.column-show >> span`)).toHaveText(newStatus);
+  await expect(page.locator(`tr:has(:text("${moveId}")) >> td.column-show >> span`)).toHaveText(newStatus);
 });
