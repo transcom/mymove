@@ -560,13 +560,13 @@ describe('MoveDetails page', () => {
 
         const submitButton = await screen.findByRole('button', { name: 'Submit move details' });
 
-        userEvent.click(submitButton);
+        await userEvent.click(submitButton);
 
         expect(await screen.findByRole('heading', { name: 'Are you sure?', level: 2 })).toBeInTheDocument();
 
         const modalSubmitButton = screen.getByRole('button', { name: 'Yes, submit' });
 
-        userEvent.click(modalSubmitButton);
+        await userEvent.click(modalSubmitButton);
 
         await waitFor(() => {
           expect(screen.queryByRole('heading', { name: 'Are you sure?', level: 2 })).not.toBeInTheDocument();
@@ -588,7 +588,7 @@ describe('MoveDetails page', () => {
 
         expect(link).toBeInTheDocument();
 
-        userEvent.click(link);
+        await userEvent.click(link);
 
         const path = generatePath(route, {
           moveCode: mockRequestedMoveCode,
@@ -617,7 +617,7 @@ describe('MoveDetails page', () => {
 
             expect(buttonDropdown).toBeInTheDocument();
 
-            userEvent.selectOptions(buttonDropdown, shipmentType);
+            await userEvent.selectOptions(buttonDropdown, shipmentType);
 
             await waitFor(() => {
               expect(history.location.pathname).toEqual(path);

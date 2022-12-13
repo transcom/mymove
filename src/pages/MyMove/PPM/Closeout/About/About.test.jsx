@@ -111,32 +111,39 @@ const weightTicketsPath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKET
   mtoShipmentId: mockMTOShipmentId,
 });
 
-const fillOutBasicForm = (form) => {
-  userEvent.paste(within(form).getByLabelText('When did you leave your origin?'), '31 May 2022');
+const fillOutBasicForm = async (form) => {
+  within(form).getByLabelText('When did you leave your origin?').focus();
+  await userEvent.paste('31 May 2022');
 
-  userEvent.paste(within(form).getByLabelText('Starting ZIP'), '10001', {
+  within(form).getByLabelText('Starting ZIP').focus();
+  await userEvent.paste('10001', {
     initialSelectionStart: 0,
     initialSelectionEnd: 5,
   });
 
-  userEvent.paste(within(form).getByLabelText('Ending ZIP'), '10002', {
+  within(form).getByLabelText('Ending ZIP').focus();
+  await userEvent.paste('10002', {
     initialSelectionStart: 0,
     initialSelectionEnd: 5,
   });
 
-  userEvent.paste(within(form).getByLabelText('Address 1'), '10642 N Second Ave');
+  within(form).getByLabelText('Address 1').focus();
+  await userEvent.paste('10642 N Second Ave');
 
-  userEvent.paste(within(form).getByLabelText('City'), 'Goldsboro');
+  within(form).getByLabelText('City').focus();
+  await userEvent.paste('Goldsboro');
 
-  userEvent.selectOptions(within(form).getByLabelText('State'), 'NC');
+  await userEvent.selectOptions(within(form).getByLabelText('State'), 'NC');
 
-  userEvent.paste(within(form).getByLabelText('ZIP'), '27534');
+  within(form).getByLabelText('ZIP').focus();
+  await userEvent.paste('27534');
 };
 
-const fillOutAdvanceSections = (form) => {
-  userEvent.click(within(form).getByLabelText('Yes'));
+const fillOutAdvanceSections = async (form) => {
+  await userEvent.click(within(form).getByLabelText('Yes'));
 
-  userEvent.paste(within(form).getByLabelText('How much did you receive?'), '7500');
+  within(form).getByLabelText('How much did you receive?').focus();
+  await userEvent.paste('7500');
 };
 
 describe('About page', () => {
@@ -163,10 +170,10 @@ describe('About page', () => {
     expect(headings[5]).toHaveTextContent('W-2 address');
   });
 
-  it('routes back to home when return to homepage is clicked', () => {
+  it('routes back to home when return to homepage is clicked', async () => {
     render(<About />, { wrapper: MockProviders });
 
-    userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
     expect(mockPush).toHaveBeenCalledWith(homePath);
   });
 
@@ -174,13 +181,12 @@ describe('About page', () => {
     patchMTOShipment.mockResolvedValueOnce(mockMTOShipmentResponse);
 
     render(<About />, { wrapper: MockProviders });
-
     const form = screen.getByTestId('aboutForm');
 
-    fillOutBasicForm(form);
-    fillOutAdvanceSections(form);
+    await fillOutBasicForm(form);
+    await fillOutAdvanceSections(form);
 
-    userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
+    await userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
     await waitFor(() => {
       expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, mockPayload, mockMTOShipment.eTag);
     });
@@ -197,9 +203,9 @@ describe('About page', () => {
     render(<About />, { wrapper: MockProviders });
 
     const form = screen.getByTestId('aboutForm');
-    fillOutBasicForm(form);
+    await fillOutBasicForm(form);
 
-    userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
+    await userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
     const payload = {
       ...mockPayload,
       ppmShipment: {
