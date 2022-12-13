@@ -1,7 +1,6 @@
 import { combineReducers } from 'redux';
 import { reducer as formReducer } from 'redux-form';
 import { connectRouter } from 'connected-react-router';
-import { adminReducer } from 'react-admin';
 import defaultMessages from 'ra-language-english';
 import storage from 'redux-persist/lib/storage';
 import { persistReducer } from 'redux-persist';
@@ -48,7 +47,6 @@ export const appReducer = (history) =>
 export const adminAppReducer = (history) =>
   combineReducers({
     ...defaultReducers,
-    admin: adminReducer,
     i18n: i18nProvider(locale),
     form: formReducer,
     router: connectRouter(history),
