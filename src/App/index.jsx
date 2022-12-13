@@ -34,22 +34,26 @@ const officeContext = { ...defaultOfficeContext, flags };
 const myMoveContext = { ...defaultMyMoveContext, flags };
 const adminContext = { ...defaultAdminContext, flags };
 
-const officeQueryConfig = {
-  queries: {
-    retry: false, // default to no retries for now
-    // do not re-query on window refocus
-    refetchOnWindowFocus: false,
-    // onError: noop, // TODO - log errors?
+const officeQueryConfig = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false, // default to no retries for now
+      // do not re-query on window refocus
+      refetchOnWindowFocus: false,
+      // onError: noop, // TODO - log errors?
+      networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
+    },
+    mutations: {
+      // onError: noop, // TODO - log errors?
+      networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
+    },
   },
-  mutations: {
-    // onError: noop, // TODO - log errors?
-  },
-};
+});
 
 const App = () => {
   if (isOfficeSite)
     return (
-      <ReactQueryConfigProvider config={officeQueryConfig}>
+      <QueryClientProvider config={officeQueryConfig}>
         <Provider store={store}>
           <PersistGate loading={<LoadingPlaceholder />} persistor={persistor}>
             <AppContext.Provider value={officeContext}>
@@ -64,7 +68,7 @@ const App = () => {
             </AppContext.Provider>
           </PersistGate>
         </Provider>
-      </ReactQueryConfigProvider>
+      </QueryClientProvider>
     );
 
   if (isAdminSite)
