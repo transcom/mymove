@@ -55,6 +55,15 @@ const config = {
       },
     },
 
+    {
+      // ahobson 2022-12-08: for now, only test desktop chrome for static
+      name: 'mystatic',
+      testMatch: 'static/**/*',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: process.env.PLAYWRIGHT_MY_URL || 'http://milmovelocal:4000',
+      },
+    },
     // ahobson 2022-12-08: leave examples for later
     // {
     //   name: 'firefox',
