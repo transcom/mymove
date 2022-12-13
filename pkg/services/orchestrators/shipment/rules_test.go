@@ -10,7 +10,7 @@ import (
 
 func (suite *ShipmentSuite) TestCheckShipmentType() {
 	suite.Run("Return an error for an empty shipment type", func() {
-		shipment := models.MTOShipment{}
+		shipment := models.MTOShipmentUpdate{}
 
 		err := checkShipmentType().Validate(suite.AppContextForTest(), shipment)
 
@@ -32,7 +32,7 @@ func (suite *ShipmentSuite) TestCheckShipmentType() {
 		shipmentType := shipmentType
 
 		suite.Run(fmt.Sprintf("Doesn't return an error if the shipment type is %s", shipmentType), func() {
-			shipment := models.MTOShipment{ShipmentType: shipmentType}
+			shipment := models.MTOShipmentUpdate{ShipmentType: shipmentType}
 
 			err := checkShipmentType().Validate(suite.AppContextForTest(), shipment)
 

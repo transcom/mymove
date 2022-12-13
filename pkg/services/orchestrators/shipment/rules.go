@@ -9,7 +9,7 @@ import (
 
 // checkShipmentType ensures that a valid shipment type was set. Without this, the orchestrator can't know how which service objects to use.
 func checkShipmentType() shipmentValidator {
-	return shipmentValidatorFunc(func(_ appcontext.AppContext, shipment models.MTOShipment) error {
+	return shipmentValidatorFunc(func(_ appcontext.AppContext, shipment models.MTOShipmentUpdate) error {
 		verrs := validate.NewErrors()
 
 		if shipment.ShipmentType == "" {

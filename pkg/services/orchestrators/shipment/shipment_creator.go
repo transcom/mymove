@@ -26,7 +26,8 @@ func NewShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmShipm
 
 // CreateShipment creates a shipment, taking into account different shipment types and their needs.
 func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment) (*models.MTOShipment, error) {
-	if err := validateShipment(appCtx, *shipment, s.checks...); err != nil {
+	dataToValidate := models.MTOShipmentUpdate{ShipmentType: shipment.ShipmentType}
+	if err := validateShipment(appCtx, dataToValidate, s.checks...); err != nil {
 		return nil, err
 	}
 

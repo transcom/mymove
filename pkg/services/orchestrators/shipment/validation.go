@@ -10,19 +10,19 @@ import (
 
 // shipmentValidator defines the interface for checking business rules for a shipment
 type shipmentValidator interface {
-	Validate(appCtx appcontext.AppContext, newShipment models.MTOShipment) error
+	Validate(appCtx appcontext.AppContext, newShipment models.MTOShipmentUpdate) error
 }
 
 // shipmentValidatorFunc is an adapter that will convert a function into an implementation of shipmentValidator
-type shipmentValidatorFunc func(appcontext.AppContext, models.MTOShipment) error
+type shipmentValidatorFunc func(appcontext.AppContext, models.MTOShipmentUpdate) error
 
 // Validate fulfills the shipmentValidator interface
-func (fn shipmentValidatorFunc) Validate(appCtx appcontext.AppContext, newShipment models.MTOShipment) error {
+func (fn shipmentValidatorFunc) Validate(appCtx appcontext.AppContext, newShipment models.MTOShipmentUpdate) error {
 	return fn(appCtx, newShipment)
 }
 
 // validateShipment runs a shipment through the checks that are passed in.
-func validateShipment(appCtx appcontext.AppContext, newShipment models.MTOShipment, checks ...shipmentValidator) error {
+func validateShipment(appCtx appcontext.AppContext, newShipment models.MTOShipmentUpdate, checks ...shipmentValidator) error {
 	verrs := validate.NewErrors()
 
 	for _, check := range checks {

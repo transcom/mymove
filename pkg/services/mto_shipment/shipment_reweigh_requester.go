@@ -32,7 +32,12 @@ func (f *shipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.AppC
 }
 
 func (f *shipmentReweighRequester) createReweigh(appCtx appcontext.AppContext, shipment *models.MTOShipment, requester models.ReweighRequester, checks ...validator) (*models.Reweigh, error) {
-	if verr := validateShipment(appCtx, shipment, shipment, checks...); verr != nil {
+	dataToValidate := models.MTOShipmentUpdate{
+		ID:      shipment.ID,
+		Status:  shipment.Status,
+		Reweigh: shipment.Reweigh,
+	}
+	if verr := validateShipment(appCtx, &dataToValidate, shipment, checks...); verr != nil {
 		return nil, verr
 	}
 

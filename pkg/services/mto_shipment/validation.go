@@ -12,16 +12,16 @@ import (
 )
 
 type validator interface {
-	Validate(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error
+	Validate(appCtx appcontext.AppContext, newer *models.MTOShipmentUpdate, older *models.MTOShipment) error
 }
 
-type validatorFunc func(appcontext.AppContext, *models.MTOShipment, *models.MTOShipment) error
+type validatorFunc func(appcontext.AppContext, *models.MTOShipmentUpdate, *models.MTOShipment) error
 
-func (fn validatorFunc) Validate(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
+func (fn validatorFunc) Validate(appCtx appcontext.AppContext, newer *models.MTOShipmentUpdate, older *models.MTOShipment) error {
 	return fn(appCtx, newer, older)
 }
 
-func validateShipment(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment, checks ...validator) (result error) {
+func validateShipment(appCtx appcontext.AppContext, newer *models.MTOShipmentUpdate, older *models.MTOShipment, checks ...validator) (result error) {
 	verrs := validate.NewErrors()
 	for _, checker := range checks {
 		if err := checker.Validate(appCtx, newer, older); err != nil {
@@ -43,7 +43,7 @@ func validateShipment(appCtx appcontext.AppContext, newer *models.MTOShipment, o
 }
 
 func checkStatus() validator {
-	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
+	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipmentUpdate, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 		if newer.Status != "" && newer.Status != models.MTOShipmentStatusDraft && newer.Status != models.MTOShipmentStatusSubmitted {
 			verrs.Add("status", "can only update status to DRAFT or SUBMITTED. use UpdateMTOShipmentStatus for other status updates")
@@ -53,7 +53,7 @@ func checkStatus() validator {
 }
 
 func checkAvailToPrime() validator {
-	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
+	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipmentUpdate, _ *models.MTOShipment) error {
 		var move models.Move
 		availToPrime, err := appCtx.DB().Q().
 			Join("mto_shipments", "moves.id = mto_shipments.move_id").
@@ -73,7 +73,7 @@ func checkAvailToPrime() validator {
 }
 
 func checkReweighAllowed() validator {
-	return validatorFunc(func(_ appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
+	return validatorFunc(func(_ appcontext.AppContext, newer *models.MTOShipmentUpdate, _ *models.MTOShipment) error {
 		if newer.Status != models.MTOShipmentStatusApproved && newer.Status != models.MTOShipmentStatusDiversionRequested {
 			return apperror.NewConflictError(newer.ID, fmt.Sprintf("Can only reweigh a shipment that is Approved or Diversion Requested. The shipment's current status is %s", newer.Status))
 		}
@@ -86,7 +86,7 @@ func checkReweighAllowed() validator {
 
 // Checks if an office user is able to update a shipment based on shipment status
 func checkUpdateAllowed() validator {
-	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
+	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipmentUpdate, older *models.MTOShipment) error {
 		msg := fmt.Sprintf("%v is not updatable", older.ID)
 		err := apperror.NewForbiddenError(msg)
 
@@ -128,7 +128,7 @@ func checkUpdateAllowed() validator {
 
 // Checks if a shipment can be deleted
 func checkDeleteAllowed() validator {
-	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
+	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipmentUpdate, older *models.MTOShipment) error {
 		move := older.MoveTaskOrder
 		if move.Status != models.MoveStatusDRAFT && move.Status != models.MoveStatusNeedsServiceCounseling {
 			return apperror.NewForbiddenError("A shipment can only be deleted if the move is in Draft or NeedsServiceCounseling")
@@ -140,7 +140,7 @@ func checkDeleteAllowed() validator {
 
 // Checks if a shipment can be deleted
 func checkPrimeDeleteAllowed() validator {
-	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
+	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipmentUpdate, older *models.MTOShipment) error {
 		if older.MoveTaskOrder.AvailableToPrimeAt == nil {
 			return apperror.NewNotFoundError(older.ID, "for mtoShipment")
 		}

@@ -1943,7 +1943,7 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 	})
 }
 
-func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
+func (suite *HandlerSuite) TestCreateSITExtensionAsTOO() {
 	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance on shipment without an allowance when validations pass", func() {
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{},
@@ -2609,7 +2609,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(params.Body.BillableWeightCap, updatedShipment.BillableWeightCap)
 		suite.Equal(params.Body.BillableWeightJustification, updatedShipment.BillableWeightJustification)
-		suite.Equal(params.Body.CounselorRemarks, updatedShipment.CounselorRemarks)
+		suite.Equal(params.Body.CounselorRemarks.Value, updatedShipment.CounselorRemarks)
 		suite.Equal(params.Body.PickupAddress.StreetAddress1, updatedShipment.PickupAddress.StreetAddress1)
 		suite.Equal(params.Body.DestinationAddress.StreetAddress1, updatedShipment.DestinationAddress.StreetAddress1)
 		suite.Equal(params.Body.RequestedPickupDate.String(), updatedShipment.RequestedPickupDate.String())

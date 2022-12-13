@@ -287,6 +287,11 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		return nil, err
 	}
 
+	// run the (read-only) validations
+	if verr := validateShipment(appCtx, mtoShipment, oldShipment, f.checks...); verr != nil {
+		return nil, verr
+	}
+
 	var dbShipment models.MTOShipment
 	err = deepcopy.Copy(&dbShipment, oldShipment) // save the original db version, oldShipment will be modified
 	if err != nil {
@@ -296,10 +301,6 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	newShipment := oldShipment // old shipment has now been updated with requested changes
 	// db version is used to check if agents need creating or updating
 
-	// run the (read-only) validations
-	if verr := validateShipment(appCtx, newShipment, &dbShipment, f.checks...); verr != nil {
-		return nil, verr
-	}
 	err = f.updateShipmentRecord(appCtx, &dbShipment, newShipment, eTag)
 	if err != nil {
 		switch err.(type) {
@@ -926,7 +927,7 @@ func (e ConflictStatusError) Error() string {
 // ideally be done only as an internal check, rather than relying on being invoked
 // by the handler layer
 func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error) {
-	err := checkAvailToPrime().Validate(appCtx, &models.MTOShipment{ID: mtoShipmentID}, nil)
+	err := checkAvailToPrime().Validate(appCtx, &models.MTOShipmentUpdate{ID: mtoShipmentID}, nil)
 	if err != nil {
 		return false, err
 	}

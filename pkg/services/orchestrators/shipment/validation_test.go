@@ -7,7 +7,7 @@ import (
 
 func (suite *ShipmentSuite) TestValidateShipment() {
 	suite.Run("Returns InvalidInputError if a validator function returns an error", func() {
-		err := validateShipment(suite.AppContextForTest(), models.MTOShipment{}, basicShipmentChecks()...)
+		err := validateShipment(suite.AppContextForTest(), models.MTOShipmentUpdate{}, basicShipmentChecks()...)
 
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
@@ -15,7 +15,7 @@ func (suite *ShipmentSuite) TestValidateShipment() {
 	})
 
 	suite.Run("Returns nil if no validator function returns an error", func() {
-		err := validateShipment(suite.AppContextForTest(), models.MTOShipment{ShipmentType: models.MTOShipmentTypeHHG}, basicShipmentChecks()...)
+		err := validateShipment(suite.AppContextForTest(), models.MTOShipmentUpdate{ShipmentType: models.MTOShipmentTypeHHG}, basicShipmentChecks()...)
 
 		suite.NoError(err)
 	})

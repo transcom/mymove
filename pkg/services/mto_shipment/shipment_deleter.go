@@ -32,7 +32,7 @@ func (f *shipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipmentI
 	}
 
 	// run the (read-only) validations
-	if verr := validateShipment(appCtx, shipment, shipment, f.checks...); verr != nil {
+	if verr := validateShipment(appCtx, nil, shipment, f.checks...); verr != nil {
 		return uuid.Nil, verr
 	}
 

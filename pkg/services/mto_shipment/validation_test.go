@@ -29,7 +29,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 			suite.Run("status "+string(status), func() {
 				err := checkStatus().Validate(
 					suite.AppContextForTest(),
-					&models.MTOShipment{Status: status},
+					&models.MTOShipmentUpdate{Status: status},
 					nil,
 				)
 				if allowed {
@@ -113,7 +113,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		for name, tc := range testCases {
 			suite.Run(name, func() {
 				checker := checkAvailToPrime()
-				err := checker.Validate(appCtx, &models.MTOShipment{ID: tc.id}, nil)
+				err := checker.Validate(appCtx, &models.MTOShipmentUpdate{ID: tc.id}, nil)
 				tc.verf(err)
 			})
 		}
