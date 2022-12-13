@@ -160,7 +160,7 @@ executors:
           password: $DOCKERHUB_PASSWORD
 
   milmove_integration_tester:
-    resource_class: large
+    resource_class: xlarge
     working_directory: ~/transcom/mymove
     docker:
       - image: *circleci-docker

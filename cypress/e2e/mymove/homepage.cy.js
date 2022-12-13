@@ -27,6 +27,7 @@ describe('The Home Page', function () {
   });
 
   it('contains the link to customer service', function () {
+    cy.visit('/');
     cy.get('[data-testid=contact-footer]').contains('Contact Us');
     cy.get('address').within(() => {
       cy.get('a').should('have.attr', 'href', 'https://move.mil/customer-service');
