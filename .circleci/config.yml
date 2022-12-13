@@ -967,7 +967,7 @@ jobs:
   # reads integration tests in mymove dir, should eventually be removed when tests are in milmove dir
   integration_tests_mymove:
     # parallelism requires enough files to divide by the # of parallel threads. So you need at least 7 files here
-    parallelism: 7
+    parallelism: 6
     executor: milmove_integration_tester
     steps:
       - attach_workspace:
