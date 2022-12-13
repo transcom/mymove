@@ -51,7 +51,7 @@ module.exports = {
         'newlines-between': 'always',
       },
     ],
-    'import/named': 'warn',
+    'import/named': 'error',
     'import/no-extraneous-dependencies': [
       'error',
       {
@@ -105,9 +105,10 @@ module.exports = {
     'import/resolver': {
       node: {
         moduleDirectory: ['src', 'node_modules'],
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        extensions: ['.js', '.jsx'],
       },
     },
+    'import/ignore': ['.coffee$'],
     linkComponents: [
       // Components used as alternatives to <a> for linking, eg. <Link to={ url } />
       {
