@@ -296,7 +296,6 @@ func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mt
 
 	if mtoShipment.PpmShipment != nil {
 		model.PPMShipment = PPMShipmentModelFromUpdate(mtoShipment.PpmShipment)
-		// model.PPMShipment.Shipment = *model
 	}
 
 	return model

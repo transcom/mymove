@@ -300,7 +300,6 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	setNewShipmentFields(appCtx, oldShipment, mtoShipment)
 	newShipment := oldShipment // old shipment has now been updated with requested changes
 	// db version is used to check if agents need creating or updating
-
 	err = f.updateShipmentRecord(appCtx, &dbShipment, newShipment, eTag)
 	if err != nil {
 		switch err.(type) {

@@ -32,6 +32,12 @@ func (v *StringIsNilOrNotBlank) IsValid(errors *validate.Errors) {
 	}
 }
 
+// Nullable allows a value to be flagged as updated in cases where a field is deleted
+type Nullable[T any] struct {
+	Present bool
+	Value   T
+}
+
 // OptionalTimeIsPresent adds an error if the Field is not nil and also not a valid time
 type OptionalTimeIsPresent struct {
 	Name    string

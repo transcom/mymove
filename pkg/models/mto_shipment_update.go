@@ -59,16 +59,3 @@ type MTOShipmentUpdate struct {
 	UpdatedAt                        time.Time
 	DeletedAt                        *time.Time
 }
-type Nullable[T any] struct {
-	Present bool
-	Value   T
-}
-
-// func NewNullable(T any) Nullable[T] {
-// 	return Nullable[T]{Present: true, Value: T}
-// }
-
-// type NullableI[T any] interface {
-// 	Present() bool
-// 	Value() T
-// }

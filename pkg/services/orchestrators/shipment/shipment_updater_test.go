@@ -62,10 +62,6 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 					func(_ appcontext.AppContext, ship *models.MTOShipmentUpdate, _ string) *models.MTOShipment {
 						// Mimicking how the MTOShipment updater actually returns a new pointer so that we can test
 						// a bit more realistically while still using mocks.
-						// mtoShip := models.MTOShipment{ID: ship.ID, PPMShipment: nil}
-						// updatedShip := mtoShip
-
-						// return &updatedShip
 
 						return &models.MTOShipment{ID: ship.ID, PPMShipment: nil}
 					},

@@ -387,7 +387,6 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 
 	if mtoShipment.PpmShipment != nil {
 		model.PPMShipment = PPMShipmentModelFromUpdate(mtoShipment.PpmShipment)
-		// model.PPMShipment.Shipment = *model
 	}
 
 	return model
