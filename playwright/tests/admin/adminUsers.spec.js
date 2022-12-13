@@ -61,6 +61,9 @@ test('Admin Users Show Page', async ({ page }) => {
   // click on first row
   await page.locator('tr[resource="admin_users"]').first().click();
 
+  const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();
+  expect(page.url()).toContain(id);
+
   const firstName = await page.locator('label:has-text("First name") + div').textContent();
   const lastName = await page.locator('label:has-text("Last name") + div').textContent();
 
@@ -95,10 +98,10 @@ test('Admin Users Edit Page', async ({ page, request }) => {
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
-  // click on row for newly created admin user
-  // if this test has been run many times locally, this might fail
-  // because the new user is not on the first page of results
-  await page.locator(`tr:has(:text("${adminUserId}"))`).click();
+  // go directly to the show page for the admin user because if we
+  // have created more than 25 admin users, the user may not be on the
+  // first page and we don't have a search functionality for admin users
+  await page.goto(`/system/admin_users/${adminUserId}/show`);
 
   await page.getByRole('button', { name: 'Edit' }).click();
   expect(page.url()).toContain(adminUserId);

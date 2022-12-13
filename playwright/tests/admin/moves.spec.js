@@ -19,9 +19,12 @@ test('Moves Page', async ({ page }) => {
   }
 });
 
-test('Moves Details Show Page', async ({ page }) => {
+test('Moves Details Show Page', async ({ page, request }) => {
   await page.goto('/');
   await signInAsNewAdminUser(page);
+
+  // make sure at least one move exists
+  await buildDefaultMove(request);
 
   await page.getByRole('menuitem', { name: 'Moves' }).click();
   await page.locator('span[reference="moves"]').first().click();
@@ -56,8 +59,13 @@ test('Moves Details Edit Page', async ({ page, request }) => {
 
   const move = await buildDefaultMove(request);
   const moveId = move.id;
+  const moveLocator = move.locator;
 
   await page.getByRole('menuitem', { name: 'Moves' }).click();
+
+  // use locator search to find move in case move is not on first page
+  // entering the move locator should auto search without a click
+  await page.getByLabel('locator').fill(moveLocator);
 
   // click on row for newly created mvoe
   // if this test has been run many times locally, this might fail
