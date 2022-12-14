@@ -1,8 +1,8 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 
-const { signInAsExistingCustomer } = require('../utils/signIn');
-const { buildSpouseProGearMove } = require('../utils/testharness');
+const { signInAsExistingCustomer } = require('../../utils/signIn');
+const { buildSpouseProGearMove } = require('../../utils/testharness');
 
 async function customerChoosesAnHHGMove(page) {
   await page.getByRole('button', { name: 'Set up your shipments' }).click();
