@@ -1,6 +1,8 @@
 package factory
 
 import (
+	"fmt"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -115,129 +117,37 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 		suite.Equal(2765, entitlement.ProGearWeight)
 
 	})
-	// }
-	// func (suite *FactorySuite) TestBuildEntitlementExtra() {
-	// 	// Under test:      BuildEntitlement
-	// 	// Mocked:          None
-	// 	// Set up:          Create a Entitlement but pass in a role
-	// 	// Expected outcome:Created User should have the associated Role
 
-	// 	suite.Run("Successful creation of TIO Admin User", func() {
+	suite.Run("Successful creation of entitlement with custom grade", func() {
+		// Under test:      BuildEntitlement
+		// Mocked:          None
+		// Set up:          Create Entitlement with customization of orders for grade O_9
+		// Expected outcome:Entitlement should contain weight allotments appropriate
+		// .                to the grade included in the orders
 
-	// 		// Create the TIO Role
-	// 		tioRole := roles.Role{
-	// 			ID:       uuid.Must(uuid.NewV4()),
-	// 			RoleType: roles.RoleTypeTIO,
-	// 			RoleName: "Transportation Invoicing Officer",
-	// 		}
-	// 		verrs, err := suite.DB().ValidateAndCreate(&tioRole)
-	// 		suite.NoError(err)
-	// 		suite.False(verrs.HasAny())
+		// SETUP
+		// Create a default stubbed entitlement to compare values
+		testEnt := BuildEntitlement(nil, nil, nil)
+		// Set the weight allotment on the custom object to O_9
+		testEnt.DBAuthorizedWeight = nil // clear original value
+		testEnt.SetWeightAllotment("O_9")
+		testEnt.DBAuthorizedWeight = testEnt.AuthorizedWeight()
+		// Now DBAuthorizedWeight should be appropriate for O_9 grade
 
-	// 		// FUNCTION UNDER TEST
-	// 		entitlement := BuildEntitlement(suite.DB(), []Customization{
-	// 			{
-	// 				Model: models.User{
-	// 					Roles: []roles.Role{tioRole},
-	// 				},
-	// 				Type: &User,
-	// 			},
-	// 		}, []Trait{
-	// 			GetTraitEntitlementEmail,
-	// 		})
+		// FUNCTION UNDER TEST
+		entitlement := BuildEntitlement(suite.DB(), []Customization{
+			{Model: models.Order{
+				Grade: models.StringPointer("O_9"),
+			}},
+		}, nil)
+		fmt.Printf("%+v\n", entitlement)
+		fmt.Printf("weight allotment %+v\n\n", *entitlement.DBAuthorizedWeight)
 
-	// 		// VALIDATE RESULT
-	// 		// Check that the email trait worked
-	// 		suite.Equal(entitlement.Email, entitlement.User.LoginGovEmail)
-	// 		suite.False(entitlement.User.Active)
-	// 		// Check that the user has the admin user role
-	// 		_, hasRole := entitlement.User.Roles.GetRole(roles.RoleTypeTIO)
-	// 		suite.True(hasRole)
-	// 	})
+		// VALIDATE RESULTS
+		// Builder should have pulled the O_9 grade from the order to calculate
+		// weight allotment
+		suite.Equal(*testEnt.DBAuthorizedWeight, *entitlement.DBAuthorizedWeight)
 
-	// 	suite.Run("Successful creation of Entitlement with linked User", func() {
-	// 		// Under test:       BuildEntitlement
-	// 		// Set up:           Create an entitlement and pass in a precreated user
-	// 		// Expected outcome: entitlement should link in the precreated user
+	})
 
-	// 		user := BuildUser(suite.DB(), []Customization{
-	// 			{
-	// 				Model: models.User{
-	// 					CurrentAdminSessionID: "breathe",
-	// 				},
-	// 			},
-	// 		}, nil)
-	// 		entitlement := BuildEntitlement(suite.DB(), []Customization{
-	// 			{
-	// 				Model:    user,
-	// 				LinkOnly: true,
-	// 			},
-	// 		}, []Trait{
-	// 			GetTraitEntitlementEmail,
-	// 		})
-	// 		// Check that the linked user was used
-	// 		suite.Equal(user.ID, *entitlement.UserID)
-	// 		suite.Equal(user.ID, entitlement.User.ID)
-	// 		suite.Equal("breathe", entitlement.User.CurrentAdminSessionID)
-	// 		suite.False(entitlement.Active)
-
-	// 	})
-	// 	suite.Run("Successful creation of Entitlement with forced id User", func() {
-	// 		// Under test:       BuildEntitlement
-	// 		// Set up:           Create an entitlement and pass in an ID for User
-	// 		// Expected outcome: entitlement and User should be created
-	// 		//                   User should have specified ID
-
-	// 		defaultLoginGovEmail := "first.last@login.gov.test"
-	// 		uuid := uuid.FromStringOrNil("6f97d298-1502-4d8c-9472-f8b5b2a63a10")
-	// 		entitlement := BuildEntitlement(suite.DB(), []Customization{
-	// 			{
-	// 				Model: models.User{
-	// 					ID: uuid,
-	// 				},
-	// 			},
-	// 		}, []Trait{
-	// 			GetTraitEntitlementEmail,
-	// 		})
-	// 		// Check that the forced ID was used
-	// 		suite.Equal(uuid, *entitlement.UserID)
-	// 		suite.Equal(uuid, entitlement.User.ID)
-
-	// 		// Check that id can be found in DB
-	// 		foundUser := models.User{}
-	// 		err := suite.DB().Find(&foundUser, uuid)
-	// 		suite.NoError(err)
-
-	// 		// Check that email was applied to user
-	// 		suite.NotContains(defaultLoginGovEmail, entitlement.User.LoginGovEmail)
-	// 		suite.Equal(entitlement.Email, entitlement.User.LoginGovEmail)
-	// 	})
-
-	// 	suite.Run("Successful creation of stubbed Entitlement with forced id User", func() {
-	// 		// Under test:       BuildEntitlement
-	// 		// Set up:           Create an entitlement and pass in a precreated user
-	// 		// Expected outcome: entitlement and User should be created with specified emails
-	// 		uuid := uuid.FromStringOrNil("6f97d298-1502-4d8c-9472-f8b5b2a63a10")
-	// 		entitlement := BuildEntitlement(nil, []Customization{
-	// 			{
-	// 				Model: models.User{
-	// 					ID: uuid,
-	// 				},
-	// 			},
-	// 		}, []Trait{
-	// 			GetTraitEntitlementEmail,
-	// 		})
-	// 		// Check that the forced ID was used
-	// 		suite.Equal(uuid, *entitlement.UserID)
-	// 		suite.Equal(uuid, entitlement.User.ID)
-
-	// 		// Check that id cannot be found in DB
-	// 		foundUser := models.User{}
-	// 		err := suite.DB().Find(&foundUser, uuid)
-	// 		suite.Error(err)
-
-	//			// Check that email was applied to user
-	//			suite.Equal(entitlement.Email, entitlement.User.LoginGovEmail)
-	//		})
-	//	}
 }
