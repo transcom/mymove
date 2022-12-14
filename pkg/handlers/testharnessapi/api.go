@@ -45,24 +45,35 @@ func NewDefaultBuilder(handlerConfig handlers.HandlerConfig) http.Handler {
 		})
 }
 
+type actionFunc func(appCtx appcontext.AppContext) testHarnessResponse
+
+var actionDispatcher = map[string]actionFunc{
+	"DefaultAdminUser": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return factory.BuildDefaultAdminUser(appCtx.DB())
+	},
+	"DefaultMove": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return testdatagen.MakeDefaultMove(appCtx.DB())
+	},
+	"SpouseProGearMove": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return testharness.MakeSpouseProGearMove(appCtx.DB())
+	},
+	"NeedsOrdersUser": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return testharness.MakeNeedsOrdersUser(appCtx.DB())
+	},
+	"PPMInProgressMove": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return testharness.MakePPMInProgressMove(appCtx)
+	},
+}
+
 func buildDefault(appCtx appcontext.AppContext, r *http.Request) (testHarnessResponse, error) {
 
 	params := mux.Vars(r)
 	action := params["action"]
 
-	var response interface{}
-	switch action {
-	case "DefaultAdminUser":
-		response = factory.BuildDefaultAdminUser(appCtx.DB())
-	case "DefaultMove":
-		response = testdatagen.MakeDefaultMove(appCtx.DB())
-	case "SpouseProGearMove":
-		response = testharness.MakeSpouseProGearMove(appCtx.DB())
-	case "NeedsOrdersUser":
-		response = testharness.MakeNeedsOrdersUser(appCtx.DB())
-	default:
+	dispatcher, ok := actionDispatcher[action]
+	if !ok {
 		return nil, errors.New("Cannot find builder for action: `" + action + "`")
 	}
 
-	return response, nil
+	return dispatcher(appCtx), nil
 }
