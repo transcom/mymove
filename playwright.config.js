@@ -50,30 +50,18 @@ const config = {
       name: 'admin',
       testMatch: 'admin/**/*',
       use: {
-        ...devices['Desktop Chrome'],
         baseURL: process.env.PLAYWRIGHT_ADMIN_URL || 'http://adminlocal:4000',
+        ...devices['Desktop Chrome'],
       },
     },
 
     {
-      // ahobson 2022-12-08: for now, only test desktop chrome for static
-      name: 'mystatic',
-      testMatch: 'static/**/*',
+      // ahobson 2022-12-08: for now, only test desktop chrome for my
+      name: 'my',
+      testMatch: 'my/**/*',
       use: {
-        ...devices['Desktop Chrome'],
         baseURL: process.env.PLAYWRIGHT_MY_URL || 'http://milmovelocal:4000',
-      },
-    },
-
-    {
-      // ahobson 2022-12-08: for now, only test desktop chrome for
-      // mymove. Note that these tests are mostly readonly because all
-      // new PPM work is going into integration/milmove
-      name: 'mymove',
-      testMatch: 'mymove/**/*',
-      use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.PLAYWRIGHT_MY_URL || 'http://milmovelocal:4000',
       },
     },
     // ahobson 2022-12-08: leave examples for later
