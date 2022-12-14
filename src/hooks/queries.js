@@ -355,7 +355,7 @@ export const usePaymentRequestQueueQueries = ({
     getPaymentRequestsQueue,
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestsQueueQuery]);
+  const { isInitialLoading: isLoading, isError, isSuccess } = paymentRequestsQueueQuery;
   const { queuePaymentRequests, ...dataProps } = data;
   return {
     queueResult: { data: queuePaymentRequests, ...dataProps },
