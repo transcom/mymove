@@ -9,6 +9,7 @@ import (
 
 // BuildEntitlement creates an Entitlement
 // Does not create other models
+// If Orders customization is provided - it will use the grade to calculate weight allotment
 func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trait) models.Entitlement {
 	customs = setupCustomizations(customs, traits)
 
@@ -22,9 +23,14 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 	}
 	// At this point, Entitlement may exist or be blank. Depending on if customization was provided.
 
-	// TBD: Find the Orders customization
-	// Get the grade from it.
-	var grade = models.StringPointer("")
+	// Find an Orders customization if available - to extract the grade
+	var grade *string
+	var order models.Order
+	result := findValidCustomization(customs, Order)
+	if result != nil {
+		order = result.Model.(models.Order)
+		grade = order.Grade // extract grade
+	}
 	if grade == nil || *grade == "" {
 		grade = models.StringPointer("E_1")
 	}
@@ -61,25 +67,4 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 	}
 
 	return entitlement
-}
-
-func GetTraitEntitlementsEnabled() []Customization {
-	return []Customization{
-		{
-			Model: models.Entitlement{
-				DependentsAuthorized:  models.BoolPointer(true),
-				NonTemporaryStorage:   models.BoolPointer(true),
-				PrivatelyOwnedVehicle: models.BoolPointer(true),
-				TotalDependents:       models.IntPointer(1),
-			},
-		},
-	}
-}
-
-func setBoolPtr(customBoolPtr *bool, defaultBool bool) *bool {
-	result := models.BoolPointer(defaultBool)
-	if customBoolPtr != nil {
-		result = customBoolPtr
-	}
-	return result
 }

@@ -32,6 +32,7 @@ var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
 var Entitlement CustomType = "Entitlement"
 var OfficeUser CustomType = "OfficeUser"
+var Order CustomType = "Order"
 var ServiceMember CustomType = "ServiceMember"
 var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
 var User CustomType = "User"
@@ -42,6 +43,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.AdminUser":       AdminUser,
 	"models.Entitlement":     Entitlement,
 	"models.OfficeUser":      OfficeUser,
+	"models.Order":           Order,
 	"models.ServiceMember":   ServiceMember,
 	"models.Tariff400ngZip3": Tariff400ngZip3,
 	"models.User":            User,
@@ -433,4 +435,12 @@ func makeRandomString(n int) string {
 
 	}
 	return string(b)
+}
+
+func setBoolPtr(customBoolPtr *bool, defaultBool bool) *bool {
+	result := &defaultBool
+	if customBoolPtr != nil {
+		result = customBoolPtr
+	}
+	return result
 }
