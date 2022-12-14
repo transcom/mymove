@@ -2,12 +2,18 @@ package testharness
 
 import (
 	"fmt"
+	"log"
 	"strings"
+	"time"
 
 	"github.com/gobuffalo/pop/v6"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -39,4 +45,60 @@ func MakeSpouseProGearMove(db *pop.Connection) models.Move {
 	move.Orders.ServiceMember.UserID = u.ID
 
 	return move
+}
+
+func MakePPMInProgressMove(appCtx appcontext.AppContext) models.Move {
+	email := strings.ToLower(fmt.Sprintf("joe_customer_%s@example.com",
+		testdatagen.MakeRandomString(5)))
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				LoginGovEmail: email,
+				Active:        true,
+			},
+		},
+	}, nil)
+
+	cal := dates.NewUSCalendar()
+	nextValidMoveDate := dates.NextValidMoveDate(time.Now(), cal)
+
+	nextValidMoveDateMinusTen := dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
+	pastTime := nextValidMoveDateMinusTen
+	ppm1 := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			UserID:        user.ID,
+			PersonalEmail: models.StringPointer(email),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("In Progress"),
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &pastTime,
+		},
+	})
+
+	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: ppm1.Move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter := moverouter.NewMoveRouter()
+	err := moveRouter.Submit(appCtx, &ppm1.Move, &newSignedCertification)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &ppm1.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
+	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm1.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+
+	move, err := models.FetchMove(appCtx.DB(), &auth.Session{}, ppm1.Move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *move
 }

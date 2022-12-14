@@ -64,7 +64,7 @@ module.exports = {
           '**/test/factories/**',
           // playwright
           '**/playwright.config.js',
-          '**/*.spec.js*',
+          '**/playwright/**/*.js',
         ],
       },
     ],
