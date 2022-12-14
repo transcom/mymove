@@ -96,7 +96,7 @@ describe('ReviewProGear component', () => {
       await waitFor(() => {
         expect(screen.getByLabelText('Reason')).toHaveDisplayValue('Rejection reason');
       });
-      expect(screen.getByText('484 characters')).toBeInTheDocument();
+      expect(screen.getByText('500 characters')).toBeInTheDocument();
     });
   });
 });

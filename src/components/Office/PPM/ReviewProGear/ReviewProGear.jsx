@@ -3,7 +3,7 @@ import { number } from 'prop-types';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Form, FormGroup, Label, Radio, Button, Textarea } from '@trussworks/react-uswds';
+import { CharacterCount, Form, FormGroup, Label, Radio, Button, Textarea } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
 
 import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
@@ -31,7 +31,7 @@ const validationSchema = Yup.object().shape({
   status: Yup.string().required('Reviewing this pro-gear is required'),
   rejectionReason: Yup.string().when('status', {
     is: ppmDocumentStatus.REJECTED,
-    then: (schema) => schema.required('Add a reason why this pro-gear is rejected').max(500),
+    then: (schema) => schema.required('Add a reason why this pro-gear is rejected'),
   }),
 });
 
@@ -191,9 +191,9 @@ export default function ReviewProGear({ ppmShipment, proGear, tripNumber, ppmNum
                             onChange={handleChange}
                             value={values.rejectionReason}
                             placeholder="Type something"
-                            maxLength={500}
                           />
-                          <p className={styles.characters}>{500 - values.rejectionReason.length} characters</p>
+                          <CharacterCount />
+                          <p className={styles.characters}>500 characters</p>
                         </>
                       )}
                     </FormGroup>
