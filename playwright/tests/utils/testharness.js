@@ -18,3 +18,7 @@ export async function buildDefaultMove(request) {
 export async function buildSpouseProGearMove(request) {
   return buildDefault(request, 'SpouseProGearMove');
 }
+
+export async function buildNeedsOrdersUser(request) {
+  return buildDefault(request, 'NeedsOrdersUser');
+}
