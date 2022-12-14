@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useHistory, useParams } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { queryCache, useMutation } from '@tanstack/react-query';
+import { QueryClient, useMutation } from '@tanstack/react-query';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
@@ -22,11 +22,12 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
   const { moveCode, shipmentId } = useParams();
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
+  const queryClient = new QueryClient();
   const [mutateMTOShipment] = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
       history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
       onUpdate('success');
     },

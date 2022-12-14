@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Button, Textarea, ErrorMessage } from '@trussworks/react-uswds';
-import { queryCache, useMutation } from '@tanstack/react-query';
+import { QueryClient, useMutation } from '@tanstack/react-query';
 import { Field, Formik } from 'formik';
 import { useParams } from 'react-router-dom';
 import * as Yup from 'yup';
@@ -19,10 +19,11 @@ import { createCustomerSupportRemarkForMove } from 'services/ghcApi';
 
 const CustomerSupportRemarkForm = ({ officeUser }) => {
   const { moveCode } = useParams();
+  const queryClient = new QueryClient();
 
   const [createRemarkMutation] = useMutation(createCustomerSupportRemarkForMove, {
     onSuccess: () => {
-      queryCache.invalidateQueries([CUSTOMER_SUPPORT_REMARKS, moveCode]);
+      queryClient.invalidateQueries([CUSTOMER_SUPPORT_REMARKS, moveCode]);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;

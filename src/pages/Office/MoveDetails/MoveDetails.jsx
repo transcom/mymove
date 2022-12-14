@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { queryCache, useMutation } from '@tanstack/react-query';
+import { QueryClient, useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
@@ -70,27 +70,28 @@ const MoveDetails = ({
   }, []);
 
   // use mutation calls
+  const queryClient = new QueryClient();
   const [mutateMoveStatus] = useMutation(updateMoveStatus, {
     onSuccess: (data) => {
-      queryCache.setQueryData([MOVES, data.locator], data);
-      queryCache.invalidateQueries([MOVES, data.locator]);
-      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, data.id]);
+      queryClient.setQueryData([MOVES, data.locator], data);
+      queryClient.invalidateQueries([MOVES, data.locator]);
+      queryClient.invalidateQueries([MTO_SERVICE_ITEMS, data.id]);
     },
   });
 
   const [mutateMTOShipmentStatus] = useMutation(updateMTOShipmentStatus, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
-      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.invalidateQueries([MTO_SERVICE_ITEMS, updatedMTOShipment.moveTaskOrderID]);
     },
   });
 
   const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
-      queryCache.setQueryData([MOVES, data.locator], data);
-      queryCache.invalidateQueries([MOVES, data.locator]);
+      queryClient.setQueryData([MOVES, data.locator], data);
+      queryClient.invalidateQueries([MOVES, data.locator]);
       if (data.financialReviewFlag) {
         setAlertMessage('Move flagged for financial review.');
         setAlertType('success');

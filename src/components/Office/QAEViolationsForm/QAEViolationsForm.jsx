@@ -5,7 +5,7 @@ import { useParams, useHistory } from 'react-router';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
 import classnames from 'classnames';
-import { useMutation, queryCache } from '@tanstack/react-query';
+import { useMutation, QueryClient } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './QAEViolationsForm.module.scss';
@@ -32,13 +32,14 @@ const QAEViolationsForm = ({
   const { moveCode, reportId } = useParams();
   const history = useHistory();
 
+  const queryClient = new QueryClient();
   const [mutateEvaluationReport] = useMutation(saveEvaluationReport, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
     onSuccess: () => {
-      queryCache.refetchQueries([EVALUATION_REPORT, reportId]).then();
+      queryClient.refetchQueries([EVALUATION_REPORT, reportId]).then();
     },
   });
 
@@ -59,7 +60,7 @@ const QAEViolationsForm = ({
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
     onSuccess: () => {
-      queryCache.refetchQueries([REPORT_VIOLATIONS, reportId]).then();
+      queryClient.refetchQueries([REPORT_VIOLATIONS, reportId]).then();
     },
   });
 

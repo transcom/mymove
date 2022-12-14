@@ -3,7 +3,7 @@ import * as PropTypes from 'prop-types';
 import 'styles/office.scss';
 import { GridContainer, Grid, Button, Radio, FormGroup, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 import { useParams, useHistory, useLocation } from 'react-router';
-import { useMutation, queryCache } from '@tanstack/react-query';
+import { useMutation, QueryClient } from '@tanstack/react-query';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import classnames from 'classnames';
@@ -34,6 +34,7 @@ const EvaluationForm = ({
   const { moveCode, reportId } = useParams();
   const history = useHistory();
   const location = useLocation();
+  const queryClient = new QueryClient();
 
   const [deleteEvaluationReportMutation] = useMutation(deleteEvaluationReport);
   const [submitEvaluationReportMutation] = useMutation(submitEvaluationReport, {
@@ -53,7 +54,7 @@ const EvaluationForm = ({
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
     onSuccess: () => {
-      queryCache.refetchQueries([EVALUATION_REPORT, reportId]).then();
+      queryClient.refetchQueries([EVALUATION_REPORT, reportId]).then();
     },
   });
 

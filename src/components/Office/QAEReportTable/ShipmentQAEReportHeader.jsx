@@ -1,7 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@trussworks/react-uswds';
-import { useMutation, queryCache } from '@tanstack/react-query';
+import { useMutation, QueryClient } from '@tanstack/react-query';
 import { useHistory, useParams } from 'react-router-dom';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
@@ -20,10 +20,11 @@ import { permissionTypes } from 'constants/permissions';
 const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode }) => {
   const { moveCode } = useParams();
   const history = useHistory();
+  const queryClient = new QueryClient();
 
   const [createReportMutation] = useMutation(createShipmentEvaluationReport, {
     onSuccess: () => {
-      queryCache.invalidateQueries([SHIPMENT_EVALUATION_REPORTS, moveCode]);
+      queryClient.invalidateQueries([SHIPMENT_EVALUATION_REPORTS, moveCode]);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;

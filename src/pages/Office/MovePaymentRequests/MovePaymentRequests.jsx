@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { queryCache, useMutation } from '@tanstack/react-query';
+import { QueryClient, useMutation } from '@tanstack/react-query';
 import { useParams, useHistory } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
@@ -56,12 +56,12 @@ const MovePaymentRequests = ({
   const filteredShipments = mtoShipments?.filter((shipment) => {
     return includedStatusesForCalculatingWeights(shipment.status);
   });
-
+  const queryClient = new QueryClient();
   const [mutateMoves] = useMutation(updateMTOReviewedBillableWeights, {
     onSuccess: (data, variables) => {
       const updatedMove = data.moves[variables.moveTaskOrderID];
-      queryCache.setQueryData([MOVES, move.locator], updatedMove);
-      queryCache.invalidateQueries([MOVES, move.locator]);
+      queryClient.setQueryData([MOVES, move.locator], updatedMove);
+      queryClient.invalidateQueries([MOVES, move.locator]);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -71,8 +71,8 @@ const MovePaymentRequests = ({
 
   const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
-      queryCache.setQueryData([MOVES, data.locator], data);
-      queryCache.invalidateQueries([MOVES, data.locator]);
+      queryClient.setQueryData([MOVES, data.locator], data);
+      queryClient.invalidateQueries([MOVES, data.locator]);
       if (data.financialReviewFlag) {
         setAlertMessage('Move flagged for financial review.');
         setAlertType('success');
@@ -89,8 +89,8 @@ const MovePaymentRequests = ({
 
   const [mutateMTOhipment] = useMutation(updateMTOShipment, {
     onSuccess(_, variables) {
-      queryCache.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
+      queryClient.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
     },
   });
 

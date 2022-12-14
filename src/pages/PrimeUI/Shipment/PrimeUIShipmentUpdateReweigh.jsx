@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 import { useHistory, useParams, withRouter } from 'react-router-dom';
-import { queryCache, useMutation } from '@tanstack/react-query';
+import { QueryClient, useMutation } from '@tanstack/react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 
@@ -31,6 +31,7 @@ const PrimeUIShipmentUpdateReweigh = ({ setFlashMessage }) => {
     history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
 
+  const queryClient = new QueryClient();
   const [mutateMTOShipmentReweigh] = useMutation(updatePrimeMTOShipmentReweigh, {
     onSuccess: (updatedReweigh) => {
       const updatedMTOShipment = {
@@ -40,8 +41,8 @@ const PrimeUIShipmentUpdateReweigh = ({ setFlashMessage }) => {
 
       mtoShipments[mtoShipments.findIndex((s) => s.id === updatedReweigh.shipmentID)] = updatedMTOShipment;
 
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
 
       setFlashMessage(
         `MSG_UPDATE_REWEIGH_SUCCESS${shipmentId}`,

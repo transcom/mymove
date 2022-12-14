@@ -4,7 +4,7 @@ import { generatePath } from 'react-router';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
-import { queryCache, useMutation } from '@tanstack/react-query';
+import { QueryClient, useMutation } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as Yup from 'yup';
 
@@ -56,16 +56,16 @@ const ServicesCounselingMoveAllowances = () => {
   const handleClose = () => {
     history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
-
+  const queryClient = new QueryClient();
   const [mutateOrders] = useMutation(counselingUpdateAllowance, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
-      queryCache.setQueryData([ORDERS, variables.orderID], {
+      queryClient.setQueryData([ORDERS, variables.orderID], {
         orders: {
           [`${variables.orderID}`]: updatedOrder,
         },
       });
-      queryCache.invalidateQueries(ORDERS);
+      queryClient.invalidateQueries(ORDERS);
       handleClose();
     },
     onError: (error) => {

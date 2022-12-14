@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useHistory, useLocation } from 'react-router-dom';
 import { Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
-import { useMutation, queryCache } from '@tanstack/react-query';
+import { useMutation, QueryClient } from '@tanstack/react-query';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
@@ -27,6 +27,7 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
   const history = useHistory();
   const [reportToDelete, setReportToDelete] = useState(undefined);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const queryClient = new QueryClient();
 
   const { shipmentEvaluationReports, counselingEvaluationReports, shipments, isLoading, isError } =
     useEvaluationReportsQueries(moveCode);
@@ -48,16 +49,16 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
       onSuccess: () => {
         // Reroute back to eval report page, include flag to show success alert
         history.push(`/moves/${moveCode}/evaluation-reports`, { showDeleteSuccess: true });
-        queryCache
+        queryClient
           .refetchQueries([COUNSELING_EVALUATION_REPORTS])
-          .then(queryCache.refetchQueries(SHIPMENT_EVALUATION_REPORTS).then());
+          .then(queryClient.refetchQueries(SHIPMENT_EVALUATION_REPORTS).then());
       },
     });
   };
 
   const [createCounselingEvaluationReportMutation] = useMutation(createCounselingEvaluationReport, {
     onSuccess: () => {
-      queryCache.invalidateQueries([COUNSELING_EVALUATION_REPORTS, moveCode]);
+      queryClient.invalidateQueries([COUNSELING_EVALUATION_REPORTS, moveCode]);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;

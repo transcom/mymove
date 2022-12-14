@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Button, Textarea, ErrorMessage } from '@trussworks/react-uswds';
-import { queryCache, useMutation } from '@tanstack/react-query';
+import { QueryClient, useMutation } from '@tanstack/react-query';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import * as Yup from 'yup';
@@ -18,6 +18,7 @@ import { CUSTOMER_SUPPORT_REMARKS } from 'constants/queryKeys';
 const CustomerSupportRemarkText = ({ customerSupportRemark, onDelete }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isEdit, setIsEdit] = useState(false);
+  const queryClient = new QueryClient();
 
   const isLongEnough = (text) => {
     return text.length >= 350;
@@ -41,7 +42,7 @@ const CustomerSupportRemarkText = ({ customerSupportRemark, onDelete }) => {
 
   const [mutateCustomerSupportRemark] = useMutation(updateCustomerSupportRemarkForMove, {
     onSuccess: async () => {
-      await queryCache.invalidateQueries([CUSTOMER_SUPPORT_REMARKS]);
+      await queryClient.invalidateQueries([CUSTOMER_SUPPORT_REMARKS]);
       setIsEdit(false);
     },
   });

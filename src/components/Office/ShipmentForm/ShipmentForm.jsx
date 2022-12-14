@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { arrayOf, bool, func, number, shape, string, oneOf } from 'prop-types';
 import { Field, Formik } from 'formik';
 import { generatePath } from 'react-router';
-import { queryCache, useMutation } from '@tanstack/react-query';
+import { QueryClient, useMutation } from '@tanstack/react-query';
 import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio } from '@trussworks/react-uswds';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
@@ -76,15 +76,16 @@ const ShipmentForm = (props) => {
 
   const shipments = mtoShipments;
 
+  const queryClient = new QueryClient();
   const [mutateMTOShipmentStatus] = useMutation(deleteShipment, {
     onSuccess: (_, variables) => {
       const updatedMTOShipment = mtoShipment;
       // Update mtoShipments with our updated status and set query data to match
       shipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestCancellation button to update immediately
-      queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
 
       history.goBack();
     },
