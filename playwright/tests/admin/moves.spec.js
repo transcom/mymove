@@ -10,7 +10,6 @@ test('Moves Page', async ({ page }) => {
 
   await page.getByRole('menuitem', { name: 'Moves' }).click();
   expect(page.url()).toContain('/system/moves');
-  //   cy.url().should('eq', adminBaseURL + '/system/moves');
   await expect(page.getByRole('heading', { name: 'Moves' })).toBeVisible();
 
   const columnLabels = ['Id', 'Order Id', 'Service Member Id', 'Locator', 'Status', 'Show', 'Created at', 'Updated at'];
