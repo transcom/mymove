@@ -15,7 +15,7 @@ import (
 func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
 	user := assertions.OfficeUser.User
 	// There's a uniqueness constraint on office user emails so add some randomness
-	email := fmt.Sprintf("leo_spaceman_office_%s@example.com", makeRandomString(5))
+	email := fmt.Sprintf("leo_spaceman_office_%s@example.com", MakeRandomString(5))
 
 	if assertions.OfficeUser.UserID == nil || isZeroUUID(*assertions.OfficeUser.UserID) {
 		if assertions.User.LoginGovEmail == "" {
@@ -64,7 +64,7 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 // MakeOfficeUserWithNoUser creates a single office user and associated TransportOffice
 func MakeOfficeUserWithNoUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
 	// There's a uniqueness constraint on office user emails so add some randomness
-	email := fmt.Sprintf("leo_spaceman_office_%s@example.com", makeRandomString(5))
+	email := fmt.Sprintf("leo_spaceman_office_%s@example.com", MakeRandomString(5))
 
 	if assertions.User.LoginGovEmail != "" {
 		email = assertions.User.LoginGovEmail

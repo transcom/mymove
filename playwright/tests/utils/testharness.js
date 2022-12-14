@@ -14,3 +14,7 @@ export async function buildDefaultAdminUser(request) {
 export async function buildDefaultMove(request) {
   return buildDefault(request, 'DefaultMove');
 }
+
+export async function buildSpouseProGearMove(request) {
+  return buildDefault(request, 'SpouseProGearMove');
+}

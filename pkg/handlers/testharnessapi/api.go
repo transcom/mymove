@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testdatagen/testharness"
 )
 
 type InternalServerError struct {
@@ -55,6 +56,8 @@ func buildDefault(appCtx appcontext.AppContext, r *http.Request) (testHarnessRes
 		response = factory.BuildDefaultAdminUser(appCtx.DB())
 	case "DefaultMove":
 		response = testdatagen.MakeDefaultMove(appCtx.DB())
+	case "SpouseProGearMove":
+		response = testharness.MakeSpouseProGearMove(appCtx.DB())
 	default:
 		return nil, errors.New("Cannot find builder for action: `" + action + "`")
 	}
