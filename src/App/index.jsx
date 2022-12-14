@@ -41,11 +41,11 @@ const officeQueryConfig = new QueryClient({
       // do not re-query on window refocus
       refetchOnWindowFocus: false,
       // onError: noop, // TODO - log errors?
-      networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
+      // networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
     },
     mutations: {
       // onError: noop, // TODO - log errors?
-      networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
+      // networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
     },
   },
 });
@@ -53,7 +53,7 @@ const officeQueryConfig = new QueryClient({
 const App = () => {
   if (isOfficeSite)
     return (
-      <QueryClientProvider config={officeQueryConfig}>
+      <QueryClientProvider client={officeQueryConfig}>
         <Provider store={store}>
           <PersistGate loading={<LoadingPlaceholder />} persistor={persistor}>
             <AppContext.Provider value={officeContext}>
