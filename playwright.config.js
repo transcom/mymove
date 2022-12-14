@@ -64,6 +64,18 @@ const config = {
         baseURL: process.env.PLAYWRIGHT_MY_URL || 'http://milmovelocal:4000',
       },
     },
+
+    {
+      // ahobson 2022-12-08: for now, only test desktop chrome for
+      // mymove. Note that these tests are mostly readonly because all
+      // new PPM work is going into integration/milmove
+      name: 'mymove',
+      testMatch: 'mymove/**/*',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: process.env.PLAYWRIGHT_MY_URL || 'http://milmovelocal:4000',
+      },
+    },
     // ahobson 2022-12-08: leave examples for later
     // {
     //   name: 'firefox',
