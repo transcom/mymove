@@ -37,7 +37,7 @@ docker run \
        -e GOPATH \
        -e CIRCLECI=1 \
        ${circleci_build_image} \
-       server_build \
+       make server_build \
        bin/generate-test-data \
        bin/prime-api-client \
        bin/rds-ca-2019-root.pem \

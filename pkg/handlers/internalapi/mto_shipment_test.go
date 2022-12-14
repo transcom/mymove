@@ -1002,7 +1002,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					suite.Equal(desiredShipment.AdvanceAmountReceived, updatedShipment.PpmShipment.AdvanceAmountReceived)
 				},
 			},
-			"Add W2 Address and Final Incentive": {
+			"Add W2 Address": {
 				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
 					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 						PPMShipment: models.PPMShipment{
@@ -1021,7 +1021,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 						State:          &state,
 						PostalCode:     &zipcode,
 					},
-					FinalIncentive: handlers.FmtInt64(250000),
 				},
 				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
 				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
@@ -1031,7 +1030,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
 
 					// check expected fields were updated
-					suite.Equal(desiredShipment.FinalIncentive, updatedShipment.PpmShipment.FinalIncentive)
 					suite.Equal(desiredShipment.W2Address.StreetAddress1, updatedShipment.PpmShipment.W2Address.StreetAddress1)
 					suite.Equal(desiredShipment.W2Address.City, updatedShipment.PpmShipment.W2Address.City)
 					suite.Equal(desiredShipment.W2Address.PostalCode, updatedShipment.PpmShipment.W2Address.PostalCode)
@@ -1148,6 +1146,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					mock.AnythingOfType("models.PPMShipment"),
 					mock.AnythingOfType("*models.PPMShipment")).
 					Return(tc.estimatedIncentive, nil, nil).Once()
+
+				ppmEstimator.On("FinalIncentiveWithDefaultChecks",
+					mock.AnythingOfType("*appcontext.appContext"),
+					mock.AnythingOfType("models.PPMShipment"),
+					mock.AnythingOfType("*models.PPMShipment")).
+					Return(nil, nil)
 
 				originalPPMShipment := tc.setUpOriginalPPM(appCtx)
 

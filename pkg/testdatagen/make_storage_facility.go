@@ -19,7 +19,7 @@ func MakeStorageFacility(db *pop.Connection, assertions Assertions) models.Stora
 		Address:      address,
 		AddressID:    address.ID,
 		LotNumber:    swag.String("1234"),
-		Phone:        swag.String("5555555555"),
+		Phone:        swag.String("555-555-5555"),
 		Email:        swag.String("storage@email.com"),
 	}
 

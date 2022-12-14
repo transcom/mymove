@@ -8,6 +8,7 @@ describe('About Your PPM', function () {
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+    cy.intercept('GET', '**/internal/rate_engine_postal_codes/**').as('validatePostalCode');
   });
 
   const viewportType = [

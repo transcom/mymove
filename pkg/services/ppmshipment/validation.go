@@ -134,5 +134,9 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		ppmShipment.DestinationPostalCode = newPPMShipment.DestinationPostalCode
 	}
 
+	if newPPMShipment.WeightTickets != nil && len(newPPMShipment.WeightTickets) == 1 {
+		ppmShipment.WeightTickets = newPPMShipment.WeightTickets
+	}
+
 	return &ppmShipment
 }

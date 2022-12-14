@@ -1227,6 +1227,34 @@ paths:
       summary: Denies a SIT extension
       x-permissions:
         - update.SITExtension
+  /ppm-shipments/{ppmShipmentId}/weight-tickets:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+    get:
+      summary: Gets all the weight tickets for a PPM shipment
+      description: |
+        Retrieves all of the weight tickets and associated uploads for each one for the specified PPM shipment. This
+        excludes any deleted weight tickets or uploads.
+      operationId: getWeightTickets
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: All weight tickets and associated uploads for the specified PPM shipment.
+          schema:
+            $ref: 'definitions/WeightTickets.yaml'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}:
     parameters:
       - $ref: 'parameters/ppmShipmentId.yaml'
@@ -2445,7 +2473,7 @@ paths:
           name: sort
           type: string
           enum:
-            [lastName, dodID, branch, locator, status, requestedMoveDate, submittedAt, originGBLOC, originDutyLocation]
+            [lastName, dodID, branch, locator, status, requestedMoveDate, submittedAt, originGBLOC, originDutyLocation, destinationDutyLocation, ppmType, closeoutInitiated, closeoutLocation]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -2486,6 +2514,10 @@ paths:
           type: string
           description: filters the name of the origin duty location on the orders
         - in: query
+          name: destinationDutyLocation
+          type: string
+          description: filters the name of the destination duty location on the orders
+        - in: query
           name: status
           type: array
           description: filters the status of the move
@@ -2499,6 +2531,22 @@ paths:
           name: needsPPMCloseout
           type: boolean
           description: Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.
+        - in: query
+          name: ppmType
+          type: string
+          enum:
+            - FULL
+            - PARTIAL
+          description: filters PPM type
+        - in: query
+          name: closeoutInitiated
+          type: string
+          format: date-time
+          description: Latest date that closeout was initiated on a PPM on the move
+        - in: query
+          name: closeoutLocation
+          type: string
+          description: closeout location
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4426,6 +4474,17 @@ definitions:
         $ref: 'definitions/DutyLocation.yaml'
       originGBLOC:
         $ref: '#/definitions/GBLOC'
+      ppmType:
+        type: string
+        enum: [FULL, PARTIAL]
+        x-nullable: true
+      closeoutInitiated:
+        format: date-time
+        type: string
+        x-nullable: true
+      closeoutLocation:
+        type: string
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -4449,7 +4508,7 @@ definitions:
       customer:
         $ref: '#/definitions/Customer'
       status:
-        $ref: '#/definitions/PaymentRequestStatus'
+        $ref: '#/definitions/QueuePaymentRequestStatus'
       age:
         type: number
         format: double
@@ -4480,6 +4539,14 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
+  QueuePaymentRequestStatus:
+    enum:
+      - Payment requested
+      - Reviewed
+      - Rejected
+      - Paid
+    title: Queue Payment Request Status
+    type: string
   SearchMoves:
     type: array
     items:
@@ -4669,7 +4736,11 @@ definitions:
         type: string
         example: 'Route 66 at crash inspection site 3'
         x-nullable: true
-      observedDate:
+      observedShipmentDeliveryDate:
+        type: string
+        format: date
+        x-nullable: true
+      observedShipmentPhysicalPickupDate:
         type: string
         format: date
         x-nullable: true

@@ -28,14 +28,14 @@ describe('PrimeUIShipmentUpdateReweighForm', () => {
     expect(submitBtn).toBeDisabled();
 
     const reweighInput = screen.getByLabelText('Reweigh Weight (lbs)');
-    userEvent.clear(reweighInput);
-    userEvent.type(reweighInput, '123');
-    userEvent.type(screen.getByTestId('remarks'), 'test');
+    await userEvent.clear(reweighInput);
+    await userEvent.type(reweighInput, '123');
+    await userEvent.type(screen.getByTestId('remarks'), 'test');
 
     await waitFor(() => {
       expect(submitBtn).not.toBeDisabled();
     });
-    userEvent.click(submitBtn);
+    await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalled();
@@ -54,7 +54,7 @@ describe('PrimeUIShipmentUpdateReweighForm', () => {
     render(<PrimeUIShipmentUpdateReweighForm {...testProps} />);
     const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
 
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     await waitFor(() => {
       expect(testProps.handleClose).toHaveBeenCalled();

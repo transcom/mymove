@@ -136,7 +136,7 @@ describe('EvaluationForm', () => {
       expect(screen.getByText('Time evaluation ended')).toBeInTheDocument();
 
       // Conditionally shown fields should not be displayed initially
-      expect(screen.queryByText('Travel time to evaluation')).not.toBeInTheDocument();
+      expect(screen.queryByText('Time departed for evaluation')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
 
@@ -161,9 +161,9 @@ describe('EvaluationForm', () => {
     });
 
     // Select Physical Evaluation type and origin location, ensure time depart, evaluation start and end are in the doc
+    await userEvent.click(screen.getByText('Physical'));
+    await userEvent.click(screen.getByText('Origin'));
     await waitFor(() => {
-      userEvent.click(screen.getByText('Physical'));
-      userEvent.click(screen.getByText('Origin'));
       expect(screen.getByText('Time departed for evaluation')).toBeInTheDocument();
       expect(screen.getByText('Time evaluation started')).toBeInTheDocument();
       expect(screen.getByText('Time evaluation ended')).toBeInTheDocument();
@@ -172,24 +172,24 @@ describe('EvaluationForm', () => {
       expect(screen.getAllByTestId('textarea')).toHaveLength(1);
     });
 
+    await userEvent.click(screen.getByText('Destination'));
     await waitFor(() => {
-      userEvent.click(screen.getByText('Destination'));
       expect(screen.getByText('Observed delivery date')).toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
       expect(screen.getAllByTestId('textarea')).toHaveLength(1);
     });
 
+    await userEvent.click(screen.getByText('Other'));
     await waitFor(() => {
-      userEvent.click(screen.getByText('Other'));
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
       expect(screen.getAllByTestId('textarea')).toHaveLength(2);
     });
 
     // If not 'Physical' eval type, no conditional time fields should be shown
+    await userEvent.click(screen.getByText('Virtual'));
     await waitFor(() => {
-      userEvent.click(screen.getByText('Virtual'));
-      expect(screen.queryByText('Time departed for evaluation')).not.toBeInTheDocument();
+      expect(screen.queryByText('Travel time to evaluation')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
     });
@@ -216,18 +216,16 @@ describe('EvaluationForm', () => {
       screen.queryByText('You will select the specific PWS paragraphs violated on the next screen.'),
     ).not.toBeInTheDocument();
 
+    await userEvent.click(screen.getByTestId('yesViolationsRadioOption'));
     await waitFor(() => {
-      userEvent.click(screen.getByTestId('yesViolationsRadioOption'));
-
       expect(screen.getByRole('button', { name: 'Next: select violations' })).toBeInTheDocument();
       expect(
         screen.getByText('You will select the specific PWS paragraphs violated on the next screen.'),
       ).toBeInTheDocument();
     });
 
-    await waitFor(() => {
-      userEvent.click(screen.getByRole('button', { name: 'Next: select violations' }));
-    });
+    await userEvent.click(screen.getByRole('button', { name: 'Next: select violations' }));
+
     expect(mockSaveEvaluationReport).toHaveBeenCalledTimes(1);
     expect(mockSaveEvaluationReport).toHaveBeenCalledWith({
       body: {
@@ -235,7 +233,8 @@ describe('EvaluationForm', () => {
         inspectionType: mockEvaluationReport.inspectionType,
         location: mockEvaluationReport.location,
         locationDescription: undefined,
-        observedDate: undefined,
+        observedShipmentDeliveryDate: undefined,
+        observedShipmentPhysicalPickupDate: undefined,
         remarks: mockEvaluationReport.remarks,
         violationsObserved: true,
         evalStart: mockEvaluationReport.evalStart,
@@ -263,7 +262,8 @@ describe('EvaluationForm', () => {
           inspectionType: 'DATA_REVIEW',
           location: 'ORIGIN',
           locationDescription: undefined,
-          observedDate: undefined,
+          observedShipmentDeliveryDate: undefined,
+          observedShipmentPhysicalPickupDate: undefined,
           remarks: 'test',
           violationsObserved: false,
           evalStart: mockEvaluationReport.evalStart,

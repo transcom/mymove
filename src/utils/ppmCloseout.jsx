@@ -37,7 +37,7 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
           id: 'advance',
           label: 'Advance:',
           value: ppmShipment.hasReceivedAdvance
-            ? `Yes, $${formatCentsTruncateWhole(ppmShipment.advanceAmountRequested)}`
+            ? `Yes, $${formatCentsTruncateWhole(ppmShipment.advanceAmountReceived)}`
             : 'No',
         },
         {
@@ -46,7 +46,7 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
           value: getW2Address(ppmShipment.w2Address),
         },
       ],
-      renderEditLink: () => <Link to={generatePath(editPath, editParams)}>Edit</Link>,
+      renderEditLink: () => (editPath ? <Link to={generatePath(editPath, editParams)}>Edit</Link> : ''),
     },
   ];
 };

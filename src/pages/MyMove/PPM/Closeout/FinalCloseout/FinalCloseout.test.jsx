@@ -9,7 +9,7 @@ import { selectMTOShipmentById } from 'store/entities/selectors';
 import { updateMTOShipment } from 'store/entities/actions';
 import { MockProviders, setUpProvidersWithHistory } from 'testUtils';
 import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
-import { submitPPMShipmentSignedCertification } from 'services/internalApi';
+import { getMTOShipmentsForMove, submitPPMShipmentSignedCertification } from 'services/internalApi';
 import { ppmSubmissionCertificationText } from 'scenes/Legalese/legaleseText';
 import { formatDateForSwagger } from 'shared/dates';
 
@@ -28,6 +28,7 @@ jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   getResponseError: jest.fn(),
   submitPPMShipmentSignedCertification: jest.fn(),
+  getMTOShipmentsForMove: jest.fn(),
 }));
 
 jest.mock('store/entities/selectors', () => ({
@@ -48,27 +49,32 @@ describe('Final Closeout page', () => {
   const setUpMocks = (mtoShipment) => {
     const shipment = mtoShipment || createPPMShipmentWithFinalIncentive();
 
-    useParams.mockReturnValue({ mtoShipmentId: shipment.id });
+    useParams.mockReturnValue({ mtoShipmentId: shipment.id, moveId: shipment.moveTaskOrderId });
 
-    selectMTOShipmentById.mockReturnValueOnce(shipment);
+    selectMTOShipmentById.mockReturnValue(shipment);
+    getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
 
     return shipment;
   };
 
-  it('loads the selected shipment from redux', () => {
+  it('loads the selected shipment from redux', async () => {
     const shipment = setUpMocks();
 
     render(<FinalCloseout />, { wrapper: MockProviders });
 
-    expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), shipment.id);
+    await waitFor(() => {
+      expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), shipment.id);
+    });
   });
 
-  it('renders the page headings', () => {
+  it('renders the page headings', async () => {
     setUpMocks();
 
     render(<FinalCloseout />, { wrapper: MockProviders });
 
-    expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
+    await waitFor(() => {
+      expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
+    });
 
     expect(screen.getByRole('heading', { level: 1, name: 'Complete PPM' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: /Your final estimated incentive: \$/ })).toBeInTheDocument();
@@ -81,7 +87,9 @@ describe('Final Closeout page', () => {
 
     render(<FinalCloseout />, { wrapper: mockProviderWithHistory });
 
-    await userEvent.click(screen.getByText('Return To Homepage'));
+    await waitFor(async () => {
+      await userEvent.click(screen.getByText('Return To Homepage'));
+    });
 
     expect(memoryHistory.location.pathname).toEqual(generalRoutes.HOME_PATH);
   });
@@ -93,6 +101,10 @@ describe('Final Closeout page', () => {
     const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
 
     render(<FinalCloseout />, { wrapper: mockProviderWithHistory });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
+    });
 
     await userEvent.type(screen.getByRole('textbox', { name: 'Signature' }), 'Grace Griffin');
     await userEvent.click(screen.getByRole('button', { name: 'Submit PPM Documentation' }));

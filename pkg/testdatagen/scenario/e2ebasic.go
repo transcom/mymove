@@ -4221,6 +4221,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	serviceMemberWithOrdersAndPPMMove07(appCtx, userUploader)
 	serviceMemberWithOrdersAndPPMMove08(appCtx, userUploader)
 	createMoveWithPPMShipmentReadyForFinalCloseout(appCtx, userUploader)
+	createMoveWithCloseoutOffice(appCtx, userUploader)
 
 	//destination type
 	hos := models.DestinationTypeHomeOfSelection
@@ -4301,15 +4302,19 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createApprovedMoveWithPPMWithAboutFormComplete7(appCtx, userUploader)
 	createApprovedMoveWithPPMWithAboutFormComplete8(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
+	createApprovedMoveWithPPM(appCtx, userUploader)
 	createApprovedMoveWithPPM2(appCtx, userUploader)
 	createApprovedMoveWithPPM3(appCtx, userUploader)
 	createApprovedMoveWithPPM4(appCtx, userUploader)
 	createApprovedMoveWithPPM5(appCtx, userUploader)
-	createApprovedMoveWithPPM(appCtx, userUploader)
+	createApprovedMoveWithPPM6(appCtx, userUploader)
+	createApprovedMoveWithPPM7(appCtx, userUploader)
 	createApprovedMoveWithPPMProgearWeightTicket(appCtx, userUploader)
 	createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)
 	createApprovedMoveWithPPMMovingExpense(appCtx, nil, userUploader)
 	createApprovedMoveWithPPMMovingExpense(appCtx, &moveCreatorInfo{userID: uuid.FromStringOrNil("da65c290-6256-46db-a1a0-3779191638a2"), email: "movingExpensePPM2@ppm.approved", moveLocator: "EXPNS2"}, userUploader)
+	createMoveWithPPMShipmentReadyForFinalCloseout2(appCtx, userUploader)
+	createMoveWithPPMShipmentReadyForFinalCloseout3(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMADD")
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSCF")

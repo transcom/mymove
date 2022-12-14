@@ -178,4 +178,72 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 		suite.Len(actualShipment.ProgearExpenses[0].Document.UserUploads, 0)
 		suite.Len(actualShipment.MovingExpenses[0].Document.UserUploads, 0)
 	})
+
+	suite.Run("FetchPPMShipmentFromMTOShipmentID - finds records", func() {
+		ppm := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+
+		retrievedPPM, _ := FetchPPMShipmentFromMTOShipmentID(suite.AppContextForTest(), ppm.ShipmentID)
+
+		suite.Equal(retrievedPPM.ID, ppm.ID)
+		suite.Equal(retrievedPPM.ShipmentID, ppm.ShipmentID)
+
+	})
+
+	suite.Run("FetchPPMShipmentFromMTOShipmentID  - returns not found for unknown id", func() {
+		badID := uuid.Must(uuid.NewV4())
+		_, err := FetchPPMShipmentFromMTOShipmentID(suite.AppContextForTest(), badID)
+		suite.Error(err)
+
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Equal(fmt.Sprintf("ID: %s not found while looking for PPMShipment", badID), err.Error())
+	})
+
+	suite.Run("FetchPPMShipmentFromMTOShipmentID  - returns not found for deleted shipment", func() {
+		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+
+		err := utilities.SoftDestroy(suite.DB(), &ppmShipment)
+		suite.NoError(err)
+
+		_, err = FetchPPMShipmentFromMTOShipmentID(suite.AppContextForTest(), ppmShipment.ShipmentID)
+		suite.Error(err)
+
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Equal(fmt.Sprintf("ID: %s not found while looking for PPMShipment", ppmShipment.ShipmentID), err.Error())
+	})
+
+	suite.Run("FindPPMShipmentAndWeightTickets - Success", func() {
+		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
+		foundPPMShipment, err := FindPPMShipmentAndWeightTickets(suite.AppContextForTest(), weightTicket.PPMShipmentID)
+
+		suite.Nil(err)
+		suite.Equal(weightTicket.PPMShipmentID, foundPPMShipment.ID)
+		suite.Equal(weightTicket.PPMShipment.Status, foundPPMShipment.Status)
+		suite.Len(foundPPMShipment.WeightTickets, 1)
+		suite.Equal(*weightTicket.EmptyWeight, *foundPPMShipment.WeightTickets[0].EmptyWeight)
+		suite.Equal(*weightTicket.FullWeight, *foundPPMShipment.WeightTickets[0].FullWeight)
+	})
+
+	suite.Run("FindPPMShipmentAndWeightTickets - still returns if weightTicket does not exist", func() {
+		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+		foundPPMShipment, err := FindPPMShipmentAndWeightTickets(suite.AppContextForTest(), ppmShipment.ID)
+
+		suite.Nil(err)
+		suite.Equal(ppmShipment.ID, foundPPMShipment.ID)
+		suite.Equal(ppmShipment.ShipmentID, foundPPMShipment.ShipmentID)
+	})
+
+	suite.Run("FindPPMShipmentAndWeightTickets - errors if ID isn't found", func() {
+		id := uuid.Must(uuid.NewV4())
+		foundPPMShipment, err := FindPPMShipmentAndWeightTickets(suite.AppContextForTest(), id)
+
+		suite.Nil(foundPPMShipment)
+		if suite.Error(err) {
+			suite.IsType(apperror.NotFoundError{}, err)
+
+			suite.Equal(
+				fmt.Sprintf("ID: %s not found while looking for PPMShipmentAndWeightTickets", id.String()),
+				err.Error(),
+			)
+		}
+	})
 }

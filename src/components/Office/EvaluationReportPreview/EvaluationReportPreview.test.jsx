@@ -197,7 +197,8 @@ const mtoShipments = [
 const evaluationReport = {
   createdAt: '2022-08-15T16:11:26.590Z',
   eTag: 'MjAyMi0wOC0xNVQxNjoxMToyNi41OTAyMjla',
-  evaluationLengthMinutes: 45,
+  evalStart: '09:00',
+  evalEnd: '09:45',
   id: '7d7180cd-f286-495d-a518-0d503e4cdc1f',
   inspectionDate: '2022-08-15',
   inspectionType: 'DATA_REVIEW',
