@@ -1,12 +1,8 @@
 // @ts-check
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('../utils/adminTest');
 
-const { signInAsNewAdminUser } = require('../utils/signIn');
-
-test('admin home page', async ({ page }) => {
-  await page.goto('/');
-
-  await signInAsNewAdminUser(page);
+test('admin home page', async ({ page, adminPage }) => {
+  await adminPage.signInAsNewAdminUser();
 
   // redirects to office users page after login
   await expect(page.getByRole('heading', { name: 'Office Users' })).toBeVisible();

@@ -64,12 +64,16 @@ func MakePPMInProgressMove(appCtx appcontext.AppContext) models.Move {
 
 	nextValidMoveDateMinusTen := dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
 	pastTime := nextValidMoveDateMinusTen
+
+	username := strings.Split(email, "@")[0]
+	firstName := strings.Split(username, "_")[0]
+	lastName := username[len(firstName)+1:]
 	ppm1 := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			UserID:        user.ID,
 			PersonalEmail: models.StringPointer(email),
-			FirstName:     models.StringPointer("PPM"),
-			LastName:      models.StringPointer("In Progress"),
+			FirstName:     models.StringPointer(firstName),
+			LastName:      models.StringPointer(lastName),
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &pastTime,
@@ -96,6 +100,8 @@ func MakePPMInProgressMove(appCtx appcontext.AppContext) models.Move {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
 
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
 	move, err := models.FetchMove(appCtx.DB(), &auth.Session{}, ppm1.Move.ID)
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
