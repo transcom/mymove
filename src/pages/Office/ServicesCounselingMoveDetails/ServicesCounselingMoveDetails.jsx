@@ -74,6 +74,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
   let shipmentsInfo = [];
   let ppmShipmentsInfo = [];
+  let ppmShipmentsOtherStatuses = [];
   let disableSubmit = false;
   let disableSubmitDueToMissingOrderInfo = false;
   let numberOfErrorIfMissingForAllShipments = 0;
@@ -96,9 +97,16 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
-    const submittedShipmentsNonPPM = submittedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
-    const ppmNeedsApprovalShipments = submittedShipments?.filter(
+    const submittedShipmentsNonPPM = submittedShipments.filter(
+      (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+    );
+    // const submittedShipmentsNonPPM = submittedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
+    const ppmNeedsApprovalShipments = submittedShipments.filter(
       (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+    );
+    const onlyPpmShipments = submittedShipments.filter((shipment) => shipment.shipmentType === 'PPM');
+    ppmShipmentsOtherStatuses = onlyPpmShipments.filter(
+      (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
     );
 
     ppmShipmentsInfo = ppmNeedsApprovalShipments.map((shipment) => {
@@ -161,7 +169,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     });
 
     const counselorCanReview = ppmShipmentsInfo.length > 0;
-    counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
+    counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && ppmShipmentsOtherStatuses.length > 0;
 
     shipmentsInfo = submittedShipmentsNonPPM.map((shipment) => {
       const editURL = counselorCanEdit
