@@ -11,6 +11,10 @@ export async function buildDefaultAdminUser(request) {
   return buildDefault(request, 'DefaultAdminUser');
 }
 
+export async function buildOfficeUserWithTOOAndTIO(request) {
+  return buildDefault(request, 'OfficeUserWithTOOAndTIO');
+}
+
 export async function buildDefaultMove(request) {
   return buildDefault(request, 'DefaultMove');
 }

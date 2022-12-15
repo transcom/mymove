@@ -63,6 +63,9 @@ var actionDispatcher = map[string]actionFunc{
 	"PPMInProgressMove": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return testharness.MakePPMInProgressMove(appCtx)
 	},
+	"OfficeUserWithTOOAndTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return testharness.MakeOfficeUserWithTOOAndTIO(appCtx)
+	},
 }
 
 func buildDefault(appCtx appcontext.AppContext, r *http.Request) (testHarnessResponse, error) {
