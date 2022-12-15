@@ -32,6 +32,9 @@ func (suite *FactorySuite) TestBuildAddress() {
 	})
 
 	suite.Run("Successful creation of an address with trait", func() {
+		// Under test:      BuildAddress
+		// Set up:          Create an Address with a trait
+		// Expected outcome:Address should be created with custom StreetAddress1 and active status
 		address := BuildAddress(suite.DB(), nil,
 			[]Trait{
 				GetTraitAddress2,
@@ -41,6 +44,9 @@ func (suite *FactorySuite) TestBuildAddress() {
 	})
 
 	suite.Run("Successful creation of address with both", func() {
+		// Under test:      BuildAddress
+		// Set up:          Create an Address with a customized StreetAddress1 and address trait
+		// Expected outcome:Address should be created with email
 		address := BuildAddress(suite.DB(), []Customization{
 			{
 				Model: models.Address{
@@ -56,6 +62,10 @@ func (suite *FactorySuite) TestBuildAddress() {
 	})
 
 	suite.Run("Successful creation of stubbed address", func() {
+		// Under test:      BuildAddress
+		// Set up:          Create a customized address, but don't pass in a db
+		// Expected outcome:Address should be created with email
+		//                  No address should be created in database
 		precount, err := suite.DB().Count(&models.Address{})
 		suite.NoError(err)
 
