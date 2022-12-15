@@ -328,13 +328,13 @@ export const useServicesCounselingQueueQueries = ({
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
 }) => {
-  const { data = {}, ...servicesCounselingQueueQuery } = useQuery({
-    queryKey: [
-      SERVICES_COUNSELING_QUEUE,
-      { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false },
-    ],
-    queryFn: () => getServicesCounselingQueue,
-  });
+  debugger;
+  const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
+    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false }],
+    (context) => {
+      getServicesCounselingQueue(context[0], context.queryKey[1]);
+    },
+  );
 
   const { isLoading, isError, isSuccess } = servicesCounselingQueueQuery;
   const { queueMoves, ...dataProps } = data;

@@ -135,7 +135,7 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
       }
 
       // Otherwise, return raw response body
-      return response.body;
+      return Promise.resolve(response.body);
     })
     .catch((response) => {
       milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `Operation ${operationPath} failed: ${response} (${response.status})`);
