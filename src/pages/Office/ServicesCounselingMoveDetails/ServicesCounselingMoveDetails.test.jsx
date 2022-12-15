@@ -554,7 +554,7 @@ describe('MoveDetails page', () => {
 
       render(mockedComponent);
 
-      expect(screen.findByRole('button', { name: 'Review documents' }));
+      expect(screen.getAllByRole('button', { name: 'Review documents' }).length).toBe(2);
     });
 
     it('renders multiple ppm shipments with numbers in heading', async () => {

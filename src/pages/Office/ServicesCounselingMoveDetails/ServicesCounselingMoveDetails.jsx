@@ -50,8 +50,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const { order, move, mtoShipments, isLoading, isError } = useMoveDetailsQueries(moveCode);
   const { customer, entitlement: allowances } = order;
 
-  // const counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
   let counselorCanEdit;
+  let counselorCanEditNonPPM;
 
   const sections = useMemo(() => {
     return ['shipments', 'orders', 'allowances', 'customer-info'];
@@ -170,14 +170,17 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
     const counselorCanReview = ppmShipmentsInfo.length > 0;
     counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && ppmShipmentsOtherStatuses.length > 0;
+    counselorCanEditNonPPM =
+      move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
 
     shipmentsInfo = submittedShipmentsNonPPM.map((shipment) => {
-      const editURL = counselorCanEdit
-        ? generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
-            moveCode,
-            shipmentId: shipment.id,
-          })
-        : '';
+      const editURL =
+        counselorCanEdit || counselorCanEditNonPPM
+          ? generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
+              moveCode,
+              shipmentId: shipment.id,
+            })
+          : '';
 
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
@@ -396,17 +399,21 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             </Grid>
             {ppmShipmentsInfo.length > 0 ? null : (
               <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
-                {counselorCanEdit && (
-                  <Button
-                    disabled={
-                      !mtoShipments.length || allShipmentsDeleted || disableSubmit || disableSubmitDueToMissingOrderInfo
-                    }
-                    type="button"
-                    onClick={handleShowCancellationModal}
-                  >
-                    Submit move details
-                  </Button>
-                )}
+                {counselorCanEdit ||
+                  (counselorCanEditNonPPM && (
+                    <Button
+                      disabled={
+                        !mtoShipments.length ||
+                        allShipmentsDeleted ||
+                        disableSubmit ||
+                        disableSubmitDueToMissingOrderInfo
+                      }
+                      type="button"
+                      onClick={handleShowCancellationModal}
+                    >
+                      Submit move details
+                    </Button>
+                  ))}
               </Grid>
             )}
           </Grid>
@@ -415,7 +422,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               className={scMoveDetailsStyles.noPaddingBottom}
               editButton={
-                counselorCanEdit && (
+                counselorCanEdit ||
+                (counselorCanEditNonPPM && (
                   <ButtonDropdown data-testid="addShipmentButton" onChange={handleButtonDropdownChange}>
                     <option value="">Add a new shipment</option>
                     <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
@@ -425,7 +433,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                     <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
                     <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
                   </ButtonDropdown>
-                )
+                ))
               }
               financialReviewOpen={handleShowFinancialReviewModal}
               title="Shipments"
@@ -483,14 +491,15 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Orders"
               editButton={
-                counselorCanEdit && (
+                counselorCanEdit ||
+                (counselorCanEditNonPPM && (
                   <Link
                     className="usa-button usa-button--secondary"
                     to={generatePath(servicesCounselingRoutes.ORDERS_EDIT_PATH, { moveCode })}
                   >
                     View and edit orders
                   </Link>
-                )
+                ))
               }
               shipmentsInfoNonPpm={shipmentsInfo}
             >
@@ -501,7 +510,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Allowances"
               editButton={
-                counselorCanEdit && (
+                counselorCanEdit ||
+                (counselorCanEditNonPPM && (
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-allowances"
@@ -509,7 +519,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   >
                     Edit allowances
                   </Link>
-                )
+                ))
               }
               shipmentsInfoNonPpm={shipmentsInfo}
             >
@@ -520,7 +530,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Customer info"
               editButton={
-                counselorCanEdit && (
+                counselorCanEdit ||
+                (counselorCanEditNonPPM && (
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-customer-info"
@@ -528,7 +539,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   >
                     Edit customer info
                   </Link>
-                )
+                ))
               }
               shipmentsInfoNonPpm={shipmentsInfo}
             >
