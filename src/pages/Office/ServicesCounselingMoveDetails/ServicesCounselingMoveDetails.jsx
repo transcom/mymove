@@ -399,21 +399,17 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             </Grid>
             {ppmShipmentsInfo.length > 0 ? null : (
               <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
-                {counselorCanEdit ||
-                  (counselorCanEditNonPPM && (
-                    <Button
-                      disabled={
-                        !mtoShipments.length ||
-                        allShipmentsDeleted ||
-                        disableSubmit ||
-                        disableSubmitDueToMissingOrderInfo
-                      }
-                      type="button"
-                      onClick={handleShowCancellationModal}
-                    >
-                      Submit move details
-                    </Button>
-                  ))}
+                {(counselorCanEdit || counselorCanEditNonPPM) && (
+                  <Button
+                    disabled={
+                      !mtoShipments.length || allShipmentsDeleted || disableSubmit || disableSubmitDueToMissingOrderInfo
+                    }
+                    type="button"
+                    onClick={handleShowCancellationModal}
+                  >
+                    Submit move details
+                  </Button>
+                )}
               </Grid>
             )}
           </Grid>
