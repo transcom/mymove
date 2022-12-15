@@ -52,6 +52,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
   let counselorCanEdit;
   let counselorCanEditNonPPM;
+  let counselorCanEditGeneral;
 
   const sections = useMemo(() => {
     return ['shipments', 'orders', 'allowances', 'customer-info'];
@@ -169,6 +170,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     });
 
     const counselorCanReview = ppmShipmentsInfo.length > 0;
+    counselorCanEditGeneral = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
     counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && ppmShipmentsOtherStatuses.length > 0;
     counselorCanEditNonPPM =
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
@@ -418,7 +420,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               className={scMoveDetailsStyles.noPaddingBottom}
               editButton={
-                (counselorCanEdit || counselorCanEditNonPPM) && (
+                (counselorCanEdit || counselorCanEditNonPPM || counselorCanEditGeneral) && (
                   <ButtonDropdown data-testid="addShipmentButton" onChange={handleButtonDropdownChange}>
                     <option value="">Add a new shipment</option>
                     <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
