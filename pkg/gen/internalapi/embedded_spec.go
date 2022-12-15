@@ -3182,6 +3182,51 @@ func init() {
         }
       }
     },
+    "/transportation_offices": {
+      "get": {
+        "description": "Returns the transportation offices matching the search query",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportation_offices"
+        ],
+        "summary": "Returns the transportation offices matching the search query",
+        "operationId": "getTransportationOffices",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Search string for transportation offices",
+            "name": "search",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffices"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -7140,6 +7185,12 @@ func init() {
           "type": "string",
           "format": "date-time"
         }
+      }
+    },
+    "TransportationOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TransportationOffice"
       }
     },
     "UpdateMovingExpense": {
@@ -11403,6 +11454,66 @@ func init() {
         }
       }
     },
+    "/transportation_offices": {
+      "get": {
+        "description": "Returns the transportation offices matching the search query",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportation_offices"
+        ],
+        "summary": "Returns the transportation offices matching the search query",
+        "operationId": "getTransportationOffices",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Search string for transportation offices",
+            "name": "search",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffices"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -15383,6 +15494,12 @@ func init() {
           "type": "string",
           "format": "date-time"
         }
+      }
+    },
+    "TransportationOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TransportationOffice"
       }
     },
     "UpdateMovingExpense": {
