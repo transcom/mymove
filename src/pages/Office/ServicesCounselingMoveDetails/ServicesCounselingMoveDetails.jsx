@@ -422,8 +422,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               className={scMoveDetailsStyles.noPaddingBottom}
               editButton={
-                counselorCanEdit ||
-                (counselorCanEditNonPPM && (
+                (counselorCanEdit || counselorCanEditNonPPM) && (
                   <ButtonDropdown data-testid="addShipmentButton" onChange={handleButtonDropdownChange}>
                     <option value="">Add a new shipment</option>
                     <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
@@ -433,7 +432,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                     <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
                     <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
                   </ButtonDropdown>
-                ))
+                )
               }
               financialReviewOpen={handleShowFinancialReviewModal}
               title="Shipments"
@@ -491,15 +490,14 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Orders"
               editButton={
-                counselorCanEdit ||
-                (counselorCanEditNonPPM && (
+                (counselorCanEdit || counselorCanEditNonPPM) && (
                   <Link
                     className="usa-button usa-button--secondary"
                     to={generatePath(servicesCounselingRoutes.ORDERS_EDIT_PATH, { moveCode })}
                   >
                     View and edit orders
                   </Link>
-                ))
+                )
               }
               shipmentsInfoNonPpm={shipmentsInfo}
             >
@@ -510,8 +508,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Allowances"
               editButton={
-                counselorCanEdit ||
-                (counselorCanEditNonPPM && (
+                (counselorCanEdit || counselorCanEditNonPPM) && (
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-allowances"
@@ -519,7 +516,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   >
                     Edit allowances
                   </Link>
-                ))
+                )
               }
               shipmentsInfoNonPpm={shipmentsInfo}
             >
@@ -530,8 +527,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Customer info"
               editButton={
-                counselorCanEdit ||
-                (counselorCanEditNonPPM && (
+                (counselorCanEdit || counselorCanEditNonPPM) && (
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-customer-info"
@@ -539,7 +535,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   >
                     Edit customer info
                   </Link>
-                ))
+                )
               }
               shipmentsInfoNonPpm={shipmentsInfo}
             >
