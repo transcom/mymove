@@ -1,12 +1,8 @@
 // @ts-check
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('../utils/adminTest');
 
-const { signInAsNewAdminUser } = require('../utils/signIn');
-const { buildDefaultAdminUser } = require('../utils/testharness');
-
-test('Admin Users List Page', async ({ page }) => {
-  await page.goto('/');
-  await signInAsNewAdminUser(page);
+test('Admin Users List Page', async ({ page, adminPage }) => {
+  await adminPage.signInAsNewAdminUser();
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
@@ -18,9 +14,8 @@ test('Admin Users List Page', async ({ page }) => {
   }
 });
 
-test('Admin User Create Page', async ({ page }) => {
-  await page.goto('/');
-  await signInAsNewAdminUser(page);
+test('Admin User Create Page', async ({ page, adminPage }) => {
+  await adminPage.signInAsNewAdminUser();
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
@@ -51,9 +46,8 @@ test('Admin User Create Page', async ({ page }) => {
   await expect(page.locator('#active')).toHaveText('Yes');
 });
 
-test('Admin Users Show Page', async ({ page }) => {
-  await page.goto('/');
-  await signInAsNewAdminUser(page);
+test('Admin Users Show Page', async ({ page, adminPage }) => {
+  await adminPage.signInAsNewAdminUser();
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
@@ -86,13 +80,12 @@ test('Admin Users Show Page', async ({ page }) => {
   }
 });
 
-test('Admin Users Edit Page', async ({ page, request }) => {
-  await page.goto('/');
-  await signInAsNewAdminUser(page);
+test('Admin Users Edit Page', async ({ page, adminPage }) => {
+  await adminPage.signInAsNewAdminUser();
 
   // create a new admin user to edit
   // using an existing one may stop on a concurrent playwright session
-  const adminUser = await buildDefaultAdminUser(request);
+  const adminUser = await adminPage.buildDefaultAdminUser();
   const adminUserId = adminUser.id;
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();

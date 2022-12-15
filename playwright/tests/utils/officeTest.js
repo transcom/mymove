@@ -1,5 +1,11 @@
 const base = require('@playwright/test');
 
+const {
+  signIntoOfficeAsNewPPMUser,
+  signIntoOfficeAsNewTIOUser,
+  signIntoOfficeAsNewTOOUser,
+  signIntoOfficeAsNewServicesCounselorUser,
+} = require('./signIn');
 const { buildPPMInProgressMove } = require('./testharness');
 
 class OfficePage {
@@ -11,14 +17,33 @@ class OfficePage {
     this.request = request;
   }
 
-  async gotoAndWaitForLoading(url) {
-    await this.page.goto(url);
+  async waitForLoading() {
     await base.expect(this.page.locator('h2[data-name="loading-placeholder"]')).toHaveCount(0);
   }
 
-  async loginAsNewPPMOfficeUser() {
-    await this.page.goto('/devlocal-auth/login');
-    await this.page.locator('button[data-hook="new-user-login-PPM office"]').click();
+  async gotoAndWaitForLoading(url) {
+    await this.page.goto(url);
+    await this.waitForLoading();
+  }
+
+  async signInAsNewPPMUser() {
+    await signIntoOfficeAsNewPPMUser(this.page);
+    await this.waitForLoading();
+  }
+
+  async signInAsNewServicesCounselorUser() {
+    await signIntoOfficeAsNewServicesCounselorUser(this.page);
+    await this.waitForLoading();
+  }
+
+  async signInAsNewTIOUser() {
+    await signIntoOfficeAsNewTIOUser(this.page);
+    await this.waitForLoading();
+  }
+
+  async signInAsNewTOOUser() {
+    await signIntoOfficeAsNewTOOUser(this.page);
+    await this.waitForLoading();
   }
 
   async buildInProgressPPMMove() {
@@ -29,7 +54,6 @@ class OfficePage {
 exports.test = base.test.extend({
   officePage: async ({ page, request }, use) => {
     const officePage = new OfficePage(page, request);
-    await officePage.loginAsNewPPMOfficeUser();
     await use(officePage);
   },
 });

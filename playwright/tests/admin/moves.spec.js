@@ -1,12 +1,8 @@
 // @ts-check
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('../utils/adminTest');
 
-const { signInAsNewAdminUser } = require('../utils/signIn');
-const { buildDefaultMove } = require('../utils/testharness');
-
-test('Moves Page', async ({ page }) => {
-  await page.goto('/');
-  await signInAsNewAdminUser(page);
+test('Moves Page', async ({ page, adminPage }) => {
+  await adminPage.signInAsNewAdminUser();
 
   await page.getByRole('menuitem', { name: 'Moves' }).click();
   expect(page.url()).toContain('/system/moves');
@@ -18,12 +14,11 @@ test('Moves Page', async ({ page }) => {
   }
 });
 
-test('Moves Details Show Page', async ({ page, request }) => {
-  await page.goto('/');
-  await signInAsNewAdminUser(page);
+test('Moves Details Show Page', async ({ page, adminPage }) => {
+  await adminPage.signInAsNewAdminUser();
 
   // make sure at least one move exists
-  await buildDefaultMove(request);
+  await adminPage.buildDefaultMove();
 
   await page.getByRole('menuitem', { name: 'Moves' }).click();
   await page.locator('span[reference="moves"]').first().click();
@@ -52,11 +47,10 @@ test('Moves Details Show Page', async ({ page, request }) => {
   }
 });
 
-test('Moves Details Edit Page', async ({ page, request }) => {
-  await page.goto('/');
-  await signInAsNewAdminUser(page);
+test('Moves Details Edit Page', async ({ page, adminPage }) => {
+  await adminPage.signInAsNewAdminUser();
 
-  const move = await buildDefaultMove(request);
+  const move = await adminPage.buildDefaultMove();
   const moveId = move.id;
   const moveLocator = move.locator;
 
