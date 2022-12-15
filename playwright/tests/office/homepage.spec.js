@@ -55,25 +55,20 @@ test.describe('Office authorization', () => {
   // });
 
   test.describe('multiple role selection', () => {
-    test.skip('can switch between TOO & TIO roles', async ({ page }) => {
-      await page.goto('/');
-      // cy.signInAsMultiRoleOfficeUser();
-      // cy.wait(['@getGHCClient', '@getOrders']);
-      // await expect(page.getByText('All moves')).toBeVisible(); // TOO home
-      // await expect(page.getByText('Spaceman, Leo')).toBeVisible();
-      // await expect(page.getByText('KKFA moves')).toBeVisible();
-      // await expect(page.getByText('Change user role').click()).toBeVisible();
-      // cy.url().should('contain', '/select-application');
-      // await expect(page.getByText('Select transportation_invoicing_officer').click()).toBeVisible();
-      // cy.url().should('eq', officeBaseURL + '/');
-      // cy.wait('@getPaymentRequests');
-      // await expect(page.getByText('Payment requests')).toBeVisible();
-      // await expect(page.getByText('Change user role').click()).toBeVisible();
-      // cy.url().should('contain', '/select-application');
-      // await expect(page.getByText('Select transportation_ordering_officer').click()).toBeVisible();
-      // cy.wait('@getOrders');
-      // cy.url().should('eq', officeBaseURL + '/');
-      // await expect(page.getByText('All moves')).toBeVisible();
+    test('can switch between TOO & TIO roles', async ({ page, officePage }) => {
+      await officePage.signInAsNewTIOAndTOOUser();
+      await expect(page.getByText('All moves')).toBeVisible(); // TOO home
+      await page.getByText('Change user role').click();
+      expect(page.url()).toContain('/select-application');
+      await page.getByText('Select transportation_invoicing_officer').click();
+      await officePage.waitForLoading();
+      await expect(page.getByRole('heading', { name: 'Payment requests' })).toBeVisible();
+
+      await page.getByText('Change user role').click();
+      expect(page.url()).toContain('/select-application');
+      await page.getByText('Select transportation_ordering_officer').click();
+      await officePage.waitForLoading();
+      await expect(page.getByText('All moves')).toBeVisible();
     });
   });
 });

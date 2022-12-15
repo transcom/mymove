@@ -5,8 +5,9 @@ const {
   signIntoOfficeAsNewTIOUser,
   signIntoOfficeAsNewTOOUser,
   signIntoOfficeAsNewServicesCounselorUser,
+  signInAsExistingOfficeUser,
 } = require('./signIn');
-const { buildPPMInProgressMove } = require('./testharness');
+const { buildPPMInProgressMove, buildOfficeUserWithTOOAndTIO } = require('./testharness');
 
 class OfficePage {
   /**
@@ -43,6 +44,12 @@ class OfficePage {
 
   async signInAsNewTOOUser() {
     await signIntoOfficeAsNewTOOUser(this.page);
+    await this.waitForLoading();
+  }
+
+  async signInAsNewTIOAndTOOUser() {
+    const user = await buildOfficeUserWithTOOAndTIO(this.request);
+    await signInAsExistingOfficeUser(this.page, user.login_gov_email);
     await this.waitForLoading();
   }
 

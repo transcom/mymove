@@ -40,3 +40,9 @@ async function signInAsUserWithIdAndType(page, userId) {
 export async function signInAsExistingCustomer(page, userId) {
   return signInAsUserWithIdAndType(page, userId);
 }
+
+export async function signInAsExistingOfficeUser(page, email) {
+  await page.goto('/devlocal-auth/login');
+  await page.locator('input[name=email]').fill(email);
+  await page.locator('p', { hasText: 'User Email' }).locator('button').click();
+}
