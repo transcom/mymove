@@ -432,7 +432,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
               }
               financialReviewOpen={handleShowFinancialReviewModal}
               title="Shipments"
-              shipmentsInfoNonPpm={shipmentsInfo}
+              ppmShipmentInfo={ppmShipmentsInfo}
             >
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
                 <div className={scMoveDetailsStyles.scFinancialReviewContainer}>
@@ -495,7 +495,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   </Link>
                 )
               }
-              shipmentsInfoNonPpm={shipmentsInfo}
+              ppmShipmentInfo={ppmShipmentsInfo}
             >
               <OrdersList ordersInfo={ordersInfo} />
             </DetailsPanel>
@@ -514,7 +514,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   </Link>
                 )
               }
-              shipmentsInfoNonPpm={shipmentsInfo}
+              ppmShipmentInfo={ppmShipmentsInfo}
             >
               <AllowancesList info={allowancesInfo} showVisualCues />
             </DetailsPanel>
@@ -533,7 +533,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   </Link>
                 )
               }
-              shipmentsInfoNonPpm={shipmentsInfo}
+              ppmShipmentInfo={ppmShipmentsInfo}
             >
               <CustomerInfoList customerInfo={customerInfo} />
             </DetailsPanel>

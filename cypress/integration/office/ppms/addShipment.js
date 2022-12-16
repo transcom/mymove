@@ -36,7 +36,7 @@ describe('Services counselor user', () => {
   });
 
   it('is able to add a new PPM shipment', () => {
-    const moveLocator = 'PPMSC1';
+    const moveLocator = 'PPMADD';
 
     /**
      * Move Details page

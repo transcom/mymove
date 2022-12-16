@@ -5,7 +5,7 @@ import classnames from 'classnames';
 
 import styles from './DetailsPanel.module.scss';
 
-const DetailsPanel = ({ title, tag, editButton, children, shipmentsInfoNonPpm, className }) => {
+const DetailsPanel = ({ title, tag, editButton, children, ppmShipmentInfo, className }) => {
   return (
     <div className={classnames(styles.DetailsPanel, className)}>
       <div className="stackedtable-header">
@@ -18,7 +18,7 @@ const DetailsPanel = ({ title, tag, editButton, children, shipmentsInfoNonPpm, c
           )}
         </h2>
         {/* {editButton && <div>{editButton}</div>} */}
-        {shipmentsInfoNonPpm.length === 0 ? null : editButton && <div>{editButton}</div>}
+        {ppmShipmentInfo.length > 0 ? null : editButton && <div>{editButton}</div>}
       </div>
       {children}
     </div>
@@ -31,14 +31,14 @@ DetailsPanel.propTypes = {
   editButton: PropTypes.node,
   title: PropTypes.string.isRequired,
   tag: PropTypes.string,
-  shipmentsInfoNonPpm: PropTypes.array,
+  ppmShipmentInfo: PropTypes.array,
 };
 
 DetailsPanel.defaultProps = {
   editButton: null,
   className: '',
   tag: '',
-  shipmentsInfoNonPpm: [],
+  ppmShipmentInfo: [],
 };
 
 export default DetailsPanel;
