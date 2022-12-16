@@ -30,6 +30,8 @@ class OfficePage {
    * Wait for the page to finish loading.
    */
   async waitForLoading() {
+    // make sure we have signed in
+    await base.expect(this.page.locator('button:has-text("Sign out")')).toHaveCount(1, { timeout: 10000 });
     await base.expect(this.page.locator('h2[data-name="loading-placeholder"]')).toHaveCount(0);
   }
 
@@ -49,7 +51,11 @@ class OfficePage {
    * @deprecated since the PPM office user is going away
    */
   async signInAsNewPPMUser() {
-    await signIntoOfficeAsNewPPMUser(this.page);
+    await Promise.all([
+      // It is important to call waitForNavigation before click to set up waiting.
+      this.page.waitForNavigation(),
+      signIntoOfficeAsNewPPMUser(this.page),
+    ]);
     await this.waitForLoading();
   }
 
@@ -57,7 +63,11 @@ class OfficePage {
    * Use devlocal auth to sign in as new Service Counselor
    */
   async signInAsNewServicesCounselorUser() {
-    await signIntoOfficeAsNewServicesCounselorUser(this.page);
+    await Promise.all([
+      // It is important to call waitForNavigation before click to set up waiting.
+      this.page.waitForNavigation(),
+      signIntoOfficeAsNewServicesCounselorUser(this.page),
+    ]);
     await this.waitForLoading();
   }
 
@@ -65,7 +75,11 @@ class OfficePage {
    * Use devlocal auth to sign in as new TIO
    */
   async signInAsNewTIOUser() {
-    await signIntoOfficeAsNewTIOUser(this.page);
+    await Promise.all([
+      // It is important to call waitForNavigation before click to set up waiting.
+      this.page.waitForNavigation(),
+      signIntoOfficeAsNewTIOUser(this.page),
+    ]);
     await this.waitForLoading();
   }
 
@@ -73,7 +87,11 @@ class OfficePage {
    * Use devlocal auth to sign in as new TOO
    */
   async signInAsNewTOOUser() {
-    await signIntoOfficeAsNewTOOUser(this.page);
+    await Promise.all([
+      // It is important to call waitForNavigation before click to set up waiting.
+      this.page.waitForNavigation(),
+      signIntoOfficeAsNewTOOUser(this.page),
+    ]);
     await this.waitForLoading();
   }
 
@@ -82,7 +100,11 @@ class OfficePage {
    */
   async signInAsNewTIOAndTOOUser() {
     const user = await this.buildOfficeUserWithTOOAndTIO();
-    await signInAsExistingOfficeUser(this.page, user.login_gov_email);
+    await Promise.all([
+      // It is important to call waitForNavigation before click to set up waiting.
+      this.page.waitForNavigation(),
+      signInAsExistingOfficeUser(this.page, user.login_gov_email),
+    ]);
     await this.waitForLoading();
   }
 

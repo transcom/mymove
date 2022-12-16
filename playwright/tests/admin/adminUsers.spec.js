@@ -81,6 +81,7 @@ test('Admin Users Show Page', async ({ page, adminPage }) => {
 });
 
 test('Admin Users Edit Page', async ({ page, adminPage }) => {
+  await adminPage.signInAsNewAdminUser();
   await adminPage.waitForAdminPageToLoad();
 
   // create a new admin user to edit

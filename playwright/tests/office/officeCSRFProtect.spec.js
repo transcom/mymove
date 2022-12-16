@@ -10,7 +10,7 @@ const maskedCsrfCookieName = 'masked_gorilla_csrf';
 // We can test with the local dev login that uses POST
 test.describe('testing CSRF protection', () => {
   test('can successfully dev login with both unmasked and masked token', async ({ page, officePage }) => {
-    officePage.signInAsNewTIOUser();
+    await officePage.signInAsNewTIOUser();
     await expect(page.getByRole('heading', { name: 'Payment requests' })).toBeVisible();
   });
 
@@ -126,6 +126,9 @@ test.describe('testing CSRF protection', () => {
 
 test.describe('testing CSRF protection updating move info', () => {
   test('tests updating user profile with proper tokens', async ({ page, officePage }) => {
+    // blargh, too bad
+    test.slow();
+
     const move = await officePage.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles();
     await officePage.signInAsNewTOOUser();
 
