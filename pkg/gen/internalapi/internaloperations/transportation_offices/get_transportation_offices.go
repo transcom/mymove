@@ -30,7 +30,7 @@ func NewGetTransportationOffices(ctx *middleware.Context, handler GetTransportat
 }
 
 /*
-	GetTransportationOffices swagger:route GET /transportation_offices transportation_offices getTransportationOffices
+	GetTransportationOffices swagger:route GET /transportation-offices transportation_offices getTransportationOffices
 
 # Returns the transportation offices matching the search query
 

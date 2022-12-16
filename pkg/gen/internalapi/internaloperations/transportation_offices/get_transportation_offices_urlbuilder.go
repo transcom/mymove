@@ -39,7 +39,7 @@ func (o *GetTransportationOfficesURL) SetBasePath(bp string) {
 func (o *GetTransportationOfficesURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/transportation_offices"
+	var _path = "/transportation-offices"
 
 	_basePath := o._basePath
 	if _basePath == "" {

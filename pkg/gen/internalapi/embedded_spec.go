@@ -3182,7 +3182,7 @@ func init() {
         }
       }
     },
-    "/transportation_offices": {
+    "/transportation-offices": {
       "get": {
         "description": "Returns the transportation offices matching the search query",
         "produces": [
@@ -11513,7 +11513,7 @@ func init() {
         }
       }
     },
-    "/transportation_offices": {
+    "/transportation-offices": {
       "get": {
         "description": "Returns the transportation offices matching the search query",
         "produces": [

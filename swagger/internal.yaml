@@ -5366,7 +5366,7 @@ paths:
           description: transportation office not found
         '500':
           description: internal server error
-  /transportation_offices:
+  /transportation-offices:
     get:
       produces:
         - application/json
