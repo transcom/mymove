@@ -25,6 +25,8 @@ class AdminPage {
    */
   async signInAsNewAdminUser() {
     await signIntoAdminAsNewAdminUser(this.page);
+    // ensure the admin page has fully loaded before moving on
+    await base.expect(this.page.locator('a:has-text("Logout")')).toHaveCount(1);
   }
 
   /**
