@@ -30,19 +30,19 @@ test.describe('Office Home Page', () => {
 
 test.describe('Office authorization', () => {
   test('redirects TOO to TOO homepage', async ({ page, officePage }) => {
-    officePage.signInAsNewTOOUser();
+    await officePage.signInAsNewTOOUser();
     await expect(page.getByText('All moves')).toBeVisible();
     expect(new URL(page.url()).pathname).toBe('/');
   });
 
   test('redirects TIO to TIO homepage', async ({ page, officePage }) => {
-    officePage.signInAsNewTIOUser();
+    await officePage.signInAsNewTIOUser();
     await expect(page.getByRole('heading', { name: 'Payment requests' })).toBeVisible();
     expect(new URL(page.url()).pathname).toBe('/');
   });
 
   test('redirects Services Counselor to Services Counselor homepage', async ({ page, officePage }) => {
-    officePage.signInAsNewServicesCounselorUser();
+    await officePage.signInAsNewServicesCounselorUser();
     await expect(page.getByText('Moves')).toBeVisible();
     await expect(page.getByRole('link', { name: 'Counseling' })).toBeVisible();
     expect(new URL(page.url()).pathname).toBe('/');
