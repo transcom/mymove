@@ -2474,7 +2474,21 @@ paths:
           name: sort
           type: string
           enum:
-            [lastName, dodID, branch, locator, status, requestedMoveDate, submittedAt, originGBLOC, originDutyLocation, destinationDutyLocation, ppmType, closeoutInitiated, closeoutLocation]
+            [
+              lastName,
+              dodID,
+              branch,
+              locator,
+              status,
+              requestedMoveDate,
+              submittedAt,
+              originGBLOC,
+              originDutyLocation,
+              destinationDutyLocation,
+              ppmType,
+              closeoutInitiated,
+              closeoutLocation,
+            ]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -2832,6 +2846,7 @@ paths:
           name: search
           type: string
           required: true
+          minLength: 2
           description: Search string for transportation offices
       responses:
         '200':

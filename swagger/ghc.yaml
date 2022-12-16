@@ -2956,6 +2956,7 @@ paths:
           name: search
           type: string
           required: true
+          minLength: 2
           description: Search string for transportation offices
       responses:
         '200':

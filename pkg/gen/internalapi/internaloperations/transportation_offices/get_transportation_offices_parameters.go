@@ -34,6 +34,7 @@ type GetTransportationOfficesParams struct {
 
 	/*Search string for transportation offices
 	  Required: true
+	  Min Length: 2
 	  In: query
 	*/
 	Search string
@@ -77,6 +78,20 @@ func (o *GetTransportationOfficesParams) bindSearch(rawData []string, hasKey boo
 		return err
 	}
 	o.Search = raw
+
+	if err := o.validateSearch(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateSearch carries on validations for parameter Search
+func (o *GetTransportationOfficesParams) validateSearch(formats strfmt.Registry) error {
+
+	if err := validate.MinLength("search", "query", o.Search, 2); err != nil {
+		return err
+	}
 
 	return nil
 }

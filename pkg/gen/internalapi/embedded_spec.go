@@ -3195,6 +3195,7 @@ func init() {
         "operationId": "getTransportationOffices",
         "parameters": [
           {
+            "minLength": 2,
             "type": "string",
             "description": "Search string for transportation offices",
             "name": "search",
@@ -11526,6 +11527,7 @@ func init() {
         "operationId": "getTransportationOffices",
         "parameters": [
           {
+            "minLength": 2,
             "type": "string",
             "description": "Search string for transportation offices",
             "name": "search",
