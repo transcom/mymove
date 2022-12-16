@@ -30,3 +30,11 @@ export async function buildNeedsOrdersUser(request) {
 export async function buildPPMInProgressMove(request) {
   return buildDefault(request, 'PPMInProgressMove');
 }
+
+export async function buildWithShipmentMove(request) {
+  return buildDefault(request, 'WithShipmentMove');
+}
+
+export async function buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(request) {
+  return buildDefault(request, 'HHGMoveWithServiceItemsAndPaymentRequestsAndFiles');
+}

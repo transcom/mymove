@@ -2786,7 +2786,7 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 		Move:        mto,
 	})
 
-	makeSITExtensionsForShipment(appCtx, MTOShipment)
+	MakeSITExtensionsForShipment(appCtx, MTOShipment)
 
 	dcrtCost := unit.Cents(99999)
 	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{

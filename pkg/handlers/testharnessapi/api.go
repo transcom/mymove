@@ -57,6 +57,12 @@ var actionDispatcher = map[string]actionFunc{
 	"SpouseProGearMove": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return testharness.MakeSpouseProGearMove(appCtx.DB())
 	},
+	"WithShipmentMove": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return testharness.MakeWithShipmentMove(appCtx)
+	},
+	"HHGMoveWithServiceItemsAndPaymentRequestsAndFiles": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return testharness.MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx)
+	},
 	"NeedsOrdersUser": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return testharness.MakeNeedsOrdersUser(appCtx.DB())
 	},
