@@ -24,6 +24,7 @@ tags:
   - name: paymentServiceItem
   - name: ppm
   - name: tac
+  - name: transportationOffice
 paths:
   '/customer/{customerID}':
     parameters:

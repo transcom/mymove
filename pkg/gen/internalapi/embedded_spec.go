@@ -7973,7 +7973,66 @@ func init() {
         "$ref": "#/definitions/ValidationError"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "responses"
+    },
+    {
+      "name": "orders"
+    },
+    {
+      "name": "certification"
+    },
+    {
+      "name": "moves"
+    },
+    {
+      "name": "office"
+    },
+    {
+      "name": "documents"
+    },
+    {
+      "name": "uploads"
+    },
+    {
+      "name": "service_members"
+    },
+    {
+      "name": "backup_contacts"
+    },
+    {
+      "name": "duty_locations"
+    },
+    {
+      "name": "transportation_offices"
+    },
+    {
+      "name": "queues"
+    },
+    {
+      "name": "entitlements"
+    },
+    {
+      "name": "calendar"
+    },
+    {
+      "name": "move_docs"
+    },
+    {
+      "name": "ppm"
+    },
+    {
+      "name": "postal_codes"
+    },
+    {
+      "name": "addresses"
+    },
+    {
+      "name": "mtoShipment"
+    }
+  ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "consumes": [
@@ -16293,6 +16352,65 @@ func init() {
         "$ref": "#/definitions/ValidationError"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "responses"
+    },
+    {
+      "name": "orders"
+    },
+    {
+      "name": "certification"
+    },
+    {
+      "name": "moves"
+    },
+    {
+      "name": "office"
+    },
+    {
+      "name": "documents"
+    },
+    {
+      "name": "uploads"
+    },
+    {
+      "name": "service_members"
+    },
+    {
+      "name": "backup_contacts"
+    },
+    {
+      "name": "duty_locations"
+    },
+    {
+      "name": "transportation_offices"
+    },
+    {
+      "name": "queues"
+    },
+    {
+      "name": "entitlements"
+    },
+    {
+      "name": "calendar"
+    },
+    {
+      "name": "move_docs"
+    },
+    {
+      "name": "ppm"
+    },
+    {
+      "name": "postal_codes"
+    },
+    {
+      "name": "addresses"
+    },
+    {
+      "name": "mtoShipment"
+    }
+  ]
 }`))
 }
