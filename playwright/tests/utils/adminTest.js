@@ -1,3 +1,5 @@
+// admin test fixture for playwright
+// See https://playwright.dev/docs/test-fixtures
 const base = require('@playwright/test');
 
 const { signIntoAdminAsNewAdminUser } = require('./signIn');
