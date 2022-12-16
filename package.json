@@ -165,7 +165,7 @@
     "jest-preview": "^0.3.1",
     "mime-types": "^2.1.35",
     "mockdate": "^3.0.5",
-    "prettier": "2.8.0",
+    "prettier": "2.8.1",
     "react-app-rewired": "^2.2.1",
     "react-scripts": "5.0.1",
     "react-select-event": "^5.5.1",
