@@ -15,7 +15,7 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceStorer() {
 		// Expected outcome: fuel price is stored
 		dieselFuelPriceInfo := DieselFuelPriceInfo{
 			dieselFuelPriceData: dieselFuelPriceData{
-				publicationDate: "20200622",
+				publicationDate: "2020-06-22",
 				price:           2.659,
 			},
 		}
@@ -39,7 +39,7 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceStorer() {
 		// Expected outcome: fuel price is updated
 		dieselFuelPriceInfo := DieselFuelPriceInfo{
 			dieselFuelPriceData: dieselFuelPriceData{
-				publicationDate: "20200622",
+				publicationDate: "2020-06-22",
 				price:           2.659,
 			},
 		}
@@ -48,7 +48,7 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceStorer() {
 
 		updatedDieselFuelPriceInfo := DieselFuelPriceInfo{
 			dieselFuelPriceData: dieselFuelPriceData{
-				publicationDate: "20200622",
+				publicationDate: "2020-06-22",
 				price:           2.420,
 			},
 		}
