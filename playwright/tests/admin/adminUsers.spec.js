@@ -89,14 +89,17 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
   const adminUserId = adminUser.id;
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
+  await adminPage.waitForLoading();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
   // go directly to the show page for the admin user because if we
   // have created more than 25 admin users, the user may not be on the
   // first page and we don't have a search functionality for admin users
   await page.goto(`/system/admin_users/${adminUserId}/show`);
+  await adminPage.waitForLoading();
 
   await page.getByRole('button', { name: 'Edit' }).click();
+  await adminPage.waitForLoading();
   expect(page.url()).toContain(adminUserId);
 
   const disabledFields = ['id', 'email', 'userId', 'createdAt', 'updatedAt'];
@@ -117,6 +120,7 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
   await page.locator(`ul[aria-labelledby="active-label"] >> li[data-value="${newStatus}"]`).click();
 
   await page.getByRole('button', { name: 'Save' }).click();
+  await adminPage.waitForLoading();
 
   // back to list of all users
   expect(page.url()).not.toContain(adminUserId);

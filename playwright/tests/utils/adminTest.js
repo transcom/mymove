@@ -21,12 +21,18 @@ class AdminPage {
     await base.expect(this.page.locator('svg.MuiCircularProgress-svg')).toHaveCount(0);
   }
 
+  async waitForAdminPageToLoad() {
+    // ensure the admin page has fully loaded before moving on
+    await base.expect(this.page.locator('a:has-text("Logout")')).toHaveCount(1, { timeout: 10000 });
+    await this.waitForLoading();
+    await base.expect(this.page.locator('.ReactTable').locator('.-loading.-active')).toHaveCount(0);
+  }
+
   /**
    */
   async signInAsNewAdminUser() {
     await signIntoAdminAsNewAdminUser(this.page);
-    // ensure the admin page has fully loaded before moving on
-    await base.expect(this.page.locator('a:has-text("Logout")')).toHaveCount(1);
+    await this.waitForAdminPageToLoad();
   }
 
   /**
