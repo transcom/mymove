@@ -218,8 +218,10 @@ func main() {
 		}
 	}
 
+	fmt.Println("*Deployment notes for transcom/mymove*")
 	for _, issue := range issues.Issues {
-		fmt.Printf("%s\n", *issue.Title)
-		fmt.Printf("%s\n", *issue.HTMLURL)
+		fmt.Printf("• #%d %s by %s\n", *issue.Number, *issue.Title, *issue.User.Login)
+		fmt.Printf("\t• %s", *issue.HTMLURL)
+		fmt.Println()
 	}
 }
