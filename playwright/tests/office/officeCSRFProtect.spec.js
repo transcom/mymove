@@ -53,13 +53,11 @@ test.describe('testing CSRF protection', () => {
     expect(await failedResponse.text()).toEqual(csrfForbiddenMsg);
   });
 
-  test('cannot dev login with unmasked token only', async ({ browser, officePage }) => {
+  test('cannot dev login with unmasked token only', async ({ page, officePage }) => {
     // create a user we can log in with later
     const user = await officePage.buildOfficeUserWithTOOAndTIO();
-    // need a browser context to look at cookies
-    // this creates a new icognito browser context, which works great
-    // for this test
-    const context = await browser.newContext();
+
+    const context = page.context();
 
     // use the new browser context to make an API request using cookies
     const response = await context.request.get('/internal/users/is_logged_in');
@@ -85,15 +83,15 @@ test.describe('testing CSRF protection', () => {
 
     expect(failedResponse.status()).toEqual(csrfForbiddenRespCode);
     expect(await failedResponse.text()).toEqual(csrfForbiddenMsg);
+
+    await context.close();
   });
 
-  test('cannot dev login without unmasked and masked token', async ({ browser, officePage }) => {
+  test('cannot dev login without unmasked and masked token', async ({ page, officePage }) => {
     // create a user we can log in with later
     const user = await officePage.buildOfficeUserWithTOOAndTIO();
-    // need a browser context to look at cookies
-    // this creates a new icognito browser context, which works great
-    // for this test
-    const context = await browser.newContext();
+
+    const context = page.context();
 
     // use the new browser context to make an API request using cookies
     const response = await context.request.get('/internal/users/is_logged_in');
@@ -121,6 +119,8 @@ test.describe('testing CSRF protection', () => {
 
     expect(failedResponse.status()).toEqual(csrfForbiddenRespCode);
     expect(await failedResponse.text()).toEqual(csrfForbiddenMsg);
+
+    await context.close();
   });
 });
 
@@ -172,5 +172,7 @@ test.describe('testing CSRF protection updating move info', () => {
 
     const r = await page.waitForResponse('**/ghc/v1/orders/*');
     expect(r.status()).toEqual(403);
+
+    await context.close();
   });
 });
