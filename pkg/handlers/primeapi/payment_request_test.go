@@ -129,10 +129,17 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				PointOfContact: "user@prime.com",
 			},
 		}
-		response := handler.Handle(params)
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
 		suite.IsType(&paymentrequestop.CreatePaymentRequestCreated{}, response)
 		typedResponse := response.(*paymentrequestop.CreatePaymentRequestCreated)
+
+		// Validate outgoing payload
+		suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
+
 		suite.Equal(returnedPaymentRequest.ID.String(), typedResponse.Payload.ID.String())
 		if suite.NotNil(typedResponse.Payload.IsFinal) {
 			suite.Equal(returnedPaymentRequest.IsFinal, *typedResponse.Payload.IsFinal)
@@ -182,8 +189,15 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				PointOfContact: "user@prime.com",
 			},
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		typedResponse := response.(*paymentrequestop.CreatePaymentRequestCreated)
+
+		// Validate outgoing payload
+		suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
 
 		paymentServiceItemParams := typedResponse.Payload.PaymentServiceItems[0].PaymentServiceItemParams
 
@@ -238,8 +252,16 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				PointOfContact: "user@prime.com",
 			},
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&paymentrequestop.CreatePaymentRequestCreated{}, response)
+		typedResponse := response.(*paymentrequestop.CreatePaymentRequestCreated)
+
+		// Validate outgoing payload
+		suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("failed create payment request -- nil body", func() {
@@ -262,8 +284,14 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			HTTPRequest: req,
 		}
 
+		// Validate incoming payload: nil body (the point of this test)
+
 		response := handler.Handle(params)
 		suite.IsType(&paymentrequestop.CreatePaymentRequestBadRequest{}, response)
+		typedResponse := response.(*paymentrequestop.CreatePaymentRequestBadRequest)
+
+		// Validate outgoing payload
+		suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("failed create payment request -- creator failed with error", func() {
@@ -291,12 +319,16 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			},
 		}
 
+		// Validate incoming payload: not needed since we're mocking CreatePaymentRequestCheck
+
 		response := handler.Handle(params)
 		suite.IsType(&paymentrequestop.CreatePaymentRequestInternalServerError{}, response)
-
 		errResponse := response.(*paymentrequestop.CreatePaymentRequestInternalServerError)
-		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong") // check body (body was written before panic)
 
+		// Validate outgoing payload
+		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
+
+		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong") // check body (body was written before panic)
 	})
 
 	suite.Run("failed create payment request -- invalid MTO ID format", func() {
@@ -324,8 +356,14 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			},
 		}
 
+		// Validate incoming payload: bad UUID format (the point of this test)
+
 		response := handler.Handle(params)
 		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
+		responsePayload := response.(*paymentrequestop.CreatePaymentRequestUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("failed create payment request -- invalid service item ID format", func() {
@@ -359,8 +397,14 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			},
 		}
 
+		// Validate incoming payload: bad UUID format (the point of this test)
+
 		response := handler.Handle(params)
 		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
+		responsePayload := response.(*paymentrequestop.CreatePaymentRequestUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("failed create payment request - validation errors", func() {
@@ -402,9 +446,17 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				PointOfContact: "user@prime.com",
 			},
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
+		responsePayload := response.(*paymentrequestop.CreatePaymentRequestUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("failed create payment request due to conflict in model", func() {
@@ -441,9 +493,17 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				PointOfContact: "user@prime.com",
 			},
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&paymentrequestop.CreatePaymentRequestConflict{}, response)
+		responsePayload := response.(*paymentrequestop.CreatePaymentRequestConflict).Payload
+
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("failed create payment request due to bad data", func() {
@@ -479,9 +539,17 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				PointOfContact: "user@prime.com",
 			},
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&paymentrequestop.CreatePaymentRequestBadRequest{}, response)
+		responsePayload := response.(*paymentrequestop.CreatePaymentRequestBadRequest).Payload
+
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("successful create payment request payload audit", func() {
@@ -694,10 +762,17 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 				PointOfContact: "user@prime.com",
 			},
 		}
-		response := handler.Handle(params)
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
 		suite.IsType(&paymentrequestop.CreatePaymentRequestCreated{}, response)
 		typedResponse := response.(*paymentrequestop.CreatePaymentRequestCreated)
+
+		// Validate outgoing payload
+		suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
+
 		suite.NotEmpty(typedResponse.Payload.ID.String(), "valid payload ID string")
 		suite.NotEmpty(typedResponse.Payload.MoveTaskOrderID.String(), "valid MTO ID")
 		suite.NotEmpty(typedResponse.Payload.PaymentRequestNumber, "valid Payment Request Number")
@@ -757,10 +832,21 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 		*move.ReferenceID = ""
 		suite.MustSave(&move)
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
 		typedResponse := response.(*paymentrequestop.CreatePaymentRequestUnprocessableEntity)
+
+		// Validate outgoing payload
+		// TODO: Can't validate the response because of the issue noted below. Figure out a way to
+		//   either alter the service or relax the swagger requirements.
+		// suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
+		// CreatePaymentRequestCheck is returning apperror.InvalidCreateInputError without any validation errors
+		// so InvalidFields won't be added to the payload.
+
 		suite.Contains(*typedResponse.Payload.Detail, "has missing ReferenceID")
 	})
 
@@ -814,10 +900,20 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 		move.ReferenceID = nil
 		suite.MustSave(&move)
 
-		response := handler.Handle(params)
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
 
+		response := handler.Handle(params)
 		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
 		typedResponse := response.(*paymentrequestop.CreatePaymentRequestUnprocessableEntity)
+
+		// Validate outgoing payload
+		// TODO: Can't validate the response because of the issue noted below. Figure out a way to
+		//   either alter the service or relax the swagger requirements.
+		// suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
+		// CreatePaymentRequestCheck is returning apperror.InvalidCreateInputError without any validation errors
+		// so InvalidFields won't be added to the payload.
+
 		suite.Contains(*typedResponse.Payload.Detail, "has missing ReferenceID")
 	})
 }
