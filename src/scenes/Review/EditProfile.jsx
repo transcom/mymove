@@ -12,7 +12,7 @@ import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import SaveCancelButtons from './SaveCancelButtons';
-import DutyLocationSearchBox from 'components/DutyLocationSearchBox/DutyLocationSearchBox';
+import DutyLocationSearchBox from 'components/LocationSearchBox/LocationSearchBox';
 import scrollToTop from 'shared/scrollToTop';
 import {
   selectCurrentMove,

@@ -2,7 +2,7 @@ import { useField } from 'formik';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import DutyLocationSearchBox from 'components/DutyLocationSearchBox/DutyLocationSearchBox';
+import DutyLocationSearchBox from 'components/LocationSearchBox/LocationSearchBox';
 import './DropdownInput.module.scss';
 
 // TODO: refactor component when we can to make it more user friendly with Formik

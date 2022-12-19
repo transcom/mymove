@@ -8,7 +8,7 @@ import { DutyLocationInput } from './DutyLocationInput';
 import {
   DutyLocationSearchBoxComponent,
   DutyLocationSearchBoxContainer,
-} from 'components/DutyLocationSearchBox/DutyLocationSearchBox';
+} from 'components/LocationSearchBox/LocationSearchBox';
 
 const mockOnChange = jest.fn();
 const mockSetValue = jest.fn();

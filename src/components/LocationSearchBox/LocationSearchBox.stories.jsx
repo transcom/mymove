@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { DutyLocationSearchBoxComponent } from './DutyLocationSearchBox';
+import { DutyLocationSearchBoxComponent } from './LocationSearchBox';
 
 export default {
   title: 'Components/Duty Location Search Box',

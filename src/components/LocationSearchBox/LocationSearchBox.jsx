@@ -6,7 +6,7 @@ import AsyncSelect from 'react-select/async';
 import classNames from 'classnames';
 import { debounce } from 'lodash';
 
-import styles from './DutyLocationSearchBox.module.scss';
+import styles from './LocationSearchBox.module.scss';
 import { SearchDutyLocations, ShowAddress } from './api';
 
 import Hint from 'components/Hint';
