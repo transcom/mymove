@@ -654,7 +654,7 @@ func SITStatuses(shipmentSITStatuses map[string]services.SITStatus) map[string]*
 }
 
 // PPMShipment payload
-func PPMShipment(ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
+func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 	if ppmShipment == nil || ppmShipment.ID.IsNil() {
 		return nil
 	}
@@ -676,6 +676,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
+		WeightTickets:                  WeightTickets(storer, ppmShipment.WeightTickets),
 		SitExpected:                    ppmShipment.SITExpected,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		NetWeight:                      handlers.FmtPoundPtr(ppmShipment.NetWeight),
@@ -876,7 +877,7 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 }
 
 // MTOShipment payload
-func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
+func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
 
 	payload := &ghcmessages.MTOShipment{
 		ID:                          strfmt.UUID(mtoShipment.ID.String()),
@@ -909,7 +910,7 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		UsesExternalVendor:          mtoShipment.UsesExternalVendor,
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
-		PpmShipment:                 PPMShipment(mtoShipment.PPMShipment),
+		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
 	}
 
 	if sitStatusPayload != nil {
@@ -982,15 +983,15 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 }
 
 // MTOShipments payload
-func MTOShipments(mtoShipments *models.MTOShipments, sitStatusPayload map[string]*ghcmessages.SITStatus) *ghcmessages.MTOShipments {
+func MTOShipments(storer storage.FileStorer, mtoShipments *models.MTOShipments, sitStatusPayload map[string]*ghcmessages.SITStatus) *ghcmessages.MTOShipments {
 	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
 		copyOfMtoShipment := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 		if sitStatus, ok := sitStatusPayload[copyOfMtoShipment.ID.String()]; ok {
-			payload[i] = MTOShipment(&copyOfMtoShipment, sitStatus)
+			payload[i] = MTOShipment(storer, &copyOfMtoShipment, sitStatus)
 		} else {
-			payload[i] = MTOShipment(&copyOfMtoShipment, nil)
+			payload[i] = MTOShipment(storer, &copyOfMtoShipment, nil)
 		}
 	}
 	return &payload

@@ -199,6 +199,46 @@ func makeOrdersForServiceMember(appCtx appcontext.AppContext, serviceMember mode
 	return orders
 }
 
+func makeWeightTicketsForServiceMember(appCtx appcontext.AppContext, serviceMember models.ServiceMember, userUploader *uploader.UserUploader, fileNames *[]string) models.WeightTicket {
+	document := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
+		Document: models.Document{
+			ServiceMemberID: serviceMember.ID,
+			ServiceMember:   serviceMember,
+		},
+	})
+
+	// Creates order upload documents from the files in this directory:
+	// pkg/testdatagen/testdata/bandwidth_test_docs
+
+	// files := filesInBandwidthTestDirectory(fileNames)
+	file := testdatagen.Fixture("test.jpg")
+	// for _, file := range files {
+	filePath := fmt.Sprintf("bandwidth_test_docs/%s", file)
+	fixture := testdatagen.Fixture(filePath)
+
+	upload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
+		File: fixture,
+		UserUpload: models.UserUpload{
+			UploaderID: serviceMember.UserID,
+			DocumentID: &document.ID,
+			Document:   document,
+		},
+		UserUploader: userUploader,
+	})
+	document.UserUploads = append(document.UserUploads, upload)
+	// }
+
+	weightTicket := testdatagen.MakeWeightTicket(appCtx.DB(), testdatagen.Assertions{
+		WeightTicket: models.WeightTicket{
+			EmptyDocument:                   document,
+			FullDocument:                    document,
+			ProofOfTrailerOwnershipDocument: document,
+		},
+	})
+
+	return weightTicket
+}
+
 func makeMoveForOrders(appCtx appcontext.AppContext, orders models.Order, moveCode string, moveStatus models.MoveStatus,
 	moveOptConfigs ...func(move *models.Move)) models.Move {
 	hhgSelectedMoveType := models.SelectedMoveTypeHHG
@@ -1850,6 +1890,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 	email := "2needcloseout@ppm.closeout"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
+	// filterFile := &[]string{"150Kb.png"}
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
@@ -1871,6 +1912,8 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
+	// weightTicket := makeWeightTicketsForServiceMember(appCtx, smWithPPM, userUploader, filterFile)
+	// weightTickets := models.WeightTickets{weightTicket}
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMemberID: smWithPPM.ID,
@@ -1909,11 +1952,12 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+	ppm := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move:        move,
 		MTOShipment: mtoShipment2,
 		PPMShipment: models.PPMShipment{
 			Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			// WeightTickets: weightTickets,
 		},
 	})
 
@@ -1923,6 +1967,18 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 			SubmittingUserID: userID,
 		},
 	})
+	// file := testdatagen.Fixture("test.jpg")
+	weightTicketAssertions := testdatagen.Assertions{
+		PPMShipment:   ppm,
+		ServiceMember: smWithPPM,
+		// File:          file,
+		Uploader: &uploader.Uploader{
+			FileSizeLimit: 45110 * uploader.MB,
+			UploadType:    "USER",
+		},
+	}
+
+	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
 }
 
 func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {
