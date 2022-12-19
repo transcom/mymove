@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import DutyLocationSearchBox from './LocationSearchBox';
+import LocationSearchBox from './LocationSearchBox';
 
 import dutyLocationFactory from 'utils/test/factories/dutyLocation';
 
@@ -38,37 +38,33 @@ jest.mock('./api.js', () => ({
   },
 }));
 
-describe('DutyLocationSearchBoxContainer', () => {
+describe('LocationSearchBoxContainer', () => {
   describe('basic rendering', () => {
     it('renders with minimal props', () => {
-      render(<DutyLocationSearchBox input={{ name: 'test_component' }} name="test_component" />);
+      render(<LocationSearchBox input={{ name: 'test_component' }} name="test_component" />);
       expect(screen.getByLabelText('Name of Duty Location:')).toBeInTheDocument();
     });
 
     it('renders the title', () => {
-      render(<DutyLocationSearchBox input={{ name: 'test_component' }} name="test_component" title="Test Component" />);
+      render(<LocationSearchBox input={{ name: 'test_component' }} name="test_component" title="Test Component" />);
       expect(screen.getByLabelText('Test Component')).toBeInTheDocument();
     });
 
     it('renders the default placeholder text', () => {
-      render(<DutyLocationSearchBox input={{ name: 'test_component' }} name="test_component" />);
+      render(<LocationSearchBox input={{ name: 'test_component' }} name="test_component" />);
       expect(screen.getByText('Start typing a duty location...')).toBeInTheDocument();
     });
 
     it('renders an error message', () => {
       render(
-        <DutyLocationSearchBox
-          input={{ name: 'test_component' }}
-          name="test_component"
-          errorMsg="Test Error Message"
-        />,
+        <LocationSearchBox input={{ name: 'test_component' }} name="test_component" errorMsg="Test Error Message" />,
       );
       expect(screen.getByText('Test Error Message')).toBeInTheDocument();
     });
 
     it('renders a value passed in via prop', () => {
       render(
-        <DutyLocationSearchBox
+        <LocationSearchBox
           name="test_component"
           input={{
             name: 'test_component',
@@ -85,7 +81,7 @@ describe('DutyLocationSearchBoxContainer', () => {
 
     it('can render without the address', () => {
       render(
-        <DutyLocationSearchBox
+        <LocationSearchBox
           name="test_component"
           displayAddress={false}
           input={{
@@ -104,7 +100,7 @@ describe('DutyLocationSearchBoxContainer', () => {
     it('can show placeholder text based on prop', () => {
       const testPlaceholderText = 'Test Placeholder Text';
       render(
-        <DutyLocationSearchBox
+        <LocationSearchBox
           input={{ name: 'test_component' }}
           name="test_component"
           placeholder={testPlaceholderText}
@@ -116,7 +112,7 @@ describe('DutyLocationSearchBoxContainer', () => {
 
   describe('updating options based on text', () => {
     it('searches user input and renders options', async () => {
-      render(<DutyLocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
+      render(<LocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
       await userEvent.type(screen.getByLabelText('Test Component'), 'AFB');
 
       const option = await screen.findByText(optionName);
@@ -127,21 +123,21 @@ describe('DutyLocationSearchBoxContainer', () => {
     });
 
     it('searches user input and renders a message if empty', async () => {
-      render(<DutyLocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
+      render(<LocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
       await userEvent.type(screen.getByLabelText('Test Component'), 'empty');
 
       expect(await screen.findByText('No Options')).toBeInTheDocument();
     });
 
     it("doesnt search if user input isn't 2+ characters in length", async () => {
-      render(<DutyLocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
+      render(<LocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
       await userEvent.type(screen.getByLabelText('Test Component'), '1');
 
       expect(await screen.findByText('No Options')).toBeInTheDocument();
     });
 
     it('handles server errors', async () => {
-      render(<DutyLocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
+      render(<LocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
       await userEvent.type(screen.getByLabelText('Test Component'), 'broken');
 
       expect(await screen.findByText('No Options')).toBeInTheDocument();
@@ -152,11 +148,7 @@ describe('DutyLocationSearchBoxContainer', () => {
     it('selects an option, calls the onChange callback prop', async () => {
       const onChange = jest.fn();
       render(
-        <DutyLocationSearchBox
-          input={{ name: 'test_component', onChange }}
-          title="Test Component"
-          name="test_component"
-        />,
+        <LocationSearchBox input={{ name: 'test_component', onChange }} title="Test Component" name="test_component" />,
       );
       await userEvent.type(screen.getByLabelText('Test Component'), 'AFB');
       await userEvent.click(await screen.findByText(optionName));

@@ -76,7 +76,7 @@ const customStyles = {
   }),
 };
 
-export const DutyLocationSearchBoxComponent = (props) => {
+export const LocationSearchBoxComponent = (props) => {
   const {
     // additional props I think are needed
     // searchCloseoutLocations
@@ -210,10 +210,10 @@ export const DutyLocationSearchBoxComponent = (props) => {
   );
 };
 
-export const DutyLocationSearchBoxContainer = (props) => {
+export const LocationSearchBoxContainer = (props) => {
   const { isDisabled } = props;
   return (
-    <DutyLocationSearchBoxComponent
+    <LocationSearchBoxComponent
       {...props}
       searchDutyLocations={SearchDutyLocations}
       showAddress={ShowAddress}
@@ -222,7 +222,7 @@ export const DutyLocationSearchBoxContainer = (props) => {
   );
 };
 
-DutyLocationSearchBoxContainer.propTypes = {
+LocationSearchBoxContainer.propTypes = {
   displayAddress: PropTypes.bool,
   name: PropTypes.string.isRequired,
   errorMsg: PropTypes.string,
@@ -237,7 +237,7 @@ DutyLocationSearchBoxContainer.propTypes = {
   isDisabled: PropTypes.bool,
 };
 
-DutyLocationSearchBoxContainer.defaultProps = {
+LocationSearchBoxContainer.defaultProps = {
   displayAddress: true,
   title: 'Name of Duty Location:', // ''
   errorMsg: '',
@@ -251,16 +251,16 @@ DutyLocationSearchBoxContainer.defaultProps = {
   isDisabled: false,
 };
 
-DutyLocationSearchBoxComponent.propTypes = {
-  ...DutyLocationSearchBoxContainer.propTypes,
+LocationSearchBoxComponent.propTypes = {
+  ...LocationSearchBoxContainer.propTypes,
   searchDutyLocations: PropTypes.func.isRequired,
   showAddress: PropTypes.func.isRequired,
   isDisabled: PropTypes.bool,
 };
 
-DutyLocationSearchBoxComponent.defaultProps = {
-  ...DutyLocationSearchBoxContainer.defaultProps,
+LocationSearchBoxComponent.defaultProps = {
+  ...LocationSearchBoxContainer.defaultProps,
   isDisabled: false,
 };
 
-export default DutyLocationSearchBoxContainer;
+export default LocationSearchBoxContainer;

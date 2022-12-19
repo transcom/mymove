@@ -12,7 +12,7 @@ import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import SaveCancelButtons from './SaveCancelButtons';
-import DutyLocationSearchBox from 'components/LocationSearchBox/LocationSearchBox';
+import LocationSearchBox from 'components/LocationSearchBox/LocationSearchBox';
 import scrollToTop from 'shared/scrollToTop';
 import {
   selectCurrentMove,
@@ -63,7 +63,7 @@ let EditProfileForm = (props) => {
                   <SwaggerField fieldName="affiliation" swagger={schema} required />
                   <SwaggerField fieldName="rank" swagger={schema} required />
                   <SwaggerField fieldName="edipi" swagger={schema} required />
-                  <Field name="current_location" title="Current duty location" component={DutyLocationSearchBox} />
+                  <Field name="current_location" title="Current duty location" component={LocationSearchBox} />
                 </>
               )}
               {!moveIsInDraft && (
