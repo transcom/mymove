@@ -34,7 +34,9 @@ var Entitlement CustomType = "Entitlement"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
 var ServiceMember CustomType = "ServiceMember"
+var ShippingOffice CustomType = "TransportationOffice"
 var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
+var TransportationOffice CustomType = "TransportationOffice"
 var User CustomType = "User"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types

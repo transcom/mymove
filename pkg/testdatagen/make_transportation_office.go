@@ -31,18 +31,18 @@ func MakeTransportationOffice(db *pop.Connection, assertions Assertions) models.
 
 	mustCreate(db, &office, assertions.Stub)
 
-	var phoneLines []models.OfficePhoneLine
-	phoneLine := models.OfficePhoneLine{
-		TransportationOfficeID: office.ID,
-		TransportationOffice:   office,
-		Number:                 "(510) 555-5555",
-		IsDsnNumber:            false,
-		Type:                   "voice",
-	}
-	phoneLines = append(phoneLines, phoneLine)
-	mustCreate(db, &phoneLine, assertions.Stub)
-
-	office.PhoneLines = phoneLines
+	//var phoneLines []models.OfficePhoneLine
+	//phoneLine := models.OfficePhoneLine{
+	//	TransportationOfficeID: office.ID,
+	//	TransportationOffice:   office,
+	//	Number:                 "(510) 555-5555",
+	//	IsDsnNumber:            false,
+	//	Type:                   "voice",
+	//}
+	//phoneLines = append(phoneLines, phoneLine)
+	//mustCreate(db, &phoneLine, assertions.Stub)
+	//
+	//office.PhoneLines = phoneLines
 
 	return office
 }
