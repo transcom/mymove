@@ -6,7 +6,7 @@ UPDATE transportation_offices
 	'Barksdale AFB',
 	'Base Alameda',
 	'Base Cape Cod',
-	'Base Ketchikan'
+	'Base Ketchikan',
 	'Beale AFB',
 	'Blue Grass Army Depot',
 	'Buckley AFB',
