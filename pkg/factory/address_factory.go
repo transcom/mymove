@@ -1,7 +1,6 @@
 package factory
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -16,17 +15,20 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 	var cAddress models.Address
 	if result := findValidCustomization(customs, Address); result != nil {
 		cAddress = result.Model.(models.Address)
+		if result.LinkOnly {
+			return cAddress
+		}
 	}
 
 	// Create default Address
 	address := models.Address{
 		StreetAddress1: "123 Any Street",
-		StreetAddress2: swag.String("P.O. Box 12345"),
-		StreetAddress3: swag.String("c/o Some Person"),
+		StreetAddress2: models.StringPointer("P.O. Box 12345"),
+		StreetAddress3: models.StringPointer("c/o Some Person"),
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "90210",
-		Country:        swag.String("US"),
+		Country:        models.StringPointer("US"),
 	}
 
 	// Overwrite values with those from customizations
@@ -46,7 +48,53 @@ func BuildDefaultAddress(db *pop.Connection) models.Address {
 	return BuildAddress(db, nil, nil)
 }
 
-// BuildStubbedAddress returns a stubbed address without saving it to the DB
-func BuildStubbedAddress(customs []Customization, traits []Trait) models.Address {
-	return BuildAddress(nil, customs, traits)
+// GetTraitAddress2 is a sample GetTraitFunc
+func GetTraitAddress2() []Customization {
+	return []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "987 Any Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 9876"),
+				StreetAddress3: models.StringPointer("c/o Some Person"),
+				City:           "Fairfield",
+				State:          "CA",
+				PostalCode:     "94535",
+				Country:        models.StringPointer("US"),
+			},
+		},
+	}
+}
+
+// GetTraitAddress3 is a sample GetTraitFunc
+func GetTraitAddress3() []Customization {
+	return []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Des Moines",
+				State:          "IA",
+				PostalCode:     "50309",
+				Country:        models.StringPointer("US"),
+			},
+		},
+	}
+}
+
+// GetTraitAddress4 is a sample GetTraitFunc
+func GetTraitAddress4() []Customization {
+	return []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "987 Over There Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Houston",
+				State:          "TX",
+				PostalCode:     "77083",
+				Country:        models.StringPointer("US"),
+			},
+		},
+	}
 }
