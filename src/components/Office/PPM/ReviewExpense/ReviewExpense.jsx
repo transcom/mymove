@@ -22,8 +22,12 @@ import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
 
 const validationSchema = Yup.object().shape({
   amount: Yup.number().required('Enter the expense amount').min(1, 'Enter an expense amount greater than $0.00'),
-  sitStartDate: Yup.string().required(),
-  sitEndDate: Yup.string().required(),
+  sitStartDate: Yup.date()
+    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
+    .required('Required'),
+  sitEndDate: Yup.date()
+    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
+    .required('Required'),
   reason: Yup.string()
     .when('status', {
       is: ppmDocumentStatus.REJECTED,
