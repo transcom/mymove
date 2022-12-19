@@ -54,6 +54,10 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		SubmittedAt = *move.SubmittedAt
 	}
 
+	var CloseoutOffice internalmessages.TransportationOffice
+	if move.CloseoutOffice != nil {
+		CloseoutOffice = *payloads.TransportationOffice(*move.CloseoutOffice)
+	}
 	movePayload := &internalmessages.MovePayload{
 		CreatedAt:               handlers.FmtDateTime(move.CreatedAt),
 		SubmittedAt:             handlers.FmtDateTime(SubmittedAt),
@@ -66,6 +70,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		OrdersID:                handlers.FmtUUID(order.ID),
 		ServiceMemberID:         *handlers.FmtUUID(order.ServiceMemberID),
 		Status:                  internalmessages.MoveStatus(move.Status),
+		CloseoutOffice:          &CloseoutOffice,
 	}
 
 	return movePayload, nil
