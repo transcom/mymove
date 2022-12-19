@@ -78,6 +78,8 @@ const customStyles = {
 
 export const DutyLocationSearchBoxComponent = (props) => {
   const {
+    // additional props I think are needed
+    // searchCloseoutLocations
     searchDutyLocations,
     showAddress,
     title,
@@ -160,8 +162,11 @@ export const DutyLocationSearchBoxComponent = (props) => {
   const labelClasses = classNames(styles.title, {
     [styles.titleWithError]: errorMsg,
   });
+  // update className 'duty-input-box' > 'transportation-input-box' ? 'closeout-input-box'
+  // needs to be customizable for duty location or closeout
   const dutyInputClasses = classNames('duty-input-box', {
     [inputName]: true,
+    // what does styles.dutyInputBoxError do, do I need to change this or is it
     [styles.dutyInputBoxError]: errorMsg,
   });
 
@@ -186,6 +191,8 @@ export const DutyLocationSearchBoxComponent = (props) => {
           loadOptions={loadOptions}
           onChange={selectOption}
           onInputChange={changeInputText}
+          // update placeholder text to be customizable
+          // 'Start typing a closeout office...'
           placeholder={placeholder || 'Start typing a duty location...'}
           value={hasDutyLocation ? value : null}
           noOptionsMessage={noOptionsMessage}
@@ -232,7 +239,7 @@ DutyLocationSearchBoxContainer.propTypes = {
 
 DutyLocationSearchBoxContainer.defaultProps = {
   displayAddress: true,
-  title: 'Name of Duty Location:',
+  title: 'Name of Duty Location:', // ''
   errorMsg: '',
   input: {
     name: '',
@@ -240,7 +247,7 @@ DutyLocationSearchBoxContainer.defaultProps = {
     value: undefined,
   },
   hint: '',
-  placeholder: 'Start typing a duty location...',
+  placeholder: 'Start typing a duty location...', // ''
   isDisabled: false,
 };
 
