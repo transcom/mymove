@@ -54,6 +54,9 @@ var actionDispatcher = map[string]actionFunc{
 	"DefaultMove": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return testdatagen.MakeDefaultMove(appCtx.DB())
 	},
+	"MoveWithOrders": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return testharness.MakeMoveWithOrders(appCtx.DB())
+	},
 	"SpouseProGearMove": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return testharness.MakeSpouseProGearMove(appCtx.DB())
 	},
