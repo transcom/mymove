@@ -34,7 +34,9 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		subtestData.ppmShipment = subtestData.progear.PPMShipment
 
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/pro-gear-weight-tickets/%s", subtestData.ppmShipment.ID.String(), subtestData.progear.ID.String())
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		req := httptest.NewRequest("PATCH", endpoint, nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		eTag := etag.GenerateEtag(subtestData.progear.UpdatedAt)
 
 		subtestData.params = progearops.UpdateProGearWeightTicketParams{
