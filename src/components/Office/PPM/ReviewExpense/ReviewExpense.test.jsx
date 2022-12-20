@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import ReviewExpense from './ReviewExpense';
 
@@ -96,6 +97,16 @@ describe('ReviewExpenseForm component', () => {
       render(<ReviewExpense {...defaultProps} {...storageProps} />);
       await waitFor(() => {
         expect(screen.getByTestId('days-in-sit')).toHaveTextContent('10');
+      });
+    });
+
+    it('correctly updates days in SIT', async () => {
+      render(<ReviewExpense {...defaultProps} {...storageProps} />);
+      const startDateInput = screen.getByLabelText('Start date');
+      await userEvent.clear(startDateInput);
+      await userEvent.type(startDateInput, '17 Dec 2022');
+      await waitFor(() => {
+        expect(screen.getByTestId('days-in-sit')).toHaveTextContent('8');
       });
     });
   });

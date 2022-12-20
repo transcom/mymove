@@ -56,9 +56,6 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
     status: status || '',
     reason: reason || '',
   };
-
-  const daysInSIT = sitStartDate && sitEndDate ? moment(sitEndDate).diff(moment(sitStartDate), 'days') : '##';
-
   const expenseName = movingExpenseType === expenseTypes.STORAGE ? 'Storage' : 'Receipt';
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
@@ -68,7 +65,10 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
             handleChange(event);
             setCanEditReason(true);
           };
-
+          const daysInSIT =
+            values.sitStartDate && values.sitEndDate
+              ? moment(values.sitEndDate, 'DD MMM YYYY').diff(moment(values.sitStartDate, 'DD MMM YYYY'), 'days')
+              : '##';
           return (
             <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
               <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
