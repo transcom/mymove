@@ -17295,10 +17295,10 @@ ra-core@^3.19.11:
     query-string "^5.1.1"
     reselect "~3.0.0"
 
-ra-core@^4.6.1:
-  version "4.6.1"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.6.1.tgz#d8527348795afd55f8abb00c684eb8f7afc82842"
-  integrity sha512-qw9dJvNyYZGoMERU6tGClBUkyUpKfBdQktIqg4gp/mP12o7xYlvkREEOGzMUjNOEymMUSo0qHUTRY97mI/VVDg==
+ra-core@^4.6.2:
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.6.2.tgz#8f12ae2d5cb72952599e86208b389969d43c3710"
+  integrity sha512-Thp9QOffve+meV9FLCmNqUwZH9za2ik/gYvwKAeMdmVJSlSYxhDtPNasAIn73WgW8pQsJhAJ5UNczWKaDQORNg==
   dependencies:
     clsx "^1.1.1"
     date-fns "^2.19.0"
@@ -17311,10 +17311,10 @@ ra-core@^4.6.1:
     react-is "^17.0.2"
     react-query "^3.32.1"
 
-ra-data-simple-rest@^4.6.1:
-  version "4.6.1"
-  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.6.1.tgz#7b6adfe5ccac1bbac8d4c722c9eace61c59b0c9b"
-  integrity sha512-R2VKuhKPjZq/78XpVPdg6p8J7K3xU7Deq+5zIVDJ6i11q9RR/WR3a2EF8Yj0j/y/+96BL0n2gOaoe9gWl2HIgA==
+ra-data-simple-rest@^4.6.2:
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.6.2.tgz#b05f83a9d4ed76774c9187d4fed8dd889f463d0f"
+  integrity sha512-8Z7W/QhuP4NxcEE6qQOYc3xge908KSKQu2J3k//ZK4uHqskPxQHBP2HQFm0Phcn3ba4GmX6CvygOSFyt9umGtw==
   dependencies:
     query-string "^7.1.1"
 
@@ -17333,12 +17333,12 @@ ra-language-english@^3.19.11:
   dependencies:
     ra-core "^3.19.11"
 
-ra-language-english@^4.6.1:
-  version "4.6.1"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.6.1.tgz#4eeab1df98de9ace28ed91444d4c93623085b789"
-  integrity sha512-tZitLsqscBcSJhnxHiPCSZBUfKlvTfuCybIL1z/FHAUh7tX547sGJW8S8JRB9XaDxTOMJlWcJWATeV3LG7a40w==
+ra-language-english@^4.6.2:
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.6.2.tgz#365360571949b52904d8afd2dc443d37ebb76cae"
+  integrity sha512-lPmWtv/Y58ohnS4h30BzkA3N3VKNuMaFB3fDkoIQGXpB3qeyQgja8FNgxqIinn5scU5ocMJho2SUhdJObo2eIQ==
   dependencies:
-    ra-core "^4.6.1"
+    ra-core "^4.6.2"
 
 ra-ui-materialui@^3.19.11:
   version "3.19.11"
@@ -18788,10 +18788,10 @@ sass-loader@^12.3.0:
     klona "^2.0.4"
     neo-async "^2.6.2"
 
-sass@^1.56.2:
-  version "1.56.2"
-  resolved "https://registry.yarnpkg.com/sass/-/sass-1.56.2.tgz#9433b345ab3872996c82a53a58c014fd244fd095"
-  integrity sha512-ciEJhnyCRwzlBCB+h5cCPM6ie/6f8HrhZMQOf5vlU60Y1bI1rx5Zb0vlDZvaycHsg/MqFfF1Eq2eokAa32iw8w==
+sass@^1.57.1:
+  version "1.57.1"
+  resolved "https://registry.yarnpkg.com/sass/-/sass-1.57.1.tgz#dfafd46eb3ab94817145e8825208ecf7281119b5"
+  integrity sha512-O2+LwLS79op7GI0xZ8fqzF7X2m/m8WFfI02dHOdsK5R2ECeS5F62zrwg/relM1rjSLy7Vd/DiMNIvPrQGsA0jw==
   dependencies:
     chokidar ">=3.0.0 <4.0.0"
     immutable "^4.0.0"
