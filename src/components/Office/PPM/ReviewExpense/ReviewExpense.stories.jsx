@@ -70,7 +70,7 @@ Storage.args = {
     movingExpenseType: expenseTypes.STORAGE,
     description: 'Pack n store',
     amount: 12345,
-    sitStartDate: '15 Dec 2022',
-    sitEndDate: '25 Dec 2022',
+    sitStartDate: '2022-12-15',
+    sitEndDate: '2022-12-25',
   },
 };

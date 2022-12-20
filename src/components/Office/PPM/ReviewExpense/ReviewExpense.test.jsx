@@ -38,8 +38,8 @@ const storageProps = {
   expense: {
     ...expenseRequiredProps.expense,
     movingExpenseType: expenseTypes.STORAGE,
-    sitStartDate: '15 Dec 2022',
-    sitEndDate: '25 Dec 2022',
+    sitStartDate: '2022-12-15',
+    sitEndDate: '2022-12-25',
   },
 };
 
@@ -103,8 +103,12 @@ describe('ReviewExpenseForm component', () => {
     it('correctly updates days in SIT', async () => {
       render(<ReviewExpense {...defaultProps} {...storageProps} />);
       const startDateInput = screen.getByLabelText('Start date');
-      await userEvent.clear(startDateInput);
-      await userEvent.type(startDateInput, '17 Dec 2022');
+      // clearing a date input throws an error about `children` being set to NaN
+      // this replaces the '5' in '15 Dec 2022' with a '7' -> '17 Dec 2022'
+      await userEvent.type(startDateInput, '7', {
+        initialSelectionStart: 1,
+        initialSelectionEnd: 2,
+      });
       await waitFor(() => {
         expect(screen.getByTestId('days-in-sit')).toHaveTextContent('8');
       });

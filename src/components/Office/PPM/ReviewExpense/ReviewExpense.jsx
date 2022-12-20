@@ -10,7 +10,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewExpense.module.scss';
 
-import { formatCents } from 'utils/formatters';
+import { formatCents, formatDate } from 'utils/formatters';
 import { PPMShipmentShape, ExpenseShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import { DatePickerInput } from 'components/form/fields';
@@ -22,12 +22,16 @@ import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
 
 const validationSchema = Yup.object().shape({
   amount: Yup.number().required('Enter the expense amount').min(1, 'Enter an expense amount greater than $0.00'),
-  sitStartDate: Yup.date()
-    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-    .required('Required'),
-  sitEndDate: Yup.date()
-    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-    .required('Required'),
+  sitStartDate: Yup.date().when('movingExpenseType', {
+    is: expenseTypes.STORAGE,
+    then: (schema) =>
+      schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
+  }),
+  sitEndDate: Yup.date().when('movingExpenseType', {
+    is: expenseTypes.STORAGE,
+    then: (schema) =>
+      schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
+  }),
   reason: Yup.string()
     .when('status', {
       is: ppmDocumentStatus.REJECTED,
@@ -51,8 +55,8 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
     description: description || '',
     amount: amount ? `${formatCents(amount)}` : '',
     paidWithGtcc: paidWithGtcc ? 'true' : 'false',
-    sitStartDate: sitStartDate || '',
-    sitEndDate: sitEndDate || '',
+    sitStartDate: sitStartDate ? formatDate(sitStartDate, 'YYYY-MM-DD', 'DD MMM YYYY') : '',
+    sitEndDate: sitEndDate ? formatDate(sitEndDate, 'YYYY-MM-DD', 'DD MMM YYYY') : '',
     status: status || '',
     reason: reason || '',
   };
@@ -60,13 +64,13 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
       <Formik initialValues={initialValues} validationSchema={validationSchema}>
-        {({ handleChange, values }) => {
+        {({ handleChange, errors, values }) => {
           const handleAcceptChange = (event) => {
             handleChange(event);
             setCanEditReason(true);
           };
           const daysInSIT =
-            values.sitStartDate && values.sitEndDate
+            values.sitStartDate && values.sitEndDate && !errors.sitStartDate && !errors.sitEndDate
               ? moment(values.sitEndDate, 'DD MMM YYYY').diff(moment(values.sitStartDate, 'DD MMM YYYY'), 'days')
               : '##';
           return (
