@@ -206,7 +206,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
   // use mutation calls
   const queryClient = new QueryClient();
-  const [mutateMoveStatus] = useMutation(updateMoveStatusServiceCounselingCompleted, {
+  const { mutate: mutateMoveStatus } = useMutation(updateMoveStatusServiceCounselingCompleted, {
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);
       queryClient.invalidateQueries([MOVES, data.locator]);
@@ -219,7 +219,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     },
   });
 
-  const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
+  const { mutate: mutateFinancialReview } = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);
       queryClient.invalidateQueries([MOVES, data.locator]);

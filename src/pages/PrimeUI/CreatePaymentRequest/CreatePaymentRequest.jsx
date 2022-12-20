@@ -33,7 +33,7 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
 
   const queryClient = new QueryClient();
-  const [createPaymentRequestMutation] = useMutation(createPaymentRequest, {
+  const { mutate: createPaymentRequestMutation } = useMutation(createPaymentRequest, {
     onSuccess: (data) => {
       if (!moveTaskOrder.paymentRequests?.length) {
         moveTaskOrder.paymentRequests = [];

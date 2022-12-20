@@ -30,7 +30,7 @@ export const PaymentRequestReview = ({ history, match, order }) => {
     isError,
   } = usePaymentRequestQueries(paymentRequestId);
   const queryClient = new QueryClient();
-  const [mutatePaymentRequest] = useMutation(patchPaymentRequest, {
+  const { mutate: mutatePaymentRequest } = useMutation(patchPaymentRequest, {
     onSuccess: (data, variables) => {
       const { paymentRequestID } = variables;
       queryClient.setQueryData([PAYMENT_REQUESTS, paymentRequestID], {
@@ -46,7 +46,7 @@ export const PaymentRequestReview = ({ history, match, order }) => {
     },
   });
 
-  const [mutatePaymentServiceItemStatus] = useMutation(patchPaymentServiceItemStatus, {
+  const { mutate: mutatePaymentServiceItemStatus } = useMutation(patchPaymentServiceItemStatus, {
     onSuccess: (data, variables) => {
       const newPaymentServiceItem = data.paymentServiceItems[variables.paymentServiceItemID];
       const oldPaymentServiceItem = paymentServiceItems[variables.paymentServiceItemID];

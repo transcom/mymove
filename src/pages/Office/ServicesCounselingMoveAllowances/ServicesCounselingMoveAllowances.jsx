@@ -57,7 +57,7 @@ const ServicesCounselingMoveAllowances = () => {
     history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
   const queryClient = new QueryClient();
-  const [mutateOrders] = useMutation(counselingUpdateAllowance, {
+  const { mutate: mutateOrders } = useMutation(counselingUpdateAllowance, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryClient.setQueryData([ORDERS, variables.orderID], {

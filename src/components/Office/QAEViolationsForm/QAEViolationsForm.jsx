@@ -33,7 +33,7 @@ const QAEViolationsForm = ({
   const history = useHistory();
 
   const queryClient = new QueryClient();
-  const [mutateEvaluationReport] = useMutation(saveEvaluationReport, {
+  const { mutateAsync: mutateEvaluationReport } = useMutation(saveEvaluationReport, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
@@ -43,7 +43,7 @@ const QAEViolationsForm = ({
     },
   });
 
-  const [submitEvaluationReportMutation] = useMutation(submitEvaluationReport, {
+  const { mutateAsync: submitEvaluationReportMutation } = useMutation(submitEvaluationReport, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
@@ -54,7 +54,7 @@ const QAEViolationsForm = ({
     },
   });
 
-  const [mutateReportViolations] = useMutation(associateReportViolations, {
+  const { mutateAsync: mutateReportViolations } = useMutation(associateReportViolations, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);

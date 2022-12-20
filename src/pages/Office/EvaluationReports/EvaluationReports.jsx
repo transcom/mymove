@@ -32,7 +32,7 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
   const { shipmentEvaluationReports, counselingEvaluationReports, shipments, isLoading, isError } =
     useEvaluationReportsQueries(moveCode);
 
-  const [deleteEvaluationReportMutation] = useMutation(deleteEvaluationReport);
+  const { mutateAsync: deleteEvaluationReportMutation } = useMutation(deleteEvaluationReport);
 
   const deleteReport = async () => {
     // Close the modal
@@ -56,7 +56,7 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
     });
   };
 
-  const [createCounselingEvaluationReportMutation] = useMutation(createCounselingEvaluationReport, {
+  const { mutateAsync: createCounselingEvaluationReportMutation } = useMutation(createCounselingEvaluationReport, {
     onSuccess: () => {
       queryClient.invalidateQueries([COUNSELING_EVALUATION_REPORTS, moveCode]);
     },

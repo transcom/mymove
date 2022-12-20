@@ -40,7 +40,7 @@ const ServicesCounselingOrders = () => {
   };
 
   const queryClient = new QueryClient();
-  const [mutateOrders] = useMutation(counselingUpdateOrder, {
+  const { mutate: mutateOrders } = useMutation(counselingUpdateOrder, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryClient.setQueryData([ORDERS, variables.orderID], {

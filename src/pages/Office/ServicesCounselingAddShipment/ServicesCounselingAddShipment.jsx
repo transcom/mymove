@@ -31,7 +31,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const queryClient = new QueryClient();
-  const [mutateMTOShipments] = useMutation(createMTOShipment, {
+  const { mutate: mutateMTOShipments } = useMutation(createMTOShipment, {
     onSuccess: (newMTOShipment) => {
       mtoShipments.push(newMTOShipment);
       queryClient.setQueryData([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID, false], mtoShipments);

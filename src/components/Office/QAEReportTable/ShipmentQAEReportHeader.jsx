@@ -22,7 +22,7 @@ const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode }
   const history = useHistory();
   const queryClient = new QueryClient();
 
-  const [createReportMutation] = useMutation(createShipmentEvaluationReport, {
+  const { mutateAsync: createReportMutation } = useMutation(createShipmentEvaluationReport, {
     onSuccess: () => {
       queryClient.invalidateQueries([SHIPMENT_EVALUATION_REPORTS, moveCode]);
     },

@@ -77,7 +77,7 @@ const ShipmentForm = (props) => {
   const shipments = mtoShipments;
 
   const queryClient = new QueryClient();
-  const [mutateMTOShipmentStatus] = useMutation(deleteShipment, {
+  const { mutate: mutateMTOShipmentStatus } = useMutation(deleteShipment, {
     onSuccess: (_, variables) => {
       const updatedMTOShipment = mtoShipment;
       // Update mtoShipments with our updated status and set query data to match

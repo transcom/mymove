@@ -71,7 +71,7 @@ const MoveDetails = ({
 
   // use mutation calls
   const queryClient = new QueryClient();
-  const [mutateMoveStatus] = useMutation(updateMoveStatus, {
+  const { mutate: mutateMoveStatus } = useMutation(updateMoveStatus, {
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);
       queryClient.invalidateQueries([MOVES, data.locator]);
@@ -79,7 +79,7 @@ const MoveDetails = ({
     },
   });
 
-  const [mutateMTOShipmentStatus] = useMutation(updateMTOShipmentStatus, {
+  const { mutate: mutateMTOShipmentStatus } = useMutation(updateMTOShipmentStatus, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
@@ -88,7 +88,7 @@ const MoveDetails = ({
     },
   });
 
-  const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
+  const { mutate: mutateFinancialReview } = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);
       queryClient.invalidateQueries([MOVES, data.locator]);

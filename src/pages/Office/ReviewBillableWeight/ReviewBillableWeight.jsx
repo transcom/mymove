@@ -76,7 +76,7 @@ export default function ReviewBillableWeight() {
   const selectedShipment = filteredShipments ? filteredShipments[selectedShipmentIndex] : {};
 
   const queryClient = new QueryClient();
-  const [mutateMTOShipment] = useMutation(updateMTOShipment, {
+  const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
       filteredShipments[filteredShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] =
         updatedMTOShipment;
@@ -89,7 +89,7 @@ export default function ReviewBillableWeight() {
     },
   });
 
-  const [mutateOrders] = useMutation(updateMaxBillableWeightAsTIO, {
+  const { mutate: mutateOrders } = useMutation(updateMaxBillableWeightAsTIO, {
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries([MOVES, moveCode]);
       const updatedOrder = data.orders[variables.orderID];
@@ -106,7 +106,7 @@ export default function ReviewBillableWeight() {
     },
   });
 
-  const [mutateMoves] = useMutation(updateTIORemarks, {
+  const { mutate: mutateMoves } = useMutation(updateTIORemarks, {
     onSuccess: (data, variables) => {
       const updatedMove = data.moves[variables.moveTaskOrderID];
       queryClient.setQueryData([MOVES, variables.moveTaskOrderID], {

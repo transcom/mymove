@@ -25,7 +25,7 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
     history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
   const queryClient = new QueryClient();
-  const [mutateCustomerInfo] = useMutation(updateCustomerInfo, {
+  const { mutate: mutateCustomerInfo } = useMutation(updateCustomerInfo, {
     onSuccess: (data, variables) => {
       const updatedCustomer = data.customer[variables.customerId];
       queryClient.setQueryData([CUSTOMER, variables.customerId], {

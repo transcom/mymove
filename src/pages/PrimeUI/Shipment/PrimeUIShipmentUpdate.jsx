@@ -39,7 +39,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
 
-  const [mutateMTOShipmentStatus] = useMutation(updatePrimeMTOShipmentStatus, {
+  const { mutateAsync: mutateMTOShipmentStatus } = useMutation(updatePrimeMTOShipmentStatus, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((mtoShipment) => mtoShipment.id === updatedMTOShipment.id)] =
         updatedMTOShipment;
@@ -82,7 +82,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     },
   });
 
-  const [mutateMTOShipment] = useMutation(updatePrimeMTOShipment, {
+  const { mutateAsync: mutateMTOShipment } = useMutation(updatePrimeMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((mtoShipment) => mtoShipment.id === updatedMTOShipment.id)] =
         updatedMTOShipment;

@@ -21,7 +21,7 @@ const CustomerSupportRemarkForm = ({ officeUser }) => {
   const { moveCode } = useParams();
   const queryClient = new QueryClient();
 
-  const [createRemarkMutation] = useMutation(createCustomerSupportRemarkForMove, {
+  const { mutate: createRemarkMutation } = useMutation(createCustomerSupportRemarkForMove, {
     onSuccess: () => {
       queryClient.invalidateQueries([CUSTOMER_SUPPORT_REMARKS, moveCode]);
     },

@@ -59,7 +59,7 @@ const MoveAllowances = () => {
   };
   const queryClient = new QueryClient();
 
-  const [mutateOrders] = useMutation(updateAllowance, {
+  const { mutate: mutateOrders } = useMutation(updateAllowance, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryClient.setQueryData([ORDERS, variables.orderID], {

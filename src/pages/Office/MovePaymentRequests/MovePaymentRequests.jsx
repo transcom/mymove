@@ -57,7 +57,7 @@ const MovePaymentRequests = ({
     return includedStatusesForCalculatingWeights(shipment.status);
   });
   const queryClient = new QueryClient();
-  const [mutateMoves] = useMutation(updateMTOReviewedBillableWeights, {
+  const { mutate: mutateMoves } = useMutation(updateMTOReviewedBillableWeights, {
     onSuccess: (data, variables) => {
       const updatedMove = data.moves[variables.moveTaskOrderID];
       queryClient.setQueryData([MOVES, move.locator], updatedMove);
@@ -69,7 +69,7 @@ const MovePaymentRequests = ({
     },
   });
 
-  const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
+  const { mutate: mutateFinancialReview } = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);
       queryClient.invalidateQueries([MOVES, data.locator]);
@@ -87,7 +87,7 @@ const MovePaymentRequests = ({
     },
   });
 
-  const [mutateMTOhipment] = useMutation(updateMTOShipment, {
+  const { mutate: mutateMTOhipment } = useMutation(updateMTOShipment, {
     onSuccess(_, variables) {
       queryClient.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);

@@ -30,7 +30,7 @@ const MoveDetails = ({ setFlashMessage }) => {
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
 
   const queryClient = new QueryClient();
-  const [completeCounselingMutation] = useMutation(completeCounseling, {
+  const { mutate: completeCounselingMutation } = useMutation(completeCounseling, {
     onSuccess: () => {
       setFlashMessage(
         `MSG_COMPLETE_COUNSELING${moveCodeOrID}`,
@@ -66,7 +66,7 @@ const MoveDetails = ({ setFlashMessage }) => {
     completeCounselingMutation({ moveTaskOrderID: moveTaskOrder.id, ifMatchETag: moveTaskOrder.eTag });
   };
 
-  const [deleteShipmentMutation] = useMutation(deleteShipment, {
+  const { mutate: deleteShipmentMutation } = useMutation(deleteShipment, {
     onSuccess: () => {
       setFlashMessage(`MSG_DELETE_SHIPMENT${moveCodeOrID}`, 'success', 'Successfully deleted shipment', '', true);
 

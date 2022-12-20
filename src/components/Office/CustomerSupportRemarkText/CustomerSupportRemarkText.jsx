@@ -40,7 +40,7 @@ const CustomerSupportRemarkText = ({ customerSupportRemark, onDelete }) => {
     setIsEdit(!isEdit);
   };
 
-  const [mutateCustomerSupportRemark] = useMutation(updateCustomerSupportRemarkForMove, {
+  const { mutate: mutateCustomerSupportRemark } = useMutation(updateCustomerSupportRemarkForMove, {
     onSuccess: async () => {
       await queryClient.invalidateQueries([CUSTOMER_SUPPORT_REMARKS]);
       setIsEdit(false);

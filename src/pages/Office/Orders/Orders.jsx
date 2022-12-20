@@ -39,7 +39,7 @@ const Orders = () => {
     history.push(`/moves/${moveCode}/details`);
   }, [history, moveCode]);
   const queryClient = new QueryClient();
-  const [mutateOrders] = useMutation(updateOrder, {
+  const { mutate: mutateOrders } = useMutation(updateOrder, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryClient.setQueryData([ORDERS, variables.orderID], {

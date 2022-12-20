@@ -25,7 +25,7 @@ const CustomerSupportRemarks = () => {
   const [customerSupportRemarkIDToDelete, setCustomerSupportRemarkIDToDelete] = useState(null);
   const { customerSupportRemarks, isLoading, isError } = useCustomerSupportRemarksQueries(moveCode);
   const queryClient = new QueryClient();
-  const [deleteCustomerSupportRemarkMutation] = useMutation(deleteCustomerSupportRemark, {
+  const { mutate: deleteCustomerSupportRemarkMutation } = useMutation(deleteCustomerSupportRemark, {
     onSuccess: async () => {
       await queryClient.invalidateQueries([CUSTOMER_SUPPORT_REMARKS, moveCode]);
       setCustomerSupportRemarkIDToDelete(null);

@@ -29,7 +29,7 @@ const UploadPaymentRequest = ({ setFlashMessage }) => {
     setFilesToUpload([]);
   };
 
-  const [mutateUploadPaymentRequestDocument] = useMutation(createUpload, {
+  const { mutate: mutateUploadPaymentRequestDocument } = useMutation(createUpload, {
     onSuccess: () => {
       // TODO - show flash message?
       setUploadSuccess(true);

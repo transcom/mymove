@@ -36,8 +36,8 @@ const EvaluationForm = ({
   const location = useLocation();
   const queryClient = new QueryClient();
 
-  const [deleteEvaluationReportMutation] = useMutation(deleteEvaluationReport);
-  const [submitEvaluationReportMutation] = useMutation(submitEvaluationReport, {
+  const { mutateAsync: deleteEvaluationReportMutation } = useMutation(deleteEvaluationReport);
+  const { mutateAsync: submitEvaluationReportMutation } = useMutation(submitEvaluationReport, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
@@ -48,7 +48,7 @@ const EvaluationForm = ({
     },
   });
 
-  const [mutateEvaluationReport] = useMutation(saveEvaluationReport, {
+  const { mutateAsync: mutateEvaluationReport } = useMutation(saveEvaluationReport, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);

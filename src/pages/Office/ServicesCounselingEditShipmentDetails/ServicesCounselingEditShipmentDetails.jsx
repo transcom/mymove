@@ -23,7 +23,7 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const queryClient = new QueryClient();
-  const [mutateMTOShipment] = useMutation(updateMTOShipment, {
+  const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);

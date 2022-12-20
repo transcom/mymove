@@ -32,7 +32,7 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
   const handleClose = () => {
     history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
-  const [mutateCreateMTOShipment] = useMutation(createPrimeMTOShipment, {
+  const { mutateAsync: mutateCreateMTOShipment } = useMutation(createPrimeMTOShipment, {
     onSuccess: (createdMTOShipment) => {
       setFlashMessage(
         `MSG_CREATE_PAYMENT_SUCCESS${createdMTOShipment.id}`,

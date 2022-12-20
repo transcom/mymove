@@ -25,7 +25,7 @@ const CreateServiceItem = ({ setFlashMessage }) => {
 
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
 
-  const [createServiceItemMutation] = useMutation(createServiceItem, {
+  const { mutate: createServiceItemMutation } = useMutation(createServiceItem, {
     onSuccess: () => {
       setFlashMessage(
         `MSG_CREATE_SERVICE_ITEM_SUCCESS${moveCodeOrID}`,

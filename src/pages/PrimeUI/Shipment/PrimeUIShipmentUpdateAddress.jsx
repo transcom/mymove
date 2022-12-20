@@ -49,7 +49,7 @@ const PrimeUIShipmentUpdateAddress = () => {
   };
 
   const queryClient = new QueryClient();
-  const [mutateMTOShipment] = useMutation(updatePrimeMTOShipmentAddress, {
+  const { mutateAsync: mutateMTOShipment } = useMutation(updatePrimeMTOShipmentAddress, {
     onSuccess: (updatedMTOShipmentAddress) => {
       const shipmentIndex = mtoShipments.findIndex((mtoShipment) => mtoShipment.id === shipmentId);
       let updateQuery = false;

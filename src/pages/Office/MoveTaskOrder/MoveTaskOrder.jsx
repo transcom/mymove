@@ -152,7 +152,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     return serviceItemsForShipment;
   }, [mtoServiceItems]);
   const queryClient = new QueryClient();
-  const [mutateMTOServiceItemStatus] = useMutation(patchMTOServiceItemStatus, {
+  const { mutate: mutateMTOServiceItemStatus } = useMutation(patchMTOServiceItemStatus, {
     onSuccess: (data, variables) => {
       const newMTOServiceItem = data.mtoServiceItems[variables.mtoServiceItemID];
       mtoServiceItems[mtoServiceItems.find((serviceItem) => serviceItem.id === newMTOServiceItem.id)] =
@@ -168,14 +168,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateMTOShipment] = useMutation(updateMTOShipment, {
+  const { mutataAsync: mutateMTOShipment } = useMutation(updateMTOShipment, {
     onSuccess: (_, variables) => {
       queryClient.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
     },
   });
 
-  const [mutateMTOShipmentStatus] = useMutation(updateMTOShipmentStatus, {
+  const { mutate: mutateMTOShipmentStatus } = useMutation(updateMTOShipmentStatus, {
     onSuccess: (data, variables) => {
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       // Update mtoShipments with our updated status and set query data to match
@@ -195,7 +195,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateMTOShipmentRequestReweigh] = useMutation(updateMTOShipmentRequestReweigh, {
+  const { mutate: mutateMTOShipmentRequestReweigh } = useMutation(updateMTOShipmentRequestReweigh, {
     onSuccess: (data, variables) => {
       // Update mtoShipments with our updated status and set query data to match
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === data.shipmentID)] = data;
@@ -215,7 +215,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateOrderBillableWeight] = useMutation(updateBillableWeight, {
+  const { mutate: mutateOrderBillableWeight } = useMutation(updateBillableWeight, {
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries([MOVES, move.locator]);
       const updatedOrder = data.orders[variables.orderID];
@@ -241,7 +241,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateAcknowledgeExcessWeightRisk] = useMutation(acknowledgeExcessWeightRisk, {
+  const { mutate: mutateAcknowledgeExcessWeightRisk } = useMutation(acknowledgeExcessWeightRisk, {
     onSuccess: () => {
       queryClient.invalidateQueries([MOVES, move.locator]);
     },
@@ -261,7 +261,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateSITExtensionApproval] = useMutation(approveSITExtension, {
+  const { mutate: mutateSITExtensionApproval } = useMutation(approveSITExtension, {
     onSuccess: (data, variables) => {
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
@@ -274,7 +274,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateSITExtensionDenial] = useMutation(denySITExtension, {
+  const { mutate: mutateSITExtensionDenial } = useMutation(denySITExtension, {
     onSuccess: (data, variables) => {
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
@@ -287,7 +287,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateSubmitSITExtension] = useMutation(submitSITExtension, {
+  const { mutate: mutateSubmitSITExtension } = useMutation(submitSITExtension, {
     onSuccess: (data, variables) => {
       setIsSuccessAlertVisible(true);
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
@@ -301,7 +301,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
+  const { mutate: mutateFinancialReview } = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);
       queryClient.invalidateQueries([MOVES, data.locator]);

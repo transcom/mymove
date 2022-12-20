@@ -32,7 +32,7 @@ const PrimeUIShipmentUpdateReweigh = ({ setFlashMessage }) => {
   };
 
   const queryClient = new QueryClient();
-  const [mutateMTOShipmentReweigh] = useMutation(updatePrimeMTOShipmentReweigh, {
+  const { mutate: mutateMTOShipmentReweigh } = useMutation(updatePrimeMTOShipmentReweigh, {
     onSuccess: (updatedReweigh) => {
       const updatedMTOShipment = {
         ...shipment,
