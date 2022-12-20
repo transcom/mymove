@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -37,7 +38,38 @@ func (h UpdateProgearWeightTicketHandler) Handle(params progearops.UpdateProGear
 
 			progearWeightTicket.ID = uuid.FromStringOrNil(params.ProGearWeightTicketID.String())
 
-			updatedProgearWeightTicket, _ := h.progearUpdater.UpdateProgearWeightTicket(appCtx, *progearWeightTicket, params.IfMatch)
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("ghcapi.UpdateWeightTicketHandler", zap.Error(err))
+
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return progearops.NewUpdateProGearWeightTicketNotFound(), err
+				case apperror.InvalidInputError:
+					return progearops.NewUpdateProGearWeightTicketUnprocessableEntity().WithPayload(
+						payloadForValidationError(
+							handlers.ValidationErrMessage,
+							err.Error(),
+							h.GetTraceIDFromRequest(params.HTTPRequest),
+							e.ValidationErrors,
+						),
+					), err
+				case apperror.PreconditionFailedError:
+					msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
+					return progearops.NewUpdateProGearWeightTicketPreconditionFailed().WithPayload(
+						&ghcmessages.Error{Message: &msg},
+					), err
+				case apperror.QueryError:
+					return progearops.NewUpdateProGearWeightTicketInternalServerError(), err
+				default:
+					return progearops.NewUpdateProGearWeightTicketInternalServerError(), err
+				}
+			}
+
+			updatedProgearWeightTicket, err := h.progearUpdater.UpdateProgearWeightTicket(appCtx, *progearWeightTicket, params.IfMatch)
+
+			if err != nil {
+				return handleError(err)
+			}
 
 			returnPayload := payloads.ProGearWeightTicket(h.FileStorer(), updatedProgearWeightTicket)
 			return progearops.NewUpdateProGearWeightTicketOK().WithPayload(returnPayload), nil
