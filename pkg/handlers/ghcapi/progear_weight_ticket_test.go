@@ -90,4 +90,18 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		suite.Equal(subtestData.progear.ID.String(), updatedProgear.ID.String())
 		suite.Equal(params.UpdateProGearWeightTicket.Weight, updatedProgear.Weight)
 	})
+
+	suite.Run("PATCH failure - 404- not found", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateProGearWeightTicket = &ghcmessages.UpdateProGearWeightTicket{}
+		wrongUUIDString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("cde78daf-802f-491f-a230-fc1fdcfe6595"))
+		params.ProGearWeightTicketID = *wrongUUIDString
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&progearops.UpdateProGearWeightTicketNotFound{}, response)
+	})
 }
