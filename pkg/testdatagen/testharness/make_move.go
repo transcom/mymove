@@ -24,6 +24,33 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
+func MakeMoveWithOrders(db *pop.Connection) models.Move {
+	email := strings.ToLower(fmt.Sprintf("joe_customer_%s@example.com",
+		testdatagen.MakeRandomString(5)))
+
+	u := factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				LoginGovEmail: email,
+				Active:        true,
+			},
+		},
+	}, nil)
+
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			UserID:        u.ID,
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{},
+	})
+
+	move.Orders.ServiceMember.User = u
+	move.Orders.ServiceMember.UserID = u.ID
+
+	return move
+}
+
 func MakeSpouseProGearMove(db *pop.Connection) models.Move {
 	email := strings.ToLower(fmt.Sprintf("joe_customer_%s@example.com",
 		testdatagen.MakeRandomString(5)))
