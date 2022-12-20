@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { number } from 'prop-types';
 import { Formik } from 'formik';
 import classnames from 'classnames';
@@ -45,8 +45,6 @@ const validationSchema = Yup.object().shape({
 });
 
 export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppmNumber }) {
-  const [canEditReason, setCanEditReason] = useState(true);
-
   const { movingExpenseType, description, amount, paidWithGtcc, sitStartDate, sitEndDate, status, reason } =
     expense || {};
 
@@ -65,10 +63,6 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
     <div className={classnames(styles.container, 'container--accent--ppm')}>
       <Formik initialValues={initialValues} validationSchema={validationSchema}>
         {({ handleChange, errors, values }) => {
-          const handleAcceptChange = (event) => {
-            handleChange(event);
-            setCanEditReason(true);
-          };
           const daysInSIT =
             values.sitStartDate && values.sitEndDate && !errors.sitStartDate && !errors.sitEndDate
               ? moment(values.sitEndDate, 'DD MMM YYYY').diff(moment(values.sitStartDate, 'DD MMM YYYY'), 'days')
@@ -125,7 +119,7 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
                     value={ppmDocumentStatus.APPROVED}
                     name="status"
                     label="Accept"
-                    onChange={handleAcceptChange}
+                    onChange={handleChange}
                     data-testid="acceptRadio"
                   />
                 </div>
@@ -147,22 +141,13 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
                   {values.status === ppmDocumentStatus.EXCLUDED && (
                     <FormGroup className={styles.reason}>
                       <Label htmlFor={`excludeReason-${expense?.id}`}>Reason</Label>
-                      {!canEditReason && (
-                        <p data-testid="exclusionReasonReadOnly">{expense?.reason || values.reason}</p>
-                      )}
-
-                      {canEditReason && (
-                        <>
-                          <Textarea
-                            id={`excludeReason-${expense?.id}`}
-                            name="reason"
-                            onChange={handleChange}
-                            value={values.reason}
-                            placeholder="Type something"
-                          />
-                          <div className={styles.hint}>500 characters</div>
-                        </>
-                      )}
+                      <Textarea
+                        id={`excludeReason-${expense?.id}`}
+                        name="reason"
+                        onChange={handleChange}
+                        value={values.reason}
+                        placeholder="Type something"
+                      />
                     </FormGroup>
                   )}
                 </div>
@@ -184,22 +169,14 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
                   {values.status === ppmDocumentStatus.REJECTED && (
                     <FormGroup className={styles.reason}>
                       <Label htmlFor={`rejectReason-${expense?.id}`}>Reason</Label>
-                      {!canEditReason && (
-                        <p data-testid="rejectionReasonReadOnly">{expense?.reason || values.reason}</p>
-                      )}
-
-                      {canEditReason && (
-                        <>
-                          <Textarea
-                            id={`rejectReason-${expense?.id}`}
-                            name="reason"
-                            onChange={handleChange}
-                            value={values.reason}
-                            placeholder="Type something"
-                          />
-                          <div className={styles.hint}>500 characters</div>
-                        </>
-                      )}
+                      <Textarea
+                        id={`rejectReason-${expense?.id}`}
+                        name="reason"
+                        onChange={handleChange}
+                        value={values.reason}
+                        placeholder="Type something"
+                      />
+                      <div className={styles.hint}>500 characters</div>
                     </FormGroup>
                   )}
                 </div>
