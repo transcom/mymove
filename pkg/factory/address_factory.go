@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-// BuildAddress creates a single Address and associated service member.
+// BuildAddress creates a single Address.
 func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) models.Address {
 	customs = setupCustomizations(customs, traits)
 
