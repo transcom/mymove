@@ -68,6 +68,7 @@ func (suite *HandlerSuite) TestGetTransportationOfficesHandler() {
 	req = suite.AuthenticateUserRequest(req, user)
 	params := transportationofficeop.GetTransportationOfficesParams{
 		HTTPRequest: req,
+		Search:      "test",
 	}
 
 	handler := GetTransportationOfficesHandler{
@@ -88,6 +89,7 @@ func (suite *HandlerSuite) TestGetTransportationOfficesHandlerUnauthorized() {
 	req := httptest.NewRequest("GET", "/transportation_offices", nil)
 	params := transportationofficeop.GetTransportationOfficesParams{
 		HTTPRequest: req,
+		Search:      "test",
 	}
 
 	handler := GetTransportationOfficesHandler{
@@ -109,6 +111,7 @@ func (suite *HandlerSuite) TestGetTransportationOfficesHandlerForbidden() {
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 	params := transportationofficeop.GetTransportationOfficesParams{
 		HTTPRequest: req,
+		Search:      "test",
 	}
 
 	handler := GetTransportationOfficesHandler{

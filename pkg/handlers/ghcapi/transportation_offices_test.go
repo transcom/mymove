@@ -15,6 +15,7 @@ func (suite *HandlerSuite) TestGetTransportationOfficesHandler() {
 	req := httptest.NewRequest("GET", "/transportation_offices", nil)
 	params := transportationofficeop.GetTransportationOfficesParams{
 		HTTPRequest: req,
+		Search:      "test",
 	}
 
 	handler := GetTransportationOfficesHandler{
