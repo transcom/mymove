@@ -116,9 +116,10 @@ func (e EIAData) validateUnits() error {
 }
 
 func (e EIAData) validateDateFormat() error {
-	if e.ResponseData.DateFormat != "YYYY-MM-DD" {
+	_, ok := getEIADateFormatMap()[e.ResponseData.DateFormat]
+	if !ok {
 		return NewGHCAPIValidationError(
-			fmt.Sprintf("Expected DateFormat to be YYYY-MM-DD, received %s", e.ResponseData.DateFormat))
+			fmt.Sprintf("Unexpected date format, received %s", e.ResponseData.DateFormat))
 	}
 	return nil
 }

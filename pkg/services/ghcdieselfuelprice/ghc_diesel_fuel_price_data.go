@@ -37,6 +37,17 @@ type responseData struct {
 	ID          string     `json:"id"`
 }
 
+// returns a date format map that maps the possible EIA API date formats with the equivalent golang time parse formats.
+func getEIADateFormatMap() map[string]string {
+	dateFormatMap := make(map[string]string)
+	dateFormatMap["YYYY"] = "2006"
+	dateFormatMap["YYYYMM"] = "200601"
+	dateFormatMap["YYYY-MM"] = "2006-01"
+	dateFormatMap["YYYYMMDD"] = "20060102"
+	dateFormatMap["YYYY-MM-DD"] = "2006-01-02"
+	return dateFormatMap
+}
+
 type requestData struct {
 	Command string `json:"command"`
 }

@@ -15,7 +15,7 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceValidator() 
 		{"invalid process", "Expected Process to be PTE, received INVALID"},
 		{"invalid series", "Expected Series to be EMD_EPD2D_PTE_NUS_DPG, received INVALID"},
 		{"invalid units", "Expected Units to be $/GAL, received INVALID"},
-		{"invalid date format", "Expected DateFormat to be YYYY-MM-DD, received INVALID"},
+		{"invalid date format", "Unexpected date format, received INVALID"},
 		{"invalid frequency", "Expected Frequency to be weekly, received INVALID"},
 	}
 
