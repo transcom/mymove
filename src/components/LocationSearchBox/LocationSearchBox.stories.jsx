@@ -137,7 +137,7 @@ const mockShowAddress = async () => {
   return testAddress;
 };
 
-export const Standard = () => {
+export const DutyStationStandard = () => {
   const [value, setValue] = useState();
 
   const onChange = (newValue) => {
@@ -147,7 +147,7 @@ export const Standard = () => {
   return (
     <LocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
-      title="Test Component"
+      title="Duty Station Test Component"
       name="test_component"
       searchDutyLocations={mockSearchDutyLocations}
       showAddress={mockShowAddress}
@@ -155,7 +155,7 @@ export const Standard = () => {
   );
 };
 
-export const WithValue = () => {
+export const DutyStationWithValue = () => {
   const [value, setValue] = useState(baseValue);
 
   const onChange = (newValue) => {
@@ -165,7 +165,7 @@ export const WithValue = () => {
   return (
     <LocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
-      title="Test Component"
+      title="Duty Station Test Component"
       displayAddress={false}
       searchDutyLocations={mockSearchDutyLocations}
       showAddress={mockShowAddress}
@@ -173,7 +173,7 @@ export const WithValue = () => {
   );
 };
 
-export const WithValueAndAddress = () => {
+export const DutyStationWithValueAndAddress = () => {
   const [value, setValue] = useState(baseValue);
 
   const onChange = (newValue) => {
@@ -183,14 +183,14 @@ export const WithValueAndAddress = () => {
   return (
     <LocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
-      title="Test Component"
+      title="Duty Station Test Component"
       searchDutyLocations={mockSearchDutyLocations}
       showAddress={mockShowAddress}
     />
   );
 };
 
-export const WithErrorMessage = () => {
+export const DutyStationWithErrorMessage = () => {
   const [value, setValue] = useState();
 
   const onChange = (newValue) => {
@@ -200,7 +200,7 @@ export const WithErrorMessage = () => {
   return (
     <LocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
-      title="Test Component"
+      title="Duty Station Test Component"
       errorMsg="Something went wrong"
       searchDutyLocations={mockSearchDutyLocations}
       showAddress={mockShowAddress}
@@ -208,7 +208,7 @@ export const WithErrorMessage = () => {
   );
 };
 
-export const WithLocalError = () => {
+export const DutyStationWithLocalError = () => {
   const [value, setValue] = useState();
 
   const onChange = (newValue) => {
@@ -222,7 +222,7 @@ export const WithLocalError = () => {
   return (
     <LocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
-      title="Test Component"
+      title="Duty Station Test Component"
       searchDutyLocations={brokenSearchDutyLocations}
       showAddress={mockShowAddress}
     />

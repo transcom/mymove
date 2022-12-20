@@ -77,20 +77,8 @@ const customStyles = {
 };
 
 export const LocationSearchBoxComponent = (props) => {
-  const {
-    // additional props I think are needed
-    // searchCloseoutLocations
-    searchDutyLocations,
-    showAddress,
-    title,
-    input,
-    name,
-    errorMsg,
-    displayAddress,
-    hint,
-    placeholder,
-    isDisabled,
-  } = props;
+  const { searchLocations, showAddress, title, input, name, errorMsg, displayAddress, hint, placeholder, isDisabled } =
+    props;
   const { value, onChange, name: inputName } = input;
 
   const [inputValue, setInputValue] = useState('');
@@ -129,7 +117,7 @@ export const LocationSearchBoxComponent = (props) => {
       return undefined;
     }
 
-    searchDutyLocations(query)
+    searchLocations(query)
       .then((locations) => {
         callback(locations);
       })
@@ -162,11 +150,8 @@ export const LocationSearchBoxComponent = (props) => {
   const labelClasses = classNames(styles.title, {
     [styles.titleWithError]: errorMsg,
   });
-  // update className 'duty-input-box' > 'transportation-input-box' ? 'closeout-input-box'
-  // needs to be customizable for duty location or closeout
   const dutyInputClasses = classNames('duty-input-box', {
     [inputName]: true,
-    // what does styles.dutyInputBoxError do, do I need to change this or is it
     [styles.dutyInputBoxError]: errorMsg,
   });
 
@@ -215,7 +200,7 @@ export const LocationSearchBoxContainer = (props) => {
   return (
     <LocationSearchBoxComponent
       {...props}
-      searchDutyLocations={SearchDutyLocations}
+      searchLocations={SearchDutyLocations}
       showAddress={ShowAddress}
       isDisabled={isDisabled}
     />
@@ -239,7 +224,7 @@ LocationSearchBoxContainer.propTypes = {
 
 LocationSearchBoxContainer.defaultProps = {
   displayAddress: true,
-  title: 'Name of Duty Location:', // ''
+  title: 'Name of Duty Location:',
   errorMsg: '',
   input: {
     name: '',
@@ -247,13 +232,13 @@ LocationSearchBoxContainer.defaultProps = {
     value: undefined,
   },
   hint: '',
-  placeholder: 'Start typing a duty location...', // ''
+  placeholder: 'Start typing a duty location...',
   isDisabled: false,
 };
 
 LocationSearchBoxComponent.propTypes = {
   ...LocationSearchBoxContainer.propTypes,
-  searchDutyLocations: PropTypes.func.isRequired,
+  searchLocations: PropTypes.func.isRequired,
   showAddress: PropTypes.func.isRequired,
   isDisabled: PropTypes.bool,
 };
