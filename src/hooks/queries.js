@@ -321,7 +321,7 @@ export const useMovesQueueQueries = ({
     [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
     ({ queryKey }) => getMovesQueue(...queryKey),
   );
-  const { isLoading, isError, isSuccess } = getQueriesStatus(movesQueueQuery);
+  const { isLoading, isError, isSuccess } = movesQueueQuery;
   const { queueMoves, ...dataProps } = data;
   return {
     queueResult: { data: queueMoves, ...dataProps },
@@ -517,7 +517,7 @@ export const useEvaluationReportQueries = (reportID) => {
 
 // Lookup all Evaluation Reports and associated move/shipment data
 export const useEvaluationReportsQueries = (moveCode) => {
-  const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], () => getMove);
+  const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
   const moveId = move?.id;
 
   const { data: shipments, ...shipmentQuery } = useQuery(
