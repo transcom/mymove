@@ -27,6 +27,7 @@ import (
 	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	"github.com/transcom/mymove/pkg/services/query"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 )
 
@@ -190,6 +191,11 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	ppmShipmentUpdatedSubmitter := ppmshipment.NewPPMShipmentUpdatedSubmitter(signedCertificationUpdater, ppmShipmentRouter)
 
 	internalAPI.PpmResubmitPPMShipmentDocumentationHandler = ResubmitPPMShipmentDocumentationHandler{handlerConfig, ppmShipmentUpdatedSubmitter}
+
+	internalAPI.TransportationOfficesGetTransportationOfficesHandler = GetTransportationOfficesHandler{
+		handlerConfig,
+		transportationoffice.NewTransportationOfficesFetcher(),
+	}
 
 	return internalAPI
 }
