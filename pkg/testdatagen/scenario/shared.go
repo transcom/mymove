@@ -2040,7 +2040,7 @@ func createMoveWithCloseoutOffice(appCtx appcontext.AppContext, userUploader *up
 			CloseoutOfficeID: &closeoutOffice.ID,
 			CloseoutOffice:   &closeoutOffice,
 			SubmittedAt:      &submittedAt,
-			Status:           models.MoveStatusNeedsServiceCounseling,
+			Status:           models.MoveStatusAPPROVED,
 		},
 	})
 
