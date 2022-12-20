@@ -2587,7 +2587,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// TODO: Can't validate the response because of the issue noted below. Figure out a way to
 		//   either alter the service or relax the swagger requirements.
 		// suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
-		// CreateMTOShipment is returning services.NewInvalidInputError without any validation errors
+		// CreateShipment is returning apperror.InvalidInputError without any validation errors
 		// so InvalidFields won't be added to the payload.
 		suite.Empty(typedResponse.Payload.InvalidFields)
 	})
@@ -3087,6 +3087,12 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
+
+		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))

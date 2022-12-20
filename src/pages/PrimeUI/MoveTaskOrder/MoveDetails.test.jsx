@@ -169,7 +169,7 @@ describe('PrimeUI MoveDetails page', () => {
 
       const completeCounselingButton = screen.getByText(/Complete Counseling/, { selector: 'button' });
       expect(completeCounselingButton).toBeInTheDocument();
-      userEvent.click(completeCounselingButton);
+      await userEvent.click(completeCounselingButton);
 
       await waitFor(() => {
         expect(screen.getByText('Successfully completed counseling')).toBeInTheDocument();
@@ -189,7 +189,7 @@ describe('PrimeUI MoveDetails page', () => {
       );
 
       const completeCounselingButton = screen.getByText(/Complete Counseling/, { selector: 'button' });
-      userEvent.click(completeCounselingButton);
+      await userEvent.click(completeCounselingButton);
 
       await waitFor(() => {
         expect(screen.getByText(/Error title/)).toBeInTheDocument();
@@ -207,10 +207,10 @@ describe('PrimeUI MoveDetails page', () => {
 
       const deleteShipmentButton = screen.getByText(/Delete Shipment/, { selector: 'button' });
       expect(deleteShipmentButton).toBeInTheDocument();
-      userEvent.click(deleteShipmentButton);
+      await userEvent.click(deleteShipmentButton);
 
       const modalDeleteButton = screen.getByText('Delete shipment', { selector: 'button.usa-button--destructive' });
-      userEvent.click(modalDeleteButton);
+      await userEvent.click(modalDeleteButton);
 
       await waitFor(() => {
         expect(screen.getByText('Successfully deleted shipment')).toBeInTheDocument();
@@ -231,10 +231,10 @@ describe('PrimeUI MoveDetails page', () => {
 
       const deleteShipmentButton = screen.getByText(/Delete Shipment/, { selector: 'button' });
       expect(deleteShipmentButton).toBeInTheDocument();
-      userEvent.click(deleteShipmentButton);
+      await userEvent.click(deleteShipmentButton);
 
       const modalDeleteButton = screen.getByText('Delete shipment', { selector: 'button.usa-button--destructive' });
-      userEvent.click(modalDeleteButton);
+      await userEvent.click(modalDeleteButton);
 
       await waitFor(() => {
         expect(screen.getByText(/Error title/)).toBeInTheDocument();

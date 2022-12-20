@@ -35,9 +35,7 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit }) => 
     <Formik validationSchema={validationSchema} initialValues={initialValues} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit }) => (
         <div className={styles.FinalCloseoutForm}>
-          <h2>
-            Your final estimated incentive: ${formatCents(mtoShipment?.ppmShipment?.finalEstimatedIncentive || 0)}
-          </h2>
+          <h2>Your final estimated incentive: ${formatCents(mtoShipment?.ppmShipment?.finalIncentive || 0)}</h2>
           <div className={styles.incentiveFactors}>
             <p className={styles.listDescription}>Your incentive is calculated using:</p>
             <dl>

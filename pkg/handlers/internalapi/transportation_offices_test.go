@@ -5,9 +5,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	"github.com/go-openapi/strfmt"
+
+	"github.com/transcom/mymove/pkg/factory"
 	transportationofficeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	transportationofficeservice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -52,4 +56,68 @@ func (suite *HandlerSuite) TestShowDutyLocationTransportationOfficeHandlerNoOffi
 	errResponse := response.(*handlers.ErrResponse)
 
 	suite.Assertions.Equal(http.StatusNotFound, errResponse.Code)
+}
+
+func (suite *HandlerSuite) TestGetTransportationOfficesHandler() {
+
+	user := factory.BuildDefaultUser(suite.DB())
+
+	fetcher := transportationofficeservice.NewTransportationOfficesFetcher()
+
+	req := httptest.NewRequest("GET", "/transportation_offices", nil)
+	req = suite.AuthenticateUserRequest(req, user)
+	params := transportationofficeop.GetTransportationOfficesParams{
+		HTTPRequest: req,
+		Search:      "test",
+	}
+
+	handler := GetTransportationOfficesHandler{
+		HandlerConfig:                suite.HandlerConfig(),
+		TransportationOfficesFetcher: fetcher}
+
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&transportationofficeop.GetTransportationOfficesOK{}, response)
+	responsePayload := response.(*transportationofficeop.GetTransportationOfficesOK)
+
+	// Validate outgoing payload
+	suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+}
+
+func (suite *HandlerSuite) TestGetTransportationOfficesHandlerUnauthorized() {
+	fetcher := transportationofficeservice.NewTransportationOfficesFetcher()
+
+	req := httptest.NewRequest("GET", "/transportation_offices", nil)
+	params := transportationofficeop.GetTransportationOfficesParams{
+		HTTPRequest: req,
+		Search:      "test",
+	}
+
+	handler := GetTransportationOfficesHandler{
+		HandlerConfig:                suite.HandlerConfig(),
+		TransportationOfficesFetcher: fetcher}
+
+	// Request without authentication
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&transportationofficeop.GetTransportationOfficesUnauthorized{}, response)
+}
+
+func (suite *HandlerSuite) TestGetTransportationOfficesHandlerForbidden() {
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	fetcher := transportationofficeservice.NewTransportationOfficesFetcher()
+
+	req := httptest.NewRequest("GET", "/transportation_offices", nil)
+
+	// Auth the request as an office user (forbidden)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	params := transportationofficeop.GetTransportationOfficesParams{
+		HTTPRequest: req,
+		Search:      "test",
+	}
+
+	handler := GetTransportationOfficesHandler{
+		HandlerConfig:                suite.HandlerConfig(),
+		TransportationOfficesFetcher: fetcher}
+
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&transportationofficeop.GetTransportationOfficesForbidden{}, response)
 }

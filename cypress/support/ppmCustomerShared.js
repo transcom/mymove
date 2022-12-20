@@ -80,19 +80,35 @@ export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
 }
 
 export function fillOutAboutPage(selectAdvance) {
-  cy.get('input[name="actualMoveDate"]').clear().type('01 Feb 2022').blur();
+  cy.intercept('GET', '**/internal/rate_engine_postal_codes/**?postal_code_type=origin').as('validateOriginZIP');
+  cy.intercept('GET', '**/internal/rate_engine_postal_codes/**?postal_code_type=destination').as('validateDestZIP');
+
+  // editing this field with the keyboard instead of the date picker runs async validators for pre-filled postal codes
+  // this helps debounce the API calls that would be triggered in quick succession
+  cy.get('input[name="actualMoveDate"]').as('actualMoveDate').clear().type('0');
+  cy.wait('@validateOriginZIP');
+  cy.wait('@validateDestZIP');
+
+  cy.get('@actualMoveDate').type('1 Feb 2022').blur();
+
   cy.get('input[name="actualPickupPostalCode"]').clear().type('90210').blur();
   cy.get('input[name="actualDestinationPostalCode"]').clear().type('76127').blur();
+  cy.wait('@validateDestZIP');
+
   if (selectAdvance) {
     cy.get('input[name="hasReceivedAdvance"][value="true"]').check({ force: true });
     cy.get('input[name="advanceAmountReceived"]').clear().clear().type('5000');
   } else {
     cy.get('input[name="hasReceivedAdvance"][value="false"]').check({ force: true });
   }
+
   cy.get('input[name="w2Address.streetAddress1"]').clear().type('1819 S Cedar Street').blur();
   cy.get('input[name="w2Address.city"]').clear().type('Yuma').blur();
   cy.get('select[name="w2Address.state"]').select('AZ');
   cy.get('input[name="w2Address.postalCode"]').clear().type('85369').blur();
+
+  // when editing an existing about page record it should take us back to the review page when the existing bug is
+  // fixed
   navigateFromAboutPageToWeightTicketPage();
 }
 
@@ -328,6 +344,14 @@ export function navigateFromReviewPageToHomePage() {
   });
 }
 
+export function navigateToFromHomePageToPPMCloseoutReview() {
+  cy.get('[data-testid="stepContainer5"] button').contains('Upload PPM Documents').should('be.enabled').click();
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+  });
+}
+
 export function navigateToAgreementAndSign() {
   cy.nextPage();
   signAgreement();
@@ -348,6 +372,11 @@ export function deleteShipment(selector, expectedLength) {
   cy.get('[data-testid="alert"]').should('contain', 'The shipment was deleted.');
 }
 
+export function signInAndNavigateToProgearPage(userId) {
+  signInAndNavigateToPPMReviewPage(userId);
+  navigateFromCloseoutReviewPageToProGearPage();
+}
+
 export function navigateFromCloseoutReviewPageToProGearPage() {
   cy.get('a.usa-button').contains('Add Pro-gear Weight').click();
   cy.location().should((loc) => {
@@ -355,9 +384,141 @@ export function navigateFromCloseoutReviewPageToProGearPage() {
   });
 }
 
+export function navigateFromCloseoutReviewPageToEditProGearPage() {
+  cy.get('.progearSection a').eq(1).contains('Edit').click();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
+  });
+}
+
+export function navigateFromCloseoutReviewPageToEditWeightTicketPage() {
+  cy.get('.reviewWeightTickets a').eq(1).contains('Edit').click();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
+  });
+}
+
+export function navigateFromCloseoutReviewPageToEditExpensePage() {
+  cy.get('.reviewExpenses a').eq(1).contains('Edit').click();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
+  });
+}
+
+export function navigateFromCloseoutReviewPageToAboutPage() {
+  cy.get('[data-testid="aboutYourPPM"] a').contains('Edit').click();
+}
+
+export function navigateFromProgearPage() {
+  cy.get('button').contains('Save & Continue').should('be.enabled').click();
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+  });
+}
+
+export function submitProgearPage(options) {
+  fillOutProgearPage(options);
+  navigateFromProgearPage();
+}
+
+export function fillOutProgearPage(options = { belongsToSelf: true }) {
+  const progearTypeSelector = options?.belongsToSelf
+    ? `[name="belongsToSelf"][value="true"]`
+    : `[name="belongsToSelf"][value="false"]`;
+
+  cy.get(progearTypeSelector).click({ force: true });
+  cy.get('[name="description"]').clear().type('Radio equipment');
+
+  if (options?.belongsToSelf) {
+    cy.get('[name="weight"]')
+      .clear()
+      .type(options?.weight || '2000');
+  } else {
+    cy.get('[name="weight"]')
+      .clear()
+      .type(options?.weight || '500');
+  }
+
+  if (options?.missingWeightTicket) {
+    cy.get('[name="missingWeightTicket"]').click();
+    cy.upload_file('.filepond--root', 'constructedWeight.xls');
+  } else {
+    cy.upload_file('.filepond--root', 'sampleWeightTicket.jpg');
+  }
+
+  cy.wait('@uploadFile');
+}
+
 export function navigateFromCloseoutReviewPageToExpensesPage() {
   cy.get('a.usa-button').contains('Add Expense').click();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
   });
+}
+
+export function submitExpensePage(options = { isEditExpense: false }) {
+  cy.get('select[name="expenseType"]').as('expenseType');
+  if (!options?.isEditExpense) {
+    cy.get('@expenseType').should('have.value', '');
+  }
+  cy.get('@expenseType').select('Storage');
+
+  cy.get('input[name="description"]').clear().type('Cloud storage');
+  cy.get('input[name="paidWithGTCC"][value="true"]').click({ force: true });
+  cy.get('input[name="amount"]')
+    .clear()
+    .type(options?.amount || '675.99');
+
+  cy.upload_file('.receiptDocument.filepond--root', 'sampleWeightTicket.jpg');
+  cy.wait('@uploadFile');
+
+  cy.get('input[name="sitStartDate"]').clear().type('14 Aug 2022').blur();
+  cy.get('input[name="sitEndDate"]').clear().type('20 Aug 2022').blur();
+
+  cy.get('button').contains('Save & Continue').should('be.enabled').click();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+  });
+
+  cy.contains('Cloud storage');
+  cy.contains('dt', 'Days in storage:');
+  cy.contains('dd', '7');
+}
+
+export function verifyFinalIncentiveAndTotals(
+  options = { totalNetWeight: '4,000 lbs', proGearWeight: '1,500 lbs', expensesClaimed: '450.00' },
+) {
+  // TODO: Once we get back final incentive, set a value in the testdatagen func
+  //  createMoveWithPPMShipmentReadyForFinalCloseout and check for it here.
+  // cy.get('h2').contains('Your final estimated incentive: $0.00');
+
+  cy.get('li').contains(`${options?.totalNetWeight} total net weight`);
+
+  // TODO: Once we get moving expenses and pro gear back, check for those here as well.
+
+  cy.get('li').contains(`${options?.proGearWeight} of pro-gear`);
+  cy.get('li').contains(`$${options?.expensesClaimed} in expenses claimed`);
+}
+
+export function signCloseoutAgreement() {
+  cy.get('input[name="signature"]').type('Sofía Clark-Nuñez');
+  cy.get('button').contains('Submit PPM Documentation').should('be.enabled').click();
+  cy.wait('@submitCloseout');
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.eq('/');
+  });
+
+  cy.get('.usa-alert--success').contains('You submitted documentation for review.');
+
+  cy.get('[data-testid="stepContainer5"]').within(() => {
+    cy.get('button').contains('Download Incentive Packet').should('be.disabled');
+    cy.contains(/PPM documentation submitted: \d{2} \w{3} \d{4}/);
+  });
+}
+
+export function submitFinalCloseout(options) {
+  verifyFinalIncentiveAndTotals(options);
+  signCloseoutAgreement();
 }

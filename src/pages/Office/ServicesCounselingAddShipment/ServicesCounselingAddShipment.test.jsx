@@ -209,18 +209,18 @@ describe('ServicesCounselingAddShipment component', () => {
 
       expect(screen.getByLabelText('Use current address')).not.toBeChecked();
 
-      userEvent.type(screen.getAllByLabelText('Address 1')[0], '812 S 129th St');
-      userEvent.type(screen.getAllByLabelText('City')[0], 'San Antonio');
-      userEvent.selectOptions(screen.getAllByLabelText('State')[0], ['TX']);
-      userEvent.type(screen.getAllByLabelText('ZIP')[0], '78234');
-      userEvent.type(screen.getByLabelText('Requested pickup date'), '01 Nov 2020');
-      userEvent.type(screen.getByLabelText('Requested delivery date'), '08 Nov 2020');
+      await userEvent.type(screen.getAllByLabelText('Address 1')[0], '812 S 129th St');
+      await userEvent.type(screen.getAllByLabelText('City')[0], 'San Antonio');
+      await userEvent.selectOptions(screen.getAllByLabelText('State')[0], ['TX']);
+      await userEvent.type(screen.getAllByLabelText('ZIP')[0], '78234');
+      await userEvent.type(screen.getByLabelText('Requested pickup date'), '01 Nov 2020');
+      await userEvent.type(screen.getByLabelText('Requested delivery date'), '08 Nov 2020');
 
       await waitFor(() => {
         expect(saveButton).not.toBeDisabled();
       });
 
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
@@ -235,7 +235,7 @@ describe('ServicesCounselingAddShipment component', () => {
 
       expect(cancelButton).not.toBeDisabled();
 
-      userEvent.click(cancelButton);
+      await userEvent.click(cancelButton);
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');

@@ -150,13 +150,13 @@ const Review = () => {
             )}
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
             <h1>Review</h1>
-            <SectionWrapper className={styles.aboutSection}>
+            <SectionWrapper className={styles.aboutSection} data-testid="aboutYourPPM">
               <ReviewItems heading={<h2>About Your PPM</h2>} contents={aboutYourPPM} />
             </SectionWrapper>
             <SectionWrapper>
               <h2>Documents</h2>
               <ReviewItems
-                className={styles.reviewItems}
+                className={classnames(styles.reviewItems, 'reviewWeightTickets')}
                 heading={
                   <>
                     <h3>Weight moved</h3>
@@ -172,7 +172,7 @@ const Review = () => {
                 emptyMessage="No weight tickets uploaded. Add at least one set of weight tickets to request payment."
               />
               <ReviewItems
-                className={styles.reviewItems}
+                className={classnames(styles.reviewItems, 'progearSection')}
                 heading={
                   <>
                     <h3>Pro-gear</h3>
