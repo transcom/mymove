@@ -167,7 +167,7 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"UploadedAmendedOrders",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
-		"Moves.CloseoutOffice",
+		"Moves.CloseoutOffice.Address",
 		"Entitlement",
 		"OriginDutyLocation").
 		Find(&order, id)
