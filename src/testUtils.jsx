@@ -6,6 +6,7 @@ import { ConnectedRouter } from 'connected-react-router';
 import { Router } from 'react-router-dom';
 /* eslint-disable-next-line import/no-extraneous-dependencies */
 import { render } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { configureStore } from 'shared/store';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -25,14 +26,17 @@ export const renderWithRouter = (ui, { route = '/', history = createMockHistory(
 export const MockProviders = ({ children, initialState, initialEntries, permissions, history, currentUserId }) => {
   const mockHistory = history || createMockHistory(initialEntries);
   const mockStore = configureStore(mockHistory, initialState);
+  const queryClient = new QueryClient();
 
   return (
     <PermissionProvider permissions={permissions} currentUserId={currentUserId}>
-      <Provider store={mockStore.store}>
-        <ConnectedRouter history={mockHistory}>
-          <Suspense fallback={<LoadingPlaceholder />}>{children}</Suspense>
-        </ConnectedRouter>
-      </Provider>
+      <QueryClientProvider client={queryClient}>
+        <Provider store={mockStore.store}>
+          <ConnectedRouter history={mockHistory}>
+            <Suspense fallback={<LoadingPlaceholder />}>{children}</Suspense>
+          </ConnectedRouter>
+        </Provider>
+      </QueryClientProvider>
     </PermissionProvider>
   );
 };
