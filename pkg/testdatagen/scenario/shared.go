@@ -690,6 +690,12 @@ func createApprovedMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploa
 }
 
 func createApprovedMoveWithPPM2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	// Make a transportation office to use as the closeout office
+	closeoutOffice := testdatagen.MakeTransportationOffice(appCtx.DB(), testdatagen.Assertions{TransportationOffice: models.TransportationOffice{
+		Name: "Los Angeles AFB",
+	},
+	})
+
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("c28b2eb1-975f-49f7-b8a3-c7377c0da908"),
 		email:       "readyToFinish2@ppm.approved",
@@ -705,7 +711,9 @@ func createApprovedMoveWithPPM2(appCtx appcontext.AppContext, userUploader *uplo
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		Move: models.Move{
-			Status: models.MoveStatusAPPROVED,
+			Status:           models.MoveStatusAPPROVED,
+			CloseoutOffice:   &closeoutOffice,
+			CloseoutOfficeID: &closeoutOffice.ID,
 		},
 		MTOShipment: models.MTOShipment{
 			ID:     testdatagen.ConvertUUIDStringToUUID("ef256d30-a6e7-4be8-8a60-b4ffb7dc7a7f"),
@@ -2025,7 +2033,10 @@ func createMoveWithCloseoutOffice(appCtx appcontext.AppContext, userUploader *up
 	})
 
 	// Make a transportation office to use as the closeout office
-	closeoutOffice := testdatagen.MakeDefaultTransportationOffice(appCtx.DB())
+	closeoutOffice := testdatagen.MakeTransportationOffice(appCtx.DB(), testdatagen.Assertions{TransportationOffice: models.TransportationOffice{
+		Name: "Los Angeles AFB",
+	},
+	})
 
 	// Make a move with the closeout office
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
