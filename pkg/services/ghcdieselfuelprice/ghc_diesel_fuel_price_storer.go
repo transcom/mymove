@@ -17,8 +17,9 @@ func priceInMillicents(price float64) unit.Millicents {
 	return priceInMillicents
 }
 
-func publicationDateInTime(publicationDate string) (time.Time, error) {
-	publicationDateInTime, err := time.Parse("20060102", publicationDate)
+func publicationDateInTime(d DieselFuelPriceInfo) (time.Time, error) {
+	layout := getEIADateFormatMap()[d.eiaData.ResponseData.DateFormat]
+	publicationDateInTime, err := time.Parse(layout, d.dieselFuelPriceData.publicationDate)
 
 	return publicationDateInTime, err
 }
@@ -27,7 +28,7 @@ func publicationDateInTime(publicationDate string) (time.Time, error) {
 func (d *DieselFuelPriceInfo) RunStorer(appCtx appcontext.AppContext) error {
 	priceInMillicents := priceInMillicents(d.dieselFuelPriceData.price)
 
-	publicationDate, err := publicationDateInTime(d.dieselFuelPriceData.publicationDate)
+	publicationDate, err := publicationDateInTime(*d)
 	if err != nil {
 		return err
 	}
@@ -51,6 +52,7 @@ func (d *DieselFuelPriceInfo) RunStorer(appCtx appcontext.AppContext) error {
 			return fmt.Errorf("failed to validate ghcDieselFuelPrice: %w", verrs)
 		}
 	} else if priceInMillicents != lastGHCDieselFuelPrice.FuelPriceInMillicents {
+		appCtx.Logger().Info("Updating existing GHCDieselFuelPrice record found with", zap.String("publication_date", publicationDate.String()))
 		lastGHCDieselFuelPrice.FuelPriceInMillicents = priceInMillicents
 
 		verrs, err := appCtx.DB().ValidateAndUpdate(&lastGHCDieselFuelPrice)
@@ -60,6 +62,11 @@ func (d *DieselFuelPriceInfo) RunStorer(appCtx appcontext.AppContext) error {
 		if verrs.HasAny() {
 			return fmt.Errorf("failed to validate ghcDieselFuelPrice: %w", verrs)
 		}
+	} else {
+		appCtx.Logger().Info(
+			"Existing GHCDieselFuelPrice record found with matching fuel prices",
+			zap.String("publication_date", publicationDate.String()),
+			zap.String("fuel price", priceInMillicents.ToDollarString()))
 	}
 
 	return nil
