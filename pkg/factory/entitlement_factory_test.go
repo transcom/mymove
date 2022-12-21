@@ -1,8 +1,6 @@
 package factory
 
 import (
-	"fmt"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -140,8 +138,6 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 				Grade: models.StringPointer("O_9"),
 			}},
 		}, nil)
-		fmt.Printf("%+v\n", entitlement)
-		fmt.Printf("weight allotment %+v\n\n", *entitlement.DBAuthorizedWeight)
 
 		// VALIDATE RESULTS
 		// Builder should have pulled the O_9 grade from the order to calculate
