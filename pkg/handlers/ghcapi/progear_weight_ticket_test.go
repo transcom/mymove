@@ -1,10 +1,12 @@
 package ghcapi
 
 import (
+	"errors"
 	"fmt"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
@@ -12,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -116,5 +119,39 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		response := subtestData.handler.Handle(params)
 
 		suite.IsType(&progearops.UpdateProGearWeightTicketPreconditionFailed{}, response)
+	})
+
+	suite.Run("PATCH failure - 500", func() {
+		mockUpdater := mocks.ProgearWeightTicketUpdater{}
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		ownsTrailer := true
+		hasWeightTickets := true
+
+		params.UpdateProGearWeightTicket = &ghcmessages.UpdateProGearWeightTicket{
+			Weight:           handlers.FmtInt64(1000),
+			BelongsToSelf:    ownsTrailer,
+			HasWeightTickets: hasWeightTickets,
+		}
+
+		err := errors.New("ServerError")
+
+		// Might remove the mocks:
+		mockUpdater.On("UpdateWeightTicket",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.WeightTicket"),
+			mock.AnythingOfType("string"),
+		).Return(nil, err)
+
+		handler := UpdateProgearWeightTicketHandler{
+			suite.HandlerConfig(),
+			&mockUpdater,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&progearops.UpdateProGearWeightTicketInternalServerError{}, response)
 	})
 }
