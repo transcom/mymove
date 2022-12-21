@@ -24,7 +24,6 @@ tags:
   - name: paymentServiceItem
   - name: ppm
   - name: tac
-  - name: transportationOffice
 paths:
   '/customer/{customerID}':
     parameters:
@@ -2474,21 +2473,7 @@ paths:
           name: sort
           type: string
           enum:
-            [
-              lastName,
-              dodID,
-              branch,
-              locator,
-              status,
-              requestedMoveDate,
-              submittedAt,
-              originGBLOC,
-              originDutyLocation,
-              destinationDutyLocation,
-              ppmType,
-              closeoutInitiated,
-              closeoutLocation,
-            ]
+            [lastName, dodID, branch, locator, status, requestedMoveDate, submittedAt, originGBLOC, originDutyLocation, destinationDutyLocation, ppmType, closeoutInitiated, closeoutLocation]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -2822,37 +2807,6 @@ paths:
           description: Successfully retrieved validation status
           schema:
             $ref: '#/definitions/TacValid'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '401':
-          $ref: '#/responses/PermissionDenied'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '500':
-          $ref: '#/responses/ServerError'
-  /transportation-offices:
-    get:
-      produces:
-        - application/json
-      summary: Returns the transportation offices matching the search query
-      description: Returns the transportation offices matching the search query
-      operationId: getTransportationOffices
-      tags:
-        - transportationOffice
-      parameters:
-        - in: query
-          name: search
-          type: string
-          required: true
-          minLength: 2
-          description: Search string for transportation offices
-      responses:
-        '200':
-          description: Successfully retrieved transportation offices
-          schema:
-            $ref: '#/definitions/TransportationOffices'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -4937,10 +4891,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/ReportViolation'
-  TransportationOffices:
-    type: array
-    items:
-      $ref: 'definitions/TransportationOffice.yaml'
 responses:
   InvalidRequest:
     description: The request payload is invalid

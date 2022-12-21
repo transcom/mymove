@@ -84,19 +84,15 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 				Weight: &weight,
 			},
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateReweighOK{}, response)
-		reweighOk := response.(*mtoshipmentops.UpdateReweighOK)
-
-		// Validate outgoing payload
-		suite.NoError(reweighOk.Payload.Validate(strfmt.Default))
 
 		// Check values
+		reweighOk := response.(*mtoshipmentops.UpdateReweighOK)
 		suite.Equal(&weight, reweighOk.Payload.Weight)
 	})
 
@@ -118,18 +114,16 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 			},
 		}
 
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateReweighOK{}, response)
-		reweighOk := response.(*mtoshipmentops.UpdateReweighOK)
-
-		// Validate outgoing payload
-		suite.NoError(reweighOk.Payload.Validate(strfmt.Default))
 
 		// Check values
+		reweighOk := response.(*mtoshipmentops.UpdateReweighOK)
+
 		suite.Equal(&reason, reweighOk.Payload.VerificationReason)
 	})
 
@@ -202,16 +196,12 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 			},
 		}
 
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateReweighNotFound{}, response)
-		responsePayload := response.(*mtoshipmentops.UpdateReweighNotFound).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Fail - PreconditionFailed due to wrong etag", func() {
@@ -236,15 +226,12 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 			},
 		}
 
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateReweighPreconditionFailed{}, response)
-		responsePayload := response.(*mtoshipmentops.UpdateReweighPreconditionFailed).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
+
 }

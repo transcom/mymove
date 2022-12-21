@@ -44,16 +44,9 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 			File:             file,
 			PaymentRequestID: paymentRequest.ID.String(),
 		}
-
-		// Validate incoming payload: no body to validate
-
 		response := handler.Handle(params)
 
 		suite.IsType(&uploadop.CreateUploadCreated{}, response)
-		responsePayload := response.(*uploadop.CreateUploadCreated).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("create upload fail - invalid payment request ID format", func() {
@@ -70,19 +63,9 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 			File:             file,
 			PaymentRequestID: badFormatID.String(),
 		}
-
-		// Validate incoming payload: no body to validate
-
 		response := handler.Handle(params)
 
 		suite.IsType(&uploadop.CreateUploadUnprocessableEntity{}, response)
-
-		// Validate outgoing payload
-		// TODO: Can't validate the response because of the issue noted below. Figure out a way to
-		//   either alter the service or relax the swagger requirements.
-		// responsePayload := response.(*uploadop.CreateUploadCreated).Payload
-		// suite.NoError(responsePayload.Validate(strfmt.Default))
-		// Handler is not setting any validation errors so InvalidFields won't be added to the payload.
 	})
 
 	suite.Run("create upload fail - payment request not found", func() {
@@ -99,15 +82,8 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 			File:             file,
 			PaymentRequestID: badFormatID.String(),
 		}
-
-		// Validate incoming payload: no body to validate
-
 		response := handler.Handle(params)
 
 		suite.IsType(&uploadop.CreateUploadNotFound{}, response)
-		responsePayload := response.(*uploadop.CreateUploadNotFound).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 }

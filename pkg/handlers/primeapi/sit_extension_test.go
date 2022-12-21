@@ -61,7 +61,7 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 			Body:          sitExtension,
 		}
 
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
@@ -69,12 +69,10 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 
 		// Check response type
 		suite.IsType(&mtoshipmentops.CreateSITExtensionCreated{}, response)
-		sitExtensionResponse := response.(*mtoshipmentops.CreateSITExtensionCreated).Payload
-
-		// Validate outgoing payload
-		suite.NoError(sitExtensionResponse.Validate(strfmt.Default))
 
 		// Check values
+		sitExtensionResponse := response.(*mtoshipmentops.CreateSITExtensionCreated).Payload
+
 		suite.Equal(daysRequested, sitExtensionResponse.RequestedDays)
 		suite.Equal(models.SITExtensionStatusPending, sitExtensionResponse.Status)
 		suite.Equal(daysRequested, sitExtensionResponse.RequestedDays)
@@ -100,7 +98,7 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 			Body:          sitExtension,
 		}
 
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
@@ -108,9 +106,6 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 
 		// Check response type
 		suite.IsType(&mtoshipmentops.CreateSITExtensionUnprocessableEntity{}, response)
-		responsePayload := response.(*mtoshipmentops.CreateSITExtensionUnprocessableEntity).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
+
 }

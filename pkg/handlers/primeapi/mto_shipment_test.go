@@ -107,18 +107,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
 			},
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
-		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
 		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
 		createMTOShipmentPayload := okResponse.Payload
-
-		// Validate outgoing payload
-		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
-
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
 		// check that the mto shipment status is Submitted
 		suite.Require().Equal(createMTOShipmentPayload.Status, primemessages.MTOShipmentStatusSUBMITTED, "MTO Shipment should have been submitted")
 		suite.Require().Equal(createMTOShipmentPayload.PrimeEstimatedWeight, params.Body.PrimeEstimatedWeight)
@@ -174,23 +169,20 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			},
 		}
 
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+
 		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
 		createdShipment := okResponse.Payload
-
-		// Validate outgoing payload
-		suite.NoError(createdShipment.Validate(strfmt.Default))
-
 		createdPPM := createdShipment.PpmShipment
 
 		suite.Equal(move.ID.String(), createdShipment.MoveTaskOrderID.String())
@@ -248,17 +240,14 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
 			},
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
+
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
+
 		errResponse := response.(*mtoshipmentops.CreateMTOShipmentInternalServerError)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-
 		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
 	})
 
@@ -289,17 +278,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
 			},
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
-
-		// Validate outgoing payload
-		suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
-
 		suite.NotEmpty(typedResponse.Payload.InvalidFields)
 		suite.Contains(typedResponse.Payload.InvalidFields, "agents:id")
 		suite.Contains(typedResponse.Payload.InvalidFields, "agents:mtoShipmentID")
@@ -326,21 +310,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			},
 		}
 		params.Body.PickupAddress.Address.StreetAddress1 = nil
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 		unprocessableEntity := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
-
-		// Validate outgoing payload
-		// TODO: Can't validate the response because of the issue noted below. Figure out a way to
-		//   either alter the service or relax the swagger requirements.
-		// suite.NoError(unprocessableEntity.Payload.Validate(strfmt.Default))
-		// CreateShipment is returning apperror.InvalidInputError without any validation errors
-		// so InvalidFields won't be added to the payload.
-
 		suite.Contains(*unprocessableEntity.Payload.Detail, "PickupAddress is required")
 	})
 
@@ -365,16 +340,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
 			},
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
-		suite.IsType(&mtoshipmentops.CreateMTOShipmentNotFound{}, response)
-		responsePayload := response.(*mtoshipmentops.CreateMTOShipmentNotFound).Payload
 
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentNotFound{}, response)
 	})
 
 	suite.Run("POST failure - 400 -- nil body", func() {
@@ -388,15 +358,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		paramsNilBody := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 		}
-
-		// Validate incoming payload: nil body (the point of this test)
-
 		response := handler.Handle(paramsNilBody)
-		suite.IsType(&mtoshipmentops.CreateMTOShipmentBadRequest{}, response)
-		responsePayload := response.(*mtoshipmentops.CreateMTOShipmentBadRequest).Payload
 
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentBadRequest{}, response)
 	})
 
 	suite.Run("POST failure - 404 -- MTO is not available to Prime", func() {
@@ -420,17 +384,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
 			},
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentNotFound{}, response)
+
 		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentNotFound)
-
-		// Validate outgoing payload
-		suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
-
 		suite.Contains(*typedResponse.Payload.Detail, unavailableMove.ID.String())
 	})
 
@@ -474,18 +434,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		params.Body.SetMtoServiceItems(*payloads.MTOServiceItems(&mtoServiceItems))
-
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
-
-		// Validate outgoing payload
-		suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
-
 		suite.Contains(*typedResponse.Payload.Detail, "MTOServiceItem modelType() not allowed")
+
 	})
 }
 
@@ -609,17 +562,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			mock.Anything,
 		).Return(nil, internalServerErr)
 
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := mockHandler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentInternalServerError{}, response)
+
 		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentInternalServerError)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-
 		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
+
 	})
 
 	suite.Run("PATCH success 200 minimal update", func() {
@@ -648,21 +596,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			Body:          &minimalUpdate,
 			IfMatch:       eTag,
 		}
-
 		// CALL FUNCTION UNDER TEST
-
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
 		// CHECK RESPONSE
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 		okPayload := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
-
-		// Validate outgoing payload
-		suite.NoError(okPayload.Validate(strfmt.Default))
-
 		suite.Equal(shipment.ID.String(), okPayload.ID.String())
 
 		// Confirm PATCH working as expected; non-updated values still exist
@@ -682,6 +622,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Confirm new values
 		suite.Equal(params.Body.Diversion, okPayload.Diversion)
 		suite.Equal(params.Body.ActualPickupDate.String(), okPayload.ActualPickupDate.String())
+
 	})
 
 	suite.Run("PATCH success 200 update destination type", func() {
@@ -709,21 +650,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			Body:          &minimalUpdate,
 			IfMatch:       eTag,
 		}
-
 		// CALL FUNCTION UNDER TEST
-
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
 		// CHECK RESPONSE
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 		okPayload := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
-
-		// Validate outgoing payload
-		suite.NoError(okPayload.Validate(strfmt.Default))
-
 		suite.Equal(shipment.ID.String(), okPayload.ID.String())
 
 		// Confirm PATCH working as expected; non-updated values still exist
@@ -820,6 +753,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 		}
 
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
@@ -832,16 +768,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(nil, nil)
 
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
 		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
-
-		// Validate outgoing payload
-		suite.NoError(updatedShipment.Validate(strfmt.Default))
-
 		suite.Equal(ppmShipment.Shipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(handlers.FmtDatePtr(&expectedDepartureDate), updatedShipment.PpmShipment.ExpectedDepartureDate)
 		suite.Equal(&pickupPostalCode, updatedShipment.PpmShipment.PickupPostalCode)
@@ -889,18 +819,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 
 		// CALL FUNCTION UNDER TEST
-
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
 		// Verify not found response
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
-		responsePayload := response.(*mtoshipmentops.UpdateMTOShipmentNotFound).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("PATCH failure 404 not found because attempting to update an external vendor shipment", func() {
@@ -936,18 +859,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 
 		// CALL FUNCTION UNDER TEST
-
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
 		// Verify not found response
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
-		responsePayload := response.(*mtoshipmentops.UpdateMTOShipmentNotFound).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("PATCH success 200 update of primeEstimatedWeight and primeActualWeight", func() {
@@ -963,7 +879,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				ID: ogShipment.MoveTaskOrderID,
 			},
 			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusSubmitted,
+				Status:              models.MTOShipmentStatusDraft,
 				ScheduledPickupDate: &time.Time{},
 			},
 		})
@@ -985,18 +901,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 
 		// CALL FUNCTION UNDER TEST
-
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 		okPayload := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
-
-		// Validate outgoing payload
-		suite.NoError(okPayload.Validate(strfmt.Default))
-
 		suite.Equal(minimalShipment.ID.String(), okPayload.ID.String())
 
 		// Confirm changes to weights
@@ -1026,7 +935,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				ID: ogShipment.MoveTaskOrderID,
 			},
 			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusSubmitted,
+				Status:              models.MTOShipmentStatusDraft,
 				ScheduledPickupDate: &time.Time{},
 			},
 		})
@@ -1043,17 +952,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			IfMatch: etag.GenerateEtag(minimalShipment.UpdatedAt),
 		}
-
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
-		responsePayload := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
-
 		minimalShipment = suite.refreshFromDB(minimalShipment.ID)
 		// Check that primeEstimatedWeight was already populated
 		suite.NotNil(minimalShipment.PrimeEstimatedWeight)
@@ -1063,20 +963,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		params.IfMatch = etag.GenerateEtag(minimalShipment.UpdatedAt)
 
 		// CALL FUNCTION UNDER TEST
-
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response = handler.Handle(params)
 
 		// Check response contains an error about primeEstimatedWeight
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
 		errPayload := response.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity).Payload
-
-		// Validate outgoing payload
-		suite.NoError(errPayload.Validate(strfmt.Default))
-
 		suite.Contains(errPayload.InvalidFields, "primeEstimatedWeight")
+
 	})
 
 	suite.Run("PATCH failure 422 cannot update estimatedWeight without scheduledPickupDate", func() {
@@ -1114,17 +1008,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			IfMatch:       etag.GenerateEtag(noScheduledPickupShipment.UpdatedAt),
 		}
 
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
-		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
 
 		// Expect validation error due to updated weight
+		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
 		suite.NotEmpty(errResponse.Payload.InvalidFields)
 		suite.Contains(errResponse.Payload.InvalidFields, "primeEstimatedWeight")
 	})
@@ -1145,18 +1034,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			IfMatch:       string(etag.GenerateEtag(shipment.UpdatedAt)),
 		}
 		// Call handler
-
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
 		// Check response
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
-		responsePayload := response.(*mtoshipmentops.UpdateMTOShipmentNotFound).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("PATCH failure 412 precondition failed", func() {
@@ -1167,7 +1049,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		handler, shipment := setupTestData()
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 
-		// Create an update with a wrong eTag
+		// Create an update with an wrong eTag
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
 			MtoShipmentID: strfmt.UUID(shipment.ID.String()),
@@ -1176,18 +1058,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 
 		// Call handler
-
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
 		// Check response
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
-		responsePayload := response.(*mtoshipmentops.UpdateMTOShipmentPreconditionFailed).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("PATCH success 200 returns all nested objects", func() {
@@ -1213,7 +1088,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				MoveTaskOrderID: shipment.MoveTaskOrderID,
 				ReServiceID:     reService.ID,
 				MTOShipmentID:   &shipment.ID,
-				SITEntryDate:    swag.Time(time.Now()),
 			},
 		})
 
@@ -1252,17 +1126,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 
 		// Call the handler
-
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 
 		// Check response
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 		okPayload := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
-
-		// Validate outgoing payload
-		suite.NoError(okPayload.Validate(strfmt.Default))
 
 		// Check that there's one service item of model type DestSIT in the payload
 		suite.Equal(1, len(okPayload.MtoServiceItems()))
@@ -1367,18 +1236,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 		}
 
 		// CALL FUNCTION UNDER TEST
-
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
 		// CHECK RESPONSE
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 		okPayload := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
-
-		// Validate outgoing payload
-		suite.NoError(okPayload.Validate(strfmt.Default))
 
 		// Check that addresses match what was sent
 		suite.EqualAddressPayload(&update.PickupAddress.Address, &okPayload.PickupAddress.Address, false)
@@ -1417,10 +1280,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 			Body:          &update,
 			IfMatch:       string(etag.GenerateEtag(shipment.UpdatedAt)),
 		}
-
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
 		// CALL FUNCTION UNDER TEST
@@ -1429,10 +1289,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 		// CHECK RESPONSE
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
 		errPayload := response.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity).Payload
-
-		// Validate outgoing payload
-		suite.NoError(errPayload.Validate(strfmt.Default))
-
 		suite.Contains(errPayload.InvalidFields, "pickupAddress")
 		suite.Contains(errPayload.InvalidFields, "destinationAddress")
 		suite.NotContains(errPayload.InvalidFields, "secondaryPickupAddress")
@@ -1451,9 +1307,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
-			},
 		})
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", shipment.ID.String()), nil)
@@ -1467,18 +1320,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 		}
 
 		// CALL FUNCTION UNDER TEST
-
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
 		// CHECK RESPONSE
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 		newPayload := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
-
-		// Validate outgoing payload
-		suite.NoError(newPayload.Validate(strfmt.Default))
 
 		// Check that addresses match what was returned previously in the last successful payload
 		suite.EqualAddress(*shipment.PickupAddress, &newPayload.PickupAddress.Address, true)
@@ -1556,7 +1403,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
+				Status:              "APPROVED",
 				ScheduledPickupDate: &eightDaysFromNow,
 				ApprovedDate:        &threeDaysBefore,
 			},
@@ -1573,17 +1420,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			IfMatch:       eTag,
 		}
 
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
 		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-
 		suite.Contains(errResponse.Payload.InvalidFields, "primeEstimatedWeight")
+
 	})
 
 	suite.Run("Successful case if both approved date and estimated weight recorded date is more than ten days prior to scheduled move date", func() {
@@ -1593,7 +1434,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
+				Status:              "APPROVED",
 				ScheduledPickupDate: &tenDaysFromNow,
 				ApprovedDate:        &now,
 			},
@@ -1611,17 +1452,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			IfMatch:       eTag,
 		}
 
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
-
-		// Validate outgoing payload
-		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
-
 		suite.Equal(oldShipment.ID.String(), okResponse.Payload.ID.String())
 
 		// Confirm PATCH working as expected; non-updated value still exists
@@ -1703,18 +1537,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 				IfMatch:       eTag,
 			}
 
-			// Validate incoming payload
-			suite.NoError(params.Body.Validate(strfmt.Default))
-
 			response := handler.Handle(params)
 
-			suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 			okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+			suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
 			responsePayload := okResponse.Payload
-
-			// Validate outgoing payload
-			suite.NoError(responsePayload.Validate(strfmt.Default))
-
 			suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 			suite.NotNil(responsePayload.RequiredDeliveryDate)
 			suite.NotNil(responsePayload.ScheduledPickupDate)
@@ -1749,7 +1577,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		oldShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
-				Status:               models.MTOShipmentStatusApproved,
+				Status:               "APPROVED",
 				ApprovedDate:         &now,
 				PrimeEstimatedWeight: &primeEstimatedWeight,
 				ScheduledPickupDate:  &tenDaysFromNow,
@@ -1770,18 +1598,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			IfMatch:       etag.GenerateEtag(oldShipment.UpdatedAt),
 		}
 
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
 		// CHECK RESPONSE
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
-		responsePayload := okResponse.Payload
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
+		responsePayload := okResponse.Payload
 
 		// Confirm destination address in payload
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
@@ -1807,7 +1631,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusApproved,
+				Status:       "APPROVED",
 				ApprovedDate: &now,
 			},
 			DestinationAddress: models.Address{
@@ -1835,19 +1659,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		}
 
 		// CALL FUNCTION UNDER TEST
-
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
 		// CHECK RESPONSE
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		responsePayload := okResponse.Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 
 		// Check that updated fields are saved
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
@@ -1873,7 +1691,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusApproved,
+				Status:       "APPROVED",
 				ApprovedDate: &now,
 			},
 			DestinationAddress: models.Address{
@@ -1902,19 +1720,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		}
 
 		// CALL FUNCTION UNDER TEST
-
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
 		// CHECK RESPONSE
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		responsePayload := okResponse.Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 
 		// Check that updated fields are saved
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
@@ -1935,7 +1747,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
+				Status:              "APPROVED",
 				ScheduledPickupDate: &twoDaysFromNow,
 				ApprovedDate:        &twoDaysBefore,
 			},
@@ -1953,16 +1765,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			IfMatch:       eTag,
 		}
 
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
+
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
 		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-
 		suite.Contains(errResponse.Payload.InvalidFields, "primeEstimatedWeight")
 	})
 
@@ -1974,7 +1781,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
+				Status:              "APPROVED",
 				ScheduledPickupDate: &sixDaysFromNow,
 				ApprovedDate:        &twoDaysBefore,
 			},
@@ -1993,18 +1800,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			IfMatch:       eTag,
 		}
 
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		responsePayload := okResponse.Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
-
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
 		// Confirm PATCH working as expected; non-updated value still exists
@@ -2020,7 +1821,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
+				Status:              "APPROVED",
 				ScheduledPickupDate: &oneDayFromNow,
 				ApprovedDate:        &oneDayBefore,
 			},
@@ -2038,18 +1839,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			IfMatch:       eTag,
 		}
 
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
 		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-
 		suite.Contains(errResponse.Payload.InvalidFields, "primeEstimatedWeight")
+
 	})
 
 	suite.Run("Successful case if approved date is less than 3 days from scheduled move date and estimated weight recorded date is at least 1 day prior to scheduled move date", func() {
@@ -2059,7 +1855,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
+				Status:              "APPROVED",
 				ScheduledPickupDate: &twoDaysFromNow,
 				ApprovedDate:        &now,
 			},
@@ -2077,17 +1873,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			IfMatch:       eTag,
 		}
 
-		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		responsePayload := okResponse.Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
-
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
 		// Confirm PATCH working as expected; non-updated value still exists
@@ -2145,21 +1936,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			Body:          &primemessages.UpdateMTOShipmentStatus{Status: string(models.MTOShipmentStatusCanceled)},
 			IfMatch:       etag.GenerateEtag(shipment.UpdatedAt),
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusOK{}, response)
+
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusOK)
-
-		// Validate outgoing payload
-		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
-
 		suite.Equal(string(models.MTOShipmentStatusCanceled), okResponse.Payload.Status)
 		suite.Equal(shipment.MoveTaskOrderID.String(), okResponse.Payload.MoveTaskOrderID.String())
 		suite.NotZero(okResponse.Payload.ETag)
+
 	})
 
 	suite.Run("404 FAIL - Bad shipment ID", func() {
@@ -2172,18 +1960,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			Body:          &primemessages.UpdateMTOShipmentStatus{Status: string(models.MTOShipmentStatusCanceled)},
 			IfMatch:       etag.GenerateEtag(shipment.UpdatedAt),
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusNotFound{}, response)
+
 		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusNotFound)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-
 		suite.Contains(*errResponse.Payload.Detail, badUUID.String())
 	})
 
@@ -2197,18 +1981,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			Body:          &primemessages.UpdateMTOShipmentStatus{Status: string(models.MTOShipmentStatusCanceled)},
 			IfMatch:       etag.GenerateEtag(nonPrimeShipment.UpdatedAt),
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusNotFound{}, response)
+
 		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusNotFound)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-
 		suite.Contains(*errResponse.Payload.Detail, nonPrimeShipment.ID.String())
 	})
 
@@ -2227,17 +2007,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			Body:          &primemessages.UpdateMTOShipmentStatus{Status: string(models.MTOShipmentStatusCanceled)},
 			IfMatch:       "eTag",
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusPreconditionFailed{}, response)
-		responsePayload := response.(*mtoshipmentops.UpdateMTOShipmentStatusPreconditionFailed).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("409 FAIL - Current status was not CANCELLATION_REQUESTED", func() {
@@ -2262,18 +2037,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			Body:          &primemessages.UpdateMTOShipmentStatus{Status: string(models.MTOShipmentStatusCanceled)},
 			IfMatch:       etag.GenerateEtag(staleShipment.UpdatedAt),
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusConflict{}, response)
+
 		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusConflict)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-
 		suite.Contains(*errResponse.Payload.Detail, string(models.MTOShipmentStatusCanceled))
 	})
 
@@ -2320,13 +2091,9 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 			MtoShipmentID: *handlers.FmtUUID(ppmShipment.ShipmentID),
 		}
 
-		// Validate incoming payload: no body to validate
-
 		response := handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.DeleteMTOShipmentNoContent{}, response)
-
-		// Validate outgoing payload: no payload
 	})
 
 	suite.Run("Returns a 403 when deleting a non-PPM shipment", func() {
@@ -2343,15 +2110,9 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
 		}
 
-		// Validate incoming payload: no body to validate
-
 		response := handler.Handle(deletionParams)
 
 		suite.IsType(&mtoshipmentops.DeleteMTOShipmentForbidden{}, response)
-		responsePayload := response.(*mtoshipmentops.DeleteMTOShipmentForbidden).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 404 when deleting a move not available to prime", func() {
@@ -2367,14 +2128,8 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 			MtoShipmentID: *handlers.FmtUUID(ppmShipment.ShipmentID),
 		}
 
-		// Validate incoming payload: no body to validate
-
 		response := handler.Handle(deletionParams)
 		suite.IsType(&mtoshipmentops.DeleteMTOShipmentNotFound{}, response)
-		responsePayload := response.(*mtoshipmentops.DeleteMTOShipmentNotFound).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 409 - Conflict error", func() {
@@ -2390,18 +2145,11 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 			HTTPRequest:   request,
 			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
 		}
-
-		// Validate incoming payload: no body to validate
-
 		response := handler.Handle(deletionParams)
 		suite.IsType(&mtoshipmentops.DeleteMTOShipmentConflict{}, response)
-		responsePayload := response.(*mtoshipmentops.DeleteMTOShipmentConflict).Payload
-
-		// Validate outgoing payload: nil payload
-		suite.Nil(responsePayload)
 	})
 
-	suite.Run("Returns 422 - Unprocessable Entity error", func() {
+	suite.Run("Returns 422 - Unprocessable Enitity error", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		deleter := &mocks.ShipmentDeleter{}
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.UnprocessableEntityError{})
@@ -2414,15 +2162,8 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 			HTTPRequest:   request,
 			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
 		}
-
-		// Validate incoming payload: no body to validate
-
 		response := handler.Handle(deletionParams)
 		suite.IsType(&mtoshipmentops.DeleteMTOShipmentUnprocessableEntity{}, response)
-		responsePayload := response.(*mtoshipmentops.DeleteMTOShipmentUnprocessableEntity).Payload
-
-		// Validate outgoing payload: nil payload
-		suite.Nil(responsePayload)
 	})
 
 	suite.Run("Returns 500 - Server error", func() {
@@ -2438,15 +2179,8 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 			HTTPRequest:   request,
 			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
 		}
-
-		// Validate incoming payload: no body to validate
-
 		response := handler.Handle(deletionParams)
 		suite.IsType(&mtoshipmentops.DeleteMTOShipmentInternalServerError{}, response)
-		responsePayload := response.(*mtoshipmentops.DeleteMTOShipmentInternalServerError).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 }
 

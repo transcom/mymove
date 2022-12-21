@@ -31,8 +31,8 @@ type Pipelines struct {
 
 // Pipeline represents a single CircleCI pipeline
 type Pipeline struct {
-	ID  string                 `json:"id"`
-	VCS map[string]interface{} `json:"vcs"`
+	ID  string            `json:"id"`
+	VCS map[string]string `json:"vcs"`
 }
 
 // Fetch gets all pipelines for the mymove project
@@ -107,17 +107,17 @@ type Workflows []Workflow
 // Workflow represents a CircleCI workflow
 type Workflow struct {
 	PipelineID string
-	Items      []map[string]interface{} `json:"items"`
+	Items      []map[string]string `json:"items"`
 }
 
 // Attributes gets the attributes of a workflow
-func (w *Workflow) Attributes() map[string]interface{} {
+func (w *Workflow) Attributes() map[string]string {
 	return w.Items[0]
 }
 
 // Status gets the status of a workflow
 func (w *Workflow) Status() string {
-	return w.Attributes()["status"].(string)
+	return w.Attributes()["status"]
 }
 
 // Success checks if the status is "success"
@@ -164,7 +164,7 @@ func main() {
 		}
 	}
 
-	latestOnHoldCommit = latestOnHoldPipeline.VCS["revision"].(string)
+	latestOnHoldCommit = latestOnHoldPipeline.VCS["revision"]
 
 	var latestSuccessfulWorkflow Workflow
 	for _, workflow := range workflows {
@@ -182,7 +182,7 @@ func main() {
 		}
 	}
 
-	latestDeployedCommit = latestSuccessfulPipeline.VCS["revision"].(string)
+	latestDeployedCommit = latestSuccessfulPipeline.VCS["revision"]
 
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
@@ -218,10 +218,8 @@ func main() {
 		}
 	}
 
-	fmt.Println("*Deployment notes for transcom/mymove*")
 	for _, issue := range issues.Issues {
-		fmt.Printf("• #%d %s by %s\n", *issue.Number, *issue.Title, *issue.User.Login)
-		fmt.Printf("\t• %s", *issue.HTMLURL)
-		fmt.Println()
+		fmt.Printf("%s\n", *issue.Title)
+		fmt.Printf("%s\n", *issue.HTMLURL)
 	}
 }

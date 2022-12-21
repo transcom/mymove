@@ -4164,52 +4164,6 @@ func init() {
           }
         }
       }
-    },
-    "/transportation-offices": {
-      "get": {
-        "description": "Returns the transportation offices matching the search query",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "transportationOffice"
-        ],
-        "summary": "Returns the transportation offices matching the search query",
-        "operationId": "getTransportationOffices",
-        "parameters": [
-          {
-            "minLength": 2,
-            "type": "string",
-            "description": "Search string for transportation offices",
-            "name": "search",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved transportation offices",
-            "schema": {
-              "$ref": "#/definitions/TransportationOffices"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
     }
   },
   "definitions": {
@@ -8192,68 +8146,6 @@ func init() {
         }
       }
     },
-    "TransportationOffice": {
-      "type": "object",
-      "required": [
-        "id",
-        "name",
-        "address",
-        "created_at",
-        "updated_at"
-      ],
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "gbloc": {
-          "type": "string",
-          "pattern": "^[A-Z]{4}$",
-          "example": "JENQ"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "latitude": {
-          "type": "number",
-          "format": "float",
-          "example": 29.382973
-        },
-        "longitude": {
-          "type": "number",
-          "format": "float",
-          "example": -98.62759
-        },
-        "name": {
-          "type": "string",
-          "example": "Fort Bragg North Station"
-        },
-        "phone_lines": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "telephone",
-            "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-            "example": "212-555-5555"
-          }
-        },
-        "updated_at": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "TransportationOffices": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/TransportationOffice"
-      }
-    },
     "UpdateAllowancePayload": {
       "type": "object",
       "properties": {
@@ -9141,9 +9033,6 @@ func init() {
     },
     {
       "name": "tac"
-    },
-    {
-      "name": "transportationOffice"
     }
   ]
 }`))
@@ -14419,67 +14308,6 @@ func init() {
           }
         }
       }
-    },
-    "/transportation-offices": {
-      "get": {
-        "description": "Returns the transportation offices matching the search query",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "transportationOffice"
-        ],
-        "summary": "Returns the transportation offices matching the search query",
-        "operationId": "getTransportationOffices",
-        "parameters": [
-          {
-            "minLength": 2,
-            "type": "string",
-            "description": "Search string for transportation offices",
-            "name": "search",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved transportation offices",
-            "schema": {
-              "$ref": "#/definitions/TransportationOffices"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
     }
   },
   "definitions": {
@@ -18470,68 +18298,6 @@ func init() {
         }
       }
     },
-    "TransportationOffice": {
-      "type": "object",
-      "required": [
-        "id",
-        "name",
-        "address",
-        "created_at",
-        "updated_at"
-      ],
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "gbloc": {
-          "type": "string",
-          "pattern": "^[A-Z]{4}$",
-          "example": "JENQ"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "latitude": {
-          "type": "number",
-          "format": "float",
-          "example": 29.382973
-        },
-        "longitude": {
-          "type": "number",
-          "format": "float",
-          "example": -98.62759
-        },
-        "name": {
-          "type": "string",
-          "example": "Fort Bragg North Station"
-        },
-        "phone_lines": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "telephone",
-            "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-            "example": "212-555-5555"
-          }
-        },
-        "updated_at": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "TransportationOffices": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/TransportationOffice"
-      }
-    },
     "UpdateAllowancePayload": {
       "type": "object",
       "properties": {
@@ -19431,9 +19197,6 @@ func init() {
     },
     {
       "name": "tac"
-    },
-    {
-      "name": "transportationOffice"
     }
   ]
 }`))

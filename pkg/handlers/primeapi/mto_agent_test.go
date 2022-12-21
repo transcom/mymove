@@ -73,19 +73,15 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 			Body:          payload,
 			IfMatch:       subtestData.eTag,
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := subtestData.handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOAgentOK{}, response)
-		agentOK := response.(*mtoshipmentops.UpdateMTOAgentOK)
-
-		// Validate outgoing payload
-		suite.NoError(agentOK.Payload.Validate(strfmt.Default))
 
 		// Check values
+		agentOK := response.(*mtoshipmentops.UpdateMTOAgentOK)
 		suite.Equal(agentOK.Payload.ID.String(), subtestData.agent.ID.String())
 		suite.Equal(agentOK.Payload.MtoShipmentID.String(), subtestData.agent.MTOShipmentID.String())
 		suite.Equal(string(agentOK.Payload.AgentType), string(subtestData.agent.MTOAgentType)) // wasn't updated, should be original value
@@ -108,17 +104,12 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 			Body:          payload,
 			IfMatch:       badETag, // stale
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := subtestData.handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOAgentPreconditionFailed{}, response)
-		responsePayload := response.(*mtoshipmentops.UpdateMTOAgentPreconditionFailed).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	// Test invalid IDs in the body vs. path values
@@ -138,19 +129,15 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 			Body:          payload,
 			IfMatch:       subtestData.eTag,
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := subtestData.handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOAgentUnprocessableEntity{}, response)
-		agentUnprocessable := response.(*mtoshipmentops.UpdateMTOAgentUnprocessableEntity)
-
-		// Validate outgoing payload
-		suite.NoError(agentUnprocessable.Payload.Validate(strfmt.Default))
 
 		// Check error message for the invalid fields
+		agentUnprocessable := response.(*mtoshipmentops.UpdateMTOAgentUnprocessableEntity)
 		_, okID := agentUnprocessable.Payload.InvalidFields["id"]
 		_, okMTOShipmentID := agentUnprocessable.Payload.InvalidFields["mtoShipmentID"]
 		suite.True(okID)
@@ -174,19 +161,15 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 			Body:          payload,
 			IfMatch:       subtestData.eTag,
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := subtestData.handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOAgentUnprocessableEntity{}, response)
-		agentUnprocessable := response.(*mtoshipmentops.UpdateMTOAgentUnprocessableEntity)
-
-		// Validate outgoing payload
-		suite.NoError(agentUnprocessable.Payload.Validate(strfmt.Default))
 
 		// Check error message for the invalid fields
+		agentUnprocessable := response.(*mtoshipmentops.UpdateMTOAgentUnprocessableEntity)
 		_, okFirstName := agentUnprocessable.Payload.InvalidFields["firstName"]
 		_, okContactInfo := agentUnprocessable.Payload.InvalidFields["contactInfo"]
 		suite.True(okFirstName)
@@ -204,19 +187,15 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 			Body:          payload,
 			IfMatch:       subtestData.eTag,
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := subtestData.handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOAgentNotFound{}, response)
-		agentNotFound := response.(*mtoshipmentops.UpdateMTOAgentNotFound)
-
-		// Validate outgoing payload
-		suite.NoError(agentNotFound.Payload.Validate(strfmt.Default))
 
 		// Check error message for the incorrect ID
+		agentNotFound := response.(*mtoshipmentops.UpdateMTOAgentNotFound)
 		suite.Contains(*agentNotFound.Payload.Detail, subtestData.agent.MTOShipmentID.String())
 	})
 
@@ -233,19 +212,15 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 			Body:          payload,
 			IfMatch:       etag.GenerateEtag(unavailableAgent.UpdatedAt),
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := subtestData.handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOAgentNotFound{}, response)
-		agentNotFound := response.(*mtoshipmentops.UpdateMTOAgentNotFound)
-
-		// Validate outgoing payload
-		suite.NoError(agentNotFound.Payload.Validate(strfmt.Default))
 
 		// Check error message for the unavailable ID
+		agentNotFound := response.(*mtoshipmentops.UpdateMTOAgentNotFound)
 		suite.Contains(*agentNotFound.Payload.Detail, unavailableAgent.ID.String())
 	})
 }
@@ -317,18 +292,15 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 			Body:          payload,
 		}
 
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := subtestData.handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOAgentOK{}, response)
-		agentOK := response.(*mtoshipmentops.CreateMTOAgentOK)
-
-		// Validate outgoing payload
-		suite.NoError(agentOK.Payload.Validate(strfmt.Default))
 
 		// Check Values
+		agentOK := response.(*mtoshipmentops.CreateMTOAgentOK)
 		suite.Equal(subtestData.receivingAgent.MtoShipmentID.String(), agentOK.Payload.MtoShipmentID.String())
 		suite.Equal(string(subtestData.receivingAgent.AgentType), string(agentOK.Payload.AgentType)) // wasn't updated, should be original value
 		suite.Equal(subtestData.receivingAgent.FirstName, agentOK.Payload.FirstName)
@@ -351,18 +323,15 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 			Body:          payload,
 		}
 
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := subtestData.handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOAgentOK{}, response)
-		agentOK := response.(*mtoshipmentops.CreateMTOAgentOK)
-
-		// Validate outgoing payload
-		suite.NoError(agentOK.Payload.Validate(strfmt.Default))
 
 		// Check Values
+		agentOK := response.(*mtoshipmentops.CreateMTOAgentOK)
 		suite.Equal(subtestData.releasingAgent.MtoShipmentID.String(), agentOK.Payload.MtoShipmentID.String())
 		suite.Equal(string(subtestData.releasingAgent.AgentType), string(agentOK.Payload.AgentType)) // wasn't updated, should be original value
 		suite.Equal(subtestData.releasingAgent.FirstName, agentOK.Payload.FirstName)
@@ -382,16 +351,13 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 			Body:          payload,
 		}
 
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := subtestData.handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOAgentNotFound{}, response)
-		responsePayload := response.(*mtoshipmentops.CreateMTOAgentNotFound).Payload
 
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("409 - Conflict response", func() {
@@ -412,16 +378,12 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 			Body:          payload,
 		}
 
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := subtestData.handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOAgentConflict{}, response)
-		responsePayload := response.(*mtoshipmentops.CreateMTOAgentConflict).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("422 - Unprocessable response for invalid input", func() {
@@ -445,16 +407,11 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 			MtoShipmentID: *handlers.FmtUUID(newMTOShipment.ID),
 			Body:          payload,
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := subtestData.handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOAgentUnprocessableEntity{}, response)
-		responsePayload := response.(*mtoshipmentops.CreateMTOAgentUnprocessableEntity).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 }

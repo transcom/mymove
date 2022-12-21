@@ -74,19 +74,15 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			Body:          payload,
 			IfMatch:       etag.GenerateEtag(shipment.PickupAddress.UpdatedAt),
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressOK{}, response)
-		shipmentOk := response.(*mtoshipmentops.UpdateMTOShipmentAddressOK)
-
-		// Validate outgoing payload
-		suite.NoError(shipmentOk.Payload.Validate(strfmt.Default))
 
 		// Check values
+		shipmentOk := response.(*mtoshipmentops.UpdateMTOShipmentAddressOK)
 		isAddressEqual(suite, payload, shipmentOk.Payload)
 	})
 
@@ -117,19 +113,15 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			Body:          payload,
 			IfMatch:       etag.GenerateEtag(shipment.PickupAddress.UpdatedAt),
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressOK{}, response)
-		shipmentOk := response.(*mtoshipmentops.UpdateMTOShipmentAddressOK)
-
-		// Validate outgoing payload
-		suite.NoError(shipmentOk.Payload.Validate(strfmt.Default))
 
 		// Check values
+		shipmentOk := response.(*mtoshipmentops.UpdateMTOShipmentAddressOK)
 		isAddressEqual(suite, payload, shipmentOk.Payload)
 
 	})
@@ -157,19 +149,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			Body:          payload,
 			IfMatch:       etag.GenerateEtag(shipment.PickupAddress.UpdatedAt),
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressNotFound{}, response)
-		responsePayload := response.(*mtoshipmentops.UpdateMTOShipmentAddressNotFound).Payload
 
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
-
 	suite.Run("Fail - ConflictError due to unassociated mtoShipment", func() {
 		// Testcase:   address is updated on a shipment that it's not associated with
 		// Expected:   Conflict error is returned
@@ -190,19 +177,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			Body:          payload,
 			IfMatch:       etag.GenerateEtag(randomAddress.UpdatedAt),
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressConflict{}, response)
-		responsePayload := response.(*mtoshipmentops.UpdateMTOShipmentAddressConflict).Payload
 
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
-
 	suite.Run("Fail - PreconditionFailed due to wrong etag", func() {
 		// Testcase:   address is updated on a shipment, but etag for address is wrong
 		// Expected:   PreconditionFailed error is returned
@@ -221,16 +203,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			Body:          payload,
 			IfMatch:       "bad-etag",
 		}
-
-		// Validate incoming payload
+		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressPreconditionFailed{}, response)
-		responsePayload := response.(*mtoshipmentops.UpdateMTOShipmentAddressPreconditionFailed).Payload
 
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
+
 }
