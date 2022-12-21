@@ -77,7 +77,7 @@ describe('CurrentDutyLocationForm component', () => {
     );
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    await userEvent.click(submitBtn);
+    userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalled();
@@ -97,7 +97,7 @@ describe('CurrentDutyLocationForm component', () => {
     );
     const backBtn = getByRole('button', { name: 'Back' });
 
-    await userEvent.click(backBtn);
+    userEvent.click(backBtn);
 
     await waitFor(() => {
       expect(onBack).toHaveBeenCalled();

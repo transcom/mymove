@@ -45,7 +45,7 @@ describe('EditFacilityInfoModal', () => {
     );
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.click(submitBtn);
+    userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
@@ -66,8 +66,8 @@ describe('EditFacilityInfoModal', () => {
     const addressInput = screen.getByLabelText('Address 1');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.type(addressInput, '123 Fake Street');
-    await userEvent.click(submitBtn);
+    userEvent.type(addressInput, '123 Fake Street');
+    userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
@@ -103,7 +103,7 @@ describe('EditFacilityInfoModal', () => {
     );
     const closeBtn = screen.getByRole('button', { name: 'Cancel' });
 
-    await userEvent.click(closeBtn);
+    userEvent.click(closeBtn);
 
     await waitFor(() => {
       expect(mockClose).toHaveBeenCalled();

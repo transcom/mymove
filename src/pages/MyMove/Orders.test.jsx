@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { Orders } from './Orders';
@@ -193,15 +193,18 @@ describe('Orders page', () => {
 
       render(<Orders {...testProps} />);
 
-      await userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-      await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-      await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
-      await userEvent.click(screen.getByLabelText('No'));
+      await waitFor(() => {
+        userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
+      });
+
+      userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
+      userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
+      userEvent.click(screen.getByLabelText('No'));
 
       // Test Duty Location Search Box interaction
       await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
       const selectedOption = await screen.findByText(/Luke/);
-      await userEvent.click(selectedOption);
+      userEvent.click(selectedOption);
 
       await waitFor(() => {
         expect(screen.getByRole('form')).toHaveFormValues({
@@ -217,7 +220,7 @@ describe('Orders page', () => {
       expect(submitButton).toBeEnabled();
 
       expect(submitButton).toBeInTheDocument();
-      await userEvent.click(submitButton);
+      userEvent.click(submitButton);
 
       await waitFor(() => {
         expect(createOrders).toHaveBeenCalled();
@@ -305,9 +308,10 @@ describe('Orders page', () => {
       const { queryByRole } = render(<Orders {...testProps} currentOrders={testOrdersValues} />);
 
       await waitFor(() => {
-        expect(queryByRole('button', { name: 'Next' })).toBeInTheDocument();
+        const submitButton = queryByRole('button', { name: 'Next' });
+        expect(submitButton).toBeInTheDocument();
+        userEvent.click(submitButton);
       });
-      await userEvent.click(queryByRole('button', { name: 'Next' }));
 
       await waitFor(() => {
         expect(patchOrders).toHaveBeenCalled();
@@ -330,7 +334,7 @@ describe('Orders page', () => {
       expect(backButton).toBeInTheDocument();
     });
 
-    await userEvent.click(backButton);
+    userEvent.click(backButton);
     expect(testProps.push).toHaveBeenCalledWith('/');
   });
 
@@ -380,9 +384,10 @@ describe('Orders page', () => {
     const { queryByText } = render(<Orders {...testProps} currentOrders={testOrdersValues} />);
 
     await waitFor(() => {
-      expect(queryByText('Next')).toBeInTheDocument();
+      const submitButton = queryByText('Next');
+      expect(submitButton).toBeInTheDocument();
+      userEvent.click(submitButton);
     });
-    await userEvent.click(queryByText('Next'));
 
     await waitFor(() => {
       expect(patchOrders).toHaveBeenCalled();

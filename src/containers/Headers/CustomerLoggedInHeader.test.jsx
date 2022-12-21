@@ -62,7 +62,7 @@ describe('CustomerLoggedInHeader', () => {
     expect(profileLink).toBeInstanceOf(HTMLAnchorElement);
   });
 
-  it('signs out the user when sign out is clicked', async () => {
+  it('signs out the user when sign out is clicked', () => {
     render(
       <MockProviders>
         <ConnectedCustomerLoggedInHeader />
@@ -72,7 +72,7 @@ describe('CustomerLoggedInHeader', () => {
     const signOutButton = screen.getByRole('button', { name: 'Sign out' });
     expect(signOutButton).toBeInstanceOf(HTMLButtonElement);
 
-    await userEvent.click(signOutButton);
+    userEvent.click(signOutButton);
 
     expect(logOut).toHaveBeenCalled();
     expect(LogoutUser).toHaveBeenCalled();

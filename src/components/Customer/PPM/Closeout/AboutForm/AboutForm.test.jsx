@@ -154,14 +154,14 @@ describe('AboutForm component', () => {
       await userEvent.type(screen.getByLabelText('When did you leave your origin?'), '1 January 2022');
       await userEvent.tab();
 
-      await userEvent.type(screen.getByLabelText('Starting ZIP'), '1');
-      await userEvent.tab();
-
       await waitFor(() => {
-        expect(screen.getAllByRole('alert')[0]).toHaveTextContent(
+        expect(screen.getByRole('alert')).toHaveTextContent(
           'Enter a complete date in DD MMM YYYY format (day, month, year).',
         );
       });
+
+      await userEvent.type(screen.getByLabelText('Starting ZIP'), '1');
+      await userEvent.tab();
 
       await waitFor(() => {
         expect(screen.getAllByRole('alert')[1]).toHaveTextContent('Enter a 5-digit ZIP code');
@@ -195,7 +195,7 @@ describe('AboutForm component', () => {
       };
       render(<AboutForm {...defaultProps} {...postalCodeValidatorProps} />);
 
-      await userEvent.type(screen.getByLabelText('Starting ZIP'), '10000');
+      userEvent.type(screen.getByLabelText('Starting ZIP'), '10000');
 
       await waitFor(() => {
         expect(postalCodeValidatorProps.postalCodeValidator).toHaveBeenCalledWith(
@@ -205,7 +205,7 @@ describe('AboutForm component', () => {
         );
       });
 
-      await userEvent.type(screen.getByLabelText('Ending ZIP'), '20000');
+      userEvent.type(screen.getByLabelText('Ending ZIP'), '20000');
 
       await waitFor(() => {
         expect(postalCodeValidatorProps.postalCodeValidator).toHaveBeenCalledWith(
@@ -221,7 +221,7 @@ describe('AboutForm component', () => {
     it('calls onBack handler when "Return To Homepage" is pressed', async () => {
       render(<AboutForm {...defaultProps} />);
 
-      await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+      userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
 
       await waitFor(() => {
         expect(defaultProps.onBack).toHaveBeenCalled();
@@ -231,7 +231,7 @@ describe('AboutForm component', () => {
     it('calls onSubmit handler when "Save & Continue" is pressed', async () => {
       render(<AboutForm {...defaultProps} {...mtoShipmentProps} />);
 
-      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+      userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
       await waitFor(() => {
         expect(defaultProps.onSubmit).toHaveBeenCalledWith(

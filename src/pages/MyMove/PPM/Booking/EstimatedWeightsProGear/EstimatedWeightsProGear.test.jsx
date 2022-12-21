@@ -182,7 +182,7 @@ describe('EstimatedWeightsProGear page', () => {
     render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
 
     const hasProGearYesInput = screen.getByRole('radio', { name: /yes/i });
-    await userEvent.click(hasProGearYesInput);
+    userEvent.click(hasProGearYesInput);
 
     const proGearWeightInput = await screen.findByLabelText(/estimated weight of your pro-gear/i);
     expect(proGearWeightInput).toBeInstanceOf(HTMLInputElement);
@@ -191,7 +191,7 @@ describe('EstimatedWeightsProGear page', () => {
     expect(spouseProGearWeightInput).toBeInstanceOf(HTMLInputElement);
 
     const hasProGearNoInput = screen.getByRole('radio', { name: /no/i });
-    await userEvent.click(hasProGearNoInput);
+    userEvent.click(hasProGearNoInput);
 
     await waitFor(() => {
       expect(screen.queryByLabelText(/estimated weight of your pro-gear/i)).not.toBeInTheDocument();
@@ -200,12 +200,12 @@ describe('EstimatedWeightsProGear page', () => {
     expect(screen.queryByLabelText(/estimated weight of your spouse’s pro-gear/i)).not.toBeInTheDocument();
   });
 
-  it('routes back to the previous page when the back button is clicked', async () => {
+  it('routes back to the previous page when the back button is clicked', () => {
     render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
 
     const backButton = screen.getByRole('button', { name: /back/i });
 
-    await userEvent.click(backButton);
+    userEvent.click(backButton);
 
     expect(mockPush).toHaveBeenCalledWith(shipmentEditPath);
   });
@@ -218,11 +218,11 @@ describe('EstimatedWeightsProGear page', () => {
     const estimatedWeight = 4000;
 
     const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
-    await userEvent.type(estimatedWeightInput, String(estimatedWeight));
+    userEvent.type(estimatedWeightInput, String(estimatedWeight));
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
     expect(saveButton).not.toBeDisabled();
-    await userEvent.click(saveButton);
+    userEvent.click(saveButton);
 
     const expectedPayload = {
       shipmentType: mockMTOShipment.shipmentType,
@@ -248,28 +248,32 @@ describe('EstimatedWeightsProGear page', () => {
     const estimatedWeight = 4000;
 
     const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
-    await userEvent.type(estimatedWeightInput, String(estimatedWeight));
+    userEvent.type(estimatedWeightInput, String(estimatedWeight));
 
     const hasProGearYesInput = screen.getByRole('radio', { name: /yes/i });
-    await userEvent.click(hasProGearYesInput);
+    userEvent.click(hasProGearYesInput);
 
     const proGearWeight = 1000;
 
     const proGearWeightInput = await screen.findByLabelText(/estimated weight of your pro-gear/i);
     expect(proGearWeightInput).toBeInstanceOf(HTMLInputElement);
 
-    await userEvent.type(proGearWeightInput, String(proGearWeight));
+    await waitFor(() => {
+      userEvent.type(proGearWeightInput, String(proGearWeight));
+    });
 
     const spouseProGearWeight = 100;
 
     const spouseProGearWeightInput = screen.getByLabelText(/estimated weight of your spouse’s pro-gear/i);
     expect(spouseProGearWeightInput).toBeInstanceOf(HTMLInputElement);
 
-    await userEvent.type(spouseProGearWeightInput, String(spouseProGearWeight));
+    await waitFor(() => {
+      userEvent.type(spouseProGearWeightInput, String(spouseProGearWeight));
+    });
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
     expect(saveButton).not.toBeDisabled();
-    await userEvent.click(saveButton);
+    userEvent.click(saveButton);
 
     const expectedPayload = {
       shipmentType: mockMTOShipment.shipmentType,
@@ -296,10 +300,10 @@ describe('EstimatedWeightsProGear page', () => {
     const estimatedWeight = 4000;
 
     const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
-    await userEvent.type(estimatedWeightInput, String(estimatedWeight));
+    userEvent.type(estimatedWeightInput, String(estimatedWeight));
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
-    await userEvent.click(saveButton);
+    userEvent.click(saveButton);
 
     await waitFor(() => expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment(mockPreExistingShipment)));
   });
@@ -310,10 +314,10 @@ describe('EstimatedWeightsProGear page', () => {
     render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
 
     const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
-    await userEvent.type(estimatedWeightInput, '4000');
+    userEvent.type(estimatedWeightInput, '4000');
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
-    await userEvent.click(saveButton);
+    userEvent.click(saveButton);
 
     await waitFor(() => expect(mockPush).toHaveBeenCalledWith(estimatedIncentivePath));
   });
@@ -327,10 +331,10 @@ describe('EstimatedWeightsProGear page', () => {
     render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
 
     const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
-    await userEvent.type(estimatedWeightInput, '4000');
+    userEvent.type(estimatedWeightInput, '4000');
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
-    await userEvent.click(saveButton);
+    userEvent.click(saveButton);
 
     expect(await screen.findByText(mockErrorMsg)).toBeInTheDocument();
   });

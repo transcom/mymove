@@ -266,7 +266,7 @@ describe('QAEViolationsForm', () => {
       expect(screen.queryByText('Observed pickup spread end date')).not.toBeInTheDocument();
     });
     const checkbox = screen.getByTestId('violation-checkbox');
-    await userEvent.click(checkbox);
+    userEvent.click(checkbox);
 
     await waitFor(() => {
       // Date picker should be shown if corresponding item is checked
@@ -281,7 +281,7 @@ describe('QAEViolationsForm Buttons', () => {
   it('re-routes back to the eval report', async () => {
     renderForm();
     // Click back button
-    await userEvent.click(await screen.findByRole('button', { name: '< Back to Evaluation form' }));
+    userEvent.click(await screen.findByRole('button', { name: '< Back to Evaluation form' }));
 
     // Verify that we re-route back to the eval report
     expect(mockPush).toHaveBeenCalledTimes(1);
@@ -292,7 +292,7 @@ describe('QAEViolationsForm Buttons', () => {
     renderForm();
 
     // Click save draft button
-    await userEvent.click(await screen.findByRole('button', { name: 'Save draft' }));
+    userEvent.click(await screen.findByRole('button', { name: 'Save draft' }));
 
     // Verify that report was saved, violations re-associated with report, and page rerouted
     await waitFor(() => {
@@ -314,7 +314,7 @@ describe('QAEViolationsForm Buttons', () => {
     renderForm();
 
     // Click save draft button
-    await userEvent.click(await screen.findByTestId('reviewAndSubmit'));
+    userEvent.click(await screen.findByTestId('reviewAndSubmit'));
 
     // Verify that report was saved, violations re-associated with report, and submission preview modal is rendered
     await waitFor(() => {
@@ -342,10 +342,10 @@ describe('QAEViolationsForm Buttons', () => {
     renderForm();
 
     // Click save draft button
-    await userEvent.click(await screen.findByTestId('reviewAndSubmit'));
+    userEvent.click(await screen.findByTestId('reviewAndSubmit'));
 
     // Click back button
-    await userEvent.click(await screen.findByTestId('backToEvalFromSubmit'));
+    userEvent.click(await screen.findByTestId('backToEvalFromSubmit'));
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Select violations', level: 2 })).toBeInTheDocument();
@@ -356,9 +356,9 @@ describe('QAEViolationsForm Buttons', () => {
     renderForm();
 
     // Click save draft button
-    await userEvent.click(await screen.findByRole('button', { name: 'Review and submit' }));
+    userEvent.click(await screen.findByRole('button', { name: 'Review and submit' }));
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Submit' }));
+    userEvent.click(await screen.findByRole('button', { name: 'Submit' }));
 
     await waitFor(() => {
       expect(submitEvaluationReport).toHaveBeenCalledTimes(1);

@@ -39,7 +39,7 @@ describe('Duty Location page', () => {
 
     expect(backButton).toBeInTheDocument();
 
-    await userEvent.click(backButton);
+    userEvent.click(backButton);
     expect(testProps.push).toHaveBeenCalledWith('/service-member/contact-info');
   });
 
@@ -67,7 +67,7 @@ describe('Duty Location page', () => {
 
     const submitButton = screen.getByText('Next');
     expect(submitButton).toBeInTheDocument();
-    await userEvent.click(submitButton);
+    userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();
@@ -112,7 +112,7 @@ describe('Duty Location page', () => {
 
     const submitButton = screen.getByText('Next');
     expect(submitButton).toBeInTheDocument();
-    await userEvent.click(submitButton);
+    userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();

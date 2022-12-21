@@ -240,7 +240,7 @@ describe('PaymentRequestCard', () => {
       expect(screen.queryByText('View documents')).not.toBeInTheDocument();
     });
 
-    it('does not have service item status', async () => {
+    it('does not have service item status', () => {
       render(
         <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
           <PaymentRequestCard
@@ -250,7 +250,7 @@ describe('PaymentRequestCard', () => {
           />
         </MockProviders>,
       );
-      await userEvent.click(screen.getByTestId('showRequestDetailsButton'));
+      userEvent.click(screen.getByTestId('showRequestDetailsButton'));
       expect(screen.queryByText('Needs review')).not.toBeInTheDocument();
       expect(screen.getByTestId('deprecated-marker')).toBeInTheDocument();
     });

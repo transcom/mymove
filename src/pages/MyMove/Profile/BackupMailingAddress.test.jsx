@@ -51,7 +51,7 @@ describe('BackupMailingAddress page', () => {
 
     const backButton = await findByRole('button', { name: 'Back' });
     expect(backButton).toBeInTheDocument();
-    await userEvent.click(backButton);
+    userEvent.click(backButton);
 
     expect(testProps.push).toHaveBeenCalledWith(customerRoutes.CURRENT_ADDRESS_PATH);
   });
@@ -65,20 +65,15 @@ describe('BackupMailingAddress page', () => {
 
     const { getByRole, getByLabelText } = render(<BackupMailingAddress {...testProps} />);
 
-    await userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
-    await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(getByLabelText('City'), fakeAddress.city);
-    await userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
-    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
-    await userEvent.tab();
+    userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
+    userEvent.type(getByLabelText('City'), fakeAddress.city);
+    userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
+    userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
 
     const submitButton = getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
-    await waitFor(() => {
-      expect(submitButton).toBeEnabled();
-    });
-
-    await userEvent.click(submitButton);
+    userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalledWith(expectedServiceMemberPayload);
@@ -108,7 +103,7 @@ describe('BackupMailingAddress page', () => {
 
     const submitButton = getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
-    await userEvent.click(submitButton);
+    userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();

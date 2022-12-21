@@ -40,9 +40,9 @@ describe('components/Office/ShipmentVendor', () => {
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
     expect(screen.queryByText('This shipment will be sent to the GHC prime contractor.')).not.toBeInTheDocument();
 
-    await userEvent.click(screen.getByLabelText('External vendor'));
+    userEvent.click(screen.getByLabelText('External vendor'));
     expect(await screen.findByRole('list')).toBeInTheDocument();
-    await userEvent.click(screen.getByLabelText('GHC prime contractor'));
+    userEvent.click(screen.getByLabelText('GHC prime contractor'));
     expect(await screen.findByText('This shipment will be sent to the GHC prime contractor.')).toBeInTheDocument();
   });
 });

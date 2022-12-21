@@ -26,7 +26,7 @@ describe('components/Office/ShipmentCustomerSIT', () => {
       </Formik>,
     );
 
-    await userEvent.click(screen.getByLabelText('Yes'));
+    userEvent.click(screen.getByLabelText('Yes'));
 
     expect(await screen.findByLabelText('Destination')).toBeChecked();
   });

@@ -87,7 +87,7 @@ describe('EditContactInfo page', () => {
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
 
-    await userEvent.click(cancelButton);
+    userEvent.click(cancelButton);
 
     expect(mockPush).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH);
   });
@@ -111,13 +111,13 @@ describe('EditContactInfo page', () => {
 
     const backupNameInput = await screen.findByLabelText('Name');
 
-    await userEvent.clear(backupNameInput);
+    userEvent.clear(backupNameInput);
 
-    await userEvent.type(backupNameInput, newName);
+    userEvent.type(backupNameInput, newName);
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.click(saveButton);
+    userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(patchBackupContact).toHaveBeenCalledWith(expectedPayload);
@@ -144,13 +144,13 @@ describe('EditContactInfo page', () => {
 
     const backupNameInput = await screen.findByLabelText('Name');
 
-    await userEvent.clear(backupNameInput);
+    userEvent.clear(backupNameInput);
 
-    await userEvent.type(backupNameInput, 'Rosalie Wexler');
+    userEvent.type(backupNameInput, 'Rosalie Wexler');
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.click(saveButton);
+    userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(patchBackupContact).toHaveBeenCalled();
@@ -171,7 +171,7 @@ describe('EditContactInfo page', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.click(saveButton);
+    userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(patchBackupContact).not.toHaveBeenCalled();
@@ -197,13 +197,13 @@ describe('EditContactInfo page', () => {
 
     const secondaryPhoneInput = await screen.findByLabelText(/Alt. phone/);
 
-    await userEvent.clear(secondaryPhoneInput);
+    userEvent.clear(secondaryPhoneInput);
 
-    await userEvent.type(secondaryPhoneInput, secondaryPhone);
+    userEvent.type(secondaryPhoneInput, secondaryPhone);
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.click(saveButton);
+    userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalledWith(expectedPayload);
@@ -219,7 +219,7 @@ describe('EditContactInfo page', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.click(saveButton);
+    userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(testProps.setFlashMessage).toHaveBeenCalledWith(
@@ -237,7 +237,7 @@ describe('EditContactInfo page', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.click(saveButton);
+    userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH);
@@ -262,7 +262,7 @@ describe('EditContactInfo page', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.click(saveButton);
+    userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();

@@ -18,12 +18,10 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 	var cUser models.User
 	if result := findValidCustomization(customs, User); result != nil {
 		cUser = result.Model.(models.User)
-		if result.LinkOnly {
-			return cUser
-		}
 	}
 
 	// create user
+	// MYTODO: Add forceUUID functionality
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	user := models.User{
 		LoginGovUUID:  &loginGovUUID,

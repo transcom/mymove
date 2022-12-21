@@ -1,6 +1,6 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import {
@@ -174,7 +174,6 @@ describe('RequestedShipments', () => {
     it('enables the Approve selected button when a shipment and service item are checked', async () => {
       const { container } = render(submittedRequestedShipmentsComponentWithPermission);
 
-      // TODO this doesn't seem right
       await act(async () => {
         await userEvent.type(
           container.querySelector('input[name="shipments"]'),
@@ -185,14 +184,12 @@ describe('RequestedShipments', () => {
       expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
       expect(container.querySelector('#approvalConfirmationModal')).toHaveStyle('display: none');
 
-      // TODO
       await act(async () => {
         await userEvent.click(screen.getByRole('checkbox', { name: 'Move management' }));
       });
 
       expect(screen.getByRole('button', { name: 'Approve selected' })).not.toBeDisabled();
 
-      // TODO
       await act(async () => {
         await userEvent.click(screen.getByRole('button', { name: 'Approve selected' }));
       });
@@ -202,7 +199,6 @@ describe('RequestedShipments', () => {
     it('disables the Approve selected button when there is missing required information', async () => {
       const { container } = render(submittedRequestedShipmentsComponentMissingRequiredInfo);
 
-      // TODO
       await act(async () => {
         await userEvent.type(
           container.querySelector('input[name="shipments"]'),
@@ -240,18 +236,25 @@ describe('RequestedShipments', () => {
         </MockProviders>,
       );
 
-      await userEvent.click(screen.getByRole('button', { name: 'Approve selected' }));
+      // You could take the shortcut and call submit directly as well if providing initial values
+      fireEvent.submit(container.querySelector('form'));
 
-      const shipmentInput = container.querySelector('input[name="shipments"]');
-      await userEvent.type(shipmentInput, 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee');
+      // When simulating change events you must pass the target with the id and
+      // name for formik to know which value to update
 
-      const shipmentManagementFeeInput = screen.getByRole('checkbox', { name: 'Move management' });
-      await userEvent.click(shipmentManagementFeeInput);
+      await act(async () => {
+        const shipmentInput = container.querySelector('input[name="shipments"]');
+        await userEvent.type(shipmentInput, 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee');
 
-      const counselingFeeInput = screen.getByRole('checkbox', { name: 'Counseling' });
-      await userEvent.click(counselingFeeInput);
+        const shipmentManagementFeeInput = screen.getByRole('checkbox', { name: 'Move management' });
+        await userEvent.click(shipmentManagementFeeInput);
 
-      await userEvent.click(screen.getByText('Approve and send'));
+        const counselingFeeInput = screen.getByRole('checkbox', { name: 'Counseling' });
+        await userEvent.click(counselingFeeInput);
+
+        userEvent.click(container.querySelector('form button[type="button"]'));
+        userEvent.click(screen.getAllByRole('button').at(0));
+      });
 
       expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit.mock.calls[0]).toEqual([
@@ -337,7 +340,9 @@ describe('RequestedShipments', () => {
 
       expect(screen.getByTestId('shipmentApproveButton')).toBeDisabled();
 
-      await userEvent.click(screen.getByLabelText('Move management'));
+      await waitFor(() => {
+        userEvent.click(screen.getByLabelText('Move management'));
+      });
 
       expect(screen.getByLabelText('Move management').checked).toEqual(true);
 

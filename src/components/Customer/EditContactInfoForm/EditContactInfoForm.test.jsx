@@ -167,8 +167,8 @@ describe('EditContactInfoForm component', () => {
 
     const emailInput = await screen.findByLabelText('Personal email');
 
-    await userEvent.clear(emailInput);
-    await userEvent.tab();
+    userEvent.clear(emailInput);
+    userEvent.tab();
 
     const alert = await screen.findByRole('alert');
 
@@ -184,7 +184,7 @@ describe('EditContactInfoForm component', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.click(saveButton);
+    userEvent.click(saveButton);
 
     const expectedParams = {
       ...testProps.initialValues,
@@ -200,7 +200,7 @@ describe('EditContactInfoForm component', () => {
 
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
 
-    await userEvent.click(cancelButton);
+    userEvent.click(cancelButton);
 
     await waitFor(() => {
       expect(testProps.onCancel).toHaveBeenCalled();

@@ -67,7 +67,7 @@ describe('CreatePaymentRequestForm', () => {
       />,
     );
 
-    await userEvent.click(screen.getAllByRole('checkbox', { name: 'Add to payment request' })[0]);
+    userEvent.click(screen.getAllByRole('checkbox', { name: 'Add to payment request' })[0]);
 
     await waitFor(() => {
       expect(screen.getByRole('button', { type: 'submit' })).toBeEnabled();

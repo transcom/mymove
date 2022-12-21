@@ -24,7 +24,7 @@ describe('SubmitMoveForm component', () => {
     const { getByTestId, getByText } = render(<SubmitMoveForm {...testProps} />);
     const submitBtn = getByTestId('wizardCompleteButton');
 
-    await userEvent.click(submitBtn);
+    userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(getByText('Required')).toBeInTheDocument();
@@ -37,28 +37,28 @@ describe('SubmitMoveForm component', () => {
     const signatureInput = getByLabelText('Signature');
     const submitBtn = getByTestId('wizardCompleteButton');
 
-    await userEvent.type(signatureInput, 'My Name');
-    await userEvent.click(submitBtn);
+    userEvent.type(signatureInput, 'My Name');
+    userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalled();
     });
   });
 
-  it('implements the onPrint handler', async () => {
+  it('implements the onPrint handler', () => {
     const { getByText } = render(<SubmitMoveForm {...testProps} />);
 
     const printBtn = getByText('Print');
-    await userEvent.click(printBtn);
+    userEvent.click(printBtn);
 
     expect(testProps.onPrint).toHaveBeenCalled();
   });
 
-  it('implements the onBack handler', async () => {
+  it('implements the onBack handler', () => {
     const { getByTestId } = render(<SubmitMoveForm {...testProps} />);
 
     const backBtn = getByTestId('wizardBackButton');
-    await userEvent.click(backBtn);
+    userEvent.click(backBtn);
 
     expect(testProps.onBack).toHaveBeenCalled();
   });

@@ -128,17 +128,17 @@ describe('PPMShipmentCard component', () => {
     expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
   });
 
-  it('calls onEditClick when edit button is pressed', async () => {
+  it('calls onEditClick when edit button is pressed', () => {
     render(<PPMShipmentCard {...completeProps} />);
     const editBtn = screen.getByRole('button', { name: 'Edit' });
-    await userEvent.click(editBtn);
+    userEvent.click(editBtn);
     expect(completeProps.onEditClick).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onDeleteClick when delete button is pressed', async () => {
+  it('calls onDeleteClick when delete button is pressed', () => {
     render(<PPMShipmentCard {...completeProps} />);
     const deleteBtn = screen.getByRole('button', { name: 'Delete' });
-    await userEvent.click(deleteBtn);
+    userEvent.click(deleteBtn);
     expect(completeProps.onDeleteClick).toHaveBeenCalledTimes(1);
   });
 });

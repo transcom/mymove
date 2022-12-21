@@ -206,7 +206,7 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
       );
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
-      await userEvent.click(saveButton);
+      userEvent.click(saveButton);
 
       expect(await screen.findByText(/Error title/)).toBeInTheDocument();
       expect(screen.getByText('Error detail')).toBeInTheDocument();
@@ -224,7 +224,7 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
       );
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
-      await userEvent.click(saveButton);
+      userEvent.click(saveButton);
 
       expect(await screen.findByText('Unexpected error')).toBeInTheDocument();
       expect(
@@ -250,7 +250,7 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
       );
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
-      await userEvent.click(saveButton);
+      userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(mockUseHistoryPush).toHaveBeenCalledWith('/simulator/moves/LN4T89/details');

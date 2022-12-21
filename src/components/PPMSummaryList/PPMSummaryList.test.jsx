@@ -71,11 +71,11 @@ describe('PPMSummaryList component', () => {
   });
   describe('approved by counselor', () => {
     const props = { ...defaultProps, shipments: shipments.slice(1, 2) };
-    it('should have button enabled', async () => {
+    it('should have button enabled', () => {
       render(<PPMSummaryList {...props} />);
       const uploadButton = screen.getByRole('button', { name: 'Upload PPM Documents' });
       expect(uploadButton).toBeEnabled();
-      await userEvent.click(uploadButton);
+      userEvent.click(uploadButton);
       expect(onUploadClick).toHaveBeenCalledWith(props.shipments[0].id); // called with mtoShipmentId
       expect(onUploadClick).toHaveBeenCalledTimes(1);
     });

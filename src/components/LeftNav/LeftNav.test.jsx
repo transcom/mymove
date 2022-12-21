@@ -17,12 +17,12 @@ describe('Left Nav Component', () => {
     expect(screen.getByText('Requested shipments')).toBeInTheDocument();
   });
 
-  it('activates a section when the section is clicked', async () => {
+  it('activates a section when the section is clicked', () => {
     render(<LeftNav sections={sections} />);
 
     const sectionLabel = screen.getByText('Orders');
 
-    await userEvent.click(sectionLabel);
+    userEvent.click(sectionLabel);
 
     expect(sectionLabel).toHaveClass('active');
   });

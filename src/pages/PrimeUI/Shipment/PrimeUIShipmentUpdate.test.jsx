@@ -371,7 +371,7 @@ describe('Update Shipment Page', () => {
     );
 
     const cancel = screen.getByRole('button', { name: 'Cancel' });
-    await userEvent.click(cancel);
+    userEvent.click(cancel);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(moveDetailsURL);
@@ -448,18 +448,15 @@ describe('successful submission of form', () => {
     );
 
     const actualPickupDateInput = await screen.findByLabelText('Actual pickup');
-    await userEvent.clear(actualPickupDateInput);
-    await userEvent.type(actualPickupDateInput, '20 Oct 2021');
+    userEvent.type(actualPickupDateInput, '2021-10-20');
 
     const actualWeightInput = screen.getByLabelText(/Actual weight/);
-    await userEvent.type(actualWeightInput, '10000');
+    userEvent.type(actualWeightInput, '10000');
 
     const saveButton = await screen.getByRole('button', { name: 'Save' });
 
-    await waitFor(() => {
-      expect(saveButton).toBeEnabled();
-    });
-    await userEvent.click(saveButton);
+    expect(saveButton).not.toBeDisabled();
+    userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(moveDetailsURL);
@@ -474,16 +471,16 @@ describe('successful submission of form', () => {
     render(<PrimeUIShipmentUpdate />);
 
     const actualPickupDateInput = await screen.findByLabelText('Actual pickup');
-    await userEvent.type(actualPickupDateInput, '2021-10-20');
+    userEvent.type(actualPickupDateInput, '2021-10-20');
 
     const actualWeightInput = screen.getByLabelText(/Actual weight/);
-    await userEvent.type(actualWeightInput, "10000")
+    userEvent.type(actualWeightInput, "10000")
 
     //const saveButton = await expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
     const saveButton = await screen.getByRole('button', { name: 'Save' });
 
     expect(saveButton).not.toBeDisabled();
-    await userEvent.click(saveButton);
+    userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(moveDetailsURL);

@@ -37,8 +37,8 @@ describe('Agreement page', () => {
     submitMoveForApproval.mockResolvedValueOnce(submittedMoveSuccessResponse);
 
     render(<Agreement {...testProps} />);
-    await userEvent.type(screen.getByLabelText('Signature'), 'Sofia Clark-Nuñez');
-    await userEvent.click(screen.getByRole('button', { name: 'Complete' }));
+    userEvent.type(screen.getByLabelText('Signature'), 'Sofia Clark-Nuñez');
+    userEvent.click(screen.getByRole('button', { name: 'Complete' }));
 
     await waitFor(() => {
       expect(submitMoveForApproval).toHaveBeenCalledWith(testProps.moveId, {
@@ -62,8 +62,8 @@ describe('Agreement page', () => {
     submitMoveForApproval.mockRejectedValueOnce({ errors: { signature: 'Signature can not be blank.' } });
 
     render(<Agreement {...testProps} />);
-    await userEvent.type(screen.getByLabelText('Signature'), 'Sofia Clark-Nuñez');
-    await userEvent.click(screen.getByRole('button', { name: 'Complete' }));
+    userEvent.type(screen.getByLabelText('Signature'), 'Sofia Clark-Nuñez');
+    userEvent.click(screen.getByRole('button', { name: 'Complete' }));
 
     await waitFor(() => {
       expect(screen.getByTestId('alert')).toHaveTextContent('There was a problem saving your signature');
@@ -72,7 +72,7 @@ describe('Agreement page', () => {
 
   it('routes back to the review page when the back button is clicked', async () => {
     render(<Agreement {...testProps} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+    userEvent.click(screen.getByRole('button', { name: 'Back' }));
 
     await waitFor(() => {
       expect(testProps.push).toHaveBeenCalledWith(reviewPath);

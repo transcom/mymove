@@ -621,7 +621,7 @@ describe('MovePaymentRequests', () => {
 
       const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
 
-      await userEvent.click(reviewWeights);
+      userEvent.click(reviewWeights);
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/moves/testMoveCode/billable-weight');

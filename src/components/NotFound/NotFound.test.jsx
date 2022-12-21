@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import NotFound from './NotFound';
@@ -15,7 +15,9 @@ describe('NotFound component', () => {
     render(<NotFound handleOnClick={handleOnClick} />);
 
     const goBackButton = screen.getByRole('button', { name: 'back home.' });
-    await userEvent.click(goBackButton);
+    await waitFor(() => {
+      userEvent.click(goBackButton);
+    });
 
     expect(handleOnClick).toHaveBeenCalledTimes(1);
   });

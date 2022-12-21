@@ -211,7 +211,7 @@ describe('Review page', () => {
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    await userEvent.click(screen.getAllByText('Edit')[0]);
+    userEvent.click(screen.getAllByText('Edit')[0]);
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual(editAboutYourPPM);
@@ -228,7 +228,7 @@ describe('Review page', () => {
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    await userEvent.click(screen.getByText('Add More Weight'));
+    userEvent.click(screen.getByText('Add More Weight'));
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual(newWeightTicket);
@@ -236,7 +236,7 @@ describe('Review page', () => {
   });
 
   it('routes to the edit weight ticket page when the edit link is clicked', async () => {
-    selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithWeightTicket);
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithWeightTicket);
     const editWeightTicket = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
@@ -247,7 +247,7 @@ describe('Review page', () => {
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    await userEvent.click(screen.getAllByText('Edit')[1]);
+    userEvent.click(screen.getAllByText('Edit')[1]);
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual(editWeightTicket);
@@ -264,7 +264,7 @@ describe('Review page', () => {
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    await userEvent.click(screen.getByText('Add Pro-gear Weight'));
+    userEvent.click(screen.getByText('Add Pro-gear Weight'));
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual(newProGear);
@@ -272,7 +272,7 @@ describe('Review page', () => {
   });
 
   it('routes to the edit pro-gear page when the edit link is clicked', async () => {
-    selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithProGear);
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithProGear);
     const editProGearWeightTicket = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH, {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
@@ -283,7 +283,7 @@ describe('Review page', () => {
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    await userEvent.click(screen.getAllByText('Edit')[1]);
+    userEvent.click(screen.getAllByText('Edit')[1]);
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual(editProGearWeightTicket);
@@ -300,7 +300,7 @@ describe('Review page', () => {
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    await userEvent.click(screen.getByText('Add Expenses'));
+    userEvent.click(screen.getByText('Add Expenses'));
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual(newExpensePath);
@@ -308,7 +308,7 @@ describe('Review page', () => {
   });
 
   it('routes to the edit expense page when the edit link is clicked', async () => {
-    selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithExpenses);
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithExpenses);
     const editExpensePath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
@@ -319,7 +319,7 @@ describe('Review page', () => {
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    await userEvent.click(screen.getAllByText('Edit')[1]);
+    userEvent.click(screen.getAllByText('Edit')[1]);
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual(editExpensePath);
@@ -331,7 +331,7 @@ describe('Review page', () => {
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    await userEvent.click(screen.getByText('Return To Homepage'));
+    userEvent.click(screen.getByText('Return To Homepage'));
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual('/');
@@ -349,7 +349,7 @@ describe('Review page', () => {
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    await userEvent.click(screen.getByText('Save & Continue'));
+    userEvent.click(screen.getByText('Save & Continue'));
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual(completePath);
@@ -357,7 +357,6 @@ describe('Review page', () => {
   });
 
   it('disables the save and continue link when there are no weight tickets', async () => {
-    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipment);
     render(<Review />, { wrapper: MockProviders });
 
     expect(screen.getByText('Save & Continue')).toHaveClass('usa-button--disabled');
@@ -373,33 +372,33 @@ describe('Review page', () => {
   });
 
   it('displays the delete confirmation modal when the delete button is clicked', async () => {
-    selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithWeightTicket);
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithWeightTicket);
     render(<Review />, { wrapper: MockProviders });
 
-    await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+    userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByRole('button', { name: 'No, Keep It' }));
+    userEvent.click(screen.getByRole('button', { name: 'No, Keep It' }));
 
     expect(screen.queryByRole('heading', { level: 3, name: 'Delete this?' })).not.toBeInTheDocument();
   });
 
   it('calls the delete weight ticket api when confirm is clicked', async () => {
-    selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithWeightTicket);
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithWeightTicket);
     const mockDeleteWeightTicket = jest.fn().mockResolvedValue({});
     deleteWeightTicket.mockImplementationOnce(mockDeleteWeightTicket);
     render(<Review />, { wrapper: MockProviders });
 
-    await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+    userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByRole('button', { name: 'Yes, Delete' }));
+    userEvent.click(screen.getByRole('button', { name: 'Yes, Delete' }));
 
     const weightTicket = mockMTOShipmentWithWeightTicket.ppmShipment.weightTickets[0];
     await waitFor(() => {

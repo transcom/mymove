@@ -80,7 +80,7 @@ describe('components/Office/AccountingCodeSection', () => {
       </Formik>,
     );
 
-    await userEvent.click(screen.getByText('Clear selection'));
+    userEvent.click(screen.getByText('Clear selection'));
     await waitFor(() => expect(screen.getByLabelText('2345 (NTS)')).not.toBeChecked());
   });
 });

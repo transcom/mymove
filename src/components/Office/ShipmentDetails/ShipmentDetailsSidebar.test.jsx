@@ -130,7 +130,7 @@ describe('Shipment Details Sidebar', () => {
     });
   });
 
-  it('shows edit facility info modal on edit button click', async () => {
+  it('shows edit facility info modal on edit button click', () => {
     render(
       <MockProviders permissions={[permissionTypes.updateShipment]}>
         <ShipmentDetailsSidebar
@@ -144,13 +144,13 @@ describe('Shipment Details Sidebar', () => {
 
     const openEditFacilityModalButton = screen.getByTestId('edit-facility-info-modal-open');
 
-    await userEvent.click(openEditFacilityModalButton);
+    userEvent.click(openEditFacilityModalButton);
 
     // This text is in the edit facility info modal
     expect(screen.getByText('Edit facility info and address')).toBeInTheDocument();
   });
 
-  it('shows edit service order number modal on edit button click', async () => {
+  it('shows edit service order number modal on edit button click', () => {
     render(
       <MockProviders permissions={[permissionTypes.updateShipment]}>
         <ShipmentDetailsSidebar
@@ -164,13 +164,13 @@ describe('Shipment Details Sidebar', () => {
 
     const openSonModalButton = screen.getByTestId('service-order-number-modal-open');
 
-    await userEvent.click(openSonModalButton);
+    userEvent.click(openSonModalButton);
 
     // This text is in the edit facility info modal
     expect(screen.getByRole('heading', { name: 'Edit service order number' })).toBeInTheDocument();
   });
 
-  it('shows accounting codes modal on edit button click', async () => {
+  it('shows accounting codes modal on edit button click', () => {
     render(
       <MockProviders permissions={[permissionTypes.updateShipment]}>
         <ShipmentDetailsSidebar
@@ -184,7 +184,7 @@ describe('Shipment Details Sidebar', () => {
 
     const openAccountingCodesModalButton = screen.getByTestId('edit-accounting-codes-modal-open');
 
-    await userEvent.click(openAccountingCodesModalButton);
+    userEvent.click(openAccountingCodesModalButton);
 
     // This text is in the accounting codes modal
     expect(screen.getByRole('heading', { name: 'Edit accounting codes' })).toBeInTheDocument();

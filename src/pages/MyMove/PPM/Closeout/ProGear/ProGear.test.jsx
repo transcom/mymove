@@ -217,23 +217,24 @@ describe('Pro-gear page', () => {
     patchProGearWeightTicket.mockResolvedValue({});
 
     render(<ProGear />, { wrapper: MockProviders });
-    await userEvent.click(screen.getByLabelText('My spouse'));
+
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Set 2');
     });
+    userEvent.click(screen.getByLabelText('My spouse'));
     await waitFor(() => {
       expect(screen.getByLabelText(/^Brief description of the pro-gear/)).toBeInTheDocument();
       expect(screen.getByLabelText(/I don't have weight tickets/)).toBeInTheDocument();
     });
-    await userEvent.type(screen.getByLabelText(/^Brief description of the pro-gear/), 'Professional gear');
-    await userEvent.type(screen.getByLabelText(/^Shipment's pro-gear weight/), '100');
-    await userEvent.click(screen.getByLabelText(/I don't have weight tickets/));
+    userEvent.type(screen.getByLabelText(/^Brief description of the pro-gear/), 'Professional gear');
+    userEvent.type(screen.getByLabelText(/^Shipment's pro-gear weight/), '100');
+    userEvent.click(screen.getByLabelText(/I don't have weight tickets/));
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
       expect(patchProGearWeightTicket).toHaveBeenCalledWith(
@@ -280,11 +281,11 @@ describe('Pro-gear page', () => {
       deleteButtons = screen.getAllByRole('button', { name: 'Delete' });
       expect(deleteButtons).toHaveLength(2);
     });
-    await userEvent.click(deleteButtons[1]);
+    userEvent.click(deleteButtons[1]);
     await waitFor(() => {
       expect(screen.queryByText('weight_ticket.pdf')).not.toBeInTheDocument();
     });
-    await userEvent.click(deleteButtons[0]);
+    userEvent.click(deleteButtons[0]);
     await waitFor(() => {
       expect(screen.queryByText('weight_ticket.jpg')).not.toBeInTheDocument();
       expect(screen.getByText(/At least one upload is required/)).toBeInTheDocument();
@@ -320,7 +321,7 @@ describe('Pro-gear page', () => {
       deleteButtons = screen.getAllByRole('button', { name: 'Delete' });
       expect(deleteButtons).toHaveLength(2);
     });
-    await userEvent.click(deleteButtons[1]);
+    userEvent.click(deleteButtons[1]);
     await waitFor(() => {
       expect(screen.getByText(/Failed to delete the file upload/)).toBeInTheDocument();
     });

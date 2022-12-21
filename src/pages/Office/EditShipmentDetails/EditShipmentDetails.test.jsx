@@ -312,7 +312,7 @@ describe('EditShipmentDetails component', () => {
 
     expect(saveButton).not.toBeDisabled();
 
-    await userEvent.click(saveButton);
+    userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/moves/move123/details');
@@ -327,7 +327,7 @@ describe('EditShipmentDetails component', () => {
 
     expect(cancelButton).not.toBeDisabled();
 
-    await userEvent.click(cancelButton);
+    userEvent.click(cancelButton);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/moves/move123/details');

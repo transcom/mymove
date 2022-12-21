@@ -18,7 +18,7 @@ describe('ButtonDropdown component', () => {
     expect(screen.queryByTestId('dropdown')).toBeInTheDocument();
   });
 
-  it('calls onChange prop on option selection', async () => {
+  it('calls onChange prop on option selection', () => {
     const onChangeSpy = jest.fn();
     render(
       <ButtonDropdown onChange={onChangeSpy}>
@@ -29,7 +29,7 @@ describe('ButtonDropdown component', () => {
       </ButtonDropdown>,
     );
     const dropdown = screen.getByRole('combobox');
-    await userEvent.selectOptions(dropdown, 'value1');
+    userEvent.selectOptions(dropdown, 'value1');
 
     expect(onChangeSpy).toHaveBeenCalled();
   });

@@ -57,8 +57,8 @@ describe('ResidentialAddressForm component', () => {
 
     const postalCode = '99999';
 
-    await userEvent.type(postalCodeInput, postalCode);
-    await userEvent.tab();
+    userEvent.type(postalCodeInput, postalCode);
+    userEvent.tab();
 
     await waitFor(() => {
       expect(postalCodeValidator).toHaveBeenCalledWith(postalCode);
@@ -66,15 +66,10 @@ describe('ResidentialAddressForm component', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByRole, findAllByRole, getByLabelText } = render(<ResidentialAddressForm {...testProps} />);
-    await userEvent.click(getByLabelText('Address 1'));
-    await userEvent.click(getByLabelText(/Address 2/));
-    await userEvent.click(getByLabelText('City'));
-    await userEvent.click(getByLabelText('State'));
-    await userEvent.click(getByLabelText('ZIP'));
-
+    const { getByRole, findAllByRole } = render(<ResidentialAddressForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
-    await userEvent.click(submitBtn);
+
+    userEvent.click(submitBtn);
 
     const alerts = await findAllByRole('alert');
 
@@ -91,17 +86,13 @@ describe('ResidentialAddressForm component', () => {
     const { getByRole, getByLabelText } = render(<ResidentialAddressForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    await userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
-    await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(getByLabelText('City'), fakeAddress.city);
-    await userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
-    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
-    await userEvent.tab();
+    userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
+    userEvent.type(getByLabelText('City'), fakeAddress.city);
+    userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
+    userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
 
-    await waitFor(() => {
-      expect(submitBtn).toBeEnabled();
-    });
-    await userEvent.click(submitBtn);
+    userEvent.click(submitBtn);
 
     const expectedParams = {
       [formFieldsName]: fakeAddress,
@@ -116,7 +107,7 @@ describe('ResidentialAddressForm component', () => {
     const { getByRole } = render(<ResidentialAddressForm {...testProps} />);
     const backBtn = getByRole('button', { name: 'Back' });
 
-    await userEvent.click(backBtn);
+    userEvent.click(backBtn);
 
     await waitFor(() => {
       expect(testProps.onBack).toHaveBeenCalled();

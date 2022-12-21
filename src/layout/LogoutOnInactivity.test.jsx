@@ -72,7 +72,7 @@ describe('LogoutOnInactivity', () => {
       });
 
       const wrapper = screen.getByTestId('logoutOnInactivityWrapper');
-      await userEvent.click(wrapper);
+      userEvent.click(wrapper);
 
       // alert is not present after the click
       expect(screen.queryByTestId('logoutAlert')).not.toBeInTheDocument();

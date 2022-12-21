@@ -18,7 +18,7 @@ describe('Table/Filters/TextBoxFilter', () => {
     expect(screen.getByRole('textbox')).toHaveValue('test value');
   });
 
-  it('triggers on setFilter on blur', async () => {
+  it('triggers on setFilter on blur', () => {
     const setFilter = jest.fn();
     render(
       <TextBoxFilter
@@ -30,13 +30,13 @@ describe('Table/Filters/TextBoxFilter', () => {
     );
 
     const textbox = screen.getByRole('textbox');
-    await userEvent.type(textbox, 'Test Value');
+    userEvent.type(textbox, 'Test Value');
     expect(setFilter).not.toBeCalled();
-    await userEvent.tab();
+    userEvent.tab();
     expect(setFilter).toBeCalledWith('Test Value');
   });
 
-  it('triggers on setFilter on enter', async () => {
+  it('triggers on setFilter on enter', () => {
     const setFilter = jest.fn();
     render(
       <TextBoxFilter
@@ -48,11 +48,11 @@ describe('Table/Filters/TextBoxFilter', () => {
     );
 
     const textbox = screen.getByRole('textbox');
-    await userEvent.type(textbox, 'Test Value{enter}');
+    userEvent.type(textbox, 'Test Value{enter}');
     expect(setFilter).toBeCalledWith('Test Value');
   });
 
-  it('triggers setFilter with undefined given empty input', async () => {
+  it('triggers setFilter with undefined given empty input', () => {
     const setFilter = jest.fn();
     render(
       <TextBoxFilter
@@ -64,9 +64,9 @@ describe('Table/Filters/TextBoxFilter', () => {
     );
 
     const textbox = screen.getByRole('textbox');
-    await userEvent.click(textbox);
+    userEvent.click(textbox);
     expect(setFilter).not.toBeCalled();
-    await userEvent.tab();
+    userEvent.tab();
     expect(setFilter).toBeCalledWith(undefined);
   });
 });

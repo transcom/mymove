@@ -132,7 +132,7 @@ describe('ContactInfoDisplay component', () => {
 
     expect(editLink).toBeInTheDocument();
 
-    await userEvent.click(editLink);
+    userEvent.click(editLink);
 
     await waitFor(() => {
       expect(history.location.pathname).toEqual(testProps.editURL);

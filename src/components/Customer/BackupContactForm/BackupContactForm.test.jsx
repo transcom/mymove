@@ -31,8 +31,8 @@ describe('BackupContactForm Component', () => {
 
   it('validates the contact phone field', async () => {
     const { getByText, getByLabelText } = render(<BackupContactForm {...testProps} />);
-    await userEvent.type(getByLabelText('Phone'), '12345');
-    await userEvent.tab();
+    userEvent.type(getByLabelText('Phone'), '12345');
+    userEvent.tab();
 
     await waitFor(() => {
       expect(getByText('Number must have 10 digits and a valid area code')).toBeInTheDocument();
@@ -41,8 +41,8 @@ describe('BackupContactForm Component', () => {
 
   it('validates the email field', async () => {
     const { getByText, getByLabelText } = render(<BackupContactForm {...testProps} />);
-    await userEvent.type(getByLabelText('Email'), 'sample@');
-    await userEvent.tab();
+    userEvent.type(getByLabelText('Email'), 'sample@');
+    userEvent.tab();
 
     await waitFor(() => {
       expect(getByText('Must be a valid email address')).toBeInTheDocument();
@@ -50,14 +50,10 @@ describe('BackupContactForm Component', () => {
   });
 
   it('shows an error message when trying to submit an invalid form', async () => {
-    const { getAllByText, getByRole, getByLabelText } = render(<BackupContactForm {...testProps} />);
+    const { getAllByText, getByRole } = render(<BackupContactForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    // Touch all of the required fields so that they show error messages
-    await userEvent.click(getByLabelText('Name'));
-    await userEvent.click(getByLabelText('Phone'));
-    await userEvent.click(getByLabelText('Email'));
-    await userEvent.click(submitBtn);
+    userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(getAllByText('Required').length).toBe(3);
@@ -70,10 +66,10 @@ describe('BackupContactForm Component', () => {
     const { getByRole, getByLabelText } = render(<BackupContactForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    await userEvent.type(getByLabelText('Name'), 'Joe Schmoe');
-    await userEvent.type(getByLabelText('Phone'), '555-555-5555');
-    await userEvent.type(getByLabelText('Email'), 'test@sample.com');
-    await userEvent.click(submitBtn);
+    userEvent.type(getByLabelText('Name'), 'Joe Schmoe');
+    userEvent.type(getByLabelText('Phone'), '555-555-5555');
+    userEvent.type(getByLabelText('Email'), 'test@sample.com');
+    userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalled();
@@ -84,10 +80,10 @@ describe('BackupContactForm Component', () => {
     const { getByRole, getByLabelText } = render(<BackupContactForm {...testProps} />);
     const backBtn = getByRole('button', { name: 'Back' });
 
-    await userEvent.type(getByLabelText('Name'), 'Janey Profaney');
-    await userEvent.type(getByLabelText('Phone'), '555-555-1111');
-    await userEvent.click(getByLabelText('Email'));
-    await userEvent.click(backBtn);
+    userEvent.type(getByLabelText('Name'), 'Janey Profaney');
+    userEvent.type(getByLabelText('Phone'), '555-555-1111');
+    userEvent.click(getByLabelText('Email'));
+    userEvent.click(backBtn);
 
     await waitFor(() => {
       expect(testProps.onBack).toHaveBeenCalled();

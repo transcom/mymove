@@ -404,7 +404,7 @@ describe('PPM shipments are handled', () => {
     await expect(field.nextElementSibling.textContent).toBe(ppmShipmentFieldValue);
   });
 
-  it('PPM can be deleted', async () => {
+  it('PPM can be deleted', () => {
     const onDelete = jest.fn();
 
     render(
@@ -416,12 +416,12 @@ describe('PPM shipments are handled', () => {
     const deleteShipmentButton = screen.queryByText(/Delete Shipment/, { selector: 'button' });
     expect(deleteShipmentButton).toBeInTheDocument();
 
-    await userEvent.click(deleteShipmentButton);
+    userEvent.click(deleteShipmentButton);
     let modalTitle = screen.getByText('Are you sure?');
     expect(modalTitle).toBeInTheDocument();
 
     const modalDeleteButton = screen.getByText('Delete shipment', { selector: 'button.usa-button--destructive' });
-    await userEvent.click(modalDeleteButton);
+    userEvent.click(modalDeleteButton);
     expect(onDelete).toHaveBeenCalledTimes(1);
 
     modalTitle = screen.queryByText('Are you sure?');

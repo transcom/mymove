@@ -47,17 +47,13 @@ describe('BackupMailingAddressForm component', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByRole, findAllByRole, getByLabelText } = render(<BackupMailingAddressForm {...testProps} />);
-    await userEvent.click(getByLabelText('Address 1'));
-    await userEvent.click(getByLabelText(/Address 2/));
-    await userEvent.click(getByLabelText('City'));
-    await userEvent.click(getByLabelText('ZIP'));
-    await userEvent.click(getByLabelText('State'));
-
+    const { getByRole, findAllByRole } = render(<BackupMailingAddressForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
-    await userEvent.click(submitBtn);
+
+    userEvent.click(submitBtn);
 
     const alerts = await findAllByRole('alert');
+
     expect(alerts.length).toBe(4);
 
     alerts.forEach((alert) => {
@@ -71,17 +67,13 @@ describe('BackupMailingAddressForm component', () => {
     const { getByRole, getByLabelText } = render(<BackupMailingAddressForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    await userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
-    await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(getByLabelText('City'), fakeAddress.city);
-    await userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
-    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
-    await userEvent.tab();
+    userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
+    userEvent.type(getByLabelText('City'), fakeAddress.city);
+    userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
+    userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
 
-    await waitFor(() => {
-      expect(submitBtn).toBeEnabled();
-    });
-    await userEvent.click(submitBtn);
+    userEvent.click(submitBtn);
 
     const expectedParams = {
       [formFieldsName]: fakeAddress,
@@ -96,7 +88,7 @@ describe('BackupMailingAddressForm component', () => {
     const { getByRole } = render(<BackupMailingAddressForm {...testProps} />);
     const backBtn = getByRole('button', { name: 'Back' });
 
-    await userEvent.click(backBtn);
+    userEvent.click(backBtn);
 
     await waitFor(() => {
       expect(testProps.onBack).toHaveBeenCalled();

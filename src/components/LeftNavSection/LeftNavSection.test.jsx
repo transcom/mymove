@@ -10,7 +10,7 @@ describe('Left Nav Section Component', () => {
     expect(screen.getByText('Test Section')).toBeInTheDocument();
   });
 
-  it('uses the onClickHandler when provided', async () => {
+  it('uses the onClickHandler when provided', () => {
     const mockOnClick = jest.fn();
     render(
       <LeftNavSection sectionName="testSection" onClickHandler={mockOnClick}>
@@ -20,7 +20,7 @@ describe('Left Nav Section Component', () => {
 
     const sectionLabel = screen.getByText('Test Section');
 
-    await userEvent.click(sectionLabel);
+    userEvent.click(sectionLabel);
 
     expect(mockOnClick).toHaveBeenCalledTimes(1);
   });

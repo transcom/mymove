@@ -63,7 +63,7 @@ describe('CustomerSupportRemarkForm', () => {
     );
 
     // Type in the textarea
-    await userEvent.type(await screen.findByTestId('textarea'), 'Test Remark');
+    userEvent.type(await screen.findByTestId('textarea'), 'Test Remark');
     await waitFor(() => {
       expect(screen.getByTestId('button').hasAttribute('disabled')).toBeFalsy();
     });

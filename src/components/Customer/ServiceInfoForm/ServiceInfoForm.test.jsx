@@ -178,8 +178,8 @@ describe('ServiceInfoForm', () => {
     render(<ServiceInfoForm {...testProps} />);
 
     const dodInput = await screen.findByLabelText('DoD ID number');
-    await userEvent.type(dodInput, 'not a valid ID number');
-    await userEvent.tab();
+    userEvent.type(dodInput, 'not a valid ID number');
+    userEvent.tab();
 
     expect(dodInput).not.toBeValid();
     expect(await screen.findByText('Enter a 10-digit DOD ID number')).toBeInTheDocument();
@@ -212,16 +212,9 @@ describe('ServiceInfoForm', () => {
 
   it('shows an error message if trying to submit an invalid form', async () => {
     render(<ServiceInfoForm {...testProps} />);
-
-    // Touch required fields to show validation errors
-    await userEvent.click(screen.getByLabelText('First name'));
-    await userEvent.click(screen.getByLabelText('Last name'));
-    await userEvent.click(screen.getByLabelText('Branch of service'));
-    await userEvent.click(screen.getByLabelText('DoD ID number'));
-    await userEvent.click(screen.getByLabelText('Rank'));
-
     const submitBtn = screen.getByRole('button', { name: 'Save' });
-    await userEvent.click(submitBtn);
+
+    userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(screen.getAllByText('Required').length).toBe(5);
@@ -233,11 +226,11 @@ describe('ServiceInfoForm', () => {
     render(<ServiceInfoForm {...testProps} />);
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.type(screen.getByLabelText('First name'), 'Leo');
-    await userEvent.type(screen.getByLabelText('Last name'), 'Spaceman');
-    await userEvent.selectOptions(screen.getByLabelText('Branch of service'), ['NAVY']);
-    await userEvent.type(screen.getByLabelText('DoD ID number'), '1234567890');
-    await userEvent.selectOptions(screen.getByLabelText('Rank'), ['E_5']);
+    userEvent.type(screen.getByLabelText('First name'), 'Leo');
+    userEvent.type(screen.getByLabelText('Last name'), 'Spaceman');
+    userEvent.selectOptions(screen.getByLabelText('Branch of service'), ['NAVY']);
+    userEvent.type(screen.getByLabelText('DoD ID number'), '1234567890');
+    userEvent.selectOptions(screen.getByLabelText('Rank'), ['E_5']);
     fireEvent.change(screen.getByLabelText('Current duty location'), { target: { value: 'AFB' } });
     await act(() => selectEvent.select(screen.getByLabelText('Current duty location'), /Luke/));
 
@@ -245,7 +238,7 @@ describe('ServiceInfoForm', () => {
       current_location: 'Luke AFB',
     });
 
-    await userEvent.click(submitBtn);
+    userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalledWith(
@@ -281,7 +274,7 @@ describe('ServiceInfoForm', () => {
     render(<ServiceInfoForm {...testProps} onCancel={onCancel} />);
     const cancelBtn = screen.getByRole('button', { name: 'Cancel' });
 
-    await userEvent.click(cancelBtn);
+    userEvent.click(cancelBtn);
 
     await waitFor(() => {
       expect(onCancel).toHaveBeenCalled();

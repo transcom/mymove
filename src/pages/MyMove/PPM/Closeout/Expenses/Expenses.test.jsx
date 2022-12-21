@@ -246,17 +246,17 @@ describe('Expenses page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 2');
     });
-    await userEvent.selectOptions(screen.getByLabelText('Select type'), ['CONTRACTED_EXPENSE']);
-    await userEvent.clear(screen.getByLabelText('What did you buy?'));
-    await userEvent.type(screen.getByLabelText('What did you buy?'), 'Boxes and tape');
-    await userEvent.click(screen.getByLabelText('Yes'));
-    await userEvent.clear(screen.getByLabelText('Amount'));
-    await userEvent.type(screen.getByLabelText('Amount'), '12.34');
-    await userEvent.click(screen.getByLabelText("I don't have this receipt"));
+    userEvent.selectOptions(screen.getByLabelText('Select type'), ['CONTRACTED_EXPENSE']);
+    userEvent.clear(screen.getByLabelText('What did you buy?'));
+    userEvent.type(screen.getByLabelText('What did you buy?'), 'Boxes and tape');
+    userEvent.click(screen.getByLabelText('Yes'));
+    userEvent.clear(screen.getByLabelText('Amount'));
+    userEvent.type(screen.getByLabelText('Amount'), '12.34');
+    userEvent.click(screen.getByLabelText("I don't have this receipt"));
 
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
       expect(patchMovingExpense).toHaveBeenCalledWith(
@@ -289,12 +289,12 @@ describe('Expenses page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 2');
     });
-    await userEvent.clear(screen.getByLabelText('Amount'));
-    await userEvent.type(screen.getByLabelText('Amount'), '12');
+    userEvent.clear(screen.getByLabelText('Amount'));
+    userEvent.type(screen.getByLabelText('Amount'), '12');
 
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
       expect(patchMovingExpense).toHaveBeenCalledWith(
@@ -327,13 +327,13 @@ describe('Expenses page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 2');
     });
-    await userEvent.selectOptions(screen.getByLabelText('Select type'), ['STORAGE']);
-    await userEvent.type(screen.getByLabelText('Start date'), '10/10/2022');
-    await userEvent.type(screen.getByLabelText('End date'), '10/11/2022');
+    userEvent.selectOptions(screen.getByLabelText('Select type'), ['STORAGE']);
+    userEvent.type(screen.getByLabelText('Start date'), '10/10/2022');
+    userEvent.type(screen.getByLabelText('End date'), '10/11/2022');
 
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
       expect(patchMovingExpense).toHaveBeenCalledWith(
@@ -366,14 +366,14 @@ describe('Expenses page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 5');
     });
-    await userEvent.selectOptions(screen.getByLabelText('Select type'), ['CONTRACTED_EXPENSE']);
-    await userEvent.type(screen.getByLabelText('What did you buy?'), 'Boxes and tape');
-    await userEvent.click(screen.getByLabelText('Yes'));
-    await userEvent.clear(screen.getByLabelText('Amount'));
-    await userEvent.type(screen.getByLabelText('Amount'), '12.34');
-    await userEvent.click(screen.getByLabelText("I don't have this receipt"));
+    userEvent.selectOptions(screen.getByLabelText('Select type'), ['CONTRACTED_EXPENSE']);
+    userEvent.type(screen.getByLabelText('What did you buy?'), 'Boxes and tape');
+    userEvent.click(screen.getByLabelText('Yes'));
+    userEvent.clear(screen.getByLabelText('Amount'));
+    userEvent.type(screen.getByLabelText('Amount'), '12.34');
+    userEvent.click(screen.getByLabelText("I don't have this receipt"));
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
       expect(screen.getByText('Failed to save updated trip record')).toBeInTheDocument();
@@ -413,7 +413,7 @@ describe('Expenses page', () => {
       deleteButtons = screen.getAllByRole('button', { name: 'Delete' });
       expect(deleteButtons).toHaveLength(1);
     });
-    await userEvent.click(deleteButtons[0]);
+    userEvent.click(deleteButtons[0]);
     await waitFor(() => {
       expect(screen.queryByText('empty_weight.jpg')).not.toBeInTheDocument();
     });

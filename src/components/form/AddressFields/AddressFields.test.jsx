@@ -74,7 +74,7 @@ describe('AddressFields component', () => {
       );
 
       const postalCodeInput = getByLabelText('ZIP');
-      await userEvent.type(postalCodeInput, '12345');
+      userEvent.type(postalCodeInput, '12345');
       fireEvent.blur(postalCodeInput);
 
       const postalCodeError = await findByRole('alert');

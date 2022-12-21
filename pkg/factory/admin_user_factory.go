@@ -20,18 +20,19 @@ func BuildAdminUser(db *pop.Connection, customs []Customization, traits []Trait)
 	var cAdminUser models.AdminUser
 	if result := findValidCustomization(customs, AdminUser); result != nil {
 		cAdminUser = result.Model.(models.AdminUser)
-		if result.LinkOnly {
-			return cAdminUser
-		}
 	}
 
 	// Find/create the user model
 	var user models.User
+	linkOnly := false
 	result := findValidCustomization(customs, User)
 	if result != nil {
 		user = result.Model.(models.User)
+		linkOnly = result.LinkOnly
 	}
-	user = BuildUser(db, customs, nil)
+	if !linkOnly {
+		user = BuildUser(db, customs, nil)
+	}
 	// At this point, user exists. It's either the provided or created user
 
 	// create adminuser

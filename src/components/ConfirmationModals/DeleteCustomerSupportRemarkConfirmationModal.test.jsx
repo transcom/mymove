@@ -39,7 +39,7 @@ describe('DeleteCustomerSupportRemarkConfirmationModal', () => {
 
     const closeButton = await screen.findByTestId('modalCloseButton');
 
-    await userEvent.click(closeButton);
+    userEvent.click(closeButton);
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -55,7 +55,7 @@ describe('DeleteCustomerSupportRemarkConfirmationModal', () => {
 
     const keepButton = await screen.findByRole('button', { name: 'No, keep it' });
 
-    await userEvent.click(keepButton);
+    userEvent.click(keepButton);
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -71,7 +71,7 @@ describe('DeleteCustomerSupportRemarkConfirmationModal', () => {
 
     const deleteButton = await screen.findByRole('button', { name: 'Yes, Delete' });
 
-    await userEvent.click(deleteButton);
+    userEvent.click(deleteButton);
 
     expect(onSubmit).toHaveBeenCalledWith(customerSupportRemarkID);
     expect(onSubmit).toHaveBeenCalledTimes(1);

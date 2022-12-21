@@ -121,7 +121,7 @@ describe('ProGearForm component', () => {
       };
       render(<ProGearForm {...defaultProps} {...proGearWithDocumentProps} />, { wrapper: MockProviders });
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
-      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+      userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
       await waitFor(() => {
         expect(defaultProps.onSubmit).toHaveBeenCalledWith(expectedPayload, expect.anything());
@@ -130,7 +130,7 @@ describe('ProGearForm component', () => {
     it('calls the onBack prop when the Return To Homepage button is clicked', async () => {
       render(<ProGearForm {...defaultProps} />, { wrapper: MockProviders });
 
-      await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+      userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
 
       await waitFor(() => {
         expect(defaultProps.onBack).toHaveBeenCalled();
@@ -150,8 +150,8 @@ describe('ProGearForm component', () => {
     });
     it('invalidates if weight exceeds the maximum.', async () => {
       render(<ProGearForm {...defaultProps} {...proGearProps} />, { wrapper: MockProviders });
-      await act(async () => {
-        await userEvent.type(screen.getByRole('textbox', { name: /^Shipment's pro-gear weight/ }), '2000');
+      act(() => {
+        userEvent.type(screen.getByRole('textbox', { name: /^Shipment's pro-gear weight/ }), '2000');
       });
       await waitFor(() => {
         expect(screen.getByText(/Pro gear weight must be less than or equal to 1,234 lbs./)).toBeInTheDocument();
@@ -160,15 +160,14 @@ describe('ProGearForm component', () => {
     });
     it('invalidates if a valid weight is entered but a lower maximum is subsequently selected', async () => {
       render(<ProGearForm {...defaultProps} {...proGearProps} />, { wrapper: MockProviders });
-      await act(async () => {
-        await userEvent.clear(screen.getByRole('textbox', { name: /^Shipment's pro-gear weight/ }));
-        await userEvent.type(screen.getByRole('textbox', { name: /^Shipment's pro-gear weight/ }), '1000');
+      act(() => {
+        userEvent.type(screen.getByRole('textbox', { name: /^Shipment's pro-gear weight/ }), '1000');
       });
       await waitFor(() => {
         expect(screen.queryByText(/Pro gear weight must be less than or equal to 1,234 lbs./)).not.toBeInTheDocument();
       });
-      await act(async () => {
-        await userEvent.click(screen.getByLabelText('My spouse'));
+      act(() => {
+        userEvent.click(screen.getByLabelText('My spouse'));
       });
       await waitFor(() => {
         expect(screen.getByText(/Pro gear weight must be less than or equal to 987 lbs./)).toBeInTheDocument();
@@ -179,7 +178,7 @@ describe('ProGearForm component', () => {
   describe('invalidates fields', () => {
     it('invalidates if weight is zero', async () => {
       render(<ProGearForm {...defaultProps} {...proGearNoWeightProps} />, { wrapper: MockProviders });
-      await userEvent.type(screen.getByRole('textbox', { name: /^Shipment's pro-gear weight/ }), '0');
+      userEvent.type(screen.getByRole('textbox', { name: /^Shipment's pro-gear weight/ }), '0');
       await waitFor(() => {
         expect(screen.getByText(/Enter a weight greater than 0 lbs./)).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();

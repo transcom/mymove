@@ -33,7 +33,7 @@ describe('ShipmentList component', () => {
     onDeleteClick,
     moveSubmitted: false,
   };
-  it('renders ShipmentList with shipments', async () => {
+  it('renders ShipmentList with shipments', () => {
     render(<ShipmentList {...defaultProps} />);
 
     expect(screen.getAllByTestId('shipment-list-item-container').length).toBe(4);
@@ -46,48 +46,44 @@ describe('ShipmentList component', () => {
   it.each([
     ['Shows', false],
     ['Hides', true],
-  ])('%s the edit link if moveSubmitted is %s', async (showHideEditLink, moveSubmitted) => {
+  ])('%s the edit link if moveSubmitted is %s', (showHideEditLink, moveSubmitted) => {
     const props = { ...defaultProps, moveSubmitted };
 
     render(<ShipmentList {...props} />);
 
     let editBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[0], 'button', { name: 'Edit' });
 
-    const checkShipmentClick = async (shipmentID, shipmentNumber, shipmentType) => {
+    const checkShipmentClick = (shipmentID, shipmentNumber, shipmentType) => {
       if (showHideEditLink === 'Shows') {
-        await userEvent.click(editBtn);
+        userEvent.click(editBtn);
         expect(onShipmentClick).toHaveBeenCalledWith(shipmentID, shipmentNumber, shipmentType);
       } else {
         expect(editBtn).toBeNull();
       }
     };
 
-    await checkShipmentClick('ID-1', 1, SHIPMENT_OPTIONS.PPM);
+    checkShipmentClick('ID-1', 1, SHIPMENT_OPTIONS.PPM);
 
     editBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[1], 'button', { name: 'Edit' });
-    await checkShipmentClick('ID-2', 1, SHIPMENT_OPTIONS.HHG);
+    checkShipmentClick('ID-2', 1, SHIPMENT_OPTIONS.HHG);
 
     editBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[2], 'button', { name: 'Edit' });
-    await checkShipmentClick('ID-3', 1, SHIPMENT_OPTIONS.NTS);
+    checkShipmentClick('ID-3', 1, SHIPMENT_OPTIONS.NTS);
 
     editBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[3], 'button', { name: 'Edit' });
-    await checkShipmentClick('ID-4', 1, SHIPMENT_OPTIONS.NTSR);
+    checkShipmentClick('ID-4', 1, SHIPMENT_OPTIONS.NTSR);
   });
 
-  it.each([
-    [SHIPMENT_OPTIONS.PPM, 1],
-    [SHIPMENT_OPTIONS.HHG, 2],
-    [SHIPMENT_OPTIONS.NTS, 3],
-    [SHIPMENT_OPTIONS.NTSR, 4],
-  ])('calls onDeleteClick for shipment type %s when delete is clicked', async (_, id) => {
+  it('calls onDeleteClick when delete is clicked', () => {
     render(<ShipmentList {...defaultProps} />);
-    const deleteBtn = getByRole(screen.getAllByTestId('shipment-list-item-container')[id - 1], 'button', {
-      name: 'Delete',
-    });
-
-    await userEvent.click(deleteBtn);
-    expect(onDeleteClick).toHaveBeenCalledWith(`ID-${id}`);
-    expect(onDeleteClick).toHaveBeenCalledTimes(1);
+    for (let i = 0; i < defaultProps.shipments.length; i += 1) {
+      const deleteBtn = getByRole(screen.getAllByTestId('shipment-list-item-container')[i], 'button', {
+        name: 'Delete',
+      });
+      userEvent.click(deleteBtn);
+      expect(onDeleteClick).toHaveBeenCalledWith(`ID-${i + 1}`);
+      expect(onDeleteClick).toHaveBeenCalledTimes(i + 1);
+    }
   });
 });
 

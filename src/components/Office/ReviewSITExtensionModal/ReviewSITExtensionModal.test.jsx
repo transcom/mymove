@@ -49,9 +49,9 @@ describe('ReviewSITExtensionModal', () => {
     const officeRemarksInput = screen.getByLabelText('Office remarks');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.type(daysApprovedInput, '{backspace}{backspace}20');
-    await userEvent.type(officeRemarksInput, 'Approved!');
-    await userEvent.click(submitBtn);
+    userEvent.type(daysApprovedInput, '{backspace}{backspace}20');
+    userEvent.type(officeRemarksInput, 'Approved!');
+    userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
@@ -77,9 +77,9 @@ describe('ReviewSITExtensionModal', () => {
     const officeRemarksInput = screen.getByLabelText('Office remarks');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.click(denyExtenstionField);
-    await userEvent.type(officeRemarksInput, 'Denied!');
-    await userEvent.click(submitBtn);
+    userEvent.click(denyExtenstionField);
+    userEvent.type(officeRemarksInput, 'Denied!');
+    userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
@@ -106,7 +106,7 @@ describe('ReviewSITExtensionModal', () => {
     await waitFor(() => {
       expect(daysApprovedInput).toBeInTheDocument();
     });
-    await userEvent.click(denyExtenstionField);
+    userEvent.click(denyExtenstionField);
     await waitFor(() => {
       expect(daysApprovedInput).not.toBeInTheDocument();
     });
@@ -125,7 +125,7 @@ describe('ReviewSITExtensionModal', () => {
     const daysApprovedInput = screen.getByLabelText('Days approved');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.type(daysApprovedInput, '{backspace}{backspace}46');
+    userEvent.type(daysApprovedInput, '{backspace}{backspace}46');
 
     await waitFor(() => {
       expect(submitBtn).toBeDisabled();
@@ -145,7 +145,7 @@ describe('ReviewSITExtensionModal', () => {
     const daysApprovedInput = screen.getByLabelText('Days approved');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.type(daysApprovedInput, '{backspace}{backspace}0');
+    userEvent.type(daysApprovedInput, '{backspace}{backspace}0');
 
     await waitFor(() => {
       expect(submitBtn).toBeDisabled();
@@ -164,7 +164,7 @@ describe('ReviewSITExtensionModal', () => {
     );
     const closeBtn = screen.getByRole('button', { name: 'Cancel' });
 
-    await userEvent.click(closeBtn);
+    userEvent.click(closeBtn);
 
     await waitFor(() => {
       expect(mockClose).toHaveBeenCalled();
