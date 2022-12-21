@@ -97,11 +97,24 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		subtestData := makeUpdateSubtestData(appCtx, true)
 		params := subtestData.params
 		params.UpdateProGearWeightTicket = &ghcmessages.UpdateProGearWeightTicket{}
-		wrongUUIDString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("cde78daf-802f-491f-a230-fc1fdcfe6595"))
+		wrongUUIDString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("3ce0e367-a337-46e3-b4cf-f79aebc4f6c8"))
 		params.ProGearWeightTicketID = *wrongUUIDString
 
 		response := subtestData.handler.Handle(params)
 
 		suite.IsType(&progearops.UpdateProGearWeightTicketNotFound{}, response)
+	})
+
+	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateProGearWeightTicket = &ghcmessages.UpdateProGearWeightTicket{}
+		params.IfMatch = "wrong-if-match-header-value"
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&progearops.UpdateProGearWeightTicketPreconditionFailed{}, response)
 	})
 }
