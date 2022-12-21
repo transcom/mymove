@@ -31,6 +31,7 @@ var control CustomType = "Control"
 var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
 var Entitlement CustomType = "Entitlement"
+var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
 var ServiceMember CustomType = "ServiceMember"
@@ -48,6 +49,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Order":           Order,
 	"models.ServiceMember":   ServiceMember,
 	"models.Tariff400ngZip3": Tariff400ngZip3,
+	"models.TransportationOffice": TransportationOffice,
 	"models.User":            User,
 }
 

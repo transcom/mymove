@@ -11,7 +11,7 @@ import (
 )
 
 // BuildAdminUser creates an AdminUser
-// Also creates
+// Also creates, if not provided
 //   - User
 func BuildAdminUser(db *pop.Connection, customs []Customization, traits []Trait) models.AdminUser {
 	customs = setupCustomizations(customs, traits)
