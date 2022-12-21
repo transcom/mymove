@@ -80,7 +80,6 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		}
 
 		// Validate incoming payload: no body to validate
-
 		response := subtestData.handler.Handle(params)
 
 		suite.IsType(&progearops.UpdateProGearWeightTicketOK{}, response)
@@ -138,10 +137,9 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 
 		err := errors.New("ServerError")
 
-		// Might remove the mocks:
-		mockUpdater.On("UpdateWeightTicket",
+		mockUpdater.On("UpdateProgearWeightTicket",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("models.WeightTicket"),
+			mock.AnythingOfType("models.ProgearWeightTicket"),
 			mock.AnythingOfType("string"),
 		).Return(nil, err)
 
