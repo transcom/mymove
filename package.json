@@ -132,7 +132,7 @@
     "@storybook/addon-essentials": "^6.5.14",
     "@storybook/addon-knobs": "^6.4.0",
     "@storybook/addon-links": "^6.5.14",
-    "@storybook/addons": "^6.5.9",
+    "@storybook/addons": "^6.5.15",
     "@storybook/builder-webpack5": "^6.5.14",
     "@storybook/jest": "^0.0.10",
     "@storybook/manager-webpack5": "^6.5.14",
