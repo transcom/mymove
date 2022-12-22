@@ -132,6 +132,33 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		suite.Equal(order.UploadedOrdersID, goodOrder.UploadedOrdersID)
 	})
 
+	suite.Run("check for closeout office", func() {
+		closeoutOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: Move{
+				CloseoutOffice: &closeoutOffice,
+			},
+		})
+		orders := move.Orders
+		orders.Moves = append(orders.Moves, move)
+
+		// User is authorized to fetch order
+		session := &auth.Session{
+			ApplicationName: auth.MilApp,
+			UserID:          orders.ServiceMember.UserID,
+			ServiceMemberID: orders.ServiceMemberID,
+		}
+
+		goodOrder, err := FetchOrderForUser(suite.DB(), session, orders.ID)
+
+		suite.NoError(err)
+		suite.Equal(orders.Moves[0].CloseoutOffice.ID, goodOrder.Moves[0].CloseoutOffice.ID)
+		suite.Equal(orders.Moves[0].CloseoutOffice.Name, goodOrder.Moves[0].CloseoutOffice.Name)
+		suite.Equal(orders.Moves[0].CloseoutOffice.Address.ID, goodOrder.Moves[0].CloseoutOffice.Address.ID)
+		suite.Equal(orders.Moves[0].CloseoutOffice.Gbloc, goodOrder.Moves[0].CloseoutOffice.Gbloc)
+
+	})
+
 	suite.Run("fetch not found due to bad id", func() {
 		sm := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{})
 		session := &auth.Session{
