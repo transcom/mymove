@@ -78,7 +78,8 @@ func (suite *FactorySuite) TestBuildTransportationOffice() {
 		suite.Equal(*customOffice.Note, *transportationOffice.Note)
 		suite.Equal(*customOffice.Hours, *transportationOffice.Hours)
 		suite.Equal(*customOffice.Services, *transportationOffice.Services)
-		// MYTODO Check that address was customized .
+		// Check that the address and phoneline were customized
+		suite.Equal(customAddress.StreetAddress1, transportationOffice.Address.StreetAddress1)
 		suite.Equal(customPhoneLine.Number, transportationOffice.PhoneLines[0].Number)
 	})
 

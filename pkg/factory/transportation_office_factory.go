@@ -1,8 +1,6 @@
 package factory
 
 import (
-	"fmt"
-
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -31,8 +29,7 @@ func BuildTransportationOffice(db *pop.Connection, customs []Customization, trai
 	if result != nil {
 		address = result.Model.(models.Address)
 	}
-	// MYTODO replace this with build
-	address = testdatagen.MakeDefaultAddress(db)
+	address = BuildAddress(db, customs, traits)
 	// At this point, address exists. It's either the provided or created address
 
 	// Create transportationOffice
@@ -61,9 +58,7 @@ func BuildTransportationOfficeWithPhoneLine(db *pop.Connection, customs []Custom
 	// which will then create the transportation office.
 	phoneLine := BuildOfficePhoneLine(db, customs, traits)
 	office := phoneLine.TransportationOffice
-	fmt.Printf("▶▶ %#v\n\n", office.PhoneLines)
 	office.PhoneLines = append(office.PhoneLines, phoneLine)
-	fmt.Printf("▶▶▶ %#v\n\n", office.PhoneLines)
 
 	return office
 }
