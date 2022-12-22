@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite MovingExpenseSuite) TestUpdateMovingExpense() {
+func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 
 	setupForTest := func(appCtx appcontext.AppContext, overrides *models.MovingExpense, hasDocumentUploads bool) *models.MovingExpense {
 		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
