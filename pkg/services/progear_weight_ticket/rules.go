@@ -23,7 +23,27 @@ func checkID() progearWeightTicketValidator {
 	})
 }
 
-func checkRequiredFields() progearWeightTicketValidator {
+func checkBaseRequiredFields() progearWeightTicketValidator {
+	return progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, newProgearWeightTicket *models.ProgearWeightTicket, oldProgearWeightTicket *models.ProgearWeightTicket) error {
+		verrs := validate.NewErrors()
+
+		if newProgearWeightTicket == nil {
+			return verrs
+		}
+
+		if newProgearWeightTicket.PPMShipmentID.IsNil() {
+			verrs.Add("PPMShipmentID", "PPMShipmentID must exist")
+		}
+
+		if newProgearWeightTicket.Document.ServiceMemberID.IsNil() {
+			verrs.Add("ServiceMemberID", "Document ServiceMemberID must exist")
+		}
+
+		return verrs
+	})
+}
+
+func checkAdditionalRequiredFields() progearWeightTicketValidator {
 	return progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, newProgearWeightTicket *models.ProgearWeightTicket, oldProgearWeightTicket *models.ProgearWeightTicket) error {
 		verrs := validate.NewErrors()
 
@@ -45,26 +65,6 @@ func checkRequiredFields() progearWeightTicketValidator {
 
 		if len(oldProgearWeightTicket.Document.UserUploads) < 1 {
 			verrs.Add("Document", "At least 1 weight ticket is required")
-		}
-
-		return verrs
-	})
-}
-
-func checkCreateRequiredFields() progearWeightTicketValidator {
-	return progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, newProgearWeightTicket *models.ProgearWeightTicket, oldProgearWeightTicket *models.ProgearWeightTicket) error {
-		verrs := validate.NewErrors()
-
-		if newProgearWeightTicket == nil {
-			return verrs
-		}
-
-		if newProgearWeightTicket.PPMShipmentID.IsNil() {
-			verrs.Add("PPMShipmentID", "PPMShipmentID must exist")
-		}
-
-		if newProgearWeightTicket.Document.ServiceMemberID.IsNil() {
-			verrs.Add("ServiceMemberID", "Document ServiceMemberID must exist")
 		}
 
 		return verrs
@@ -122,14 +122,15 @@ func verifyReasonAndStatusAreValid() progearWeightTicketValidator {
 func basicChecksForCreate() []progearWeightTicketValidator {
 	return []progearWeightTicketValidator{
 		checkID(),
-		checkCreateRequiredFields(),
+		checkBaseRequiredFields(),
 	}
 }
 
 func basicChecksForCustomer() []progearWeightTicketValidator {
 	return []progearWeightTicketValidator{
 		checkID(),
-		checkRequiredFields(),
+		checkBaseRequiredFields(),
+		checkAdditionalRequiredFields(),
 		verifyReasonAndStatusAreConstant(),
 	}
 }
@@ -137,7 +138,8 @@ func basicChecksForCustomer() []progearWeightTicketValidator {
 func basicChecksForOffice() []progearWeightTicketValidator {
 	return []progearWeightTicketValidator{
 		checkID(),
-		checkRequiredFields(),
+		checkBaseRequiredFields(),
+		checkAdditionalRequiredFields(),
 		verifyReasonAndStatusAreValid(),
 	}
 }

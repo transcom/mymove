@@ -59,7 +59,7 @@ func (suite *ProgearWeightTicketSuite) TestValidationRules() {
 		})
 	})
 
-	suite.Run("checkCreateRequiredFields", func() {
+	suite.Run("checkBaseRequiredFields", func() {
 		docID := uuid.Must(uuid.NewV4())
 		serviceMemberID := uuid.Must(uuid.NewV4())
 
@@ -71,7 +71,7 @@ func (suite *ProgearWeightTicketSuite) TestValidationRules() {
 		suite.Run("Success", func() {
 			suite.Run("Create ProgearWeightTIcket", func() {
 
-				err := checkCreateRequiredFields().Validate(suite.AppContextForTest(),
+				err := checkBaseRequiredFields().Validate(suite.AppContextForTest(),
 					&models.ProgearWeightTicket{
 						ID:            progearWeightTicketID,
 						PPMShipmentID: ppmShipmentID,
@@ -88,7 +88,7 @@ func (suite *ProgearWeightTicketSuite) TestValidationRules() {
 
 		suite.Run("Failure", func() {
 			suite.Run("Create ProgearWeightTicket - missing fields", func() {
-				err := checkCreateRequiredFields().Validate(suite.AppContextForTest(),
+				err := checkBaseRequiredFields().Validate(suite.AppContextForTest(),
 					&models.ProgearWeightTicket{},
 					nil,
 				)
@@ -106,11 +106,11 @@ func (suite *ProgearWeightTicketSuite) TestValidationRules() {
 		})
 	})
 
-	suite.Run("checkRequiredFields", func() {
+	suite.Run("checkAdditionalRequiredFields", func() {
 		suite.Run("Success", func() {
 			suite.Run("Update ProgearWeightTicket - all fields", func() {
 
-				err := checkRequiredFields().Validate(suite.AppContextForTest(),
+				err := checkAdditionalRequiredFields().Validate(suite.AppContextForTest(),
 					&models.ProgearWeightTicket{
 						ID:               progearWeightTicketID,
 						Description:      models.StringPointer("self progear"),
@@ -126,7 +126,7 @@ func (suite *ProgearWeightTicketSuite) TestValidationRules() {
 
 		suite.Run("Failure", func() {
 			suite.Run("Update ProgearWeightTicket - missing fields", func() {
-				err := checkRequiredFields().Validate(suite.AppContextForTest(),
+				err := checkAdditionalRequiredFields().Validate(suite.AppContextForTest(),
 					&models.ProgearWeightTicket{
 						ID: progearWeightTicketID,
 					},
@@ -150,7 +150,7 @@ func (suite *ProgearWeightTicketSuite) TestValidationRules() {
 			})
 
 			suite.Run("Update ProgearWeightTicket - invalid weight", func() {
-				err := checkRequiredFields().Validate(suite.AppContextForTest(),
+				err := checkAdditionalRequiredFields().Validate(suite.AppContextForTest(),
 					&models.ProgearWeightTicket{
 						ID:               progearWeightTicketID,
 						Description:      models.StringPointer("self progear"),
@@ -176,7 +176,7 @@ func (suite *ProgearWeightTicketSuite) TestValidationRules() {
 				PPMShipmentID: ppmShipmentID,
 			}
 			suite.Run("Update ProgearWeightTicket - documents required", func() {
-				err := checkRequiredFields().Validate(suite.AppContextForTest(),
+				err := checkAdditionalRequiredFields().Validate(suite.AppContextForTest(),
 					&models.ProgearWeightTicket{
 						ID:               progearWeightTicketID,
 						Description:      models.StringPointer("self progear"),
