@@ -171,55 +171,6 @@ func (suite *ProgearWeightTicketSuite) TestValidationRules() {
 				}
 			})
 
-			suite.Run("Update ProgearWeightTicket - missing status", func() {
-				err := checkRequiredFields().Validate(suite.AppContextForTest(),
-					&models.ProgearWeightTicket{
-						ID:               progearWeightTicketID,
-						Description:      models.StringPointer("self progear"),
-						Status:           nil,
-						Reason:           models.StringPointer("a reason"),
-						Weight:           models.PoundPointer(2500),
-						HasWeightTickets: models.BoolPointer(true),
-						BelongsToSelf:    models.BoolPointer(true),
-					},
-					existingProgearWeightTicket,
-				)
-
-				switch verr := err.(type) {
-				case *validate.Errors:
-					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 1)
-					suite.Contains(verr.Keys(), "Status")
-				default:
-					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
-				}
-			})
-
-			statusExcluded := models.PPMDocumentStatusExcluded
-			suite.Run("Update ProgearWeightTicket - invalid status with missing reason", func() {
-				err := checkRequiredFields().Validate(suite.AppContextForTest(),
-					&models.ProgearWeightTicket{
-						ID:               progearWeightTicketID,
-						Description:      models.StringPointer("self progear"),
-						Status:           &statusExcluded,
-						Reason:           nil,
-						Weight:           models.PoundPointer(2500),
-						HasWeightTickets: models.BoolPointer(true),
-						BelongsToSelf:    models.BoolPointer(true),
-					},
-					existingProgearWeightTicket,
-				)
-
-				switch verr := err.(type) {
-				case *validate.Errors:
-					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 1)
-					suite.Contains(verr.Keys(), "Reason")
-				default:
-					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
-				}
-			})
-
 			docLessProgearWeightTicket := &models.ProgearWeightTicket{
 				ID:            progearWeightTicketID,
 				PPMShipmentID: ppmShipmentID,
