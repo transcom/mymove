@@ -2,12 +2,23 @@ package ghcdieselfuelprice
 
 func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceFetcher() {
 	suite.Run("build correct EIA Open Data API URL", func() {
-		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("https://api.eia.gov/series/", "pUW34B2q8tLooWEVQpU7s9Joq672q2rP", suite.helperStubEIAData, suite.Logger()) // eiaKey: "pUW34B2q8tLooWEVQpU7s9Joq672q2rP" is a fake key
+		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("https://api.eia.gov/v2/seriesid/PET.EMD_EPD2D_PTE_NUS_DPG.W", "pUW34B2q8tLooWEVQpU7s9Joq672q2rP", suite.helperStubEIAData, suite.Logger()) // eiaKey: "pUW34B2q8tLooWEVQpU7s9Joq672q2rP" is a fake key
 
 		finalEIAAPIURL, err := buildFinalEIAAPIURL(newDieselFuelPriceInfo.eiaURL, newDieselFuelPriceInfo.eiaKey)
 		suite.NoError(err)
 
-		suite.Equal("https://api.eia.gov/series/?api_key=pUW34B2q8tLooWEVQpU7s9Joq672q2rP&series_id=PET.EMD_EPD2D_PTE_NUS_DPG.W", finalEIAAPIURL)
+		suite.Equal("https://api.eia.gov/v2/seriesid/PET.EMD_EPD2D_PTE_NUS_DPG.W?api_key=pUW34B2q8tLooWEVQpU7s9Joq672q2rP", finalEIAAPIURL)
+	})
+
+	suite.Run("pass empty EIA Open Data API URL to Fetch data function", func() {
+		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("empty url", "", FetchEIAData, suite.Logger())
+
+		_, err := newDieselFuelPriceInfo.eiaDataFetcherFunction("")
+		suite.Error(err)
+
+		suite.Equal(
+			"expected finalEIAAPIURL to contain EIA Open Data API request URL, but got empty string",
+			err.Error())
 	})
 
 	suite.Run("EIA Open Data API error - invalid or missing api_key", func() {
@@ -16,28 +27,11 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceFetcher() {
 		eiaData, err := newDieselFuelPriceInfo.eiaDataFetcherFunction(newDieselFuelPriceInfo.eiaURL)
 		suite.NoError(err)
 
-		_, err = extractDieselFuelPriceData(eiaData)
+		err = checkResponseForErrors(eiaData)
 		suite.Error(err)
-	})
-
-	suite.Run("EIA Open Data API error - invalid series_id", func() {
-		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("EIA Open Data API error - invalid series_id", "", suite.helperStubEIAData, suite.Logger())
-
-		eiaData, err := newDieselFuelPriceInfo.eiaDataFetcherFunction(newDieselFuelPriceInfo.eiaURL)
-		suite.NoError(err)
-
-		_, err = extractDieselFuelPriceData(eiaData)
-		suite.Error(err)
-	})
-
-	suite.Run("nil series data", func() {
-		newDieselFuelPriceInfo := NewDieselFuelPriceInfo("nil series data", "", suite.helperStubEIAData, suite.Logger())
-
-		eiaData, err := newDieselFuelPriceInfo.eiaDataFetcherFunction(newDieselFuelPriceInfo.eiaURL)
-		suite.NoError(err)
-
-		_, err = extractDieselFuelPriceData(eiaData)
-		suite.Error(err)
+		suite.Equal(
+			"received an error from the EIA Open Data API: API_KEY_MISSING No api_key was supplied.  Please register for one at https://www.eia.gov/opendata/register.php",
+			err.Error())
 	})
 
 	suite.Run("extract diesel fuel price data", func() {
@@ -56,8 +50,7 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceFetcher() {
 		err := newDieselFuelPriceInfo.RunFetcher(suite.AppContextForTest())
 		suite.NoError(err)
 
-		suite.Equal("2020-06-22T18:16:52-0400", newDieselFuelPriceInfo.dieselFuelPriceData.lastUpdated)
-		suite.Equal("20200622", newDieselFuelPriceInfo.dieselFuelPriceData.publicationDate)
-		suite.Equal(2.425, newDieselFuelPriceInfo.dieselFuelPriceData.price)
+		suite.Equal("2022-12-12", newDieselFuelPriceInfo.dieselFuelPriceData.publicationDate)
+		suite.Equal(4.759, newDieselFuelPriceInfo.dieselFuelPriceData.price)
 	})
 }

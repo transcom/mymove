@@ -7,6 +7,7 @@ import Orders from './Orders';
 
 import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
+import { permissionTypes } from 'constants/permissions';
 
 const mockOriginDutyLocation = {
   address: {
@@ -171,21 +172,21 @@ describe('Orders page', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+        <MockProviders initialEntries={['moves/FP24I2/orders']} permissions={[permissionTypes.updateOrders]}>
           <Orders />
         </MockProviders>,
       );
 
       const hhgTacInput = screen.getByTestId('hhgTacInput');
-      userEvent.clear(hhgTacInput);
-      userEvent.type(hhgTacInput, '2222');
+      await userEvent.clear(hhgTacInput);
+      await userEvent.type(hhgTacInput, '2222');
 
       await waitFor(() => {
         expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument();
       });
 
-      userEvent.clear(hhgTacInput);
-      userEvent.type(hhgTacInput, '3333');
+      await userEvent.clear(hhgTacInput);
+      await userEvent.type(hhgTacInput, '3333');
 
       await waitFor(() => {
         expect(screen.getByText(/This TAC does not appear in TGET/)).toBeInTheDocument();

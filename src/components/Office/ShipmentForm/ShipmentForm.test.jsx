@@ -193,13 +193,14 @@ describe('ShipmentForm component', () => {
     });
 
     it('uses the current residence address for pickup address when checked', async () => {
+      const user = userEvent.setup();
       render(
         <MockProviders>
           <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />
         </MockProviders>,
       );
 
-      userEvent.click(screen.getByLabelText('Use current address'));
+      await user.click(screen.getByLabelText('Use current address'));
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveValue(
         defaultProps.currentResidence.streetAddress1,
@@ -218,7 +219,7 @@ describe('ShipmentForm component', () => {
         </MockProviders>,
       );
 
-      userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getByLabelText('Yes'));
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveAttribute(
         'name',
@@ -245,7 +246,7 @@ describe('ShipmentForm component', () => {
           <ShipmentForm {...defaultPropsRetirement} shipmentType={SHIPMENT_OPTIONS.HHG} />
         </MockProviders>,
       );
-      userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getByLabelText('Yes'));
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
@@ -257,7 +258,7 @@ describe('ShipmentForm component', () => {
           <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />
         </MockProviders>,
       );
-      userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getByLabelText('Yes'));
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.queryByLabelText('Destination type')).toBeNull();
@@ -269,7 +270,7 @@ describe('ShipmentForm component', () => {
           <ShipmentForm {...defaultPropsSeparation} shipmentType={SHIPMENT_OPTIONS.HHG} />
         </MockProviders>,
       );
-      userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getByLabelText('Yes'));
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
@@ -498,10 +499,10 @@ describe('ShipmentForm component', () => {
         </MockProviders>,
       );
 
-      userEvent.click(screen.getByTestId('clearSelection-sacType'));
+      await userEvent.click(screen.getByTestId('clearSelection-sacType'));
       const saveButton = screen.getByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalledWith(
@@ -527,12 +528,12 @@ describe('ShipmentForm component', () => {
         </MockProviders>,
       );
 
-      userEvent.type(screen.getByLabelText('Requested pickup date'), '26 Mar 2022');
-      userEvent.click(screen.getByTestId('useCurrentResidence'));
+      await userEvent.type(screen.getByLabelText('Requested pickup date'), '26 Mar 2022');
+      await userEvent.click(screen.getByTestId('useCurrentResidence'));
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalledWith(
@@ -674,7 +675,7 @@ describe('ShipmentForm component', () => {
 
       expect(saveButton).not.toBeDisabled();
 
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalled();
@@ -752,15 +753,15 @@ describe('ShipmentForm component', () => {
 
       const counselorRemarks = await screen.findByLabelText('Counselor remarks');
 
-      userEvent.clear(counselorRemarks);
+      await userEvent.clear(counselorRemarks);
 
-      userEvent.type(counselorRemarks, newCounselorRemarks);
+      await userEvent.type(counselorRemarks, newCounselorRemarks);
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
 
       expect(saveButton).not.toBeDisabled();
 
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalledWith(expectedPayload);
@@ -844,9 +845,9 @@ describe('ShipmentForm component', () => {
       );
 
       expect(await screen.getByLabelText('Planned departure date')).toHaveValue('01 Apr 2022');
-      userEvent.click(screen.getByLabelText('Use current ZIP'));
+      await userEvent.click(screen.getByLabelText('Use current ZIP'));
       expect(await screen.getByLabelText('Origin ZIP')).toHaveValue(defaultProps.originDutyLocationAddress.postalCode);
-      userEvent.click(screen.getByLabelText('Use ZIP for new duty location'));
+      await userEvent.click(screen.getByLabelText('Use ZIP for new duty location'));
 
       expect(await screen.getByLabelText('Destination ZIP')).toHaveValue(
         defaultProps.newDutyLocationAddress.postalCode,
@@ -915,7 +916,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('No')).not.toBeChecked();
       expect(screen.getByLabelText('Yes')).toBeChecked();
       // Reject a requested advance
-      userEvent.click(screen.getByLabelText('No'));
+      await userEvent.click(screen.getByLabelText('No'));
       await waitFor(() => {
         expect(screen.getByLabelText('No')).toBeChecked();
         expect(screen.getByLabelText('Yes')).not.toBeChecked();
@@ -970,8 +971,8 @@ describe('ShipmentForm component', () => {
 
       expect(advanceAmountInput).toHaveValue('4,875');
       // Edit a requested advance amount
-      userEvent.clear(advanceAmountInput);
-      userEvent.type(advanceAmountInput, '2,000');
+      await userEvent.clear(advanceAmountInput);
+      await userEvent.type(advanceAmountInput, '2,000');
       advanceAmountInput.blur();
       await waitFor(() => {
         expect(advanceAmountInput).toHaveValue('2,000');

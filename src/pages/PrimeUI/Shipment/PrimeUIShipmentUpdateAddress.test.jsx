@@ -249,9 +249,9 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
 
       render(<PrimeUIShipmentUpdateAddress />);
 
-      waitFor(() => {
+      waitFor(async () => {
         expect(screen.getAllByRole('button', { name: 'Save' }).length).toBe(2);
-        userEvent.click(screen.getAllByRole('button', { name: 'Save' })[0]);
+        await userEvent.click(screen.getAllByRole('button', { name: 'Save' })[0]);
         expect(screen.getByText('Error title')).toBeInTheDocument();
         expect(screen.getByText('Error detail')).toBeInTheDocument();
       });
@@ -263,9 +263,9 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
 
       render(<PrimeUIShipmentUpdateAddress />);
 
-      waitFor(() => {
+      waitFor(async () => {
         expect(screen.getAllByRole('button', { name: 'Save' }).length).toBe(2);
-        userEvent.click(screen.getAllByRole('button', { name: 'Save' })[0]);
+        await userEvent.click(screen.getAllByRole('button', { name: 'Save' })[0]);
 
         expect(screen.getByText('Unexpected error')).toBeInTheDocument();
         expect(

@@ -95,7 +95,7 @@ describe('DateAndLocation component', () => {
       });
 
       const backButton = await screen.getByRole('button', { name: 'Back' });
-      userEvent.click(backButton);
+      await userEvent.click(backButton);
 
       expect(mockPush).toHaveBeenCalledWith(selectShipmentType);
     });
@@ -106,12 +106,12 @@ describe('DateAndLocation component', () => {
       render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
-      userEvent.type(primaryPostalCodes[0], '10001');
-      userEvent.type(primaryPostalCodes[1], '10002');
+      await userEvent.type(primaryPostalCodes[0], '10001');
+      await userEvent.type(primaryPostalCodes[1], '10002');
 
-      userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
 
-      userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
       await waitFor(() => {
         expect(createMTOShipment).toHaveBeenCalledWith({
@@ -145,12 +145,12 @@ describe('DateAndLocation component', () => {
       render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
-      userEvent.type(primaryPostalCodes[0], '10001');
-      userEvent.type(primaryPostalCodes[1], '10002');
+      await userEvent.type(primaryPostalCodes[0], '10001');
+      await userEvent.type(primaryPostalCodes[1], '10002');
 
-      userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
 
-      userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
       await waitFor(() => {
         expect(createMTOShipment).toHaveBeenCalledWith({
@@ -178,22 +178,22 @@ describe('DateAndLocation component', () => {
       render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
-      userEvent.type(primaryPostalCodes[0], '10001');
-      userEvent.type(primaryPostalCodes[1], '10002');
+      await userEvent.type(primaryPostalCodes[0], '10001');
+      await userEvent.type(primaryPostalCodes[1], '10002');
 
       const radioElements = screen.getAllByLabelText('Yes');
-      userEvent.click(radioElements[0]);
-      userEvent.click(radioElements[1]);
+      await userEvent.click(radioElements[0]);
+      await userEvent.click(radioElements[1]);
 
       const secondaryPostalCodes = screen.getAllByLabelText('Second ZIP');
-      userEvent.type(secondaryPostalCodes[0], '10003');
-      userEvent.type(secondaryPostalCodes[1], '10004');
+      await userEvent.type(secondaryPostalCodes[0], '10003');
+      await userEvent.type(secondaryPostalCodes[1], '10004');
 
-      userEvent.click(radioElements[2]);
+      await userEvent.click(radioElements[2]);
 
-      userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
 
-      userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
       await waitFor(() => {
         expect(createMTOShipment).toHaveBeenCalledWith({
@@ -247,7 +247,7 @@ describe('DateAndLocation component', () => {
 
       const selectShipmentType = generatePath(generalRoutes.HOME_PATH);
 
-      userEvent.click(screen.getByRole('button', { name: 'Back' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Back' }));
 
       expect(mockPush).toHaveBeenCalledWith(selectShipmentType);
     });
@@ -257,7 +257,7 @@ describe('DateAndLocation component', () => {
 
       render(<DateAndLocation {...fullShipmentProps} />, { wrapper: MemoryRouter });
 
-      userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
       await waitFor(() => {
         expect(patchMTOShipment).toHaveBeenCalledWith(
@@ -291,22 +291,22 @@ describe('DateAndLocation component', () => {
       render(<DateAndLocation {...fullShipmentProps} />, { wrapper: MemoryRouter });
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
-      userEvent.clear(primaryPostalCodes[0]);
-      userEvent.type(primaryPostalCodes[0], '10001');
-      userEvent.clear(primaryPostalCodes[1]);
-      userEvent.type(primaryPostalCodes[1], '10002');
+      await userEvent.clear(primaryPostalCodes[0]);
+      await userEvent.type(primaryPostalCodes[0], '10001');
+      await userEvent.clear(primaryPostalCodes[1]);
+      await userEvent.type(primaryPostalCodes[1], '10002');
 
       const secondaryPostalCodes = screen.getAllByLabelText('Second ZIP');
-      userEvent.clear(secondaryPostalCodes[0]);
-      userEvent.type(secondaryPostalCodes[0], '10003');
-      userEvent.clear(secondaryPostalCodes[1]);
-      userEvent.type(secondaryPostalCodes[1], '10004');
+      await userEvent.clear(secondaryPostalCodes[0]);
+      await userEvent.type(secondaryPostalCodes[0], '10003');
+      await userEvent.clear(secondaryPostalCodes[1]);
+      await userEvent.type(secondaryPostalCodes[1], '10004');
 
       const expectedDepartureDate = screen.getByLabelText('When do you plan to start moving your PPM?');
-      userEvent.clear(expectedDepartureDate);
-      userEvent.type(expectedDepartureDate, '04 Jul 2022');
+      await userEvent.clear(expectedDepartureDate);
+      await userEvent.type(expectedDepartureDate, '04 Jul 2022');
 
-      userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
       await waitFor(() => {
         expect(patchMTOShipment).toHaveBeenCalledWith(

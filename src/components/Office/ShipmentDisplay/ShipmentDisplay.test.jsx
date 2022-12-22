@@ -62,7 +62,7 @@ describe('Shipment Container', () => {
 
       const button = screen.getByRole('button', { name: 'Edit shipment' });
       expect(button).toBeInTheDocument();
-      userEvent.click(button);
+      await userEvent.click(button);
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/');
       });

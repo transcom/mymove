@@ -20,10 +20,10 @@ describe('SubmitSITExtensionModal', () => {
     const officeRemarksInput = screen.getByLabelText('Office remarks');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    userEvent.selectOptions(reasonInput, ['SERIOUS_ILLNESS_MEMBER']);
-    userEvent.type(daysApprovedInput, '20');
-    userEvent.type(officeRemarksInput, 'Approved!');
-    userEvent.click(submitBtn);
+    await userEvent.selectOptions(reasonInput, ['SERIOUS_ILLNESS_MEMBER']);
+    await userEvent.type(daysApprovedInput, '20');
+    await userEvent.type(officeRemarksInput, 'Approved!');
+    await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
@@ -44,8 +44,8 @@ describe('SubmitSITExtensionModal', () => {
     const daysApprovedInput = screen.getByLabelText('Days approved');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    userEvent.selectOptions(reasonInput, ['SERIOUS_ILLNESS_MEMBER']);
-    userEvent.type(daysApprovedInput, '0');
+    await userEvent.selectOptions(reasonInput, ['SERIOUS_ILLNESS_MEMBER']);
+    await userEvent.type(daysApprovedInput, '0');
 
     await waitFor(() => {
       expect(submitBtn).toBeDisabled();
@@ -59,7 +59,7 @@ describe('SubmitSITExtensionModal', () => {
     );
     const closeBtn = screen.getByRole('button', { name: 'Cancel' });
 
-    userEvent.click(closeBtn);
+    await userEvent.click(closeBtn);
 
     await waitFor(() => {
       expect(mockClose).toHaveBeenCalled();
