@@ -49,7 +49,7 @@ func (suite *MovingExpenseSuite) TestValidationRules() {
 		})
 	})
 
-	suite.Run("checkCreateRequiredFields", func() {
+	suite.Run("checkBaseRequiredFields", func() {
 		movingExpenseID := uuid.Must(uuid.NewV4())
 		ppmShipmentID := uuid.Must(uuid.NewV4())
 		docID := uuid.Must(uuid.NewV4())
@@ -63,7 +63,7 @@ func (suite *MovingExpenseSuite) TestValidationRules() {
 		suite.Run("Success", func() {
 			suite.Run("Create MovingExpense", func() {
 
-				err := checkCreateRequiredFields().Validate(suite.AppContextForTest(),
+				err := checkBaseRequiredFields().Validate(suite.AppContextForTest(),
 					&models.MovingExpense{
 						ID:            movingExpenseID,
 						PPMShipmentID: ppmShipmentID,
@@ -80,7 +80,7 @@ func (suite *MovingExpenseSuite) TestValidationRules() {
 
 		suite.Run("Failure", func() {
 			suite.Run("Create MovingExpense - missing fields", func() {
-				err := checkCreateRequiredFields().Validate(suite.AppContextForTest(),
+				err := checkBaseRequiredFields().Validate(suite.AppContextForTest(),
 					&models.MovingExpense{},
 					nil,
 				)
@@ -98,7 +98,7 @@ func (suite *MovingExpenseSuite) TestValidationRules() {
 		})
 	})
 
-	suite.Run("checkUpdateRequiredFields", func() {
+	suite.Run("checkAdditionalRequiredFields", func() {
 		movingExpenseID := uuid.Must(uuid.NewV4())
 		ppmShipmentID := uuid.Must(uuid.NewV4())
 		docID := uuid.Must(uuid.NewV4())
@@ -142,7 +142,7 @@ func (suite *MovingExpenseSuite) TestValidationRules() {
 					PaidWithGTCC:      models.BoolPointer(false),
 				}
 
-				err := checkUpdateRequiredFields().Validate(suite.AppContextForTest(), updatedMovingExpense, existingMovingExpense)
+				err := checkAdditionalRequiredFields().Validate(suite.AppContextForTest(), updatedMovingExpense, existingMovingExpense)
 				suite.NilOrNoVerrs(err)
 			})
 
@@ -170,7 +170,7 @@ func (suite *MovingExpenseSuite) TestValidationRules() {
 					SITEndDate:        models.TimePointer(time.Now().Add(30 * time.Hour * 24)),
 				}
 
-				err := checkUpdateRequiredFields().Validate(suite.AppContextForTest(), updatedMovingExpense, existingMovingExpense)
+				err := checkAdditionalRequiredFields().Validate(suite.AppContextForTest(), updatedMovingExpense, existingMovingExpense)
 				suite.NilOrNoVerrs(err)
 			})
 
@@ -198,7 +198,7 @@ func (suite *MovingExpenseSuite) TestValidationRules() {
 					Status:            &approvedStatus,
 				}
 
-				err := checkUpdateRequiredFields().Validate(suite.AppContextForTest(), updatedMovingExpense, existingMovingExpense)
+				err := checkAdditionalRequiredFields().Validate(suite.AppContextForTest(), updatedMovingExpense, existingMovingExpense)
 				suite.NilOrNoVerrs(err)
 			})
 
@@ -227,7 +227,7 @@ func (suite *MovingExpenseSuite) TestValidationRules() {
 					Reason:            models.StringPointer("Duplicate expense"),
 				}
 
-				err := checkUpdateRequiredFields().Validate(suite.AppContextForTest(), updatedMovingExpense, existingMovingExpense)
+				err := checkAdditionalRequiredFields().Validate(suite.AppContextForTest(), updatedMovingExpense, existingMovingExpense)
 				suite.NilOrNoVerrs(err)
 			})
 		})
@@ -240,7 +240,7 @@ func (suite *MovingExpenseSuite) TestValidationRules() {
 					DocumentID:    existingMovingExpense.DocumentID,
 					Document:      models.Document{},
 				}
-				err := checkUpdateRequiredFields().Validate(suite.AppContextForTest(),
+				err := checkAdditionalRequiredFields().Validate(suite.AppContextForTest(),
 					&models.MovingExpense{
 						ID:            movingExpenseMissingUploads.ID,
 						PPMShipmentID: movingExpenseMissingUploads.PPMShipmentID,
@@ -266,7 +266,7 @@ func (suite *MovingExpenseSuite) TestValidationRules() {
 			})
 			suite.Run("Update WeightTicket - storage type dates missing", func() {
 				storageExpenseType := models.MovingExpenseReceiptTypeStorage
-				err := checkUpdateRequiredFields().Validate(suite.AppContextForTest(),
+				err := checkAdditionalRequiredFields().Validate(suite.AppContextForTest(),
 					&models.MovingExpense{
 						ID:                existingMovingExpense.ID,
 						PPMShipmentID:     existingMovingExpense.PPMShipmentID,
@@ -288,7 +288,7 @@ func (suite *MovingExpenseSuite) TestValidationRules() {
 			})
 			suite.Run("Update WeightTicket - storage SITStartDate not before SITEndDate", func() {
 				storageExpenseType := models.MovingExpenseReceiptTypeStorage
-				err := checkUpdateRequiredFields().Validate(suite.AppContextForTest(),
+				err := checkAdditionalRequiredFields().Validate(suite.AppContextForTest(),
 					&models.MovingExpense{
 						ID:                existingMovingExpense.ID,
 						PPMShipmentID:     existingMovingExpense.PPMShipmentID,
@@ -312,7 +312,7 @@ func (suite *MovingExpenseSuite) TestValidationRules() {
 			suite.Run("Update WeightTicket - unapproved status missing reason", func() {
 				storageExpenseType := models.MovingExpenseReceiptTypeStorage
 				rejectedStatus := models.PPMDocumentStatusRejected
-				err := checkUpdateRequiredFields().Validate(suite.AppContextForTest(),
+				err := checkAdditionalRequiredFields().Validate(suite.AppContextForTest(),
 					&models.MovingExpense{
 						ID:                existingMovingExpense.ID,
 						PPMShipmentID:     existingMovingExpense.PPMShipmentID,

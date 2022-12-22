@@ -23,7 +23,7 @@ func checkID() movingExpenseValidator {
 	})
 }
 
-func checkCreateRequiredFields() movingExpenseValidator {
+func checkBaseRequiredFields() movingExpenseValidator {
 	return movingExpenseValidatorFunc(func(_ appcontext.AppContext, newMovingExpense *models.MovingExpense, originalMovingExpense *models.MovingExpense) error {
 		verrs := validate.NewErrors()
 
@@ -39,7 +39,7 @@ func checkCreateRequiredFields() movingExpenseValidator {
 	})
 }
 
-func checkUpdateRequiredFields() movingExpenseValidator {
+func checkAdditionalRequiredFields() movingExpenseValidator {
 	return movingExpenseValidatorFunc(func(_ appcontext.AppContext, newMovingExpense *models.MovingExpense, originalMovingExpense *models.MovingExpense) error {
 		verrs := validate.NewErrors()
 
@@ -95,14 +95,14 @@ func checkUpdateRequiredFields() movingExpenseValidator {
 func createChecks() []movingExpenseValidator {
 	return []movingExpenseValidator{
 		checkID(),
-		checkCreateRequiredFields(),
+		checkBaseRequiredFields(),
 	}
 }
 
 func updateChecks() []movingExpenseValidator {
 	return []movingExpenseValidator{
 		checkID(),
-		checkCreateRequiredFields(),
-		checkUpdateRequiredFields(),
+		checkBaseRequiredFields(),
+		checkAdditionalRequiredFields(),
 	}
 }
