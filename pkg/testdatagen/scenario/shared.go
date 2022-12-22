@@ -211,10 +211,10 @@ func makeWeightTicketsForServiceMember(appCtx appcontext.AppContext, serviceMemb
 	// pkg/testdatagen/testdata/bandwidth_test_docs
 
 	// files := filesInBandwidthTestDirectory(fileNames)
-	file := testdatagen.Fixture("test.jpg")
+	// file := testdatagen.Fixture("test.xls")
 	// for _, file := range files {
-	filePath := fmt.Sprintf("bandwidth_test_docs/%s", file)
-	fixture := testdatagen.Fixture(filePath)
+	// filePath := file.Name())
+	fixture := testdatagen.Fixture("/test.xls")
 
 	upload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
 		File: fixture,
@@ -1485,45 +1485,74 @@ func createApprovedMoveWithPPMProgearWeightTicket2(appCtx appcontext.AppContext,
 }
 
 func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	moveInfo := moveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("1c842b03-fc2d-4e92-ade8-bd3e579196e0"),
-		email:       "readyForFinalComplete@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("5a21a8ed-52f5-446c-9d3e-5d8080765820"),
-		firstName:   "ReadyFor",
-		lastName:    "PPMFinalCloseout",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("0b2e4341-583d-4793-b4a4-bd266534d17c"),
-		moveLocator: "PPMRFC",
-	}
+	userID := uuid.Must(uuid.FromString("04f2a1c6-eb40-463d-8544-1909141fdedd"))
+	email := "readyForFinalComplete@ppm.approved"
+	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:            userID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
 
-	assertions := testdatagen.Assertions{
+	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			UserID:        userID,
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("Submitted"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: smWithPPM.ID,
+			ServiceMember:   smWithPPM,
+		},
 		UserUploader: userUploader,
 		Move: models.Move{
-			Status: models.MoveStatusAPPROVED,
+			Locator:          "READY",
+			SelectedMoveType: &ppmMoveType,
+			Status:           models.MoveStatusAPPROVED,
 		},
+	})
+
+	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
-			ID:     testdatagen.ConvertUUIDStringToUUID("226b81a7-9e56-4de2-b8ec-2cb5e8f72a35"),
-			Status: models.MTOShipmentStatusApproved,
+			ShipmentType:    models.MTOShipmentTypePPM,
+			Status:          models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:   move,
+			MoveTaskOrderID: move.ID,
 		},
+	})
+
+	ppm := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: mtoShipment,
 		PPMShipment: models.PPMShipment{
 			ID:                          testdatagen.ConvertUUIDStringToUUID("6d1d9d00-2e5e-4830-a3c1-5c21c951e9c1"),
-			ApprovedAt:                  &approvedAt,
 			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-			W2Address:                   &address,
 		},
-	}
+	})
 
-	move, shipment := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID:           move.ID,
+			SubmittingUserID: userID,
+		},
+	})
 
 	testdatagen.MakeWeightTicket(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
+		PPMShipment:   ppm,
 		ServiceMember: move.Orders.ServiceMember,
 		WeightTicket: models.WeightTicket{
 			EmptyWeight: models.PoundPointer(14000),
@@ -1532,7 +1561,7 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 	})
 
 	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
+		PPMShipment:   ppm,
 		ServiceMember: move.Orders.ServiceMember,
 		MovingExpense: models.MovingExpense{
 			Amount: models.CentPointer(45000),
@@ -1540,7 +1569,7 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 	})
 
 	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
+		PPMShipment:   ppm,
 		ServiceMember: move.Orders.ServiceMember,
 		ProgearWeightTicket: models.ProgearWeightTicket{
 			Weight: models.PoundPointer(1500),
@@ -1890,7 +1919,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 	email := "2needcloseout@ppm.closeout"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
-	// filterFile := &[]string{"150Kb.png"}
+	filterFile := &[]string{"test.xls"}
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
@@ -1912,8 +1941,8 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	// weightTicket := makeWeightTicketsForServiceMember(appCtx, smWithPPM, userUploader, filterFile)
-	// weightTickets := models.WeightTickets{weightTicket}
+	weightTicket := makeWeightTicketsForServiceMember(appCtx, smWithPPM, userUploader, filterFile)
+	weightTickets := models.WeightTickets{weightTicket}
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMemberID: smWithPPM.ID,
@@ -1952,12 +1981,12 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	ppm := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move:        move,
 		MTOShipment: mtoShipment2,
 		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusNeedsPaymentApproval,
-			// WeightTickets: weightTickets,
+			Status:        models.PPMShipmentStatusNeedsPaymentApproval,
+			WeightTickets: weightTickets,
 		},
 	})
 
@@ -1967,18 +1996,14 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 			SubmittingUserID: userID,
 		},
 	})
-	// file := testdatagen.Fixture("test.jpg")
-	weightTicketAssertions := testdatagen.Assertions{
-		PPMShipment:   ppm,
-		ServiceMember: smWithPPM,
-		// File:          file,
-		Uploader: &uploader.Uploader{
-			FileSizeLimit: 45110 * uploader.MB,
-			UploadType:    "USER",
-		},
-	}
+	// file := testdatagen.Fixture("test.xls")
+	// weightTicketAssertions := testdatagen.Assertions{
+	// 	PPMShipment:   ppm,
+	// 	ServiceMember: smWithPPM,
+	// 	File:          file,
+	// }
 
-	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+	// testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
 }
 
 func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {

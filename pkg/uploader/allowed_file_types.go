@@ -5,7 +5,7 @@ type AllowedFileTypes []string
 
 var (
 	// AllowedTypesServiceMember are the content types we allow service members to upload for orders
-	AllowedTypesServiceMember AllowedFileTypes = []string{"image/jpeg", "image/png", "application/pdf"}
+	AllowedTypesServiceMember AllowedFileTypes = []string{"image/jpeg", "image/png", "application/pdf", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
 
 	// AllowedTypesPPMDocuments are the content types we allow service members to upload for PPM shipment closeout documentation
 	AllowedTypesPPMDocuments AllowedFileTypes = []string{"image/jpeg", "image/png", "application/pdf", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}

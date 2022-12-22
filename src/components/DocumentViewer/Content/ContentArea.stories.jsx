@@ -27,14 +27,14 @@ export default {
 
 const Template = (args) => <DocViewerContent {...args} />;
 
-export const PdfContent = Template.bind({});
-PdfContent.args = {
+export const PDF = Template.bind({});
+PDF.args = {
   fileType: 'pdf',
   filePath: pdf,
 };
 
-export const XlsContent = Template.bind({});
-XlsContent.args = {
+export const XLS = Template.bind({});
+XLS.args = {
   fileType: 'xls',
   filePath: xls,
 };

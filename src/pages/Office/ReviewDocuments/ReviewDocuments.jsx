@@ -9,7 +9,7 @@ import { MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import { useMoveDetailsQueries } from 'hooks/queries';
 
-export const PaymentRequestReview = ({ match }) => {
+export const ReviewDocuments = ({ match }) => {
   const { shipmentId, moveCode } = match.params;
   const { mtoShipments, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
@@ -17,17 +17,14 @@ export const PaymentRequestReview = ({ match }) => {
   if (isError) return <SomethingWentWrong />;
 
   const { ppmShipment } = mtoShipments.filter((shipment) => shipment.id === shipmentId)[0];
-  const uploads = ppmShipment.weightTickets ? ppmShipment.weightTickets[0]?.emptyDocument?.uploads : [];
-  console.log(ppmShipment.weightTickets[0]?.emptyDocument?.uploads);
-  console.log(ppmShipment);
-  // const emptyWeightDocs = ppmShipment.weightTicket ? ppmShipment.weightTicket.emptyDocument.uploads : [];
-  // const fullWeightDocs = ppmShipment.weightTicket ? ppmShipment.weightTicket.fullDocument.uploads : [];
-  // const proofOfTrailerWeightDocs = ppmShipment.weightTicket
-  //   ? ppmShipment.weightTicket.proofOfTrailerOwnershipDocument.uploads
-  //   : [];
-  // const uploads = [emptyWeightDocs, fullWeightDocs, proofOfTrailerWeightDocs].flatMap((doc) => doc);
+  let uploads = [];
+  ppmShipment?.weightTickets?.forEach((weightTicket) => {
+    uploads = uploads.concat(weightTicket.emptyDocument.uploads);
+    uploads = uploads.concat(weightTicket.fullDocument.uploads);
+  });
+
   return (
-    <div data-testid="PaymentRequestReview" className={styles.PaymentRequestReview}>
+    <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
         <DocumentViewer files={uploads} />
       </div>
@@ -35,8 +32,8 @@ export const PaymentRequestReview = ({ match }) => {
   );
 };
 
-PaymentRequestReview.propTypes = {
+ReviewDocuments.propTypes = {
   match: MatchShape.isRequired,
 };
 
-export default withRouter(PaymentRequestReview);
+export default withRouter(ReviewDocuments);
