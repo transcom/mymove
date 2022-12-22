@@ -7,7 +7,7 @@ require (
 	github.com/XSAM/otelsql v0.17.1
 	github.com/alexedwards/scs/redisstore v0.0.0-20220216073957-c252878bcf5a
 	github.com/alexedwards/scs/v2 v2.5.0
-	github.com/aws/aws-sdk-go v1.44.163
+	github.com/aws/aws-sdk-go v1.44.164
 	github.com/benbjohnson/clock v1.3.0
 	github.com/codegangsta/gin v0.0.0-20211113050330-71f90109db02
 	github.com/disintegration/imaging v1.6.2
@@ -61,7 +61,7 @@ require (
 	github.com/tealeg/xlsx/v3 v3.2.4
 	github.com/tiaguinho/gosoap v1.4.4
 	github.com/trussworks/otelhttp v0.0.0-20220801182039-09272611890b
-	github.com/vektra/mockery/v2 v2.15.0
+	github.com/vektra/mockery/v2 v2.16.0
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.12.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.37.0
@@ -98,6 +98,7 @@ require (
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/brunoscheufler/aws-ecs-metadata-go v0.0.0-20220812150832-b6b31c6eeeaf // indirect
 	github.com/cenkalti/backoff/v4 v4.2.0 // indirect
+	github.com/chigopher/pathlib v0.12.0 // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
