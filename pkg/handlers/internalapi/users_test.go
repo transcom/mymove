@@ -178,6 +178,7 @@ func (suite *HandlerSuite) TestServiceMemberWithNoCloseoutOfficeHandler() {
 
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
 
-	suite.True(ok)
+	suite.True(ok, "Response should be ok")
 	suite.NotNil(okResponse, "Response should not be nil")
+	suite.Equal(move.ID.String(), okResponse.Payload.ServiceMember.Orders[0].Moves[0].ID.String())
 }
