@@ -1,4 +1,4 @@
-import { PPMOfficeUserType } from '../../support/constants';
+import { TOOOfficeUserType } from '../../support/constants';
 
 // CSRF protection is turned on for all routes.
 // We can test with the local dev login that uses POST
@@ -15,14 +15,14 @@ describe('testing CSRF protection', function () {
     method: 'POST',
     body: {
       id: userId,
-      userType: PPMOfficeUserType,
+      userType: TOOOfficeUserType,
     },
     form: true,
     failOnStatusCode: false,
   };
 
   it('can successfully dev login with both unmasked and masked token', function () {
-    cy.apiSignInAsUser(userId, PPMOfficeUserType);
+    cy.apiSignInAsUser(userId, TOOOfficeUserType);
     cy.contains('New moves');
   });
 

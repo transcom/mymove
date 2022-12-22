@@ -210,7 +210,7 @@ describe('Office App', () => {
 
     const loggedInState = {
       auth: {
-        activeRole: roleTypes.PPM,
+        activeRole: roleTypes.TOO,
         isLoading: false,
         isLoggedIn: true,
       },
@@ -218,7 +218,7 @@ describe('Office App', () => {
         user: {
           userId123: {
             id: 'userId123',
-            roles: [{ roleType: roleTypes.PPM }],
+            roles: [{ roleType: roleTypes.TOO }],
           },
         },
       },
@@ -268,77 +268,77 @@ describe('Office App', () => {
       expect(renderedRoute.prop('path')).toEqual('/select-application');
     });
 
-    describe('PPM routes', () => {
-      const loggedInPPMState = {
-        auth: {
-          activeRole: roleTypes.PPM,
-          isLoading: false,
-          isLoggedIn: true,
-        },
-        entities: {
-          user: {
-            userId123: {
-              id: 'userId123',
-              roles: [{ roleType: roleTypes.PPM }],
-            },
-          },
-        },
-      };
+    // describe('PPM routes', () => {
+    //   const loggedInPPMState = {
+    //     auth: {
+    //       activeRole: roleTypes.PPM,
+    //       isLoading: false,
+    //       isLoggedIn: true,
+    //     },
+    //     entities: {
+    //       user: {
+    //         userId123: {
+    //           id: 'userId123',
+    //           roles: [{ roleType: roleTypes.PPM }],
+    //         },
+    //       },
+    //     },
+    //   };
 
-      it('handles a MoveInfo URL', () => {
-        const app = mount(
-          <MockProviders initialState={loggedInPPMState} initialEntries={['/queues/new/moves/123']}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
+    //   it('handles a MoveInfo URL', () => {
+    //     const app = mount(
+    //       <MockProviders initialState={loggedInPPMState} initialEntries={['/queues/new/moves/123']}>
+    //         <ConnectedOffice />
+    //       </MockProviders>,
+    //     );
 
-        const renderedRoute = app.find('PrivateRoute');
-        expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/queues/:queueType/moves/:moveId');
-      });
+    //     const renderedRoute = app.find('PrivateRoute');
+    //     expect(renderedRoute).toHaveLength(1);
+    //     expect(renderedRoute.prop('path')).toEqual('/queues/:queueType/moves/:moveId');
+    //   });
 
-      it('handles a Queues URL', () => {
-        const app = mount(
-          <MockProviders initialState={loggedInPPMState} initialEntries={['/queues/new']}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
+    //   it('handles a Queues URL', () => {
+    //     const app = mount(
+    //       <MockProviders initialState={loggedInPPMState} initialEntries={['/queues/new']}>
+    //         <ConnectedOffice />
+    //       </MockProviders>,
+    //     );
 
-        const renderedRoute = app.find('PrivateRoute');
-        expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/queues/:queueType');
-      });
+    //     const renderedRoute = app.find('PrivateRoute');
+    //     expect(renderedRoute).toHaveLength(1);
+    //     expect(renderedRoute.prop('path')).toEqual('/queues/:queueType');
+    //   });
 
-      it('handles a OrdersInfo URL', () => {
-        const app = mount(
-          <MockProviders initialState={loggedInPPMState} initialEntries={['/moves/123/orders']}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
+    //   it('handles a OrdersInfo URL', () => {
+    //     const app = mount(
+    //       <MockProviders initialState={loggedInPPMState} initialEntries={['/moves/123/orders']}>
+    //         <ConnectedOffice />
+    //       </MockProviders>,
+    //     );
 
-        const renderedRoute = app.find('PrivateRoute');
-        expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/moves/:moveId/orders');
+    //     const renderedRoute = app.find('PrivateRoute');
+    //     expect(renderedRoute).toHaveLength(1);
+    //     expect(renderedRoute.prop('path')).toEqual('/moves/:moveId/orders');
 
-        // OrdersInfo does NOT render the header
-        expect(app.find('QueueHeader')).toHaveLength(0);
-      });
+    //     // OrdersInfo does NOT render the header
+    //     expect(app.find('QueueHeader')).toHaveLength(0);
+    //   });
 
-      it('handles a DocumentViewer URL', () => {
-        const app = mount(
-          <MockProviders initialState={loggedInPPMState} initialEntries={['/moves/123/documents/abc']}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
+    //   it('handles a DocumentViewer URL', () => {
+    //     const app = mount(
+    //       <MockProviders initialState={loggedInPPMState} initialEntries={['/moves/123/documents/abc']}>
+    //         <ConnectedOffice />
+    //       </MockProviders>,
+    //     );
 
-        const renderedRoute = app.find('PrivateRoute');
-        expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/moves/:moveId/documents/:moveDocumentId?');
+    //     const renderedRoute = app.find('PrivateRoute');
+    //     expect(renderedRoute).toHaveLength(1);
+    //     expect(renderedRoute.prop('path')).toEqual('/moves/:moveId/documents/:moveDocumentId?');
 
-        // DocumentViewer does NOT render the header
-        expect(app.find('QueueHeader')).toHaveLength(0);
-      });
-    });
+    //     // DocumentViewer does NOT render the header
+    //     expect(app.find('QueueHeader')).toHaveLength(0);
+    //   });
+    // });
 
     describe('TOO routes', () => {
       const loggedInTOOState = {

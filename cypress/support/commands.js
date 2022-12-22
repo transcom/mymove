@@ -7,7 +7,6 @@ import {
   officeBaseURL,
   adminBaseURL,
   milmoveUserType,
-  PPMOfficeUserType,
   TOOOfficeUserType,
   TIOOfficeUserType,
   ServicesCounselorOfficeUserType,
@@ -87,10 +86,6 @@ Cypress.Commands.add('signInAsNewMilMoveUser', () => {
   cy.signInAsNewUser(milmoveUserType);
 });
 
-Cypress.Commands.add('signInAsNewPPMOfficeUser', () => {
-  cy.signInAsNewUser(PPMOfficeUserType);
-});
-
 Cypress.Commands.add('signInAsNewTOOUser', () => {
   cy.signInAsNewUser(TOOOfficeUserType);
 });
@@ -122,11 +117,11 @@ Cypress.Commands.add('signInAsNewAdminUser', () => {
 });
 
 Cypress.Commands.add('signInAsMultiRoleOfficeUser', () => {
-  cy.apiSignInAsUser('9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b', PPMOfficeUserType);
+  cy.apiSignInAsUser('9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b', TOOOfficeUserType);
 });
 
 Cypress.Commands.add('signIntoOffice', () => {
-  cy.apiSignInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b', PPMOfficeUserType);
+  cy.apiSignInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b', TOOOfficeUserType);
   cy.waitForReactTableLoad();
 });
 
@@ -158,36 +153,6 @@ Cypress.Commands.add('apiSignInAsUser', (userId, userType = milmoveUserType) => 
     });
   });
 });
-
-// TODO: this is a temporary command for transition of home pages.  Remove when all paths in place
-// Log in via a direct API request, not the devlocal UI
-// Defaults to service member user type, pass in param if signing into Office app
-// Cypress.Commands.add('apiSignInAsPpmUser', (userId, userType = milmoveUserType) => {
-// This API call is what sets CSRF cookies from the server
-// cy.request('/internal/users/is_logged_in');
-
-// TODO: Above is not working, I believe because of handling cross-domain cookies/setting baseUrl in between tests
-// https://github.com/cypress-io/cypress/issues/781
-// cy.visit('/ppm');
-
-// cy.waitUntil(() => cy.getCookie('masked_gorilla_csrf').then((cookie) => cookie && cookie.value)).then((csrfToken) => {
-//   cy.request({
-//     url: '/devlocal-auth/login',
-//     method: 'POST',
-//     headers: {
-//       'X-CSRF-TOKEN': csrfToken,
-//       },
-//       body: {
-//         id: userId,
-//         userType,
-//       },
-//       form: true,
-//       failOnStatusCode: false,
-//     }).then((response) => {
-//       cy.visit('/ppm');
-//     });
-//   });
-// });
 
 Cypress.Commands.add('logout', () => {
   cy.patientVisit('/');

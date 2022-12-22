@@ -31,8 +31,8 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 	if user.Roles == nil {
 		officeRole := roles.Role{
 			ID:       uuid.Must(uuid.NewV4()),
-			RoleType: roles.RoleTypePPMOfficeUsers,
-			RoleName: "PPM Office Users",
+			RoleType: roles.RoleTypeTOO,
+			RoleName: "TOO Users",
 		}
 
 		user.Roles = []roles.Role{officeRole}
@@ -174,29 +174,6 @@ func MakeServicesCounselorOfficeUser(db *pop.Connection, assertions Assertions) 
 		OfficeUser: models.OfficeUser{
 			ID:   uuid.Must(uuid.NewV4()),
 			User: servicesUser,
-		},
-		Stub: assertions.Stub,
-	})
-
-	return officeUser
-}
-
-// MakePPMOfficeUser makes an OfficeUser with the PPM role
-func MakePPMOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
-	ppmRole := roles.Role{
-		ID:       uuid.Must(uuid.NewV4()),
-		RoleType: roles.RoleTypePPMOfficeUsers,
-		RoleName: "PPP Office User",
-	}
-
-	ppmUser := models.User{
-		Roles: []roles.Role{ppmRole},
-	}
-
-	officeUser := MakeOfficeUser(db, Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:   uuid.Must(uuid.NewV4()),
-			User: ppmUser,
 		},
 		Stub: assertions.Stub,
 	})

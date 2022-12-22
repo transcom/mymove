@@ -12,7 +12,7 @@ describe('Office Home Page', function () {
   });
 
   it('open accepted shipments queue and see moves', function () {
-    cy.signInAsNewPPMOfficeUser();
+    cy.signInAsNewTOOUser();
     cy.patientVisit('/queues/all');
     cy.location().should((loc) => {
       expect(loc.pathname).to.match(/^\/queues\/all/);
@@ -60,12 +60,6 @@ describe('Office authorization', () => {
     cy.url().should('eq', officeBaseURL + '/');
   });
 
-  // it('redirects PPM office user to old office queue', () => {
-  //   cy.signInAsNewPPMOfficeUser();
-  //   cy.contains('New moves');
-  //   cy.url().should('eq', officeBaseURL + '/');
-  // });
-
   describe('multiple role selection', () => {
     beforeEach(() => {
       cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
@@ -106,7 +100,7 @@ describe('Queue staleness indicator', () => {
 
   it('displays the correct time ago text', () => {
     cy.clock();
-    cy.signInAsNewPPMOfficeUser();
+    cy.signInAsNewTOOUser();
     cy.patientVisit('/queues/all');
 
     cy.get('[data-testid=staleness-indicator]').contains('Last updated a few seconds ago');

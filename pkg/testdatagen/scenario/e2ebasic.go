@@ -86,10 +86,10 @@ func serviceMemberNoUploadedOrders(appCtx appcontext.AppContext) {
 }
 
 func basicUserWithOfficeAccess(appCtx appcontext.AppContext) {
-	ppmOfficeRole := roles.Role{}
-	err := appCtx.DB().Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&ppmOfficeRole)
+	tooRole := roles.Role{}
+	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypePPMOfficeUsers in the DB: %w", err))
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
 	}
 
 	email := "officeuser1@example.com"
@@ -101,7 +101,7 @@ func basicUserWithOfficeAccess(appCtx appcontext.AppContext) {
 			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
-			Roles:         []roles.Role{ppmOfficeRole},
+			Roles:         []roles.Role{tooRole},
 		},
 		OfficeUser: models.OfficeUser{
 			ID:     uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),

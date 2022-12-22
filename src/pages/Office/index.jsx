@@ -349,8 +349,6 @@ export class OfficeApp extends Component {
                       path="/"
                       render={(routeProps) => {
                         switch (selectedRole) {
-                          case roleTypes.PPM:
-                            return <Queues queueType="new" {...routeProps} />;
                           case roleTypes.TIO:
                             return <PaymentRequestQueue {...routeProps} />;
                           case roleTypes.TOO:
