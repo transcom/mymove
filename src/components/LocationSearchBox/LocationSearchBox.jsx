@@ -156,7 +156,7 @@ export const LocationSearchBoxComponent = (props) => {
   });
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
-  const hasDutyLocation = !!value && !!value.address;
+  const hasLocation = !!value && !!value.address;
   return (
     <FormGroup>
       <div className="labelWrapper">
@@ -176,16 +176,14 @@ export const LocationSearchBoxComponent = (props) => {
           loadOptions={loadOptions}
           onChange={selectOption}
           onInputChange={changeInputText}
-          // update placeholder text to be customizable
-          // 'Start typing a closeout office...'
-          placeholder={placeholder || 'Start typing a duty location...'}
-          value={hasDutyLocation ? value : null}
+          placeholder={placeholder || 'Start typing a location...'}
+          value={hasLocation ? value : null}
           noOptionsMessage={noOptionsMessage}
           styles={isDisabled ? disabledStyles : customStyles}
           isDisabled={isDisabled}
         />
       </div>
-      {displayAddress && hasDutyLocation && (
+      {displayAddress && hasLocation && (
         <p className={locationClasses}>
           {value.address.city}, {value.address.state} {value.address.postalCode}
         </p>
