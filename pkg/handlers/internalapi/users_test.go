@@ -119,37 +119,65 @@ func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {
 }
 
 func (suite *HandlerSuite) TestServiceMemberWithCloseoutOfficeHandler() {
-	suite.Run("service member with ppm closeout office", func() {
-		closeoutOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				CloseoutOffice: &closeoutOffice,
-			},
-		})
-		orders := move.Orders
-		orders.Moves = append(orders.Moves, move)
-
-		req := httptest.NewRequest("GET", "/users/logged_in", nil)
-		req = suite.AuthenticateRequest(req, orders.ServiceMember)
-
-		params := userop.ShowLoggedInUserParams{
-			HTTPRequest: req,
-		}
-		fakeS3 := storageTest.NewFakeS3Storage(true)
-		builder := officeuser.NewOfficeUserFetcherPop()
-		handlerConfig := suite.HandlerConfig()
-		handlerConfig.SetFileStorer(fakeS3)
-
-		handler := ShowLoggedInUserHandler{handlerConfig, builder}
-
-		response := handler.Handle(params)
-
-		okResponse, ok := response.(*userop.ShowLoggedInUserOK)
-
-		suite.True(ok)
-		suite.Equal(move.CloseoutOffice.ID.String(), okResponse.Payload.ServiceMember.Orders[0].Moves[0].CloseoutOffice.ID.String())
-		suite.Equal(move.CloseoutOffice.Name, *okResponse.Payload.ServiceMember.Orders[0].Moves[0].CloseoutOffice.Name)
-		suite.Equal(move.CloseoutOffice.Address.ID.String(), okResponse.Payload.ServiceMember.Orders[0].Moves[0].CloseoutOffice.Address.ID.String())
-		suite.Equal(move.CloseoutOffice.Gbloc, okResponse.Payload.ServiceMember.Orders[0].Moves[0].CloseoutOffice.Gbloc)
+	closeoutOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			CloseoutOffice: &closeoutOffice,
+		},
 	})
+	orders := move.Orders
+	orders.Moves = append(orders.Moves, move)
+
+	req := httptest.NewRequest("GET", "/users/logged_in", nil)
+	req = suite.AuthenticateRequest(req, orders.ServiceMember)
+
+	params := userop.ShowLoggedInUserParams{
+		HTTPRequest: req,
+	}
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	builder := officeuser.NewOfficeUserFetcherPop()
+	handlerConfig := suite.HandlerConfig()
+	handlerConfig.SetFileStorer(fakeS3)
+
+	handler := ShowLoggedInUserHandler{handlerConfig, builder}
+
+	response := handler.Handle(params)
+
+	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
+
+	suite.True(ok)
+	suite.Equal(move.CloseoutOffice.ID.String(), okResponse.Payload.ServiceMember.Orders[0].Moves[0].CloseoutOffice.ID.String())
+	suite.Equal(move.CloseoutOffice.Name, *okResponse.Payload.ServiceMember.Orders[0].Moves[0].CloseoutOffice.Name)
+	suite.Equal(move.CloseoutOffice.Address.ID.String(), okResponse.Payload.ServiceMember.Orders[0].Moves[0].CloseoutOffice.Address.ID.String())
+	suite.Equal(move.CloseoutOffice.Gbloc, okResponse.Payload.ServiceMember.Orders[0].Moves[0].CloseoutOffice.Gbloc)
+
+}
+
+func (suite *HandlerSuite) TestServiceMemberWithNoCloseoutOfficeHandler() {
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	move.CloseoutOffice = nil
+	suite.MustSave(&move)
+
+	orders := move.Orders
+	orders.Moves = append(orders.Moves, move)
+
+	req := httptest.NewRequest("GET", "/users/logged_in", nil)
+	req = suite.AuthenticateRequest(req, orders.ServiceMember)
+
+	params := userop.ShowLoggedInUserParams{
+		HTTPRequest: req,
+	}
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	builder := officeuser.NewOfficeUserFetcherPop()
+	handlerConfig := suite.HandlerConfig()
+	handlerConfig.SetFileStorer(fakeS3)
+
+	handler := ShowLoggedInUserHandler{handlerConfig, builder}
+
+	response := handler.Handle(params)
+
+	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
+
+	suite.True(ok)
+	suite.NotNil(okResponse, "Response should not be nil")
 }
