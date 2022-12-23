@@ -180,7 +180,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			Move: availableMove,
 		})
 		// Make a random address that is not associated
-		randomAddress := testdatagen.MakeDefaultAddress(suite.DB())
+		randomAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
 		payload := payloads.Address(&randomAddress)
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", shipment.ID.String(), randomAddress.ID.String()), nil)

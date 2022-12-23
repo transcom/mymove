@@ -1190,7 +1190,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			},
 		})
 
-		destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		addr := primemessages.Address{
 			StreetAddress1: &destinationAddress.StreetAddress1,
 			City:           &destinationAddress.City,

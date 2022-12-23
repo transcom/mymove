@@ -108,7 +108,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 
 		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{})
 
-		secondaryPickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{

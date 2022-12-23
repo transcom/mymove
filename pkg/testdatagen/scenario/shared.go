@@ -3833,7 +3833,7 @@ func createMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -7179,7 +7179,7 @@ func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -7238,7 +7238,7 @@ func createNeedsServicesCounselingWithoutCompletedOrders(appCtx appcontext.AppCo
 
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -7290,7 +7290,7 @@ func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string,
 	// Makes a basic HHG shipment to reflect likely real scenario
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -7329,7 +7329,7 @@ func createNeedsServicesCounselingSingleHHG(appCtx appcontext.AppContext, orders
 	// Makes a basic HHG shipment to reflect likely real scenario
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -7367,7 +7367,7 @@ func createNeedsServicesCounselingMinimalNTSR(appCtx appcontext.AppContext, orde
 
 	// Makes a basic NTS-R shipment with minimal info.
 	requestedDeliveryDate := time.Now().AddDate(0, 0, 14)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
 	testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -8093,7 +8093,7 @@ func createMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator stri
 	// Makes a basic HHG shipment to reflect likely real scenario
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -8139,7 +8139,7 @@ func createMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator str
 	// Makes a basic HHG shipment to reflect likely real scenario
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{

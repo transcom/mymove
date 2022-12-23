@@ -63,7 +63,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// Make stubbed addresses just to collect address data for payload
-		newAddress := testdatagen.MakeStubbedAddress(suite.DB())
+		newAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		pickupAddress = primemessages.Address{
 			City:           &newAddress.City,
 			Country:        newAddress.Country,

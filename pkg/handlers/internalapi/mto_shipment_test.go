@@ -90,7 +90,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			ServiceMember: subtestData.serviceMember,
 		})
 
-		subtestData.pickupAddress = testdatagen.MakeDefaultAddress(db)
+		subtestData.pickupAddress = factory.BuildAddress(db, nil, nil)
 		secondaryPickupAddress := factory.BuildAddress(db, nil, []factory.Trait{factory.GetTraitAddress2})
 
 		destinationAddress := factory.BuildAddress(db, nil, []factory.Trait{factory.GetTraitAddress3})
@@ -584,16 +584,16 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	getDefaultMTOShipmentAndParams := func(appCtx appcontext.AppContext, mockShipmentUpdater *mocks.ShipmentUpdater) *mtoUpdateSubtestData {
 		originalShipment := testdatagen.MakeDefaultMTOShipment(appCtx.DB())
 
-		pickupAddress := testdatagen.MakeDefaultAddress(appCtx.DB())
+		pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 		pickupAddress.StreetAddress1 = "123 Fake Test St NW"
 
-		secondaryPickupAddress := testdatagen.MakeDefaultAddress(appCtx.DB())
+		secondaryPickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 		secondaryPickupAddress.StreetAddress1 = "89999 Other Test St NW"
 
-		destinationAddress := testdatagen.MakeDefaultAddress(appCtx.DB())
+		destinationAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 		destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
 
-		secondaryDeliveryAddress := testdatagen.MakeDefaultAddress(appCtx.DB())
+		secondaryDeliveryAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 		secondaryDeliveryAddress.StreetAddress1 = "9999 Test Fake Rd SE"
 
 		mtoAgent := testdatagen.MakeDefaultMTOAgent(appCtx.DB())
