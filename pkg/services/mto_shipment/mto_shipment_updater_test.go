@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	notificationMocks "github.com/transcom/mymove/pkg/notifications/mocks"
@@ -75,31 +76,35 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		oldMTOShipment = testdatagen.MakeDefaultMTOShipment(suite.DB())
 
 		requestedPickupDate := *oldMTOShipment.RequestedPickupDate
-		secondaryPickupAddress = testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
-		secondaryDeliveryAddress = testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
-		newDestinationAddress = testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "987 Other Avenue",
-				StreetAddress2: swag.String("P.O. Box 1234"),
-				StreetAddress3: swag.String("c/o Another Person"),
-				City:           "Des Moines",
-				State:          "IA",
-				PostalCode:     "50309",
-				Country:        swag.String("US"),
+		secondaryPickupAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+		secondaryDeliveryAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+		newDestinationAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "987 Other Avenue",
+					StreetAddress2: models.StringPointer("P.O. Box 1234"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Des Moines",
+					State:          "IA",
+					PostalCode:     "50309",
+					Country:        models.StringPointer("US"),
+				},
 			},
-		})
+		}, nil)
 
-		newPickupAddress = testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "987 Over There Avenue",
-				StreetAddress2: swag.String("P.O. Box 1234"),
-				StreetAddress3: swag.String("c/o Another Person"),
-				City:           "Houston",
-				State:          "TX",
-				PostalCode:     "77083",
-				Country:        swag.String("US"),
+		newPickupAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "987 Over There Avenue",
+					StreetAddress2: models.StringPointer("P.O. Box 1234"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Houston",
+					State:          "TX",
+					PostalCode:     "77083",
+					Country:        models.StringPointer("US"),
+				},
 			},
-		})
+		}, []factory.Trait{factory.GetTraitAddress4})
 
 		mtoShipment = models.MTOShipment{
 			ID:                         oldMTOShipment.ID,
@@ -528,15 +533,17 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		// Create initial shipment data
 		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
 			StorageFacility: models.StorageFacility{
-				Address: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-					Address: models.Address{
-						StreetAddress1: "1234 Over Here Street",
-						City:           "Houston",
-						State:          "TX",
-						PostalCode:     "77083",
-						Country:        swag.String("US"),
+				Address: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							StreetAddress1: "1234 Over Here Street",
+							City:           "Houston",
+							State:          "TX",
+							PostalCode:     "77083",
+							Country:        models.StringPointer("US"),
+						},
 					},
-				}),
+				}, nil),
 				Email: swag.String("old@email.com"),
 			},
 		})
@@ -954,8 +961,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		// Note that MakeMTOShipment will automatically add a Required Delivery Date if the ScheduledPickupDate
 		// is present, therefore we need to use MakeMTOShipmentMinimal and add the Pickup and Destination addresses
 		estimatedWeight := unit.Pound(11000)
-		destinationAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
-		pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		shipmentHeavy := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 			MTOShipment: models.MTOShipment{
@@ -1015,8 +1022,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		// is present, therefore we need to use MakeMTOShipmentMinimal and add the Pickup and Destination addresses
 		estimatedWeight := unit.Pound(11000)
 
-		destinationAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
-		pickupAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{})
 
 		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{

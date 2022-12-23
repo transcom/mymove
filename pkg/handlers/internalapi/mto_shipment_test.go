@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -92,10 +91,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		})
 
 		subtestData.pickupAddress = testdatagen.MakeDefaultAddress(db)
-		secondaryPickupAddress := testdatagen.MakeAddress2(db, testdatagen.Assertions{})
+		secondaryPickupAddress := factory.BuildAddress(db, nil, []factory.Trait{factory.GetTraitAddress2})
 
-		destinationAddress := testdatagen.MakeAddress3(db, testdatagen.Assertions{})
-		secondaryDeliveryAddress := testdatagen.MakeAddress4(db, testdatagen.Assertions{})
+		destinationAddress := factory.BuildAddress(db, nil, []factory.Trait{factory.GetTraitAddress3})
+		secondaryDeliveryAddress := factory.BuildAddress(db, nil, []factory.Trait{factory.GetTraitAddress4})
 
 		subtestData.mtoShipment = testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 			Move:        mto,
@@ -1038,7 +1037,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Allows updates to W2 Address": {
 				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+					address := factory.BuildAddress(appCtx.DB(), nil, nil)
 					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 						PPMShipment: models.PPMShipment{
 							W2Address:   &address,
@@ -1308,31 +1307,35 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 
 	requestedPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 15, 0, 0, 0, 0, time.UTC)
 
-	pickupAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
-	secondaryPickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "123 Nowhere",
-			StreetAddress2: swag.String("P.O. Box 5555"),
-			StreetAddress3: swag.String("c/o Some Other Person"),
-			City:           "El Paso",
-			State:          "TX",
-			PostalCode:     "79916",
-			Country:        swag.String("US"),
+	pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+	secondaryPickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "123 Nowhere",
+				StreetAddress2: models.StringPointer("P.O. Box 5555"),
+				StreetAddress3: models.StringPointer("c/o Some Other Person"),
+				City:           "El Paso",
+				State:          "TX",
+				PostalCode:     "79916",
+				Country:        models.StringPointer("US"),
+			},
 		},
-	})
+	}, nil)
 
-	deliveryAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
-	secondaryDeliveryAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "5432 Everywhere",
-			StreetAddress2: swag.String("P.O. Box 111"),
-			StreetAddress3: swag.String("c/o Some Other Person"),
-			City:           "Portsmouth",
-			State:          "NH",
-			PostalCode:     "03801",
-			Country:        swag.String("US"),
+	deliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+	secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "5432 Everywhere",
+				StreetAddress2: models.StringPointer("P.O. Box 111"),
+				StreetAddress3: models.StringPointer("c/o Some Other Person"),
+				City:           "Portsmouth",
+				State:          "NH",
+				PostalCode:     "03801",
+				Country:        models.StringPointer("US"),
+			},
 		},
-	})
+	}, nil)
 
 	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,

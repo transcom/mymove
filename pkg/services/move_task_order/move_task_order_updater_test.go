@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -72,15 +73,17 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	suite.Run("MTO status is updated successfully with facility info", func() {
 		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
 			StorageFacility: models.StorageFacility{
-				Address: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-					Address: models.Address{
-						StreetAddress1: "1234 Over Here Street",
-						City:           "Houston",
-						State:          "TX",
-						PostalCode:     "77083",
-						Country:        swag.String("US"),
+				Address: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							StreetAddress1: "1234 Over Here Street",
+							City:           "Houston",
+							State:          "TX",
+							PostalCode:     "77083",
+							Country:        models.StringPointer("US"),
+						},
 					},
-				}),
+				}, nil),
 				Email: swag.String("old@email.com"),
 			},
 		})

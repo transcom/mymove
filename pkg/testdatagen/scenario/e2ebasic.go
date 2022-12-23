@@ -3140,7 +3140,7 @@ func createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext, u
 
 	// Uncomment to create the shipment with a destination address
 	/*
-		destinationAddress := testdatagen.MakeAddress2(appCtx.DB(), testdatagen.Assertions{})
+		destinationAddress := factory.BuildAddress(appCtx.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 		shipmentFields.DestinationAddress = &destinationAddress
 		shipmentFields.DestinationAddressID = &destinationAddress.ID
 	*/
