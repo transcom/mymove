@@ -4,6 +4,9 @@ const { test, expect } = require('../utils/adminTest');
 test('Moves Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();
 
+  // make sure at least one move exists
+  await adminPage.buildDefaultMove();
+
   await page.getByRole('menuitem', { name: 'Moves' }).click();
   expect(page.url()).toContain('/system/moves');
   await expect(page.getByRole('heading', { name: 'Moves' })).toBeVisible();
