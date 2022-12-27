@@ -32,6 +32,10 @@ export async function signIntoOfficeAsNewTIOUser(page) {
   await signInAsNewUser(page, TIOOfficeUserType);
 }
 
+export async function signIntoOfficeAsNewPrimeSimulatorUser(page) {
+  await signInAsNewUser(page, PrimeSimulatorUserType);
+}
+
 async function signInAsUserWithIdAndType(page, userId) {
   await page.goto('/devlocal-auth/login');
   await page.locator(`button[value="${userId}"]`).click();

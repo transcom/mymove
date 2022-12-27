@@ -466,3 +466,114 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.App
 	}
 	return *newmove
 }
+
+// copied almost verbatim from e2ebasic
+func MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext) models.Move {
+	now := time.Now()
+	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status:             models.MoveStatusAPPROVED,
+			AvailableToPrimeAt: &now,
+		},
+	})
+
+	testdatagen.MakeMTOServiceItemBasic(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeMS,
+		},
+		Move: move,
+	})
+
+	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+	pickupAddress := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+
+	shipmentFields := models.MTOShipment{
+		Status:                models.MTOShipmentStatusApproved,
+		RequestedPickupDate:   &requestedPickupDate,
+		RequestedDeliveryDate: &requestedDeliveryDate,
+		PickupAddress:         &pickupAddress,
+		PickupAddressID:       &pickupAddress.ID,
+	}
+
+	firstShipment := testdatagen.MakeMTOShipmentMinimal(appCtx.DB(), testdatagen.Assertions{
+		MTOShipment: shipmentFields,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDLH,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeFSC,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOP,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDP,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDPK,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+
+	testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDUPK,
+		},
+		MTOShipment: firstShipment,
+		Move:        move,
+	})
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
