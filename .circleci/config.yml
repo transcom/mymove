@@ -23,6 +23,8 @@ references:
 
   redis: &redis redis:5.0.6
 
+  node: &node cimg/node:16.15.0
+
   # To deploy to loadtest, demo or exp:
   # set dp3-branch to the branch you want to deploy to the env specifed
   # in dp3-env (loadtest, demo, exp), or
@@ -165,6 +167,16 @@ executors:
     docker:
       - image: *circleci-docker
         name: adminlocal
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+
+  milmove_playwright_tester:
+    resource_class: large
+    working_directory: ~/transcom/mymove
+    docker:
+      - image: *node
+        name: playwright
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -1043,6 +1055,13 @@ jobs:
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
       - announce_failure
 
+  # integration_tests_playwright runs the integration tests using
+  # playwright. We are migrating away from cypress
+  integration_tests_playwright:
+    executor: milmove_playwright_tester
+    steps:
+      - run: echo "playwright"
+
   # `integration_tests` is just a fake step so that we don't have to
   # keep track of the manual splitting of the integration_tests when
   # specifying dependencies
@@ -1867,6 +1886,16 @@ workflows:
       - integration_tests_devseed:
           requires:
             - pre_deps_golang
+          # See comments at the top of this file for configuring/using
+          # this branch config
+          filters:
+            branches:
+              ignore: *integration-ignore-branch
+
+      # not yet required
+      - integration_tests_playwright:
+          requires:
+            - pre_deps_yarn
           # See comments at the top of this file for configuring/using
           # this branch config
           filters:
