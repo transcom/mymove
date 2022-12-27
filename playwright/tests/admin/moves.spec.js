@@ -63,7 +63,7 @@ test('Moves Details Edit Page', async ({ page, adminPage }) => {
   // entering the move locator should auto search without a click
   await page.getByLabel('locator').fill(moveLocator);
 
-  // click on row for newly created mvoe
+  // click on row for newly created move
   // if this test has been run many times locally, this might fail
   // because the new move is not on the first page of results
   await page.locator(`tr:has(:text("${moveId}"))`).click();
