@@ -639,6 +639,8 @@ definitions:
         $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
       mto_shipments:
         $ref: '#/definitions/MTOShipments'
+      closeout_office:
+        $ref: 'definitions/TransportationOffice.yaml'
       cancel_reason:
         type: string
         example: 'Change of orders'
