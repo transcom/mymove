@@ -3,7 +3,12 @@
 # this should be the same version in package.json
 FROM mcr.microsoft.com/playwright:v1.28.1-focal
 
-# install dockerize
+WORKDIR /milmove
+
+# this should be the same version in package.json
+RUN npm install -D @playwright/test@1.28.1
+
+# install dockerize so we can wait for server to start
 
 ENV DOCKERIZE_VERSION v0.6.1
 ENV DOCKERIZE_URL https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
@@ -11,8 +16,6 @@ RUN curl -L -O $DOCKERIZE_URL \
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-RUN mkdir /milmove
-
+# copy in our playwright config and tests
 COPY playwright.config.js /milmove
-
 COPY playwright /milmove/playwright
