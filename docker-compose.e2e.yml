@@ -89,7 +89,7 @@ services:
       - SERVE_API_GHC=true
       - SERVE_API_INTERNAL=true
       - SERVE_API_PRIME=false
-      - SERVE_API_SUPPORT=false
+      - SERVE_API_SUPPORT=true
       - SERVE_PRIME_SIMULATOR=true
       - STORAGE_BACKEND=local
       - TLS_ENABLED=1
