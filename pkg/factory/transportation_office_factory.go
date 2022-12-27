@@ -62,3 +62,8 @@ func BuildTransportationOfficeWithPhoneLine(db *pop.Connection, customs []Custom
 
 	return office
 }
+
+// BuildDefaultTransportationOffice creates one with a phoneline hooked up.
+func BuildDefaultTransportationOffice(db *pop.Connection) models.TransportationOffice {
+	return BuildTransportationOfficeWithPhoneLine(db, nil, nil)
+}

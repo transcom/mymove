@@ -20,6 +20,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/pagination"
@@ -516,7 +517,7 @@ func (suite *QueryBuilderSuite) TestCreateOne() {
 	builder := NewQueryBuilder()
 
 	suite.Run("Successfully creates a record", func() {
-		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+		transportationOffice := factory.BuildDefaultTransportationOffice(suite.DB())
 		userInfo := models.OfficeUser{
 			LastName:               "Spaceman",
 			FirstName:              "Leo",
@@ -542,7 +543,7 @@ func (suite *QueryBuilderSuite) TestTransaction() {
 	builder := NewQueryBuilder()
 
 	suite.Run("Successfully creates a record in a transaction", func() {
-		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+		transportationOffice := factory.BuildDefaultTransportationOffice(suite.DB())
 		userInfo := models.OfficeUser{
 			LastName:               "Spaceman",
 			FirstName:              "Leo",
@@ -567,7 +568,7 @@ func (suite *QueryBuilderSuite) TestTransaction() {
 	})
 
 	suite.Run("Unsuccessfully creates a record in a transaction", func() {
-		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+		transportationOffice := factory.BuildDefaultTransportationOffice(suite.DB())
 		testUser := models.OfficeUser{
 			LastName:               "Spaceman",
 			FirstName:              "Leo",
@@ -600,7 +601,7 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 	builder := NewQueryBuilder()
 
 	setupTestData := func() models.TransportationOffice {
-		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+		transportationOffice := factory.BuildDefaultTransportationOffice(suite.DB())
 		userInfo := models.OfficeUser{
 			LastName:               "Spaceman",
 			FirstName:              "Leo",
