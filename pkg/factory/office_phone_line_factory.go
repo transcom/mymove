@@ -10,6 +10,9 @@ import (
 // BuildOfficePhoneLine creates a OfficePhoneLine
 // Also creates, if not provided
 // - TransportationOffice
+// Params:
+// - customs is a slice that will be modified by the factory
+// - db can be set to nil to create a stubbed model that is not stored in DB.
 func BuildOfficePhoneLine(db *pop.Connection, customs []Customization, traits []Trait) models.OfficePhoneLine {
 	customs = setupCustomizations(customs, traits)
 

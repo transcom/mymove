@@ -10,7 +10,9 @@ import (
 // BuildTransportationOffice creates a single TransportationOffice.
 // Also creates, if not provided
 // - Address
-// - OfficePhoneLine
+// Params:
+// - customs is a slice that will be modified by the factory
+// - db can be set to nil to create a stubbed model that is not stored in DB.
 func BuildTransportationOffice(db *pop.Connection, customs []Customization, traits []Trait) models.TransportationOffice {
 	customs = setupCustomizations(customs, traits)
 
@@ -52,6 +54,13 @@ func BuildTransportationOffice(db *pop.Connection, customs []Customization, trai
 	return transportationOffice
 }
 
+// BuildTransportationOfficeWithPhoneLine creates a single TransportationOffice.
+// Also creates, if not provided
+// - Address
+// - OfficePhoneLine
+// Params:
+// - customs is a slice that will be modified by the factory
+// - db can be set to nil to create a stubbed model that is not stored in DB.
 func BuildTransportationOfficeWithPhoneLine(db *pop.Connection, customs []Customization, traits []Trait) models.TransportationOffice {
 
 	// If an office with a phoneLine is required, best to just build the phone line,
