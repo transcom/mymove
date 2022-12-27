@@ -7,6 +7,7 @@ const {
   signIntoOfficeAsNewTIOUser,
   signIntoOfficeAsNewTOOUser,
   signIntoOfficeAsNewServicesCounselorUser,
+  signIntoOfficeAsNewPrimeSimulatorUser,
   signInAsExistingOfficeUser,
 } = require('./signIn');
 const {
@@ -15,6 +16,7 @@ const {
   buildPPMInProgressMove,
   buildOfficeUserWithTOOAndTIO,
   buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles,
+  buildPrimeSimulatorMoveNeedsShipmentUpdate,
 } = require('./testharness');
 
 class OfficePage {
@@ -96,7 +98,7 @@ class OfficePage {
   }
 
   /**
-   * Use devlocal auth to sign in as office with both TOO and TIO roles
+   * Use devlocal auth to sign in as office user with both TOO and TIO roles
    */
   async signInAsNewTIOAndTOOUser() {
     const user = await this.buildOfficeUserWithTOOAndTIO();
@@ -105,6 +107,14 @@ class OfficePage {
       this.page.waitForNavigation(),
       signInAsExistingOfficeUser(this.page, user.login_gov_email),
     ]);
+    await this.waitForLoading();
+  }
+
+  /**
+   * Use devlocal auth to sign in as office user with prime simulator role
+   */
+  async signInAsNewPrimeSimulatorUser() {
+    await signIntoOfficeAsNewPrimeSimulatorUser(this.page);
     await this.waitForLoading();
   }
 
@@ -142,6 +152,14 @@ class OfficePage {
    */
   async buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles() {
     return buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(this.request);
+  }
+
+  /**
+   * Use testharness to build complicated move that will be visible to
+   * prime simulator
+   */
+  async buildPrimeSimulatorMoveNeedsShipmentUpdate() {
+    return buildPrimeSimulatorMoveNeedsShipmentUpdate(this.request);
   }
 }
 

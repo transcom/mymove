@@ -42,3 +42,7 @@ export async function buildWithShipmentMove(request) {
 export async function buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(request) {
   return buildDefault(request, 'HHGMoveWithServiceItemsAndPaymentRequestsAndFiles');
 }
+
+export async function buildPrimeSimulatorMoveNeedsShipmentUpdate(request) {
+  return buildDefault(request, 'PrimeSimulatorMoveNeedsShipmentUpdate');
+}

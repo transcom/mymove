@@ -66,6 +66,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveWithServiceItemsAndPaymentRequestsAndFiles": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return testharness.MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx)
 	},
+	"PrimeSimulatorMoveNeedsShipmentUpdate": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return testharness.MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx)
+	},
 	"NeedsOrdersUser": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return testharness.MakeNeedsOrdersUser(appCtx.DB())
 	},
