@@ -316,6 +316,6 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.Nil(updatedMovingExpense)
 		suite.NotNil(updateErr)
 		suite.IsType(apperror.InvalidInputError{}, updateErr)
-		suite.ErrorContains(updateErr, "A reason must be provided when the status is EXCLUDED or REJECTED")
+		suite.ErrorContains(updateErr, "reason is mandatory if the status is Excluded or Rejected")
 	})
 }
