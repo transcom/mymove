@@ -19,7 +19,7 @@ import (
 
 func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 	// Create Reusable objects
-	movingExpenseUpdater := movingexpenseservice.NewMovingExpenseUpdater()
+	movingExpenseUpdater := movingexpenseservice.NewOfficeMovingExpenseUpdater()
 
 	type movingExpenseUpdateSubtestData struct {
 		ppmShipment   models.PPMShipment

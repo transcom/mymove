@@ -134,10 +134,20 @@ func createChecks() []movingExpenseValidator {
 	}
 }
 
-func updateChecks() []movingExpenseValidator {
+func customerUpdateChecks() []movingExpenseValidator {
 	return []movingExpenseValidator{
 		checkID(),
 		checkBaseRequiredFields(),
 		checkAdditionalRequiredFields(),
+		verifyReasonAndStatusAreConstant(),
+	}
+}
+
+func officeUpdateChecks() []movingExpenseValidator {
+	return []movingExpenseValidator{
+		checkID(),
+		checkBaseRequiredFields(),
+		checkAdditionalRequiredFields(),
+		verifyReasonAndStatusAreValid(),
 	}
 }
