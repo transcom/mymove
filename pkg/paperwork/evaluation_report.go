@@ -49,7 +49,6 @@ type InspectionInformationValues struct {
 	ObservedShipmentPhysicalPickupDate string
 	ObservedPickupDate                 string
 	ObservedDeliveryDate               string
-	EvaluationLength                   string
 	QAERemarks                         string
 	ViolationsObserved                 string
 	SeriousIncident                    string
@@ -66,7 +65,6 @@ var InspectionInformationFields = []string{
 	"EvalStart",
 	"EvalEnd",
 	"EvaluationLocation",
-	"EvaluationLength",
 }
 var InspectionInformationFieldLabels = map[string]string{
 	"ObservedShipmentPhysicalPickupDate": "Observed pickup date",
@@ -80,7 +78,6 @@ var InspectionInformationFieldLabels = map[string]string{
 	"EvaluationLocation":                 "Evaluation location",
 	"ObservedPickupDate":                 "Observed pickup date",
 	"ObservedDeliveryDate":               "Observed delivery date",
-	"EvaluationLength":                   "Evaluation length",
 }
 
 var ViolationsFields = []string{

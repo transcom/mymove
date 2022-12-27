@@ -42,7 +42,7 @@ describe('ContactInfo page', () => {
 
     const backButton = screen.getByRole('button', { name: 'Back' });
     expect(backButton).toBeInTheDocument();
-    userEvent.click(backButton);
+    await userEvent.click(backButton);
 
     await waitFor(async () => {
       expect(testProps.push).toHaveBeenCalledWith('/service-member/name');
@@ -57,7 +57,7 @@ describe('ContactInfo page', () => {
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();
@@ -86,7 +86,7 @@ describe('ContactInfo page', () => {
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();
