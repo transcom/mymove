@@ -7,5 +7,5 @@ import (
 
 //go:generate mockery --name TransportationOfficesFetcher --disable-version-string
 type TransportationOfficesFetcher interface {
-	GetTransportationOffices(appCtx appcontext.AppContext) (*models.TransportationOffices, error)
+	GetTransportationOffices(appCtx appcontext.AppContext, search string) (*models.TransportationOffices, error)
 }

@@ -76,3 +76,45 @@ func FetchNearestTransportationOffice(tx *pop.Connection, long float32, lat floa
 
 	return to, nil
 }
+
+func FindTransportationOffice(tx *pop.Connection, search string) (TransportationOffices, error) {
+	var officeList TransportationOffices
+
+	// The % operator filters out strings that are below this similarity threshold
+	err := tx.Q().RawQuery("SET pg_trgm.similarity_threshold = 0.03").Exec()
+	if err != nil {
+		return officeList, err
+	}
+
+	// TODO: copied over from duty_location query, what else can be simplified or left behind? is there a better way to grab name, address?
+	// eager loading doesn't make sense - can't do subqueries there easily
+	sqlQuery := `
+		with names as (
+		(select id as transportation_office_id, name, similarity(name, $1) as sim
+		from transportation_offices
+		where name % $1
+		order by sim desc
+		limit 5)
+		union
+		(select to.id as transportation_office_id, to.name as name, 1 as sim
+		from transportation_offices as to
+		inner join addresses a2 on to.address_id = a2.id
+		where a2.postal_code ILIKE $1
+		limit 5)
+		)
+		select to.*
+		from names n
+		inner join transportation_offices to on n.transportation_office_id = to.id
+		group by to.id, to.name, to.shipping_office_id, to.address_id, to.created_at, to.updated_at, 
+		order by max(n.sim) desc, to.name
+		limit 7`
+
+	query := tx.Q().RawQuery(sqlQuery, search)
+	if err := query.All(&officeList); err != nil {
+		if errors.Cause(err).Error() != RecordNotFoundErrorString {
+			return officeList, err
+		}
+	}
+
+	return officeList, nil
+}
