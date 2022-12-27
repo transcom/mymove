@@ -2,7 +2,7 @@ export function navigateToShipmentDetails(moveLocator) {
   /**
    * SC Moves queue
    */
-  cy.get('[data-testid="closeout-tab-link"]').click();
+  cy.get('[data-testid="counseling-tab-link"]').click();
 
   cy.wait(['@getSortedMoves']);
   cy.get('input[name="locator"]').as('moveCodeFilterInput');
