@@ -5,7 +5,9 @@ import userEvent from '@testing-library/user-event';
 import LocationSearchBox from './LocationSearchBox';
 
 import dutyLocationFactory from 'utils/test/factories/dutyLocation';
+// import transportationOfficeFactory from 'utils/test/factories/transportationOffice';
 
+// const mockCloseoutLocations = []
 const mockDutyLocations = [
   dutyLocationFactory(),
   dutyLocationFactory(),
