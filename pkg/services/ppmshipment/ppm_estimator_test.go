@@ -734,7 +734,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			})
 
 			newPPM := oldPPMShipment
-			newPPM.WeightTickets = nil
+			address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+			newPPM.W2Address = &address
 
 			finalIncentive, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NilOrNoVerrs(err)

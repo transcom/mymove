@@ -56,15 +56,19 @@ func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShi
 }
 
 func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment, originalTotalWeight unit.Pound, newTotalWeight unit.Pound) bool {
-	if newPPMShipment.ActualMoveDate == nil || newPPMShipment.ActualPickupPostalCode == nil || newPPMShipment.ActualDestinationPostalCode == nil || newTotalWeight <= 0 {
-		return true
-	}
-
 	// if oldPPMShipment field value is nil we know that the value has been updated and we should return false
 	return (oldPPMShipment.ActualMoveDate != nil && newPPMShipment.ActualMoveDate.Equal(*oldPPMShipment.ActualMoveDate)) &&
 		(oldPPMShipment.ActualPickupPostalCode != nil && *newPPMShipment.ActualPickupPostalCode == *oldPPMShipment.ActualPickupPostalCode) &&
 		(oldPPMShipment.ActualDestinationPostalCode != nil && *newPPMShipment.ActualDestinationPostalCode == *oldPPMShipment.ActualDestinationPostalCode) &&
 		newTotalWeight == originalTotalWeight
+}
+
+func shouldSetFinalIncentiveToNil(newPPMShipment *models.PPMShipment, newTotalWeight unit.Pound) bool {
+	if newPPMShipment.ActualMoveDate == nil || newPPMShipment.ActualPickupPostalCode == nil || newPPMShipment.ActualDestinationPostalCode == nil || newTotalWeight <= 0 {
+		return true
+	}
+
+	return false
 }
 
 func shouldCalculateSITCost(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
@@ -165,21 +169,26 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 	}
 	originalTotalWeight, newTotalWeight := SumWeightTickets(oldPPMShipment, *newPPMShipment)
 
-	skipCalculateFinalIncentive := shouldSkipCalculatingFinalIncentive(newPPMShipment, &oldPPMShipment, originalTotalWeight, newTotalWeight)
-
+	isMissingInfo := shouldSetFinalIncentiveToNil(newPPMShipment, newTotalWeight)
+	var skipCalculateFinalIncentive bool
 	finalIncentive := oldPPMShipment.FinalIncentive
-	if !skipCalculateFinalIncentive {
 
-		finalIncentive, err = f.calculatePrice(appCtx, newPPMShipment, newTotalWeight)
-		if err != nil {
-			return nil, err
+	if !isMissingInfo {
+		skipCalculateFinalIncentive = shouldSkipCalculatingFinalIncentive(newPPMShipment, &oldPPMShipment, originalTotalWeight, newTotalWeight)
+		if !skipCalculateFinalIncentive {
+			finalIncentive, err = f.calculatePrice(appCtx, newPPMShipment, newTotalWeight)
+			if err != nil {
+				return nil, err
+			}
 		}
+	} else {
+		finalIncentive = nil
 	}
+
 	return finalIncentive, nil
 }
 
 // SumWeightTickets return the total weight of all weightTickets associated with a PPMShipment, returns 0 if there is no valid weight
-// if second argument doesn't have weightTickets assume weight is the same (when coming here from ppmShipmentUpdater weightTickets is not populated)
 func SumWeightTickets(ppmShipment, newPPMShipment models.PPMShipment) (originalTotalWeight, newTotalWeight unit.Pound) {
 	if len(ppmShipment.WeightTickets) >= 1 {
 		for _, weightTicket := range ppmShipment.WeightTickets {
@@ -194,8 +203,6 @@ func SumWeightTickets(ppmShipment, newPPMShipment models.PPMShipment) (originalT
 				newTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
 			}
 		}
-	} else {
-		newTotalWeight = originalTotalWeight
 	}
 
 	return originalTotalWeight, newTotalWeight
