@@ -29,7 +29,7 @@ services:
     entrypoint:
       - "/bin/sh"
       - "-c"
-      - "/bin/milmove migrate && /bin/generate-test-data --named-scenario='e2e_basic' && /bin/milmove serve"
+      - "/bin/milmove migrate && ( [ -z \"${PLAYWRIGHT}\" ] && /bin/generate-test-data --named-scenario='e2e_basic' || echo 'skipping generate-test-data' ) && /bin/milmove serve"
     environment:
       - APPLICATION=app
       - CLIENT_AUTH_SECRET_KEY
@@ -82,6 +82,7 @@ services:
       - MUTUAL_TLS_ENABLED=0
       - NO_TLS_ENABLED=1
       - NO_TLS_PORT=4000
+      - PLAYWRIGHT
       - PGPASSWORD=mysecretpassword
       - REDIS_HOST=redis
       - SERVE_ADMIN=true

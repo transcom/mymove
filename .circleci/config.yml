@@ -23,7 +23,6 @@ references:
 
   redis: &redis redis:5.0.6
 
-  node: &node cimg/node:16.15.0
 
   # To deploy to loadtest, demo or exp:
   # set dp3-branch to the branch you want to deploy to the env specifed
@@ -175,8 +174,8 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: *node
-        name: playwright
+      - image: cimg/base:current
+        name: playwright_tester
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -685,6 +684,56 @@ commands:
             --entrypoint /scripts/run-e2e-mtls-test \
             milmove_mtls:local
 
+  # this custom step has some duplication with
+  # scripts/run-e2e-test-docker because we want to run some of the
+  # steps below in parallel
+  e2e_tests_playwright:
+    steps:
+      - setup_remote_docker:
+          version: 17.09.0-ce
+          docker_layer_caching: false
+      - run:
+          name: setup docker for server
+          command: |
+            docker version
+            # reuse the e2e_cypress network
+            docker network create e2e_cypress
+      - run:
+          background: true
+          name: run server
+          command: |
+            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)' >> $BASH_ENV
+            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
+            echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
+            echo 'export PLAYWRIGHT=1' >> $BASH_ENV
+            source $BASH_ENV
+            # we have to use docker to run the server so we can fake
+            # the hostnames (e.g. milmovelocal)
+            docker build -t milmove_e2e:local -f Dockerfile.e2e .
+            docker-compose -f docker-compose.e2e.yml up
+      - run:
+          name: wait for server
+          # Building the image takes ~2 minutes on circleci,
+          # so doing it in parallel with the server setup is a massive speedup.
+          command: |
+            docker build -t playwright:local -f Dockerfile.playwright .
+            docker run --network e2e_cypress playwright:local dockerize -wait http://milmovelocal:4000 -timeout 5m
+      - run:
+          name: run e2e_test playwright
+          command: |
+            docker run --name playwright --network e2e_cypress playwright:local npx playwright test
+      - run:
+          name: extract results
+          # always try to extract the artifacts so it can help us
+          # figure out why a test is failing
+          when: always
+          command: |
+            echo "do something"
+
 jobs:
   # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
@@ -1059,8 +1108,12 @@ jobs:
   # playwright. We are migrating away from cypress
   integration_tests_playwright:
     executor: milmove_playwright_tester
+    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 4 files here
+    parallelism: 4
     steps:
-      - run: echo "playwright"
+      - attach_workspace:
+          at: .
+      - e2e_tests_playwright
 
   # `integration_tests` is just a fake step so that we don't have to
   # keep track of the manual splitting of the integration_tests when
@@ -1244,6 +1297,7 @@ jobs:
             - Dockerfile.dp3
             - Dockerfile.e2e
             - Dockerfile.migrations
+            - Dockerfile.playwright
             - Dockerfile.tasks
             - Dockerfile.tasks_dp3
             - Dockerfile.tools
@@ -1313,6 +1367,8 @@ jobs:
           paths:
             - build
             - cypress
+            - playwright
+            - playwright.config.js
       - announce_failure
 
   # `build_app` builds the application container
@@ -1892,10 +1948,11 @@ workflows:
             branches:
               ignore: *integration-ignore-branch
 
-      # not yet required
+      # not yet required, just testing
       - integration_tests_playwright:
           requires:
-            - pre_deps_yarn
+            - compile_app_server
+            - compile_app_client
           # See comments at the top of this file for configuring/using
           # this branch config
           filters:
