@@ -688,6 +688,11 @@ commands:
   # scripts/run-e2e-test-docker because we want to run some of the
   # steps below in parallel
   e2e_tests_playwright:
+    parameters:
+      workers:
+        type: integer
+        # more than 2 workers creates flaky tests
+        default: 2
     steps:
       - setup_remote_docker:
           version: 19.03.13
@@ -725,13 +730,19 @@ commands:
             docker run --network e2e_playwright playwright:local dockerize -wait http://milmovelocal:4000 -timeout 5m
       - run:
           name: run e2e_test playwright
+          # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
           command: |
+            SHARD=$((${CIRCLE_NODE_INDEX}+1))
             docker run \
             --name playwright \
             --network e2e_playwright \
-            -e CI=1 \
+            -e CI \
             playwright:local \
-            sh -c "id && echo '---' && mkdir -p playwright/html-report && ls -al && echo '---' && npx playwright test --reporter=html"
+            npx playwright test \
+            --reporter=html \
+            --trace=on \
+            --workers << parameters.workers >> \
+            --shard="${SHARD}/${CIRCLE_NODE_TOTAL}"
       - run:
           name: extract results
           # always try to extract the artifacts so it can help us
@@ -1117,8 +1128,7 @@ jobs:
   # playwright. We are migrating away from cypress
   integration_tests_playwright:
     executor: milmove_playwright_tester
-    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 4 files here
-    parallelism: 1
+    parallelism: 2
     steps:
       - attach_workspace:
           at: .
