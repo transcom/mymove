@@ -171,9 +171,14 @@ test.describe('testing CSRF protection updating move info', () => {
     const filteredCookies = allCookies.filter((cookie) => cookie.name !== maskedCsrfCookieName);
     context.addCookies(filteredCookies);
 
-    await page.getByRole('button', { name: 'Save' }).click();
+    // wait for the response before clicking so we don't miss it
+    const values = await Promise.all([
+      page.waitForResponse('**/ghc/v1/orders/*'),
+      page.getByRole('button', { name: 'Save' }).click(),
+    ]);
 
-    const r = await page.waitForResponse('**/ghc/v1/orders/*');
+    expect(values.length).toEqual(2);
+    const r = values[0];
     expect(r.status()).toEqual(403);
 
     await context.close();
