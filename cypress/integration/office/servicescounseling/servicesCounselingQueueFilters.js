@@ -58,7 +58,7 @@ describe('Services counselor user', () => {
   });
 
   it('is able to filter moves based on PPM Closeout initiated', () => {
-    cy.get('th[data-testid="closeoutInitiated"] > div > div > input').type('01 Dec 2020');
+    cy.get('th[data-testid="closeoutInitiated"] > div > div > input').type('11 Dec 2020');
     cy.wait(['@getCloseoutInitiatedFilteredMoves']);
     cy.get('h1').contains('Moves (0)');
   });

@@ -2009,7 +2009,7 @@ func createMoveWithCloseoutOffice(appCtx appcontext.AppContext, userUploader *up
 	userID := uuid.Must(uuid.NewV4())
 	email := "closeoutoffice@ppm.closeout"
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	submittedAt := time.Now()
+	submittedAt := time.Date(2020, time.December, 11, 12, 0, 0, 0, time.UTC)
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
