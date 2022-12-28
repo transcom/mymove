@@ -7,7 +7,7 @@ import LocationSearchBox from './LocationSearchBox';
 import dutyLocationFactory from 'utils/test/factories/dutyLocation';
 // import transportationOfficeFactory from 'utils/test/factories/transportationOffice';
 
-// const mockCloseoutLocations = []
+// const mockCloseoutLocations = [];
 const mockDutyLocations = [
   dutyLocationFactory(),
   dutyLocationFactory(),
