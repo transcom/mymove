@@ -1278,7 +1278,16 @@ jobs:
       - restore_cache:
           keys:
             - v2-node-modules-cache-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-prod-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - v1-prod-cache-main-{{ checksum "yarn.lock" }}
+            - v1-prod-cache-main-
       - run: make client_build
+      - save_cache:
+          key: v1-prod-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - ./node_modules/.cache/default-production
       # only save the cache on default branch builds so that PRs don't pollute
       # the cache
       - when:
@@ -1288,7 +1297,8 @@ jobs:
             save_cache:
               key: v2-node-modules-cache-{{ checksum "yarn.lock" }}
               paths:
-                - ./node_modules/.cache
+                - ./node_modules/.cache/@babel
+                - ./node_modules/.cache/babel-loader
       - persist_to_workspace:
           root: .
           paths:
