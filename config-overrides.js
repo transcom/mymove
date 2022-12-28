@@ -10,6 +10,18 @@
 // webpack is a dependency of React-Scripts
 const webpack = require('webpack');
 
+// --- BEGIN HACK ---
+// This is bananas, but so we don't have to eject from CRA, copy our
+// custom-build.js script to override the provided build.js
+const fs = require('fs');
+const path = require('path');
+
+fs.copyFileSync(
+  path.resolve(__dirname, '.custom/build'),
+  path.resolve(__dirname, 'node_modules/react-scripts/scripts/build.js'),
+);
+// --- END HACK ---
+
 module.exports = {
   webpack: (config) => {
     config.resolve.fallback = {
