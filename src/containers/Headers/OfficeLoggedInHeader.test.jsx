@@ -135,7 +135,7 @@ describe('OfficeLoggedInHeader', () => {
     expect(queueLink).toBeInstanceOf(HTMLAnchorElement);
   });
 
-  it('signs out the user when sign out is clicked', () => {
+  it('signs out the user when sign out is clicked', async () => {
     render(
       <MockProviders>
         <ConnectedOfficeLoggedInHeader />
@@ -145,7 +145,7 @@ describe('OfficeLoggedInHeader', () => {
     const signOutButton = screen.getByRole('button', { name: 'Sign out' });
     expect(signOutButton).toBeInstanceOf(HTMLButtonElement);
 
-    userEvent.click(signOutButton);
+    await userEvent.click(signOutButton);
 
     expect(logOut).toHaveBeenCalled();
     expect(LogoutUser).toHaveBeenCalled();

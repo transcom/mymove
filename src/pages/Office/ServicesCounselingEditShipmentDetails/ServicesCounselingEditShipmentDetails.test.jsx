@@ -231,7 +231,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
     expect(saveButton).not.toBeDisabled();
 
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
@@ -251,7 +251,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
     expect(saveButton).not.toBeDisabled();
 
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
@@ -267,7 +267,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
     expect(cancelButton).not.toBeDisabled();
 
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
@@ -311,7 +311,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       it.each([
         [
           'sitEstimatedWeight',
-          { sitEstimatedWeight: '', sitEstimatedEntryDate: '15 Jun 2022', sitEstimatedDepartureDate: '25 Jul 2022' },
+          {
+            sitEstimatedWeight: '{Tab}',
+            sitEstimatedEntryDate: '15 Jun 2022',
+            sitEstimatedDepartureDate: '25 Jul 2022',
+          },
           'Required',
         ],
         [
@@ -332,9 +336,12 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
         await userEvent.click(sitExpectedYes);
 
-        await userEvent.type(screen.getByLabelText('Estimated SIT weight'), data.sitEstimatedWeight);
+        // The test is dependent on the ordering of these three lines, and I'm not sure why.
+        // If either of the estimated storage dates is entered last, the test that puts an invalid value
+        // in that field will fail. But if the estimated SIT weight comes last, everything works fine.
         await userEvent.type(screen.getByLabelText('Estimated storage start'), data.sitEstimatedEntryDate);
         await userEvent.type(screen.getByLabelText('Estimated storage end'), data.sitEstimatedDepartureDate);
+        await userEvent.type(screen.getByLabelText('Estimated SIT weight'), data.sitEstimatedWeight);
         await userEvent.tab();
 
         await waitFor(() => {
@@ -381,7 +388,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
       expect(saveButton).not.toBeDisabled();
 
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/shipments/shipment123/advance');
         expect(onUpdateMock).toHaveBeenCalledWith('success');

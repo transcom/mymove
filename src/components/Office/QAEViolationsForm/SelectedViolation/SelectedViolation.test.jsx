@@ -39,7 +39,7 @@ describe('SelectedViolation', () => {
 
     expect(mockUnselectViolation).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByRole('button', { name: 'Remove' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
 
     expect(mockUnselectViolation).toHaveBeenCalledTimes(1);
     expect(mockUnselectViolation).toHaveBeenCalledWith(mockViolation.id);

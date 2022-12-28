@@ -29,6 +29,7 @@ type TransportationOffice struct {
 	Gbloc            string                `json:"gbloc" db:"gbloc"`
 	CreatedAt        time.Time             `json:"created_at" db:"created_at"`
 	UpdatedAt        time.Time             `json:"updated_at" db:"updated_at"`
+	ProvidesCloseout bool                  `json:"provides_ppm_closeout" db:"provides_ppm_closeout"`
 }
 
 // TransportationOffices is not required by pop and may be deleted

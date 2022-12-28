@@ -96,7 +96,7 @@ describe('Amended Orders Upload page', () => {
 
       const cancelButton = await screen.findByText('Cancel');
       expect(cancelButton).toBeInTheDocument();
-      userEvent.click(cancelButton);
+      await userEvent.click(cancelButton);
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith(generalRoutes.HOME_PATH);
@@ -111,7 +111,7 @@ describe('Amended Orders Upload page', () => {
 
       const saveButton = await screen.findByText('Save');
       expect(saveButton).toBeInTheDocument();
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith(generalRoutes.HOME_PATH);
@@ -137,7 +137,7 @@ describe('Amended Orders Upload page', () => {
 
       const saveButton = await screen.findByText('Save');
       expect(saveButton).toBeInTheDocument();
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(submitAmendedOrders).toHaveBeenCalled();

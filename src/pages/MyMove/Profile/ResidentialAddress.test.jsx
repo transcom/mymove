@@ -63,8 +63,8 @@ describe('ResidentialAddress page', () => {
 
     const postalCode = '99999';
 
-    userEvent.type(postalCodeInput, postalCode);
-    userEvent.tab();
+    await userEvent.type(postalCodeInput, postalCode);
+    await userEvent.tab();
 
     await waitFor(() => {
       expect(ValidateZipRateData).toHaveBeenCalledWith(postalCode, 'origin');
@@ -78,7 +78,7 @@ describe('ResidentialAddress page', () => {
 
     const backButton = await screen.findByRole('button', { name: 'Back' });
     expect(backButton).toBeInTheDocument();
-    userEvent.click(backButton);
+    await userEvent.click(backButton);
 
     expect(testProps.push).toHaveBeenCalledWith(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
   });
@@ -95,15 +95,16 @@ describe('ResidentialAddress page', () => {
 
     render(<ResidentialAddress {...testProps} />);
 
-    userEvent.type(screen.getByLabelText('Address 1'), fakeAddress.streetAddress1);
-    userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    userEvent.type(screen.getByLabelText('City'), fakeAddress.city);
-    userEvent.selectOptions(screen.getByLabelText('State'), [fakeAddress.state]);
-    userEvent.type(screen.getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.type(screen.getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    await userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
+    await userEvent.type(screen.getByLabelText('City'), fakeAddress.city);
+    await userEvent.selectOptions(screen.getByLabelText('State'), [fakeAddress.state]);
+    await userEvent.type(screen.getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.tab();
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalledWith(expectedServiceMemberPayload);
@@ -123,9 +124,12 @@ describe('ResidentialAddress page', () => {
 
     render(<ResidentialAddress {...testProps} />);
 
+    // Touch field so that error message can be displayed
+    await userEvent.click(screen.getByLabelText('ZIP'));
+
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     const alert = await screen.findByRole('alert');
 
@@ -160,7 +164,7 @@ describe('ResidentialAddress page', () => {
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();

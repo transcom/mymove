@@ -256,6 +256,41 @@ func ReportViolation(reportViolation *models.ReportViolation) *ghcmessages.Repor
 	return payload
 }
 
+// TransportationOffice payload
+func TransportationOffice(office *models.TransportationOffice) *ghcmessages.TransportationOffice {
+	if office.ID == uuid.Nil {
+		return nil
+	}
+
+	phoneLines := []string{}
+	for _, phoneLine := range office.PhoneLines {
+		if phoneLine.Type == "voice" {
+			phoneLines = append(phoneLines, phoneLine.Number)
+		}
+	}
+
+	payload := &ghcmessages.TransportationOffice{
+		ID:         handlers.FmtUUID(office.ID),
+		CreatedAt:  handlers.FmtDateTime(office.CreatedAt),
+		UpdatedAt:  handlers.FmtDateTime(office.UpdatedAt),
+		Name:       swag.String(office.Name),
+		Gbloc:      office.Gbloc,
+		Address:    Address(&office.Address),
+		PhoneLines: phoneLines,
+	}
+	return payload
+}
+
+func TransportationOffices(transportationOffices models.TransportationOffices) ghcmessages.TransportationOffices {
+	payload := make(ghcmessages.TransportationOffices, len(transportationOffices))
+
+	for i, to := range transportationOffices {
+		transportationOffice := to
+		payload[i] = TransportationOffice(&transportationOffice)
+	}
+	return payload
+}
+
 // MoveHistory payload
 func MoveHistory(logger *zap.Logger, moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 	payload := &ghcmessages.MoveHistory{

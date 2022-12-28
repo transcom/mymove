@@ -30,7 +30,8 @@ const mockEvaluationReport = {
   id: mockReportId,
   createdAt: '2022-09-07T15:17:37.484Z',
   eTag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
-  evaluationLengthMinutes: 240,
+  evalEnd: '09:00',
+  evalStart: '10:00',
   inspectionDate: '2022-09-08',
   inspectionType: 'DATA_REVIEW',
   location: mockMoveCode,
@@ -128,7 +129,8 @@ const mockShipmentData = [
 ];
 
 const savedReportBody = {
-  evaluationLengthMinutes: mockEvaluationReport.evaluationLengthMinutes,
+  evalStart: mockEvaluationReport.evalStart,
+  evalEnd: mockEvaluationReport.evalEnd,
   inspectionDate: mockEvaluationReport.inspectionDate,
   inspectionType: mockEvaluationReport.inspectionType,
   location: mockMoveCode,
@@ -264,7 +266,7 @@ describe('QAEViolationsForm', () => {
       expect(screen.queryByText('Observed pickup spread end date')).not.toBeInTheDocument();
     });
     const checkbox = screen.getByTestId('violation-checkbox');
-    userEvent.click(checkbox);
+    await userEvent.click(checkbox);
 
     await waitFor(() => {
       // Date picker should be shown if corresponding item is checked
@@ -279,7 +281,7 @@ describe('QAEViolationsForm Buttons', () => {
   it('re-routes back to the eval report', async () => {
     renderForm();
     // Click back button
-    userEvent.click(await screen.findByRole('button', { name: '< Back to Evaluation form' }));
+    await userEvent.click(await screen.findByRole('button', { name: '< Back to Evaluation form' }));
 
     // Verify that we re-route back to the eval report
     expect(mockPush).toHaveBeenCalledTimes(1);
@@ -290,7 +292,7 @@ describe('QAEViolationsForm Buttons', () => {
     renderForm();
 
     // Click save draft button
-    userEvent.click(await screen.findByRole('button', { name: 'Save draft' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Save draft' }));
 
     // Verify that report was saved, violations re-associated with report, and page rerouted
     await waitFor(() => {
@@ -312,7 +314,7 @@ describe('QAEViolationsForm Buttons', () => {
     renderForm();
 
     // Click save draft button
-    userEvent.click(await screen.findByTestId('reviewAndSubmit'));
+    await userEvent.click(await screen.findByTestId('reviewAndSubmit'));
 
     // Verify that report was saved, violations re-associated with report, and submission preview modal is rendered
     await waitFor(() => {
@@ -340,10 +342,10 @@ describe('QAEViolationsForm Buttons', () => {
     renderForm();
 
     // Click save draft button
-    userEvent.click(await screen.findByTestId('reviewAndSubmit'));
+    await userEvent.click(await screen.findByTestId('reviewAndSubmit'));
 
     // Click back button
-    userEvent.click(await screen.findByTestId('backToEvalFromSubmit'));
+    await userEvent.click(await screen.findByTestId('backToEvalFromSubmit'));
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Select violations', level: 2 })).toBeInTheDocument();
@@ -354,9 +356,9 @@ describe('QAEViolationsForm Buttons', () => {
     renderForm();
 
     // Click save draft button
-    userEvent.click(await screen.findByRole('button', { name: 'Review and submit' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Review and submit' }));
 
-    userEvent.click(await screen.findByRole('button', { name: 'Submit' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Submit' }));
 
     await waitFor(() => {
       expect(submitEvaluationReport).toHaveBeenCalledTimes(1);

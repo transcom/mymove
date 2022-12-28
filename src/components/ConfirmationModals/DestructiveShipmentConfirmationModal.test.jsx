@@ -25,7 +25,7 @@ describe('DestructiveShipmentConfirmationModal', () => {
 
     const closeButton = await screen.findByTestId('modalCloseButton');
 
-    userEvent.click(closeButton);
+    await userEvent.click(closeButton);
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -35,7 +35,7 @@ describe('DestructiveShipmentConfirmationModal', () => {
 
     const keepButton = await screen.findByRole('button', { name: 'Keep shipment' });
 
-    userEvent.click(keepButton);
+    await userEvent.click(keepButton);
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -45,7 +45,7 @@ describe('DestructiveShipmentConfirmationModal', () => {
 
     const deleteButton = await screen.findByRole('button', { name: 'Delete shipment' });
 
-    userEvent.click(deleteButton);
+    await userEvent.click(deleteButton);
 
     expect(onSubmit).toHaveBeenCalledWith(shipmentID);
     expect(onSubmit).toHaveBeenCalledTimes(1);
