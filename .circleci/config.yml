@@ -174,7 +174,7 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: cimg/base:current
+      - image: cimg/base:2022.12-22.04
         name: playwright_tester
         auth:
           username: $DOCKERHUB_USERNAME
@@ -592,7 +592,7 @@ commands:
         default: *cypress
     steps:
       - setup_remote_docker:
-          version: 17.09.0-ce
+          version: 19.03.13
           docker_layer_caching: false
       - run:
           name: setup docker for server
@@ -656,7 +656,7 @@ commands:
   e2e_tests_mtls:
     steps:
       - setup_remote_docker:
-          version: 17.09.0-ce
+          version: 19.03.13
           docker_layer_caching: false
       - run:
           name: setup docker for server
@@ -690,14 +690,14 @@ commands:
   e2e_tests_playwright:
     steps:
       - setup_remote_docker:
-          version: 17.09.0-ce
+          version: 19.03.13
           docker_layer_caching: false
       - run:
           name: setup docker for server
           command: |
             docker version
             # reuse the e2e_cypress network
-            docker network create e2e_cypress
+            docker network create e2e_playwright
       - run:
           background: true
           name: run server
@@ -710,6 +710,7 @@ commands:
             echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
             echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
             echo 'export PLAYWRIGHT=1' >> $BASH_ENV
+            echo 'export E2E_NETWORK=e2e_playwright' >> $BASH_ENV
             source $BASH_ENV
             # we have to use docker to run the server so we can fake
             # the hostnames (e.g. milmovelocal)
@@ -721,13 +722,13 @@ commands:
           # so doing it in parallel with the server setup is a massive speedup.
           command: |
             docker build -t playwright:local -f Dockerfile.playwright .
-            docker run --network e2e_cypress playwright:local dockerize -wait http://milmovelocal:4000 -timeout 5m
+            docker run --network e2e_playwright playwright:local dockerize -wait http://milmovelocal:4000 -timeout 5m
       - run:
           name: run e2e_test playwright
           command: |
             docker run \
             --name playwright \
-            --network e2e_cypress \
+            --network e2e_playwright \
             -e CI=1 \
             playwright:local \
             sh -c "id && echo '---' && mkdir -p playwright/html-report && ls -al && echo '---' && npx playwright test --reporter=html"

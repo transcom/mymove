@@ -1,18 +1,20 @@
-version: '3.3'
+version: '3.8'
 
 services:
   database:
-    image: postgres:12.7
+    image: postgres:12.11
     restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=mysecretpassword
-      - POSTGRES_DB=test_db
-    tmpfs:
-      - /var/lib/postgresql/data
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: test_db
+    networks:
+      - default
 
   redis:
     image: redis:5.0.6
+    networks:
+      - default
 
   milmove:
     depends_on:
@@ -100,4 +102,4 @@ services:
 networks:
   default:
     external: true
-    name: e2e_cypress
+    name: "${E2E_NETWORK:-e2e_cypress}"

@@ -19,6 +19,3 @@ RUN curl -L -O $DOCKERIZE_URL \
 # copy in our playwright config and tests
 COPY playwright.config.js /milmove
 COPY playwright /milmove/playwright
-
-# ensure we can create reports
-RUN chmod 777 /milmove/playwright
