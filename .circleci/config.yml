@@ -13,7 +13,16 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-94a41a022a48dab1c05b932734b472922260f3c0
+  cimg_base: &cimg_base cimg/base:2022.12-22.04
+
+  # same as .go-version
+  cimg_go: &cimg_go cimg/go:1.19.3
+
+  # only used for generating swagger (e.g. npx openapi used by scripts/openapi)
+  cimg_go_node: &cimg_go_node cimg/go:1.19.3-node
+
+  # same as .node-version
+  cimg_node: &cimg_node cimg/node:16.15.0
 
   # the cypress image to use
   cypress: &cypress milmove/circleci-docker:milmove-cypress-e44706ef28d1cad04ee6ebf45b2316d825991af7
@@ -72,81 +81,79 @@ executors:
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-  mymove_pusher:
+  mymove_docker_pusher:
     # needs to be medium+ so it can checkout and restore the workspace
     resource_class: medium+
-    working_directory: /mnt/ramdisk
+    working_directory: ~/transcom/mymove
     docker:
-      - image: *circleci-docker
+      - image: *cimg_base
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-  mymove_builder:
+  mymove_docker_builder:
     resource_class: medium+
-    working_directory: /mnt/ramdisk
+    working_directory: ~/transcom/mymove
     docker:
-      - image: *circleci-docker
+      - image: *cimg_base
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-  mymove_compiler:
+  mymove_pre_commit:
+    resource_class: medium+
+    working_directory: ~/transcom/mymove
+    docker:
+      - image: *cimg_base
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+  mymove_go_compiler:
     # large and no ram disk
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: *circleci-docker
+      - image: *cimg_go
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
         environment:
           GOPATH: /home/circleci/go
-
-  mymove_compiler_xlarge:
-    # xlarge and no ram disk
-    resource_class: xlarge
+  mymove_go_node_compiler:
+    # large and no ram disk
+    resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: *circleci-docker
+      - image: *cimg_go_node
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
         environment:
           GOPATH: /home/circleci/go
-
-  mymove_ramdisk_compiler:
-    # large with ram disk
+  mymove_node_compiler:
+    # large and no ram disk
     resource_class: large
-    working_directory: /mnt/ramdisk
+    working_directory: ~/transcom/mymove
     docker:
-      - image: *circleci-docker
+      - image: *cimg_node
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-        environment:
-          GOPATH: /home/circleci/go
-
-  mymove_ramdisk_compiler_xlarge:
+  mymove_node_ramdisk_compiler_xlarge:
     # xlarge with ram disk
     resource_class: xlarge
     working_directory: /mnt/ramdisk
     docker:
-      - image: *circleci-docker
+      - image: *cimg_node
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-        environment:
-          GOPATH: /home/circleci/go
-
-  mymove_tester:
+  mymove_go_tester:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: *circleci-docker
+      - image: *cimg_go
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-        environment:
-          GOPATH: /home/circleci/go
       - image: *postgres
         auth:
           username: $DOCKERHUB_USERNAME
@@ -158,13 +165,11 @@ executors:
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-
   milmove_integration_tester:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: *circleci-docker
-        name: adminlocal
+      - image: *cimg_base
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -804,7 +809,7 @@ commands:
 jobs:
   # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
-    executor: mymove_compiler
+    executor: mymove_go_compiler
     steps:
       - checkout
       - restore_cache:
@@ -827,7 +832,7 @@ jobs:
 
   # `pre_deps_yarn` is used to cache yarn sources
   pre_deps_yarn:
-    executor: mymove_compiler
+    executor: mymove_node_compiler
     steps:
       - checkout
       - restore_cache:
@@ -844,9 +849,9 @@ jobs:
             - ~/.cache/yarn
       - announce_failure
 
-  # `check_generated_code` is used to ensure generated code doesn't change
-  check_generated_code:
-    executor: mymove_compiler
+  # `check_generated_go_code` is used to ensure generated code doesn't change
+  check_generated_go_code:
+    executor: mymove_go_node_compiler
     steps:
       - checkout
       - restore_cache:
@@ -854,7 +859,7 @@ jobs:
             - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: make server_generate mocks_generate
-      - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
+      - run: scripts/check-generated-code pkg/gen/ $(find cmd pkg -type d -name "*mocks" -exec echo -n '{} ' \;)
       - announce_failure
 
   # `check_tls_certificate_env` is used to confirm that the certificate-key pair match
@@ -914,38 +919,78 @@ jobs:
             ~/transcom/mymove
       - announce_failure
 
-  # `pre_test` runs pre-commit against all files.
-  pre_test:
-    executor: mymove_compiler
+  pre_commit_setup:
+    executor: mymove_pre_commit
     steps:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+            - v2-pre-commit-install-2.20.0
+      - restore_cache:
+          keys:
+            - v1-shellcheck-install-0.7.2
+      - run:
+          name: Install pre-commit
+          command: >
+            test -r ~/.pre-commit-binary ||
+            /usr/bin/curl -L -o ~/.pre-commit-binary
+            https://github.com/pre-commit/pre-commit/releases/download/v2.20.0/pre-commit-2.20.0.pyz
+      - run:
+          name: Install shellcheck
+          command: >
+            test -r ~/bin/shellcheck ||
+            curl -L -o -
+            https://github.com/koalaman/shellcheck/releases/download/v0.7.2/shellcheck-v0.7.2.linux.x86_64.tar.xz |
+            tar Jxf - --strip-components=1 --exclude=*txt -C ~/bin
+      - save_cache:
+          key: v2-pre-commit-install-2.20.0
+          paths:
+            - ~/.pre-commit-binary
+      - save_cache:
+          key: v1-shellcheck-install-0.7.2
+          paths:
+            - ~/bin/shellcheck
+
+  # `client_pre_test` runs pre-commit against all client files.
+  client_pre_test:
+    executor: mymove_node_compiler
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v2-pre-commit-install-2.20.0
+      - restore_cache:
+          keys:
+            - v1-shellcheck-install-0.7.2
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
-      - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
+            - v2-pre-commit-dot-cache-client-{{ checksum ".pre-commit-config.yaml" }}
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
-      - run: scripts/pre-commit-go-mod || exit 0
       - run:
-          name: Run pre-commit tests without golangci-lint, eslint, or prettier
-          command: SKIP=golangci-lint,eslint,prettier pre-commit run --all-files
-      # The output of golangci-lint is an artifact towards STIG compliance
-      - run:
-          name: Run pre-commit tests with golangci-lint only
+          name: Run pre-commit tests without go, eslint, or prettier
           command: |
-            echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
-            echo 'export GOLANGCI_LINT_VERBOSE=-v' >> $BASH_ENV
-            source $BASH_ENV
-            mkdir -p tmp/test-results/pretest
-            pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
+            # if the pre-commit cache directory does not have files
+            # newer than both the .pre-commit-binary and the
+            # pre-commit config, we need to install python3-pip so we
+            # can regenerate the cache. Go ahead and do pre-commit
+            # clean so we start fresh
+            (test -d ~/.cache/pre-commit && \
+            find ~/.cache/pre-commit \
+            -newer ~/.pre-commit-binary -newer .pre-commit-config.yaml | \
+            grep -q pre-commit) ||
+            (python3 ~/.pre-commit-binary clean && \
+             sudo apt update && \
+             sudo apt install python3-pip)
+            # run pre-commit except for hooks that need go, installing
+            # as necessary. Also skip swagger, that needs go
+            export SKIP="go-version,golangci-lint,ato-go-linter,appcontext-linter,gomod,swagger,eslint,prettier"
+            python3 ~/.pre-commit-binary run --all-files
       - run:
           name: Run prettier checks
           command: yarn prettier-ci
@@ -959,14 +1004,126 @@ jobs:
       - run:
           name: Run DangerJS checks
           command: yarn danger ci --failOnErrors
-      # `v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
-      - save_cache:
-          key: v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
-          paths:
-            - ~/.cache/pre-commit
       - store_artifacts:
           path: ~/transcom/mymove/tmp/test-results
           destination: test-results
+      - save_cache:
+          key: v2-pre-commit-dot-cache-client-{{ checksum ".pre-commit-config.yaml" }}
+          paths:
+            - ~/.cache/pre-commit
+      - announce_failure
+
+  # `server_pre_test` runs pre-commit against all client files.
+  server_pre_test:
+    executor: mymove_go_compiler
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - restore_cache:
+          keys:
+            - v2-pre-commit-install-2.20.0
+      - restore_cache:
+          keys:
+            - v2-pre-commit-dot-cache-server-{{ checksum ".pre-commit-config.yaml" }}
+      - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      # this is so we can avoid go mod downloading and resulting in an error on a false positive
+      - run: scripts/pre-commit-go-mod || exit 0
+      - run:
+          name: Run go pre-commit tests without golangci-lint
+          command: |
+            # if the pre-commit cache directory does not have files
+            # newer than both the .pre-commit-binary and the
+            # pre-commit config, we need to install python3-pip so we
+            # can regenerate the cache. Go ahead and do pre-commit
+            # clean so we start fresh
+            (test -d ~/.cache/pre-commit && \
+            find ~/.cache/pre-commit \
+            -newer ~/.pre-commit-binary -newer .pre-commit-config.yaml | \
+            grep -q pre-commit) ||
+            (python3 ~/.pre-commit-binary clean && \
+             sudo apt update && \
+             sudo apt install python3-pip)
+            # The output of golangci-lint is an artifact towards STIG compliance
+            export SKIP=golangci-lint
+            # looking for .go files is a great way to only run
+            # pre-commit hooks for go
+            git ls-files -- '*.go' | xargs python3 ~/.pre-commit-binary run --files
+            # explicitly run swagger checks in go pre check
+            python3 ~/.pre-commit-binary run --all-files swagger
+      - run:
+          name: Run pre-commit tests with golangci-lint only
+          command: |
+            echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
+            echo 'export GOLANGCI_LINT_VERBOSE=-v' >> $BASH_ENV
+            source $BASH_ENV
+            mkdir -p tmp/test-results/pretest
+            python3 ~/.pre-commit-binary run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
+      - store_artifacts:
+          path: ~/transcom/mymove/tmp/test-results
+          destination: test-results
+      - save_cache:
+          key: v2-pre-commit-dot-cache-server-{{ checksum ".pre-commit-config.yaml" }}
+          paths:
+            - ~/.cache/pre-commit
+      - announce_failure
+
+  # `acceptance_tests` runs acceptance tests for the webserver against the local, exp, and staging environments.
+  acceptance_tests:
+    executor: mymove_go_compiler
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - run:
+          name: Run Local acceptance tests
+          command: |
+            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            source $BASH_ENV
+            make acceptance_test
+          environment:
+            CHAMBER_RETRIES: 20
+            DB_RETRY_INTERVAL: 5s
+            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            ENV: test
+            ENVIRONMENT: test
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
+            NO_TLS_ENABLED: true
+            PWD: /home/circleci/transcom/mymove
+      - aws_vars_dp3
+      - run:
+          name: Run dp3 acceptance tests
+          command: make acceptance_test
+          environment:
+            CHAMBER_RETRIES: 20
+            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            ENV: *dp3-env
+            ENVIRONMENT: *dp3-env
+            NO_TLS_ENABLED: true
+            PWD: /home/circleci/transcom/mymove
+            TEST_ACC_ENV: *dp3-env
+      - aws_vars_stg
+      - run:
+          name: Run Staging acceptance tests
+          command: make acceptance_test
+          environment:
+            CHAMBER_RETRIES: 20
+            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            ENV: stg
+            ENVIRONMENT: stg
+            NO_TLS_ENABLED: true
+            PWD: /home/circleci/transcom/mymove
+            TEST_ACC_ENV: stg
+      - run: echo "Prod acceptance tests are prohibited in CircleCI"
       - announce_failure
 
   # separate the integration tests by site so that if there is a flaky
@@ -1093,7 +1250,7 @@ jobs:
 
   # `integration_tests_devseed` runs the devseed data generation
   integration_tests_devseed:
-    executor: mymove_tester
+    executor: mymove_go_tester
     steps:
       - checkout
       - restore_cache:
@@ -1129,7 +1286,7 @@ jobs:
   # keep track of the manual splitting of the integration_tests when
   # specifying dependencies
   integration_tests:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - run: echo "integration_tests done"
 
@@ -1137,7 +1294,7 @@ jobs:
   # prime-api-client.
   #
   integration_tests_mtls:
-    executor: mymove_compiler
+    executor: milmove_integration_tester
     steps:
       - attach_workspace:
           at: .
@@ -1146,7 +1303,7 @@ jobs:
 
   # `server_test` runs the server side Go tests
   server_test:
-    executor: mymove_tester
+    executor: mymove_go_tester
     steps:
       - checkout
       - restore_cache:
@@ -1218,7 +1375,7 @@ jobs:
 
   # `client_test` runs the client side Javascript tests
   client_test:
-    executor: mymove_compiler
+    executor: mymove_node_compiler
     steps:
       - checkout
       - restore_cache:
@@ -1279,7 +1436,7 @@ jobs:
 
   # `webhook_client_test` runs the webhook client Go tests
   webhook_client_test:
-    executor: mymove_tester
+    executor: mymove_go_tester
     steps:
       - checkout
       - restore_cache:
@@ -1330,7 +1487,7 @@ jobs:
   # items are in the workspace, we don't even have to checkout the
   # code again
   compile_app_server:
-    executor: mymove_compiler
+    executor: mymove_go_compiler
     steps:
       - checkout
       - restore_cache:
@@ -1379,7 +1536,7 @@ jobs:
     #
     # This entire step takes ~6 minutes with xlarge ramdisk
     # This entire step takes ~7 minutes without xlarge ramdisk
-    executor: mymove_ramdisk_compiler_xlarge
+    executor: mymove_node_ramdisk_compiler_xlarge
     steps:
       - checkout
       - restore_cache:
@@ -1431,7 +1588,7 @@ jobs:
 
   # `build_app` builds the application container
   build_app:
-    executor: mymove_builder
+    executor: mymove_docker_builder
     steps:
       - build_image:
           dockerfile: Dockerfile
@@ -1442,7 +1599,7 @@ jobs:
 
   # `build_dp3_app` builds the application container, replacing DoD chain/certs with non-ato version
   build_dp3_app:
-    executor: mymove_builder
+    executor: mymove_docker_builder
     steps:
       - build_image:
           dockerfile: Dockerfile.dp3
@@ -1453,7 +1610,7 @@ jobs:
 
   # `push_app_gov_dev` pushes the app container to the gov_dev container repository
   push_app_gov_dev:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - aws_vars_transcom_gov_dev
       - push_image:
@@ -1465,7 +1622,7 @@ jobs:
 
   # `push_app_dp3` pushes the app container to the milmove-<dp3-env> container repository
   push_app_dp3:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - aws_vars_dp3
       - push_image:
@@ -1477,7 +1634,7 @@ jobs:
 
   # `push_app_stg` pushes the app container to the milmove-stg container repository
   push_app_stg:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - aws_vars_stg
       - push_image:
@@ -1489,7 +1646,7 @@ jobs:
 
   # `push_app_prd` pushes the app container to the milmove-prd container repository
   push_app_prd:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - aws_vars_prd
       - push_image:
@@ -1501,7 +1658,7 @@ jobs:
 
   # `build_storybook` builds static storybook assets for deploy
   build_storybook:
-    executor: mymove_compiler
+    executor: mymove_node_compiler
     steps:
       - checkout
       - restore_cache:
@@ -1527,7 +1684,7 @@ jobs:
 
   # `build_migrations` builds the migrations container
   build_migrations:
-    executor: mymove_builder
+    executor: mymove_docker_builder
     steps:
       - build_image:
           dockerfile: Dockerfile.migrations
@@ -1538,7 +1695,7 @@ jobs:
 
   # `push_migrations_gov_dev` pushes the migrations container to the gov_dev container repository
   push_migrations_gov_dev:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - aws_vars_transcom_gov_dev
       - push_image:
@@ -1550,7 +1707,7 @@ jobs:
 
   # `push_migrations_dp3` pushes the migrations container to the milmove-dp3 container repository
   push_migrations_dp3:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - aws_vars_dp3
       - push_image:
@@ -1562,7 +1719,7 @@ jobs:
 
   # `push_migrations_stg` pushes the migrations container to the milmove-stg container repository
   push_migrations_stg:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - aws_vars_stg
       - push_image:
@@ -1574,7 +1731,7 @@ jobs:
 
   # `push_migrations_prd` pushes the migrations container to the milmove-prd container repository
   push_migrations_prd:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - aws_vars_prd
       - push_image:
@@ -1586,7 +1743,7 @@ jobs:
 
   # `build_tasks` builds the tasks containers
   build_tasks:
-    executor: mymove_builder
+    executor: mymove_docker_builder
     steps:
       - build_image:
           dockerfile: Dockerfile.tasks
@@ -1597,7 +1754,7 @@ jobs:
 
   #`build_dp3_tasks` builds the task container, replacing DoD chain/certs with non-ato version
   build_dp3_tasks:
-    executor: mymove_builder
+    executor: mymove_docker_builder
     steps:
       - build_image:
           dockerfile: Dockerfile.tasks_dp3
@@ -1608,7 +1765,7 @@ jobs:
 
   # `push_tasks_gov_dev` pushes the tasks containers to the gov_dev container repository
   push_tasks_gov_dev:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - aws_vars_transcom_gov_dev
       - push_image:
@@ -1620,7 +1777,7 @@ jobs:
 
   # `push_tasks_dp3` pushes the tasks containers to the milmove-dp3 container repository
   push_tasks_dp3:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - aws_vars_dp3
       - push_image:
@@ -1632,7 +1789,7 @@ jobs:
 
   # `push_tasks_stg` pushes the tasks containers to the milmove-stg container repository
   push_tasks_stg:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - aws_vars_stg
       - push_image:
@@ -1644,7 +1801,7 @@ jobs:
 
   # `push_tasks_prd` pushes the tasks containers to the milmove-prd container repository
   push_tasks_prd:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - aws_vars_prd
       - push_image:
@@ -1656,7 +1813,7 @@ jobs:
 
   # `build_webhook_client` builds the webhook client container
   build_webhook_client:
-    executor: mymove_builder
+    executor: mymove_docker_builder
     steps:
       - build_image:
           dockerfile: Dockerfile.webhook_client
@@ -1667,7 +1824,7 @@ jobs:
 
   # `build_dp3_webhook_client`builds the webhookd container, replacing DoD chain/certs with non-ato version
   build_dp3_webhook_client:
-    executor: mymove_builder
+    executor: mymove_docker_builder
     steps:
       - build_image:
           dockerfile: Dockerfile.webhook_client_dp3
@@ -1678,7 +1835,7 @@ jobs:
 
   # `push_webhook_client_dp3` pushes the webhook client container to the dp3 container repository
   push_webhook_client_dp3:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - aws_vars_dp3
       - push_image:
@@ -1690,7 +1847,7 @@ jobs:
 
   # `push_webhook_client_stg` pushes the webhook client container to the stg container repository
   push_webhook_client_stg:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - aws_vars_stg
       - push_image:
@@ -1704,7 +1861,7 @@ jobs:
 
   # `deploy_dp3_migrations` deploys migrations to the dp3 environment
   deploy_dp3_migrations:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     environment:
       - APP_ENVIRONMENT: *dp3-env
     steps:
@@ -1715,7 +1872,7 @@ jobs:
 
   # `deploy_dp3_tasks` deploys scheduled tasks to the dp3 environment
   deploy_dp3_tasks:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     environment:
       - APP_ENVIRONMENT: *dp3-env
     steps:
@@ -1726,7 +1883,7 @@ jobs:
 
   # `deploy_dp3_app` updates the server-TLS app service in the dp3 environment
   deploy_dp3_app:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     parameters:
       dp3-env:
         type: string
@@ -1746,7 +1903,7 @@ jobs:
 
   # `deploy_dp3_app_client_tls` updates the mutual-TLS service in the dp3 environment
   deploy_dp3_app_client_tls:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     parameters:
       dp3-env:
         type: string
@@ -1766,7 +1923,7 @@ jobs:
 
   # `deploy_dp3_webhook_client` deploys the webhook client to dp3
   deploy_dp3_webhook_client:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     environment:
       APP_ENVIRONMENT: *dp3-env
       OPEN_TELEMETRY_SIDECAR: 'true'
@@ -1777,7 +1934,7 @@ jobs:
           ecr_env: *dp3-env
 
   check_circle_against_stg_sha:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - checkout
       - run:
@@ -1786,7 +1943,7 @@ jobs:
 
   # `deploy_stg_migrations` deploys migrations to the stg environment
   deploy_stg_migrations:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     environment:
       - APP_ENVIRONMENT: 'stg'
     steps:
@@ -1797,7 +1954,7 @@ jobs:
 
   # `deploy_stg_tasks` deploys scheduled tasks to the stg environment
   deploy_stg_tasks:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     environment:
       - APP_ENVIRONMENT: 'stg'
     steps:
@@ -1808,7 +1965,7 @@ jobs:
 
   # `deploy_stg_app` updates the server-TLS app service in stg environment
   deploy_stg_app:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     environment:
       - APP_ENVIRONMENT: 'stg'
     steps:
@@ -1821,7 +1978,7 @@ jobs:
 
   # `deploy_stg_app_client_tls` updates the mutual-TLS service in the stg environment
   deploy_stg_app_client_tls:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     environment:
       - APP_ENVIRONMENT: 'stg'
     steps:
@@ -1835,7 +1992,7 @@ jobs:
 
   # `deploy_stg_webhook_client` deploys the webhook client to stg
   deploy_stg_webhook_client:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     environment:
       APP_ENVIRONMENT: 'stg'
     steps:
@@ -1845,7 +2002,7 @@ jobs:
           ecr_env: stg
 
   deploy_storybook_dp3:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     steps:
       - checkout
       - aws_vars_transcom_com_dev
@@ -1854,7 +2011,7 @@ jobs:
 
   # `deploy_prd_migrations` deploys migrations to the milmove-prd environment
   deploy_prd_migrations:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     environment:
       - APP_ENVIRONMENT: 'prd'
     steps:
@@ -1865,7 +2022,7 @@ jobs:
 
   # `deploy_prd_tasks` deploys ECS tasks in the milmove-prd environment
   deploy_prd_tasks:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     environment:
       - APP_ENVIRONMENT: 'prd'
     steps:
@@ -1876,7 +2033,7 @@ jobs:
 
   # `deploy_prd_app` updates the server-TLS app service in the milmove-prd environment
   deploy_prd_app:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     environment:
       - APP_ENVIRONMENT: 'prd'
     steps:
@@ -1889,7 +2046,7 @@ jobs:
 
   # `deploy_prd_app_client_tls` updates the mutual-TLS service in the milmove-prd environment
   deploy_prd_app_client_tls:
-    executor: mymove_pusher
+    executor: mymove_docker_pusher
     environment:
       - APP_ENVIRONMENT: 'prd'
     steps:
@@ -1924,7 +2081,7 @@ workflows:
             - check_tls_certificate_stg
             - check_tls_certificate_prd
 
-      - check_generated_code:
+      - check_generated_go_code:
           requires:
             - pre_deps_golang
           filters:
@@ -1935,10 +2092,18 @@ workflows:
           filters:
             branches:
               only: main
-      - pre_test:
+
+      - pre_commit_setup
+
+      - client_pre_test:
           requires:
-            - pre_deps_golang
+            - pre_commit_setup
             - pre_deps_yarn
+
+      - server_pre_test:
+          requires:
+            - pre_commit_setup
+            - pre_deps_golang
 
       - integration_tests_admin:
           requires:
@@ -2163,7 +2328,8 @@ workflows:
       - deploy_dp3_migrations:
           requires:
             - pre_deps_golang
-            - pre_test
+            - client_pre_test
+            - server_pre_test
             - client_test
             - server_test
             - push_app_dp3
@@ -2235,7 +2401,8 @@ workflows:
       - check_circle_against_stg_sha:
           requires:
             - pre_deps_golang
-            - pre_test
+            - client_pre_test
+            - server_pre_test
             - client_test
             - server_test
             - push_app_stg
