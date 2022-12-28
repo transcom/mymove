@@ -763,6 +763,31 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.NilOrNoVerrs(err)
 			suite.Equal(oldPPMShipment.FinalIncentive, finalIncentive)
 		})
+
+		suite.Run("Final Incentive - set to nil when missing info", func() {
+			oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					ActualPickupPostalCode:      models.StringPointer("90211"),
+					ActualDestinationPostalCode: models.StringPointer("30814"),
+					ActualMoveDate:              models.TimePointer(actualMoveDate),
+					WeightTickets: models.WeightTickets{
+						testdatagen.MakeDefaultWeightTicket(suite.DB()),
+					},
+				},
+			})
+
+			newPPM := oldPPMShipment
+			newPPM.WeightTickets = nil
+
+			finalIncentive, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NilOrNoVerrs(err)
+			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
+			suite.Equal(oldPPMShipment.ActualDestinationPostalCode, newPPM.ActualDestinationPostalCode)
+			suite.True(oldPPMShipment.ActualMoveDate.Equal(*newPPM.ActualMoveDate))
+			suite.Nil(finalIncentive)
+		})
 	})
 
 	suite.Run("SIT Estimated Cost", func() {
