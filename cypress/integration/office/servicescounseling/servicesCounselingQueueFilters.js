@@ -43,7 +43,7 @@ describe('Services counselor user', () => {
     cy.wait(['@getSortedMoves']);
   });
 
-  it('is able to filter moves based on ppm type', () => {
+  it('is able to filter partial vs full moves based on ppm type', () => {
     // PPMCHE is a Partial PPM move, so when we search for Partial, we should see it in the results
     cy.get('th[data-testid="locator"] > div > input').type('PPMCHE').blur();
     cy.wait(['@getLocatorFilteredMoves']);
@@ -57,20 +57,20 @@ describe('Services counselor user', () => {
     cy.get('h1').contains('Moves (0)');
   });
 
-  it('is able to filter moves based on Closeout initiated', () => {
+  it('is able to filter moves based on PPM Closeout initiated', () => {
     cy.get('th[data-testid="closeoutInitiated"] > div > div > input').type('01 Dec 2020');
     cy.wait(['@getCloseoutInitiatedFilteredMoves']);
     cy.get('h1').contains('Moves (0)');
   });
 
-  it('is able to filter moves based on Closeout location', () => {
-    // add filter for move code CLSOFF (which has a closeout office set to JPPSO Testy McTest)
+  it('is able to filter moves based on PPM Closeout location', () => {
+    // add filter for move code CLSOFF (which routes to PPM closeout tab and has a closeout office set to Los Angeles AFB)
     cy.get('th[data-testid="locator"] > div > input').type('CLSOFF').blur();
-    // add another filter for the closeout office column
+    // add another filter for the closeout office column checking it's not case sensitive
     cy.get('th[data-testid="closeoutLocation"] > div > input').type('LOS ANGELES').blur();
     cy.wait(['@getCloseoutLocationFilteredMoves']);
     cy.get('td').contains('CLSOFF');
-    // Add some nonsense text to our filter
+    // Add some nonsense z text to our filter
     cy.get('th[data-testid="closeoutLocation"] > div > input').type('z').blur();
     cy.wait(['@getCloseoutLocationFilteredMoves']);
     // now we should get no results
@@ -78,7 +78,7 @@ describe('Services counselor user', () => {
   });
 
   it('is able to filter moves based on destination duty location', () => {
-    // add filter for move code PPMCHE (which has Fort Gordon as its destination duty location)
+    // add filter for move code PPMCHE (PPM closeout that has Fort Gordon as its destination duty location)
     cy.get('th[data-testid="locator"] > div > input').type('PPMCHE').blur();
     cy.wait(['@getLocatorFilteredMoves']);
     // Add destination duty location filter 'fort'
