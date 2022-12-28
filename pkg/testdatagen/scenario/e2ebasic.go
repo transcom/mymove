@@ -2633,11 +2633,13 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 		},
 	})
 	dependentsAuthorized := true
-	entitlements := testdatagen.MakeEntitlement(appCtx.DB(), testdatagen.Assertions{
-		Entitlement: models.Entitlement{
-			DependentsAuthorized: &dependentsAuthorized,
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+			},
 		},
-	})
+	}, nil)
 	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4988"),

@@ -16,15 +16,15 @@ const (
 
 // InitEIAFlags initializes EIA command line flags
 func InitEIAFlags(flag *pflag.FlagSet) {
-	flag.String(EIAURLFlag, "https://api.eia.gov/series/", "URL for Energy Information Administration (EIA) Open Data API")
+	flag.String(EIAURLFlag, "https://api.eia.gov/v2/seriesid/PET.EMD_EPD2D_PTE_NUS_DPG.W", "URL for Energy Information Administration (EIA) Open Data API")
 	flag.String(EIAKeyFlag, "", "Key for Energy Information Administration (EIA) Open Data API")
 }
 
 // CheckEIA validates EIA command line flags
 func CheckEIA(v *viper.Viper) error {
 	eiaURL := v.GetString(EIAURLFlag)
-	if eiaURL != "https://api.eia.gov/series/" {
-		return fmt.Errorf("invalid EIA Open Data URL %s, expecting https://api.eia.gov/series/", eiaURL)
+	if eiaURL != "https://api.eia.gov/v2/seriesid/PET.EMD_EPD2D_PTE_NUS_DPG.W" {
+		return fmt.Errorf("invalid EIA Open Data URL %s, expecting https://api.eia.gov/v2/seriesid/PET.EMD_EPD2D_PTE_NUS_DPG.W", eiaURL)
 	}
 
 	eiaKey := v.GetString(EIAKeyFlag)

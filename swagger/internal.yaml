@@ -17,6 +17,26 @@ consumes:
   - application/json
 produces:
   - application/json
+tags:
+  - name: responses
+  - name: orders
+  - name: certification
+  - name: moves
+  - name: office
+  - name: documents
+  - name: uploads
+  - name: service_members
+  - name: backup_contacts
+  - name: duty_locations
+  - name: transportation_offices
+  - name: queues
+  - name: entitlements
+  - name: calendar
+  - name: move_docs
+  - name: ppm
+  - name: postal_codes
+  - name: addresses
+  - name: mtoShipment
 definitions:
   LoggedInUserPayload:
     type: object
@@ -620,6 +640,8 @@ definitions:
         $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
       mto_shipments:
         $ref: '#/definitions/MTOShipments'
+      closeout_office:
+        $ref: '#/definitions/TransportationOffice'
       cancel_reason:
         type: string
         example: Change of orders
@@ -1009,6 +1031,10 @@ definitions:
           Indicates if the trailer that the customer used meets all the criteria
           to be claimable.
         type: boolean
+  TransportationOffices:
+    type: array
+    items:
+      $ref: '#/definitions/TransportationOffice'
   OfficeUser:
     type: object
     properties:
@@ -5342,6 +5368,37 @@ paths:
           description: transportation office not found
         '500':
           description: internal server error
+  /transportation-offices:
+    get:
+      produces:
+        - application/json
+      summary: Returns the transportation offices matching the search query
+      description: Returns the transportation offices matching the search query
+      operationId: getTransportationOffices
+      tags:
+        - transportation_offices
+      parameters:
+        - in: query
+          name: search
+          type: string
+          required: true
+          minLength: 2
+          description: Search string for transportation offices
+      responses:
+        '200':
+          description: Successfully retrieved transportation offices
+          schema:
+            $ref: '#/definitions/TransportationOffices'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/{queueType}:
     get:
       summary: Show all moves in a queue

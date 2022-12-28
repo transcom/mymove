@@ -197,7 +197,9 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				CloseoutLocation:        params.CloseoutLocation,
 			}
 
-			if len(params.Status) == 0 {
+			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
+				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVED)}
+			} else if len(params.Status) == 0 {
 				ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
 			} else {
 				ListOrderParams.Status = params.Status
