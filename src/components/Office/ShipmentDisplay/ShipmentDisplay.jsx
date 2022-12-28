@@ -5,7 +5,7 @@ import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
-import { EditButton } from 'components/form/IconButtons';
+import { EditButton, ReviewButton } from 'components/form/IconButtons';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
@@ -27,11 +27,14 @@ const ShipmentDisplay = ({
   isSubmitted,
   allowApproval,
   editURL,
+  reviewURL,
   ordersLOA,
   warnIfMissing,
   errorIfMissing,
   showWhenCollapsed,
   neverShow,
+  numberofPPMShipments,
+  indexNum,
 }) => {
   const history = useHistory();
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !allowApproval });
@@ -71,10 +74,19 @@ const ShipmentDisplay = ({
           {allowApproval && !isSubmitted && (
             <FontAwesomeIcon icon={['far', 'circle-check']} className={styles.approved} />
           )}
-          <div className={styles.headingTagWrapper}>
-            <h3>
-              <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
-            </h3>
+          <div className={classnames(styles.headingTagWrapper, styles.serviceCounselingShipments)}>
+            {shipmentType === 'PPM' && numberofPPMShipments > 1 ? (
+              <h3>
+                <label id={`shipment-display-label-${shipmentId}`}>
+                  {displayInfo.heading}&nbsp;
+                  {indexNum + 1}
+                </label>
+              </h3>
+            ) : (
+              <h3>
+                <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
+              </h3>
+            )}
             {displayInfo.isDiversion && <Tag>diversion</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && <Tag>diversion requested</Tag>}
@@ -105,6 +117,17 @@ const ShipmentDisplay = ({
               className={styles.editButton}
               data-testid={editURL}
               label="Edit shipment"
+              secondary
+            />
+          )}
+          {reviewURL && (
+            <ReviewButton
+              onClick={() => {
+                history.push(reviewURL);
+              }}
+              className={styles.editButton}
+              data-testid={reviewURL}
+              label="Review documents"
               secondary
             />
           )}
@@ -177,6 +200,9 @@ ShipmentDisplay.propTypes = {
   ]).isRequired,
   allowApproval: PropTypes.bool,
   editURL: PropTypes.string,
+  reviewURL: PropTypes.string,
+  numberofPPMShipments: PropTypes.number,
+  indexNum: PropTypes.number,
   ordersLOA: OrdersLOAShape,
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
@@ -189,6 +215,9 @@ ShipmentDisplay.defaultProps = {
   shipmentType: SHIPMENT_OPTIONS.HHG,
   allowApproval: true,
   editURL: '',
+  reviewURL: '',
+  numberofPPMShipments: 0,
+  indexNum: 0,
   ordersLOA: {
     tac: '',
     sac: '',

@@ -32,13 +32,4 @@ describe('DetailsPanel', () => {
     );
     expect(screen.getByText('Some child content')).toBeInTheDocument();
   });
-
-  it('renders an edit button', () => {
-    render(
-      <DetailsPanel title="My title" editButton={<a href="/some-link">Edit link</a>}>
-        <p>Some child content</p>
-      </DetailsPanel>,
-    );
-    expect(screen.getByRole('link').textContent).toEqual('Edit link');
-  });
 });
