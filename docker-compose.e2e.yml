@@ -8,6 +8,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: mysecretpassword
       POSTGRES_DB: test_db
+    tmpfs:
+      - /var/lib/postgresql/data
     networks:
       - default
 
