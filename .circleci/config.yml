@@ -725,14 +725,22 @@ commands:
       - run:
           name: run e2e_test playwright
           command: |
-            docker run --name playwright --network e2e_cypress playwright:local npx playwright test
+            docker run \
+            --name playwright \
+            --network e2e_cypress \
+            -e CI=1 \
+            playwright:local \
+            sh -c "id && echo '---' && mkdir -p playwright/html-report && ls -al && echo '---' && npx playwright test --reporter=html"
       - run:
           name: extract results
           # always try to extract the artifacts so it can help us
           # figure out why a test is failing
           when: always
           command: |
-            echo "do something"
+            docker cp playwright:/milmove/playwright-report playwright-report
+      - store_artifacts:
+          path: playwright-report
+          destination: playwright-report
 
 jobs:
   # `pre_deps_golang` is used for caching Go module sources
@@ -1109,7 +1117,7 @@ jobs:
   integration_tests_playwright:
     executor: milmove_playwright_tester
     # parallelism requires enough files to divide by the # of parallel threads. So you need at least 4 files here
-    parallelism: 4
+    parallelism: 1
     steps:
       - attach_workspace:
           at: .
