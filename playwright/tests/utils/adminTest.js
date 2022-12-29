@@ -3,7 +3,7 @@
 const base = require('@playwright/test');
 
 const { signIntoAdminAsNewAdminUser } = require('./signIn');
-const { buildDefaultAdminUser, buildDefaultMove } = require('./testharness');
+const { buildDefaultAdminUser, buildDefaultMove, buildOfficeUserWithTOOAndTIO } = require('./testharness');
 
 class AdminPage {
   /**
@@ -39,6 +39,12 @@ class AdminPage {
    */
   async buildDefaultAdminUser() {
     return buildDefaultAdminUser(this.request);
+  }
+
+  /**
+   */
+  async buildOfficeUserWithTOOAndTIO() {
+    return buildOfficeUserWithTOOAndTIO(this.request);
   }
 
   /**

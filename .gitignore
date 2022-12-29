@@ -70,6 +70,7 @@ cypress/reports
 playwright/.cache
 playwright/html-report
 playwright/results
+playwright-report
 
 # XLSX backup files
 ~$*.xlsx
