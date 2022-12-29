@@ -16,7 +16,7 @@ references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-94a41a022a48dab1c05b932734b472922260f3c0
 
   # the cypress image to use
-  cypress: &cypress milmove/circleci-docker:milmove-cypress-e44706ef28d1cad04ee6ebf45b2316d825991af7
+  cypress: &cypress milmove/circleci-docker:milmove-cypress-e5ec172bd97c14dce43471870c0d9f382cb25589
 
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
   postgres: &postgres cimg/postgres:12.7
@@ -163,8 +163,7 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: *circleci-docker
-        name: adminlocal
+      - image: *cypress
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -576,22 +575,31 @@ commands:
     parameters:
       spec_glob:
         type: string
-      cypress_image:
-        type: string
-        default: *cypress
     steps:
-      - setup_remote_docker:
-          version: 17.09.0-ce
-          docker_layer_caching: false
       - run:
-          name: setup docker for server
+          name: setup hosts
           command: |
-            docker version
-            docker network create e2e_cypress
-            docker build -t milmove_e2e:local -f Dockerfile.e2e .
+            # try futzing with /etc/hosts for running in circleci
+            echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
+            echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
+            echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
+            echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
+      - run:
+          name: run postgres
+          background: true
+          command: |
+            sudo pg_ctlcluster --foreground 12 main start
+      - run:
+          name: run redis
+          background: true
+          command: |
+            sudo redis-server
       - run:
           background: true
           name: run server
+          environment:
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
           command: |
             echo 'export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)' >> $BASH_ENV
             echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)' >> $BASH_ENV
@@ -600,8 +608,36 @@ commands:
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
             echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
             echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
+            sed 's,^,export ,' config/env/review.app.env >> $BASH_ENV
             source $BASH_ENV
-            docker-compose -f docker-compose.e2e.yml up
+            export LOGIN_GOV_CALLBACK_PORT=4000
+            export LOGIN_GOV_CALLBACK_PROTOCOL=http
+            export SERVE_API_PRIME=false
+            export SERVE_API_SUPPORT=true
+            export SERVE_PRIME_SIMULATOR=true
+            export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
+            export DOD_CA_PACKAGE=$PWD/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            export HTTP_ADMIN_SERVER_NAME=adminlocal
+            export HTTP_MY_SERVER_NAME=milmovelocal
+            export HTTP_OFFICE_SERVER_NAME=officelocal
+            export HTTP_ORDERS_SERVER_NAME=orderslocal
+            export HTTP_PRIME_SERVER_NAME=primelocal
+            export DTOD_USE_MOCK=true
+            export ENVIRONMENT=test
+            echo '--start env--'
+            env
+            echo '--end env--'
+
+            # ok to loop forever here as the dockerize command below
+            # will kill the job after 5 minutes if this loop never exits
+            while ! sudo su postgres -c "psql -c 'SELECT 1'" >/dev/null ; do
+              sleep 1
+            done
+            sudo su postgres -c "psql -c \"ALTER ROLE postgres PASSWORD 'mysecretpassword'\""
+            psql -U postgres -h localhost -c "CREATE DATABASE dev_db"
+            bin/milmove migrate
+            bin/generate-test-data --named-scenario='e2e_basic'
+            bin/milmove serve | fmt -t
       - run:
           name: wait for server
           # Use the cypress_image here to run dockerize so that the
@@ -612,7 +648,7 @@ commands:
           # Downloading this huge image takes ~2 minutes on circleci,
           # so doing it in parallel with the server setup is a massive speedup.
           command: |
-            docker run --network e2e_cypress << parameters.cypress_image >> dockerize -wait http://milmovelocal:4000 -timeout 5m
+            dockerize -wait http://milmovelocal:4000 -timeout 5m
       - run:
           name: run e2e_test cypress
           # the junit report from the mocha reporter doesn't seem to
@@ -620,24 +656,28 @@ commands:
           # --split-by=timings, but it seems like filesize is a
           # reasonable proxy for test time
           command: |
+            cd /home/circleci/cypress
+            ls -l
+            cp -r /home/circleci/transcom/mymove/cypress .
+
             SPECS=$(circleci tests glob "<< parameters.spec_glob >>" | circleci tests split --split-by=filesize | paste -s -d, -)
             if [ -z "${SPECS}" ]; then
               echo "CircleCI Parallelism greater than number of files in glob. Please adjust the number parallelism value to a lower number."
               exit 1
             fi
             echo $SPECS
-            docker build -t cypress:local -f cypress/Dockerfile.cypress cypress
-            docker run --name cypress --network e2e_cypress -e CYPRESS_baseUrl="http://milmovelocal:4000" cypress:local run --spec "${SPECS}"
+
+            cp cypress/*.json .
+            ./node_modules/.bin/cypress run --spec "${SPECS}"
       - run:
           name: extract results
           # always try to extract the artifacts so it can help us
           # figure out why a test is failing
           when: always
           command: |
-            docker cp cypress:/home/circleci/cypress/results cypress/
-            docker cp cypress:/home/circleci/cypress/screenshots cypress/ 2>/dev/null || echo "No cypress screenshots copied"
-            docker cp cypress:/home/circleci/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
-            docker cp cypress:/home/circleci/cypress/reports cypress/ 2>/dev/null || echo "No cypress reports copied"
+            for dir in results screenshots videos reports; do
+              cp -r "/home/circleci/cypress/cypress/${dir}" cypress 2>/dev/null || echo "no ${dir}"
+            done
 
   # this custom step has some duplication with
   # scripts/run-e2e-mtls-test-docker because we want to run some of the
@@ -924,7 +964,7 @@ jobs:
 
   integration_tests_office:
     # parallelism requires enough files to divide by the # of parallel threads. So you need at least 12 files here
-    parallelism: 12
+    parallelism: 8
     executor: milmove_integration_tester
     steps:
       - attach_workspace:
