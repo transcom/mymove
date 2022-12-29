@@ -22,7 +22,6 @@ func buildFinalEIAAPIURL(eiaURL string, eiaKey string) (string, error) {
 
 	query := parsedURL.Query()
 	query.Set("api_key", eiaKey)
-	query.Set("series_id", "PET.EMD_EPD2D_PTE_NUS_DPG.W")
 	parsedURL.RawQuery = query.Encode()
 	finalEIAAPIURL = parsedURL.String()
 
@@ -61,29 +60,18 @@ func FetchEIAData(finalEIAAPIURL string) (EIAData, error) {
 func extractDieselFuelPriceData(eiaData EIAData) (dieselFuelPriceData, error) {
 	extractedDieselFuelPriceData := dieselFuelPriceData{}
 
-	if len(eiaData.ErrorData.Error) != 0 {
-		return extractedDieselFuelPriceData, fmt.Errorf("received an error from the EIA Open Data API: %s", eiaData.ErrorData.Error)
-	}
+	extractedDieselFuelPriceData.publicationDate = eiaData.publicationDate()
 
-	if len(eiaData.SeriesData) == 0 {
-		return extractedDieselFuelPriceData, fmt.Errorf("expected eiaData.SeriesData to contain an array of arrays of publication dates and diesel prices, but got %s", eiaData.SeriesData)
-	}
-
-	extractedDieselFuelPriceData.lastUpdated = eiaData.lastUpdated()
-
-	publicationDate, ok := eiaData.publicationDate()
-	if !ok {
-		return extractedDieselFuelPriceData, fmt.Errorf("failed string type assertion for publishedDate data extracted from EiaData struct returned by FetchEiaData function")
-	}
-	extractedDieselFuelPriceData.publicationDate = publicationDate
-
-	price, ok := eiaData.price()
-	if !ok {
-		return extractedDieselFuelPriceData, fmt.Errorf("failed float64 type assertion for price data extracted from eiaData")
-	}
-	extractedDieselFuelPriceData.price = price
+	extractedDieselFuelPriceData.price = eiaData.price()
 
 	return extractedDieselFuelPriceData, nil
+}
+
+func checkResponseForErrors(eiaData EIAData) error {
+	if eiaData.ErrorData.Code != "" {
+		return fmt.Errorf("received an error from the EIA Open Data API: %s %s", eiaData.ErrorData.Code, eiaData.ErrorData.Message)
+	}
+	return nil
 }
 
 // RunFetcher creates the final EIA Open Data API URL, makes a call to the API, and fetches and returns the most recent diesel fuel price data
@@ -98,6 +86,16 @@ func (d *DieselFuelPriceInfo) RunFetcher(appCtx appcontext.AppContext) error {
 		return err
 	}
 
+	err = checkResponseForErrors(eiaData)
+	if err != nil {
+		return err
+	}
+
+	verr := eiaData.validateEIAData()
+	if verr != nil {
+		return verr
+	}
+
 	d.eiaData = eiaData
 	appCtx.Logger().Info("response status from RunFetcher function in ghcdieselfuelprice service", zap.Int("code", d.eiaData.responseStatusCode))
 
@@ -109,7 +107,6 @@ func (d *DieselFuelPriceInfo) RunFetcher(appCtx appcontext.AppContext) error {
 	d.dieselFuelPriceData = extractedDieselFuelPriceData
 	appCtx.Logger().Info(
 		"most recent diesel fuel price data",
-		zap.String("last updated", d.dieselFuelPriceData.lastUpdated),
 		zap.String("publication date", d.dieselFuelPriceData.publicationDate),
 		zap.Float64("price", d.dieselFuelPriceData.price),
 	)

@@ -4962,6 +4962,9 @@ func init() {
           "x-nullable": true,
           "example": "Change of orders"
         },
+        "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"
@@ -13325,6 +13328,9 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "Change of orders"
+        },
+        "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
         },
         "created_at": {
           "type": "string",
