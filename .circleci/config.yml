@@ -925,29 +925,42 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v2-pre-commit-install-2.20.0
+            - &pre_commit_cache_key v1-pre-commit-install-v2.20.0
       - restore_cache:
           keys:
-            - v1-shellcheck-install-0.7.2
+            - &shellcheck_cache_key v1-shellcheck-install-v0.7.2
       - run:
           name: Install pre-commit
           command: >
-            test -r ~/.pre-commit-binary ||
-            /usr/bin/curl -L -o ~/.pre-commit-binary
-            https://github.com/pre-commit/pre-commit/releases/download/v2.20.0/pre-commit-2.20.0.pyz
+            test -r ~/bin/pre-commit.pyz || (
+              /usr/bin/curl -L -o ~/bin/pre-commit.pyz \
+              https://github.com/pre-commit/pre-commit/releases/download/v2.20.0/pre-commit-2.20.0.pyz &&
+              echo -e "#\!/bin/sh\nexec python3 ~/bin/pre-commit.pyz \"\$@\"" > ~/bin/pre-commit &&
+              chmod 755 ~/bin/pre-commit)
+      - run:
+          name: pre-commit version
+          command: |
+            type -a pre-commit
+            pre-commit --version
       - run:
           name: Install shellcheck
           command: >
             test -r ~/bin/shellcheck ||
             curl -L -o -
             https://github.com/koalaman/shellcheck/releases/download/v0.7.2/shellcheck-v0.7.2.linux.x86_64.tar.xz |
-            tar Jxf - --strip-components=1 --exclude=*txt -C ~/bin
+            tar Jxf - --strip-components=1 --exclude='*txt' -C ~/bin
+      - run:
+          name: shellcheck version
+          command: |
+            type -a shellcheck
+            shellcheck --version
       - save_cache:
-          key: v2-pre-commit-install-2.20.0
+          key: *pre_commit_cache_key
           paths:
-            - ~/.pre-commit-binary
+            - ~/bin/pre-commit
+            - ~/bin/pre-commit.pyz
       - save_cache:
-          key: v1-shellcheck-install-0.7.2
+          key: *shellcheck_cache_key
           paths:
             - ~/bin/shellcheck
 
@@ -958,10 +971,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v2-pre-commit-install-2.20.0
+            - *pre_commit_cache_key
       - restore_cache:
           keys:
-            - v1-shellcheck-install-0.7.2
+            - *shellcheck_cache_key
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
@@ -976,21 +989,21 @@ jobs:
           name: Run pre-commit tests without go, eslint, or prettier
           command: |
             # if the pre-commit cache directory does not have files
-            # newer than both the .pre-commit-binary and the
+            # newer than both the pre-commit binary and the
             # pre-commit config, we need to install python3-pip so we
             # can regenerate the cache. Go ahead and do pre-commit
             # clean so we start fresh
             (test -d ~/.cache/pre-commit && \
             find ~/.cache/pre-commit \
-            -newer ~/.pre-commit-binary -newer .pre-commit-config.yaml | \
+            -newer ~/bin/pre-commit -newer .pre-commit-config.yaml | \
             grep -q pre-commit) ||
-            (python3 ~/.pre-commit-binary clean && \
+            (pre-commit clean && \
              sudo apt update && \
              sudo apt install python3-pip)
             # run pre-commit except for hooks that need go, installing
             # as necessary. Also skip swagger, that needs go
             export SKIP="go-version,golangci-lint,ato-go-linter,appcontext-linter,gomod,swagger,eslint,prettier"
-            python3 ~/.pre-commit-binary run --all-files
+            pre-commit run --all-files
       - run:
           name: Run prettier checks
           command: yarn prettier-ci
@@ -1023,7 +1036,7 @@ jobs:
             - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - restore_cache:
           keys:
-            - v2-pre-commit-install-2.20.0
+            - *pre_commit_cache_key
       - restore_cache:
           keys:
             - v2-pre-commit-dot-cache-server-{{ checksum ".pre-commit-config.yaml" }}
@@ -1034,24 +1047,24 @@ jobs:
           name: Run go pre-commit tests without golangci-lint
           command: |
             # if the pre-commit cache directory does not have files
-            # newer than both the .pre-commit-binary and the
+            # newer than both the pre-commit binary and the
             # pre-commit config, we need to install python3-pip so we
             # can regenerate the cache. Go ahead and do pre-commit
             # clean so we start fresh
             (test -d ~/.cache/pre-commit && \
             find ~/.cache/pre-commit \
-            -newer ~/.pre-commit-binary -newer .pre-commit-config.yaml | \
+            -newer ~/bin/pre-commit -newer .pre-commit-config.yaml | \
             grep -q pre-commit) ||
-            (python3 ~/.pre-commit-binary clean && \
+            (pre-commit clean && \
              sudo apt update && \
              sudo apt install python3-pip)
             # The output of golangci-lint is an artifact towards STIG compliance
             export SKIP=golangci-lint
             # looking for .go files is a great way to only run
             # pre-commit hooks for go
-            git ls-files -- '*.go' | xargs python3 ~/.pre-commit-binary run --files
+            git ls-files -- '*.go' | xargs pre-commit run --files
             # explicitly run swagger checks in go pre check
-            python3 ~/.pre-commit-binary run --all-files swagger
+            pre-commit run --all-files swagger
       - run:
           name: Run pre-commit tests with golangci-lint only
           command: |
@@ -1059,7 +1072,7 @@ jobs:
             echo 'export GOLANGCI_LINT_VERBOSE=-v' >> $BASH_ENV
             source $BASH_ENV
             mkdir -p tmp/test-results/pretest
-            python3 ~/.pre-commit-binary run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
+            pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
       - store_artifacts:
           path: ~/transcom/mymove/tmp/test-results
           destination: test-results
