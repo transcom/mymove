@@ -1,11 +1,13 @@
 package transportationoffice
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -15,6 +17,22 @@ type transportationOfficesFetcher struct {
 
 func NewTransportationOfficesFetcher() services.TransportationOfficesFetcher {
 	return &transportationOfficesFetcher{}
+}
+
+func (o transportationOfficesFetcher) GetTransportationOffice(appCtx appcontext.AppContext, transportationOfficeID uuid.UUID) (*models.TransportationOffice, error) {
+	var transportationOffice models.TransportationOffice
+	err := appCtx.DB().EagerPreload("Address").Find(&transportationOffice, transportationOfficeID)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(transportationOfficeID, "while looking for TransportationOffice")
+		default:
+			return nil, apperror.NewQueryError("GetTransportationOffice by transportationOfficeID", err, "")
+		}
+	}
+
+	return &transportationOffice, nil
 }
 
 func (o transportationOfficesFetcher) GetTransportationOffices(appCtx appcontext.AppContext) (*models.TransportationOffices, error) {

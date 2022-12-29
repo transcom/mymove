@@ -1843,6 +1843,35 @@ paths:
       summary: Fetches a payment request by id
       x-permissions:
         - read.paymentRequest
+  '/moves/{locator}/closeout-office':
+    parameters:
+      - description: move code to identify a move to update the PPM shipment's closeout office for Army and Air Force service members
+        format: string
+        in: path
+        name: locator
+        required: true
+        type: string
+    patch:
+      description: Sets the transportation office closeout location for where the Move's PPM Shipment documentation will be reviewed by
+      operationId: updateCloseoutOffice
+      summary: Updates a Move's PPM closeout office for Army and Air Force customers
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              closeoutOfficeId:
+                type: string
+                format: uuid
+      responses:
+        '200':
+          description: Successfully set the closeout office for the move
+          schema:
+            $ref: 'definitions/TransportationOffice.yaml'
   '/moves/{locator}/customer-support-remarks':
     parameters:
       - description: move code to identify a move for customer support remarks

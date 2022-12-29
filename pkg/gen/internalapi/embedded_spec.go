@@ -695,6 +695,9 @@ func init() {
             "required": true
           },
           {
+            "$ref": "#/parameters/ifMatch"
+          },
+          {
             "name": "patchMovePayload",
             "in": "body",
             "required": true,
@@ -704,7 +707,7 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
+          "200": {
             "description": "updated instance of move",
             "schema": {
               "$ref": "#/definitions/MovePayload"
@@ -720,7 +723,13 @@ func init() {
             "description": "user is not authorized"
           },
           "404": {
-            "description": "move is not found"
+            "description": "move or closeout office is not found"
+          },
+          "412": {
+            "description": "precondition failed"
+          },
+          "422": {
+            "description": "unprocessable entity"
           },
           "500": {
             "description": "internal server error"
@@ -4954,7 +4963,8 @@ func init() {
         "orders_id",
         "locator",
         "created_at",
-        "updated_at"
+        "updated_at",
+        "eTag"
       ],
       "properties": {
         "cancel_reason": {
@@ -4968,6 +4978,9 @@ func init() {
         "created_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -6000,6 +6013,12 @@ func init() {
     "PatchMovePayload": {
       "type": "object",
       "properties": {
+        "closeoutOfficeId": {
+          "description": "The transportation office that will handle the PPM shipment's closeout approvals for Army and Air Force service members",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "selected_move_type": {
           "$ref": "#/definitions/SelectedMoveType"
         }
@@ -8716,6 +8735,13 @@ func init() {
             "required": true
           },
           {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
             "name": "patchMovePayload",
             "in": "body",
             "required": true,
@@ -8725,7 +8751,7 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
+          "200": {
             "description": "updated instance of move",
             "schema": {
               "$ref": "#/definitions/MovePayload"
@@ -8741,7 +8767,13 @@ func init() {
             "description": "user is not authorized"
           },
           "404": {
-            "description": "move is not found"
+            "description": "move or closeout office is not found"
+          },
+          "412": {
+            "description": "precondition failed"
+          },
+          "422": {
+            "description": "unprocessable entity"
           },
           "500": {
             "description": "internal server error"
@@ -13321,7 +13353,8 @@ func init() {
         "orders_id",
         "locator",
         "created_at",
-        "updated_at"
+        "updated_at",
+        "eTag"
       ],
       "properties": {
         "cancel_reason": {
@@ -13335,6 +13368,9 @@ func init() {
         "created_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -14367,6 +14403,12 @@ func init() {
     "PatchMovePayload": {
       "type": "object",
       "properties": {
+        "closeoutOfficeId": {
+          "description": "The transportation office that will handle the PPM shipment's closeout approvals for Army and Air Force service members",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "selected_move_type": {
           "$ref": "#/definitions/SelectedMoveType"
         }

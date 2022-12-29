@@ -1716,6 +1716,51 @@ func init() {
         }
       }
     },
+    "/moves/{locator}/closeout-office": {
+      "patch": {
+        "description": "Sets the transportation office closeout location for where the Move's PPM Shipment documentation will be reviewed by",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "Updates a Move's PPM closeout office for Army and Air Force customers",
+        "operationId": "updateCloseoutOffice",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "closeoutOfficeId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully set the closeout office for the move",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffice"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "string",
+          "description": "move code to identify a move to update the PPM shipment's closeout office for Army and Air Force service members",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{locator}/customer-support-remarks": {
       "get": {
         "description": "Fetches customer support remarks for a move",
@@ -11328,6 +11373,51 @@ func init() {
           }
         }
       }
+    },
+    "/moves/{locator}/closeout-office": {
+      "patch": {
+        "description": "Sets the transportation office closeout location for where the Move's PPM Shipment documentation will be reviewed by",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "Updates a Move's PPM closeout office for Army and Air Force customers",
+        "operationId": "updateCloseoutOffice",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "closeoutOfficeId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully set the closeout office for the move",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffice"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "string",
+          "description": "move code to identify a move to update the PPM shipment's closeout office for Army and Air Force service members",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/moves/{locator}/customer-support-remarks": {
       "get": {

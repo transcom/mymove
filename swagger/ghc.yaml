@@ -1895,6 +1895,39 @@ paths:
       summary: Fetches a payment request by id
       x-permissions:
         - read.paymentRequest
+  /moves/{locator}/closeout-office:
+    parameters:
+      - description: >-
+          move code to identify a move to update the PPM shipment's closeout
+          office for Army and Air Force service members
+        format: string
+        in: path
+        name: locator
+        required: true
+        type: string
+    patch:
+      description: >-
+        Sets the transportation office closeout location for where the Move's
+        PPM Shipment documentation will be reviewed by
+      operationId: updateCloseoutOffice
+      summary: Updates a Move's PPM closeout office for Army and Air Force customers
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              closeoutOfficeId:
+                type: string
+                format: uuid
+      responses:
+        '200':
+          description: Successfully set the closeout office for the move
+          schema:
+            $ref: '#/definitions/TransportationOffice'
   /moves/{locator}/customer-support-remarks:
     parameters:
       - description: move code to identify a move for customer support remarks
@@ -6824,6 +6857,49 @@ definitions:
       - SYSTEM
       - PRICER
       - PAYMENT_REQUEST
+  TransportationOffice:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      address:
+        $ref: '#/definitions/Address'
+      phone_lines:
+        type: array
+        items:
+          type: string
+          format: telephone
+          pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+          example: 212-555-5555
+      gbloc:
+        type: string
+        pattern: ^[A-Z]{4}$
+        example: JENQ
+      latitude:
+        type: number
+        format: float
+        example: 29.382973
+      longitude:
+        type: number
+        format: float
+        example: -98.62759
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - address
+      - created_at
+      - updated_at
   CustomerSupportRemark:
     type: object
     description: >-
@@ -6875,49 +6951,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/CustomerSupportRemark'
-  TransportationOffice:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        example: Fort Bragg North Station
-      address:
-        $ref: '#/definitions/Address'
-      phone_lines:
-        type: array
-        items:
-          type: string
-          format: telephone
-          pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
-          example: 212-555-5555
-      gbloc:
-        type: string
-        pattern: ^[A-Z]{4}$
-        example: JENQ
-      latitude:
-        type: number
-        format: float
-        example: 29.382973
-      longitude:
-        type: number
-        format: float
-        example: -98.62759
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-    required:
-      - id
-      - name
-      - address
-      - created_at
-      - updated_at
 responses:
   InvalidRequest:
     description: The request payload is invalid

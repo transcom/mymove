@@ -646,12 +646,15 @@ definitions:
         type: string
         example: Change of orders
         x-nullable: true
+      eTag:
+        type: string
     required:
       - id
       - orders_id
       - locator
       - created_at
       - updated_at
+      - eTag
   CancelMove:
     type: object
     properties:
@@ -666,6 +669,13 @@ definitions:
     properties:
       selected_move_type:
         $ref: '#/definitions/SelectedMoveType'
+      closeoutOfficeId:
+        type: string
+        format: uuid
+        description: >-
+          The transportation office that will handle the PPM shipment's closeout
+          approvals for Army and Air Force service members
+        x-nullable: true
   SelectedMoveType:
     type: string
     title: Selected Move Type
@@ -4029,13 +4039,14 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
+        - $ref: '#/parameters/ifMatch'
         - in: body
           name: patchMovePayload
           required: true
           schema:
             $ref: '#/definitions/PatchMovePayload'
       responses:
-        '201':
+        '200':
           description: updated instance of move
           schema:
             $ref: '#/definitions/MovePayload'
@@ -4046,7 +4057,11 @@ paths:
         '403':
           description: user is not authorized
         '404':
-          description: move is not found
+          description: move or closeout office is not found
+        '412':
+          description: precondition failed
+        '422':
+          description: unprocessable entity
         '500':
           description: internal server error
     get:
@@ -6118,13 +6133,6 @@ responses:
     schema:
       $ref: '#/definitions/ValidationError'
 parameters:
-  ppmShipmentId:
-    name: ppmShipmentId
-    in: path
-    type: string
-    format: uuid
-    required: true
-    description: UUID of the PPM shipment
   ifMatch:
     in: header
     name: If-Match
@@ -6134,6 +6142,13 @@ parameters:
       Optimistic locking is implemented via the `If-Match` header. If the ETag
       header does not match the value of the resource on the server, the server
       rejects the change with a `412 Precondition Failed` error.
+  ppmShipmentId:
+    name: ppmShipmentId
+    in: path
+    type: string
+    format: uuid
+    required: true
+    description: UUID of the PPM shipment
   proGearWeightTicketId:
     name: proGearWeightTicketId
     in: path
