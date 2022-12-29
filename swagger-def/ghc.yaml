@@ -3136,6 +3136,8 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      closeout_office:
+        $ref: '#/definitions/TransportationOffice.yaml'
       contractorId:
         type: string
         format: uuid
