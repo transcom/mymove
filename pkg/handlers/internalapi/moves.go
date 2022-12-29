@@ -165,7 +165,7 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 
 				if payload.CloseoutOfficeID != nil {
 					closeoutOfficeID := uuid.FromStringOrNil(payload.CloseoutOfficeID.String())
-					transportationOffice, fetchErr := h.TransportationOfficesFetcher.GetTransportationOffice(appCtx, closeoutOfficeID)
+					transportationOffice, fetchErr := h.TransportationOfficesFetcher.GetTransportationOffice(appCtx, closeoutOfficeID, true)
 					if fetchErr != nil {
 						return handleError(fetchErr)
 					}

@@ -34,7 +34,11 @@ import (
 func (suite *HandlerSuite) TestPatchMoveHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	move := testdatagen.MakeDefaultMove(suite.DB())
-	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			ProvidesCloseout: true,
+		},
+	})
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -154,12 +158,14 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 func (suite *HandlerSuite) TestPatchMoveHandlerCloseoutOfficeNotFound() {
 	// Given: a set of orders, a move, user and servicemember
 	move := testdatagen.MakeDefaultMove(suite.DB())
+	// TransportationOffice doesn't provide PPM closeout so should not be found
+	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
-	closeoutOfficeID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+	closeoutOfficeID := strfmt.UUID(transportationOffice.ID.String())
 	patchPayload := internalmessages.PatchMovePayload{
 		CloseoutOfficeID: &closeoutOfficeID,
 	}
