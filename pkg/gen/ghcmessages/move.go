@@ -27,6 +27,13 @@ type Move struct {
 	// Format: date-time
 	BillableWeightsReviewedAt *strfmt.DateTime `json:"billableWeightsReviewedAt,omitempty"`
 
+	// closeout office
+	CloseoutOffice *TransportationOffice `json:"closeoutOffice,omitempty"`
+
+	// The transportation office that will handle reviewing PPM Closeout documentation for Army and Air Force service members
+	// Format: uuid
+	CloseoutOfficeID strfmt.UUID `json:"closeoutOfficeId,omitempty"`
+
 	// contractor
 	Contractor *Contractor `json:"contractor,omitempty"`
 
@@ -112,6 +119,14 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateCloseoutOffice(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCloseoutOfficeID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateContractor(formats); err != nil {
 		res = append(res, err)
 	}
@@ -184,6 +199,37 @@ func (m *Move) validateBillableWeightsReviewedAt(formats strfmt.Registry) error 
 	}
 
 	if err := validate.FormatOf("billableWeightsReviewedAt", "body", "date-time", m.BillableWeightsReviewedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateCloseoutOffice(formats strfmt.Registry) error {
+	if swag.IsZero(m.CloseoutOffice) { // not required
+		return nil
+	}
+
+	if m.CloseoutOffice != nil {
+		if err := m.CloseoutOffice.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("closeoutOffice")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("closeoutOffice")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) validateCloseoutOfficeID(formats strfmt.Registry) error {
+	if swag.IsZero(m.CloseoutOfficeID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("closeoutOfficeId", "body", "uuid", m.CloseoutOfficeID.String(), formats); err != nil {
 		return err
 	}
 
@@ -357,6 +403,10 @@ func (m *Move) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateCloseoutOffice(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateContractor(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -380,6 +430,22 @@ func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Move) contextValidateCloseoutOffice(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CloseoutOffice != nil {
+		if err := m.CloseoutOffice.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("closeoutOffice")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("closeoutOffice")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

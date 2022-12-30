@@ -1909,6 +1909,8 @@ paths:
       description: >-
         Sets the transportation office closeout location for where the Move's
         PPM Shipment documentation will be reviewed by
+      tags:
+        - move
       operationId: updateCloseoutOffice
       summary: Updates a Move's PPM closeout office for Army and Air Force customers
       produces:
@@ -1923,11 +1925,29 @@ paths:
               closeoutOfficeId:
                 type: string
                 format: uuid
+        - in: header
+          name: If-Match
+          type: string
+          required: true
       responses:
         '200':
           description: Successfully set the closeout office for the move
           schema:
-            $ref: '#/definitions/TransportationOffice'
+            $ref: '#/definitions/Move'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /moves/{locator}/customer-support-remarks:
     parameters:
       - description: move code to identify a move for customer support remarks
@@ -3331,6 +3351,14 @@ definitions:
         example: Destination address is too far from duty location
         x-nullable: true
         readOnly: true
+      closeoutOffice:
+        $ref: '#/definitions/TransportationOffice'
+      closeoutOfficeId:
+        type: string
+        format: uuid
+        description: >-
+          The transportation office that will handle reviewing PPM Closeout
+          documentation for Army and Air Force service members
       createdAt:
         type: string
         format: date-time
@@ -5331,6 +5359,49 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
+  TransportationOffice:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      address:
+        $ref: '#/definitions/Address'
+      phone_lines:
+        type: array
+        items:
+          type: string
+          format: telephone
+          pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+          example: 212-555-5555
+      gbloc:
+        type: string
+        pattern: ^[A-Z]{4}$
+        example: JENQ
+      latitude:
+        type: number
+        format: float
+        example: 29.382973
+      longitude:
+        type: number
+        format: float
+        example: -98.62759
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - address
+      - created_at
+      - updated_at
   NullableString:
     type: string
     x-go-type:
@@ -6857,49 +6928,6 @@ definitions:
       - SYSTEM
       - PRICER
       - PAYMENT_REQUEST
-  TransportationOffice:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        example: Fort Bragg North Station
-      address:
-        $ref: '#/definitions/Address'
-      phone_lines:
-        type: array
-        items:
-          type: string
-          format: telephone
-          pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
-          example: 212-555-5555
-      gbloc:
-        type: string
-        pattern: ^[A-Z]{4}$
-        example: JENQ
-      latitude:
-        type: number
-        format: float
-        example: 29.382973
-      longitude:
-        type: number
-        format: float
-        example: -98.62759
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-    required:
-      - id
-      - name
-      - address
-      - created_at
-      - updated_at
   CustomerSupportRemark:
     type: object
     description: >-
