@@ -30,8 +30,13 @@ describe('TOO user', () => {
     cy.apiSignInAsUser(userId, TOOOfficeUserType);
   });
 
-  // This test performs a mutation so it can only succeed on a fresh DB.
-  it('is able to approve a shipment', () => {
+  // This test performs a mutation so it can only succeed on a fresh
+  // DB.
+  //
+  // UGH: All of the tests in the file use the same move, and so when
+  // run in cypress they can fail if the tests run in the wrong order
+  // skip until we can rewrite
+  it.skip('is able to approve a shipment', () => {
     const moveLocator = 'TEST12';
 
     // Navigate to Move details page from TOO Moves queue
@@ -132,7 +137,8 @@ describe('TOO user', () => {
     cy.contains('Move unflagged for financial review.');
   });
 
-  it('is able to approve and reject mto service items', () => {
+  // skip until we can rewrite
+  it.skip('is able to approve and reject mto service items', () => {
     const moveLocator = 'TEST12';
 
     // Navigate to Move details page from TOO Moves queue
@@ -373,7 +379,8 @@ describe('TOO user', () => {
     cy.wait('@patchShipment');
   });
 
-  it('is able to request cancellation for a shipment', () => {
+  // skip until we can rewrite
+  it.skip('is able to request cancellation for a shipment', () => {
     const moveLocator = 'TEST12';
 
     // Navigate to Move details page from TOO Moves queue
