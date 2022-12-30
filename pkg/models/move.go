@@ -67,16 +67,6 @@ const (
 	SelectedMoveTypeHHGPPM SelectedMoveType = "HHG_PPM"
 )
 
-var AllowedSelectedMoveTypes = []string{
-	string(SelectedMoveTypeHHG),
-	string(SelectedMoveTypePPM),
-	string(SelectedMoveTypeUB),
-	string(SelectedMoveTypePOV),
-	string(SelectedMoveTypeNTS),
-	string(SelectedMoveTypeNTSR),
-	string(SelectedMoveTypeHHGPPM),
-}
-
 const maxLocatorAttempts = 3
 const locatorLength = 6
 
@@ -140,7 +130,6 @@ func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: m.Locator, Name: "Locator"},
 		&validators.UUIDIsPresent{Field: m.OrdersID, Name: "OrdersID"},
 		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
-		&OptionalStringInclusion{Field: (*string)(m.SelectedMoveType), Name: "SelectedMoveType", List: AllowedSelectedMoveTypes},
 		&OptionalTimeIsPresent{Field: m.ExcessWeightQualifiedAt, Name: "ExcessWeightQualifiedAt"},
 		&OptionalUUIDIsPresent{Field: m.ExcessWeightUploadID, Name: "ExcessWeightUploadID"},
 		&OptionalUUIDIsPresent{Field: m.CloseoutOfficeID, Name: "CloseoutOfficeID"},

@@ -483,7 +483,7 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 
 	suite.Run("Successful update of closeout office", func() {
 		req, move, transportationOffice := setupTestData()
-		handler := UpdateMoveCloseoutTransportationOffice{
+		handler := UpdateMoveCloseoutOfficeHandler{
 			HandlerConfig:             suite.HandlerConfig(),
 			MoveCloseoutOfficeUpdater: closeoutOfficeUpdater,
 		}
@@ -510,7 +510,7 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 
 	suite.Run("Unsuccessful move not found", func() {
 		req, move, transportationOffice := setupTestData()
-		handler := UpdateMoveCloseoutTransportationOffice{
+		handler := UpdateMoveCloseoutOfficeHandler{
 			HandlerConfig:             suite.HandlerConfig(),
 			MoveCloseoutOfficeUpdater: closeoutOfficeUpdater,
 		}
@@ -539,7 +539,7 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 		})
 
 		req, move, _ := setupTestData()
-		handler := UpdateMoveCloseoutTransportationOffice{
+		handler := UpdateMoveCloseoutOfficeHandler{
 			HandlerConfig:             suite.HandlerConfig(),
 			MoveCloseoutOfficeUpdater: closeoutOfficeUpdater,
 		}
@@ -562,7 +562,7 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 
 	suite.Run("Unsuccessful eTag does not match", func() {
 		req, move, transportationOffice := setupTestData()
-		handler := UpdateMoveCloseoutTransportationOffice{
+		handler := UpdateMoveCloseoutOfficeHandler{
 			HandlerConfig:             suite.HandlerConfig(),
 			MoveCloseoutOfficeUpdater: closeoutOfficeUpdater,
 		}

@@ -667,8 +667,6 @@ definitions:
   PatchMovePayload:
     type: object
     properties:
-      selected_move_type:
-        $ref: '#/definitions/SelectedMoveType'
       closeoutOfficeId:
         type: string
         format: uuid
@@ -676,6 +674,8 @@ definitions:
           The transportation office that will handle the PPM shipment's closeout
           approvals for Army and Air Force service members
         x-nullable: true
+    required:
+      - closeoutOfficeId
   SelectedMoveType:
     type: string
     title: Selected Move Type

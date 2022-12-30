@@ -140,12 +140,12 @@ func (h SetFinancialReviewFlagHandler) Handle(params moveop.SetFinancialReviewFl
 		})
 }
 
-type UpdateMoveCloseoutTransportationOffice struct {
+type UpdateMoveCloseoutOfficeHandler struct {
 	handlers.HandlerConfig
 	services.MoveCloseoutOfficeUpdater
 }
 
-func (h UpdateMoveCloseoutTransportationOffice) Handle(params moveop.UpdateCloseoutOfficeParams) middleware.Responder {
+func (h UpdateMoveCloseoutOfficeHandler) Handle(params moveop.UpdateCloseoutOfficeParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 

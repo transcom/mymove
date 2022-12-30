@@ -113,7 +113,7 @@ func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Respond
 // PatchMoveHandler patches a move via PATCH /moves/{moveId}
 type PatchMoveHandler struct {
 	handlers.HandlerConfig
-	services.TransportationOfficesFetcher
+	services.MoveCloseoutOfficeUpdater
 }
 
 // Handle ... patches a Move from a request payload
@@ -131,6 +131,8 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 					switch err.(type) {
 					case apperror.NotFoundError:
 						return moveop.NewPatchMoveNotFound(), err
+					case apperror.PreconditionFailedError:
+						return moveop.NewPatchMovePreconditionFailed(), err
 					default:
 						return moveop.NewPatchMoveInternalServerError(), err
 					}
@@ -154,30 +156,11 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 			if err != nil {
 				return handleError(err)
 			}
-			payload := params.PatchMovePayload
-			newSelectedMoveType := payload.SelectedMoveType
 
-			if payload.SelectedMoveType != nil || payload.CloseoutOfficeID != nil {
-				if newSelectedMoveType != nil {
-					stringSelectedMoveType := models.SelectedMoveType(*newSelectedMoveType)
-					move.SelectedMoveType = &stringSelectedMoveType
-				}
-
-				if payload.CloseoutOfficeID != nil {
-					closeoutOfficeID := uuid.FromStringOrNil(payload.CloseoutOfficeID.String())
-					transportationOffice, fetchErr := h.TransportationOfficesFetcher.GetTransportationOffice(appCtx, closeoutOfficeID, true)
-					if fetchErr != nil {
-						return handleError(fetchErr)
-					}
-
-					move.CloseoutOfficeID = &transportationOffice.ID
-					move.CloseoutOffice = transportationOffice
-				}
-
-				verrs, updateErr := appCtx.DB().ValidateAndUpdate(move)
-				if updateErr != nil || verrs.HasAny() {
-					return moveop.NewPatchMoveUnprocessableEntity(), apperror.NewInvalidInputError(moveID, updateErr, verrs, "")
-				}
+			closeoutOfficeID := uuid.FromStringOrNil(params.PatchMovePayload.CloseoutOfficeID.String())
+			move, err = h.MoveCloseoutOfficeUpdater.UpdateCloseoutOffice(appCtx, move.Locator, closeoutOfficeID, params.IfMatch)
+			if err != nil {
+				return handleError(err)
 			}
 
 			movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
