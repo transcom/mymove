@@ -104,12 +104,9 @@ describe('Prime simulator user', () => {
     cy.contains('Actual Weight').siblings().contains('8000');
 
     cy.contains('Destination Address').siblings().contains('142 E Barrel Hoop Circle, Joshua Tree, CA 92252');
-  });
 
-  it('is able to create a payment request', () => {
-    const moveLocator = 'PRMUPD';
-    const moveID = 'ef4a2b75-ceb3-4620-96a8-5ccf26dddb16';
-    const shipmentID = '5375f237-430c-406d-9ec8-5a27244d563a';
+    // this part of the test depends on the part above, so it cannot
+    // be a separate test
 
     // wait for the the available moves page to load
     cy.wait(['@getPrimeClient', '@listMoves']);
