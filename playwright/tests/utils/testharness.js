@@ -46,3 +46,7 @@ export async function buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(req
 export async function buildPrimeSimulatorMoveNeedsShipmentUpdate(request) {
   return buildDefault(request, 'PrimeSimulatorMoveNeedsShipmentUpdate');
 }
+
+export async function buildWebhookSubscription(request) {
+  return buildDefault(request, 'WebhookSubscription');
+}

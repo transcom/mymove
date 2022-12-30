@@ -43,6 +43,9 @@ var actionDispatcher = map[string]actionFunc{
 	"OfficeUserWithTOOAndTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeOfficeUserWithTOOAndTIO(appCtx)
 	},
+	"WebhookSubscription": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return testdatagen.MakeWebhookSubscription(appCtx.DB(), testdatagen.Assertions{})
+	},
 }
 
 func Dispatch(appCtx appcontext.AppContext, action string) (testHarnessResponse, error) {
