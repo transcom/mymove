@@ -32,7 +32,7 @@ type Move struct {
 
 	// The transportation office that will handle reviewing PPM Closeout documentation for Army and Air Force service members
 	// Format: uuid
-	CloseoutOfficeID strfmt.UUID `json:"closeoutOfficeId,omitempty"`
+	CloseoutOfficeID *strfmt.UUID `json:"closeoutOfficeId,omitempty"`
 
 	// contractor
 	Contractor *Contractor `json:"contractor,omitempty"`

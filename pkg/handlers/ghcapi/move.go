@@ -148,7 +148,6 @@ type UpdateMoveCloseoutOfficeHandler struct {
 func (h UpdateMoveCloseoutOfficeHandler) Handle(params moveop.UpdateCloseoutOfficeParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
 			closeoutOfficeID := uuid.FromStringOrNil(params.Body.CloseoutOfficeID.String())
 
 			move, err := h.MoveCloseoutOfficeUpdater.UpdateCloseoutOffice(appCtx, params.Locator, closeoutOfficeID, params.IfMatch)

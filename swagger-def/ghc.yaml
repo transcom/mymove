@@ -1856,6 +1856,8 @@ paths:
       tags:
         - move
       operationId: updateCloseoutOffice
+      x-permissions:
+        - update.closeoutOffice
       summary: Updates a Move's PPM closeout office for Army and Air Force customers
       produces:
         - application/json
@@ -3239,6 +3241,7 @@ definitions:
         type: string
         format: uuid
         description: The transportation office that will handle reviewing PPM Closeout documentation for Army and Air Force service members
+        x-nullable: true
       createdAt:
         type: string
         format: date-time

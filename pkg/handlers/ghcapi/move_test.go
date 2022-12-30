@@ -469,7 +469,7 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 
 	setupTestData := func() (*http.Request, models.Move, models.TransportationOffice) {
 		move = testdatagen.MakeDefaultMove(suite.DB())
-		requestUser = testdatagen.MakeDefaultOfficeUser(suite.DB())
+		requestUser = testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
 		transportationOffice = testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
 			TransportationOffice: models.TransportationOffice{
 				ProvidesCloseout: true,
@@ -507,6 +507,10 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 
 		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Equal(closeoutOfficeID, *payload.CloseoutOfficeID)
+		suite.Equal(closeoutOfficeID, *payload.CloseoutOffice.ID)
+		suite.Equal(transportationOffice.AddressID.String(), payload.CloseoutOffice.Address.ID.String())
 	})
 
 	suite.Run("Unsuccessful move not found", func() {

@@ -1781,7 +1781,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.closeoutOffice"
+        ]
       },
       "parameters": [
         {
@@ -6144,7 +6147,8 @@ func init() {
         "closeoutOfficeId": {
           "description": "The transportation office that will handle reviewing PPM Closeout documentation for Army and Air Force service members",
           "type": "string",
-          "format": "uuid"
+          "format": "uuid",
+          "x-nullable": true
         },
         "contractor": {
           "$ref": "#/definitions/Contractor"
@@ -11501,7 +11505,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.closeoutOffice"
+        ]
       },
       "parameters": [
         {
@@ -16525,7 +16532,8 @@ func init() {
         "closeoutOfficeId": {
           "description": "The transportation office that will handle reviewing PPM Closeout documentation for Army and Air Force service members",
           "type": "string",
-          "format": "uuid"
+          "format": "uuid",
+          "x-nullable": true
         },
         "contractor": {
           "$ref": "#/definitions/Contractor"
