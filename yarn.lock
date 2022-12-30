@@ -16733,24 +16733,10 @@ quick-lru@^5.1.1:
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-5.1.1.tgz#366493e6b3e42a3a6885e2e99d18f80fb7a8c932"
   integrity sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==
 
-ra-core@^3.19.12:
-  version "3.19.12"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.19.12.tgz#440afa96b18b5170c0b00965c3747a5223277b8d"
-  integrity sha512-E0cM6OjEUtccaR+dR5mL1MLiVVYML0Yf7aPhpLEq4iue73X3+CKcLztInoBhWgeevPbFQwgAtsXhlpedeyrNNg==
-  dependencies:
-    classnames "~2.3.1"
-    date-fns "^1.29.0"
-    eventemitter3 "^3.0.0"
-    inflection "~1.13.1"
-    lodash "~4.17.5"
-    prop-types "^15.6.1"
-    query-string "^5.1.1"
-    reselect "~3.0.0"
-
-ra-core@^4.9.0:
-  version "4.9.0"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.9.0.tgz#763d7f2eb2696ea6f27c4e1d33c4eb29646b34af"
-  integrity sha512-H+/AFZWx69J5ONPLOth8Rz8l379Dgpms5Tnn3XQSBldAqLPAre5B1wAkgaO9l9huE92Yoa/jo9EXidWN67UmEQ==
+ra-core@^4.5.2, ra-core@^4.7.2:
+  version "4.7.2"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.7.2.tgz#fdfe127da3aa04ff5b53d265ca3a00d6590b77ad"
+  integrity sha512-05PPxlcHvAgDFRlos3WwR52FA9jFyn1IXQYetvFksyah/1mulSVptXrzG3LdWBE/XazsgHi5JT7G8BdqxJyGzw==
   dependencies:
     clsx "^1.1.1"
     date-fns "^2.19.0"
@@ -16776,14 +16762,14 @@ ra-i18n-polyglot@^3.19.11:
   integrity sha512-qtZ9ahesyMP3aeR6ClaJJ9B2Y1xF65MXnQwTZC4j1x1B5Ea+0DUcenAW3TVXSC8ZXFw+zH39XozqBhoHGyfcVA==
   dependencies:
     node-polyglot "^2.2.2"
-    ra-core "^3.19.11"
+    ra-core "^4.5.2"
 
-ra-language-english@^3.19.12:
-  version "3.19.12"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.19.12.tgz#a9df05dba714b7d097f366dbf1bfce72f4361bd1"
-  integrity sha512-aYY0ma74eXLuflPT9iXEQtVEDZxebw1NiQZ5pPGiBCpsq+hoiDWuzerLU13OdBHbySD5FHLuk89SkyAdfMtUaQ==
+ra-language-english@^4.5.2, ra-language-english@^4.7.0:
+  version "4.7.2"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.7.2.tgz#4e72eb2a78a81b8839f8b81702c73430cbaee6c6"
+  integrity sha512-F/s6ElTitIsNbxt7LMiaAPdb3vx2vkSeB9goaqWN8lP/ZRSvLEeDQ7Zj3hjHv3nbKI/uglVBHmhZvFJMDjbULQ==
   dependencies:
-    ra-core "^3.19.12"
+    ra-core "^4.7.2"
 
 ra-language-english@^4.9.0:
   version "4.9.0"
@@ -17633,10 +17619,10 @@ redux-persist@^6.0.0:
   resolved "https://registry.yarnpkg.com/redux-persist/-/redux-persist-6.0.0.tgz#b4d2972f9859597c130d40d4b146fecdab51b3a8"
   integrity sha512-71LLMbUq2r02ng2We9S215LtPu3fY0KgaGE0k8WRgl6RkqxtGfl7HUozz1Dftwsb0D/5mZ8dwAaPbtnzfvbEwQ==
 
-redux-saga@^1.0.0, redux-saga@^1.2.3:
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/redux-saga/-/redux-saga-1.2.3.tgz#7362f78a0235868daf1210f8862a95906ac018a1"
-  integrity sha512-HDe0wTR5nhd8Xr5xjGzoyTbdAw6rjy1GDplFt3JKtKN8/MnkQSRqK/n6aQQhpw5NI4ekDVOaW+w4sdxPBaCoTQ==
+redux-saga@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/redux-saga/-/redux-saga-1.2.2.tgz#4b9b30e022cf94ed1450605e9afd45998c3e8ac1"
+  integrity sha512-6xAHWgOqRP75MFuLq88waKK9/+6dCdMQjii2TohDMARVHeQ6HZrZoJ9HZ3dLqMWCZ9kj4iuS6CDsujgnovn11A==
   dependencies:
     "@redux-saga/core" "^1.2.3"
 
