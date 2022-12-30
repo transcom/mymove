@@ -52,6 +52,22 @@ class AdminPage {
   async buildDefaultMove() {
     return buildDefaultMove(this.request);
   }
+
+  /**
+   */
+  async expectRoleLabelsByText(role, labels, options = { exact: true }) {
+    for (const label of labels) {
+      await base.expect(this.page.getByRole(role).getByText(label, options)).toBeVisible();
+    }
+  }
+
+  /**
+   */
+  async expectLocatorLabelsByText(locator, labels, options = { exact: true }) {
+    for (const label of labels) {
+      await base.expect(this.page.locator(locator).getByText(label, options)).toBeVisible();
+    }
+  }
 }
 
 exports.test = base.test.extend({

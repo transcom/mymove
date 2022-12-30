@@ -5,22 +5,23 @@ test('Admin Users List Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
+  await adminPage.waitForAdminPageToLoad();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
   const columnLabels = ['Id', 'Email', 'First name', 'Last name', 'User Id', 'Active'];
 
-  for (const label of columnLabels) {
-    await expect(page.getByRole('columnheader').getByText(label, { exact: true })).toBeVisible();
-  }
+  await adminPage.expectRoleLabelsByText('columnheader', columnLabels);
 });
 
 test('Admin User Create Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
+  await adminPage.waitForAdminPageToLoad();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Create' }).click();
+  await adminPage.waitForAdminPageToLoad();
   await expect(page.getByRole('heading', { name: 'Create Admin Users' })).toBeVisible();
 
   // we need to add the date to the email so that it is unique every time (only one record per email allowed in db)
@@ -34,6 +35,7 @@ test('Admin User Create Page', async ({ page, adminPage }) => {
   await page.getByLabel('Organization').click();
   await page.getByRole('option').first().click();
   await page.getByRole('button').filter({ hasText: 'Save' }).click();
+  await adminPage.waitForAdminPageToLoad();
 
   // redirected to edit details page
   const adminUserID = await page.locator('#id').inputValue();
@@ -50,10 +52,12 @@ test('Admin Users Show Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
+  await adminPage.waitForAdminPageToLoad();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
   // click on first row
   await page.locator('tr[resource="admin_users"]').first().click();
+  await adminPage.waitForAdminPageToLoad();
 
   const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();
   expect(page.url()).toContain(id);
@@ -75,14 +79,11 @@ test('Admin Users Show Page', async ({ page, adminPage }) => {
     'Updated at',
   ];
 
-  for (const label of labels) {
-    await expect(page.locator('label').getByText(label, { exact: true })).toBeVisible();
-  }
+  await adminPage.expectLocatorLabelsByText('label', labels, { exact: true });
 });
 
 test('Admin Users Edit Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();
-  await adminPage.waitForAdminPageToLoad();
 
   // create a new admin user to edit
   // using an existing one may stop on a concurrent playwright session

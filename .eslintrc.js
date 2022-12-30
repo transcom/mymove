@@ -103,7 +103,7 @@ module.exports = {
       },
     },
     {
-      files: ['**/*.spec.js*'],
+      files: ['playwright/**/*.js*'],
       rules: {
         'no-restricted-syntax': 'off',
         'no-await-in-loop': 'off',

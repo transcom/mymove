@@ -18,9 +18,7 @@ test.describe('Office Users List Page', () => {
 
     const columnLabels = ['Id', 'Email', 'First name', 'Last name', 'Transportation Office', 'User Id', 'Active'];
 
-    for (const label of columnLabels) {
-      await expect(page.getByRole('columnheader').getByText(label, { exact: true })).toBeVisible();
-    }
+    await adminPage.expectRoleLabelsByText('columnheader', columnLabels);
   });
 });
 
@@ -51,7 +49,9 @@ test.describe('Office User Create Page', () => {
     await page.getByLabel('Telephone').fill('222-555-1234');
     await page.getByText('Services Counselor').click();
     await page.getByLabel('Transportation Office').fill('JPPSO Testy McTest');
-    await page.getByRole('option', { name: 'JPPSOTestyMcTest' }).click();
+    // the autocomplete might return multiples because of concurrent
+    // tests running that are adding offices
+    await page.getByRole('option', { name: 'JPPSOTestyMcTest' }).first().click();
 
     await page.getByRole('button', { name: 'Save' }).click();
     await adminPage.waitForAdminPageToLoad();
@@ -104,9 +104,7 @@ test.describe('Office Users Show Page', () => {
       'Created at',
       'Updated at',
     ];
-    for (const label of labels) {
-      await expect(page.locator('label').getByText(label, { exact: true })).toBeVisible();
-    }
+    await adminPage.expectLocatorLabelsByText('label', labels, { exact: true });
   });
 });
 
