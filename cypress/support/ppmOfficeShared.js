@@ -2,7 +2,8 @@ export function navigateToShipmentDetails(moveLocator) {
   /**
    * SC Moves queue
    */
-  cy.get('[data-testid="closeout-tab-link"]').click();
+  // use move in counseling tab, this effects PPM cypress tests in the 3 ppm files
+  cy.get('[data-testid="counseling-tab-link"]').click();
 
   cy.wait(['@getSortedMoves']);
   cy.get('input[name="locator"]').as('moveCodeFilterInput');
