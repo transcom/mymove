@@ -20,7 +20,7 @@ describe('Services counselor user', () => {
 
     // Note this intercept is specific to a particular move locator
     cy.intercept(
-      '**/ghc/v1/queues/counseling?page=1&perPage=20&sort=closeoutInitiated&order=asc&locator=PPMADD&needsPPMCloseout=true',
+      '**/ghc/v1/queues/counseling?page=1&perPage=20&sort=**&order=asc&locator=PPMADD&needsPPMCloseout=false',
     ).as('getFilterSortedMoves');
     cy.intercept('GET', '**/ghc/v1/move/**').as('getMoves');
     cy.intercept('GET', '**/ghc/v1/orders/**').as('getOrders');
@@ -44,7 +44,6 @@ describe('Services counselor user', () => {
     navigateToShipmentDetails(moveLocator);
 
     // Delete existing shipment
-    cy.get('[data-testid="expectedDepartureDate"]').contains('15 Mar 2020');
     cy.get('[data-testid="ShipmentContainer"] .usa-button').click();
     cy.wait(['@getMTOShipments', '@getMoves']);
     cy.get('[data-testid="grid"] button').contains('Delete shipment').click();
