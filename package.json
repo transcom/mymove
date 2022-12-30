@@ -91,7 +91,8 @@
     "eslint-plugin-react": "^7.28",
     "**/ua-parser-js": "0.7.28",
     "node-fetch": "^2.6.7",
-    "minimist": "^1.2.6"
+    "minimist": "^1.2.6",
+    "json5": "^2.2.2"
   },
   "name": "client",
   "private": true,
