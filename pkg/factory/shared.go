@@ -3,11 +3,15 @@ package factory
 import (
 	"fmt"
 	"log"
+	"os"
+	"path"
+	"path/filepath"
 	"reflect"
 	"strconv"
 	"strings"
 
 	"github.com/gobuffalo/pop/v6"
+	"github.com/spf13/afero"
 
 	"github.com/transcom/mymove/pkg/random"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -15,9 +19,11 @@ import (
 
 // Customization type is the building block for passing in customizations and traits
 type Customization struct {
-	Model    interface{}
-	Type     *CustomType
-	LinkOnly bool
+	Model interface{} // The model that the factory will build
+	Type  *CustomType // Custom type, usually same as model,
+	// except for models that appear in multiple fields
+	LinkOnly       bool        // Tells factory to just link in this model, do not create
+	ExtendedParams interface{} // Some models need extra data for creation, pointer to extended params
 }
 
 // CustomType is a string that represents what kind of customization it is
@@ -37,6 +43,7 @@ var Order CustomType = "Order"
 var ServiceMember CustomType = "ServiceMember"
 var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
 var TransportationOffice CustomType = "TransportationOffice"
+var Upload CustomType = "Upload"
 var User CustomType = "User"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
@@ -50,6 +57,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.ServiceMember":        ServiceMember,
 	"models.Tariff400ngZip3":      Tariff400ngZip3,
 	"models.TransportationOffice": TransportationOffice,
+	"models.Upload":               Upload,
 	"models.User":                 User,
 }
 
@@ -444,4 +452,24 @@ func setBoolPtr(customBoolPtr *bool, defaultBool bool) *bool {
 		result = customBoolPtr
 	}
 	return result
+}
+
+// FixtureOpen opens a file from the testdata dir
+func FixtureOpen(name string) afero.File {
+	fixtureDir := "testdata"
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to get current directory: %s", err))
+	}
+
+	// if this is called from inside another package remove so we're left with the parent dir
+	cwd = strings.Split(cwd, "pkg")[0]
+
+	fixturePath := path.Join(cwd, "pkg/testdatagen", fixtureDir, name)
+	file, err := os.Open(filepath.Clean(fixturePath))
+	if err != nil {
+		log.Panic(fmt.Errorf("Error opening local file: %v", err))
+	}
+
+	return file
 }
