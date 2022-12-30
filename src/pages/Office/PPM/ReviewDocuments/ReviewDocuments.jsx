@@ -19,8 +19,9 @@ export const ReviewDocuments = ({ match }) => {
   const { ppmShipment } = mtoShipments.filter((shipment) => shipment.id === shipmentId)[0];
   let uploads = [];
   ppmShipment?.weightTickets?.forEach((weightTicket) => {
-    uploads = uploads.concat(weightTicket.emptyDocument.uploads);
-    uploads = uploads.concat(weightTicket.fullDocument.uploads);
+    uploads = uploads.concat(weightTicket.emptyDocument?.uploads);
+    uploads = uploads.concat(weightTicket.fullDocument?.uploads);
+    uploads = uploads.concat(weightTicket.proofOfTrailerOwnershipDocument?.uploads);
   });
 
   return (
