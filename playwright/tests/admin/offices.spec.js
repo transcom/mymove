@@ -11,8 +11,6 @@ test.describe('Offices Page', () => {
     await expect(page.getByLabel('Search by Office Name')).toBeEditable();
 
     const columnLabels = ['Id', 'Name', 'Latitude', 'Longitude', 'Gbloc'];
-    for (const label of columnLabels) {
-      await expect(page.locator('table')).toContainText(label);
-    }
+    await adminPage.expectRoleLabelsByText('columnheader', columnLabels);
   });
 });

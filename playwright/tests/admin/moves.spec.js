@@ -12,9 +12,7 @@ test('Moves Page', async ({ page, adminPage }) => {
   await expect(page.getByRole('heading', { name: 'Moves' })).toBeVisible();
 
   const columnLabels = ['Id', 'Order Id', 'Service Member Id', 'Locator', 'Status', 'Show', 'Created at', 'Updated at'];
-  for (const label of columnLabels) {
-    await expect(page.getByRole('columnheader').getByText(label, { exact: true })).toBeVisible();
-  }
+  await adminPage.expectRoleLabelsByText('columnheader', columnLabels);
 });
 
 test('Moves Details Show Page', async ({ page, adminPage }) => {
@@ -45,9 +43,7 @@ test('Moves Details Show Page', async ({ page, adminPage }) => {
     'Service member last name',
   ];
 
-  for (const label of labels) {
-    await expect(page.locator('label').getByText(label, { exact: true })).toBeVisible();
-  }
+  await adminPage.expectLocatorLabelsByText('label', labels, { exact: true });
 });
 
 test('Moves Details Edit Page', async ({ page, adminPage }) => {

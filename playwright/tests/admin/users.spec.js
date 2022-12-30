@@ -27,6 +27,10 @@ test.describe('Users Details Show Page', () => {
     await adminPage.waitForAdminPageToLoad();
     expect(page.url()).toContain('/system/users');
 
+    await page.getByLabel('Search by User Id or Email').click();
+    await page.getByLabel('Search by User Id or Email').fill(email);
+    await page.getByLabel('Search by User Id or Email').press('Enter');
+    await expect(page.getByRole('cell', { name: email })).toHaveCount(1);
     await page.getByText(email).click();
     await adminPage.waitForAdminPageToLoad();
 
@@ -50,6 +54,10 @@ test.describe('Users Details Edit Page', () => {
     await adminPage.waitForAdminPageToLoad();
     expect(page.url()).toContain('/system/users');
 
+    await page.getByLabel('Search by User Id or Email').click();
+    await page.getByLabel('Search by User Id or Email').fill(email);
+    await page.getByLabel('Search by User Id or Email').press('Enter');
+    await expect(page.getByRole('cell', { name: email })).toHaveCount(1);
     await page.getByText(email).click();
     await adminPage.waitForAdminPageToLoad();
 
