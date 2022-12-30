@@ -68,8 +68,9 @@ func (o *UpdateCloseoutOffice) ServeHTTP(rw http.ResponseWriter, r *http.Request
 type UpdateCloseoutOfficeBody struct {
 
 	// closeout office Id
+	// Required: true
 	// Format: uuid
-	CloseoutOfficeID strfmt.UUID `json:"closeoutOfficeId,omitempty"`
+	CloseoutOfficeID *strfmt.UUID `json:"closeoutOfficeId"`
 }
 
 // Validate validates this update closeout office body
@@ -87,8 +88,9 @@ func (o *UpdateCloseoutOfficeBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *UpdateCloseoutOfficeBody) validateCloseoutOfficeID(formats strfmt.Registry) error {
-	if swag.IsZero(o.CloseoutOfficeID) { // not required
-		return nil
+
+	if err := validate.Required("body"+"."+"closeoutOfficeId", "body", o.CloseoutOfficeID); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("body"+"."+"closeoutOfficeId", "body", "uuid", o.CloseoutOfficeID.String(), formats); err != nil {

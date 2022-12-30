@@ -1735,6 +1735,9 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
+              "required": [
+                "closeoutOfficeId"
+              ],
               "properties": {
                 "closeoutOfficeId": {
                   "type": "string",
@@ -11431,6 +11434,9 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
+              "required": [
+                "closeoutOfficeId"
+              ],
               "properties": {
                 "closeoutOfficeId": {
                   "type": "string",

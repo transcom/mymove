@@ -1925,6 +1925,8 @@ paths:
               closeoutOfficeId:
                 type: string
                 format: uuid
+            required:
+              - closeoutOfficeId
         - in: header
           name: If-Match
           type: string

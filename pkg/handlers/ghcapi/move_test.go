@@ -488,11 +488,12 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 			MoveCloseoutOfficeUpdater: closeoutOfficeUpdater,
 		}
 
+		closeoutOfficeID := strfmt.UUID(transportationOffice.ID.String())
 		params := moveops.UpdateCloseoutOfficeParams{
 			HTTPRequest: req,
 			IfMatch:     etag.GenerateEtag(move.UpdatedAt),
 			Body: moveops.UpdateCloseoutOfficeBody{
-				CloseoutOfficeID: strfmt.UUID(transportationOffice.ID.String()),
+				CloseoutOfficeID: &closeoutOfficeID,
 			},
 			Locator: move.Locator,
 		}
@@ -515,11 +516,12 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 			MoveCloseoutOfficeUpdater: closeoutOfficeUpdater,
 		}
 
+		closeoutOfficeID := strfmt.UUID(transportationOffice.ID.String())
 		params := moveops.UpdateCloseoutOfficeParams{
 			HTTPRequest: req,
 			IfMatch:     etag.GenerateEtag(move.UpdatedAt),
 			Body: moveops.UpdateCloseoutOfficeBody{
-				CloseoutOfficeID: strfmt.UUID(transportationOffice.ID.String()),
+				CloseoutOfficeID: &closeoutOfficeID,
 			},
 			Locator: "ABC123",
 		}
@@ -544,11 +546,12 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 			MoveCloseoutOfficeUpdater: closeoutOfficeUpdater,
 		}
 
+		closeoutOfficeID := strfmt.UUID(transportationOfficeNonCloseout.ID.String())
 		params := moveops.UpdateCloseoutOfficeParams{
 			HTTPRequest: req,
 			IfMatch:     etag.GenerateEtag(move.UpdatedAt),
 			Body: moveops.UpdateCloseoutOfficeBody{
-				CloseoutOfficeID: strfmt.UUID(transportationOfficeNonCloseout.ID.String()),
+				CloseoutOfficeID: &closeoutOfficeID,
 			},
 			Locator: move.Locator,
 		}
@@ -567,11 +570,12 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 			MoveCloseoutOfficeUpdater: closeoutOfficeUpdater,
 		}
 
+		closeoutOfficeID := strfmt.UUID(transportationOffice.ID.String())
 		params := moveops.UpdateCloseoutOfficeParams{
 			HTTPRequest: req,
 			IfMatch:     etag.GenerateEtag(time.Now()),
 			Body: moveops.UpdateCloseoutOfficeBody{
-				CloseoutOfficeID: strfmt.UUID(transportationOffice.ID.String()),
+				CloseoutOfficeID: &closeoutOfficeID,
 			},
 			Locator: move.Locator,
 		}

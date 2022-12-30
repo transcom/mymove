@@ -153,7 +153,7 @@ func (h UpdateMoveCloseoutOfficeHandler) Handle(params moveop.UpdateCloseoutOffi
 
 			move, err := h.MoveCloseoutOfficeUpdater.UpdateCloseoutOffice(appCtx, params.Locator, closeoutOfficeID, params.IfMatch)
 			if err != nil {
-				appCtx.Logger().Error("UpdateMoveCloseoutOffice handler error", zap.Error(err))
+				appCtx.Logger().Error("UpdateMoveCloseoutOfficeHandler error", zap.Error(err))
 				switch err.(type) {
 				case apperror.NotFoundError:
 					return moveop.NewUpdateCloseoutOfficeNotFound(), err

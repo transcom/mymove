@@ -6019,8 +6019,7 @@ func init() {
         "closeoutOfficeId": {
           "description": "The transportation office that will handle the PPM shipment's closeout approvals for Army and Air Force service members",
           "type": "string",
-          "format": "uuid",
-          "x-nullable": true
+          "format": "uuid"
         }
       }
     },
@@ -14409,8 +14408,7 @@ func init() {
         "closeoutOfficeId": {
           "description": "The transportation office that will handle the PPM shipment's closeout approvals for Army and Air Force service members",
           "type": "string",
-          "format": "uuid",
-          "x-nullable": true
+          "format": "uuid"
         }
       }
     },

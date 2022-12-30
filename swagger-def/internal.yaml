@@ -670,7 +670,6 @@ definitions:
         type: string
         format: uuid
         description: The transportation office that will handle the PPM shipment's closeout approvals for Army and Air Force service members
-        x-nullable: true
     required:
       - closeoutOfficeId
   SelectedMoveType:
