@@ -3,7 +3,12 @@
 const base = require('@playwright/test');
 
 const { signIntoAdminAsNewAdminUser } = require('./signIn');
-const { buildDefaultAdminUser, buildDefaultMove, buildOfficeUserWithTOOAndTIO } = require('./testharness');
+const {
+  buildDefaultAdminUser,
+  buildDefaultMove,
+  buildOfficeUserWithTOOAndTIO,
+  buildWebhookSubscription,
+} = require('./testharness');
 
 class AdminPage {
   /**
@@ -51,6 +56,12 @@ class AdminPage {
    */
   async buildDefaultMove() {
     return buildDefaultMove(this.request);
+  }
+
+  /**
+   */
+  async buildWebhookSubscription() {
+    return buildWebhookSubscription(this.request);
   }
 
   /**
