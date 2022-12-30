@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom-old';
+import { MemoryRouter } from 'react-router-dom';
 
 import ServicesCounselingTabNav from './ServicesCounselingTabNav';
 

@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { queryCache, useMutation } from 'react-query';
-import { useParams, useHistory } from 'react-router-dom-old';
-import { generatePath } from 'react-router';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
 import classnames from 'classnames';
@@ -44,7 +43,7 @@ const MovePaymentRequests = ({
   setPendingPaymentRequestCount,
 }) => {
   const { moveCode } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { move, paymentRequests, order, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
   const [alertMessage, setAlertMessage] = useState(null);
@@ -167,7 +166,7 @@ const MovePaymentRequests = ({
   }
 
   const handleReviewWeightsClick = () => {
-    history.push(generatePath(tioRoutes.BILLABLE_WEIGHT_PATH, { moveCode }));
+    navigate(`../${tioRoutes.BILLABLE_WEIGHT_PATH}`);
     const payload = {
       moveTaskOrderID: move?.id,
       ifMatchETag: move?.eTag,

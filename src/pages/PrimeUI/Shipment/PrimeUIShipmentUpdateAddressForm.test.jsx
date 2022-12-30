@@ -3,19 +3,19 @@ import { render, screen, waitFor } from '@testing-library/react';
 import * as Yup from 'yup';
 import userEvent from '@testing-library/user-event';
 
-import { requiredAddressSchema } from '../../../utils/validation';
-import { fromPrimeAPIAddressFormat } from '../../../utils/formatters';
-
 import PrimeUIShipmentUpdateAddressForm from './PrimeUIShipmentUpdateAddressForm';
 
-const mockUseHistoryPush = jest.fn();
+import { requiredAddressSchema } from 'utils/validation';
+import { fromPrimeAPIAddressFormat } from 'utils/formatters';
+import { MockProviders } from 'testUtils';
+import { primeSimulatorRoutes } from 'constants/routes';
+
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn().mockReturnValue({ moveCodeOrID: 'LN4T89', shipmentId: '4' }),
-  useHistory: () => ({
-    push: mockUseHistoryPush,
-  }),
+  useNavigate: () => mockNavigate,
 }));
+const routingParams = { moveCodeOrID: 'LN4T89', shipmentId: '4' };
 
 describe('PrimeUIShipmentUpdateAddressForm', () => {
   const shipmentAddress = {
@@ -48,8 +48,16 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     eTag: Yup.string(),
   });
 
-  it('renders the form', async () => {
+  const renderWithProviders = (component) => {
     render(
+      <MockProviders path={primeSimulatorRoutes.SHIPMENT_UPDATE_ADDRESS_PATH} params={routingParams}>
+        {component}
+      </MockProviders>,
+    );
+  };
+
+  it('renders the form', async () => {
+    renderWithProviders(
       <PrimeUIShipmentUpdateAddressForm
         initialValues={initialValuesPickupAddress}
         updateShipmentAddressSchema={updatePickupAddressSchema}
@@ -68,7 +76,7 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
   });
 
   it('change text and button is enabled', async () => {
-    render(
+    renderWithProviders(
       <PrimeUIShipmentUpdateAddressForm
         initialValues={initialValuesPickupAddress}
         updateShipmentAddressSchema={updatePickupAddressSchema}
@@ -92,7 +100,7 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
   });
 
   it('disables the submit button when the zip is bad', async () => {
-    render(
+    renderWithProviders(
       <PrimeUIShipmentUpdateAddressForm
         initialValues={initialValuesPickupAddress}
         updateShipmentAddressSchema={updatePickupAddressSchema}
@@ -111,7 +119,7 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
   });
 
   it('disables the submit button when the address 1 is missing', async () => {
-    render(
+    renderWithProviders(
       <PrimeUIShipmentUpdateAddressForm
         initialValues={initialValuesPickupAddress}
         updateShipmentAddressSchema={updatePickupAddressSchema}
@@ -129,7 +137,7 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
   });
 
   it('disables the submit button when city is missing', async () => {
-    render(
+    renderWithProviders(
       <PrimeUIShipmentUpdateAddressForm
         initialValues={initialValuesPickupAddress}
         updateShipmentAddressSchema={updatePickupAddressSchema}

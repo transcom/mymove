@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom-old';
+import { useNavigate } from 'react-router-dom';
 import { useIdleTimer } from 'react-idle-timer';
 import { useSelector, useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
 
 import { logOut } from 'store/auth/actions';
 import { selectIsLoggedIn } from 'store/auth/selectors';
@@ -17,7 +16,7 @@ const keepAliveEndpoint = '/internal/users/logged_in';
 const LogoutOnInactivity = ({ maxIdleTimeInSeconds, maxWarningTimeInSeconds }) => {
   const [isIdle, setIsIdle] = useState(false);
   const [timeLeftInSeconds, setTimeLeftInSeconds] = useState(maxWarningTimeInSeconds);
-  const history = useHistory();
+  const navigate = useNavigate();
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const dispatch = useDispatch();
 
@@ -51,23 +50,20 @@ const LogoutOnInactivity = ({ maxIdleTimeInSeconds, maxWarningTimeInSeconds }) =
         if (timeLeft > 1) {
           timeLeft -= 1;
         } else {
-          dispatch(push(logOut));
+          dispatch(navigate(logOut));
           LogoutUser().then((r) => {
             const redirectURL = r.body;
             if (redirectURL) {
               window.location.href = redirectURL;
             } else {
-              history.push({
-                pathname: '/sign-in',
-                state: { hasLoggedOut: true },
-              });
+              navigate('/sign-in', { state: { hasLoggedOut: true } });
             }
           });
         }
       }, 1000);
     }
     return () => clearInterval(warningTimer);
-  }, [isIdle, isLoggedIn, history, maxWarningTimeInSeconds, dispatch]);
+  }, [isIdle, isLoggedIn, maxWarningTimeInSeconds, dispatch, navigate]);
 
   return (
     isLoggedIn && (

@@ -1,6 +1,4 @@
 import React from 'react';
-import * as reactRedux from 'react-redux';
-import { push } from 'connected-react-router';
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -9,15 +7,24 @@ import ConnectedDodInfo, { DodInfo } from './DodInfo';
 import { MockProviders } from 'testUtils';
 import { patchServiceMember } from 'services/internalApi';
 
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   patchServiceMember: jest.fn(),
 }));
 
+beforeEach(() => {
+  jest.resetAllMocks();
+});
+
 describe('DodInfo page', () => {
   const testProps = {
     updateServiceMember: jest.fn(),
-    push: jest.fn(),
     serviceMember: {
       id: 'testServiceMemberId',
     },
@@ -40,7 +47,7 @@ describe('DodInfo page', () => {
     });
 
     await userEvent.click(backButton);
-    expect(testProps.push).toHaveBeenCalledWith('/service-member/conus-oconus');
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/conus-oconus');
   });
 
   it('next button submits the form and goes to the Name step', async () => {
@@ -65,7 +72,7 @@ describe('DodInfo page', () => {
     });
 
     expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
-    expect(testProps.push).toHaveBeenCalledWith('/service-member/name');
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/name');
   });
 
   it('shows an error if the API returns an error', async () => {
@@ -102,25 +109,15 @@ describe('DodInfo page', () => {
 
     expect(queryByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
-    expect(testProps.push).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   afterEach(jest.resetAllMocks);
 });
 
 describe('requireCustomerState DodInfo', () => {
-  const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
-  const mockDispatch = jest.fn();
-
-  beforeEach(() => {
-    useDispatchMock.mockClear();
-    mockDispatch.mockClear();
-    useDispatchMock.mockReturnValue(mockDispatch);
-  });
-
   const props = {
     updateServiceMember: jest.fn(),
-    push: jest.fn(),
   };
 
   it('does not redirect if the current state equals the "EMPTY PROFILE" state', async () => {
@@ -148,7 +145,7 @@ describe('requireCustomerState DodInfo', () => {
     );
 
     await waitFor(() => {
-      expect(mockDispatch).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
@@ -185,7 +182,7 @@ describe('requireCustomerState DodInfo', () => {
     );
 
     await waitFor(() => {
-      expect(mockDispatch).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
@@ -236,7 +233,7 @@ describe('requireCustomerState DodInfo', () => {
     );
 
     await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
   });
 });

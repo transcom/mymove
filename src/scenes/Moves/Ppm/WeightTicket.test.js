@@ -1,10 +1,8 @@
 import React from 'react';
 import WeightTicket from './WeightTicket';
 import { mount } from 'enzyme';
-import { Provider } from 'react-redux';
-import store from 'shared/store';
-import { HashRouter as Router } from 'react-router-dom-old';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
+import { MockProviders } from 'testUtils';
 
 function mountComponents(
   moreWeightTickets = 'Yes',
@@ -12,26 +10,24 @@ function mountComponents(
   uploaderWithInvalidState,
   weightTicketSetType = 'CAR',
 ) {
-  const initialValues = {
+  const initialState = {
     emptyWeight: 1100,
     fullWeight: 2000,
     weightTicketSetType: weightTicketSetType,
     weightTicketDate: '2019-05-22',
   };
-  const match = { params: { moveId: 'someID' } };
+  const params = { moveId: 'someID' };
   const wrapper = mount(
-    <Provider store={store}>
-      <Router push={jest.fn()}>
-        <WeightTicket match={match} />
-      </Router>
-    </Provider>,
+    <MockProviders params={params} initialState={initialState}>
+      <WeightTicket />
+    </MockProviders>,
   );
   const wt = wrapper.find('WeightTicket');
   if (formInvalid !== undefined) {
     wt.instance().invalid = jest.fn().mockReturnValue(formInvalid);
     wt.instance().uploaderWithInvalidState = jest.fn().mockReturnValue(uploaderWithInvalidState);
   }
-  wt.setState({ additionalWeightTickets: moreWeightTickets, ...initialValues });
+  wt.setState({ additionalWeightTickets: moreWeightTickets, ...initialState });
   wt.update();
   return wrapper.find('WeightTicket');
 }

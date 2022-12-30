@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import * as PropTypes from 'prop-types';
 import 'styles/office.scss';
 import { GridContainer, Grid, Button, Radio, FormGroup, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
-import { useParams, useHistory, useLocation } from 'react-router';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useMutation, queryCache } from 'react-query';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
@@ -32,8 +32,7 @@ const EvaluationForm = ({
   destinationDutyLocationPostalCode,
 }) => {
   const { moveCode, reportId } = useParams();
-  const history = useHistory();
-  const location = useLocation();
+  const navigate = useNavigate();
 
   const [deleteEvaluationReportMutation] = useMutation(deleteEvaluationReport);
   const [submitEvaluationReportMutation] = useMutation(submitEvaluationReport, {
@@ -43,7 +42,7 @@ const EvaluationForm = ({
     },
     onSuccess: () => {
       // Reroute back to eval report page, include flag to show success alert
-      history.push(`/moves/${moveCode}/evaluation-reports`, { showSubmitSuccess: true });
+      navigate(`/moves/${moveCode}/evaluation-reports`, { state: { showSubmitSuccess: true } });
     },
   });
 
@@ -67,7 +66,7 @@ const EvaluationForm = ({
 
   // cancel report updates but don't delete, just re-route back to reports page
   const cancelForUpdatedReport = () => {
-    history.push(`/moves/${moveCode}/evaluation-reports`);
+    navigate(`/moves/${moveCode}/evaluation-reports`);
   };
 
   const deleteReport = async () => {
@@ -78,7 +77,7 @@ const EvaluationForm = ({
     await deleteEvaluationReportMutation(reportId);
 
     // Reroute back to eval report page, include flag to know to show alert
-    history.push(`/moves/${moveCode}/evaluation-reports`, { showCanceledSuccess: true });
+    navigate(`/moves/${moveCode}/evaluation-reports`, { state: { showCanceledSuccess: true } });
   };
 
   // passed to the confrimation modal
@@ -182,7 +181,7 @@ const EvaluationForm = ({
   const handleSaveDraft = async (values) => {
     await saveDraft(values);
 
-    history.push(`/moves/${moveCode}/evaluation-reports`, { showSaveDraftSuccess: true });
+    navigate(`/moves/${moveCode}/evaluation-reports`, { state: { showSaveDraftSuccess: true } });
   };
 
   // Review and Submit button
@@ -200,7 +199,7 @@ const EvaluationForm = ({
     await saveDraft(values);
 
     // Reroute to currentURL/violations
-    history.push(`${location.pathname}/violations`);
+    navigate('violations');
   };
 
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;

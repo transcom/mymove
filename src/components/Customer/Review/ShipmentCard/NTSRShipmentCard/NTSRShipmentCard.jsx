@@ -1,7 +1,7 @@
 import React from 'react';
 import { string, shape, func, bool } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 
 import styles from '../ShipmentCard.module.scss';
 import DeliveryDisplay from '../DeliveryDisplay';

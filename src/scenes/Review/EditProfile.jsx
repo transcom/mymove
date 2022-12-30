@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 
-import { push } from 'connected-react-router';
 import { Field, reduxForm } from 'redux-form';
 
 import { getResponseError, patchServiceMember } from 'services/internalApi';
@@ -129,7 +128,8 @@ class EditProfile extends Component {
           setFlashMessage('EDIT_PROFILE_SUCCESS', 'success', '', 'Your changes have been saved.');
         }
 
-        this.props.history.goBack();
+        const { router: navigate } = this.props;
+        navigate(-1);
       })
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
@@ -196,7 +196,6 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  push,
   updateServiceMember: updateServiceMemberAction,
   setFlashMessage: setFlashMessageAction,
 };

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
-import { generatePath } from 'react-router';
-import { useHistory, useParams, withRouter } from 'react-router-dom-old';
+import { useNavigate, useParams, generatePath } from 'react-router-dom';
 import { queryCache, useMutation } from 'react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
@@ -25,10 +24,10 @@ const PrimeUIShipmentUpdateReweigh = ({ setFlashMessage }) => {
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
   const mtoShipments = moveTaskOrder?.mtoShipments;
   const shipment = mtoShipments?.find((mtoShipment) => mtoShipment?.id === shipmentId);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleClose = () => {
-    history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
+    navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
 
   const [mutateMTOShipmentReweigh] = useMutation(updatePrimeMTOShipmentReweigh, {
@@ -131,4 +130,4 @@ const mapDispatchToProps = {
   setFlashMessage: setFlashMessageAction,
 };
 
-export default withRouter(connect(() => ({}), mapDispatchToProps)(PrimeUIShipmentUpdateReweigh));
+export default connect(() => ({}), mapDispatchToProps)(PrimeUIShipmentUpdateReweigh);

@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import NameForm from 'components/Customer/NameForm/NameForm';
@@ -13,7 +14,8 @@ import { profileStates } from 'constants/customerStates';
 import { customerRoutes } from 'constants/routes';
 import { ServiceMemberShape } from 'types/customerShapes';
 
-export const Name = ({ serviceMember, push, updateServiceMember }) => {
+export const Name = ({ serviceMember, updateServiceMember }) => {
+  const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
@@ -24,11 +26,11 @@ export const Name = ({ serviceMember, push, updateServiceMember }) => {
   };
 
   const handleNext = () => {
-    push(customerRoutes.CONTACT_INFO_PATH);
+    navigate(customerRoutes.CONTACT_INFO_PATH);
   };
 
   const handleBack = () => {
-    push(customerRoutes.DOD_INFO_PATH);
+    navigate(customerRoutes.DOD_INFO_PATH);
   };
 
   const handleSubmit = (values) => {
@@ -78,7 +80,6 @@ export const Name = ({ serviceMember, push, updateServiceMember }) => {
 Name.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
   serviceMember: ServiceMemberShape.isRequired,
-  push: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = {

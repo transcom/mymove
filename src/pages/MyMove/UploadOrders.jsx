@@ -21,6 +21,8 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
+import { RouterShape } from 'types';
+import withRouter from 'utils/routing';
 
 export class UploadOrders extends Component {
   constructor(props) {
@@ -73,14 +75,17 @@ export class UploadOrders extends Component {
   }
 
   render() {
-    const { uploads, push } = this.props;
+    const {
+      uploads,
+      router: { navigate },
+    } = this.props;
     const isValid = !!uploads.length;
 
     const handleBack = () => {
-      push(customerRoutes.ORDERS_INFO_PATH);
+      navigate(customerRoutes.ORDERS_INFO_PATH);
     };
     const handleNext = () => {
-      push(generalRoutes.HOME_PATH);
+      navigate(generalRoutes.HOME_PATH);
     };
 
     const { isLoading, serverError } = this.state;
@@ -139,7 +144,7 @@ UploadOrders.propTypes = {
   updateOrders: PropTypes.func.isRequired,
   currentOrders: OrdersShape,
   uploads: UploadsShape,
-  push: PropTypes.func.isRequired,
+  router: RouterShape.isRequired,
 };
 
 UploadOrders.defaultProps = {
@@ -165,4 +170,4 @@ const mapDispatchToProps = {
   updateOrders: updateOrdersAction,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(UploadOrders);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(UploadOrders));

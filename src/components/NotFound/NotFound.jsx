@@ -2,10 +2,12 @@ import React from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import { useNavigate } from 'react-router-dom';
 
 import styles from './NotFound.module.scss';
 
 const NotFound = ({ handleOnClick }) => {
+  const navigate = useNavigate();
   return (
     <div className={classnames('usa-grid', styles.notFound)}>
       <div className="grid-container">
@@ -24,7 +26,7 @@ const NotFound = ({ handleOnClick }) => {
           </p>
           <p className={styles.recommendation}>
             We suggest checking the spelling in the URL or return{' '}
-            <Button unstyled className={styles.goBack} onClick={handleOnClick}>
+            <Button unstyled className={styles.goBack} onClick={handleOnClick || (() => navigate(-1))}>
               back home.
             </Button>
           </p>
@@ -35,7 +37,11 @@ const NotFound = ({ handleOnClick }) => {
 };
 
 NotFound.propTypes = {
-  handleOnClick: PropTypes.func.isRequired,
+  handleOnClick: PropTypes.func,
+};
+
+NotFound.defaultProps = {
+  handleOnClick: null,
 };
 
 export default NotFound;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom-old';
+import { Link } from 'react-router-dom';
 import iconFacebook from 'uswds/src/img/usa-icons/facebook.svg';
 import iconTwitter from 'uswds/src/img/usa-icons/twitter.svg';
 

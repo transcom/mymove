@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import 'styles/office.scss';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { useParams } from 'react-router-dom-old';
+import { useParams } from 'react-router-dom';
 import classnames from 'classnames';
 import { queryCache, useMutation } from 'react-query';
 
@@ -21,6 +21,7 @@ import Alert from 'shared/Alert';
 
 const CustomerSupportRemarks = () => {
   const { moveCode } = useParams();
+
   const [showDeletionSuccess, setShowDeletionSuccess] = useState(false);
   const [customerSupportRemarkIDToDelete, setCustomerSupportRemarkIDToDelete] = useState(null);
   const { customerSupportRemarks, isLoading, isError } = useCustomerSupportRemarksQueries(moveCode);

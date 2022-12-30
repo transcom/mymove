@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route } from 'react-router-dom-old';
+import { Route } from 'react-router-dom';
 import UploadSearch from './Uploads/UploadSearch';
 import { CustomRoutes } from 'react-admin';
 

@@ -122,10 +122,18 @@ const TableQueue = ({
         <TabNav
           className={styles.tableTabs}
           items={[
-            <NavLink exact activeClassName="usa-current" to={servicesCounselingRoutes.QUEUE_COUNSELING_PATH}>
+            <NavLink
+              end
+              className={({ isActive }) => (isActive ? 'usa-current' : '')}
+              to={servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH}
+            >
               <span className="tab-title">Counseling</span>
             </NavLink>,
-            <NavLink exact activeClassName="usa-current" to={servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH}>
+            <NavLink
+              end
+              className={({ isActive }) => (isActive ? 'usa-current' : '')}
+              to={servicesCounselingRoutes.BASE_QUEUE_CLOSEOUT_PATH}
+            >
               <span data-testid="closeout-tab-link" className="tab-title">
                 PPM Closeout
               </span>

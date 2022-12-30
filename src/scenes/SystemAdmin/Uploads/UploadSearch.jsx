@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Component, Fragment } from 'react';
-import { Redirect } from 'react-router-dom-old';
+import { Navigate } from 'react-router-dom';
 
 export class UploadSearch extends Component {
   state = { ...this.initialState };
@@ -32,7 +32,7 @@ export class UploadSearch extends Component {
         </Fragment>
       );
     } else {
-      return <Redirect to={`/uploads/${this.state.uploadID}/show`} />;
+      return <Navigate to={`/uploads/${this.state.uploadID}/show`} replace />;
     }
   }
 }

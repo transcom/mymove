@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { withRouter } from 'react-router-dom-old';
+import { useNavigate, useParams } from 'react-router-dom';
 import { queryCache, useMutation } from 'react-query';
 
 import styles from './PaymentRequestReview.module.scss';
@@ -7,7 +7,6 @@ import styles from './PaymentRequestReview.module.scss';
 import { formatPaymentRequestReviewAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { HistoryShape, MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
 import { LOA_TYPE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
@@ -16,9 +15,10 @@ import { usePaymentRequestQueries } from 'hooks/queries';
 import { PAYMENT_REQUESTS } from 'constants/queryKeys';
 import { OrderShape } from 'types';
 
-export const PaymentRequestReview = ({ history, match, order }) => {
+export const PaymentRequestReview = ({ order }) => {
+  const navigate = useNavigate();
   const [completeReviewError, setCompleteReviewError] = useState(undefined);
-  const { paymentRequestId, moveCode } = match.params;
+  const { paymentRequestId, moveCode } = useParams();
   const { tac, sac, ntsTac, ntsSac } = order;
   const {
     paymentRequest,
@@ -38,7 +38,7 @@ export const PaymentRequestReview = ({ history, match, order }) => {
         paymentServiceItems,
       });
       // TODO - show flash message?
-      history.push(`/moves/${moveCode}/payment-requests`);
+      navigate(`/moves/${moveCode}/payment-requests`);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -143,7 +143,7 @@ export const PaymentRequestReview = ({ history, match, order }) => {
   };
 
   const handleClose = () => {
-    history.push(`/moves/${moveCode}/payment-requests`);
+    navigate(`/moves/${moveCode}/payment-requests`);
   };
 
   return (
@@ -168,9 +168,7 @@ export const PaymentRequestReview = ({ history, match, order }) => {
 };
 
 PaymentRequestReview.propTypes = {
-  history: HistoryShape.isRequired,
-  match: MatchShape.isRequired,
   order: OrderShape.isRequired,
 };
 
-export default withRouter(PaymentRequestReview);
+export default PaymentRequestReview;

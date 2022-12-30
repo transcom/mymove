@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button, Alert } from '@trussworks/react-uswds';
-import { useHistory, useParams } from 'react-router-dom-old';
-import { generatePath } from 'react-router';
+import { useNavigate, useParams } from 'react-router-dom';
 import { queryCache, useMutation } from 'react-query';
 
 import DocumentViewerSidebar from '../DocumentViewerSidebar/DocumentViewerSidebar';
@@ -48,7 +47,7 @@ export default function ReviewBillableWeight() {
     }
   };
 
-  const history = useHistory();
+  const navigate = useNavigate();
   let documentsForViewer = [];
   const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const { order, mtoShipments, move } = useMovePaymentRequestsQueries(moveCode);
@@ -68,8 +67,10 @@ export default function ReviewBillableWeight() {
   });
 
   const handleClose = () => {
-    history.push(generatePath(tioRoutes.PAYMENT_REQUESTS_PATH, { moveCode }), {
-      from: 'review-billable-weights',
+    navigate(`../${tioRoutes.PAYMENT_REQUESTS_PATH}`, {
+      state: {
+        from: 'review-billable-weights',
+      },
     });
   };
 

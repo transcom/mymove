@@ -1,6 +1,4 @@
 import React from 'react';
-import * as reactRedux from 'react-redux';
-import { push } from 'connected-react-router';
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -9,10 +7,20 @@ import ConnectedBackupMailingAddress, { BackupMailingAddress } from 'pages/MyMov
 import { customerRoutes } from 'constants/routes';
 import { patchServiceMember } from 'services/internalApi';
 
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   patchServiceMember: jest.fn(),
 }));
+
+beforeEach(() => {
+  jest.resetAllMocks();
+});
 
 describe('BackupMailingAddress page', () => {
   const fakeAddress = {
@@ -27,7 +35,6 @@ describe('BackupMailingAddress page', () => {
 
   const generateTestProps = (address) => ({
     updateServiceMember: jest.fn(),
-    push: jest.fn(),
     serviceMember: {
       id: 'testServiceMemberId',
       backup_mailing_address: address,
@@ -53,7 +60,7 @@ describe('BackupMailingAddress page', () => {
     expect(backButton).toBeInTheDocument();
     await userEvent.click(backButton);
 
-    expect(testProps.push).toHaveBeenCalledWith(customerRoutes.CURRENT_ADDRESS_PATH);
+    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.CURRENT_ADDRESS_PATH);
   });
 
   it('next button submits the form and goes to the Backup contact step', async () => {
@@ -85,7 +92,7 @@ describe('BackupMailingAddress page', () => {
     });
 
     expect(testProps.updateServiceMember).toHaveBeenCalledWith(expectedServiceMemberPayload);
-    expect(testProps.push).toHaveBeenCalledWith(customerRoutes.BACKUP_CONTACTS_PATH);
+    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.BACKUP_CONTACTS_PATH);
   });
 
   it('shows an error if the patchServiceMember API returns an error', async () => {
@@ -116,25 +123,15 @@ describe('BackupMailingAddress page', () => {
 
     expect(queryByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
-    expect(testProps.push).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   afterEach(jest.resetAllMocks);
 });
 
 describe('requireCustomerState BackupMailingAddress', () => {
-  const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
-  const mockDispatch = jest.fn();
-
-  beforeEach(() => {
-    useDispatchMock.mockClear();
-    mockDispatch.mockClear();
-    useDispatchMock.mockReturnValue(mockDispatch);
-  });
-
   const props = {
     updateServiceMember: jest.fn(),
-    push: jest.fn(),
   };
 
   it('dispatches a redirect if the current state is earlier than the "ADDRESS COMPLETE" state', async () => {
@@ -173,7 +170,7 @@ describe('requireCustomerState BackupMailingAddress', () => {
     );
 
     await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/current-address'));
+      expect(mockNavigate).toHaveBeenCalledWith('/service-member/current-address');
     });
   });
 
@@ -216,7 +213,7 @@ describe('requireCustomerState BackupMailingAddress', () => {
     );
 
     await waitFor(() => {
-      expect(mockDispatch).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
@@ -262,7 +259,7 @@ describe('requireCustomerState BackupMailingAddress', () => {
     );
 
     await waitFor(() => {
-      expect(mockDispatch).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
@@ -313,7 +310,7 @@ describe('requireCustomerState BackupMailingAddress', () => {
     );
 
     await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
   });
 });

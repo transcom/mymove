@@ -5,11 +5,10 @@ import SelectApplication from './SelectApplication';
 
 import { roleTypes } from 'constants/userRoles';
 
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: jest.fn(),
-  }),
+  useNavigate: () => mockNavigate,
 }));
 
 describe('SelectApplication component', () => {

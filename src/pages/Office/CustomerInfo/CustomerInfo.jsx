@@ -2,8 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { queryCache, useMutation } from 'react-query';
-import { generatePath } from 'react-router';
-import { useHistory, useParams } from 'react-router-dom-old';
+import { useNavigate } from 'react-router-dom';
 import { GridContainer } from '@trussworks/react-uswds';
 
 import CustomerContactInfoForm from '../../../components/Office/CustomerContactInfoForm/CustomerContactInfoForm';
@@ -18,11 +17,10 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { CustomerShape } from 'types/order';
 
 const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
-  const { moveCode } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleClose = () => {
-    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+    navigate(`../${servicesCounselingRoutes.MOVE_VIEW_PATH}`);
   };
 
   const [mutateCustomerInfo] = useMutation(updateCustomerInfo, {

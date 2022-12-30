@@ -1,7 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import * as reactRedux from 'react-redux';
-import { push } from 'connected-react-router';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -10,15 +8,24 @@ import ConnectedName, { Name } from './Name';
 import { MockProviders } from 'testUtils';
 import { patchServiceMember } from 'services/internalApi';
 
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   patchServiceMember: jest.fn(),
 }));
 
+beforeEach(() => {
+  jest.resetAllMocks();
+});
+
 describe('Name page', () => {
   const testProps = {
     updateServiceMember: jest.fn(),
-    push: jest.fn(),
     serviceMember: {
       id: 'testServiceMemberId',
       first_name: 'Leo',
@@ -40,7 +47,7 @@ describe('Name page', () => {
     expect(backButton).toBeInTheDocument();
 
     await userEvent.click(backButton);
-    expect(testProps.push).toHaveBeenCalledWith('/service-member/dod-info');
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/dod-info');
   });
 
   it('next button submits the form and goes to the Name step', async () => {
@@ -67,7 +74,7 @@ describe('Name page', () => {
     });
 
     expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
-    expect(testProps.push).toHaveBeenCalledWith('/service-member/contact-info');
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/contact-info');
   });
 
   it('shows an error if the API returns an error', async () => {
@@ -106,25 +113,15 @@ describe('Name page', () => {
 
     expect(screen.getByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
-    expect(testProps.push).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   afterEach(jest.resetAllMocks);
 });
 
 describe('requireCustomerState Name', () => {
-  const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
-  const mockDispatch = jest.fn();
-
-  beforeEach(() => {
-    useDispatchMock.mockClear();
-    mockDispatch.mockClear();
-    useDispatchMock.mockReturnValue(mockDispatch);
-  });
-
   const props = {
     updateServiceMember: jest.fn(),
-    push: jest.fn(),
   };
 
   it('dispatches a redirect if the current state is earlier than the "DOD INFO COMPLETE" state', async () => {
@@ -153,7 +150,7 @@ describe('requireCustomerState Name', () => {
 
     expect(await screen.findByRole('heading', { name: 'Name', level: 1 })).toBeInTheDocument();
 
-    expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/conus-oconus'));
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/conus-oconus');
   });
 
   it('does not redirect if the current state equals the "DOD INFO COMPLETE" state', async () => {
@@ -185,7 +182,7 @@ describe('requireCustomerState Name', () => {
 
     expect(await screen.findByRole('heading', { name: 'Name', level: 1 })).toBeInTheDocument();
 
-    expect(mockDispatch).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('does not redirect if the current state is after the "DOD INFO COMPLETE" state and profile is not complete', async () => {
@@ -225,7 +222,7 @@ describe('requireCustomerState Name', () => {
 
     expect(await screen.findByRole('heading', { name: 'Name', level: 1 })).toBeInTheDocument();
 
-    expect(mockDispatch).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('does redirect if the profile is complete', async () => {
@@ -276,6 +273,6 @@ describe('requireCustomerState Name', () => {
 
     expect(await screen.findByRole('heading', { name: 'Name', level: 1 })).toBeInTheDocument();
 
-    expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+    expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 });

@@ -7,16 +7,10 @@ import { AmendOrders } from './AmendOrders';
 import { getOrdersForServiceMember, submitAmendedOrders } from 'services/internalApi';
 import { generalRoutes } from 'constants/routes';
 
-const mockPush = jest.fn();
-
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({
-    pathname: 'localhost:3000/',
-  }),
-  useHistory: () => ({
-    push: mockPush,
-  }),
+  useNavigate: () => mockNavigate,
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -66,6 +60,10 @@ describe('Amended Orders Upload page', () => {
     getOrdersForServiceMember.mockImplementation(() => Promise.resolve(testOrdersValues));
   });
 
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
   it('loads orders on mount', async () => {
     const { queryByText, findByRole, getByRole } = render(<AmendOrders {...testProps} />);
 
@@ -99,7 +97,7 @@ describe('Amended Orders Upload page', () => {
       await userEvent.click(cancelButton);
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith(generalRoutes.HOME_PATH);
+        expect(mockNavigate).toHaveBeenCalledWith(generalRoutes.HOME_PATH);
       });
     });
   });
@@ -114,7 +112,7 @@ describe('Amended Orders Upload page', () => {
       await userEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith(generalRoutes.HOME_PATH);
+        expect(mockNavigate).toHaveBeenCalledWith(generalRoutes.HOME_PATH);
       });
     });
 
@@ -144,7 +142,7 @@ describe('Amended Orders Upload page', () => {
       });
 
       expect(await screen.queryByText('A server error occurred saving the amended orders')).toBeInTheDocument();
-      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 

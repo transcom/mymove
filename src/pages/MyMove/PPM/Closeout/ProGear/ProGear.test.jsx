@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useParams, generatePath } from 'react-router-dom-old';
+import { generatePath } from 'react-router-dom';
 import { v4 } from 'uuid';
 
 import { MockProviders } from 'testUtils';
@@ -17,19 +17,18 @@ const mockPPMShipmentId = v4();
 const mockProGearWeightTicketId = v4();
 const mockProGearWeightTicketETag = window.btoa(new Date());
 
-const mockPush = jest.fn();
-const mockReplace = jest.fn();
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockPush,
-    replace: mockReplace,
-  }),
-  useParams: jest.fn(() => ({
+  useNavigate: () => mockNavigate,
+}));
+const mockRoutingConfig = {
+  path: customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH,
+  params: {
     moveId: 'cc03c553-d317-46af-8b2d-3c9f899f6451',
     mtoShipmentId: '6b7a5769-4393-46fb-a4c4-d3f6ac7584c7',
-  })),
-}));
+  },
+};
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -134,11 +133,19 @@ const reviewPath = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
   mtoShipmentId: mockMTOShipmentId,
 });
 
+const renderProGearPage = () => {
+  return render(
+    <MockProviders {...mockRoutingConfig}>
+      <ProGear />
+    </MockProviders>,
+  );
+};
+
 describe('Pro-gear page', () => {
   it('loads the selected shipment from redux', async () => {
     createProGearWeightTicket.mockResolvedValue(mockProGearWeightTicket);
 
-    render(<ProGear />, { wrapper: MockProviders });
+    renderProGearPage();
 
     await waitFor(() => {
       expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
@@ -148,7 +155,7 @@ describe('Pro-gear page', () => {
   it('displays an error if the createProGearWeightTicket request fails', async () => {
     createProGearWeightTicket.mockRejectedValue('an error occurred');
 
-    render(<ProGear />, { wrapper: MockProviders });
+    renderProGearPage();
 
     await waitFor(() => {
       expect(screen.getByText('Failed to create trip record')).toBeInTheDocument();
@@ -156,14 +163,18 @@ describe('Pro-gear page', () => {
   });
 
   it('does not make create pro gear weight ticket api request if id param exists', async () => {
-    useParams.mockImplementationOnce(() => ({
+    selectProGearWeightTicketAndIndexById.mockReturnValue({ proGearWeightTicket: mockProGearWeightTicket, index: 0 });
+
+    const mockRoutingParams = {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
       proGearId: mockProGearWeightTicketId,
-    }));
-    selectProGearWeightTicketAndIndexById.mockReturnValue({ proGearWeightTicket: mockProGearWeightTicket, index: 0 });
-
-    render(<ProGear />, { wrapper: MockProviders });
+    };
+    render(
+      <MockProviders path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} params={mockRoutingParams}>
+        <ProGear />
+      </MockProviders>,
+    );
 
     await waitFor(() => {
       expect(createProGearWeightTicket).not.toHaveBeenCalled();
@@ -172,11 +183,11 @@ describe('Pro-gear page', () => {
 
   it('displays the page', async () => {
     createProGearWeightTicket.mockResolvedValue(mockProGearWeightTicket);
-    render(<ProGear />, { wrapper: MockProviders });
+    renderProGearPage();
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Pro-gear');
   });
   it('displays reminder to include pro-gear weight in total', () => {
-    render(<ProGear />, { wrapper: MockProviders });
+    renderProGearPage();
     expect(screen.getByText(/This pro-gear should be included in your total weight moved./)).toBeInTheDocument();
   });
 
@@ -188,10 +199,10 @@ describe('Pro-gear page', () => {
       index: 0,
     });
 
-    render(<ProGear />, { wrapper: MockProviders });
+    renderProGearPage();
 
     await waitFor(() => {
-      expect(mockReplace).toHaveBeenCalledWith(proGearWeightTicketsEditPath);
+      expect(mockNavigate).toHaveBeenCalledWith(proGearWeightTicketsEditPath, { replace: true });
     });
   });
 
@@ -199,13 +210,13 @@ describe('Pro-gear page', () => {
     createProGearWeightTicket.mockResolvedValue(mockProGearWeightTicket);
     selectProGearWeightTicketAndIndexById.mockReturnValue({ proGearWeightTicket: mockProGearWeightTicket, index: 0 });
 
-    render(<ProGear />, { wrapper: MockProviders });
+    renderProGearPage();
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
     });
     await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
-    expect(mockPush).toHaveBeenCalledWith(homePath);
+    expect(mockNavigate).toHaveBeenCalledWith(homePath);
   });
 
   it('calls patchProGearWeightTicket with the appropriate payload', async () => {
@@ -216,7 +227,7 @@ describe('Pro-gear page', () => {
     });
     patchProGearWeightTicket.mockResolvedValue({});
 
-    render(<ProGear />, { wrapper: MockProviders });
+    renderProGearPage();
     await userEvent.click(screen.getByLabelText('My spouse'));
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Set 2');
@@ -251,15 +262,10 @@ describe('Pro-gear page', () => {
       );
     });
 
-    expect(mockPush).toHaveBeenCalledWith(reviewPath);
+    expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
   it('calls the delete handler when removing an existing upload', async () => {
-    useParams.mockImplementation(() => ({
-      moveId: mockMoveId,
-      mtoShipmentId: mockMTOShipmentId,
-      proGearId: mockProGearWeightTicketId,
-    }));
     selectProGearWeightTicketAndIndexById.mockReturnValue({
       proGearWeightTicket: mockProGearWeightTicketWithUploads,
       index: 0,
@@ -273,7 +279,16 @@ describe('Pro-gear page', () => {
       },
     });
     deleteUpload.mockResolvedValue({});
-    render(<ProGear />, { wrapper: MockProviders });
+    const mockRoutingParams = {
+      moveId: mockMoveId,
+      mtoShipmentId: mockMTOShipmentId,
+      proGearId: mockProGearWeightTicketId,
+    };
+    render(
+      <MockProviders path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} params={mockRoutingParams}>
+        <ProGear />
+      </MockProviders>,
+    );
 
     let deleteButtons;
     await waitFor(() => {
@@ -293,11 +308,6 @@ describe('Pro-gear page', () => {
 
   it('displays an error if delete fails', async () => {
     mockProGearWeightTicketWithUploads.document.uploads = mockUploads;
-    useParams.mockImplementation(() => ({
-      moveId: mockMoveId,
-      mtoShipmentId: mockMTOShipmentId,
-      proGearId: mockProGearWeightTicketId,
-    }));
 
     selectProGearWeightTicketAndIndexById.mockReturnValue({
       proGearWeightTicket: mockProGearWeightTicketWithUploads,
@@ -313,7 +323,16 @@ describe('Pro-gear page', () => {
     });
 
     deleteUpload.mockRejectedValue('error');
-    render(<ProGear />, { wrapper: MockProviders });
+    const mockRoutingParams = {
+      moveId: mockMoveId,
+      mtoShipmentId: mockMTOShipmentId,
+      proGearId: mockProGearWeightTicketId,
+    };
+    render(
+      <MockProviders path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} params={mockRoutingParams}>
+        <ProGear />
+      </MockProviders>,
+    );
 
     let deleteButtons;
     await waitFor(() => {
@@ -329,7 +348,7 @@ describe('Pro-gear page', () => {
   it('expect loadingPlaceholder when mtoShipment is falsy', async () => {
     selectMTOShipmentById.mockReturnValueOnce(null);
 
-    render(<ProGear />, { wrapper: MockProviders });
+    renderProGearPage();
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Loading, please wait...');

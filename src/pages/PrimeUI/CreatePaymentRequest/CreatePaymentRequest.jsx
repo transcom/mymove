@@ -1,11 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { useParams, useHistory, withRouter } from 'react-router-dom-old';
+import { useParams, useNavigate, generatePath } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { queryCache, useMutation } from 'react-query';
 import moment from 'moment';
-import { generatePath } from 'react-router';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 
@@ -26,7 +25,7 @@ import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
 const CreatePaymentRequest = ({ setFlashMessage }) => {
   const { moveCodeOrID } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [errorMessage, setErrorMessage] = useState();
 
@@ -50,7 +49,7 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
         true,
       );
 
-      history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
+      navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
     },
     onError: (error) => {
       const { response: { body } = {} } = error;
@@ -230,4 +229,4 @@ const mapDispatchToProps = {
   setFlashMessage: setFlashMessageAction,
 };
 
-export default withRouter(connect(() => ({}), mapDispatchToProps)(CreatePaymentRequest));
+export default connect(() => ({}), mapDispatchToProps)(CreatePaymentRequest);

@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { matchPath, Redirect, Route, Switch, useLocation, useParams } from 'react-router-dom-old';
+import { matchPath, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
@@ -40,22 +40,34 @@ const TXOMoveInfo = () => {
   const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
 
   const hideNav =
-    matchPath(pathname, {
-      path: '/moves/:moveCode/payment-requests/:id',
-      exact: true,
-    }) ||
-    matchPath(pathname, {
-      path: '/moves/:moveCode/orders',
-      exact: true,
-    }) ||
-    matchPath(pathname, {
-      path: '/moves/:moveCode/allowances',
-      exact: true,
-    }) ||
-    matchPath(pathname, {
-      path: tioRoutes.BILLABLE_WEIGHT_PATH,
-      exact: true,
-    });
+    matchPath(
+      {
+        path: '/moves/:moveCode/payment-requests/:id',
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
+        path: '/moves/:moveCode/orders',
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
+        path: '/moves/:moveCode/allowances',
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
+        path: tioRoutes.BILLABLE_WEIGHT_PATH,
+        end: true,
+      },
+      pathname,
+    );
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -86,82 +98,89 @@ const TXOMoveInfo = () => {
       )}
 
       <Suspense fallback={<LoadingPlaceholder />}>
-        <Switch>
-          <Route path="/moves/:moveCode/details" exact>
-            <MoveDetails
-              setUnapprovedShipmentCount={setUnapprovedShipmentCount}
-              setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-              setExcessWeightRiskCount={setExcessWeightRiskCount}
-              setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
-            />
-          </Route>
-
-          <Route path={['/moves/:moveCode/allowances', '/moves/:moveCode/orders']} exact>
-            <MoveDocumentWrapper />
-          </Route>
-
-          <Route path="/moves/:moveCode/mto" exact>
-            <MoveTaskOrder
-              setUnapprovedShipmentCount={setUnapprovedShipmentCount}
-              setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-              setExcessWeightRiskCount={setExcessWeightRiskCount}
-              setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
-            />
-          </Route>
-
-          <Route path="/moves/:moveCode/payment-requests/:paymentRequestId" exact>
-            <PaymentRequestReview order={order} />
-          </Route>
-
-          <Route path="/moves/:moveCode/payment-requests" exact>
-            <MovePaymentRequests
-              setUnapprovedShipmentCount={setUnapprovedShipmentCount}
-              setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-              setPendingPaymentRequestCount={setPendingPaymentRequestCount}
-            />
-          </Route>
-
-          <Route path="/moves/:moveCode/billable-weight" exact>
-            <ReviewBillableWeight />
-          </Route>
-
-          <Route path="/moves/:moveCode/customer-support-remarks" exact>
-            <CustomerSupportRemarks />
-          </Route>
-
-          <Route path={qaeCSRRoutes.EVALUATION_REPORTS_PATH} exact>
-            <EvaluationReports
-              customerInfo={customerData}
-              grade={order.grade}
-              destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
-            />
-          </Route>
-
-          <Route path={qaeCSRRoutes.EVALUATION_REPORT_PATH} exact>
-            <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
-              <EvaluationReport
+        <Routes>
+          <Route
+            path="details"
+            end
+            element={
+              <MoveDetails
+                setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+                setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+                setExcessWeightRiskCount={setExcessWeightRiskCount}
+                setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
+              />
+            }
+          />
+          http://officelocal:3000/moves/M4KJX4/details/allowances/orders
+          <Route path="allowances" end element={<MoveDocumentWrapper />} />
+          <Route path="orders" end element={<MoveDocumentWrapper />} />
+          <Route
+            path="mto"
+            end
+            element={
+              <MoveTaskOrder
+                setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+                setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+                setExcessWeightRiskCount={setExcessWeightRiskCount}
+                setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
+              />
+            }
+          />
+          <Route path="payment-requests/:paymentRequestId" end element={<PaymentRequestReview order={order} />} />
+          <Route
+            path="payment-requests"
+            end
+            element={
+              <MovePaymentRequests
+                setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+                setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+                setPendingPaymentRequestCount={setPendingPaymentRequestCount}
+              />
+            }
+          />
+          <Route path="billable-weight" end element={<ReviewBillableWeight />} />
+          <Route path={qaeCSRRoutes.CUSTOMER_SUPPORT_REMARKS_PATH} end element={<CustomerSupportRemarks />} />
+          <Route
+            path={qaeCSRRoutes.EVALUATION_REPORTS_PATH}
+            end
+            element={
+              <EvaluationReports
                 customerInfo={customerData}
                 grade={order.grade}
                 destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
               />
-            </Restricted>
-          </Route>
-
-          <Route path={qaeCSRRoutes.EVALUATION_VIOLATIONS_PATH} exact>
-            <EvaluationViolations
-              customerInfo={customerData}
-              grade={order.grade}
-              destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
-            />
-          </Route>
-
-          <Route path="/moves/:moveCode/history" exact>
-            <MoveHistory moveCode={moveCode} />
-          </Route>
-
+            }
+          />
+          <Route
+            path={qaeCSRRoutes.EVALUATION_REPORT_PATH}
+            exact
+            element={
+              <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
+                <EvaluationReport
+                  customerInfo={customerData}
+                  grade={order.grade}
+                  destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
+                />
+              </Restricted>
+            }
+          />
+          <Route
+            path={qaeCSRRoutes.EVALUATION_VIOLATIONS_PATH}
+            end
+            element={
+              <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
+                <EvaluationViolations
+                  customerInfo={customerData}
+                  grade={order.grade}
+                  destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
+                />
+              </Restricted>
+            }
+          />
+          <Route path="history" end element={<MoveHistory moveCode={moveCode} />} />
           {/* TODO - clarify role/tab access */}
-          <Redirect from="/moves/:moveCode" to="/moves/:moveCode/details" />
-        </Switch>
+          <Route path="/moves/:moveCode" element={<Navigate to={`/moves/${moveCode}/details`} replace />} />
+        </Routes>
       </Suspense>
     </>
   );

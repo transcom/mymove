@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { func, arrayOf } from 'prop-types';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 
 import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/MoveInfoModal';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
@@ -20,6 +20,8 @@ import formStyles from 'styles/form.module.scss';
 import { MoveTaskOrderShape } from 'types/order';
 import { ShipmentShape } from 'types/shipment';
 import determineShipmentInfo from 'utils/shipmentInfo';
+import withRouter from 'utils/routing';
+import { RouterShape } from 'types';
 
 export class SelectShipmentType extends Component {
   constructor(props) {
@@ -53,15 +55,22 @@ export class SelectShipmentType extends Component {
   };
 
   handleSubmit = () => {
-    const { push, move } = this.props;
+    const {
+      router: { navigate },
+      move,
+    } = this.props;
     const { shipmentType } = this.state;
 
     const createShipmentPath = generatePath(customerRoutes.SHIPMENT_CREATE_PATH, { moveId: move.id });
-    return push(`${createShipmentPath}?type=${shipmentType}`);
+    return navigate(`${createShipmentPath}?type=${shipmentType}`);
   };
 
   render() {
-    const { push, move, mtoShipments } = this.props;
+    const {
+      router: { navigate },
+      move,
+      mtoShipments,
+    } = this.props;
     const { shipmentType, showStorageInfoModal, showMoveInfoModal, errorMessage } = this.state;
 
     const shipmentInfo = determineShipmentInfo(move, mtoShipments);
@@ -92,7 +101,7 @@ export class SelectShipmentType extends Component {
         ? generalRoutes.HOME_PATH
         : generatePath(customerRoutes.SHIPMENT_MOVING_INFO_PATH, { moveId: move.id });
 
-      push(backPath);
+      navigate(backPath);
     };
 
     return (
@@ -205,11 +214,11 @@ export class SelectShipmentType extends Component {
 }
 
 SelectShipmentType.propTypes = {
-  push: func.isRequired,
   updateMove: func.isRequired,
   loadMTOShipments: func.isRequired,
   move: MoveTaskOrderShape.isRequired,
   mtoShipments: arrayOf(ShipmentShape).isRequired,
+  router: RouterShape.isRequired,
 };
 
 const mapStateToProps = (state) => {
@@ -227,5 +236,5 @@ const mapDispatchToProps = {
   loadMTOShipments: loadMTOShipmentsAction,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SelectShipmentType);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SelectShipmentType));
 export { mapStateToProps as _mapStateToProps };

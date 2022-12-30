@@ -21,9 +21,10 @@ describe('Weight', () => {
       pickup_postal_code: '00000',
     },
     orders: { id: 1 },
-    match: { params: { moveId: 'some id' } },
+    router: { params: { moveId: 'some id' } },
     fetchLatestOrders: jest.fn(),
   };
+
   it('Component renders', () => {
     expect(shallow(<PpmWeight {...minProps} />).length).toEqual(1);
   });

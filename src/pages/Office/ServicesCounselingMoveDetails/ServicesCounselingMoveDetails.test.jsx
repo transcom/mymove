@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -17,11 +17,7 @@ import { MockProviders, renderWithRouter } from 'testUtils';
 import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
 
 const mockRequestedMoveCode = 'LR4T8V';
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn().mockReturnValue({ moveCode: 'LR4T8V' }),
-}));
+const mockRoutingParams = { moveCode: mockRequestedMoveCode };
 
 jest.mock('hooks/queries', () => ({
   useMoveDetailsQueries: jest.fn(),
@@ -247,14 +243,18 @@ const detailsURL = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveC
 
 const renderMockedComponent = (props) => {
   return render(
-    <MockProviders initialEntries={[detailsURL]}>
+    <MockProviders path={servicesCounselingRoutes.BASE_MOVE_VIEW_PATH} params={mockRoutingParams}>
       <ServicesCounselingMoveDetails {...props} />
     </MockProviders>,
   );
 };
 
 const mockedComponent = (
-  <MockProviders initialEntries={[detailsURL]} permissions={[permissionTypes.updateShipment]}>
+  <MockProviders
+    path={servicesCounselingRoutes.BASE_MOVE_VIEW_PATH}
+    params={mockRoutingParams}
+    permissions={[permissionTypes.updateShipment]}
+  >
     <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
   </MockProviders>
 );
@@ -637,10 +637,10 @@ describe('MoveDetails page', () => {
 
         for (let i = 0; i < shipmentEditButtons.length; i += 1) {
           expect(shipmentEditButtons[i].getAttribute('data-testid')).toBe(
-            generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
+            `../${generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
               moveCode: mockRequestedMoveCode,
               shipmentId: newMoveDetailsQuery.mtoShipments[i].id,
-            }),
+            })}`,
           );
         }
       });

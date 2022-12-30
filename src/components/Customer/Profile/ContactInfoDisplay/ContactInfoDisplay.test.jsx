@@ -1,10 +1,15 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { screen } from '@testing-library/react';
 
 import ContactInfoDisplay from './ContactInfoDisplay';
 
 import { renderWithRouter } from 'testUtils';
+
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 describe('ContactInfoDisplay component', () => {
   const testProps = {
@@ -124,18 +129,4 @@ describe('ContactInfoDisplay component', () => {
       expect(contactMethodTerm.nextElementSibling.textContent).toBe(expectedDisplay);
     },
   );
-
-  it('Goes to editURL when Edit link is clicked', async () => {
-    const { history } = renderWithRouter(<ContactInfoDisplay {...testProps} />);
-
-    const editLink = await screen.findByRole('link');
-
-    expect(editLink).toBeInTheDocument();
-
-    await userEvent.click(editLink);
-
-    await waitFor(() => {
-      expect(history.location.pathname).toEqual(testProps.editURL);
-    });
-  });
 });

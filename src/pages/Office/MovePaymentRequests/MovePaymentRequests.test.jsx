@@ -16,15 +16,14 @@ jest.mock('hooks/queries', () => ({
   useMovePaymentRequestsQueries: jest.fn(),
 }));
 
-const mockPush = jest.fn();
-
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn().mockReturnValue({ moveCode: 'testMoveCode' }),
-  useHistory: () => ({
-    push: mockPush,
-  }),
+  useNavigate: () => mockNavigate,
 }));
+
+const mockRoutingParams = { moveCode: 'testMoveCode' };
+const mockRoutingConfig = { path: '', params: mockRoutingParams };
 
 const testProps = {
   setUnapprovedShipmentCount: jest.fn(),
@@ -424,10 +423,7 @@ const errorReturnValue = {
 
 function renderMovePaymentRequests(props) {
   return render(
-    <MockProviders
-      initialEntries={[`/moves/L2BKD6/payment-requests`]}
-      permissions={[permissionTypes.updateMaxBillableWeight]}
-    >
+    <MockProviders {...mockRoutingConfig} permissions={[permissionTypes.updateMaxBillableWeight]}>
       <MovePaymentRequests {...props} />
     </MockProviders>,
   );
@@ -624,7 +620,7 @@ describe('MovePaymentRequests', () => {
       await userEvent.click(reviewWeights);
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/moves/testMoveCode/billable-weight');
+        expect(mockNavigate).toHaveBeenCalledWith('../billable-weight');
       });
     });
   });

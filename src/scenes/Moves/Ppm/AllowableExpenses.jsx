@@ -1,9 +1,11 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useNavigate } from 'react-router-dom';
 
 function AllowableExpenses(props) {
+  const navigate = useNavigate();
   function goBack() {
-    props.history.goBack();
+    navigate(-1);
   }
 
   return (

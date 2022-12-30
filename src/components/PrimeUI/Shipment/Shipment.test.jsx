@@ -91,7 +91,7 @@ describe('Shipment details component', () => {
 
     const updateShipmentLink = screen.getByText(/Update Shipment/, { selector: 'a.usa-button' });
     expect(updateShipmentLink).toBeInTheDocument();
-    expect(updateShipmentLink.getAttribute('href')).toBe(`/simulator/moves/${moveId}/shipments/${shipmentId}`);
+    expect(updateShipmentLink.getAttribute('href')).toBe(`/shipments/${shipmentId}`);
 
     const addServiceItemLink = screen.getByText(/Add Service Item/, { selector: 'a.usa-button' });
     expect(addServiceItemLink).toBeInTheDocument();

@@ -29,6 +29,8 @@ import {
   selectPPMEstimateRange,
   selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
+import withRouter from 'utils/routing';
+import { RouterShape } from 'types';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
 
@@ -61,8 +63,8 @@ export class PpmWeight extends Component {
   }
 
   componentDidMount() {
-    const { currentPPM } = this.props;
-    const moveId = this.props.match.params.moveId;
+    const { currentPPM, router } = this.props;
+    const moveId = router.params.moveId;
     getPPMsForMove(moveId).then((response) => this.props.updatePPMs(response));
     this.props.fetchLatestOrders(this.props.serviceMemberId);
 
@@ -392,6 +394,7 @@ PpmWeight.propTypes = {
     incentive: PropTypes.string,
   }),
   currentPPM: PropTypes.object.isRequired,
+  router: RouterShape.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -423,4 +426,4 @@ const mapDispatchToProps = {
   setPPMEstimateError,
 };
 
-export default withContext(connect(mapStateToProps, mapDispatchToProps)(PpmWeight));
+export default withRouter(withContext(connect(mapStateToProps, mapDispatchToProps)(PpmWeight)));

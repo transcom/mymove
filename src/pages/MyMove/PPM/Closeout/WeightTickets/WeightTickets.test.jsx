@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useParams, generatePath } from 'react-router-dom-old';
+import { generatePath } from 'react-router-dom';
 import { v4 } from 'uuid';
 
 import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
@@ -17,18 +17,10 @@ const mockPPMShipmentId = v4();
 const mockWeightTicketId = v4();
 const mockWeightTicketETag = window.btoa(new Date());
 
-const mockPush = jest.fn();
-const mockReplace = jest.fn();
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockPush,
-    replace: mockReplace,
-  }),
-  useParams: jest.fn(() => ({
-    moveId: 'cc03c553-d317-46af-8b2d-3c9f899f6451',
-    mtoShipmentId: '6b7a5769-4393-46fb-a4c4-d3f6ac7584c7',
-  })),
+  useNavigate: () => mockNavigate,
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -144,11 +136,37 @@ const reviewPath = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
   mtoShipmentId: mockMTOShipmentId,
 });
 
+const renderWeightTicketsPage = () => {
+  const mockRoutingConfig = {
+    path: customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH,
+    params: { moveId: mockMoveId, mtoShipmentId: mockMTOShipmentId },
+  };
+
+  render(
+    <MockProviders {...mockRoutingConfig}>
+      <WeightTickets />
+    </MockProviders>,
+  );
+};
+
+const renderEditWeightTicketsPage = () => {
+  const mockRoutingConfig = {
+    path: customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH,
+    params: { moveId: mockMoveId, mtoShipmentId: mockMTOShipmentId, weightTicketId: mockWeightTicketId },
+  };
+
+  render(
+    <MockProviders {...mockRoutingConfig}>
+      <WeightTickets />
+    </MockProviders>,
+  );
+};
+
 describe('Weight Tickets page', () => {
   it('loads the selected shipment from redux', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
 
-    render(<WeightTickets />, { wrapper: MockProviders });
+    renderWeightTicketsPage();
 
     await waitFor(() => {
       expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
@@ -158,7 +176,7 @@ describe('Weight Tickets page', () => {
   it('displays an error if the createWeightTicket request fails', async () => {
     createWeightTicket.mockRejectedValue('an error occurred');
 
-    render(<WeightTickets />, { wrapper: MockProviders });
+    renderWeightTicketsPage();
 
     await waitFor(() => {
       expect(screen.getByText('Failed to create trip record')).toBeInTheDocument();
@@ -166,14 +184,9 @@ describe('Weight Tickets page', () => {
   });
 
   it('does not make create weight ticket api request if id param exists', async () => {
-    useParams.mockImplementationOnce(() => ({
-      moveId: mockMoveId,
-      mtoShipmentId: mockMTOShipmentId,
-      weightTicketId: mockWeightTicketId,
-    }));
     selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicket, index: 0 });
 
-    render(<WeightTickets />, { wrapper: MockProviders });
+    renderEditWeightTicketsPage();
 
     await waitFor(() => {
       expect(createWeightTicket).not.toHaveBeenCalled();
@@ -185,7 +198,7 @@ describe('Weight Tickets page', () => {
     selectWeightTicketAndIndexById.mockReturnValueOnce({ weightTicket: null, index: -1 });
     selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicket, index: 0 });
 
-    render(<WeightTickets />, { wrapper: MockProviders });
+    renderEditWeightTicketsPage();
 
     await waitFor(() => {
       expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
@@ -211,10 +224,10 @@ describe('Weight Tickets page', () => {
     selectWeightTicketAndIndexById.mockReturnValueOnce({ weightTicket: null, index: -1 });
     selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicket, index: 0 });
 
-    render(<WeightTickets />, { wrapper: MockProviders });
+    renderWeightTicketsPage();
 
     await waitFor(() => {
-      expect(mockReplace).toHaveBeenCalledWith(weightTicketsEditPath);
+      expect(mockNavigate).toHaveBeenCalledWith(weightTicketsEditPath, { replace: true });
     });
   });
 
@@ -222,13 +235,13 @@ describe('Weight Tickets page', () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
     selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicket, index: 0 });
 
-    render(<WeightTickets />, { wrapper: MockProviders });
+    renderEditWeightTicketsPage();
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
     });
     await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
-    expect(mockPush).toHaveBeenCalledWith(homePath);
+    expect(mockNavigate).toHaveBeenCalledWith(homePath);
   });
 
   it('calls patch weight ticket with the appropriate payload', async () => {
@@ -236,7 +249,7 @@ describe('Weight Tickets page', () => {
     selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 1 });
     patchWeightTicket.mockResolvedValue({});
 
-    render(<WeightTickets />, { wrapper: MockProviders });
+    renderWeightTicketsPage();
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 2');
@@ -267,7 +280,7 @@ describe('Weight Tickets page', () => {
       );
     });
 
-    expect(mockPush).toHaveBeenCalledWith(reviewPath);
+    expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
   it('displays an error if patchWeightTicket fails', async () => {
@@ -275,7 +288,7 @@ describe('Weight Tickets page', () => {
     selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 4 });
     patchWeightTicket.mockRejectedValueOnce('an error occurred');
 
-    render(<WeightTickets />, { wrapper: MockProviders });
+    renderWeightTicketsPage();
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 5');
@@ -294,11 +307,6 @@ describe('Weight Tickets page', () => {
   });
 
   it('calls the delete handler when removing an existing upload', async () => {
-    useParams.mockImplementation(() => ({
-      moveId: mockMoveId,
-      mtoShipmentId: mockMTOShipmentId,
-      weightTicketId: mockWeightTicketId,
-    }));
     selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 0 });
 
     selectMTOShipmentById.mockReturnValue({
@@ -309,7 +317,7 @@ describe('Weight Tickets page', () => {
       },
     });
     deleteUpload.mockResolvedValue({});
-    render(<WeightTickets />, { wrapper: MockProviders });
+    renderEditWeightTicketsPage();
 
     let deleteButtons;
     await waitFor(() => {
@@ -325,7 +333,7 @@ describe('Weight Tickets page', () => {
   it('expect loadingPlaceholder when mtoShipment is falsy', async () => {
     selectMTOShipmentById.mockReturnValueOnce(null);
 
-    render(<WeightTickets />, { wrapper: MockProviders });
+    renderWeightTicketsPage();
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Loading, please wait...');

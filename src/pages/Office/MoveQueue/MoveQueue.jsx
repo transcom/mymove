@@ -1,9 +1,8 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom-old';
+import { useNavigate } from 'react-router-dom';
 
 import styles from './MoveQueue.module.scss';
 
-import { HistoryShape } from 'types/router';
 import { createHeader } from 'components/Table/utils';
 import { useMovesQueueQueries, useUserQueries } from 'hooks/queries';
 import { serviceMemberAgencyLabel } from 'utils/formatters';
@@ -68,7 +67,8 @@ const columns = (showBranchFilter = true) => [
   createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
 ];
 
-const MoveQueue = ({ history }) => {
+const MoveQueue = () => {
+  const navigate = useNavigate();
   const {
     // eslint-disable-next-line camelcase
     data: { office_user },
@@ -80,7 +80,7 @@ const MoveQueue = ({ history }) => {
   const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
 
   const handleClick = (values) => {
-    history.push(`/moves/${values.locator}/details`);
+    navigate(`/moves/${values.locator}/details`);
   };
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -105,8 +105,4 @@ const MoveQueue = ({ history }) => {
   );
 };
 
-MoveQueue.propTypes = {
-  history: HistoryShape.isRequired,
-};
-
-export default withRouter(MoveQueue);
+export default MoveQueue;

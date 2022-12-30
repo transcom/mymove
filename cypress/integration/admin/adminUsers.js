@@ -40,7 +40,7 @@ describe('Admin User Create Page', function () {
     cy.get('input[id="firstName"]').type('Cypress');
     cy.get('input[id="lastName"]').type('Test');
     cy.get('input[id="organizationId"]').click();
-    cy.get('div[role="tooltip"] div[role="listbox"] li')
+    cy.get('#organizationId-option-0')
       .first()
       .then(($opt) => {
         $opt.trigger('click');
@@ -71,13 +71,13 @@ describe('Admin Users Show Page', function () {
     cy.signInAsNewAdminUser();
     cy.get('a[href*="system/admin_users"]').click();
     cy.url().should('eq', adminBaseURL + '/system/admin_users');
-    cy.get('tr[resource="admin_users"]').first().click();
+    cy.get('a[href="/system/admin_users"]').first().click();
 
     // check that the admin user's name is shown in the page title
-    cy.get('.ra-field-firstName span.MuiTypography-root')
+    cy.get(':nth-child(1) > .column-firstName > .MuiTypography-root')
       .invoke('text')
       .then((firstName) => {
-        cy.get('.ra-field-lastName span.MuiTypography-root')
+        cy.get(':nth-child(1) > .column-lastName > .MuiTypography-root')
           .invoke('text')
           .then((lastName) => {
             cy.get('#react-admin-title').should('contain', firstName + ' ' + lastName);
@@ -111,10 +111,10 @@ describe('Admin Users Edit Page', function () {
     cy.signInAsNewAdminUser();
     cy.get('a[href*="system/admin_users"]').click();
     cy.url().should('eq', adminBaseURL + '/system/admin_users');
-    cy.get('tr[resource="admin_users"]').first().click();
+    cy.get('a[href="/system/admin_users"]').first().click();
 
     // grab the admin user's ID to check that the correct value is in the url
-    cy.get('.ra-field-id span.MuiTypography-root')
+    cy.get(':nth-child(1) > .column-id > .MuiTypography-root')
       .invoke('text')
       .as('adminUserID')
       .then((adminUserID) => {

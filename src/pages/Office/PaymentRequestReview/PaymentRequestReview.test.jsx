@@ -9,6 +9,11 @@ import { PaymentRequestReview } from './PaymentRequestReview';
 
 import { usePaymentRequestQueries } from 'hooks/queries';
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => jest.fn(),
+}));
+
 const mockPDFUpload = {
   contentType: 'application/pdf',
   createdAt: '2020-09-17T16:00:48.099137Z',
@@ -160,8 +165,6 @@ const usePaymentRequestQueriesReturnValue = {
 };
 
 const requiredProps = {
-  match: { params: { paymentRequestId: testPaymentRequestId } },
-  history: { push: jest.fn() },
   order: { tac: '1234', sac: '5678', ntsTac: 'AB12', ntsSac: 'CD34' },
 };
 

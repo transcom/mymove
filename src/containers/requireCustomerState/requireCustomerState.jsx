@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import { selectServiceMemberProfileState } from 'store/entities/selectors';
 import { findNextServiceMemberStep } from 'utils/customer';
@@ -19,7 +19,7 @@ export const getIsAllowedProfileState = (requiredState, currentProfileState) => 
 
 const requireCustomerState = (Component, requiredState) => {
   const RequireCustomerState = (props) => {
-    const dispatch = useDispatch();
+    const navigate = useNavigate();
     const currentProfileState = useSelector(selectServiceMemberProfileState);
 
     useEffect(() => {
@@ -28,9 +28,9 @@ const requireCustomerState = (Component, requiredState) => {
 
       if (!isAllowedState) {
         const redirectTo = findNextServiceMemberStep(currentProfileState);
-        dispatch(push(redirectTo));
+        navigate(redirectTo);
       }
-    }, [currentProfileState, dispatch]);
+    }, [currentProfileState, navigate]);
 
     // eslint-disable-next-line react/jsx-props-no-spreading
     return <Component {...props} />;

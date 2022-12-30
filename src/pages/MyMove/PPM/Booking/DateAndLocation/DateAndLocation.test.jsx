@@ -1,26 +1,22 @@
 import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { generatePath, MemoryRouter } from 'react-router';
+import { generatePath } from 'react-router-dom';
 
 import DateAndLocation from 'pages/MyMove/PPM/Booking/DateAndLocation/DateAndLocation';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
+import { renderWithRouter } from 'testUtils';
 
-const mockPush = jest.fn();
-
-const mockMoveId = 'move123';
-
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockPush,
-  }),
-  useParams: () => ({
-    moveId: mockMoveId,
-  }),
+  useNavigate: () => mockNavigate,
 }));
+
+const mockMoveId = 'move123';
+const mockRoutingParams = { moveId: mockMoveId };
 
 const mockNewShipmentId = 'newShipment123';
 
@@ -76,20 +72,26 @@ const fullShipmentProps = {
 };
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  jest.resetAllMocks();
 });
+
+const renderDateAndLocation = (props) => {
+  renderWithRouter(<DateAndLocation {...defaultProps} {...props} />, {
+    path: customerRoutes.SHIPMENT_SELECT_TYPE_PATH,
+    params: mockRoutingParams,
+  });
+};
 
 describe('DateAndLocation component', () => {
   describe('creating a new PPM shipment', () => {
     it('renders the heading and empty form', () => {
-      render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
+      renderDateAndLocation();
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
     });
 
     it('routes back to the new shipment type screen when back is clicked', async () => {
-      render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
-
+      renderDateAndLocation();
       const selectShipmentType = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, {
         moveId: mockMoveId,
       });
@@ -97,13 +99,13 @@ describe('DateAndLocation component', () => {
       const backButton = await screen.getByRole('button', { name: 'Back' });
       await userEvent.click(backButton);
 
-      expect(mockPush).toHaveBeenCalledWith(selectShipmentType);
+      expect(mockNavigate).toHaveBeenCalledWith(selectShipmentType);
     });
 
     it('calls create shipment endpoint and formats required payload values', async () => {
       createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
 
-      render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
+      renderDateAndLocation();
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
       await userEvent.type(primaryPostalCodes[0], '10001');
@@ -130,7 +132,7 @@ describe('DateAndLocation component', () => {
         });
 
         expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: mockNewShipmentId }));
-        expect(mockPush).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
             moveId: mockMoveId,
             mtoShipmentId: mockNewShipmentId,
@@ -142,7 +144,7 @@ describe('DateAndLocation component', () => {
     it('displays an error alert when the create shipment fails', async () => {
       createMTOShipment.mockRejectedValueOnce('fatal error');
 
-      render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
+      renderDateAndLocation();
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
       await userEvent.type(primaryPostalCodes[0], '10001');
@@ -175,7 +177,7 @@ describe('DateAndLocation component', () => {
     it('calls create shipment endpoint and formats optional payload values', async () => {
       createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
 
-      render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
+      renderDateAndLocation();
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
       await userEvent.type(primaryPostalCodes[0], '10001');
@@ -212,7 +214,7 @@ describe('DateAndLocation component', () => {
         });
 
         expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: mockNewShipmentId }));
-        expect(mockPush).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
             moveId: mockMoveId,
             mtoShipmentId: mockNewShipmentId,
@@ -224,8 +226,7 @@ describe('DateAndLocation component', () => {
 
   describe('editing an existing PPM shipment', () => {
     it('renders the heading and form with shipment values', async () => {
-      render(<DateAndLocation {...fullShipmentProps} />, { wrapper: MemoryRouter });
-
+      renderDateAndLocation(fullShipmentProps);
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
 
       const postalCodes = screen.getAllByLabelText('ZIP');
@@ -243,19 +244,19 @@ describe('DateAndLocation component', () => {
     });
 
     it('routes back to the home page screen when back is clicked', async () => {
-      render(<DateAndLocation {...defaultProps} {...fullShipmentProps} />, { wrapper: MemoryRouter });
+      renderDateAndLocation(fullShipmentProps);
 
       const selectShipmentType = generatePath(generalRoutes.HOME_PATH);
 
       await userEvent.click(screen.getByRole('button', { name: 'Back' }));
 
-      expect(mockPush).toHaveBeenCalledWith(selectShipmentType);
+      expect(mockNavigate).toHaveBeenCalledWith(selectShipmentType);
     });
 
     it('displays an error alert when the update shipment fails', async () => {
       patchMTOShipment.mockRejectedValueOnce('fatal error');
 
-      render(<DateAndLocation {...fullShipmentProps} />, { wrapper: MemoryRouter });
+      renderDateAndLocation(fullShipmentProps);
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
@@ -288,7 +289,7 @@ describe('DateAndLocation component', () => {
     it('calls update shipment endpoint and formats optional payload values', async () => {
       patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
 
-      render(<DateAndLocation {...fullShipmentProps} />, { wrapper: MemoryRouter });
+      renderDateAndLocation(fullShipmentProps);
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
       await userEvent.clear(primaryPostalCodes[0]);
@@ -331,7 +332,7 @@ describe('DateAndLocation component', () => {
         );
 
         expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: fullShipmentProps.mtoShipment.id }));
-        expect(mockPush).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
             moveId: mockMoveId,
             mtoShipmentId: fullShipmentProps.mtoShipment.id,

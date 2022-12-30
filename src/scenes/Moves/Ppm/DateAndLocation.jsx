@@ -18,6 +18,8 @@ import { updatePPM, updatePPMs } from 'store/entities/actions';
 import { selectCurrentOrders, selectCurrentPPM, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import './DateAndLocation.css';
+import withRouter from 'utils/routing';
+import { RouterShape } from 'types';
 
 const formName = 'ppp_date_and_location';
 
@@ -70,7 +72,8 @@ const validateDifferentZip = (value, formValues) => {
 
 export class DateAndLocation extends Component {
   componentDidMount() {
-    const moveId = this.props.match.params.moveId;
+    const moveId = this.props.router.params.moveId;
+
     getPPMsForMove(moveId).then((response) => this.props.updatePPMs(response));
 
     this.props.fetchLatestOrders(this.props.serviceMemberId);
@@ -98,7 +101,7 @@ export class DateAndLocation extends Component {
       pendingValues.original_move_date = formatDateForSwagger(pendingValues.original_move_date);
       pendingValues.actual_move_date = formatDateForSwagger(pendingValues.actual_move_date);
 
-      const moveId = this.props.match.params.moveId;
+      const moveId = this.props.router.params.moveId;
 
       if (isEmpty(this.props.currentPPM)) {
         return createPPMForMove(moveId, pendingValues)
@@ -212,6 +215,7 @@ DateAndLocation.propTypes = {
   schema: PropTypes.object.isRequired,
   updatePPM: PropTypes.func.isRequired,
   error: PropTypes.object,
+  router: RouterShape.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -249,4 +253,4 @@ const mapDispatchToProps = {
   fetchLatestOrders,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(DateAndLocation));

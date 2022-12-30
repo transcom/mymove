@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { useHistory, useParams, withRouter } from 'react-router-dom-old';
-import { generatePath } from 'react-router';
+import { useNavigate, useParams, generatePath } from 'react-router-dom';
 import { useMutation } from 'react-query';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
@@ -27,10 +26,10 @@ import { InvalidZIPTypeError, ZIP5_CODE_REGEX } from 'utils/validation';
 const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
   const { moveCodeOrID } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleClose = () => {
-    history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
+    navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
   const [mutateCreateMTOShipment] = useMutation(createPrimeMTOShipment, {
     onSuccess: (createdMTOShipment) => {
@@ -288,4 +287,4 @@ const mapDispatchToProps = {
   setFlashMessage: setFlashMessageAction,
 };
 
-export default withRouter(connect(() => ({}), mapDispatchToProps)(PrimeUIShipmentCreate));
+export default connect(() => ({}), mapDispatchToProps)(PrimeUIShipmentCreate);

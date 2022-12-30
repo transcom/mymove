@@ -42,41 +42,65 @@ export const customerRoutes = {
   CONTACT_INFO_EDIT_PATH: '/moves/review/edit-contact-info',
 };
 
-const BASE_MOVE_PATH = '/counseling/moves/:moveCode';
+const BASE_COUNSELING_MOVE_PATH = '/counseling/moves/:moveCode';
 
 export const servicesCounselingRoutes = {
-  ALLOWANCES_EDIT_PATH: `${BASE_MOVE_PATH}/allowances`,
-  BASE_MOVE_PATH,
-  CUSTOMER_INFO_EDIT_PATH: `${BASE_MOVE_PATH}/customer`,
-  MOVE_VIEW_PATH: `${BASE_MOVE_PATH}/details`,
-  ORDERS_EDIT_PATH: `${BASE_MOVE_PATH}/orders`,
   QUEUE_VIEW_PATH: '/counseling/queue',
   DEFAULT_QUEUE_PATH: '/',
-  QUEUE_COUNSELING_PATH: '/counseling',
-  QUEUE_CLOSEOUT_PATH: '/PPM-closeout',
-  SHIPMENT_ADD_PATH: `${BASE_MOVE_PATH}/new-:shipmentType`,
-  SHIPMENT_EDIT_PATH: `${BASE_MOVE_PATH}/shipments/:shipmentId`,
-  SHIPMENT_ADVANCE_PATH: `${BASE_MOVE_PATH}/shipments/:shipmentId/advance`,
-  MOVE_HISTORY_PATH: `${BASE_MOVE_PATH}/history`,
-  CUSTOMER_SUPPORT_REMARKS_PATH: `/counseling/moves/:moveCode/customer-support-remarks`,
+  QUEUE_COUNSELING_PATH: 'counseling',
+  BASE_QUEUE_COUNSELING_PATH: '/counseling',
+  QUEUE_CLOSEOUT_PATH: 'PPM-closeout',
+  BASE_QUEUE_CLOSEOUT_PATH: '/PPM-closeout',
+  BASE_COUNSELING_MOVE_PATH,
+  BASE_ALLOWANCES_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/allowances`,
+  ALLOWANCES_EDIT_PATH: 'allowances',
+  BASE_CUSTOMER_INFO_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/customer`,
+  CUSTOMER_INFO_EDIT_PATH: 'customer',
+  BASE_MOVE_VIEW_PATH: `${BASE_COUNSELING_MOVE_PATH}/details`,
+  MOVE_VIEW_PATH: 'details',
+  BASE_ORDERS_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/orders`,
+  ORDERS_EDIT_PATH: 'orders',
+  BASE_SHIPMENT_ADD_PATH: `${BASE_COUNSELING_MOVE_PATH}/new-:shipmentType`,
+  SHIPMENT_ADD_PATH: 'new-:shipmentType',
+  BASE_SHIPMENT_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId`,
+  SHIPMENT_EDIT_PATH: 'shipments/:shipmentId',
+  BASE_SHIPMENT_ADVANCE_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/advance`,
+  SHIPMENT_ADVANCE_PATH: 'advance',
+  BASE_CUSTOMER_SUPPORT_REMARKS_PATH: `${BASE_COUNSELING_MOVE_PATH}/customer-support-remarks`,
+  CUSTOMER_SUPPORT_REMARKS_PATH: '/customer-support-remarks',
+  BASE_MOVE_HISTORY_PATH: `${BASE_COUNSELING_MOVE_PATH}/history`,
+  MOVE_HISTORY_PATH: 'history',
+};
+
+const BASE_MOVES_PATH = '/moves/:moveCode';
+export const moveRoutes = {
+  BASE_MOVE_HISTORY_PATH: `${BASE_MOVES_PATH}/history`,
+  MOVE_HISTORY_PATH: 'history',
 };
 
 export const tioRoutes = {
-  PAYMENT_REQUESTS_PATH: '/moves/:moveCode/payment-requests',
-  BILLABLE_WEIGHT_PATH: `/moves/:moveCode/billable-weight`,
+  BASE_PAYMENT_REQUESTS_PATH: `${BASE_MOVES_PATH}/payment-requests`,
+  PAYMENT_REQUESTS_PATH: 'payment-requests',
+  BILLABLE_WEIGHT_PATH: 'billable-weight',
 };
 
 export const tooRoutes = {
-  SHIPMENT_EDIT_PATH: '/moves/:moveCode/shipments/:shipmentId',
-  MOVE_VIEW_PATH: '/moves/:moveCode/details',
-  ORDERS_EDIT_PATH: '/moves/:moveCode/orders',
+  BASE_SHIPMENT_EDIT_PATH: `${BASE_MOVES_PATH}/shipments/:shipmentId`,
+  SHIPMENT_EDIT_PATH: 'shipments/:shipmentId',
+  BASE_VIEW_MOVE_PATH: `${BASE_MOVES_PATH}/details`,
+  MOVE_VIEW_PATH: 'details',
+  ORDERS_EDIT_PATH: 'orders',
 };
 
 export const qaeCSRRoutes = {
   MOVE_SEARCH_PATH: '/qaecsr/search',
-  EVALUATION_REPORTS_PATH: '/moves/:moveCode/evaluation-reports',
-  EVALUATION_REPORT_PATH: '/moves/:moveCode/evaluation-reports/:reportId',
-  EVALUATION_VIOLATIONS_PATH: '/moves/:moveCode/evaluation-reports/:reportId/violations',
+  BASE_EVALUATION_REPORTS_PATH: `${BASE_MOVES_PATH}/evaluation-reports`,
+  EVALUATION_REPORTS_PATH: '/evaluation-reports',
+  BASE_EVALUATION_REPORT_PATH: `${BASE_MOVES_PATH}/evaluation-reports/:reportId/*`,
+  EVALUATION_REPORT_PATH: '/evaluation-reports/:reportId',
+  EVALUATION_VIOLATIONS_PATH: '/evaluation-reports/:reportId/violations',
+  BASE_CUSTOMER_SUPPORT_REMARKS_PATH: `${BASE_MOVES_PATH}/customer-support-remarks`,
+  CUSTOMER_SUPPORT_REMARKS_PATH: 'customer-support-remarks',
 };
 
 // README: Prime API endpoints accept either a Move code or ID.

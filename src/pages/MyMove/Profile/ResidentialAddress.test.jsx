@@ -1,6 +1,4 @@
 import React from 'react';
-import * as reactRedux from 'react-redux';
-import { push } from 'connected-react-router';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -9,6 +7,12 @@ import ConnectedResidentialAddress, { ResidentialAddress } from 'pages/MyMove/Pr
 import { customerRoutes } from 'constants/routes';
 import { patchServiceMember } from 'services/internalApi';
 import { ValidateZipRateData } from 'shared/api';
+
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -19,6 +23,10 @@ jest.mock('shared/api', () => ({
   ...jest.requireActual('shared/api'),
   ValidateZipRateData: jest.fn(),
 }));
+
+beforeEach(() => {
+  jest.resetAllMocks();
+});
 
 describe('ResidentialAddress page', () => {
   const fakeAddress = {
@@ -80,7 +88,7 @@ describe('ResidentialAddress page', () => {
     expect(backButton).toBeInTheDocument();
     await userEvent.click(backButton);
 
-    expect(testProps.push).toHaveBeenCalledWith(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
+    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
   });
 
   it('next button submits the form and goes to the Backup address step', async () => {
@@ -111,7 +119,7 @@ describe('ResidentialAddress page', () => {
     });
 
     expect(testProps.updateServiceMember).toHaveBeenCalledWith(expectedServiceMemberPayload);
-    expect(testProps.push).toHaveBeenCalledWith(customerRoutes.BACKUP_ADDRESS_PATH);
+    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.BACKUP_ADDRESS_PATH);
   });
 
   it('shows an error if the ValidateZipRateData API returns an error', async () => {
@@ -138,7 +146,7 @@ describe('ResidentialAddress page', () => {
     );
     expect(patchServiceMember).not.toHaveBeenCalled();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
-    expect(testProps.push).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('shows an error if the patchServiceMember API returns an error', async () => {
@@ -172,25 +180,15 @@ describe('ResidentialAddress page', () => {
 
     expect(screen.getByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
-    expect(testProps.push).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   afterEach(jest.resetAllMocks);
 });
 
 describe('requireCustomerState ResidentialAddress', () => {
-  const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
-  const mockDispatch = jest.fn();
-
-  beforeEach(() => {
-    useDispatchMock.mockClear();
-    mockDispatch.mockClear();
-    useDispatchMock.mockReturnValue(mockDispatch);
-  });
-
   const props = {
     updateServiceMember: jest.fn(),
-    push: jest.fn(),
   };
 
   it('dispatches a redirect if the current state is earlier than the "DUTY LOCATION COMPLETE" state', async () => {
@@ -229,7 +227,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      expect(mockDispatch).toHaveBeenCalledWith(push(customerRoutes.CURRENT_DUTY_LOCATION_PATH));
+      expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
     });
   });
 
@@ -272,7 +270,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      expect(mockDispatch).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
@@ -321,7 +319,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      expect(mockDispatch).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
@@ -375,7 +373,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
   });
 });

@@ -1,63 +1,50 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-import { HashRouter as Router } from 'react-router-dom-old';
 
 import MoveInfo from './MoveInfo';
-import store from 'shared/store';
+import { useLocation } from 'react-router-dom';
 import { mount } from 'enzyme/build';
 import { ReferrerQueueLink } from './MoveInfo';
+import { MockProviders } from 'testUtils';
 
 const dummyFunc = () => {};
 const loadDependenciesHasError = null;
 const loadDependenciesHasSuccess = false;
-const location = {
-  pathname: '',
-};
-const match = {
-  params: { moveID: '123456' },
-  url: 'www.nino.com',
-  path: '/moveIt/moveIt',
-};
 
-const push = jest.fn();
+const params = { moveID: '123456' };
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: jest.fn().mockReturnValue({ pathname: '/' }),
+}));
+
 let wrapper;
+
+beforeEach(() => {
+  jest.resetAllMocks();
+});
 
 describe('Loads MoveInfo', () => {
   // TODO: fix this tests- currently only rendering the Loader
   it('renders without crashing', () => {
     const div = document.createElement('div');
     ReactDOM.render(
-      <Provider store={store}>
-        <Router push={push}>
-          <MoveInfo
-            loadDependenciesHasError={loadDependenciesHasError}
-            loadDependenciesHasSuccess={loadDependenciesHasSuccess}
-            location={location}
-            match={match}
-            loadMoveDependencies={dummyFunc}
-            history={{ location: {} }}
-          />
-        </Router>
-      </Provider>,
+      <MockProviders params={params} path="/moveIt/moveIt">
+        <MoveInfo
+          loadDependenciesHasError={loadDependenciesHasError}
+          loadDependenciesHasSuccess={loadDependenciesHasSuccess}
+          loadMoveDependencies={dummyFunc}
+        />
+      </MockProviders>,
       div,
     );
   });
   it.skip('shows the Basic and PPM tabs', () => {
     // TODO: apply loadDependenciesHasError and loadDependenciesHasSuccess values through store (currently renders Loader only)
     wrapper = mount(
-      <Provider store={store}>
-        <Router push={push}>
-          <MoveInfo
-            loadDependenciesHasError={false}
-            loadDependenciesHasSuccess={true}
-            location={location}
-            match={match}
-            loadMoveDependencies={dummyFunc}
-            history={{ location: {} }}
-          />
-        </Router>
-      </Provider>,
+      <MockProviders params={params} path="/moveIt/moveIt">
+        <MoveInfo loadDependenciesHasError={false} loadDependenciesHasSuccess={true} loadMoveDependencies={dummyFunc} />
+      </MockProviders>,
     );
     expect(wrapper.find('[data-testid="basics-tab"]').length).toBe(1);
     expect(wrapper.find('[data-testid="ppm-tab"]').length).toBe(1);
@@ -67,24 +54,27 @@ describe('Loads MoveInfo', () => {
 describe('ShipmentInfo tests', () => {
   describe('Shows correct queue to return to', () => {
     it('when a referrer is set in history', () => {
+      useLocation.mockReturnValue({
+        pathname: '/',
+        state: { referrerPathname: '/queues/ppm_payment_requested' },
+      });
+
       wrapper = mount(
-        <Provider store={store}>
-          <Router push={jest.fn()}>
-            <ReferrerQueueLink
-              history={{ location: { state: { referrerPathname: '/queues/ppm_payment_requested' } } }}
-            />
-          </Router>
-        </Provider>,
+        <MockProviders mockLocation={{ state: { referrerPathname: '/queues/ppm_payment_requested' } }}>
+          <ReferrerQueueLink />
+        </MockProviders>,
       );
       expect(wrapper.text()).toEqual('Payment requested');
     });
     it('when no referrer is set', () => {
+      useLocation.mockReturnValue({
+        pathname: '/',
+      });
+
       wrapper = mount(
-        <Provider store={store}>
-          <Router push={jest.fn()}>
-            <ReferrerQueueLink history={{ location: {} }} />
-          </Router>
-        </Provider>,
+        <MockProviders>
+          <ReferrerQueueLink />
+        </MockProviders>,
       );
       expect(wrapper.text()).toEqual('New moves');
     });

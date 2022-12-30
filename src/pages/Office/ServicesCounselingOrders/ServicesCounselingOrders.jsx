@@ -1,7 +1,6 @@
 /* eslint-disable camelcase */
 import React, { useEffect, useReducer } from 'react';
-import { generatePath } from 'react-router';
-import { Link, useHistory, useParams } from 'react-router-dom-old';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { queryCache, useMutation } from 'react-query';
@@ -29,14 +28,14 @@ const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 
 const ServicesCounselingOrders = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(reducer, null, initialState);
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const orderId = move?.ordersId;
 
   const handleClose = () => {
-    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+    navigate(`../${servicesCounselingRoutes.MOVE_VIEW_PATH}`);
   };
 
   const [mutateOrders] = useMutation(counselingUpdateOrder, {
@@ -172,7 +171,7 @@ const ServicesCounselingOrders = () => {
                     View orders
                   </h2>
                   <div>
-                    <Link className={styles.viewAllowances} data-testid="view-allowances" to="allowances">
+                    <Link className={styles.viewAllowances} data-testid="view-allowances" to="../allowances">
                       View allowances
                     </Link>
                   </div>

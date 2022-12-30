@@ -7,18 +7,14 @@ import ServicesCounselingAddShipment from './ServicesCounselingAddShipment';
 
 import { createMTOShipment } from 'services/ghcApi';
 import { useEditShipmentQueries } from 'hooks/queries';
+import { MockProviders } from 'testUtils';
+import { servicesCounselingRoutes } from 'constants/routes';
 
-const mockPush = jest.fn();
-
+// Explicitly setup navigate mock so we can verify it was called with correct pathing in tests
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({
-    pathname: 'localhost:3000/',
-  }),
-  useHistory: () => ({
-    push: mockPush,
-  }),
-  useParams: jest.fn().mockReturnValue({ moveCode: 'move123', shipmentType: 'HHG' }),
+  useNavigate: () => mockNavigate,
 }));
 
 jest.mock('services/ghcApi', () => ({
@@ -153,20 +149,26 @@ const errorReturnValue = {
   isSuccess: false,
 };
 
-const props = {
-  match: {
-    path: '',
-    isExact: false,
-    url: '',
-    params: { moveCode: 'move123' },
-  },
+const renderWithMocks = () => {
+  render(
+    <MockProviders
+      path={servicesCounselingRoutes.BASE_SHIPMENT_ADD_PATH}
+      params={{ moveCode: 'move123', shipmentType: 'HHG' }}
+    >
+      <ServicesCounselingAddShipment />
+    </MockProviders>,
+  );
 };
+
+beforeEach(() => {
+  jest.resetAllMocks();
+});
 
 describe('ServicesCounselingAddShipment component', () => {
   describe('check different component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useEditShipmentQueries.mockReturnValue(loadingReturnValue);
-      render(<ServicesCounselingAddShipment {...props} />);
+      renderWithMocks();
 
       const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
@@ -175,7 +177,7 @@ describe('ServicesCounselingAddShipment component', () => {
     it('renders the Something Went Wrong component when the query errors', async () => {
       useEditShipmentQueries.mockReturnValue(errorReturnValue);
 
-      render(<ServicesCounselingAddShipment {...props} />);
+      renderWithMocks();
 
       const errorMessage = await screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
@@ -185,7 +187,7 @@ describe('ServicesCounselingAddShipment component', () => {
   describe('Basic rendering', () => {
     it('renders the Services Counseling Shipment Form', async () => {
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      render(<ServicesCounselingAddShipment {...props} />);
+      renderWithMocks();
 
       const h1 = await screen.getByRole('heading', { name: 'Add shipment details', level: 1 });
       await waitFor(() => {
@@ -197,7 +199,7 @@ describe('ServicesCounselingAddShipment component', () => {
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       createMTOShipment.mockImplementation(() => Promise.resolve({}));
 
-      render(<ServicesCounselingAddShipment {...props} />);
+      renderWithMocks();
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
 
@@ -223,13 +225,13 @@ describe('ServicesCounselingAddShipment component', () => {
       await userEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
+        expect(mockNavigate).toHaveBeenCalledWith('../../details', { relative: 'path' });
       });
     });
 
     it('routes to the move details page when the cancel button is clicked', async () => {
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      render(<ServicesCounselingAddShipment {...props} />);
+      renderWithMocks();
 
       const cancelButton = screen.getByRole('button', { name: 'Cancel' });
 
@@ -238,7 +240,7 @@ describe('ServicesCounselingAddShipment component', () => {
       await userEvent.click(cancelButton);
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
+        expect(mockNavigate).toHaveBeenCalledWith('../../details', { relative: 'path' });
       });
     });
   });

@@ -55,14 +55,9 @@ jest.mock('hooks/queries', () => ({
 }));
 
 describe('PaymentRequestQueue', () => {
-  const requiredProps = {
-    history: { push: jest.fn() },
-  };
-
   const wrapper = mount(
     <MockProviders initialEntries={['invoicing/queue']}>
-      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-      <PaymentRequestQueue {...requiredProps} />
+      <PaymentRequestQueue />
     </MockProviders>,
   );
 

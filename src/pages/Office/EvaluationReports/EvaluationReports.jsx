@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useHistory, useLocation } from 'react-router-dom-old';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
 import { useMutation, queryCache } from 'react-query';
@@ -24,7 +24,7 @@ import { permissionTypes } from 'constants/permissions';
 const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalCode }) => {
   const { moveCode } = useParams();
   const location = useLocation();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [reportToDelete, setReportToDelete] = useState(undefined);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -47,7 +47,7 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
       },
       onSuccess: () => {
         // Reroute back to eval report page, include flag to show success alert
-        history.push(`/moves/${moveCode}/evaluation-reports`, { showDeleteSuccess: true });
+        navigate(`/moves/${moveCode}/evaluation-reports`, { state: { showDeleteSuccess: true } });
         queryCache
           .refetchQueries([COUNSELING_EVALUATION_REPORTS])
           .then(queryCache.refetchQueries(SHIPMENT_EVALUATION_REPORTS).then());
@@ -69,7 +69,7 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
     const report = await createCounselingEvaluationReportMutation({ moveCode });
     const reportId = report?.id;
 
-    history.push(`/moves/${moveCode}/evaluation-reports/${reportId}`);
+    navigate(`/moves/${moveCode}/evaluation-reports/${reportId}`);
   };
 
   if (isLoading) {

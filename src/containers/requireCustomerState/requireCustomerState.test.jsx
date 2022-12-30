@@ -1,12 +1,20 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import * as reactRedux from 'react-redux';
-import { push } from 'connected-react-router';
 
 import requireCustomerStateHOC, { getIsAllowedProfileState } from './requireCustomerState';
 
 import { MockProviders } from 'testUtils';
 import { profileStates } from 'constants/customerStates';
+
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+
+beforeEach(() => {
+  jest.resetAllMocks();
+});
 
 describe('getIsAllowedProfileState', () => {
   it('returns true for a required state that is before the current state', () => {
@@ -43,15 +51,6 @@ describe('getIsAllowedProfileState', () => {
 });
 
 describe('requireCustomerState HOC', () => {
-  const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
-  const mockDispatch = jest.fn();
-
-  beforeEach(() => {
-    useDispatchMock.mockClear();
-    mockDispatch.mockClear();
-    useDispatchMock.mockReturnValue(mockDispatch);
-  });
-
   const TestComponent = () => <div>My test component</div>;
   const TestComponentWithHOC = requireCustomerStateHOC(TestComponent, profileStates.ADDRESS_COMPLETE);
 
@@ -80,7 +79,7 @@ describe('requireCustomerState HOC', () => {
     );
 
     expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/conus-oconus'));
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/conus-oconus');
   });
 
   it('does not redirect if the current state equals the required state', () => {
@@ -122,7 +121,7 @@ describe('requireCustomerState HOC', () => {
     );
 
     expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
   it('does not redirect if the current state is after the required state but profile is not complete', () => {
     const mockState = {
@@ -166,7 +165,7 @@ describe('requireCustomerState HOC', () => {
     );
 
     expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('does redirect if profile is complete and required state is not the completed profile state', () => {
@@ -216,7 +215,7 @@ describe('requireCustomerState HOC', () => {
     );
 
     expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+    expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 
   it('does not redirect if profile is complete and required state is the completed profile state', () => {
@@ -270,6 +269,6 @@ describe('requireCustomerState HOC', () => {
     );
 
     expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

@@ -7,16 +7,10 @@ import { EditContactInfo } from './EditContactInfo';
 import { patchBackupContact, patchServiceMember } from 'services/internalApi';
 import { customerRoutes } from 'constants/routes';
 
-const mockPush = jest.fn();
-
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({
-    pathname: 'localhost:3000/',
-  }),
-  useHistory: () => ({
-    push: mockPush,
-  }),
+  useNavigate: () => mockNavigate,
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -24,6 +18,10 @@ jest.mock('services/internalApi', () => ({
   patchBackupContact: jest.fn(),
   patchServiceMember: jest.fn(),
 }));
+
+beforeEach(() => {
+  jest.resetAllMocks();
+});
 
 describe('EditContactInfo page', () => {
   const testProps = {
@@ -89,7 +87,7 @@ describe('EditContactInfo page', () => {
 
     await userEvent.click(cancelButton);
 
-    expect(mockPush).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH);
+    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH);
   });
 
   it('saves backup contact info when it is updated and the save button is clicked', async () => {
@@ -161,7 +159,7 @@ describe('EditContactInfo page', () => {
     expect(patchServiceMember).not.toHaveBeenCalled();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
     expect(testProps.setFlashMessage).not.toHaveBeenCalled();
-    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('does not save backup contact info if it is not updated and the save button is clicked', async () => {
@@ -240,7 +238,7 @@ describe('EditContactInfo page', () => {
     await userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH);
+      expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH);
     });
   });
 
@@ -271,7 +269,7 @@ describe('EditContactInfo page', () => {
     expect(await screen.findByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
     expect(testProps.setFlashMessage).not.toHaveBeenCalled();
-    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   afterEach(jest.resetAllMocks);

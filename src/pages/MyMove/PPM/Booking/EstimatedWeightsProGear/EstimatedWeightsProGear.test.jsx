@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 
 import EstimatedWeightsProGear from './EstimatedWeightsProGear';
@@ -13,11 +13,21 @@ import { updateMTOShipment } from 'store/entities/actions';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { MockProviders } from 'testUtils';
 
-const mockPush = jest.fn();
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 const mockMoveId = uuidv4();
 const mockMTOShipmentId = uuidv4();
-
+const mockRoutingConfig = {
+  path: customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH,
+  params: {
+    moveId: mockMoveId,
+    mtoShipmentId: mockMTOShipmentId,
+  },
+};
 const shipmentEditPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
@@ -88,17 +98,6 @@ jest.mock('react-redux', () => ({
   useDispatch: jest.fn().mockImplementation(() => mockDispatch),
 }));
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockPush,
-  }),
-  useParams: () => ({
-    moveId: mockMoveId,
-    mtoShipmentId: mockMTOShipmentId,
-  }),
-}));
-
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   getResponseError: jest.fn(),
@@ -116,9 +115,17 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+const renderEstimatedWeightsProGear = (props) => {
+  return render(
+    <MockProviders {...mockRoutingConfig}>
+      <EstimatedWeightsProGear {...props} />
+    </MockProviders>,
+  );
+};
+
 describe('EstimatedWeightsProGear page', () => {
   it('renders the heading and empty form when weight info has not been entered', () => {
-    render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+    renderEstimatedWeightsProGear();
 
     expect(screen.getByRole('heading', { level: 1 }).textContent).toMatchInlineSnapshot(`"Estimated weight"`);
 
@@ -151,7 +158,7 @@ describe('EstimatedWeightsProGear page', () => {
     async (preExistingShipment) => {
       selectMTOShipmentById.mockImplementationOnce(() => preExistingShipment);
 
-      render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+      renderEstimatedWeightsProGear();
 
       await waitFor(() => {
         expect(screen.getByLabelText(/estimated weight of this ppm shipment/i).value).toBe('4,000');
@@ -179,7 +186,7 @@ describe('EstimatedWeightsProGear page', () => {
   );
 
   it('can toggle optional fields', async () => {
-    render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+    renderEstimatedWeightsProGear();
 
     const hasProGearYesInput = screen.getByRole('radio', { name: /yes/i });
     await userEvent.click(hasProGearYesInput);
@@ -201,19 +208,19 @@ describe('EstimatedWeightsProGear page', () => {
   });
 
   it('routes back to the previous page when the back button is clicked', async () => {
-    render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+    renderEstimatedWeightsProGear();
 
     const backButton = screen.getByRole('button', { name: /back/i });
 
     await userEvent.click(backButton);
 
-    expect(mockPush).toHaveBeenCalledWith(shipmentEditPath);
+    expect(mockNavigate).toHaveBeenCalledWith(shipmentEditPath);
   });
 
   it('calls the patch shipment endpoint when save & continue is clicked', async () => {
     patchMTOShipment.mockResolvedValue();
 
-    render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+    renderEstimatedWeightsProGear();
 
     const estimatedWeight = 4000;
 
@@ -243,7 +250,7 @@ describe('EstimatedWeightsProGear page', () => {
   it('calls the patch shipment endpoint with optional values when save & continue is clicked', async () => {
     patchMTOShipment.mockResolvedValue();
 
-    render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+    renderEstimatedWeightsProGear();
 
     const estimatedWeight = 4000;
 
@@ -291,7 +298,7 @@ describe('EstimatedWeightsProGear page', () => {
   it('updates the state if shipment patch is successful', async () => {
     patchMTOShipment.mockResolvedValue(mockPreExistingShipment);
 
-    render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+    renderEstimatedWeightsProGear();
 
     const estimatedWeight = 4000;
 
@@ -307,7 +314,7 @@ describe('EstimatedWeightsProGear page', () => {
   it('routes to the estimated incentive page when the user clicks save & continue', async () => {
     patchMTOShipment.mockResolvedValue({});
 
-    render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+    renderEstimatedWeightsProGear();
 
     const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
     await userEvent.type(estimatedWeightInput, '4000');
@@ -315,7 +322,7 @@ describe('EstimatedWeightsProGear page', () => {
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
     await userEvent.click(saveButton);
 
-    await waitFor(() => expect(mockPush).toHaveBeenCalledWith(estimatedIncentivePath));
+    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith(estimatedIncentivePath));
   });
 
   it('displays an error message if the update fails', async () => {
@@ -324,7 +331,7 @@ describe('EstimatedWeightsProGear page', () => {
     patchMTOShipment.mockRejectedValue({});
     getResponseError.mockReturnValue(mockErrorMsg);
 
-    render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+    renderEstimatedWeightsProGear();
 
     const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
     await userEvent.type(estimatedWeightInput, '4000');

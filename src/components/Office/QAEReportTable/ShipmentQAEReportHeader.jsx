@@ -2,7 +2,7 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@trussworks/react-uswds';
 import { useMutation, queryCache } from 'react-query';
-import { useHistory, useParams } from 'react-router-dom-old';
+import { useNavigate, useParams } from 'react-router-dom';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
@@ -19,7 +19,7 @@ import { permissionTypes } from 'constants/permissions';
 
 const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode }) => {
   const { moveCode } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [createReportMutation] = useMutation(createShipmentEvaluationReport, {
     onSuccess: () => {
@@ -35,7 +35,7 @@ const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode }
     const report = await createReportMutation({ body: { shipmentID }, moveCode });
     const reportId = report?.id;
 
-    history.push(`/moves/${moveCode}/evaluation-reports/${reportId}`);
+    navigate(`/moves/${moveCode}/evaluation-reports/${reportId}`);
   };
 
   let heading;

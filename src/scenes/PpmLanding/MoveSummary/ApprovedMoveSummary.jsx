@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom-old';
+import { Link } from 'react-router-dom';
 
 import ppmCar from 'scenes/PpmLanding/images/ppm-car.svg';
 import PPMStatusTimeline from 'scenes/PpmLanding/PPMStatusTimeline';

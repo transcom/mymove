@@ -1,8 +1,6 @@
 import React, { Component, lazy } from 'react';
 import PropTypes from 'prop-types';
-import { LastLocationProvider } from 'react-router-last-location';
-import { Route, Switch } from 'react-router-dom-old';
-import { push, goBack } from 'connected-react-router';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { GovBanner } from '@trussworks/react-uswds';
 
@@ -16,15 +14,15 @@ import CustomerLoggedInHeader from 'containers/Headers/CustomerLoggedInHeader';
 import Alert from 'shared/Alert';
 import Footer from 'components/Customer/Footer';
 import ConnectedLogoutOnInactivity from 'layout/LogoutOnInactivity';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import CustomerPrivateRoute from 'containers/CustomerPrivateRoute/CustomerPrivateRoute';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import { withContext } from 'shared/AppContext';
 import { no_op } from 'shared/utils';
 import { loadUser as loadUserAction } from 'store/auth/actions';
 import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
-import { selectIsLoggedIn } from 'store/auth/selectors';
+import { selectGetCurrentUserIsLoading, selectIsLoggedIn } from 'store/auth/selectors';
 import { selectConusStatus } from 'store/onboarding/selectors';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -54,6 +52,7 @@ import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
 import Home from 'pages/MyMove/Home';
+
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -100,154 +99,141 @@ export class CustomerApp extends Component {
 
   render() {
     const props = this.props;
-    const { userIsLoggedIn } = this.props;
+    const { userIsLoggedIn, loginIsLoading } = props;
     const { hasError } = this.state;
 
     return (
       <>
-        <LastLocationProvider>
-          <div className="my-move site" id="app-root">
-            <CUIHeader />
-            <BypassBlock />
-            <GovBanner />
+        <div className="my-move site" id="app-root">
+          <CUIHeader />
+          <BypassBlock />
+          <GovBanner />
 
-            {userIsLoggedIn ? <CustomerLoggedInHeader /> : <LoggedOutHeader />}
+          {userIsLoggedIn ? <CustomerLoggedInHeader /> : <LoggedOutHeader />}
 
-            <main role="main" className="site__content my-move-container" id="main">
-              <ConnectedLogoutOnInactivity />
+          <main role="main" className="site__content my-move-container" id="main">
+            <ConnectedLogoutOnInactivity />
 
-              <div className="usa-grid">
-                {props.swaggerError && (
-                  <div className="grid-container">
-                    <div className="grid-row">
-                      <div className="grid-col-12">
-                        <Alert type="error" heading="An error occurred">
-                          There was an error contacting the server.
-                        </Alert>
-                      </div>
+            <div className="usa-grid">
+              {props.swaggerError && (
+                <div className="grid-container">
+                  <div className="grid-row">
+                    <div className="grid-col-12">
+                      <Alert type="error" heading="An error occurred">
+                        There was an error contacting the server.
+                      </Alert>
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+            </div>
 
-              {hasError && <SomethingWentWrong />}
+            {hasError && <SomethingWentWrong />}
 
-              {!hasError && !props.swaggerError && (
-                <Switch>
-                  {/* no auth */}
-                  <Route path={generalRoutes.SIGN_IN_PATH} component={SignIn} />
-                  <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} component={PrivacyPolicyStatement} />
-                  <Route path={generalRoutes.ACCESSIBILITY_PATH} component={AccessibilityStatement} />
+            {!userIsLoggedIn && !loginIsLoading && (
+              <Routes>
+                <Route path={generalRoutes.SIGN_IN_PATH} element={<SignIn />} />
+                <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} element={<PrivacyPolicyStatement />} />
+                <Route path={generalRoutes.ACCESSIBILITY_PATH} element={<AccessibilityStatement />} />
+                <Route
+                  path="*"
+                  element={
+                    (loginIsLoading && <LoadingPlaceholder />) ||
+                    (!userIsLoggedIn && <Navigate to="/sign-in" replace />) || <NotFound />
+                  }
+                />
+              </Routes>
+            )}
+            {!hasError && !props.swaggerError && userIsLoggedIn && (
+              <Routes>
+                {/* no auth */}
+                <Route path={generalRoutes.SIGN_IN_PATH} element={<SignIn />} />
+                <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} element={<PrivacyPolicyStatement />} />
+                <Route path={generalRoutes.ACCESSIBILITY_PATH} element={<AccessibilityStatement />} />
 
-                  {/* auth required */}
-                  <CustomerPrivateRoute exact path="/ppm" component={PpmLanding} />
+                {/* auth required */}
+                <Route end path="/ppm" element={<PpmLanding />} />
 
-                  {/* ROOT */}
-                  <CustomerPrivateRoute path={generalRoutes.HOME_PATH} exact component={Home} />
+                {/* ROOT */}
+                <Route path={generalRoutes.HOME_PATH} end element={<Home />} />
 
-                  {getWorkflowRoutes(props)}
-                  <CustomerPrivateRoute exact path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} component={MovingInfo} />
-                  <CustomerPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
-                  <CustomerPrivateRoute exact path={customerRoutes.EDIT_PROFILE_PATH} component={EditProfile} />
-                  <CustomerPrivateRoute
-                    exact
-                    path={customerRoutes.SERVICE_INFO_EDIT_PATH}
-                    component={EditServiceInfo}
-                  />
-                  <CustomerPrivateRoute
-                    path={customerRoutes.SHIPMENT_CREATE_PATH}
-                    component={ConnectedCreateOrEditMtoShipment}
-                  />
-                  <CustomerPrivateRoute exact path={customerRoutes.PROFILE_PATH} component={Profile} />
-                  <CustomerPrivateRoute
-                    exact
-                    path={customerRoutes.SHIPMENT_EDIT_PATH}
-                    component={ConnectedCreateOrEditMtoShipment}
-                  />
-                  <CustomerPrivateRoute
-                    path={customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH}
-                    component={EstimatedWeightsProGear}
-                  />
-                  <CustomerPrivateRoute
-                    exact
-                    path={customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH}
-                    component={EstimatedIncentive}
-                  />
-                  <CustomerPrivateRoute exact path={customerRoutes.SHIPMENT_PPM_ADVANCES_PATH} component={Advance} />
-                  <CustomerPrivateRoute
-                    exact
-                    path={customerRoutes.CONTACT_INFO_EDIT_PATH}
-                    component={EditContactInfo}
-                  />
-                  <CustomerPrivateRoute exact path={customerRoutes.SHIPMENT_PPM_ABOUT_PATH} component={About} />
-                  <CustomerPrivateRoute
-                    exact
-                    path={[
-                      customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH,
-                      customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH,
-                    ]}
-                    component={WeightTickets}
-                  />
-                  <CustomerPrivateRoute exact path={customerRoutes.SHIPMENT_PPM_REVIEW_PATH} component={PPMReview} />
-                  <CustomerPrivateRoute
-                    exact
-                    path={[customerRoutes.SHIPMENT_PPM_EXPENSES_PATH, customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH]}
-                    component={Expenses}
-                  />
-                  <CustomerPrivateRoute
-                    exact
-                    path={customerRoutes.SHIPMENT_PPM_COMPLETE_PATH}
-                    component={PPMFinalCloseout}
-                  />
-                  <CustomerPrivateRoute path={customerRoutes.ORDERS_EDIT_PATH} component={EditOrders} />
-                  <CustomerPrivateRoute path={customerRoutes.ORDERS_AMEND_PATH} component={AmendOrders} />
-                  <CustomerPrivateRoute
-                    path="/moves/:moveId/review/edit-date-and-location"
-                    component={EditDateAndLocation}
-                  />
-                  <CustomerPrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
-                  <CustomerPrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
-                  <CustomerPrivateRoute exact path="/trailer-criteria" component={TrailerCriteria} />
-                  <CustomerPrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
-                  <CustomerPrivateRoute exact path="/infected-upload" component={InfectedUpload} />
-                  <CustomerPrivateRoute exact path="/processing-upload" component={ProcessingUpload} />
-                  <CustomerPrivateRoute
-                    path="/moves/:moveId/ppm-payment-request-intro"
-                    component={PPMPaymentRequestIntro}
-                  />
-                  <CustomerPrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
-                  <CustomerPrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
-                  <CustomerPrivateRoute path="/moves/:moveId/ppm-expenses" component={ExpensesUpload} />
-                  <CustomerPrivateRoute path="/moves/:moveId/ppm-payment-review" component={PaymentReview} />
-                  <CustomerPrivateRoute
-                    exact
-                    path={[customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH, customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH]}
-                    component={ProGear}
-                  />
-                  <CustomerPrivateRoute exact path="/ppm-customer-agreement" component={CustomerAgreementLegalese} />
+                {getWorkflowRoutes(props)}
 
-                  {/* Errors */}
-                  <Route exact path="/forbidden">
+                <Route end path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} element={<MovingInfo />} />
+                <Route end path="/moves/:moveId/edit" element={<Edit />} />
+                <Route end path={customerRoutes.EDIT_PROFILE_PATH} element={<EditProfile />} />
+                <Route end path={customerRoutes.SERVICE_INFO_EDIT_PATH} element={<EditServiceInfo />} />
+                <Route path={customerRoutes.SHIPMENT_CREATE_PATH} element={<ConnectedCreateOrEditMtoShipment />} />
+                <Route end path={customerRoutes.PROFILE_PATH} element={<Profile />} />
+                <Route end path={customerRoutes.SHIPMENT_EDIT_PATH} element={<ConnectedCreateOrEditMtoShipment />} />
+                <Route path={customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH} element={<EstimatedWeightsProGear />} />
+                <Route
+                  end
+                  path={customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH}
+                  element={<EstimatedIncentive />}
+                />
+                <Route end path={customerRoutes.SHIPMENT_PPM_ADVANCES_PATH} element={<Advance />} />
+                <Route end path={customerRoutes.CONTACT_INFO_EDIT_PATH} element={<EditContactInfo />} />
+                <Route end path={customerRoutes.SHIPMENT_PPM_ABOUT_PATH} element={<About />} />
+                <Route end path={customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH} element={<WeightTickets />} />
+                <Route end path={customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH} element={<WeightTickets />} />
+                <Route end path={customerRoutes.SHIPMENT_PPM_REVIEW_PATH} element={<PPMReview />} />
+                <Route end path={customerRoutes.SHIPMENT_PPM_EXPENSES_PATH} element={<Expenses />} />
+                <Route end path={customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} element={<Expenses />} />
+                <Route end path={customerRoutes.SHIPMENT_PPM_COMPLETE_PATH} element={<PPMFinalCloseout />} />
+                <Route path={customerRoutes.ORDERS_EDIT_PATH} element={<EditOrders />} />
+                <Route path={customerRoutes.ORDERS_AMEND_PATH} element={<AmendOrders />} />
+                <Route path="/moves/:moveId/review/edit-date-and-location" element={<EditDateAndLocation />} />
+                <Route path="/moves/:moveId/review/edit-weight" element={<EditWeight />} />
+                <Route end path="/weight-ticket-examples" element={<WeightTicketExamples />} />
+                <Route end path="/trailer-criteria" element={<TrailerCriteria />} />
+                <Route end path="/allowable-expenses" element={<AllowableExpenses />} />
+                <Route end path="/infected-upload" element={<InfectedUpload />} />
+                <Route end path="/processing-upload" element={<ProcessingUpload />} />
+                <Route path="/moves/:moveId/ppm-payment-request-intro" element={<PPMPaymentRequestIntro />} />
+                <Route path="/moves/:moveId/ppm-weight-ticket" element={<WeightTicket />} />
+                <Route path="/moves/:moveId/ppm-expenses-intro" element={<ExpensesLanding />} />
+                <Route path="/moves/:moveId/ppm-expenses" element={<ExpensesUpload />} />
+                <Route path="/moves/:moveId/ppm-payment-review" element={<PaymentReview />} />
+                <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} element={<ProGear />} />
+                <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} element={<ProGear />} />
+                <Route end path="/ppm-customer-agreement" element={<CustomerAgreementLegalese />} />
+
+                {/* Errors */}
+                <Route
+                  end
+                  path="/forbidden"
+                  element={
                     <div className="usa-grid">
                       <h2>You are forbidden to use this endpoint</h2>
                     </div>
-                  </Route>
-                  <Route exact path="/server_error">
+                  }
+                />
+                <Route
+                  end
+                  path="/server_error"
+                  element={
                     <div className="usa-grid">
                       <h2>We are experiencing an internal server error</h2>
                     </div>
-                  </Route>
-                  <Route exact path="/invalid-permissions" component={InvalidPermissions} />
+                  }
+                />
+                <Route end path="/invalid-permissions" element={<InvalidPermissions />} />
 
-                  {/* 404 */}
-                  <Route render={(routeProps) => <NotFound {...routeProps} handleOnClick={this.props.goBack} />} />
-                </Switch>
-              )}
-            </main>
-            <Footer />
-          </div>
-          <div id="modal-root"></div>
-        </LastLocationProvider>
+                {/* 404 */}
+                <Route
+                  path="*"
+                  element={
+                    (loginIsLoading && <LoadingPlaceholder />) ||
+                    (!userIsLoggedIn && <Navigate to="/sign-in" replace />) || <NotFound />
+                  }
+                />
+              </Routes>
+            )}
+          </main>
+          <Footer />
+        </div>
+        <div id="modal-root"></div>
       </>
     );
   }
@@ -257,6 +243,7 @@ CustomerApp.propTypes = {
   loadInternalSchema: PropTypes.func,
   loadUser: PropTypes.func,
   initOnboarding: PropTypes.func,
+  loginIsLoading: PropTypes.bool,
   userIsLoggedIn: PropTypes.bool,
   conusStatus: PropTypes.string,
   context: PropTypes.shape({
@@ -271,6 +258,7 @@ CustomerApp.defaultProps = {
   loadInternalSchema: no_op,
   loadUser: no_op,
   initOnboarding: no_op,
+  loginIsLoading: false,
   userIsLoggedIn: false,
   conusStatus: '',
   context: {
@@ -287,6 +275,7 @@ const mapStateToProps = (state) => {
   const move = selectCurrentMove(state) || {};
 
   return {
+    loginIsLoading: selectGetCurrentUserIsLoading(state),
     userIsLoggedIn: selectIsLoggedIn(state),
     currentServiceMemberId: serviceMemberId,
     lastMoveIsCanceled: selectHasCanceledMove(state),
@@ -296,8 +285,6 @@ const mapStateToProps = (state) => {
   };
 };
 const mapDispatchToProps = {
-  goBack,
-  push,
   loadInternalSchema,
   loadUser: loadUserAction,
   initOnboarding: initOnboardingAction,

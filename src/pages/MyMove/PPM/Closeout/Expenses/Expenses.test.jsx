@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { generatePath, useParams } from 'react-router-dom-old';
+import { generatePath } from 'react-router-dom';
 import { v4 } from 'uuid';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -12,21 +12,13 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import { createBaseMovingExpense, createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
 import { createMovingExpense, patchMovingExpense, deleteUpload } from 'services/internalApi';
 
-const mockPush = jest.fn();
-const mockReplace = jest.fn();
+const mockNavigate = jest.fn();
 const mockMoveId = 'cc03c553-d317-46af-8b2d-3c9f899f6451';
 const mockMTOShipmentId = '6b7a5769-4393-46fb-a4c4-d3f6ac7584c7';
 const mockExpenseId = 'ba29f5f5-0a51-4161-adaa-c568f5d5eab0';
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockPush,
-    replace: mockReplace,
-  }),
-  useParams: jest.fn(() => ({
-    moveId: mockMoveId,
-    mtoShipmentId: mockMTOShipmentId,
-  })),
+  useNavigate: () => mockNavigate,
 }));
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -97,11 +89,24 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+const params = {
+  moveId: mockMoveId,
+  mtoShipmentId: mockMTOShipmentId,
+};
+
+const renderWithMocks = () => {
+  render(
+    <MockProviders path={customerRoutes.SHIPMENT_PPM_EXPENSES_PATH} params={params}>
+      <Expenses />
+    </MockProviders>,
+  );
+};
+
 describe('Expenses page', () => {
   it('loads the selected shipment from redux for a new expense', async () => {
     createMovingExpense.mockResolvedValue(mockExpense);
 
-    render(<Expenses />, { wrapper: MockProviders });
+    renderWithMocks();
 
     await waitFor(() => {
       expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
@@ -113,7 +118,7 @@ describe('Expenses page', () => {
   it('displays an error if the createMovingExpense request fails', async () => {
     createMovingExpense.mockRejectedValue('an error occurred');
 
-    render(<Expenses />, { wrapper: MockProviders });
+    renderWithMocks();
 
     await waitFor(() => {
       expect(screen.getByText('Failed to create trip record')).toBeInTheDocument();
@@ -121,14 +126,19 @@ describe('Expenses page', () => {
   });
 
   it('does not make create moving expense api request if id param exists', async () => {
-    useParams.mockImplementationOnce(() => ({
+    const editParams = {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
       expenseId: mockExpenseId,
-    }));
+    };
+
     selectExpenseAndIndexById.mockReturnValue(mockExpenseAndIndex);
 
-    render(<Expenses />, { wrapper: MockProviders });
+    render(
+      <MockProviders path={customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} params={editParams}>
+        <Expenses />
+      </MockProviders>,
+    );
 
     await waitFor(() => {
       expect(createMovingExpense).not.toHaveBeenCalled();
@@ -140,7 +150,7 @@ describe('Expenses page', () => {
     selectExpenseAndIndexById.mockReturnValueOnce(mockEmptyExpenseAndIndex);
     selectExpenseAndIndexById.mockReturnValue(mockExpenseAndIndex);
 
-    render(<Expenses />, { wrapper: MockProviders });
+    renderWithMocks();
 
     await waitFor(() => {
       expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
@@ -168,23 +178,27 @@ describe('Expenses page', () => {
     selectExpenseAndIndexById.mockReturnValueOnce(mockEmptyExpenseAndIndex);
     selectExpenseAndIndexById.mockReturnValue(mockExpenseAndIndex);
 
-    render(<Expenses />, { wrapper: MockProviders });
+    renderWithMocks();
 
     await waitFor(() => {
-      expect(mockReplace).toHaveBeenCalledWith(expensesEditPath);
+      expect(mockNavigate).toHaveBeenCalledWith(expensesEditPath, { replace: true });
     });
   });
 
   it('loads the selected shipment and existing expense from redux', async () => {
-    useParams.mockImplementationOnce(() => ({
+    const editParams = {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
       expenseId: mockExpenseId,
-    }));
+    };
 
     selectExpenseAndIndexById.mockImplementationOnce(() => mockExpenseAndIndex);
 
-    render(<Expenses />, { wrapper: MockProviders });
+    render(
+      <MockProviders path={customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} params={editParams}>
+        <Expenses />
+      </MockProviders>,
+    );
 
     await waitFor(() => {
       expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
@@ -205,7 +219,7 @@ describe('Expenses page', () => {
 
   it('displays the creation form when adding a new expense', async () => {
     selectExpenseAndIndexById.mockReturnValueOnce(mockNewExpenseAndIndex);
-    render(<Expenses />, { wrapper: MockProviders });
+    renderWithMocks();
 
     await waitFor(() => {
       expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
@@ -241,7 +255,7 @@ describe('Expenses page', () => {
     selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 1 });
     patchMovingExpense.mockResolvedValue({});
 
-    render(<Expenses />, { wrapper: MockProviders });
+    renderWithMocks();
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 2');
@@ -276,7 +290,7 @@ describe('Expenses page', () => {
       );
     });
 
-    expect(mockPush).toHaveBeenCalledWith(reviewPath);
+    expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
   it('has an appropriate amount payload when a whole dollar amount is entered', async () => {
@@ -284,7 +298,7 @@ describe('Expenses page', () => {
     selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 1 });
     patchMovingExpense.mockResolvedValue({});
 
-    render(<Expenses />, { wrapper: MockProviders });
+    renderWithMocks();
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 2');
@@ -314,7 +328,7 @@ describe('Expenses page', () => {
       );
     });
 
-    expect(mockPush).toHaveBeenCalledWith(reviewPath);
+    expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
   it('has an appropriate payload when the type is Storage', async () => {
@@ -322,7 +336,7 @@ describe('Expenses page', () => {
     selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 1 });
     patchMovingExpense.mockResolvedValue({});
 
-    render(<Expenses />, { wrapper: MockProviders });
+    renderWithMocks();
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 2');
@@ -353,7 +367,7 @@ describe('Expenses page', () => {
       );
     });
 
-    expect(mockPush).toHaveBeenCalledWith(reviewPath);
+    expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
   it('displays an error if patchMovingExpense fails', async () => {
@@ -361,7 +375,7 @@ describe('Expenses page', () => {
     selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 4 });
     patchMovingExpense.mockRejectedValueOnce('an error occurred');
 
-    render(<Expenses />, { wrapper: MockProviders });
+    renderWithMocks();
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 5');
@@ -381,21 +395,28 @@ describe('Expenses page', () => {
   });
 
   it('routes to home when the return to homepage button is clicked', async () => {
-    render(<Expenses />, { wrapper: MockProviders });
+    createMovingExpense.mockResolvedValue(mockExpense);
+
+    renderWithMocks();
+
+    await waitFor(() => {
+      expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
+    });
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
     });
     await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
-    expect(mockPush).toHaveBeenCalledWith(homePath);
+    expect(mockNavigate).toHaveBeenCalledWith(homePath);
   });
 
   it('calls the delete handler when removing an existing upload', async () => {
-    useParams.mockImplementation(() => ({
+    const editParams = {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
       expenseId: mockExpense.id,
-    }));
+    };
+
     selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 0 });
 
     selectMTOShipmentById.mockReturnValue({
@@ -406,7 +427,11 @@ describe('Expenses page', () => {
       },
     });
     deleteUpload.mockResolvedValue({});
-    render(<Expenses />, { wrapper: MockProviders });
+    render(
+      <MockProviders path={customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} params={editParams}>
+        <Expenses />
+      </MockProviders>,
+    );
 
     let deleteButtons;
     await waitFor(() => {
@@ -422,7 +447,7 @@ describe('Expenses page', () => {
   it('expect loadingPlaceholder when mtoShipment is falsy', async () => {
     selectMTOShipmentById.mockReturnValueOnce(null);
 
-    render(<Expenses />, { wrapper: MockProviders });
+    renderWithMocks();
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Loading, please wait...');

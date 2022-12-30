@@ -4,7 +4,7 @@ import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { mount } from 'enzyme';
 import moment from 'moment';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 import { v4 } from 'uuid';
 
 import { Home } from './index';
@@ -15,7 +15,7 @@ import { customerRoutes } from 'constants/routes';
 import { shipmentStatuses, ppmShipmentStatuses } from 'constants/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatCustomerDate } from 'utils/formatters';
-import { MockProviders, setUpProvidersWithHistory } from 'testUtils';
+import { MockProviders } from 'testUtils';
 import createUpload from 'utils/test/factories/upload';
 import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import { createApprovedPPMShipment, createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
@@ -763,7 +763,7 @@ describe('Home component', () => {
           }),
         ],
       ])('will route the user to the %s', async (scenarioDescription, mtoShipments, expectedRoute) => {
-        const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+        const { memoryHistory, mockProviderWithHistory } = {}; // TODO: replace this;  setUpProvidersWithHistory();
 
         render(<Home {...props} mtoShipments={mtoShipments} history={memoryHistory} />, {
           wrapper: mockProviderWithHistory,

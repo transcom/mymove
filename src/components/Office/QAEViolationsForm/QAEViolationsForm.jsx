@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import * as PropTypes from 'prop-types';
 import { Grid, GridContainer, Button, FormGroup, Radio, Fieldset, Textarea } from '@trussworks/react-uswds';
-import { useParams, useHistory } from 'react-router';
+import { useParams, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
 import classnames from 'classnames';
@@ -30,7 +30,7 @@ const QAEViolationsForm = ({
   destinationDutyLocationPostalCode,
 }) => {
   const { moveCode, reportId } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [mutateEvaluationReport] = useMutation(saveEvaluationReport, {
     onError: (error) => {
@@ -49,7 +49,7 @@ const QAEViolationsForm = ({
     },
     onSuccess: () => {
       // Reroute back to eval report page, include flag to show success alert
-      history.push(`/moves/${moveCode}/evaluation-reports`, { showSubmitSuccess: true });
+      navigate(`/moves/${moveCode}/evaluation-reports`, { state: { showSubmitSuccess: true } });
     },
   });
 
@@ -109,11 +109,11 @@ const QAEViolationsForm = ({
 
   const handleBackToEvalForm = () => {
     // TODO: Save as draft before rerouting
-    history.push(`/moves/${moveCode}/evaluation-reports/${reportId}`);
+    navigate(`/moves/${moveCode}/evaluation-reports/${reportId}`);
   };
 
   const cancelForViolations = () => {
-    history.push(`/moves/${moveCode}/evaluation-reports`);
+    navigate(`/moves/${moveCode}/evaluation-reports`);
   };
 
   // Get distinct categories
@@ -200,7 +200,7 @@ const QAEViolationsForm = ({
   const handleSaveDraft = async (values) => {
     await saveDraft(values);
 
-    history.push(`/moves/${moveCode}/evaluation-reports`, { showSaveDraftSuccess: true });
+    navigate(`/moves/${moveCode}/evaluation-reports`, { state: { showSaveDraftSuccess: true } });
   };
 
   const kpiViolationList = violations.filter((item) => item.isKpi);

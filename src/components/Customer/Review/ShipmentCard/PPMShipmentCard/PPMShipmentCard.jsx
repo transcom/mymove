@@ -1,7 +1,7 @@
 import React from 'react';
 import { bool, func, number } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 
 import styles from 'components/Customer/Review/ShipmentCard/ShipmentCard.module.scss';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
-import { NavLink } from 'react-router-dom-old';
+import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './index.module.scss';
@@ -19,6 +19,7 @@ const CustomerUserInfo = ({ handleLogout, showProfileLink }) => {
               className={styles.profileLink}
               title="profile-link"
               aria-label="profile-link"
+              end
             >
               <FontAwesomeIcon className="fa-2x" icon={['far', 'user']} />
             </NavLink>

@@ -1,4 +1,4 @@
-import { arrayOf, bool, func, number, shape, string } from 'prop-types';
+import { arrayOf, bool, number, shape, string } from 'prop-types';
 
 import { AddressShape } from 'types/address';
 import { DutyLocationShape } from 'types/dutyLocation';
@@ -71,27 +71,8 @@ export const OrdersShape = shape({
   }),
 });
 
-export const MatchShape = shape({
-  isExact: bool.isRequired,
-  params: shape({
-    moveId: string.isRequired,
-  }),
-  path: string.isRequired,
-  url: string.isRequired,
-});
-
-export const HistoryShape = shape({
-  goBack: func.isRequired,
-  push: func.isRequired,
-});
-
 export const BackupContactShape = shape({
   name: string.isRequired,
   telephone: string.isRequired,
   email: string.isRequired,
 });
-
-export default {
-  MatchShape,
-  HistoryShape,
-};

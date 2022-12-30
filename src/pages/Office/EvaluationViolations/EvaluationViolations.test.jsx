@@ -1,10 +1,12 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 
 import EvaluationViolations from './EvaluationViolations';
 
 import { useEvaluationReportShipmentListQueries, usePWSViolationsQueries } from 'hooks/queries';
+import { qaeCSRRoutes } from 'constants/routes';
+import { renderWithRouter } from 'testUtils';
 
 const mockMoveCode = 'A12345';
 const mockMoveId = '551dd01f-90cf-44d6-addb-ff919433dd61';
@@ -126,15 +128,13 @@ jest.mock('services/ghcApi', () => ({
   deleteEvaluationReport: (reportId) => mockDeleteEvaluationReport(reportId),
 }));
 
-const mockPush = jest.fn();
-jest.mock('react-router', () => ({
-  ...jest.requireActual('react-router'),
-  useHistory: () => ({
-    push: mockPush,
-  }),
-  // note: not using mockMoveCode or reportId here because of execution order
-  useParams: jest.fn().mockReturnValue({ moveCode: 'A12345', reportId: 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2' }),
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
 }));
+const routingParams = { moveCode: mockMoveCode, reportId: mockReportId };
+const mockRoutingOptions = { path: qaeCSRRoutes.EVALUATION_VIOLATIONS_PATH, params: routingParams };
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -156,7 +156,10 @@ describe('EvaluationViolations', () => {
       reportViolations: [mockViolation],
     }));
 
-    render(<EvaluationViolations {...{ customerInfo }} />);
+    renderWithRouter(
+      <EvaluationViolations {...{ customerInfo }} destinationDutyLocationPostalCode="12345" grade="E_4" />,
+      mockRoutingOptions,
+    );
 
     await waitFor(() => {
       // Displays heading

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 
 import styles from './RequestedShipments.module.scss';
 
@@ -107,7 +107,7 @@ const SubmittedRequestedShipments = ({
               ),
             )
               .then(() => {
-                handleAfterSuccess('mto', { showMTOpostedMessage: true });
+                handleAfterSuccess('mto', { state: { showMTOpostedMessage: true } });
               })
               .catch(() => {
                 // TODO: Decide if we want to display an error notice, log error event, or retry
@@ -192,10 +192,10 @@ const SubmittedRequestedShipments = ({
         <div className={shipmentCardsStyles.shipmentCards}>
           {mtoShipments &&
             mtoShipments.map((shipment) => {
-              const editUrl = generatePath(tooRoutes.SHIPMENT_EDIT_PATH, {
+              const editUrl = `../${generatePath(tooRoutes.SHIPMENT_EDIT_PATH, {
                 moveCode,
                 shipmentId: shipment.id,
-              });
+              })}`;
 
               return (
                 <ShipmentDisplay

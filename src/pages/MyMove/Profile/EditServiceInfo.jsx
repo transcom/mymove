@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { GridContainer, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
-import { useHistory } from 'react-router-dom-old';
+import { useNavigate } from 'react-router-dom';
 
 import ServiceInfoForm from 'components/Customer/ServiceInfoForm/ServiceInfoForm';
 import { patchServiceMember, getResponseError } from 'services/internalApi';
@@ -25,15 +25,15 @@ export const EditServiceInfo = ({
   setFlashMessage,
   moveIsInDraft,
 }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
 
   useEffect(() => {
     if (!moveIsInDraft) {
       // Redirect to the home page
-      history.push(generalRoutes.HOME_PATH);
+      navigate(generalRoutes.HOME_PATH);
     }
-  }, [moveIsInDraft, history]);
+  }, [moveIsInDraft, navigate]);
 
   const initialValues = {
     first_name: serviceMember?.first_name || '',
@@ -78,7 +78,7 @@ export const EditServiceInfo = ({
           setFlashMessage('EDIT_SERVICE_INFO_SUCCESS', 'success', '', 'Your changes have been saved.');
         }
 
-        history.push(customerRoutes.PROFILE_PATH);
+        navigate(customerRoutes.PROFILE_PATH);
       })
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
@@ -90,7 +90,7 @@ export const EditServiceInfo = ({
   };
 
   const handleCancel = () => {
-    history.push(customerRoutes.PROFILE_PATH);
+    navigate(customerRoutes.PROFILE_PATH);
   };
 
   return (

@@ -4,6 +4,11 @@ import userEvent from '@testing-library/user-event';
 
 import NotFound from './NotFound';
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => jest.fn(),
+}));
+
 describe('NotFound component', () => {
   const handleOnClick = jest.fn();
   it('Renders page not found', () => {

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom-old';
-import { generatePath } from 'react-router';
+import { useNavigate, useParams, generatePath } from 'react-router-dom';
 import { queryCache, useMutation } from 'react-query';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
@@ -42,10 +41,10 @@ const PrimeUIShipmentUpdateAddress = () => {
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
   const mtoShipments = moveTaskOrder?.mtoShipments;
   const shipment = mtoShipments?.find((mtoShipment) => mtoShipment?.id === shipmentId);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleClose = () => {
-    history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
+    navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
   const [mutateMTOShipment] = useMutation(updatePrimeMTOShipmentAddress, {
     onSuccess: (updatedMTOShipmentAddress) => {

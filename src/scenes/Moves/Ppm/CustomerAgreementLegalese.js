@@ -1,8 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function CustomerAgreementLegalese(props) {
+  const navigate = useNavigate();
   function goBack() {
-    props.history.goBack();
+    navigate(-1);
   }
 
   return (

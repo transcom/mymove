@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { arrayOf, bool, func, number, shape, string, oneOf } from 'prop-types';
 import { Field, Formik } from 'formik';
-import { generatePath } from 'react-router';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { queryCache, useMutation } from 'react-query';
 import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio } from '@trussworks/react-uswds';
 
@@ -38,7 +38,6 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AccountingCodesShape } from 'types/accountingCodes';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import { MatchShape } from 'types/officeShapes';
 import { ShipmentShape } from 'types/shipment';
 import {
   formatMtoShipmentForAPI,
@@ -51,8 +50,6 @@ import { validateDate, validatePostalCode } from 'utils/validation';
 
 const ShipmentForm = (props) => {
   const {
-    match,
-    history,
     originDutyLocationAddress,
     newDutyLocationAddress,
     shipmentType,
@@ -71,6 +68,8 @@ const ShipmentForm = (props) => {
     isAdvancePage,
   } = props;
 
+  const navigate = useNavigate();
+
   const [errorMessage, setErrorMessage] = useState(null);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
 
@@ -86,7 +85,8 @@ const ShipmentForm = (props) => {
       // This allows the requestCancellation button to update immediately
       queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
 
-      history.goBack();
+      // go back
+      navigate(-1);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -157,10 +157,7 @@ const ShipmentForm = (props) => {
   }
 
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
-  const { moveCode } = match.params;
-
-  const moveDetailsRoute = isTOO ? tooRoutes.MOVE_VIEW_PATH : servicesCounselingRoutes.MOVE_VIEW_PATH;
-  const moveDetailsPath = generatePath(moveDetailsRoute, { moveCode });
+  const { moveCode } = useParams();
 
   const editOrdersRoute = isTOO ? tooRoutes.ORDERS_EDIT_PATH : servicesCounselingRoutes.ORDERS_EDIT_PATH;
   const editOrdersPath = generatePath(editOrdersRoute, { moveCode });
@@ -173,18 +170,18 @@ const ShipmentForm = (props) => {
         const body = { ...ppmShipmentBody, moveTaskOrderID };
         submitHandler({ body, normalize: false })
           .then((newShipment) => {
-            const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
+            const currentPath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_EDIT_PATH, {
               moveCode,
               shipmentId: newShipment.id,
             });
 
-            const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
+            const advancePath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_ADVANCE_PATH, {
               moveCode,
               shipmentId: newShipment.id,
             });
 
-            history.replace(currentPath);
-            history.push(advancePath);
+            navigate(currentPath, { replace: true });
+            navigate(advancePath);
           })
           .catch(() => {
             setErrorMessage(`A server error occurred adding the shipment`);
@@ -201,12 +198,12 @@ const ShipmentForm = (props) => {
 
       submitHandler(updatePPMPayload).then(() => {
         if (!isAdvancePage) {
-          const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
+          const advancePath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_ADVANCE_PATH, {
             moveCode,
             shipmentId: mtoShipment.id,
           });
 
-          history.push(advancePath);
+          navigate(advancePath);
         }
       });
 
@@ -268,7 +265,7 @@ const ShipmentForm = (props) => {
       const body = { ...pendingMtoShipment, moveTaskOrderID };
       submitHandler({ body, normalize: false })
         .then(() => {
-          history.push(moveDetailsPath);
+          navigate(`../../${servicesCounselingRoutes.MOVE_VIEW_PATH}`, { relative: 'path' });
         })
         .catch(() => {
           setErrorMessage(`A server error occurred adding the shipment`);
@@ -279,7 +276,7 @@ const ShipmentForm = (props) => {
     } else {
       submitHandler(updateMTOShipmentPayload)
         .then(() => {
-          history.push(moveDetailsPath);
+          navigate(`../../${servicesCounselingRoutes.MOVE_VIEW_PATH}`, { relative: 'path' });
         })
         .catch(() => {
           setErrorMessage('A server error occurred editing the shipment details');
@@ -580,7 +577,7 @@ const ShipmentForm = (props) => {
                   <ShipmentAccountingCodes
                     TACs={TACs}
                     SACs={SACs}
-                    onEditCodesClick={() => history.push(editOrdersPath)}
+                    onEditCodesClick={() => navigate(editOrdersPath)}
                     optional={isServiceCounselor}
                   />
                 )}
@@ -600,7 +597,7 @@ const ShipmentForm = (props) => {
                     type="button"
                     secondary
                     onClick={() => {
-                      history.push(moveDetailsPath);
+                      navigate(`../../${servicesCounselingRoutes.MOVE_VIEW_PATH}`, { relative: 'path' });
                     }}
                   >
                     Cancel
@@ -626,10 +623,6 @@ const ShipmentForm = (props) => {
 };
 
 ShipmentForm.propTypes = {
-  match: MatchShape,
-  history: shape({
-    push: func.isRequired,
-  }),
   submitHandler: func.isRequired,
   isCreatePage: bool,
   isForServicesCounseling: bool,
@@ -655,8 +648,6 @@ ShipmentForm.propTypes = {
 ShipmentForm.defaultProps = {
   isCreatePage: false,
   isForServicesCounseling: false,
-  match: { isExact: false, params: { moveCode: '', shipmentId: '' } },
-  history: { push: () => {} },
   originDutyLocationAddress: {
     city: '',
     state: '',

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { useHistory } from 'react-router-dom-old';
+import { useNavigate } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import EditContactInfoForm, {
@@ -27,7 +27,7 @@ export const EditContactInfo = ({
   updateBackupContact,
   updateServiceMember,
 }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
@@ -58,7 +58,7 @@ export const EditContactInfo = ({
   };
 
   const handleCancel = () => {
-    history.push(customerRoutes.PROFILE_PATH);
+    navigate(customerRoutes.PROFILE_PATH);
   };
 
   const handleSubmit = async (values) => {
@@ -117,7 +117,7 @@ export const EditContactInfo = ({
       .then(updateServiceMember)
       .then(() => {
         setFlashMessage('EDIT_CONTACT_INFO_SUCCESS', 'success', "You've updated your information.");
-        history.push(customerRoutes.PROFILE_PATH);
+        navigate(customerRoutes.PROFILE_PATH);
       })
       .catch((e) => {
         //     // TODO - error handling - below is rudimentary error handling to approximate existing UX

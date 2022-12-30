@@ -1,6 +1,6 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { HistoryShape } from 'types/router';
 import { createHeader } from 'components/Table/utils';
 import TableQueue from 'components/Table/TableQueue';
 import { usePrimeSimulatorAvailableMovesQueries } from 'hooks/queries';
@@ -50,7 +50,8 @@ const columnHeaders = () => [
   ),
 ];
 
-const PrimeSimulatorAvailableMoves = ({ history }) => {
+const PrimeSimulatorAvailableMoves = () => {
+  const navigate = useNavigate();
   const { isLoading, isError } = usePrimeSimulatorAvailableMovesQueries();
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -61,7 +62,7 @@ const PrimeSimulatorAvailableMoves = ({ history }) => {
       columns={columnHeaders()}
       useQueries={usePrimeSimulatorAvailableMovesQueries}
       handleClick={(row) => {
-        history.push(`/simulator/moves/${row.id}/details`);
+        navigate(`/simulator/moves/${row.id}/details`);
       }}
       defaultSortedColumns={[{ id: 'availableToPrimeAt', desc: false }]}
       defaultHiddenColumns={['eTag']}
@@ -71,10 +72,6 @@ const PrimeSimulatorAvailableMoves = ({ history }) => {
       manualFilters={false}
     />
   );
-};
-
-PrimeSimulatorAvailableMoves.propTypes = {
-  history: HistoryShape.isRequired,
 };
 
 export default PrimeSimulatorAvailableMoves;

@@ -4,12 +4,11 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { capitalize, get, includes } from 'lodash';
 import { NavTab, RoutedTabs } from 'react-router-tabs';
-import { NavLink, Redirect, Switch } from 'react-router-dom-old';
+import { NavLink, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import PrivateRoute from 'containers/PrivateRoute';
 import Alert from 'shared/Alert';
 import ToolTip from 'shared/ToolTip';
 import ComboButton from 'shared/ComboButton';
@@ -50,6 +49,9 @@ import {
 } from 'shared/Entities/modules/moves';
 import { formatDate } from 'utils/formatters';
 import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import ConnectedProtectedRoute from 'components/ProtectedRoute/ProtectedRoute';
+import withRouter from 'utils/routing';
+import { RouterShape } from 'types';
 
 const BasicsTabContent = (props) => {
   return (
@@ -80,30 +82,31 @@ const PPMTabContent = (props) => {
   );
 };
 
-const ReferrerQueueLink = (props) => {
-  const pathname = props.history.location.state ? props.history.location.state.referrerPathname : '';
+const ReferrerQueueLink = () => {
+  const location = useLocation();
+  const pathname = location.state ? location.state.referrerPathname : '';
   switch (pathname) {
     case '/queues/ppm':
       return (
-        <NavLink to="/queues/ppm" activeClassName="usa-current">
+        <NavLink to="/queues/ppm" className={({ isActive }) => (isActive ? 'usa-current' : '')}>
           <span>All PPMs Queue</span>
         </NavLink>
       );
     case '/queues/ppm_payment_requested':
       return (
-        <NavLink to="/queues/ppm_payment_requested" activeClassName="usa-current">
+        <NavLink to="/queues/ppm_payment_requested" className={({ isActive }) => (isActive ? 'usa-current' : '')}>
           <span>Payment requested</span>
         </NavLink>
       );
     case '/queues/all':
       return (
-        <NavLink to="/queues/all" activeClassName="usa-current">
+        <NavLink to="/queues/all" className={({ isActive }) => (isActive ? 'usa-current' : '')}>
           <span>All moves</span>
         </NavLink>
       );
     default:
       return (
-        <NavLink to="/queues/new" activeClassName="usa-current">
+        <NavLink to="/queues/new" className={({ isActive }) => (isActive ? 'usa-current' : '')}>
           <span>New moves</span>
         </NavLink>
       );
@@ -214,7 +217,7 @@ class MoveInfo extends Component {
     const ordersUrl = `/moves/${move.id}/orders`;
 
     if (this.state.redirectToHome) {
-      return <Redirect to="/" />;
+      return <Navigate to="/" />;
     }
 
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
@@ -240,7 +243,7 @@ class MoveInfo extends Component {
             </h1>
           </div>
           <div className="grid-col-4 nav-controls">
-            <ReferrerQueueLink history={this.props.history} />
+            <ReferrerQueueLink />
           </div>
         </div>
         <div className="grid-row">
@@ -282,30 +285,43 @@ class MoveInfo extends Component {
             </RoutedTabs>
 
             <div className="tab-content">
-              <Switch>
-                <PrivateRoute
-                  exact
+              <Routes>
+                <Route
+                  end
                   path={`${this.props.match.url}`}
-                  render={() => (
-                    <Redirect
-                      replace
-                      to={{ pathname: `${this.props.match.url}/basics`, state: this.props.history.location.state }}
-                    />
-                  )}
+                  element={
+                    <ConnectedProtectedRoute requiredRoles={[roleTypes.PPM]}>
+                      <Navigate
+                        to={`${this.props.match.url}/basics`}
+                        replace={true}
+                        state={this.props.router.location.state}
+                      />
+                    </ConnectedProtectedRoute>
+                  }
                   requiredRoles={[roleTypes.PPM]}
                 />
-                <PrivateRoute path={`${this.props.match.path}/basics`} requiredRoles={[roleTypes.PPM]}>
-                  <BasicsTabContent moveId={moveId} serviceMember={this.props.serviceMember} />
-                </PrivateRoute>
-                <PrivateRoute path={`${this.props.match.path}/ppm`} requiredRoles={[roleTypes.PPM]}>
-                  <PPMTabContent
-                    ppmPaymentRequestedFlag={this.props.context.flags.ppmPaymentRequest}
-                    moveId={moveId}
-                    ppmPaymentRequested={ppmPaymentRequested}
-                    moveDocuments={moveDocuments}
-                  />
-                </PrivateRoute>
-              </Switch>
+                <Route
+                  path={`${this.props.match.path}/basics`}
+                  element={
+                    <ConnectedProtectedRoute requiredRoles={[roleTypes.PPM]}>
+                      <BasicsTabContent moveId={moveId} serviceMember={this.props.serviceMember} />
+                    </ConnectedProtectedRoute>
+                  }
+                />
+                <Route
+                  path={`${this.props.match.path}/ppm`}
+                  element={
+                    <ConnectedProtectedRoute requiredRoles={[roleTypes.PPM]}>
+                      <PPMTabContent
+                        ppmPaymentRequestedFlag={this.props.context.flags.ppmPaymentRequest}
+                        moveId={moveId}
+                        ppmPaymentRequested={ppmPaymentRequested}
+                        moveDocuments={moveDocuments}
+                      />
+                    </ConnectedProtectedRoute>
+                  }
+                />
+              </Routes>
             </div>
           </div>
           <div className="grid-col-3">
@@ -424,10 +440,11 @@ MoveInfo.propTypes = {
       sitPanel: PropTypes.bool,
     }).isRequired,
   }).isRequired,
+  router: RouterShape,
 };
 
-const mapStateToProps = (state, ownProps) => {
-  const moveId = ownProps.match.params.moveId;
+const mapStateToProps = (state, { router: { params } }) => {
+  const moveId = params.moveId;
   const move = selectMove(state, moveId);
   const ppm = selectActivePPMForMove(state, moveId);
   const ordersId = move.orders_id;
@@ -477,5 +494,5 @@ const mapDispatchToProps = (dispatch) =>
     dispatch,
   );
 
-const connectedMoveInfo = withContext(connect(mapStateToProps, mapDispatchToProps)(MoveInfo));
+const connectedMoveInfo = withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(MoveInfo)));
 export { connectedMoveInfo as default, ReferrerQueueLink };

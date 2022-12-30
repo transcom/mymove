@@ -1,13 +1,14 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import QAEViolationsForm from './QAEViolationsForm';
 
-import { MockProviders } from 'testUtils';
+import { renderWithRouter } from 'testUtils';
 import { saveEvaluationReport, associateReportViolations, submitEvaluationReport } from 'services/ghcApi';
 import { useEvaluationReportShipmentListQueries } from 'hooks/queries';
+import { qaeCSRRoutes } from 'constants/routes';
 
 const mockMoveCode = 'A12345';
 const mockReportId = 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2';
@@ -148,14 +149,13 @@ jest.mock('hooks/queries', () => ({
   useEvaluationReportShipmentListQueries: jest.fn(),
 }));
 
-const mockPush = jest.fn();
-jest.mock('react-router', () => ({
-  ...jest.requireActual('react-router'),
-  useHistory: () => ({
-    push: mockPush,
-  }),
-  useParams: jest.fn().mockReturnValue({ moveCode: 'A12345', reportId: 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2' }),
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
 }));
+const mockRoutingParams = { moveCode: 'A12345', reportId: 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2' };
+const mockRoutingConfig = { path: qaeCSRRoutes.BASE_EVALUATION_REPORT_PATH, params: mockRoutingParams };
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
@@ -174,11 +174,7 @@ const renderForm = (props) => {
     mtoShipments: mockShipmentData,
   };
 
-  return render(
-    <MockProviders initialEntries={[`/moves/A12345/evaluation-reports/db30c135-1d6d-4a0d-a6d5-f408474f6ee2`]}>
-      <QAEViolationsForm {...defaultProps} {...props} />
-    </MockProviders>,
-  );
+  return renderWithRouter(<QAEViolationsForm {...defaultProps} {...props} />, mockRoutingConfig);
 };
 
 beforeEach(() => {
@@ -284,8 +280,8 @@ describe('QAEViolationsForm Buttons', () => {
     await userEvent.click(await screen.findByRole('button', { name: '< Back to Evaluation form' }));
 
     // Verify that we re-route back to the eval report
-    expect(mockPush).toHaveBeenCalledTimes(1);
-    expect(mockPush).toHaveBeenCalledWith(`/moves/${mockMoveCode}/evaluation-reports/${mockReportId}`);
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledWith(`/moves/${mockMoveCode}/evaluation-reports/${mockReportId}`);
   });
 
   it('can save a draft and reroute back to the eval reports', async () => {
@@ -296,7 +292,7 @@ describe('QAEViolationsForm Buttons', () => {
 
     // Verify that report was saved, violations re-associated with report, and page rerouted
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledTimes(1);
       expect(saveEvaluationReport).toHaveBeenCalledTimes(1);
       expect(saveEvaluationReport).toHaveBeenCalledWith({
         body: savedReportBody,
@@ -304,8 +300,10 @@ describe('QAEViolationsForm Buttons', () => {
         reportID: mockReportId,
       });
       expect(associateReportViolations).toHaveBeenCalledTimes(1);
-      expect(mockPush).toHaveBeenCalledWith(`/moves/${mockMoveCode}/evaluation-reports`, {
-        showSaveDraftSuccess: true,
+      expect(mockNavigate).toHaveBeenCalledWith(`/moves/${mockMoveCode}/evaluation-reports`, {
+        state: {
+          showSaveDraftSuccess: true,
+        },
       });
     });
   });
@@ -363,8 +361,12 @@ describe('QAEViolationsForm Buttons', () => {
     await waitFor(() => {
       expect(submitEvaluationReport).toHaveBeenCalledTimes(1);
       // Verify that we re-route back to the eval report
-      expect(mockPush).toHaveBeenCalledTimes(1);
-      expect(mockPush).toHaveBeenCalledWith(`/moves/${mockMoveCode}/evaluation-reports`, { showSubmitSuccess: true });
+      expect(mockNavigate).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledWith(`/moves/${mockMoveCode}/evaluation-reports`, {
+        state: {
+          showSubmitSuccess: true,
+        },
+      });
     });
   });
 });

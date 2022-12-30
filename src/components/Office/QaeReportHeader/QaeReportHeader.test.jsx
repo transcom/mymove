@@ -1,16 +1,19 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 
 import QaeReportHeader from './QaeReportHeader';
 
-jest.mock('react-router', () => ({
-  ...jest.requireActual('react-router'),
-  useParams: jest.fn().mockReturnValue({ moveCode: 'LR4T8V' }),
-}));
+import { qaeCSRRoutes } from 'constants/routes';
+import { renderWithRouter } from 'testUtils';
 
+const mockReportId = 'b7305135-1d6d-4a0d-a6d5-f408474f6ee2';
+const mockRoutingConfig = {
+  path: qaeCSRRoutes.BASE_EVALUATION_REPORT_PATH,
+  params: { moveCode: 'LR4T8V', reportId: mockReportId },
+};
 const getMockProps = (reportProps) => ({
   report: {
-    id: 'b7305135-1d6d-4a0d-a6d5-f408474f6ee2',
+    id: mockReportId,
     type: 'SHIPMENT',
     moveReferenceID: '7972-2874',
     ...reportProps,
@@ -19,7 +22,7 @@ const getMockProps = (reportProps) => ({
 
 describe('QaeReportHeader', () => {
   it('renders correct content for a shipment report', () => {
-    render(<QaeReportHeader {...getMockProps()} />);
+    renderWithRouter(<QaeReportHeader {...getMockProps()} />, mockRoutingConfig);
 
     // h1
     expect(screen.getByRole('heading', { name: 'Shipment report', level: 1 })).toBeInTheDocument();
@@ -31,7 +34,7 @@ describe('QaeReportHeader', () => {
   });
 
   it('renders correct content for a counseling report', () => {
-    render(<QaeReportHeader {...getMockProps({ type: 'COUNSELING' })} />);
+    renderWithRouter(<QaeReportHeader {...getMockProps({ type: 'COUNSELING' })} />, mockRoutingConfig);
 
     // h1
     expect(screen.getByRole('heading', { name: 'Counseling report', level: 1 })).toBeInTheDocument();

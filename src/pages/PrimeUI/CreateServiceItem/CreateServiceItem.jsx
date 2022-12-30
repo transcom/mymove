@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { useParams, useHistory, withRouter } from 'react-router-dom-old';
+import { useParams, useNavigate, generatePath } from 'react-router-dom';
 import classnames from 'classnames';
 import { useMutation } from 'react-query';
-import { generatePath } from 'react-router';
 import { Alert } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
 import { connect } from 'react-redux';
@@ -19,7 +18,7 @@ import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
 const CreateServiceItem = ({ setFlashMessage }) => {
   const { moveCodeOrID, shipmentId } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [errorMessage, setErrorMessage] = useState();
 
@@ -35,7 +34,7 @@ const CreateServiceItem = ({ setFlashMessage }) => {
         true,
       );
 
-      history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
+      navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
     },
     onError: (error) => {
       const { response: { body } = {} } = error;
@@ -96,4 +95,4 @@ const mapDispatchToProps = {
   setFlashMessage: setFlashMessageAction,
 };
 
-export default withRouter(connect(() => ({}), mapDispatchToProps)(CreateServiceItem));
+export default connect(() => ({}), mapDispatchToProps)(CreateServiceItem);

@@ -1,8 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function TrailerCriteria(props) {
+function TrailerCriteria() {
+  const navigate = useNavigate();
   function goBack() {
-    props.history.goBack();
+    navigate(-1);
   }
   return (
     <div className="usa-grid trailer-criteria-container">

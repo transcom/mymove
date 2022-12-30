@@ -1,22 +1,22 @@
 import React, { useCallback, useState } from 'react';
-import { withRouter } from 'react-router-dom-old';
+import { useNavigate } from 'react-router-dom';
 
 import styles from './QAECSRMoveSearch.module.scss';
 
-import { HistoryShape } from 'types/router';
 import { useQAECSRMoveSearchQueries } from 'hooks/queries';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 
-const QAECSRMoveSearch = ({ history }) => {
+const QAECSRMoveSearch = () => {
+  const navigate = useNavigate();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
 
   const handleClick = useCallback(
     (values) => {
-      history.push(`/moves/${values.locator}/details`);
+      navigate(`/moves/${values.locator}/details`);
     },
-    [history],
+    [navigate],
   );
   const onSubmit = useCallback((values) => {
     const payload = {
@@ -60,8 +60,6 @@ const QAECSRMoveSearch = ({ history }) => {
   );
 };
 
-QAECSRMoveSearch.propTypes = {
-  history: HistoryShape.isRequired,
-};
+QAECSRMoveSearch.propTypes = {};
 
-export default withRouter(QAECSRMoveSearch);
+export default QAECSRMoveSearch;

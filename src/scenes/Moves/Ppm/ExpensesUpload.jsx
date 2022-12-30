@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { get, isEmpty, map } from 'lodash';
-import { withLastLocation } from 'react-router-last-location';
-import { Link } from 'react-router-dom-old';
+
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getFormValues, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
@@ -25,6 +25,7 @@ import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { withContext } from 'shared/AppContext';
 import { documentSizeLimitMsg } from 'shared/constants';
 import { selectCurrentPPM } from 'store/entities/selectors';
+import withRouter from 'utils/routing';
 
 const nextPagePath = '/ppm-payment-review';
 const nextBtnLabels = {
@@ -66,8 +67,11 @@ class ExpensesUpload extends Component {
   };
 
   skipHandler = () => {
-    const { moveId, history } = this.props;
-    history.push(`/moves/${moveId}${nextPagePath}`);
+    const {
+      moveId,
+      router: { navigate },
+    } = this.props;
+    navigate(`/moves/${moveId}${nextPagePath}`);
   };
 
   isStorageExpense = (formValues) => {
@@ -75,7 +79,12 @@ class ExpensesUpload extends Component {
   };
 
   saveAndAddHandler = (formValues) => {
-    const { moveId, currentPpm, history } = this.props;
+    const {
+      moveId,
+      currentPpm,
+      router: { navigate },
+    } = this.props;
+
     const { paymentMethod, missingReceipt, haveMoreExpenses } = this.state;
     const {
       storage_start_date,
@@ -106,7 +115,7 @@ class ExpensesUpload extends Component {
       .then(() => {
         this.cleanup();
         if (haveMoreExpenses === 'No') {
-          history.push(`/moves/${moveId}${nextPagePath}`);
+          navigate(`/moves/${moveId}${nextPagePath}`);
         }
       })
       .catch((e) => {
@@ -319,7 +328,10 @@ const formName = 'expense_document_upload';
 ExpensesUpload = reduxForm({ form: formName })(ExpensesUpload);
 
 function mapStateToProps(state, props) {
-  const moveId = props.match.params.moveId;
+  const {
+    router: { params: moveId },
+  } = props;
+
   return {
     moveId: moveId,
     formValues: getFormValues(formName)(state),
@@ -339,4 +351,4 @@ const mapDispatchToProps = {
   createMovingExpenseDocument,
 };
 
-export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(ExpensesUpload)));
+export default withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(ExpensesUpload)));

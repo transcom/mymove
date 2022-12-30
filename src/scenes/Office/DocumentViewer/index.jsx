@@ -13,9 +13,9 @@ import { loadMove, loadMoveLabel } from 'shared/Entities/modules/moves';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import PrivateRoute from 'containers/PrivateRoute';
-import { Switch, Redirect } from 'react-router-dom-old';
+import { Route, Routes, Navigate } from 'react-router-dom';
 
+import { selectGetCurrentUserIsLoading, selectIsLoggedIn } from 'store/auth/selectors';
 import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
@@ -33,6 +33,8 @@ import { roleTypes } from 'constants/userRoles';
 import DocumentDetailPanel from './DocumentDetailPanel';
 
 import './index.css';
+import { RouterShape } from 'types';
+import ConnectedProtectedRoute from 'components/ProtectedRoute/ProtectedRoute';
 
 class DocumentViewer extends Component {
   componentDidMount() {
@@ -49,7 +51,12 @@ class DocumentViewer extends Component {
   }
 
   get getDocumentUploaderProps() {
-    const { docTypes, location, genericMoveDocSchema, moveDocSchema } = this.props;
+    const {
+      docTypes,
+      router: { location },
+      genericMoveDocSchema,
+      moveDocSchema,
+    } = this.props;
     // Parse query string parameters
     const moveDocumentType = qs.parse(location.search).moveDocumentType;
 
@@ -65,7 +72,6 @@ class DocumentViewer extends Component {
       onSubmit: this.handleSubmit,
       genericMoveDocSchema,
       initialValues,
-      location,
       moveDocSchema,
     };
   }
@@ -105,7 +111,8 @@ class DocumentViewer extends Component {
     });
   };
   render() {
-    const { serviceMember, moveId, moveDocumentId, moveDocuments, moveLocator } = this.props;
+    const { serviceMember, moveId, moveDocumentId, moveDocuments, moveLocator, loginIsLoading, userIsLoggedIn } =
+      this.props;
     const numMoveDocs = moveDocuments ? moveDocuments.length : 0;
     const name = stringifyName(serviceMember);
     document.title = `Document Viewer for ${name}`;
@@ -119,7 +126,7 @@ class DocumentViewer extends Component {
     const newPath = `/moves/:moveId/documents/new`;
     const documentPath = `/moves/:moveId/documents/:moveDocumentId`;
 
-    const defaultTabIndex = this.props.match.params.moveDocumentId !== 'new' ? 1 : 0;
+    const defaultTabIndex = moveDocumentId !== 'new' ? 1 : 0;
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
     if (this.props.loadDependenciesHasError)
       return (
@@ -138,28 +145,49 @@ class DocumentViewer extends Component {
         <div className="grid-row grid-gap doc-viewer">
           <div className="grid-col-8">
             <div className="tab-content">
-              <Switch>
-                <PrivateRoute
-                  exact
+              <Routes>
+                <Route
+                  end
                   path={defaultPath}
-                  render={() => <Redirect replace to={newUrl} />}
-                  requiredRoles={[roleTypes.PPM]}
+                  element={
+                    <ConnectedProtectedRoute requiredRoles={[roleTypes.PPM]}>
+                      <Navigate replace to={newUrl} />
+                    </ConnectedProtectedRoute>
+                  }
                 />
-                <PrivateRoute
+                <Route
                   path={newPath}
-                  moveId={moveId}
-                  render={() => {
-                    return <DocumentUploader {...this.getDocumentUploaderProps} />;
-                  }}
-                  requiredRoles={[roleTypes.PPM]}
+                  element={
+                    <ConnectedProtectedRoute requiredRoles={[roleTypes.PPM]}>
+                      <DocumentUploader {...this.getDocumentUploaderProps} />;
+                    </ConnectedProtectedRoute>
+                  }
                 />
-                <PrivateRoute path={documentPath} component={DocumentUploadViewer} requiredRoles={[roleTypes.PPM]} />
-                <PrivateRoute
+                <Route
+                  path={documentPath}
+                  element={
+                    <ConnectedProtectedRoute requiredRoles={[roleTypes.PPM]}>
+                      <DocumentUploadViewer />
+                    </ConnectedProtectedRoute>
+                  }
+                />
+                <Route
                   path={defaultUrl}
-                  render={() => <div> document viewer coming soon</div>}
-                  requiredRoles={[roleTypes.PPM]}
+                  element={
+                    <ConnectedProtectedRoute requiredRoles={[roleTypes.PPM]}>
+                      <div> document viewer coming soon</div>
+                    </ConnectedProtectedRoute>
+                  }
                 />
-              </Switch>
+                {/* 404 */}
+                <Route
+                  path="*"
+                  element={
+                    (loginIsLoading && <LoadingPlaceholder />) ||
+                    (!userIsLoggedIn && <Navigate to="/sign-in" replace />)
+                  }
+                />
+              </Routes>
             </div>
           </div>
           <div className="grid-col-4">
@@ -213,11 +241,13 @@ DocumentViewer.propTypes = {
   genericMoveDocSchema: PropTypes.object.isRequired,
   moveDocSchema: PropTypes.object.isRequired,
   moveDocuments: PropTypes.arrayOf(PropTypes.object),
-  location: PropTypes.object.isRequired,
+  loginIsLoading: PropTypes.bool,
+  userIsLoggedIn: PropTypes.bool,
+  router: RouterShape.isRequired(),
 };
 
-const mapStateToProps = (state, ownProps) => {
-  const { moveId, moveDocumentId } = ownProps.match.params;
+const mapStateToProps = (state, { router: { params } }) => {
+  const { moveId, moveDocumentId } = params;
   const move = selectMove(state, moveId);
   const moveLocator = move.locator;
   const serviceMemberId = move.service_member_id;
@@ -237,6 +267,8 @@ const mapStateToProps = (state, ownProps) => {
     serviceMemberId,
     loadDependenciesHasSuccess: loadMoveRequest.isSuccess,
     loadDependenciesHasError: loadMoveRequest.error,
+    loginIsLoading: selectGetCurrentUserIsLoading(state),
+    userIsLoggedIn: selectIsLoggedIn(state),
   };
 };
 

@@ -3,8 +3,7 @@ import { arrayOf, bool, func, node, shape, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Alert, Button } from '@trussworks/react-uswds';
-import { generatePath } from 'react-router';
-import { withRouter } from 'react-router-dom-old';
+import { generatePath } from 'react-router-dom';
 
 import styles from './Home.module.scss';
 import {
@@ -49,10 +48,12 @@ import {
   selectUploadsForCurrentAmendedOrders,
   selectUploadsForCurrentOrders,
 } from 'store/entities/selectors';
-import { HistoryShape, MoveShape, OrdersShape, UploadShape } from 'types/customerShapes';
+import { MoveShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
+import withRouter from 'utils/routing';
+import { RouterShape } from 'types/router';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -231,7 +232,10 @@ export class Home extends Component {
   };
 
   handleShipmentClick = (shipmentId, shipmentNumber, shipmentType) => {
-    const { move, history } = this.props;
+    const {
+      move,
+      router: { navigate },
+    } = this.props;
     let queryString = '';
     if (shipmentNumber) {
       queryString = `?shipmentNumber=${shipmentNumber}`;
@@ -251,7 +255,7 @@ export class Home extends Component {
       });
     }
 
-    history.push(destLink);
+    navigate(destLink);
   };
 
   handleDeleteClick = (shipmentId) => {
@@ -285,12 +289,18 @@ export class Home extends Component {
   };
 
   handleNewPathClick = (path) => {
-    const { history } = this.props;
-    history.push(path);
+    const {
+      router: { navigate },
+    } = this.props;
+    navigate(path);
   };
 
   handlePPMUploadClick = (shipmentId) => {
-    const { move, mtoShipments, history } = this.props;
+    const {
+      move,
+      mtoShipments,
+      router: { navigate },
+    } = this.props;
 
     const shipment = mtoShipments.find((mtoShipment) => mtoShipment.id === shipmentId);
 
@@ -321,7 +331,7 @@ export class Home extends Component {
       }
     }
 
-    history.push(path);
+    navigate(path);
   };
 
   // eslint-disable-next-line class-methods-use-this
@@ -553,7 +563,6 @@ Home.propTypes = {
   mtoShipments: arrayOf(ShipmentShape).isRequired,
   uploadedOrderDocuments: arrayOf(UploadShape).isRequired,
   uploadedAmendedOrderDocuments: arrayOf(UploadShape),
-  history: HistoryShape.isRequired,
   move: MoveShape.isRequired,
   isProfileComplete: bool.isRequired,
   signedCertification: shape({
@@ -562,6 +571,7 @@ Home.propTypes = {
   }),
   getSignedCertification: func.isRequired,
   updateShipmentList: func.isRequired,
+  router: RouterShape.isRequired,
 };
 
 Home.defaultProps = {

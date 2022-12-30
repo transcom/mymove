@@ -1,9 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import * as reactRedux from 'react-redux';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { push } from 'connected-react-router';
 
 import ConnectedDutyLocation, { DutyLocation } from './DutyLocation';
 
@@ -11,15 +9,24 @@ import { MockProviders } from 'testUtils';
 import { patchServiceMember } from 'services/internalApi';
 import dutyLocationFactory from 'utils/test/factories/dutyLocation';
 
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   patchServiceMember: jest.fn(),
 }));
 
+beforeEach(() => {
+  jest.resetAllMocks();
+});
+
 describe('Duty Location page', () => {
   const testProps = {
     updateServiceMember: jest.fn(),
-    push: jest.fn(),
     serviceMember: {
       id: 'testServiceMemberId',
       first_name: 'Leo',
@@ -40,7 +47,7 @@ describe('Duty Location page', () => {
     expect(backButton).toBeInTheDocument();
 
     await userEvent.click(backButton);
-    expect(testProps.push).toHaveBeenCalledWith('/service-member/contact-info');
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/contact-info');
   });
 
   it('next button submits the form and goes to the Current Address step', async () => {
@@ -74,7 +81,7 @@ describe('Duty Location page', () => {
     });
 
     expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
-    expect(testProps.push).toHaveBeenCalledWith('/service-member/current-address');
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/current-address');
   });
 
   it('shows an error if the API returns an error', async () => {
@@ -120,29 +127,19 @@ describe('Duty Location page', () => {
 
     expect(screen.getByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
-    expect(testProps.push).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   afterEach(jest.resetAllMocks);
 });
 
 describe('requireCustomerState DutyLocation', () => {
-  const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
-  const mockDispatch = jest.fn();
-
-  beforeEach(() => {
-    useDispatchMock.mockClear();
-    mockDispatch.mockClear();
-    useDispatchMock.mockReturnValue(mockDispatch);
-  });
-
   const props = {
     pages: ['first'],
     pageKey: '1',
     userEmail: 'my@email.com',
     schema: { my: 'schema' },
     updateServiceMember: jest.fn(),
-    push: jest.fn(),
   };
 
   it('dispatches a redirect if the current state is earlier than the "CONTACT INFO COMPLETE" state', async () => {
@@ -175,7 +172,7 @@ describe('requireCustomerState DutyLocation', () => {
     );
 
     await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/contact-info'));
+      expect(mockNavigate).toHaveBeenCalledWith('/service-member/contact-info');
     });
   });
 
@@ -212,7 +209,7 @@ describe('requireCustomerState DutyLocation', () => {
     );
 
     await waitFor(() => {
-      expect(mockDispatch).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
@@ -258,7 +255,7 @@ describe('requireCustomerState DutyLocation', () => {
     );
 
     await waitFor(() => {
-      expect(mockDispatch).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
@@ -309,7 +306,7 @@ describe('requireCustomerState DutyLocation', () => {
     );
 
     await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
   });
 });

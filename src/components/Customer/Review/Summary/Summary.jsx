@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { withRouter, Link } from 'react-router-dom-old';
+import { generatePath, Link, matchPath } from 'react-router-dom';
 import { arrayOf, func, shape, bool, string } from 'prop-types';
 import moment from 'moment';
 import { Button, Grid } from '@trussworks/react-uswds';
-import { generatePath } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './Summary.module.scss';
@@ -33,8 +32,9 @@ import {
   selectMTOShipmentsForCurrentMove,
 } from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
-import { OrdersShape, MoveShape, HistoryShape, MatchShape } from 'types/customerShapes';
+import { OrdersShape, MoveShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
+import withRouter from 'utils/routing';
 
 export class Summary extends Component {
   constructor(props) {
@@ -63,8 +63,8 @@ export class Summary extends Component {
   }
 
   handleEditClick = (path) => {
-    const { history } = this.props;
-    history.push(path);
+    const { router } = this.props;
+    router.navigate(path);
   };
 
   handleDeleteClick = (shipmentId) => {
@@ -104,8 +104,8 @@ export class Summary extends Component {
   };
 
   renderShipments = () => {
-    const { currentMove, currentOrders, match } = this.props;
-    const { moveId } = match.params;
+    const { currentMove, currentOrders, router } = this.props;
+    const { moveId } = router.params;
     const showEditAndDeleteBtn = currentMove.status === MOVE_STATUSES.DRAFT;
     let hhgShipmentNumber = 0;
     let ppmShipmentNumber = 0;
@@ -200,17 +200,25 @@ export class Summary extends Component {
   };
 
   render() {
-    const { currentMove, currentOrders, match, moveIsApproved, mtoShipments, serviceMember } = this.props;
+    const { currentMove, currentOrders, router, moveIsApproved, mtoShipments, serviceMember } = this.props;
     const { showModal, showDeleteModal, targetShipmentId } = this.state;
 
-    const { moveId } = match.params;
+    const { pathname } = router.location;
+    const { moveId } = router.params;
     const currentDutyLocation = serviceMember?.current_location;
     const officePhone = currentDutyLocation?.transportation_office?.phone_lines?.[0];
 
     const rootReviewAddressWithMoveId = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
 
     // isReviewPage being false is the same thing as being in the /edit route
-    const isReviewPage = rootReviewAddressWithMoveId === match.url;
+    // TODO: This is probably not good enough, this was dooing some gross manual URL matching before
+    const isReviewPage = matchPath(
+      {
+        path: rootReviewAddressWithMoveId,
+        end: true,
+      },
+      pathname,
+    );
 
     const showHHGShipmentSummary = isReviewPage && !!mtoShipments.length;
 
@@ -307,8 +315,7 @@ export class Summary extends Component {
 Summary.propTypes = {
   currentMove: MoveShape.isRequired,
   currentOrders: OrdersShape.isRequired,
-  history: HistoryShape.isRequired,
-  match: MatchShape.isRequired,
+  router: shape({}).isRequired, // TODO - add shape
   moveIsApproved: bool.isRequired,
   mtoShipments: arrayOf(ShipmentShape).isRequired,
   onDidMount: func.isRequired,

@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer } from 'react';
-import { Link, useHistory, useParams } from 'react-router-dom-old';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { queryCache, useMutation } from 'react-query';
@@ -28,7 +28,7 @@ const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 
 const Orders = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(reducer, null, initialState);
 
@@ -36,8 +36,8 @@ const Orders = () => {
   const orderId = move?.ordersId;
 
   const handleClose = React.useCallback(() => {
-    history.push(`/moves/${moveCode}/details`);
-  }, [history, moveCode]);
+    navigate(`/moves/${moveCode}/details`);
+  }, [navigate, moveCode]);
 
   const [mutateOrders] = useMutation(updateOrder, {
     onSuccess: (data, variables) => {
@@ -187,7 +187,12 @@ const Orders = () => {
                   </Button>
                   <h2 className={styles.header}>View Orders</h2>
                   <div>
-                    <Link className={styles.viewAllowances} data-testid="view-allowances" to="allowances">
+                    <Link
+                      className={styles.viewAllowances}
+                      data-testid="view-allowances"
+                      to={`/moves/${moveCode}/allowances`}
+                      replace
+                    >
                       View Allowances
                     </Link>
                   </div>

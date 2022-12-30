@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { generatePath, useHistory, useParams } from 'react-router-dom-old';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
@@ -21,9 +21,9 @@ import { updateMTOShipment } from 'store/entities/actions';
 
 const ProGear = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const handleBack = () => {
-    history.push(generalRoutes.HOME_PATH);
+    navigate(generalRoutes.HOME_PATH);
   };
   const [errorMessage, setErrorMessage] = useState(null);
   const { moveId, mtoShipmentId, proGearId } = useParams();
@@ -44,12 +44,13 @@ const ProGear = () => {
           }
           // Update the URL so the back button would work and not create a new weight ticket or on
           // refresh either.
-          history.replace(
+          navigate(
             generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH, {
               moveId,
               mtoShipmentId,
               proGearId: resp.id,
             }),
+            { replace: true },
           );
           dispatch(updateMTOShipment(mtoShipment));
         })
@@ -57,7 +58,7 @@ const ProGear = () => {
           setErrorMessage('Failed to create trip record');
         });
     }
-  }, [proGearId, moveId, mtoShipmentId, history, dispatch, mtoShipment]);
+  }, [proGearId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment]);
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentProGearWeightTicket[`${fieldName}Id`];
@@ -119,7 +120,7 @@ const ProGear = () => {
       .then((resp) => {
         setSubmitting(false);
         mtoShipment.ppmShipment.proGearWeightTickets[currentIndex] = resp;
-        history.push(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
+        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
         dispatch(updateMTOShipment(mtoShipment));
       })
       .catch(() => {

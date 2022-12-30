@@ -1,25 +1,25 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import EditShipmentDetails from './EditShipmentDetails';
 
 import { updateMTOShipment } from 'services/ghcApi';
 import { useEditShipmentQueries } from 'hooks/queries';
+import { renderWithRouter } from 'testUtils';
+import { tooRoutes } from 'constants/routes';
 
-const mockPush = jest.fn();
-
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({
-    pathname: 'localhost:3000/',
-  }),
-  useHistory: () => ({
-    push: mockPush,
-  }),
-  useParams: jest.fn().mockReturnValue({ moveCode: 'move123', shipmentId: 'shipment123' }),
+  useNavigate: () => mockNavigate,
 }));
+const routingParams = { moveCode: 'move123', shipmentId: 'shipment123' };
+const mockRoutingConfig = {
+  path: tooRoutes.BASE_SHIPMENT_EDIT_PATH,
+  params: routingParams,
+};
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
@@ -249,21 +249,12 @@ const errorReturnValue = {
   isSuccess: false,
 };
 
-const props = {
-  match: {
-    path: '',
-    isExact: false,
-    url: '',
-    params: { moveCode: 'move123', shipmentId: 'shipment123' },
-  },
-};
-
 describe('EditShipmentDetails component', () => {
   describe('check different component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useEditShipmentQueries.mockReturnValue(loadingReturnValue);
 
-      render(<EditShipmentDetails {...props} />);
+      renderWithRouter(<EditShipmentDetails />, mockRoutingConfig);
 
       const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
@@ -272,7 +263,7 @@ describe('EditShipmentDetails component', () => {
     it('renders the Something Went Wrong component when the query errors', async () => {
       useEditShipmentQueries.mockReturnValue(errorReturnValue);
 
-      render(<EditShipmentDetails {...props} />);
+      renderWithRouter(<EditShipmentDetails />, mockRoutingConfig);
 
       const errorMessage = await screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
@@ -281,7 +272,7 @@ describe('EditShipmentDetails component', () => {
 
   it('renders the Services Counseling Shipment Form', async () => {
     useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-    render(<EditShipmentDetails {...props} />);
+    renderWithRouter(<EditShipmentDetails />, mockRoutingConfig);
 
     const h1 = await screen.getByRole('heading', { name: 'Edit shipment details', level: 1 });
     await waitFor(() => {
@@ -291,7 +282,7 @@ describe('EditShipmentDetails component', () => {
 
   it('renders the Edit Shipment Form for NTS', async () => {
     useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValueNTS);
-    render(<EditShipmentDetails {...props} />);
+    renderWithRouter(<EditShipmentDetails />, mockRoutingConfig);
 
     const h1 = await screen.getByRole('heading', { name: 'Edit shipment details', level: 1 });
     await waitFor(() => {
@@ -306,7 +297,7 @@ describe('EditShipmentDetails component', () => {
     useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
     updateMTOShipment.mockImplementation(() => Promise.resolve({}));
 
-    render(<EditShipmentDetails {...props} />);
+    renderWithRouter(<EditShipmentDetails />, mockRoutingConfig);
 
     const saveButton = await screen.findByRole('button', { name: 'Save' });
 
@@ -315,13 +306,13 @@ describe('EditShipmentDetails component', () => {
     await userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/moves/move123/details');
+      expect(mockNavigate).toHaveBeenCalledWith('../../details', { relative: 'path' });
     });
   });
 
   it('routes to the move details page when the cancel button is clicked', async () => {
     useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-    render(<EditShipmentDetails {...props} />);
+    renderWithRouter(<EditShipmentDetails />, mockRoutingConfig);
 
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
 
@@ -330,7 +321,7 @@ describe('EditShipmentDetails component', () => {
     await userEvent.click(cancelButton);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/moves/move123/details');
+      expect(mockNavigate).toHaveBeenCalledWith('../../details', { relative: 'path' });
     });
   });
 });

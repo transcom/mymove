@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { generatePath, useHistory, useParams } from 'react-router-dom-old';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
@@ -21,14 +21,14 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 const About = () => {
   const [errorMessage, setErrorMessage] = useState(null);
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const { moveId, mtoShipmentId } = useParams();
   const dispatch = useDispatch();
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
   const handleBack = () => {
-    history.push(generalRoutes.HOME_PATH);
+    navigate(generalRoutes.HOME_PATH);
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -51,7 +51,7 @@ const About = () => {
       .then((response) => {
         setSubmitting(false);
         dispatch(updateMTOShipment(response));
-        history.push(generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, { moveId, mtoShipmentId }));
+        navigate(generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, { moveId, mtoShipmentId }));
       })
       .catch((err) => {
         setSubmitting(false);

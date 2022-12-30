@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { withRouter } from 'react-router-dom-old';
-import { push } from 'connected-react-router';
 import { reduxForm } from 'redux-form';
 import { Button } from '@trussworks/react-uswds';
 
@@ -15,6 +11,7 @@ import styles from 'components/Customer/WizardNavigation/WizardNavigation.module
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 
 import { beforeTransition, getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage } from './utils';
+import withRouter from 'utils/routing';
 
 export class WizardFormPage extends Component {
   constructor(props) {
@@ -41,13 +38,13 @@ export class WizardFormPage extends Component {
 
   goto(path) {
     const {
-      push,
-      match: { params },
+      router: { navigate, params },
       additionalParams,
     } = this.props;
-    const combinedParams = additionalParams ? Object.assign({}, additionalParams, params) : params;
+
+    const combinedParams = additionalParams ? { ...additionalParams, ...params } : params;
     // comes from react router redux: doing this moves to the route at path  (might consider going back to history since we need withRouter)
-    push(generatePath(path, combinedParams));
+    navigate(generatePath(path, combinedParams));
   }
 
   nextPage() {
@@ -153,16 +150,11 @@ WizardFormPage.propTypes = {
   pageKey: PropTypes.string.isRequired,
   valid: PropTypes.bool,
   dirty: PropTypes.bool,
-  push: PropTypes.func,
-  match: PropTypes.object, //from withRouter
+  router: PropTypes.object, //from withRouter
   additionalParams: PropTypes.object,
   additionalValues: PropTypes.object, // These values are passed into the form with change()
   discardOnBack: PropTypes.bool,
 };
-
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push }, dispatch);
-}
 
 function composeValidations(initialValidations, additionalValidations) {
   return (values, form) => {
@@ -188,5 +180,5 @@ export const reduxifyWizardForm = (name, additionalValidations, asyncValidate, a
     asyncBlurFields,
     enableReinitialize: true,
     keepDirtyOnReinitialize: true,
-  })(withRouter(connect(null, mapDispatchToProps)(WizardFormPage)));
+  })(withRouter(WizardFormPage));
 };

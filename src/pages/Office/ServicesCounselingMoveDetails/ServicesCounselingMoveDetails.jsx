@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useParams, useHistory } from 'react-router-dom-old';
+import { Link, useParams, useNavigate, generatePath } from 'react-router-dom';
 import { queryCache, useMutation } from 'react-query';
-import { generatePath } from 'react-router';
 import { func } from 'prop-types';
 import classnames from 'classnames';
 import 'styles/office.scss';
@@ -40,7 +39,7 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 
 const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCount }) => {
   const { moveCode } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
@@ -96,10 +95,9 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
     shipmentsInfo = submittedShipments.map((shipment) => {
       const editURL = counselorCanEdit
-        ? generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
-            moveCode,
+        ? `../${generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
             shipmentId: shipment.id,
-          })
+          })}`
         : '';
 
       const displayInfo = {
@@ -196,12 +194,12 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const handleButtonDropdownChange = (e) => {
     const selectedOption = e.target.value;
 
-    const addShipmentPath = generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
+    const addShipmentPath = `../${generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
       moveCode,
       shipmentType: selectedOption,
-    });
+    })}`;
 
-    history.push(addShipmentPath);
+    navigate(addShipmentPath);
   };
 
   // use mutation calls
@@ -386,7 +384,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                 counselorCanEdit && (
                   <Link
                     className="usa-button usa-button--secondary"
-                    to={generatePath(servicesCounselingRoutes.ORDERS_EDIT_PATH, { moveCode })}
+                    to={`../${servicesCounselingRoutes.ORDERS_EDIT_PATH}`}
                   >
                     View and edit orders
                   </Link>
@@ -404,7 +402,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-allowances"
-                    to={generatePath(servicesCounselingRoutes.ALLOWANCES_EDIT_PATH, { moveCode })}
+                    to={`../${servicesCounselingRoutes.ALLOWANCES_EDIT_PATH}`}
                   >
                     Edit allowances
                   </Link>
@@ -422,7 +420,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-customer-info"
-                    to={generatePath(servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH, { moveCode })}
+                    to={`../${servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH}`}
                   >
                     Edit customer info
                   </Link>

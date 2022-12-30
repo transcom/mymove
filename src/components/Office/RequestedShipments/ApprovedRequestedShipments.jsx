@@ -27,13 +27,7 @@ const showWhenCollapsedWithGHCPrime = {
   HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
 };
 
-const ApprovedRequestedShipments = ({
-  mtoShipments,
-  ordersInfo,
-  mtoServiceItems,
-  moveCode,
-  displayDestinationType,
-}) => {
+const ApprovedRequestedShipments = ({ mtoShipments, ordersInfo, mtoServiceItems, displayDestinationType }) => {
   const ordersLOA = {
     tac: ordersInfo.tacMDC,
     sac: ordersInfo.sacSDN,
@@ -63,10 +57,9 @@ const ApprovedRequestedShipments = ({
       <div className={shipmentCardsStyles.shipmentCards}>
         {mtoShipments &&
           mtoShipments.map((shipment) => {
-            const editUrl = generatePath(tooRoutes.SHIPMENT_EDIT_PATH, {
-              moveCode,
+            const editUrl = `../${generatePath(tooRoutes.SHIPMENT_EDIT_PATH, {
               shipmentId: shipment.id,
-            });
+            })}`;
 
             return (
               <ShipmentDisplay
@@ -123,7 +116,6 @@ ApprovedRequestedShipments.propTypes = {
   mtoShipments: PropTypes.arrayOf(ShipmentShape).isRequired,
   ordersInfo: OrdersInfoShape.isRequired,
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
-  moveCode: PropTypes.string.isRequired,
   displayDestinationType: PropTypes.bool,
 };
 

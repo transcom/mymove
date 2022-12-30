@@ -1,6 +1,4 @@
 import React from 'react';
-import * as reactRedux from 'react-redux';
-import { push } from 'connected-react-router';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -9,6 +7,12 @@ import ConnectedBackupContact, { BackupContact } from './BackupContact';
 import { MockProviders } from 'testUtils';
 import { createBackupContactForServiceMember, patchBackupContact, getServiceMember } from 'services/internalApi';
 
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   createBackupContactForServiceMember: jest.fn(),
@@ -16,11 +20,14 @@ jest.mock('services/internalApi', () => ({
   getServiceMember: jest.fn(),
 }));
 
+beforeEach(() => {
+  jest.resetAllMocks();
+});
+
 describe('BackupContact page', () => {
   const testProps = {
     updateServiceMember: jest.fn(),
     updateBackupContact: jest.fn(),
-    push: jest.fn(),
     serviceMember: {
       id: 'testServiceMemberId',
     },
@@ -53,7 +60,7 @@ describe('BackupContact page', () => {
     await userEvent.click(backButton);
 
     await waitFor(() => {
-      expect(testProps.push).toHaveBeenCalledWith('/service-member/backup-address');
+      expect(mockNavigate).toHaveBeenCalledWith('/service-member/backup-address');
     });
   });
 
@@ -77,7 +84,7 @@ describe('BackupContact page', () => {
       expect(testProps.updateBackupContact).toHaveBeenCalledWith(testBackupContactValues);
       expect(getServiceMember).toHaveBeenCalledWith(testProps.serviceMember.id);
       expect(testProps.updateServiceMember).toHaveBeenCalledWith(testProps.serviceMember);
-      expect(testProps.push).toHaveBeenCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
 
     it('shows an error if the API returns an error', async () => {
@@ -107,7 +114,7 @@ describe('BackupContact page', () => {
 
       expect(queryByText('A server error occurred saving the backup contact')).toBeInTheDocument();
       expect(testProps.updateBackupContact).not.toHaveBeenCalled();
-      expect(testProps.push).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
@@ -134,7 +141,7 @@ describe('BackupContact page', () => {
       expect(testProps.updateBackupContact).toHaveBeenCalledWith(testBackupContactValues);
       expect(getServiceMember).toHaveBeenCalledWith(testProps.serviceMember.id);
       expect(testProps.updateServiceMember).toHaveBeenCalledWith(testProps.serviceMember);
-      expect(testProps.push).toHaveBeenCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
 
     it('shows an error if the API returns an error', async () => {
@@ -167,7 +174,7 @@ describe('BackupContact page', () => {
 
       expect(queryByText('A server error occurred saving the backup contact')).toBeInTheDocument();
       expect(testProps.updateBackupContact).not.toHaveBeenCalled();
-      expect(testProps.push).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
@@ -175,26 +182,17 @@ describe('BackupContact page', () => {
 });
 
 describe('requireCustomerState BackupContact', () => {
-  const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
-  const mockDispatch = jest.fn();
-
-  beforeEach(() => {
-    useDispatchMock.mockClear();
-    mockDispatch.mockClear();
-    useDispatchMock.mockReturnValue(mockDispatch);
-  });
-
   const props = {
     updateServiceMember: jest.fn(),
     updateBackupContact: jest.fn(),
-    push: jest.fn(),
+
     serviceMember: {
       id: 'testServiceMemberId',
     },
     currentBackupContacts: [],
   };
 
-  it('dispatches a redirect if the current state is earlier than the "BACKUP MAILING ADDRESS COMPLETE" state', async () => {
+  it('redirects if the current state is earlier than the "BACKUP MAILING ADDRESS COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -235,7 +233,7 @@ describe('requireCustomerState BackupContact', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Backup contact');
 
     await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/backup-address'));
+      expect(mockNavigate).toHaveBeenCalledWith('/service-member/backup-address');
     });
   });
 
@@ -283,7 +281,7 @@ describe('requireCustomerState BackupContact', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Backup contact');
 
     await waitFor(() => {
-      expect(mockDispatch).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
@@ -336,7 +334,7 @@ describe('requireCustomerState BackupContact', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Backup contact');
 
     await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
   });
 });

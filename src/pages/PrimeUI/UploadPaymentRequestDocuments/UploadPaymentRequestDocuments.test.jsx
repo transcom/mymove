@@ -6,16 +6,14 @@ import UploadPaymentRequestDocuments from './UploadPaymentRequestDocuments';
 
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
+import { primeSimulatorRoutes } from 'constants/routes';
 
-const mockPush = jest.fn();
-
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn().mockReturnValue({ moveCodeOrID: 'LN4T89' }),
-  useHistory: () => ({
-    push: mockPush,
-  }),
+  useNavigate: () => mockNavigate,
 }));
+const routingParams = { moveCodeOrID: 'LN4T89', paymentRequestId: 'test-payment-id-123' };
 
 jest.mock('services/primeApi', () => ({
   ...jest.requireActual('services/primeApi'),
@@ -71,7 +69,7 @@ describe('Upload Payment Request Documents Page', () => {
   it('navigates the user to the move details page when the cancel button is clicked', async () => {
     usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
     render(
-      <MockProviders>
+      <MockProviders path={primeSimulatorRoutes.UPLOAD_DOCUMENTS_PATH} params={routingParams}>
         <UploadPaymentRequestDocuments />
       </MockProviders>,
     );
@@ -80,7 +78,7 @@ describe('Upload Payment Request Documents Page', () => {
     await userEvent.click(cancel);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/simulator/moves/LN4T89/details');
+      expect(mockNavigate).toHaveBeenCalledWith('/simulator/moves/LN4T89/details');
     });
   });
 });

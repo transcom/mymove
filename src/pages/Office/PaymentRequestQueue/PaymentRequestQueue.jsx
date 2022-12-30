@@ -1,11 +1,10 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom-old';
+import { useNavigate } from 'react-router-dom';
 
 import styles from './PaymentRequestQueue.module.scss';
 
 import { usePaymentRequestQueueQueries, useUserQueries } from 'hooks/queries';
 import { createHeader } from 'components/Table/utils';
-import { HistoryShape } from 'types/router';
 import {
   formatDateFromIso,
   serviceMemberAgencyLabel,
@@ -102,7 +101,8 @@ const columns = (showBranchFilter = true) => [
   ),
 ];
 
-const PaymentRequestQueue = ({ history }) => {
+const PaymentRequestQueue = () => {
+  const navigate = useNavigate();
   const {
     // eslint-disable-next-line camelcase
     data: { office_user },
@@ -114,7 +114,7 @@ const PaymentRequestQueue = ({ history }) => {
   const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
 
   const handleClick = (values) => {
-    history.push(`/moves/${values.locator}/payment-requests`);
+    navigate(`/moves/${values.locator}/payment-requests`);
   };
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -139,8 +139,4 @@ const PaymentRequestQueue = ({ history }) => {
   );
 };
 
-PaymentRequestQueue.propTypes = {
-  history: HistoryShape.isRequired,
-};
-
-export default withRouter(PaymentRequestQueue);
+export default PaymentRequestQueue;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { generatePath, useHistory, useParams } from 'react-router-dom-old';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
@@ -19,14 +19,14 @@ import { ORDERS_TYPE } from 'constants/orders';
 
 const Advance = () => {
   const [errorMessage, setErrorMessage] = useState(null);
-  const history = useHistory();
+  const navigate = useNavigate();
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
   const dispatch = useDispatch();
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const orders = useSelector((state) => selectCurrentOrders(state));
 
   const handleBack = () => {
-    history.push(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, { moveId, mtoShipmentId }));
+    navigate(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, { moveId, mtoShipmentId }));
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -55,7 +55,7 @@ const Advance = () => {
             'Details saved',
           ),
         );
-        history.push(generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId }));
+        navigate(generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId }));
       })
       .catch((err) => {
         setSubmitting(false);

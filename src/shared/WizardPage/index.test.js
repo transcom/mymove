@@ -3,25 +3,37 @@ import { mount } from 'enzyme';
 import { act } from 'react-dom/test-utils';
 
 import { WizardPage } from 'shared/WizardPage';
+import { MockRouting } from 'testUtils';
+
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+
+afterEach(() => {
+  jest.resetAllMocks();
+});
+
+const mountWithRouting = (ui) => {
+  return mount(<MockRouting>{ui}</MockRouting>);
+};
 
 describe('the WizardPage component', () => {
   const minProps = {
     handleSubmit: jest.fn(),
     pageList: ['1', '2', '3'],
     pageKey: '1',
-    match: {},
   };
 
   const middleFlowProps = {
     handleSubmit: jest.fn(),
     pageList: ['1', '2', '3'],
     pageKey: '2',
-    push: jest.fn(),
-    match: {},
   };
 
   describe('with minimum props', () => {
-    const wrapper = mount(<WizardPage {...minProps} />);
+    const wrapper = mountWithRouting(<WizardPage {...minProps} />);
     it('renders without errors', () => {
       expect(wrapper.exists()).toBe(true);
     });
@@ -33,9 +45,8 @@ describe('the WizardPage component', () => {
 
   describe('navigation', () => {
     describe('on the first page', () => {
-      const mockPush = jest.fn();
-      const wrapper = mount(
-        <WizardPage {...minProps} push={mockPush}>
+      const wrapper = mountWithRouting(
+        <WizardPage {...minProps}>
           <div>This is page 1</div>
         </WizardPage>,
       );
@@ -52,22 +63,21 @@ describe('the WizardPage component', () => {
       });
 
       describe('when the next button is clicked', () => {
-        it('push gets the next page', async () => {
+        it('navigate gets the next page', async () => {
           const nextButton = wrapper.find('button[data-testid="wizardNextButton"]');
           await act(async () => {
             nextButton.simulate('click');
           });
-          expect(mockPush.mock.calls.length).toBe(1);
-          expect(mockPush.mock.calls[0][0]).toBe('2');
+          expect(mockNavigate.mock.calls.length).toBe(1);
+          expect(mockNavigate.mock.calls[0][0]).toBe('2');
         });
       });
     });
 
     describe('when on the middle page', () => {
-      const mockPush = jest.fn();
       const mockSubmit = jest.fn();
-      const wrapper = mount(
-        <WizardPage {...middleFlowProps} push={mockPush} handleSubmit={mockSubmit}>
+      const wrapper = mountWithRouting(
+        <WizardPage {...middleFlowProps} handleSubmit={mockSubmit}>
           <div>This is page 2</div>
         </WizardPage>,
       );
@@ -91,15 +101,13 @@ describe('the WizardPage component', () => {
 
       describe('when the prev button is clicked', () => {
         beforeEach(() => {
-          mockPush.mockClear();
-          mockSubmit.mockClear();
           const prevButton = wrapper.find('button[data-testid="wizardBackButton"]');
           prevButton.simulate('click');
         });
 
-        it('push gets the prev page', () => {
-          expect(mockPush.mock.calls.length).toBe(1);
-          expect(mockPush.mock.calls[0][0]).toBe('1');
+        it('navigate gets the prev page', () => {
+          expect(mockNavigate.mock.calls.length).toBe(1);
+          expect(mockNavigate.mock.calls[0][0]).toBe('1');
         });
 
         it('submit is not called', () => {
@@ -109,15 +117,15 @@ describe('the WizardPage component', () => {
 
       describe('when the next button is clicked', () => {
         beforeEach(() => {
-          mockPush.mockClear();
+          mockNavigate.mockClear();
           mockSubmit.mockClear();
           const nextButton = wrapper.find('button[data-testid="wizardNextButton"]');
           nextButton.simulate('click');
         });
 
-        it('push gets the next page', () => {
-          expect(mockPush.mock.calls.length).toBe(1);
-          expect(mockPush.mock.calls[0][0]).toBe('3');
+        it('navigate gets the next page', () => {
+          expect(mockNavigate.mock.calls.length).toBe(1);
+          expect(mockNavigate.mock.calls[0][0]).toBe('3');
         });
 
         it('submit is called', () => {
@@ -127,10 +135,9 @@ describe('the WizardPage component', () => {
     });
 
     describe('on the last page', () => {
-      const mockPush = jest.fn();
       const mockSubmit = jest.fn();
-      const wrapper = mount(
-        <WizardPage {...minProps} pageKey="3" handleSubmit={mockSubmit} push={mockPush}>
+      const wrapper = mountWithRouting(
+        <WizardPage {...minProps} pageKey="3" handleSubmit={mockSubmit}>
           <div>This is page 3</div>
         </WizardPage>,
       );
@@ -155,9 +162,9 @@ describe('the WizardPage component', () => {
           prevButton.simulate('click');
         });
 
-        it('push gets the prev page', () => {
-          expect(mockPush.mock.calls.length).toBe(1);
-          expect(mockPush.mock.calls[0][0]).toBe('2');
+        it('navigate gets the prev page', () => {
+          expect(mockNavigate.mock.calls.length).toBe(1);
+          expect(mockNavigate.mock.calls[0][0]).toBe('2');
         });
       });
 
@@ -177,7 +184,7 @@ describe('the WizardPage component', () => {
   describe('when the pageIsValid prop', () => {
     describe('is false', () => {
       describe('on the first page', () => {
-        const wrapper = mount(
+        const wrapper = mountWithRouting(
           <WizardPage {...minProps} pageIsValid={false}>
             <div>This is page 1</div>
           </WizardPage>,
@@ -190,7 +197,7 @@ describe('the WizardPage component', () => {
       });
 
       describe('on the last page', () => {
-        const wrapper = mount(
+        const wrapper = mountWithRouting(
           <WizardPage {...minProps} pageKey="3" pageIsValid={false}>
             <div>This is page 3</div>
           </WizardPage>,
@@ -205,7 +212,7 @@ describe('the WizardPage component', () => {
 
     describe('is true', () => {
       describe('on the first page', () => {
-        const wrapper = mount(
+        const wrapper = mountWithRouting(
           <WizardPage {...minProps} pageIsValid={true}>
             <div>This is page 1</div>
           </WizardPage>,
@@ -218,7 +225,7 @@ describe('the WizardPage component', () => {
       });
 
       describe('on the last page', () => {
-        const wrapper = mount(
+        const wrapper = mountWithRouting(
           <WizardPage {...minProps} pageKey="3" pageIsValid={true}>
             <div>This is page 3</div>
           </WizardPage>,
@@ -233,7 +240,7 @@ describe('the WizardPage component', () => {
   });
 
   describe('when there is an error', () => {
-    const wrapper = mount(
+    const wrapper = mountWithRouting(
       <WizardPage {...middleFlowProps} error={{ message: 'Something bad happened' }}>
         <div>This is page 2</div>
       </WizardPage>,
@@ -246,25 +253,22 @@ describe('the WizardPage component', () => {
 
   describe('when page is not dirty', () => {
     const mockSubmit = jest.fn();
-    const mockPush = jest.fn();
 
-    const wrapper = mount(
-      <WizardPage {...minProps} pageKey="2" push={mockPush} handleSubmit={mockSubmit} dirty={false}>
+    const wrapper = mountWithRouting(
+      <WizardPage {...minProps} pageKey="2" handleSubmit={mockSubmit} dirty={false}>
         <div>This is page 2</div>
       </WizardPage>,
     );
 
     describe('when the next button is clicked', () => {
       beforeEach(() => {
-        mockSubmit.mockClear();
-        mockPush.mockClear();
         const nextButton = wrapper.find('button[data-testid="wizardNextButton"]');
         nextButton.simulate('click');
       });
 
-      it('push gets the next page', () => {
-        expect(mockPush.mock.calls.length).toBe(1);
-        expect(mockPush.mock.calls[0][0]).toBe('3');
+      it('navigate gets the next page', () => {
+        expect(mockNavigate.mock.calls.length).toBe(1);
+        expect(mockNavigate.mock.calls[0][0]).toBe('3');
       });
 
       it('submit is not called', () => {
@@ -274,14 +278,12 @@ describe('the WizardPage component', () => {
   });
 
   describe('when there is an additionalParams prop', () => {
-    const mockPush = jest.fn();
-    const wrapper = mount(
+    const wrapper = mountWithRouting(
       <WizardPage
         {...minProps}
         pageList={['page1', 'anotherPage/:foo/:bar']}
         pageKey="page1"
         match={{ params: { foo: 'dvorak' } }}
-        push={mockPush}
         additionalParams={{ bar: 'querty' }}
       >
         <div>This is page 1</div>
@@ -294,12 +296,12 @@ describe('the WizardPage component', () => {
         nextButton.simulate('click');
       });
 
-      expect(mockPush).toHaveBeenCalledWith('anotherPage/dvorak/querty');
+      expect(mockNavigate).toHaveBeenCalledWith('anotherPage/dvorak/querty');
     });
   });
 
   describe('when canMoveNext is true', () => {
-    const wrapper = mount(<WizardPage {...minProps} />);
+    const wrapper = mountWithRouting(<WizardPage {...minProps} />);
     it('the WizardNavigation disableNext prop is false', () => {
       const navigation = wrapper.find('WizardNavigation');
       expect(navigation.prop('disableNext')).toEqual(false);
@@ -307,7 +309,7 @@ describe('the WizardPage component', () => {
   });
 
   describe('when canMoveNext is false', () => {
-    const wrapper = mount(<WizardPage {...minProps} canMoveNext={false} />);
+    const wrapper = mountWithRouting(<WizardPage {...minProps} canMoveNext={false} />);
     it('the WizardNavigation disableNext prop is true', () => {
       const navigation = wrapper.find('WizardNavigation');
       expect(navigation.prop('disableNext')).toEqual(true);
@@ -315,7 +317,7 @@ describe('the WizardPage component', () => {
   });
 
   describe('when hideBackBtn is true on middle page', () => {
-    const wrapper = mount(<WizardPage {...middleFlowProps} hideBackBtn />);
+    const wrapper = mountWithRouting(<WizardPage {...middleFlowProps} hideBackBtn />);
 
     it('the WizardNavigation isFirstPage prop is true', () => {
       const navigation = wrapper.find('WizardNavigation');
@@ -324,7 +326,7 @@ describe('the WizardPage component', () => {
   });
 
   describe('when showFinishLaterBtn is true', () => {
-    const wrapper = mount(<WizardPage {...middleFlowProps} showFinishLaterBtn />);
+    const wrapper = mountWithRouting(<WizardPage {...middleFlowProps} showFinishLaterBtn />);
 
     it('the WizardNavigation showFinishLater prop is true', () => {
       const navigation = wrapper.find('WizardNavigation');

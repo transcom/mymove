@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { generatePath } from 'react-router';
-import { push as pushAction } from 'connected-react-router';
+import { generatePath, useNavigate } from 'react-router-dom';
 
 import { customerRoutes } from 'constants/routes';
 import SubmitMoveForm from 'components/Customer/SubmitMoveForm/SubmitMoveForm';
@@ -17,7 +16,8 @@ import { updateMove as updateMoveAction } from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { formatSwaggerDate } from 'utils/formatters';
 
-export const Agreement = ({ moveId, updateMove, push, setFlashMessage }) => {
+export const Agreement = ({ moveId, updateMove, setFlashMessage }) => {
+  const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
@@ -27,7 +27,7 @@ export const Agreement = ({ moveId, updateMove, push, setFlashMessage }) => {
 
   const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
 
-  const handleBack = () => push(reviewPath);
+  const handleBack = () => navigate(reviewPath);
 
   const handleSubmit = (values) => {
     const submitDate = moment().format();
@@ -43,7 +43,7 @@ export const Agreement = ({ moveId, updateMove, push, setFlashMessage }) => {
       .then((response) => {
         updateMove(response);
         setFlashMessage('MOVE_SUBMIT_SUCCESS', 'success', 'You’ve submitted your move request.');
-        push('/');
+        navigate('/');
       })
       .catch((error) => {
         // TODO - log error internally?
@@ -72,7 +72,6 @@ export const Agreement = ({ moveId, updateMove, push, setFlashMessage }) => {
 Agreement.propTypes = {
   moveId: PropTypes.string.isRequired,
   setFlashMessage: PropTypes.func.isRequired,
-  push: PropTypes.func.isRequired,
   updateMove: PropTypes.func.isRequired,
 };
 
@@ -82,7 +81,6 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   updateMove: updateMoveAction,
-  push: pushAction,
   setFlashMessage: setFlashMessageAction,
 };
 

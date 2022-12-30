@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { arrayOf, oneOf, shape, bool, node, string, func } from 'prop-types';
 import classnames from 'classnames';
 import moment from 'moment';
 import { Button, Tag } from '@trussworks/react-uswds';
-import { withRouter } from 'react-router-dom-old';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './PaymentRequestCard.module.scss';
 
-import { HistoryShape } from 'types/router';
 import { PaymentRequestShape } from 'types';
 import { LOA_TYPE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { toDollarString, formatDateFromIso, formatCents } from 'utils/formatters';
@@ -35,13 +34,8 @@ const paymentRequestStatusLabel = (status) => {
   }
 };
 
-const PaymentRequestCard = ({
-  paymentRequest,
-  shipmentsInfo,
-  history,
-  hasBillableWeightIssues,
-  onEditAccountingCodes,
-}) => {
+const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, hasBillableWeightIssues, onEditAccountingCodes }) => {
+  const navigate = useNavigate();
   // show details by default if in pending/needs review
   const defaultShowDetails = paymentRequest.status === 'PENDING';
   // only show button in reviewed/paid
@@ -99,7 +93,7 @@ const PaymentRequestCard = ({
     });
 
     handleClick = () => {
-      history.push(`payment-requests/${paymentRequest.id}`);
+      navigate(paymentRequest.id);
     };
   }
 
@@ -118,7 +112,7 @@ const PaymentRequestCard = ({
   const sacs = { HHG: sac, NTS: ntsSac };
 
   const onEditCodesClick = () => {
-    history.push(`/moves/${locator}/orders`);
+    navigate(`/moves/${locator}/orders`);
   };
 
   return (
@@ -254,7 +248,6 @@ const PaymentRequestCard = ({
 };
 
 PaymentRequestCard.propTypes = {
-  history: HistoryShape.isRequired,
   paymentRequest: PaymentRequestShape.isRequired,
   hasBillableWeightIssues: bool.isRequired,
   shipmentsInfo: arrayOf(
@@ -275,4 +268,4 @@ PaymentRequestCard.defaultProps = {
   onEditAccountingCodes: () => {},
 };
 
-export default withRouter(PaymentRequestCard);
+export default PaymentRequestCard;

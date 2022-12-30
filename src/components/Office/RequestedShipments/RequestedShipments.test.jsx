@@ -17,6 +17,11 @@ import SubmittedRequestedShipments from './SubmittedRequestedShipments';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => jest.fn(),
+}));
+
 const moveTaskOrder = {
   eTag: 'MjAyMC0wNi0yNlQyMDoyMjo0MS43Mjc4NTNa',
   id: '6e8c5ca4-774c-4170-934a-59d22259e480',

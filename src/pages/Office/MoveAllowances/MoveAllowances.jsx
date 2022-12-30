@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import React from 'react';
-import { Link, useHistory, useParams } from 'react-router-dom-old';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { queryCache, useMutation } from 'react-query';
@@ -49,13 +49,13 @@ const validationSchema = Yup.object({
 
 const MoveAllowances = () => {
   const { moveCode } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const orderId = move?.ordersId;
 
   const handleClose = () => {
-    history.push(`/moves/${moveCode}/details`);
+    navigate(`/moves/${moveCode}/details`);
   };
 
   const [mutateOrders] = useMutation(updateAllowance, {
@@ -154,7 +154,12 @@ const MoveAllowances = () => {
                   View Allowances
                 </h2>
                 <div>
-                  <Link className={styles.viewAllowances} data-testid="view-orders" to="orders">
+                  <Link
+                    className={styles.viewAllowances}
+                    data-testid="view-orders"
+                    to={`/moves/${moveCode}/orders`}
+                    replace
+                  >
                     View Orders
                   </Link>
                 </div>

@@ -1,7 +1,6 @@
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import restProvider from './shared/rest_provider';
 import { Admin, AppBar, fetchUtils, Layout, Resource } from 'react-admin';
-import { BrowserRouter } from 'react-router-dom';
 
 import React from 'react';
 import Menu from './shared/Menu';
@@ -61,48 +60,46 @@ const AdminLayout = (props) => <Layout {...props} menu={Menu} appBar={CUIWrapper
 
 const Home = () => (
   <div className={styles['admin-system-wrapper']}>
-    <BrowserRouter>
-      <Admin dataProvider={dataProvider} basename="/system" appLayout={AdminLayout} disableTelemetry>
-        <CustomRoutes />
-        <Resource
-          name="office_users"
-          options={{ label: 'Office Users' }}
-          list={OfficeUserList}
-          show={OfficeUserShow}
-          create={OfficeUserCreate}
-          edit={OfficeUserEdit}
-        />
-        <Resource name="offices" options={{ label: 'Offices' }} list={OfficeList} />
-        <Resource
-          name="admin_users"
-          options={{ label: 'Admin Users' }}
-          list={AdminUserList}
-          show={AdminUserShow}
-          create={AdminUserCreate}
-          edit={AdminUserEdit}
-        />
-        <Resource name="users" options={{ label: 'Users' }} list={UserList} show={UserShow} edit={UserEdit} />
-        <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} show={MoveShow} edit={MoveEdit} />
-        <Resource
-          name="transportation_service_provider_performances"
-          options={{ label: 'TSPPs' }}
-          list={TSPPList}
-          show={TSPPShow}
-        />
-        <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
-        <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
-        <Resource name="organizations" />
-        <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
-        <Resource
-          name="webhook_subscriptions"
-          options={{ label: 'Webhook Subscriptions' }}
-          show={WebhookSubscriptionShow}
-          create={WebhookSubscriptionCreate}
-          list={WebhookSubscriptionList}
-          edit={WebhookSubscriptionEdit}
-        />
-      </Admin>
-    </BrowserRouter>
+    <Admin dataProvider={dataProvider} basename="/system" appLayout={AdminLayout} disableTelemetry>
+      <CustomRoutes />
+      <Resource
+        name="office_users"
+        options={{ label: 'Office Users' }}
+        list={OfficeUserList}
+        show={OfficeUserShow}
+        create={OfficeUserCreate}
+        edit={OfficeUserEdit}
+      />
+      <Resource name="offices" options={{ label: 'Offices' }} list={OfficeList} />
+      <Resource
+        name="admin_users"
+        options={{ label: 'Admin Users' }}
+        list={AdminUserList}
+        show={AdminUserShow}
+        create={AdminUserCreate}
+        edit={AdminUserEdit}
+      />
+      <Resource name="users" options={{ label: 'Users' }} list={UserList} show={UserShow} edit={UserEdit} />
+      <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} show={MoveShow} edit={MoveEdit} />
+      <Resource
+        name="transportation_service_provider_performances"
+        options={{ label: 'TSPPs' }}
+        list={TSPPList}
+        show={TSPPShow}
+      />
+      <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
+      <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
+      <Resource name="organizations" />
+      <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
+      <Resource
+        name="webhook_subscriptions"
+        options={{ label: 'Webhook Subscriptions' }}
+        show={WebhookSubscriptionShow}
+        create={WebhookSubscriptionCreate}
+        list={WebhookSubscriptionList}
+        edit={WebhookSubscriptionEdit}
+      />
+    </Admin>
   </div>
 );
 
