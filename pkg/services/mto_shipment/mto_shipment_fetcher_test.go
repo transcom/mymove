@@ -182,7 +182,16 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			DocumentID:    userUpload.Document.ID,
 		}
 
+		proGear := &models.ProgearWeightTicket{
+			PPMShipmentID: ppmShipment.ID,
+			Document:      userUpload.Document,
+			DocumentID:    userUpload.Document.ID,
+		}
+
 		err := suite.DB().Create(movingExpense)
+		suite.NoError(err)
+
+		err = suite.DB().Create(proGear)
 		suite.NoError(err)
 
 		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(suite.AppContextForTest(), move.ID)
@@ -200,6 +209,9 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 
 		suite.Len(actualPPMShipment.MovingExpenses, 1)
 		suite.Len(actualPPMShipment.MovingExpenses[0].Document.UserUploads, 1)
+
+		suite.Len(actualPPMShipment.ProgearExpenses, 1)
+		suite.Len(actualPPMShipment.ProgearExpenses[0].Document.UserUploads, 1)
 	})
 }
 

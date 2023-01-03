@@ -61,7 +61,11 @@ func (f *weightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, w
 			return nil, issue
 		}
 		currentPPMShipment = *ppmShipmentFromDB
-		currentPPMShipment.WeightTickets = models.WeightTickets{mergedWeightTicket}
+		for i := range currentPPMShipment.WeightTickets {
+			if currentPPMShipment.WeightTickets[i].ID == mergedWeightTicket.ID {
+				currentPPMShipment.WeightTickets[i] = mergedWeightTicket
+			}
+		}
 	}
 
 	// update the DB record
