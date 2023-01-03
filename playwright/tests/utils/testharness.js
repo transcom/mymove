@@ -88,6 +88,14 @@ export function newTestHarness(request) {
     },
 
     /**
+     * Use testharness to build hhg move with nts
+     * @returns {Promise<Object>}
+     */
+    async buildHHGMoveWithNTSAndNeedsSC() {
+      return buildDefault('HHGMoveWithNTSAndNeedsSC');
+    },
+
+    /**
      * @returns {Promise<Object>}
      */
     async buildPrimeSimulatorMoveNeedsShipmentUpdate() {
