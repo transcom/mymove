@@ -43,8 +43,6 @@ func FindTransportationOffice(tx *pop.Connection, search string) (models.Transpo
 		return officeList, err
 	}
 
-	// TODO: copied over from duty_location query, what else can be simplified or left behind? is there a better way to grab name, address?
-	// eager loading doesn't make sense - can't do subqueries there easily
 	sqlQuery := `
 	with names as (select office.id as transportation_office_id, office.name, similarity(office.name, $1) as sim
         from transportation_offices as office
