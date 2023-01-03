@@ -22,7 +22,7 @@ describe('testing CSRF protection', function () {
   };
 
   it('can successfully dev login with both unmasked and masked token', function () {
-    cy.apiSignInAsUser(userId, ServicesCounselorOfficeUserType);
+    cy.apiSignInAsUser(userId, TOOOfficeUserType);
     cy.contains('All moves');
   });
 
