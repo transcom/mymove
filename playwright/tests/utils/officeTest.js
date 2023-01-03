@@ -140,6 +140,8 @@ const officeFixtures = {
   },
 };
 
+exports.OfficePage = OfficePage;
+
 exports.test = base.test.extend(officeFixtures);
 
 exports.expect = base.expect;
