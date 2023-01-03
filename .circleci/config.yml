@@ -577,6 +577,12 @@ commands:
         type: string
     steps:
       - run:
+          name: Install cypress dependencies
+          command: |
+            cp cypress/package.json .
+            cp cypress/yarn.lock .
+            yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+      - run:
           name: setup hosts
           command: |
             # try futzing with /etc/hosts for running in circleci
@@ -656,10 +662,6 @@ commands:
           # --split-by=timings, but it seems like filesize is a
           # reasonable proxy for test time
           command: |
-            cd /home/circleci/cypress
-            ls -l
-            cp -r /home/circleci/transcom/mymove/cypress .
-
             SPECS=$(circleci tests glob "<< parameters.spec_glob >>" | circleci tests split --split-by=filesize | paste -s -d, -)
             if [ -z "${SPECS}" ]; then
               echo "CircleCI Parallelism greater than number of files in glob. Please adjust the number parallelism value to a lower number."
@@ -667,6 +669,8 @@ commands:
             fi
             echo $SPECS
 
+            # run cypress from the packages installed as part of the
+            # CI job
             cp cypress/*.json .
             ./node_modules/.bin/cypress run --spec "${SPECS}"
       - run:
@@ -675,9 +679,7 @@ commands:
           # figure out why a test is failing
           when: always
           command: |
-            for dir in results screenshots videos reports; do
-              cp -r "/home/circleci/cypress/cypress/${dir}" cypress 2>/dev/null || echo "no ${dir}"
-            done
+            echo "nothing to do?"
 
   # this custom step has some duplication with
   # scripts/run-e2e-mtls-test-docker because we want to run some of the
