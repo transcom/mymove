@@ -161,10 +161,10 @@ func linkOnlyHasID(clist []Customization) error {
 // by applying and merging the traits.
 // customs is a slice that will be modified by setupCustomizations.
 //
-// - Ensures a control object has been created
-// - Assigns default types to all default customizations
-// - Merges customizations and traits
-// - Ensure there's only one customization per type
+//   - Ensures a control object has been created
+//   - Assigns default types to all default customizations
+//   - Merges customizations and traits
+//   - Ensure there's only one customization per type
 func setupCustomizations(customs []Customization, traits []Trait) []Customization {
 
 	// If a valid control object does not exist, create

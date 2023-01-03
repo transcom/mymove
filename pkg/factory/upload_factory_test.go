@@ -68,11 +68,10 @@ func (suite *FactorySuite) TestBuildUpload() {
 		defaultFileName := "testdata/test.pdf"
 		upload := BuildUpload(suite.DB(), []Customization{
 			{
-				Model: models.Upload{
-					Filename: "yoyoyo",
-				},
+				Model: models.Upload{},
 				ExtendedParams: &UploadExtendedParams{
-					Uploader: uploader,
+					Uploader:   uploader,
+					AppContext: suite.AppContextForTest(),
 				},
 			},
 		}, nil)
@@ -99,8 +98,9 @@ func (suite *FactorySuite) TestBuildUpload() {
 					Filename: "yoyoyo", // should not be used
 				},
 				ExtendedParams: &UploadExtendedParams{
-					File:     FixtureOpen("test.jpg"),
-					Uploader: uploader,
+					File:       FixtureOpen("test.jpg"),
+					Uploader:   uploader,
+					AppContext: suite.AppContextForTest(),
 				},
 			},
 		}, nil)

@@ -6,7 +6,6 @@ import (
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/spf13/afero"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -15,14 +14,21 @@ import (
 )
 
 type UploadExtendedParams struct {
-	Uploader *uploader.Uploader
-	File     afero.File
+	Uploader   *uploader.Uploader
+	File       afero.File
+	AppContext appcontext.AppContext
 }
 
-// BuildUpload creates an Upload
+// BuildUpload creates an Upload.
+//
+// The customization for BuildUpload allows dev to provide an UploadExtendedParams object.
+// This extended mode uses an Uploader object to create the upload vs. using the model.
+// If an Uploader is provided, the model customizations are ignored in favor of the actual
+// file provided for upload.
+//
 // Params:
-// - customs is a slice that will be modified by the factory
-// - db can be set to nil to create a stubbed model that is not stored in DB.
+//   - customs is a slice that will be modified by the factory
+//   - db can be set to nil to create a stubbed model that is not stored in DB.
 func BuildUpload(db *pop.Connection, customs []Customization, traits []Trait) models.Upload {
 	customs = setupCustomizations(customs, traits)
 
@@ -44,6 +50,7 @@ func BuildUpload(db *pop.Connection, customs []Customization, traits []Trait) mo
 		}
 	}
 
+	// UPLOADER MODE
 	// The upload customization has an extended parameter struct that includes a Uploader interface and a file.
 	// If the Uploader is passed in, models.Upload assertions are ignored in favor of the Uploader.
 	// Instead we use the Uploader functionality to add the file. This creates the Upload model.
@@ -57,8 +64,10 @@ func BuildUpload(db *pop.Connection, customs []Customization, traits []Trait) mo
 		}
 
 		// Create file upload
-		appCtx := appcontext.NewAppContext(db, zap.L(), nil)
-		upload, verrs, err := cUploadParams.Uploader.CreateUpload(appCtx, uploader.File{File: file}, uploader.AllowedTypesServiceMember)
+		if cUploadParams.AppContext == nil {
+			log.Panic("If Uploader is provided, AppContext must also be provided.")
+		}
+		upload, verrs, err := cUploadParams.Uploader.CreateUpload(cUploadParams.AppContext, uploader.File{File: file}, uploader.AllowedTypesServiceMember)
 		if verrs.HasAny() || err != nil {
 			log.Panic(fmt.Errorf("errors encountered saving upload %v, %v", verrs, err))
 		}
