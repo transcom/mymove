@@ -1,5 +1,6 @@
 // admin test fixture for playwright
 // See https://playwright.dev/docs/test-fixtures
+// @ts-check
 const base = require('@playwright/test');
 
 const { signIntoAdminAsNewAdminUser } = require('./signIn');
@@ -12,7 +13,9 @@ const {
 
 class AdminPage {
   /**
-   * @param {import('@playwright/test').Page} page
+   * Create an AdminPage.
+   * @param {base.Page} page
+   * @param {base.APIRequestContext} request
    */
   constructor(page, request) {
     this.page = page;
@@ -20,11 +23,16 @@ class AdminPage {
   }
 
   /**
+   * Wait for the loading placeholder to go away
    */
   async waitForLoading() {
     await base.expect(this.page.locator('h2[data-name="loading-placeholder"]')).toHaveCount(0);
     await base.expect(this.page.locator('svg.MuiCircularProgress-svg')).toHaveCount(0);
   }
+
+  /**
+   * wait for the admin page to finish loading
+   */
 
   async waitForAdminPageToLoad() {
     // ensure the admin page has fully loaded before moving on
@@ -34,6 +42,7 @@ class AdminPage {
   }
 
   /**
+   * Create a new admin user and sign in as them
    */
   async signInAsNewAdminUser() {
     await signIntoAdminAsNewAdminUser(this.page);
@@ -81,11 +90,18 @@ class AdminPage {
   }
 }
 
-exports.test = base.test.extend({
+/**
+ * @typedef {object} AdminPageTestArgs - admin page test args
+ * @property {AdminPage} adminPage     - admin page
+ */
+
+/** @type {base.Fixtures<AdminPageTestArgs, {}, base.PlaywrightTestArgs, base.PlaywrightWorkerArgs>} */
+const adminFixtures = {
   adminPage: async ({ page, request }, use) => {
     const adminPage = new AdminPage(page, request);
     await use(adminPage);
   },
-});
+};
 
+exports.test = base.test.extend(adminFixtures);
 exports.expect = base.expect;
