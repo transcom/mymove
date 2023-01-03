@@ -714,7 +714,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "operationId": "UpdateMTOReviewedBillableWeightsAt",
+        "operationId": "updateMTOReviewedBillableWeightsAt",
         "parameters": [
           {
             "type": "string",
@@ -2856,6 +2856,47 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/weight-tickets": {
+      "get": {
+        "description": "Retrieves all of the weight tickets and associated uploads for each one for the specified PPM shipment. This\nexcludes any deleted weight tickets or uploads.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Gets all the weight tickets for a PPM shipment",
+        "operationId": "getWeightTickets",
+        "responses": {
+          "200": {
+            "description": "All weight tickets and associated uploads for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/WeightTickets"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
     "/pws-violations": {
       "get": {
         "description": "Fetch the possible PWS violations for an evaluation report",
@@ -2923,7 +2964,11 @@ func init() {
               "requestedMoveDate",
               "submittedAt",
               "originGBLOC",
-              "originDutyLocation"
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "ppmType",
+              "closeoutInitiated",
+              "closeoutLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -2990,6 +3035,12 @@ func init() {
             "in": "query"
           },
           {
+            "type": "string",
+            "description": "filters the name of the destination duty location on the orders",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
             "uniqueItems": true,
             "type": "array",
             "items": {
@@ -3007,6 +3058,29 @@ func init() {
             "type": "boolean",
             "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
             "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "FULL",
+              "PARTIAL"
+            ],
+            "type": "string",
+            "description": "filters PPM type",
+            "name": "ppmType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Latest date that closeout was initiated on a PPM on the move",
+            "name": "closeoutInitiated",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "closeout location",
+            "name": "closeoutLocation",
             "in": "query"
           }
         ],
@@ -4090,6 +4164,52 @@ func init() {
           }
         }
       }
+    },
+    "/transportation-offices": {
+      "get": {
+        "description": "Returns the transportation offices matching the search query",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns the transportation offices matching the search query",
+        "operationId": "getTransportationOffices",
+        "parameters": [
+          {
+            "minLength": 2,
+            "type": "string",
+            "description": "Search string for transportation offices",
+            "name": "search",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffices"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -5089,9 +5209,17 @@ func init() {
         "eTag": {
           "type": "string"
         },
-        "evaluationLengthMinutes": {
-          "type": "integer",
-          "x-nullable": true
+        "evalEnd": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "18:00"
+        },
+        "evalStart": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "15:00"
         },
         "id": {
           "type": "string",
@@ -5133,11 +5261,6 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "observedDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
         "observedDeliveryDate": {
           "type": "string",
           "format": "date",
@@ -5154,6 +5277,16 @@ func init() {
           "x-nullable": true
         },
         "observedPickupSpreadStartDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedShipmentDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedShipmentPhysicalPickupDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -5185,9 +5318,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
-        "travelTimeMinutes": {
-          "type": "integer",
-          "x-nullable": true
+        "timeDepart": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "14:30"
         },
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
@@ -6942,11 +7077,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "weightTickets": {
-          "description": "All weight ticket documentation records belonging to vehicles of this PPM shipment",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/WeightTicket"
-          }
+          "$ref": "#/definitions/WeightTickets"
         }
       },
       "x-nullable": true
@@ -7349,6 +7480,15 @@ func init() {
     "QueueMove": {
       "type": "object",
       "properties": {
+        "closeoutInitiated": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "closeoutLocation": {
+          "type": "string",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -7370,6 +7510,14 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ],
+          "x-nullable": true
         },
         "requestedMoveDate": {
           "type": "string",
@@ -7444,13 +7592,23 @@ func init() {
           "$ref": "#/definitions/GBLOC"
         },
         "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
+          "$ref": "#/definitions/QueuePaymentRequestStatus"
         },
         "submittedAt": {
           "type": "string",
           "format": "date-time"
         }
       }
+    },
+    "QueuePaymentRequestStatus": {
+      "type": "string",
+      "title": "Queue Payment Request Status",
+      "enum": [
+        "Payment requested",
+        "Reviewed",
+        "Rejected",
+        "Paid"
+      ]
     },
     "QueuePaymentRequests": {
       "type": "array",
@@ -8032,6 +8190,68 @@ func init() {
           "type": "boolean",
           "example": true
         }
+      }
+    },
+    "TransportationOffice": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "address",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "gbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "example": "JENQ"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "latitude": {
+          "type": "number",
+          "format": "float",
+          "example": 29.382973
+        },
+        "longitude": {
+          "type": "number",
+          "format": "float",
+          "example": -98.62759
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        },
+        "phone_lines": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "telephone",
+            "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+            "example": "212-555-5555"
+          }
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "TransportationOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TransportationOffice"
       }
     },
     "UpdateAllowancePayload": {
@@ -8792,6 +9012,14 @@ func init() {
           "x-omitempty": false
         }
       }
+    },
+    "WeightTickets": {
+      "description": "All weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WeightTicket"
+      },
+      "x-omitempty": false
     }
   },
   "parameters": {
@@ -8913,6 +9141,9 @@ func init() {
     },
     {
       "name": "tac"
+    },
+    {
+      "name": "transportationOffice"
     }
   ]
 }`))
@@ -9823,7 +10054,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "operationId": "UpdateMTOReviewedBillableWeightsAt",
+        "operationId": "updateMTOReviewedBillableWeightsAt",
         "parameters": [
           {
             "type": "string",
@@ -12596,6 +12827,64 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/weight-tickets": {
+      "get": {
+        "description": "Retrieves all of the weight tickets and associated uploads for each one for the specified PPM shipment. This\nexcludes any deleted weight tickets or uploads.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Gets all the weight tickets for a PPM shipment",
+        "operationId": "getWeightTickets",
+        "responses": {
+          "200": {
+            "description": "All weight tickets and associated uploads for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/WeightTickets"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/pws-violations": {
       "get": {
         "description": "Fetch the possible PWS violations for an evaluation report",
@@ -12675,7 +12964,11 @@ func init() {
               "requestedMoveDate",
               "submittedAt",
               "originGBLOC",
-              "originDutyLocation"
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "ppmType",
+              "closeoutInitiated",
+              "closeoutLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -12742,6 +13035,12 @@ func init() {
             "in": "query"
           },
           {
+            "type": "string",
+            "description": "filters the name of the destination duty location on the orders",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
             "uniqueItems": true,
             "type": "array",
             "items": {
@@ -12759,6 +13058,29 @@ func init() {
             "type": "boolean",
             "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
             "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "FULL",
+              "PARTIAL"
+            ],
+            "type": "string",
+            "description": "filters PPM type",
+            "name": "ppmType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Latest date that closeout was initiated on a PPM on the move",
+            "name": "closeoutInitiated",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "closeout location",
+            "name": "closeoutLocation",
             "in": "query"
           }
         ],
@@ -14097,6 +14419,67 @@ func init() {
           }
         }
       }
+    },
+    "/transportation-offices": {
+      "get": {
+        "description": "Returns the transportation offices matching the search query",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns the transportation offices matching the search query",
+        "operationId": "getTransportationOffices",
+        "parameters": [
+          {
+            "minLength": 2,
+            "type": "string",
+            "description": "Search string for transportation offices",
+            "name": "search",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffices"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -15100,10 +15483,17 @@ func init() {
         "eTag": {
           "type": "string"
         },
-        "evaluationLengthMinutes": {
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true
+        "evalEnd": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "18:00"
+        },
+        "evalStart": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "15:00"
         },
         "id": {
           "type": "string",
@@ -15145,11 +15535,6 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "observedDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
         "observedDeliveryDate": {
           "type": "string",
           "format": "date",
@@ -15166,6 +15551,16 @@ func init() {
           "x-nullable": true
         },
         "observedPickupSpreadStartDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedShipmentDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedShipmentPhysicalPickupDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -15197,10 +15592,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
-        "travelTimeMinutes": {
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true
+        "timeDepart": {
+          "type": "string",
+          "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+          "x-nullable": true,
+          "example": "14:30"
         },
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
@@ -16955,11 +17351,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "weightTickets": {
-          "description": "All weight ticket documentation records belonging to vehicles of this PPM shipment",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/WeightTicket"
-          }
+          "$ref": "#/definitions/WeightTickets"
         }
       },
       "x-nullable": true
@@ -17363,6 +17755,15 @@ func init() {
     "QueueMove": {
       "type": "object",
       "properties": {
+        "closeoutInitiated": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "closeoutLocation": {
+          "type": "string",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -17384,6 +17785,14 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ],
+          "x-nullable": true
         },
         "requestedMoveDate": {
           "type": "string",
@@ -17458,13 +17867,23 @@ func init() {
           "$ref": "#/definitions/GBLOC"
         },
         "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
+          "$ref": "#/definitions/QueuePaymentRequestStatus"
         },
         "submittedAt": {
           "type": "string",
           "format": "date-time"
         }
       }
+    },
+    "QueuePaymentRequestStatus": {
+      "type": "string",
+      "title": "Queue Payment Request Status",
+      "enum": [
+        "Payment requested",
+        "Reviewed",
+        "Rejected",
+        "Paid"
+      ]
     },
     "QueuePaymentRequests": {
       "type": "array",
@@ -18049,6 +18468,68 @@ func init() {
           "type": "boolean",
           "example": true
         }
+      }
+    },
+    "TransportationOffice": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "address",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "gbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "example": "JENQ"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "latitude": {
+          "type": "number",
+          "format": "float",
+          "example": 29.382973
+        },
+        "longitude": {
+          "type": "number",
+          "format": "float",
+          "example": -98.62759
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        },
+        "phone_lines": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "telephone",
+            "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+            "example": "212-555-5555"
+          }
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "TransportationOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TransportationOffice"
       }
     },
     "UpdateAllowancePayload": {
@@ -18821,6 +19302,14 @@ func init() {
           "x-omitempty": false
         }
       }
+    },
+    "WeightTickets": {
+      "description": "All weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WeightTicket"
+      },
+      "x-omitempty": false
     }
   },
   "parameters": {
@@ -18942,6 +19431,9 @@ func init() {
     },
     {
       "name": "tac"
+    },
+    {
+      "name": "transportationOffice"
     }
   ]
 }`))

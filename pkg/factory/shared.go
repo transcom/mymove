@@ -15,9 +15,9 @@ import (
 
 // Customization type is the building block for passing in customizations and traits
 type Customization struct {
-	Model     interface{}
-	Type      *CustomType
-	ForceUUID bool
+	Model    interface{}
+	Type     *CustomType
+	LinkOnly bool
 }
 
 // CustomType is a string that represents what kind of customization it is
@@ -29,14 +29,24 @@ type CustomType string
 // where this address will get created and nested
 var control CustomType = "Control"
 var Address CustomType = "Address"
-var User CustomType = "User"
+var AdminUser CustomType = "AdminUser"
+var Entitlement CustomType = "Entitlement"
+var OfficeUser CustomType = "OfficeUser"
+var Order CustomType = "Order"
 var ServiceMember CustomType = "ServiceMember"
+var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
+var User CustomType = "User"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
-	"models.Address":       Address,
-	"models.User":          User,
-	"models.ServiceMember": ServiceMember,
+	"models.Address":         Address,
+	"models.AdminUser":       AdminUser,
+	"models.Entitlement":     Entitlement,
+	"models.OfficeUser":      OfficeUser,
+	"models.Order":           Order,
+	"models.ServiceMember":   ServiceMember,
+	"models.Tariff400ngZip3": Tariff400ngZip3,
+	"models.User":            User,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
@@ -125,6 +135,16 @@ func setDefaultTypes(clist []Customization) {
 	}
 }
 
+// linkOnlyHasID ensures LinkOnly customizations have an ID
+func linkOnlyHasID(clist []Customization) error {
+	for idx := 0; idx < len(clist); idx++ {
+		if clist[idx].LinkOnly && !hasID(clist[idx].Model) {
+			return fmt.Errorf("Customization was LinkOnly but the Model had no ID. LinkOnly models must have ID")
+		}
+	}
+	return nil
+}
+
 // setDefaultTypesTraits assigns types to all customizations in the traits
 //func setDefaultTypesTraits()
 
@@ -156,12 +176,18 @@ func setupCustomizations(customs []Customization, traits []Trait) []Customizatio
 	}
 
 	// If not valid:
+	// Ensure LinkOnly customizations all have ID
+	err := linkOnlyHasID(customs)
+	if err != nil {
+		log.Panic(err)
+	}
+
 	// Merge customizations with traits (also sets default types)
 	customs = mergeCustomization(customs, traits)
+
 	// Ensure unique customizations
-	err := isUnique(customs)
+	err = isUnique(customs)
 	if err != nil {
-		controller.isValid = false
 		log.Panic(err)
 	}
 	// Store the validation result
@@ -270,12 +296,10 @@ func mergeCustomization(customs []Customization, traits []Trait) []Customization
 		for _, traitCustom := range traitCustomizations {
 			j, callerCustom := findCustomWithIdx(customs, *traitCustom.Type)
 			if callerCustom != nil {
-				// If a customization has an ID, it means we use that precreated object
-				// Therefore we can't merge a trait with it, as those fields will not get
-				// updated.
-				// While this feels like we should warn or error out, we want to support overriding a
-				// trait with a precreated object so it's not an error.
-				if !hasID(callerCustom.Model) {
+				// If a customization is marked as LinkOnly, it means we use that precreated object
+				// Therefore we can't merge a trait with it, as we don't update fields on pre-created
+				// objects. So we only merge if LinkOnly is false.
+				if !callerCustom.LinkOnly {
 					result := mergeInterfaces(traitCustom.Model, callerCustom.Model)
 					callerCustom.Model = result
 					customs[j] = *callerCustom
@@ -393,4 +417,30 @@ func RandomEdipi() string {
 		log.Panicf("Failure to generate random Edipi %v", err)
 	}
 	return strconv.Itoa(low + int(randInt))
+}
+
+// Source chars for random string
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+
+// Returns a random alphanumeric string of specified length
+func makeRandomString(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		randInt, err := random.GetRandomInt(len(letterBytes))
+		if err != nil {
+			log.Panicf("failed to create random string %v", err)
+			return ""
+		}
+		b[i] = letterBytes[randInt]
+
+	}
+	return string(b)
+}
+
+func setBoolPtr(customBoolPtr *bool, defaultBool bool) *bool {
+	result := &defaultBool
+	if customBoolPtr != nil {
+		result = customBoolPtr
+	}
+	return result
 }

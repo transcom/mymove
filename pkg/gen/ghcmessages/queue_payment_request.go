@@ -46,7 +46,7 @@ type QueuePaymentRequest struct {
 	OriginGBLOC GBLOC `json:"originGBLOC,omitempty"`
 
 	// status
-	Status PaymentRequestStatus `json:"status,omitempty"`
+	Status QueuePaymentRequestStatus `json:"status,omitempty"`
 
 	// submitted at
 	// Format: date-time

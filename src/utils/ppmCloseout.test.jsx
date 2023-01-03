@@ -148,27 +148,18 @@ describe('calculateTotalNetWeightForWeightTickets', () => {
 
 describe('calculateNetWeightForProGearWeightTicket', () => {
   it.each([
-    [0, 400, null, 400],
-    [15000, 17000, null, 2000],
-    [null, null, 1200, 1200],
-    [null, 1500, null, 0],
-    [0, null, null, 0],
-    [null, null, null, 0],
-    [undefined, 1500, undefined, 0],
-    [0, undefined, undefined, 0],
-    [undefined, undefined, undefined, 0],
-    ['not a number', 1500, 'not a number', 0],
-    [0, 'not a number', 'not a number', 0],
-    ['not a number', 'not a number', 'not a number', 0],
+    [0, 0],
+    [15000, 15000],
+    [null, 0],
+    [undefined, 0],
+    ['not a number', 0],
   ])(
     `calculates net weight properly | emptyWeight: %s | fullWeight: %s | constructedWeight: %s | expectedNetWeight: %s`,
-    (emptyWeight, fullWeight, constructedWeight, expectedNetWeight) => {
+    (weight, expectedNetWeight) => {
       const proGearWeightTicket = createCompleteProGearWeightTicket(
         {},
         {
-          emptyWeight,
-          fullWeight,
-          constructedWeight,
+          weight,
         },
       );
 
@@ -179,112 +170,14 @@ describe('calculateNetWeightForProGearWeightTicket', () => {
 
 describe('calculateTotalNetWeightForProGearWeightTickets', () => {
   it.each([
-    [[{ emptyWeight: 0, fullWeight: 400, constructedWeight: null }], 400],
-    [
-      [
-        { emptyWeight: 0, fullWeight: 400, constructedWeight: null },
-        { emptyWeight: 15000, fullWeight: 16000, constructedWeight: null },
-      ],
-      1400,
-    ],
-    [
-      [
-        { emptyWeight: null, fullWeight: null, constructedWeight: 250 },
-        { emptyWeight: 15000, fullWeight: 16500, constructedWeight: null },
-      ],
-      1750,
-    ],
-    [
-      [
-        { emptyWeight: null, fullWeight: null, constructedWeight: 250 },
-        { emptyWeight: null, fullWeight: null, constructedWeight: 500 },
-      ],
-      750,
-    ],
-    [
-      [
-        { emptyWeight: null, fullWeight: 400, constructedWeight: null },
-        { emptyWeight: 14000, fullWeight: 16000, constructedWeight: null },
-      ],
-      2000,
-    ],
-    [
-      [
-        { emptyWeight: 0, fullWeight: null, constructedWeight: null },
-        { emptyWeight: 14000, fullWeight: 15500, constructedWeight: null },
-      ],
-      1500,
-    ],
-    [
-      [
-        { emptyWeight: null, fullWeight: null, constructedWeight: null },
-        { emptyWeight: 14000, fullWeight: 14500, constructedWeight: null },
-      ],
-      500,
-    ],
-    [
-      [
-        { emptyWeight: null, fullWeight: null, constructedWeight: null },
-        { emptyWeight: null, fullWeight: null, constructedWeight: null },
-      ],
-      0,
-    ],
-    [
-      [
-        { emptyWeight: undefined, fullWeight: 400, constructedWeight: undefined },
-        { emptyWeight: 14000, fullWeight: 16000, constructedWeight: undefined },
-      ],
-      2000,
-    ],
-    [
-      [
-        { emptyWeight: 0, fullWeight: undefined, constructedWeight: undefined },
-        { emptyWeight: 14000, fullWeight: 15500, constructedWeight: undefined },
-      ],
-      1500,
-    ],
-    [
-      [
-        { emptyWeight: undefined, fullWeight: undefined, constructedWeight: undefined },
-        { emptyWeight: 14000, fullWeight: 14500, constructedWeight: undefined },
-      ],
-      500,
-    ],
-    [
-      [
-        { emptyWeight: undefined, fullWeight: undefined, constructedWeight: undefined },
-        { emptyWeight: undefined, fullWeight: undefined, constructedWeight: undefined },
-      ],
-      0,
-    ],
-    [
-      [
-        { emptyWeight: 'not a number', fullWeight: 400, constructedWeight: 'not a number' },
-        { emptyWeight: 14000, fullWeight: 16000, constructedWeight: 'not a number' },
-      ],
-      2000,
-    ],
-    [
-      [
-        { emptyWeight: 0, fullWeight: 'not a number', constructedWeight: 'not a number' },
-        { emptyWeight: 14000, fullWeight: 15500, constructedWeight: 'not a number' },
-      ],
-      1500,
-    ],
-    [
-      [
-        { emptyWeight: 'not a number', fullWeight: 'not a number', constructedWeight: 'not a number' },
-        { emptyWeight: 14000, fullWeight: 14500, constructedWeight: 'not a number' },
-      ],
-      500,
-    ],
-    [
-      [
-        { emptyWeight: 'not a number', fullWeight: 'not a number', constructedWeight: 'not a number' },
-        { emptyWeight: 'not a number', fullWeight: 'not a number', constructedWeight: 'not a number' },
-      ],
-      0,
-    ],
+    [[{ weight: 0 }], 0],
+    [[{ weight: 0 }, { weight: 15000 }], 15000],
+    [[{ weight: null }], 0],
+    [[{ weight: null }, { weight: 15000 }], 15000],
+    [[{ weight: undefined }], 0],
+    [[{ weight: undefined }, { weight: 15000 }], 15000],
+    [[{ weight: 'not a number' }], 0],
+    [[{ weight: 'not a number' }, { weight: 15000 }], 15000],
     [[], 0],
   ])(`calculates total net weight properly`, (proGearWeightTicketsFields, expectedNetWeight) => {
     const proGearWeightTickets = [];

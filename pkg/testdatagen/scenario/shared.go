@@ -690,6 +690,12 @@ func createApprovedMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploa
 }
 
 func createApprovedMoveWithPPM2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	// Make a transportation office to use as the closeout office
+	closeoutOffice := testdatagen.MakeTransportationOffice(appCtx.DB(), testdatagen.Assertions{TransportationOffice: models.TransportationOffice{
+		Name: "Los Angeles AFB",
+	},
+	})
+
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("c28b2eb1-975f-49f7-b8a3-c7377c0da908"),
 		email:       "readyToFinish2@ppm.approved",
@@ -705,7 +711,9 @@ func createApprovedMoveWithPPM2(appCtx appcontext.AppContext, userUploader *uplo
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		Move: models.Move{
-			Status: models.MoveStatusAPPROVED,
+			Status:           models.MoveStatusAPPROVED,
+			CloseoutOffice:   &closeoutOffice,
+			CloseoutOfficeID: &closeoutOffice.ID,
 		},
 		MTOShipment: models.MTOShipment{
 			ID:     testdatagen.ConvertUUIDStringToUUID("ef256d30-a6e7-4be8-8a60-b4ffb7dc7a7f"),
@@ -817,6 +825,70 @@ func createApprovedMoveWithPPM5(appCtx appcontext.AppContext, userUploader *uplo
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
+func createApprovedMoveWithPPM6(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("1dca189a-ca7e-4e70-b98e-be3829e4b6cc"),
+		email:       "readyForCloseout@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("6b4ce016-9b76-44a8-a870-f378313aa1a8"),
+		firstName:   "Ready",
+		lastName:    "Closeout",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("5b718175-8bc5-4ca9-a1f0-8b70d064ee92"),
+		moveLocator: "PPMCL0",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("04592d80-f67f-443e-b9d6-967a9befcc3a"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:         testdatagen.ConvertUUIDStringToUUID("cdc68d38-21d9-4bd8-bd56-5b5c224ab2ab"),
+			ApprovedAt: &approvedAt,
+			Status:     models.PPMShipmentStatusWaitingOnCustomer,
+		},
+	}
+
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+}
+
+func createApprovedMoveWithPPM7(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("fe825617-a53a-49bf-bf2e-c271afee344d"),
+		email:       "readyForCloseout2@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("c1ba0a4b-4873-479a-a3d8-4158afdbe7b0"),
+		firstName:   "Ready",
+		lastName:    "Closeout",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("dabe45ab-aeab-4f83-b446-f1f70e265beb"),
+		moveLocator: "PPMRC2",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("0097e9d1-7579-4f6f-a71e-1b63aea0d4c7"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:         testdatagen.ConvertUUIDStringToUUID("7276375a-932f-4b93-b706-3da2774dfd92"),
+			ApprovedAt: &approvedAt,
+			Status:     models.PPMShipmentStatusWaitingOnCustomer,
+		},
+	}
+
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+}
+
 func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("33f39cca-3908-4cf5-b7d9-839741f51911"),
@@ -863,7 +935,6 @@ func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUpl
 	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
 }
 
-// MB-13354: verify if this data (specifically move status) needs to be updated to align with the actual data post closeout
 func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("f8af6fb0-101e-489c-9d9c-051931c52cf7"),
@@ -1414,6 +1485,135 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
+			FinalIncentive:              models.CentPointer(50000000),
+		},
+	}
+
+	move, shipment := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	testdatagen.MakeWeightTicket(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		WeightTicket: models.WeightTicket{
+			EmptyWeight: models.PoundPointer(14000),
+			FullWeight:  models.PoundPointer(18000),
+		},
+	})
+
+	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		MovingExpense: models.MovingExpense{
+			Amount: models.CentPointer(45000),
+		},
+	})
+
+	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		ProgearWeightTicket: models.ProgearWeightTicket{
+			Weight: models.PoundPointer(1500),
+		},
+	})
+}
+
+func createMoveWithPPMShipmentReadyForFinalCloseout2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("6f48be45-8ee0-4792-a961-ec6856e5435d"),
+		email:       "closeoutHappyPathWithEdits@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("0b17c7fe-24ae-4feb-a37a-154aa720867e"),
+		firstName:   "ReadyFor",
+		lastName:    "PPMFinalCloseout",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("02c71fd2-a0dc-4975-bcd2-2b7edde22be1"),
+		moveLocator: "PPMCHE",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("f2bb3b05-e858-4717-966f-95e3f7054152"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          testdatagen.ConvertUUIDStringToUUID("5d05071f-2042-40b0-a765-a17e95ec7959"),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	testdatagen.MakeWeightTicket(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		WeightTicket: models.WeightTicket{
+			EmptyWeight: models.PoundPointer(14000),
+			FullWeight:  models.PoundPointer(18000),
+		},
+	})
+
+	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		MovingExpense: models.MovingExpense{
+			Amount: models.CentPointer(45000),
+		},
+	})
+
+	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		ProgearWeightTicket: models.ProgearWeightTicket{
+			Weight: models.PoundPointer(1500),
+		},
+	})
+}
+
+func createMoveWithPPMShipmentReadyForFinalCloseout3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("917da44e-7e44-41be-b912-1486a72b69d8"),
+		email:       "closeoutHappyPathWithEditsMobile@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("15fee9c1-626a-4e0e-a3fa-5409312ff955"),
+		firstName:   "ReadyFor",
+		lastName:    "PPMFinalCloseout",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("15d39793-0ff1-4546-a48e-3de1fe157d95"),
+		moveLocator: "PPMCEM",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("4da930b2-d227-4a0f-87b9-c09357e105d9"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          testdatagen.ConvertUUIDStringToUUID("15b3355f-8c7d-4a22-ac30-85aad77185ca"),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
 		},
 	}
 
@@ -1514,17 +1714,39 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		},
 	})
 
+	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "2 Second St",
+			StreetAddress2: swag.String("Apt 2"),
+			StreetAddress3: swag.String("Suite B"),
+			City:           "Columbia",
+			State:          "SC",
+			PostalCode:     "29212",
+			Country:        swag.String("US"),
+		},
+	})
+
+	newDutyLocation := testdatagen.MakeDutyLocation(appCtx.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
+			AddressID: address.ID,
+			Address:   address,
+		},
+	})
+
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ServiceMemberID: smWithPPM.ID,
-			ServiceMember:   smWithPPM,
+			ServiceMemberID:   smWithPPM.ID,
+			ServiceMember:     smWithPPM,
+			NewDutyLocationID: newDutyLocation.ID,
+			NewDutyLocation:   newDutyLocation,
 		},
 		UserUploader: userUploader,
 		Move: models.Move{
 			Locator:          locator,
 			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusNeedsServiceCounseling,
+			Status:           models.MoveStatusAPPROVED,
 			SubmittedAt:      &submittedAt,
+			PPMType:          models.StringPointer("FULL"),
 		},
 	})
 
@@ -1540,7 +1762,8 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		Move:        move,
 		MTOShipment: mtoShipment,
 		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:      models.PPMShipmentStatusNeedsPaymentApproval,
+			SubmittedAt: models.TimePointer(time.Now()),
 		},
 	})
 
@@ -1586,7 +1809,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 		Move: models.Move{
 			Locator:          locator,
 			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusNeedsServiceCounseling,
+			Status:           models.MoveStatusAPPROVED,
 			SubmittedAt:      &submittedAt,
 		},
 	})
@@ -1619,7 +1842,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 		Move:        move,
 		MTOShipment: mtoShipment2,
 		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusSubmitted,
+			Status: models.PPMShipmentStatusWaitingOnCustomer,
 		},
 	})
 
@@ -1666,7 +1889,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		Move: models.Move{
 			Locator:          locator,
 			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusNeedsServiceCounseling,
+			Status:           models.MoveStatusAPPROVED,
 			SubmittedAt:      &submittedAt,
 		},
 	})
@@ -1746,7 +1969,7 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 		Move: models.Move{
 			Locator:          locator,
 			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusNeedsServiceCounseling,
+			Status:           models.MoveStatusAPPROVED,
 			SubmittedAt:      &submittedAt,
 		},
 	})
@@ -1787,7 +2010,7 @@ func createMoveWithCloseoutOffice(appCtx appcontext.AppContext, userUploader *up
 	userID := uuid.Must(uuid.NewV4())
 	email := "closeoutoffice@ppm.closeout"
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	submittedAt := time.Now()
+	submittedAt := time.Date(2020, time.December, 11, 12, 0, 0, 0, time.UTC)
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
@@ -1811,7 +2034,10 @@ func createMoveWithCloseoutOffice(appCtx appcontext.AppContext, userUploader *up
 	})
 
 	// Make a transportation office to use as the closeout office
-	closeoutOffice := testdatagen.MakeDefaultTransportationOffice(appCtx.DB())
+	closeoutOffice := testdatagen.MakeTransportationOffice(appCtx.DB(), testdatagen.Assertions{TransportationOffice: models.TransportationOffice{
+		Name: "Los Angeles AFB",
+	},
+	})
 
 	// Make a move with the closeout office
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
@@ -1826,6 +2052,7 @@ func createMoveWithCloseoutOffice(appCtx appcontext.AppContext, userUploader *up
 			CloseoutOfficeID: &closeoutOffice.ID,
 			CloseoutOffice:   &closeoutOffice,
 			SubmittedAt:      &submittedAt,
+			Status:           models.MoveStatusAPPROVED,
 		},
 	})
 

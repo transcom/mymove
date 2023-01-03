@@ -72,11 +72,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 		order.NewOrderFetcher(),
 	}
 
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
-
-	suite.Assertions.IsType(&queues.GetMovesQueueOK{}, response)
+	suite.IsType(&queues.GetMovesQueueOK{}, response)
 	payload := response.(*queues.GetMovesQueueOK).Payload
+
+	// Validate outgoing payload
+	suite.NoError(payload.Validate(strfmt.Default))
 
 	order := hhgMove.Orders
 	result := payload.QueueMoves[0]
@@ -131,8 +135,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 			handlerConfig,
 			&orderFetcher,
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		moves := payload.QueueMoves
 
 		suite.Equal(4, len(moves))
@@ -191,11 +202,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 		order.NewOrderFetcher(),
 	}
 
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
-
-	suite.Assertions.IsType(&queues.GetMovesQueueOK{}, response)
+	suite.IsType(&queues.GetMovesQueueOK{}, response)
 	payload := response.(*queues.GetMovesQueueOK).Payload
+
+	// Validate outgoing payload
+	suite.NoError(payload.Validate(strfmt.Default))
 
 	result := payload.QueueMoves[0]
 
@@ -267,11 +282,16 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 		order.NewOrderFetcher(),
 	}
 
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
 
 	payload := response.(*queues.GetMovesQueueOK).Payload
+
+	// Validate outgoing payload
 	suite.NoError(payload.Validate(strfmt.Default))
+
 	result := payload.QueueMoves[0]
 
 	suite.Equal(ghcmessages.MoveStatus("SUBMITTED"), result.Status)
@@ -280,11 +300,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	hhgMove.Status = models.MoveStatusAPPROVED
 	_, _ = suite.DB().ValidateAndSave(&hhgMove)
 
+	// Validate incoming payload: no body to validate
+
 	response = handler.Handle(params)
 	suite.IsNotErrResponse(response)
-
-	suite.Assertions.IsType(&queues.GetMovesQueueOK{}, response)
+	suite.IsType(&queues.GetMovesQueueOK{}, response)
 	payload = response.(*queues.GetMovesQueueOK).Payload
+
+	// Validate outgoing payload
+	suite.NoError(payload.Validate(strfmt.Default))
 
 	result = payload.QueueMoves[0]
 
@@ -294,11 +318,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	hhgMove.Status = models.MoveStatusAPPROVALSREQUESTED
 	_, _ = suite.DB().ValidateAndSave(&hhgMove)
 
+	// Validate incoming payload: no body to validate
+
 	response = handler.Handle(params)
 	suite.IsNotErrResponse(response)
-
-	suite.Assertions.IsType(&queues.GetMovesQueueOK{}, response)
+	suite.IsType(&queues.GetMovesQueueOK{}, response)
 	payload = response.(*queues.GetMovesQueueOK).Payload
+
+	// Validate outgoing payload
+	suite.NoError(payload.Validate(strfmt.Default))
 
 	result = payload.QueueMoves[0]
 
@@ -396,11 +424,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 			},
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
 		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.EqualValues(3, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 3)
 		// test that the moves are sorted by status descending
@@ -419,10 +451,16 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 			Page:    swag.Int64(1),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 
 		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.EqualValues(3, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 1)
 	})
@@ -437,10 +475,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 			PerPage: swag.Int64(1),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
 		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.EqualValues(1, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 1)
 		suite.EqualValues(string(models.MoveStatusSUBMITTED), payload.QueueMoves[0].Status)
@@ -451,10 +494,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 			HTTPRequest: request,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
 		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		moves := payload.QueueMoves
 		var actualStatuses []string
 		for _, move := range moves {
@@ -476,10 +524,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 			Branch: models.StringPointer("AIR_FORCE"),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
 		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.EqualValues(1, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 1)
 		suite.EqualValues(string(models.MoveStatusSUBMITTED), payload.QueueMoves[0].Status)
@@ -495,10 +548,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 			Branch: models.StringPointer("ARMY"),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
 		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.EqualValues(0, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 0)
 	})
@@ -599,10 +657,14 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			HTTPRequest: request,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
 		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.Len(payload.QueueMoves, 2)
 	})
@@ -613,10 +675,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			LastName:    models.StringPointer("Nan"),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
 		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		result := payload.QueueMoves[0]
 
 		suite.Len(payload.QueueMoves, 1)
@@ -629,10 +696,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			DodID:       serviceMember1.Edipi,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
 		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		result := payload.QueueMoves[0]
 
 		suite.Len(payload.QueueMoves, 1)
@@ -645,10 +717,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			Locator:     &move1.Locator,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
 		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		result := payload.QueueMoves[0]
 
 		suite.Len(payload.QueueMoves, 1)
@@ -662,10 +739,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			OriginDutyLocation: &dutyLocation1.Name,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
 		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		result := payload.QueueMoves[0]
 
 		suite.Len(payload.QueueMoves, 1)
@@ -681,10 +763,14 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			OriginDutyLocation: &dutyLocation1.Name,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
 		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.Len(payload.QueueMoves, 1)
 	})
@@ -708,10 +794,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 		order.NewOrderFetcher(),
 	}
 
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
+	suite.IsType(&queues.GetMovesQueueForbidden{}, response)
+	payload := response.(*queues.GetMovesQueueForbidden).Payload
 
-	suite.Assertions.IsType(&queues.GetMovesQueueForbidden{}, response)
+	// Validate outgoing payload: nil payload
+	suite.Nil(payload)
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
@@ -731,10 +822,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 		order.NewOrderFetcher(),
 	}
 
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
+	suite.IsType(&queues.GetMovesQueueForbidden{}, response)
+	payload := response.(*queues.GetMovesQueueForbidden).Payload
 
-	suite.Assertions.IsType(&queues.GetMovesQueueForbidden{}, response)
+	// Validate outgoing payload: nil payload
+	suite.Nil(payload)
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
@@ -772,11 +868,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 		order.NewOrderFetcher(),
 	}
 
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
-
-	suite.Assertions.IsType(&queues.GetMovesQueueOK{}, response)
+	suite.IsType(&queues.GetMovesQueueOK{}, response)
 	payload := response.(*queues.GetMovesQueueOK).Payload
+
+	// Validate outgoing payload
+	suite.NoError(payload.Validate(strfmt.Default))
 
 	suite.Len(payload.QueueMoves, 0)
 }
@@ -815,20 +915,15 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 		paymentrequest.NewPaymentRequestListFetcher(),
 	}
 
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
-
-	suite.Assertions.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
+	suite.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
 	payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
 
-	// unfortunately, what we return and what our swagger definition
-	// says are pretty far apart
-	// we don't return the associated addresses for the duty locations
-	// and the status returned is from the query string not the
-	// defined PaymentRequestStatus enum as indicated in the swagger
-	// definition
-	//
-	// suite.NoError(payload.Validate(strfmt.Default))
+	// Validate outgoing payload
+	suite.NoError(payload.Validate(strfmt.Default))
 
 	suite.Len(payload.QueuePaymentRequests, 1)
 
@@ -895,11 +990,15 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 			HTTPRequest: request,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
-		suite.Assertions.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
+		suite.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
 		payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.Len(payload.QueuePaymentRequests, 2)
 	})
@@ -911,11 +1010,15 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 			PerPage:     swag.Int64(1),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
-		suite.Assertions.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
+		suite.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
 		payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.Len(payload.QueuePaymentRequests, 1)
 		// Total count is more than the perPage
@@ -930,10 +1033,14 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 			SubmittedAt: &submittedAtDate,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
 		payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.Len(payload.QueuePaymentRequests, 1)
 	})
@@ -956,9 +1063,14 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() 
 		paymentrequest.NewPaymentRequestListFetcher(),
 	}
 
-	response := handler.Handle(params)
+	// Validate incoming payload: no body to validate
 
-	suite.Assertions.IsType(&queues.GetPaymentRequestsQueueForbidden{}, response)
+	response := handler.Handle(params)
+	suite.IsType(&queues.GetPaymentRequestsQueueForbidden{}, response)
+	payload := response.(*queues.GetPaymentRequestsQueueForbidden).Payload
+
+	// Validate outgoing payload: nil payload
+	suite.Nil(payload)
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
@@ -984,9 +1096,15 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 		&paymentRequestListFetcher,
 	}
 
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&queues.GetPaymentRequestsQueueInternalServerError{}, response)
+	suite.IsType(&queues.GetPaymentRequestsQueueInternalServerError{}, response)
+	payload := response.(*queues.GetPaymentRequestsQueueInternalServerError).Payload
+
+	// Validate outgoing payload: nil payload
+	suite.Nil(payload)
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
@@ -1012,10 +1130,14 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 		&paymentRequestListFetcher,
 	}
 
-	response := handler.Handle(params)
+	// Validate incoming payload: no body to validate
 
-	suite.Assertions.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
+	response := handler.Handle(params)
+	suite.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
 	payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
+
+	// Validate outgoing payload
+	suite.NoError(payload.Validate(strfmt.Default))
 
 	suite.Len(payload.QueuePaymentRequests, 0)
 	suite.Equal(int64(0), payload.TotalCount)
@@ -1182,11 +1304,16 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 			Sort:        swag.String("branch"),
 			Order:       swag.String("asc"),
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := subtestData.handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
-		suite.Assertions.IsType(&queues.GetServicesCounselingQueueOK{}, response)
+		suite.IsType(&queues.GetServicesCounselingQueueOK{}, response)
 		payload := response.(*queues.GetServicesCounselingQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		order := subtestData.needsCounselingMove.Orders
 		result1 := payload.QueueMoves[0]
@@ -1212,11 +1339,16 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 			HTTPRequest: subtestData.request,
 			Status:      []string{string(models.MoveStatusNeedsServiceCounseling), string(models.MoveStatusServiceCounselingCompleted)},
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := subtestData.handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
-		suite.Assertions.IsType(&queues.GetServicesCounselingQueueOK{}, response)
+		suite.IsType(&queues.GetServicesCounselingQueueOK{}, response)
 		payload := response.(*queues.GetServicesCounselingQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.Len(payload.QueueMoves, 3)
 
@@ -1241,9 +1373,15 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		params := queues.GetServicesCounselingQueueParams{
 			HTTPRequest: request,
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := subtestData.handler.Handle(params)
 		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetServicesCounselingQueueForbidden{}, response)
+		payload := response.(*queues.GetServicesCounselingQueueForbidden).Payload
 
-		suite.Assertions.IsType(&queues.GetServicesCounselingQueueForbidden{}, response)
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }

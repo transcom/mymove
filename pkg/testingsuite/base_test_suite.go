@@ -50,6 +50,19 @@ func (suite *BaseTestSuite) FatalNoError(err error, messages ...string) {
 	}
 }
 
+// FatalTrue ends a test if a value is not true
+func (suite *BaseTestSuite) FatalTrue(b bool, messages ...string) {
+	t := suite.T()
+	t.Helper()
+	if !suite.True(b) {
+		if len(messages) > 0 {
+			t.Fatalf("%s", strings.Join(messages, ","))
+		} else {
+			t.Fatal("expected a true value")
+		}
+	}
+}
+
 // FatalFalse ends a test if a value is not false
 func (suite *BaseTestSuite) FatalFalse(b bool, messages ...string) {
 	t := suite.T()
@@ -58,7 +71,7 @@ func (suite *BaseTestSuite) FatalFalse(b bool, messages ...string) {
 		if len(messages) > 0 {
 			t.Fatalf("%s", strings.Join(messages, ","))
 		} else {
-			t.Fatal("expected a true value")
+			t.Fatal("expected a false value")
 		}
 	}
 }

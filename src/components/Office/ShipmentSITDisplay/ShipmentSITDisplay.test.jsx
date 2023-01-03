@@ -122,7 +122,7 @@ describe('ShipmentSITDisplay', () => {
 
     const reviewButton = screen.getByRole('button', { name: 'View request' });
 
-    userEvent.click(reviewButton);
+    await userEvent.click(reviewButton);
 
     await waitFor(() => {
       expect(showReviewSITExtension).toHaveBeenCalledWith(true);
@@ -144,7 +144,7 @@ describe('ShipmentSITDisplay', () => {
 
     const reviewButton = screen.getByRole('button', { name: 'Edit' });
 
-    userEvent.click(reviewButton);
+    await userEvent.click(reviewButton);
 
     await waitFor(() => {
       expect(showSubmitSITExtension).toHaveBeenCalledWith(true);

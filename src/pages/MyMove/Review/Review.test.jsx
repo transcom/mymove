@@ -119,7 +119,7 @@ describe('Review page', () => {
 
     expect(backButton).toBeInTheDocument();
 
-    userEvent.click(backButton);
+    await userEvent.click(backButton);
 
     expect(testProps.push).toHaveBeenCalledWith('/');
   });
@@ -138,7 +138,7 @@ describe('Review page', () => {
 
     expect(submitButton).toBeInTheDocument();
 
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     expect(testProps.push).toHaveBeenCalledWith(`/moves/${testProps.match.params.moveId}/agreement`);
   });
@@ -157,7 +157,7 @@ describe('Review page', () => {
 
     expect(submitButton).toBeInTheDocument();
 
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     expect(testProps.push).toHaveBeenCalledWith(`/moves/${testProps.match.params.moveId}/agreement`);
   });

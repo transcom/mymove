@@ -15,9 +15,11 @@ describe('Services counselor user', () => {
 
   beforeEach(() => {
     cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc').as('getSortedMoves');
+    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&needsPPMCloseout=false').as(
+      'getSortedMoves',
+    );
 
-    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&locator=**').as(
+    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=**&order=asc&locator=**&needsPPMCloseout=**').as(
       'getFilterSortedMoves',
     );
     cy.intercept('GET', '**/ghc/v1/move/**').as('getMoves');
@@ -32,6 +34,7 @@ describe('Services counselor user', () => {
   });
 
   it('is able to edit a PPM shipment', () => {
+    // use a move that will need counseling
     const moveLocator = 'PPMSCF';
 
     navigateToShipmentDetails(moveLocator);

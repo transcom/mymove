@@ -725,6 +725,41 @@ jobs:
       - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
       - announce_failure
 
+  # `check_tls_certificate_env` is used to confirm that the certificate-key pair match
+  check_tls_certificate_prd:
+    executor: av_medium
+    steps:
+      - checkout
+      - tls_vars_prd
+      - run: scripts/check-tls-pair ${TLS_KEY} ${TLS_CERT}
+      - announce_failure
+
+  check_tls_certificate_stg:
+    executor: av_medium
+    steps:
+      - checkout
+      - tls_vars_stg
+      - run: scripts/check-tls-pair ${TLS_KEY} ${TLS_CERT}
+      - announce_failure
+
+  check_tls_certificate_dp3:
+    executor: av_medium
+    parameters:
+      dp3-env:
+        type: string
+        default: *dp3-env
+    steps:
+      - checkout
+      - run:
+          name: Check if we are using a dp3 environment at all
+          command: |
+            if [[ << parameters.dp3-env >> != "demo" && << parameters.dp3-env >> != "exp" && << parameters.dp3-env >> != "loadtest" ]]; then
+              circleci-agent step halt
+            fi
+      - tls_vars_dp3
+      - run: scripts/check-tls-pair ${TLS_KEY} ${TLS_CERT}
+      - announce_failure
+
   # `anti_virus` uses virus detection software to scan the source code
   anti_virus:
     executor: av_medium
@@ -1675,9 +1710,23 @@ workflows:
 
   app:
     jobs:
-      - pre_deps_golang
+      - check_tls_certificate_dp3
 
-      - pre_deps_yarn
+      - check_tls_certificate_stg
+
+      - check_tls_certificate_prd
+
+      - pre_deps_golang:
+          requires:
+            - check_tls_certificate_dp3
+            - check_tls_certificate_stg
+            - check_tls_certificate_prd
+
+      - pre_deps_yarn:
+          requires:
+            - check_tls_certificate_dp3
+            - check_tls_certificate_stg
+            - check_tls_certificate_prd
 
       - check_generated_code:
           requires:
@@ -1690,7 +1739,6 @@ workflows:
           filters:
             branches:
               only: main
-
       - pre_test:
           requires:
             - pre_deps_golang

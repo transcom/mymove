@@ -30,6 +30,41 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	// setUpForTests - Sets up objects/mocks that need to be set up on a per-test basis.
 	setUpForTests := func(estimatedIncentiveAmount *unit.Cents, sitEstimatedCost *unit.Cents, estimatedIncentiveError error) (subtestData updateSubtestData) {
 		ppmEstimator := mocks.PPMEstimator{}
+		ppmEstimator.
+			On(
+				"FinalIncentiveWithDefaultChecks",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("models.PPMShipment"),
+				mock.AnythingOfType("*models.PPMShipment"),
+			).
+			Return(nil, nil)
+
+		ppmEstimator.
+			On(
+				"EstimateIncentiveWithDefaultChecks",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("models.PPMShipment"),
+				mock.AnythingOfType("*models.PPMShipment"),
+			).
+			Return(estimatedIncentiveAmount, sitEstimatedCost, estimatedIncentiveError)
+
+		addressCreator := address.NewAddressCreator()
+		addressUpdater := address.NewAddressUpdater()
+		subtestData.ppmShipmentUpdater = NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+
+		return subtestData
+	}
+
+	setUpForFinalIncentiveTests := func(finalIncentiveAmount *unit.Cents, finalIncentiveError error, estimatedIncentiveAmount *unit.Cents, sitEstimatedCost *unit.Cents, estimatedIncentiveError error) (subtestData updateSubtestData) {
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmEstimator.
+			On(
+				"FinalIncentiveWithDefaultChecks",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("models.PPMShipment"),
+				mock.AnythingOfType("*models.PPMShipment"),
+			).
+			Return(finalIncentiveAmount, finalIncentiveError)
 
 		ppmEstimator.
 			On(
@@ -708,6 +743,32 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*newFakeSITEstimatedCost, *updatedPPM.SITEstimatedCost)
 	})
 
+	suite.Run("Can successfully update a PPMShipment - final incentive", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		subtestData := setUpForFinalIncentiveTests(nil, nil, nil, nil, nil)
+
+		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				ActualMoveDate:              models.TimePointer(testdatagen.NextValidMoveDate),
+				ActualPickupPostalCode:      models.StringPointer("79912"),
+				ActualDestinationPostalCode: models.StringPointer("90909"),
+				EstimatedWeight:             models.PoundPointer(unit.Pound(5000)),
+			},
+		})
+
+		newPPM := originalPPM
+
+		newPPM.ActualDestinationPostalCode = models.StringPointer("90210")
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Fields that should now be updated
+		suite.Equal(newPPM.FinalIncentive, updatedPPM.FinalIncentive)
+	})
+
 	suite.Run("Can't update if Shipment can't be found", func() {
 		badMTOShipmentID := uuid.Must(uuid.NewV4())
 
@@ -719,7 +780,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(fmt.Sprintf("ID: %s not found while looking for PPMShipment", badMTOShipmentID.String()), err.Error())
+		suite.Equal(fmt.Sprintf("ID: %s not found while looking for PPMShipment by MTO ShipmentID", badMTOShipmentID.String()), err.Error())
 	})
 
 	suite.Run("Can't update if there is invalid input", func() {

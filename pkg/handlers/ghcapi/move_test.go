@@ -5,11 +5,13 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	moveops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -36,7 +38,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 				Orders:             models.Order{ID: ordersID},
 			},
 		})
-		requestUser = testdatagen.MakeStubbedUser(suite.DB())
+		requestUser = factory.BuildUser(nil, nil, nil)
 	}
 
 	suite.Run("Successful move fetch", func() {
@@ -61,10 +63,14 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			Locator:     move.Locator,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveOK{}, response)
-
 		payload := response.(*moveops.GetMoveOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.Equal(move.ID.String(), payload.ID.String())
 		suite.Equal(move.AvailableToPrimeAt.Format(swaggerTimeFormat), time.Time(*payload.AvailableToPrimeAt).Format(swaggerTimeFormat))
@@ -90,8 +96,14 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(moveops.GetMoveParams{HTTPRequest: req, Locator: ""})
 		suite.IsType(&moveops.GetMoveBadRequest{}, response)
+		payload := response.(*moveops.GetMoveBadRequest).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Unsuccessful move fetch - locator not found", func() {
@@ -115,8 +127,14 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			Locator:     move.Locator,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveNotFound{}, response)
+		payload := response.(*moveops.GetMoveNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Unsuccessful move fetch - internal server error", func() {
@@ -141,22 +159,28 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			Locator:     move.Locator,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveInternalServerError{}, response)
-	})
+		payload := response.(*moveops.GetMoveInternalServerError).Payload
 
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
+	})
 }
 
 func (suite *HandlerSuite) TestSearchMovesHandler() {
 
 	var requestUser models.User
 	setupTestData := func() *http.Request {
-		requestUser = testdatagen.MakeStubbedUser(suite.DB())
+		requestUser = factory.BuildUser(nil, nil, nil)
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 		return req
 
 	}
+
 	suite.Run("Successful move search by locator", func() {
 		req := setupTestData()
 		move := testdatagen.MakeDefaultMove(suite.DB())
@@ -183,10 +207,15 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 			},
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SearchMovesOK{}, response)
-
 		payload := response.(*moveops.SearchMovesOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		payloadMove := *(*payload).SearchMoves[0]
 		suite.Equal(move.ID.String(), payloadMove.ID.String())
@@ -227,10 +256,16 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 				DodID:   move.Orders.ServiceMember.Edipi,
 			},
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SearchMovesOK{}, response)
-
 		payload := response.(*moveops.SearchMovesOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.Equal(move.ID.String(), (*payload).SearchMoves[0].ID.String())
 	})
@@ -241,7 +276,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 	var requestUser models.User
 	setupTestData := func() (*http.Request, models.Move) {
 		move = testdatagen.MakeDefaultMove(suite.DB())
-		requestUser = testdatagen.MakeStubbedUser(suite.DB())
+		requestUser = factory.BuildUser(nil, nil, nil)
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 		return req, move
@@ -273,8 +308,16 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			},
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SetFinancialReviewFlagOK{}, response)
+		payload := response.(*moveops.SetFinancialReviewFlagOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Unsuccessful flag - missing remarks", func() {
@@ -283,7 +326,8 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			HTTPRequest: req,
 			IfMatch:     &fakeEtag,
 			Body: moveops.SetFinancialReviewFlagBody{
-				Remarks: nil,
+				Remarks:       nil,
+				FlagForReview: swag.Bool(true),
 			},
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
@@ -292,9 +336,18 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			HandlerConfig:                 suite.HandlerConfig(),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
+
+		// Validate incoming payload
+		suite.NoError(paramsNilRemarks.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(paramsNilRemarks)
 		suite.IsType(&moveops.SetFinancialReviewFlagUnprocessableEntity{}, response)
+		payload := response.(*moveops.SetFinancialReviewFlagUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
+
 	suite.Run("Unsuccessful flag - move not found", func() {
 		req, move := setupTestData()
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
@@ -320,9 +373,17 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SetFinancialReviewFlagNotFound{}, response)
+		payload := response.(*moveops.SetFinancialReviewFlagNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
+
 	suite.Run("Unsuccessful flag - internal server error", func() {
 		req, move := setupTestData()
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
@@ -348,8 +409,15 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SetFinancialReviewFlagInternalServerError{}, response)
+		payload := response.(*moveops.SetFinancialReviewFlagInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Unsuccessful flag - bad etag", func() {
@@ -377,7 +445,14 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SetFinancialReviewFlagPreconditionFailed{}, response)
+		payload := response.(*moveops.SetFinancialReviewFlagPreconditionFailed).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }

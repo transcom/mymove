@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -1001,7 +1002,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					suite.Equal(desiredShipment.AdvanceAmountReceived, updatedShipment.PpmShipment.AdvanceAmountReceived)
 				},
 			},
-			"Add W2 Address and Final Incentive": {
+			"Add W2 Address": {
 				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
 					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 						PPMShipment: models.PPMShipment{
@@ -1020,7 +1021,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 						State:          &state,
 						PostalCode:     &zipcode,
 					},
-					FinalIncentive: handlers.FmtInt64(250000),
 				},
 				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
 				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
@@ -1030,7 +1030,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
 
 					// check expected fields were updated
-					suite.Equal(desiredShipment.FinalIncentive, updatedShipment.PpmShipment.FinalIncentive)
 					suite.Equal(desiredShipment.W2Address.StreetAddress1, updatedShipment.PpmShipment.W2Address.StreetAddress1)
 					suite.Equal(desiredShipment.W2Address.City, updatedShipment.PpmShipment.W2Address.City)
 					suite.Equal(desiredShipment.W2Address.PostalCode, updatedShipment.PpmShipment.W2Address.PostalCode)
@@ -1147,6 +1146,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					mock.AnythingOfType("models.PPMShipment"),
 					mock.AnythingOfType("*models.PPMShipment")).
 					Return(tc.estimatedIncentive, nil, nil).Once()
+
+				ppmEstimator.On("FinalIncentiveWithDefaultChecks",
+					mock.AnythingOfType("*appcontext.appContext"),
+					mock.AnythingOfType("models.PPMShipment"),
+					mock.AnythingOfType("*models.PPMShipment")).
+					Return(nil, nil)
 
 				originalPPMShipment := tc.setUpOriginalPPM(appCtx)
 
@@ -1356,7 +1361,7 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 	})
 
 	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2, ppmShipment.Shipment, ppmShipment2.Shipment, ppmShipment3.Shipment}
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	requestUser := factory.BuildUser(nil, nil, nil)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/mto_shipments", mto.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)

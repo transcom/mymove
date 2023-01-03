@@ -63,7 +63,7 @@ describe('EstimatedWeightsProGearForm component', () => {
       const hasProGear = await screen.getByLabelText('Yes');
       expect(screen.queryByLabelText('Estimated weight of your pro-gear')).toBeNull();
       expect(screen.queryByLabelText('Estimated weight of your spouse’s pro-gear')).toBeNull();
-      userEvent.click(hasProGear);
+      await userEvent.click(hasProGear);
 
       await waitFor(() => {
         expect(screen.getByLabelText('Estimated weight of your pro-gear')).toBeInstanceOf(HTMLInputElement);

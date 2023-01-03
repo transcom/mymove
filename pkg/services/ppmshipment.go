@@ -27,6 +27,7 @@ type PPMShipmentUpdater interface {
 //go:generate mockery --name PPMEstimator --disable-version-string
 type PPMEstimator interface {
 	EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, *unit.Cents, error)
+	FinalIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, error)
 }
 
 // PPMShipmentRouter routes a PPM shipment
