@@ -70,7 +70,12 @@ function navigateHappyPath(userId, isMobile = false) {
   navigateFromCloseoutReviewPageToExpensesPage();
   submitExpensePage();
   navigateFromPPMReviewPageToFinalCloseoutPage();
-  submitFinalCloseout({ totalNetWeight: '2,000 lbs', proGearWeight: '2,000 lbs', expensesClaimed: '675.99' });
+  submitFinalCloseout({
+    totalNetWeight: '2,000 lbs',
+    proGearWeight: '2,000 lbs',
+    expensesClaimed: '675.99',
+    finalIncentiveAmount: '$31,180.87',
+  });
 }
 
 function navigateHappyPathWithEditsAndBacks(userId, isMobile = false) {
@@ -85,5 +90,10 @@ function navigateHappyPathWithEditsAndBacks(userId, isMobile = false) {
   navigateFromCloseoutReviewPageToEditExpensePage();
   submitExpensePage({ isEditExpense: true, amount: '833.41' });
   navigateFromPPMReviewPageToFinalCloseoutPage();
-  submitFinalCloseout({ totalNetWeight: '4,000 lbs', proGearWeight: '500 lbs', expensesClaimed: '833.41' });
+  submitFinalCloseout({
+    totalNetWeight: '4,000 lbs',
+    proGearWeight: '500 lbs',
+    expensesClaimed: '833.41',
+    finalIncentiveAmount: '$62,363.15',
+  });
 }
