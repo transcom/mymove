@@ -86,6 +86,52 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		suite.Equal(move.SubmittedAt.Format(swaggerTimeFormat), time.Time(*payload.SubmittedAt).Format(swaggerTimeFormat))
 		suite.Equal(move.UpdatedAt.Format(swaggerTimeFormat), time.Time(payload.UpdatedAt).Format(swaggerTimeFormat))
 		suite.Equal(ordersID, move.Orders.ID)
+		suite.Nil(payload.CloseoutOffice)
+	})
+
+	suite.Run("Successful move with a saved transportation office", func() {
+		transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
+			TransportationOffice: models.TransportationOffice{
+				ProvidesCloseout: true,
+			},
+		})
+
+		move = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status:           models.MoveStatusSUBMITTED,
+				SubmittedAt:      &submittedAt,
+				CloseoutOffice:   &transportationOffice,
+				CloseoutOfficeID: &transportationOffice.ID,
+			},
+		})
+		moveFetcher := moveservice.NewMoveFetcher()
+		requestOfficeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+		req = suite.AuthenticateOfficeRequest(req, requestOfficeUser)
+		params := moveops.GetMoveParams{
+			HTTPRequest: req,
+			Locator:     move.Locator,
+		}
+
+		// Validate incoming payload: no body to validate
+
+		handler := GetMoveHandler{
+			HandlerConfig: suite.HandlerConfig(),
+			MoveFetcher:   moveFetcher,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&moveops.GetMoveOK{}, response)
+		payload := response.(*moveops.GetMoveOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Equal(transportationOffice.ID.String(), payload.CloseoutOfficeID.String())
+		suite.Equal(transportationOffice.ID.String(), payload.CloseoutOffice.ID.String())
+		suite.Equal(transportationOffice.AddressID.String(), payload.CloseoutOffice.Address.ID.String())
+
 	})
 
 	suite.Run("Unsuccessful move fetch - empty string bad request", func() {
