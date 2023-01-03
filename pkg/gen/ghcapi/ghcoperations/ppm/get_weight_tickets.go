@@ -34,7 +34,7 @@ func NewGetWeightTickets(ctx *middleware.Context, handler GetWeightTicketsHandle
 
 # Gets all the weight tickets for a PPM shipment
 
-Retrieves all of the weight tickets and associated uploads for each one for the specified PPM shipment. This
+Retrieves all of the weight tickets and associated uploads for each document for the specified PPM shipment. This
 excludes any deleted weight tickets or uploads.
 */
 type GetWeightTickets struct {

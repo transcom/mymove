@@ -2858,7 +2858,7 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/weight-tickets": {
       "get": {
-        "description": "Retrieves all of the weight tickets and associated uploads for each one for the specified PPM shipment. This\nexcludes any deleted weight tickets or uploads.\n",
+        "description": "Retrieves all of the weight tickets and associated uploads for each document for the specified PPM shipment. This\nexcludes any deleted weight tickets or uploads.\n",
         "consumes": [
           "application/json"
         ],
@@ -12829,7 +12829,7 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/weight-tickets": {
       "get": {
-        "description": "Retrieves all of the weight tickets and associated uploads for each one for the specified PPM shipment. This\nexcludes any deleted weight tickets or uploads.\n",
+        "description": "Retrieves all of the weight tickets and associated uploads for each document for the specified PPM shipment. This\nexcludes any deleted weight tickets or uploads.\n",
         "consumes": [
           "application/json"
         ],
