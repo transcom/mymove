@@ -3,6 +3,8 @@ package testharness
 import (
 	"errors"
 
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -54,9 +56,11 @@ var actionDispatcher = map[string]actionFunc{
 func Dispatch(appCtx appcontext.AppContext, action string) (testHarnessResponse, error) {
 	dispatcher, ok := actionDispatcher[action]
 	if !ok {
-		return nil, errors.New("Cannot find builder for action: `" + action + "`")
+		appCtx.Logger().Error("Cannot find testharness dispatcher", zap.Any("action", action))
+		return nil, errors.New("Cannot find testharness dispatcher for action: `" + action + "`")
 	}
 
+	appCtx.Logger().Info("Found testharness dispatcher", zap.Any("action", action))
 	return dispatcher(appCtx), nil
 
 }
