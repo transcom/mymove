@@ -23,7 +23,7 @@ describe('testing CSRF protection', function () {
 
   it('can successfully dev login with both unmasked and masked token', function () {
     cy.apiSignInAsUser(userId, TOOOfficeUserType);
-    cy.contains('New moves');
+    cy.contains('All moves');
   });
 
   it('cannot dev login with masked token only', function () {
