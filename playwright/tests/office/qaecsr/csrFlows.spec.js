@@ -1,12 +1,7 @@
 // @ts-check
 const { test, expect } = require('../../utils/officeTest');
 
-// const moveCode = 'QAEHLP';
-
 test.describe('Customer Support User Flows', () => {
-  // const userId = '2419b1d6-097f-4dc4-8171-8f858967b4db';
-  // cy.apiSignInAsUser(userId, QAECSROfficeUserType);
-
   test.describe('Customer support remarks', () => {
     test('is able to add, edit, and delete a remark', async ({ page, officePage }) => {
       const move = await officePage.buildHHGMoveWithNTSAndNeedsSC();
