@@ -47,7 +47,7 @@ func FindTransportationOffice(tx *pop.Connection, search string) (models.Transpo
 	// eager loading doesn't make sense - can't do subqueries there easily
 	sqlQuery := `
 	with names as (select office.id as transportation_office_id, office.name, similarity(office.name, $1) as sim
-        from transportation_offices as office inner join addresses a2 on office.address_id = a2.id
+        from transportation_offices as office
         where name % $1
         limit 5)
 select office.*
