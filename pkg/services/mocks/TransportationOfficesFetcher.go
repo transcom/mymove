@@ -16,13 +16,13 @@ type TransportationOfficesFetcher struct {
 	mock.Mock
 }
 
-// GetTransportationOffice provides a mock function with given fields: appCtx, transportatioOfficeID, includeOnlyPPMCloseoutOffices
-func (_m *TransportationOfficesFetcher) GetTransportationOffice(appCtx appcontext.AppContext, transportatioOfficeID uuid.UUID, includeOnlyPPMCloseoutOffices bool) (*models.TransportationOffice, error) {
-	ret := _m.Called(appCtx, transportatioOfficeID, includeOnlyPPMCloseoutOffices)
+// GetTransportationOffice provides a mock function with given fields: appCtx, transportationOfficeID, includeOnlyPPMCloseoutOffices
+func (_m *TransportationOfficesFetcher) GetTransportationOffice(appCtx appcontext.AppContext, transportationOfficeID uuid.UUID, includeOnlyPPMCloseoutOffices bool) (*models.TransportationOffice, error) {
+	ret := _m.Called(appCtx, transportationOfficeID, includeOnlyPPMCloseoutOffices)
 
 	var r0 *models.TransportationOffice
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool) *models.TransportationOffice); ok {
-		r0 = rf(appCtx, transportatioOfficeID, includeOnlyPPMCloseoutOffices)
+		r0 = rf(appCtx, transportationOfficeID, includeOnlyPPMCloseoutOffices)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.TransportationOffice)
@@ -31,7 +31,7 @@ func (_m *TransportationOfficesFetcher) GetTransportationOffice(appCtx appcontex
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, bool) error); ok {
-		r1 = rf(appCtx, transportatioOfficeID, includeOnlyPPMCloseoutOffices)
+		r1 = rf(appCtx, transportationOfficeID, includeOnlyPPMCloseoutOffices)
 	} else {
 		r1 = ret.Error(1)
 	}
