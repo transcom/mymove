@@ -29,15 +29,15 @@ export const MockProviders = ({ children, initialState, initialEntries, permissi
   const queryClient = new QueryClient();
 
   return (
-    <PermissionProvider permissions={permissions} currentUserId={currentUserId}>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <PermissionProvider permissions={permissions} currentUserId={currentUserId}>
         <Provider store={mockStore.store}>
           <ConnectedRouter history={mockHistory}>
             <Suspense fallback={<LoadingPlaceholder />}>{children}</Suspense>
           </ConnectedRouter>
         </Provider>
-      </QueryClientProvider>
-    </PermissionProvider>
+      </PermissionProvider>
+    </QueryClientProvider>
   );
 };
 

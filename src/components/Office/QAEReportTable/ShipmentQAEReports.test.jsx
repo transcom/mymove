@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 
 import ShipmentQAEReports from './ShipmentQAEReports';
 
+import { MockProviders } from 'testUtils';
+
 const customerInfo = {
   agency: 'ARMY',
   backup_contact: { email: 'email@example.com', name: 'name', phone: '555-555-5555' },
@@ -30,7 +32,9 @@ const customerInfo = {
 describe('ShipmentQAEReports', () => {
   it('renders with no shipments', () => {
     render(
-      <ShipmentQAEReports shipments={[]} reports={[]} moveCode="Test123" customerInfo={customerInfo} grade="E_4" />,
+      <MockProviders>
+        <ShipmentQAEReports shipments={[]} reports={[]} moveCode="Test123" customerInfo={customerInfo} grade="E_4" />
+      </MockProviders>,
     );
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Shipment QAE reports (0)');
   });
