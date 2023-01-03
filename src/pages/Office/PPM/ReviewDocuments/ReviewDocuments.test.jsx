@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 
 import { ReviewDocuments } from './ReviewDocuments';
 
-import { useMoveDetailsQueries } from 'hooks/queries';
+import { usePPMShipmentDocsQueries } from 'hooks/queries';
 
 const mockPDFUpload = {
   contentType: 'application/pdf',
@@ -36,33 +36,21 @@ const mockJPGUpload = {
 };
 
 jest.mock('hooks/queries', () => ({
-  useMoveDetailsQueries: jest.fn(),
+  usePPMShipmentDocsQueries: jest.fn(),
 }));
 
 const testShipmentId = '4321';
-const useMoveDetailsQueriesReturnValue = {
-  moveCode: 'READY',
-  mtoShipments: [
+const usePPMShipmentDocsQueriesReturnValue = {
+  weightTickets: [
     {
-      id: testShipmentId,
-      status: 'SUBMITTED',
-      moveTaskOrderID: '123',
-      ppmShipment: {
-        city: 'Beverly Hills',
-        id: '0cf43b1f-04e8-4c56-a6a1-06aec192ca07',
-        weightTickets: [
-          {
-            emptyDocument: {
-              uploads: [mockPDFUpload],
-            },
-            fullDocument: {
-              uploads: [mockXLSUpload],
-            },
-            proofOfTrailerOwnershipDocument: {
-              uploads: [mockJPGUpload],
-            },
-          },
-        ],
+      emptyDocument: {
+        uploads: [mockPDFUpload],
+      },
+      fullDocument: {
+        uploads: [mockXLSUpload],
+      },
+      proofOfTrailerOwnershipDocument: {
+        uploads: [mockJPGUpload],
       },
     },
   ],
@@ -87,7 +75,7 @@ const errorReturnValue = {
 describe('ReviewDocuments', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
-      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(loadingReturnValue);
 
       render(<ReviewDocuments {...requiredProps} />);
 
@@ -96,7 +84,7 @@ describe('ReviewDocuments', () => {
     });
 
     it('renders the Something Went Wrong component when the query errors', async () => {
-      useMoveDetailsQueries.mockReturnValue(errorReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(errorReturnValue);
 
       render(<ReviewDocuments {...requiredProps} />);
 
@@ -107,7 +95,7 @@ describe('ReviewDocuments', () => {
 
   describe('with data loaded', () => {
     it('renders the DocumentViewer', async () => {
-      useMoveDetailsQueries.mockReturnValue(useMoveDetailsQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       render(<ReviewDocuments {...requiredProps} />);
 
       const docs = await screen.getByText(/Documents/);
