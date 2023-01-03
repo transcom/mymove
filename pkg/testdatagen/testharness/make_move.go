@@ -584,8 +584,8 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 	submittedAt := time.Now()
 	ntsMoveType := models.SelectedMoveTypeNTS
 	dodID := testdatagen.MakeRandomNumberString(10)
-	email := strings.ToLower(fmt.Sprintf("joe_customer_%s@example.com",
-		testdatagen.MakeRandomString(5)))
+	email := strings.ToLower(fmt.Sprintf("%scustomer_%s@example.com",
+		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
 	username := strings.Split(email, "@")[0]
 	firstName := strings.Split(username, "_")[0]
 	lastName := username[len(firstName)+1:]
