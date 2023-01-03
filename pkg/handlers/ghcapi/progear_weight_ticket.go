@@ -26,7 +26,6 @@ func (h UpdateProgearWeightTicketHandler) Handle(params progearops.UpdateProGear
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			payload := params.UpdateProGearWeightTicket
-			// The errInstance may need to be removed if we decide to handle the TraceIDs in the frontend
 			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
 			errPayload := &ghcmessages.Error{Message: &errInstance}
 
