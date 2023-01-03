@@ -1156,7 +1156,7 @@ clean: ## Clean all generated files
 	rm -f coverage.out
 	rm -rf ./bin
 	rm -rf ./build
-	yarn clean 
+	yarn clean
 	rm -rf ./public/swagger-ui/*.{css,js,png}
 	rm -rf ./tmp/secure_migrations
 	rm -rf ./tmp/storage
