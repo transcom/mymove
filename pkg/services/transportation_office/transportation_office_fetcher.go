@@ -3,6 +3,8 @@ package transportationoffice
 import (
 	"database/sql"
 
+
+
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -18,6 +20,7 @@ type transportationOfficesFetcher struct {
 func NewTransportationOfficesFetcher() services.TransportationOfficesFetcher {
 	return &transportationOfficesFetcher{}
 }
+
 
 func (o transportationOfficesFetcher) GetTransportationOffices(appCtx appcontext.AppContext, search string) (*models.TransportationOffices, error) {
 	officeList, err := FindTransportationOffice(appCtx, search)

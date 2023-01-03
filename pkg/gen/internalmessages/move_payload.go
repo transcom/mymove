@@ -31,6 +31,10 @@ type MovePayload struct {
 	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
+	// e tag
+	// Required: true
+	ETag *string `json:"eTag"`
+
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
@@ -85,6 +89,10 @@ func (m *MovePayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateETag(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -160,6 +168,15 @@ func (m *MovePayload) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("created_at", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovePayload) validateETag(formats strfmt.Registry) error {
+
+	if err := validate.Required("eTag", "body", m.ETag); err != nil {
 		return err
 	}
 

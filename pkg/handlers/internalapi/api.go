@@ -49,6 +49,8 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
 	mtoShipmentRouter := mtoshipment.NewShipmentRouter()
 	ppmShipmentRouter := ppmshipment.NewPPMShipmentRouter(mtoShipmentRouter)
+	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
+	closeoutOfficeUpdater := move.NewCloseoutOfficeUpdater(move.NewMoveFetcher(), transportationOfficeFetcher)
 
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{handlerConfig, officeuser.NewOfficeUserFetcherPop()}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{handlerConfig}
@@ -75,7 +77,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		order.NewOrderUpdater(moveRouter),
 	}
 
-	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{handlerConfig}
+	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{handlerConfig, closeoutOfficeUpdater}
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler{handlerConfig}
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler{
 		handlerConfig,
@@ -194,7 +196,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.TransportationOfficesGetTransportationOfficesHandler = GetTransportationOfficesHandler{
 		handlerConfig,
-		transportationoffice.NewTransportationOfficesFetcher(),
+		transportationOfficeFetcher,
 	}
 
 	return internalAPI
