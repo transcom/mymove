@@ -60,7 +60,10 @@ select office.*
 		}
 	}
 	for i := range officeList {
-		appCtx.DB().Load(&officeList[i], "Address")
+		err := appCtx.DB().Load(&officeList[i], "Address")
+		if errors.Cause(err).Error() != models.RecordNotFoundErrorString {
+			return officeList, err
+		}
 	}
 	return officeList, nil
 }
