@@ -36,6 +36,10 @@ export async function signIntoOfficeAsNewPrimeSimulatorUser(page) {
   await signInAsNewUser(page, PrimeSimulatorUserType);
 }
 
+export async function signIntoOfficeAsNewQAECSRUser(page) {
+  await signInAsNewUser(page, QAECSROfficeUserType);
+}
+
 async function signInAsUserWithIdAndType(page, userId) {
   await page.goto('/devlocal-auth/login');
   await page.locator(`button[value="${userId}"]`).click();

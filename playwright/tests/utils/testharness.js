@@ -43,6 +43,10 @@ export async function buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(req
   return buildDefault(request, 'HHGMoveWithServiceItemsAndPaymentRequestsAndFiles');
 }
 
+export async function buildHHGMoveWithNTSAndNeedsSC(request) {
+  return buildDefault(request, 'HHGMoveWithNTSAndNeedsSC');
+}
+
 export async function buildPrimeSimulatorMoveNeedsShipmentUpdate(request) {
   return buildDefault(request, 'PrimeSimulatorMoveNeedsShipmentUpdate');
 }

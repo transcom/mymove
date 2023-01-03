@@ -577,3 +577,60 @@ func MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext) mod
 	}
 	return *newmove
 }
+
+func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
+	// similar to old shared.createUserWithLocatorAndDODID
+
+	submittedAt := time.Now()
+	ntsMoveType := models.SelectedMoveTypeNTS
+	dodID := testdatagen.MakeRandomNumberString(10)
+	email := strings.ToLower(fmt.Sprintf("joe_customer_%s@example.com",
+		testdatagen.MakeRandomString(5)))
+	username := strings.Split(email, "@")[0]
+	firstName := strings.Split(username, "_")[0]
+	lastName := username[len(firstName)+1:]
+
+	orders := testdatagen.MakeOrderWithoutDefaults(appCtx.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
+			ProvidesServicesCounseling: true,
+		},
+		ServiceMember: models.ServiceMember{
+			PersonalEmail: &email,
+			FirstName:     &firstName,
+			LastName:      &lastName,
+			Edipi:         swag.String(dodID),
+		},
+	})
+	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status:           models.MoveStatusNeedsServiceCounseling,
+			SelectedMoveType: &ntsMoveType,
+			SubmittedAt:      &submittedAt,
+		},
+		Order: orders,
+	})
+
+	// Makes a basic HHG shipment to reflect likely real scenario
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	destinationAddress := testdatagen.MakeDefaultAddress(appCtx.DB())
+	testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+			DestinationAddressID:  &destinationAddress.ID,
+		},
+	})
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+
+}

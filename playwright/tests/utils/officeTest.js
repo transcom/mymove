@@ -8,6 +8,7 @@ const {
   signIntoOfficeAsNewTOOUser,
   signIntoOfficeAsNewServicesCounselorUser,
   signIntoOfficeAsNewPrimeSimulatorUser,
+  signIntoOfficeAsNewQAECSRUser,
   signInAsExistingOfficeUser,
 } = require('./signIn');
 const {
@@ -17,6 +18,7 @@ const {
   buildOfficeUserWithTOOAndTIO,
   buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles,
   buildPrimeSimulatorMoveNeedsShipmentUpdate,
+  buildHHGMoveWithNTSAndNeedsSC,
 } = require('./testharness');
 
 class OfficePage {
@@ -115,7 +117,23 @@ class OfficePage {
    * Use devlocal auth to sign in as office user with prime simulator role
    */
   async signInAsNewPrimeSimulatorUser() {
-    await signIntoOfficeAsNewPrimeSimulatorUser(this.page);
+    await Promise.all([
+      // It is important to call waitForNavigation before click to set up waiting.
+      this.page.waitForNavigation(),
+      signIntoOfficeAsNewPrimeSimulatorUser(this.page),
+    ]);
+    await this.waitForLoading();
+  }
+
+  /**
+   * Use devlocal auth to sign in as the office user with SC role
+   */
+  async signInAsNewQAECSRUser() {
+    await Promise.all([
+      // It is important to call waitForNavigation before click to set up waiting.
+      this.page.waitForNavigation(),
+      signIntoOfficeAsNewQAECSRUser(this.page),
+    ]);
     await this.waitForLoading();
   }
 
@@ -124,6 +142,27 @@ class OfficePage {
    */
   async buildOfficeUserWithTOOAndTIO() {
     return buildOfficeUserWithTOOAndTIO(this.request);
+  }
+
+  /**
+   * search for and navigate to move
+   * @param {string} moveCode
+   */
+  async searchForAndNavigateToMove(moveCode) {
+    await this.page.locator('input[name="searchText"]').type(moveCode);
+    await this.page.locator('input[name="searchText"]').blur();
+
+    await this.page.getByRole('button', { name: 'Search' }).click();
+    await this.waitForLoading();
+
+    await base.expect(this.page.locator('tbody >> tr')).toHaveCount(1);
+    base.expect(this.page.locator('tbody >> tr').first()).toContainText(moveCode);
+
+    // click result to navigate to move details page
+    await this.page.locator('tbody > tr').first().click();
+    await this.waitForLoading();
+
+    base.expect(this.page.url()).toContain(`/moves/${moveCode}/details`);
   }
 
   /**
@@ -153,6 +192,10 @@ class OfficePage {
    */
   async buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles() {
     return buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(this.request);
+  }
+
+  async buildHHGMoveWithNTSAndNeedsSC() {
+    return buildHHGMoveWithNTSAndNeedsSC(this.request);
   }
 
   /**
