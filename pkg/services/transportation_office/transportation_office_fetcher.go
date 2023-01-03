@@ -52,7 +52,6 @@ func FindTransportationOffice(tx *pop.Connection, search string) (models.Transpo
         limit 5)
 select office.*
         from names n inner join transportation_offices office on n.transportation_office_id = office.id
-        where office.provides_ppm_closeout='TRUE'
         group by office.id
         order by max(n.sim) desc, office.name
         limit 5`
