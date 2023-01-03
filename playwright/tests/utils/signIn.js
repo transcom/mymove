@@ -71,6 +71,14 @@ export function newSignIn(page) {
       async newPrimeSimulatorUser() {
         await signInAsNewUser(PrimeSimulatorUserType);
       },
+
+      /**
+       * Sign in as new prime simulator user with devlocal
+       */
+      async newQAECSRUser() {
+        await signInAsNewUser(QAECSROfficeUserType);
+      },
+
       /**
        * Sign in as existing office user with devlocal
        *
