@@ -23,7 +23,6 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 	if assertions.Uploader != nil {
 		// If an Uploader is passed in, models.Upload assertions are ignored
 		// because we actually upload a file using the uploader
-		fmt.Printf("🔥🔥🔥")
 		var verrs *validate.Errors
 		var err error
 		// Get file from assertions if available, or a default file if not
@@ -40,7 +39,6 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 			log.Panic(fmt.Errorf("errors encountered saving upload %v, %v", verrs, err))
 		}
 	} else {
-		fmt.Printf("😡😡😡")
 		upload = &models.Upload{
 			Filename:    "testFile.pdf",
 			Bytes:       int64(2202009),
