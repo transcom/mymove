@@ -7,18 +7,17 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
-import { useMoveDetailsQueries } from 'hooks/queries';
+import { usePPMShipmentDocsQueries } from 'hooks/queries';
 
 export const ReviewDocuments = ({ match }) => {
-  const { shipmentId, moveCode } = match.params;
-  const { mtoShipments, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { shipmentId } = match.params;
+  const { weightTickets, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const { ppmShipment } = mtoShipments.filter((shipment) => shipment.id === shipmentId)[0];
   let uploads = [];
-  ppmShipment?.weightTickets?.forEach((weightTicket) => {
+  weightTickets?.forEach((weightTicket) => {
     uploads = uploads.concat(weightTicket.emptyDocument?.uploads);
     uploads = uploads.concat(weightTicket.fullDocument?.uploads);
     uploads = uploads.concat(weightTicket.proofOfTrailerOwnershipDocument?.uploads);
