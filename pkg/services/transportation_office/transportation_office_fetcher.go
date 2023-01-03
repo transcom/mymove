@@ -50,6 +50,7 @@ func FindTransportationOffice(appCtx appcontext.AppContext, search string) (mode
         limit 5)
 select office.*
         from names n inner join transportation_offices office on n.transportation_office_id = office.id
+		where office.name % $1 and provides_ppm_closeout is true
         group by office.id
         order by max(n.sim) desc, office.name
         limit 5`
