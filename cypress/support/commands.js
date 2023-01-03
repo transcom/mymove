@@ -70,7 +70,7 @@ Cypress.Commands.add('waitForLoadingScreen', (ms = longPageLoadTimeout) => {
 // Attempts to double-click a given move locator in a shipment queue list
 Cypress.Commands.add('waitForReactTableLoad', () => {
   // Wait for ReactTable loading to be completed
-  cy.get('.ReactTable').within(() => {
+  cy.get('[data-testid=table-queue]').within(() => {
     cy.get('.-loading.-active', { timeout: longPageLoadTimeout }).should('not.exist');
   });
 });

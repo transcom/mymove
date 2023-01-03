@@ -1,4 +1,4 @@
-import { TOOOfficeUserType } from '../../support/constants';
+import { ServicesCounselorOfficeUserType, TOOOfficeUserType } from '../../support/constants';
 
 // CSRF protection is turned on for all routes.
 // We can test with the local dev login that uses POST
@@ -15,15 +15,15 @@ describe('testing CSRF protection', function () {
     method: 'POST',
     body: {
       id: userId,
-      userType: TOOOfficeUserType,
+      userType: ServicesCounselorOfficeUserType,
     },
     form: true,
     failOnStatusCode: false,
   };
 
   it('can successfully dev login with both unmasked and masked token', function () {
-    cy.apiSignInAsUser(userId, TOOOfficeUserType);
-    cy.contains('New moves');
+    cy.apiSignInAsUser(userId, ServicesCounselorOfficeUserType);
+    cy.contains('All moves');
   });
 
   it('cannot dev login with masked token only', function () {
@@ -94,18 +94,18 @@ describe('testing CSRF protection updating move info', function () {
     cy.signIntoOffice();
 
     // update info
-    cy.get('div[class="rt-tr -odd"]').first().dblclick();
+    cy.get('tr[data-uuid]').first().click();
 
     // save info
-    cy.get('[data-testid="edit-link"]').first().click();
+    cy.get('[data-testid="edit-orders"]').first().click();
 
-    cy.get('input[name="orders.orders_number"]').clear().type('CSRF Test').blur();
+    cy.get('input[name="ordersNumber"]').clear().type('CSRF Test').blur();
 
-    cy.get('select[name="orders.orders_type_detail"]').select('HHG_PERMITTED');
+    cy.get('select[name="ordersTypeDetail"]').select('HHG_PERMITTED');
 
-    cy.get('button[class="usa-button editable-panel-save"]').should('be.enabled').click();
+    cy.get('button[class="usa-button"]').contains('Save').should('be.enabled').click();
 
-    cy.get('div.orders_number').contains('CSRF Test');
+    cy.get('dd[data-testid="ordersNumber"]').contains('CSRF Test');
 
     cy.patientReload();
 
@@ -116,21 +116,22 @@ describe('testing CSRF protection updating move info', function () {
     cy.signIntoOffice();
 
     // update info
-    cy.get('div[class="rt-tr -odd"]').first().dblclick();
+    cy.get('tr[data-uuid]').first().click();
 
     // save info
-    cy.get('[data-testid="edit-link"]').first().click();
+    cy.get('[data-testid="edit-orders"]').first().click();
 
-    cy.get('input[name="orders.orders_number"]').clear().type('CSRF Protection Failed').blur();
+    cy.get('input[name="ordersNumber"]').clear().type('CSRF Protection Failed').blur();
 
-    cy.get('select[name="orders.orders_type_detail"]').select('HHG_PERMITTED');
+    cy.get('select[name="ordersTypeDetail"]').select('HHG_PERMITTED');
 
     // clear cookie
     cy.clearCookie('masked_gorilla_csrf');
     cy.getCookie('masked_gorilla_csrf').should('not.exist');
 
-    cy.get('button[class="usa-button editable-panel-save"]').should('be.enabled').click();
+    cy.get('button[class="usa-button"]').contains('Save').should('be.enabled').click();
 
-    cy.contains('Forbidden');
+    // Save fails, remains on update form with button deactivated
+    cy.get('button[class="usa-button"]').contains('Save').should('be.disabled');
   });
 });
