@@ -62,7 +62,7 @@ select office.*
 			return officeList, err
 		}
 	}
-	for i, _ := range officeList {
+	for i := range officeList {
 		tx.Load(&officeList[i], "Address")
 	}
 	return officeList, nil
