@@ -711,7 +711,6 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
-		WeightTickets:                  WeightTickets(storer, ppmShipment.WeightTickets),
 		SitExpected:                    ppmShipment.SITExpected,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		NetWeight:                      handlers.FmtPoundPtr(ppmShipment.NetWeight),

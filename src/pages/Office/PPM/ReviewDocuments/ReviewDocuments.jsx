@@ -22,10 +22,6 @@ export const ReviewDocuments = ({ match }) => {
     uploads = uploads.concat(weightTicket.emptyDocument?.uploads);
     uploads = uploads.concat(weightTicket.fullDocument?.uploads);
     uploads = uploads.concat(weightTicket.proofOfTrailerOwnershipDocument?.uploads);
-    // if (weightTicket.emptyDocument?.uploads) {
-    // } else if (weightTicket.fullDocument?.uploads) {
-    // } else if (weightTicket.proofOfTrailerOwnershipDocument?.uploads) {
-    // }
   });
 
   return (
