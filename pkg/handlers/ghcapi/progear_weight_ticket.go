@@ -59,6 +59,13 @@ func (h UpdateProgearWeightTicketHandler) Handle(params progearops.UpdateProGear
 						&ghcmessages.Error{Message: &msg},
 					), err
 				case apperror.QueryError:
+					if e.Unwrap() != nil {
+						// If you can unwrap, log the error (usually a pq error) for better debugging
+						appCtx.Logger().Error(
+							"ghcapi.GetWeightTicketsHandler error",
+							zap.Error(e.Unwrap()),
+						)
+					}
 					return progearops.NewUpdateProGearWeightTicketInternalServerError(), err
 				default:
 					return progearops.NewUpdateProGearWeightTicketInternalServerError(), err
