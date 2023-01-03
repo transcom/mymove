@@ -34,6 +34,7 @@ describe('Services counselor user', () => {
   });
 
   it('is able to edit a PPM shipment', () => {
+    // use a move that will need counseling
     const moveLocator = 'PPMSCF';
 
     navigateToShipmentDetails(moveLocator);
