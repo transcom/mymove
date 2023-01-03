@@ -690,6 +690,12 @@ func createApprovedMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploa
 }
 
 func createApprovedMoveWithPPM2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	// Make a transportation office to use as the closeout office
+	closeoutOffice := testdatagen.MakeTransportationOffice(appCtx.DB(), testdatagen.Assertions{TransportationOffice: models.TransportationOffice{
+		Name: "Los Angeles AFB",
+	},
+	})
+
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("c28b2eb1-975f-49f7-b8a3-c7377c0da908"),
 		email:       "readyToFinish2@ppm.approved",
@@ -705,7 +711,9 @@ func createApprovedMoveWithPPM2(appCtx appcontext.AppContext, userUploader *uplo
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		Move: models.Move{
-			Status: models.MoveStatusAPPROVED,
+			Status:           models.MoveStatusAPPROVED,
+			CloseoutOffice:   &closeoutOffice,
+			CloseoutOfficeID: &closeoutOffice.ID,
 		},
 		MTOShipment: models.MTOShipment{
 			ID:     testdatagen.ConvertUUIDStringToUUID("ef256d30-a6e7-4be8-8a60-b4ffb7dc7a7f"),
@@ -1477,6 +1485,7 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
+			FinalIncentive:              models.CentPointer(50000000),
 		},
 	}
 
@@ -1735,7 +1744,7 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		Move: models.Move{
 			Locator:          locator,
 			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusNeedsServiceCounseling,
+			Status:           models.MoveStatusAPPROVED,
 			SubmittedAt:      &submittedAt,
 			PPMType:          models.StringPointer("FULL"),
 		},
@@ -1800,7 +1809,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 		Move: models.Move{
 			Locator:          locator,
 			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusNeedsServiceCounseling,
+			Status:           models.MoveStatusAPPROVED,
 			SubmittedAt:      &submittedAt,
 		},
 	})
@@ -1833,7 +1842,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 		Move:        move,
 		MTOShipment: mtoShipment2,
 		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusSubmitted,
+			Status: models.PPMShipmentStatusWaitingOnCustomer,
 		},
 	})
 
@@ -1880,7 +1889,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		Move: models.Move{
 			Locator:          locator,
 			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusNeedsServiceCounseling,
+			Status:           models.MoveStatusAPPROVED,
 			SubmittedAt:      &submittedAt,
 		},
 	})
@@ -1960,7 +1969,7 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 		Move: models.Move{
 			Locator:          locator,
 			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusNeedsServiceCounseling,
+			Status:           models.MoveStatusAPPROVED,
 			SubmittedAt:      &submittedAt,
 		},
 	})
@@ -2001,7 +2010,7 @@ func createMoveWithCloseoutOffice(appCtx appcontext.AppContext, userUploader *up
 	userID := uuid.Must(uuid.NewV4())
 	email := "closeoutoffice@ppm.closeout"
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	submittedAt := time.Now()
+	submittedAt := time.Date(2020, time.December, 11, 12, 0, 0, 0, time.UTC)
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
@@ -2025,7 +2034,10 @@ func createMoveWithCloseoutOffice(appCtx appcontext.AppContext, userUploader *up
 	})
 
 	// Make a transportation office to use as the closeout office
-	closeoutOffice := testdatagen.MakeDefaultTransportationOffice(appCtx.DB())
+	closeoutOffice := testdatagen.MakeTransportationOffice(appCtx.DB(), testdatagen.Assertions{TransportationOffice: models.TransportationOffice{
+		Name: "Los Angeles AFB",
+	},
+	})
 
 	// Make a move with the closeout office
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
@@ -2040,7 +2052,7 @@ func createMoveWithCloseoutOffice(appCtx appcontext.AppContext, userUploader *up
 			CloseoutOfficeID: &closeoutOffice.ID,
 			CloseoutOffice:   &closeoutOffice,
 			SubmittedAt:      &submittedAt,
-			Status:           models.MoveStatusNeedsServiceCounseling,
+			Status:           models.MoveStatusAPPROVED,
 		},
 	})
 
