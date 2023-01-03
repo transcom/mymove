@@ -48,6 +48,10 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
 		moveRouter,
 	)
+
+	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
+	closeoutOfficeUpdater := move.NewCloseoutOfficeUpdater(move.NewMoveFetcher(), transportationOfficeFetcher)
+
 	shipmentSITStatus := mtoshipment.NewShipmentSITStatus()
 
 	ghcAPI.ServeError = handlers.ServeCustomError
@@ -437,7 +441,12 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.TransportationOfficeGetTransportationOfficesHandler = GetTransportationOfficesHandler{
 		handlerConfig,
-		transportationoffice.NewTransportationOfficesFetcher(),
+		transportationOfficeFetcher,
+	}
+
+	ghcAPI.MoveUpdateCloseoutOfficeHandler = UpdateMoveCloseoutOfficeHandler{
+		handlerConfig,
+		closeoutOfficeUpdater,
 	}
 
 	return ghcAPI

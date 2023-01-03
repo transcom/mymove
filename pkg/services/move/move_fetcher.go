@@ -22,7 +22,9 @@ func NewMoveFetcher() services.MoveFetcher {
 // FetchMove retrieves a Move if it is visible for a given locator
 func (f moveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, searchParams *services.MoveFetcherParams) (*models.Move, error) {
 	move := &models.Move{}
-	query := appCtx.DB().Where("locator = $1", locator)
+	query := appCtx.DB().
+		EagerPreload("CloseoutOffice.Address").
+		Where("locator = $1", locator)
 
 	if searchParams == nil || !searchParams.IncludeHidden {
 		query.Where("show = TRUE")
