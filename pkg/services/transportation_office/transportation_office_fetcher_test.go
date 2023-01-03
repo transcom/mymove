@@ -29,7 +29,8 @@ func (suite *TransportationOfficeServiceSuite) Test_SearchTransportationOffice()
 
 	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
-			Name: "LRC Fort Knox",
+			Name:             "LRC Fort Knox",
+			ProvidesCloseout: true,
 		},
 	})
 	office, err := FindTransportationOffice(suite.DB(), "LRC Fort Knox")
@@ -52,19 +53,22 @@ func (suite *TransportationOfficeServiceSuite) Test_SortedTransportationOffices(
 
 	transportationOffice1 := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
-			Name: "JPPSO",
+			Name:             "JPPSO",
+			ProvidesCloseout: true,
 		},
 	})
 
 	transportationOffice3 := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
-			Name: "SO",
+			Name:             "SO",
+			ProvidesCloseout: true,
 		},
 	})
 
 	transportationOffice2 := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
-			Name: "PPSO",
+			Name:             "PPSO",
+			ProvidesCloseout: true,
 		},
 	})
 
