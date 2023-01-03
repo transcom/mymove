@@ -21,7 +21,8 @@ const {
 
 class OfficePage {
   /**
-   * @param {import('@playwright/test').Page} page
+   * @param {base.Page} page
+   * @param {base.APIRequestContext} request
    */
   constructor(page, request) {
     this.page = page;
@@ -163,11 +164,19 @@ class OfficePage {
   }
 }
 
-exports.test = base.test.extend({
+/**
+ * @typedef {object} OfficePageTestArgs - office page test args
+ * @property {OfficePage} officePage    - office page
+ */
+
+/** @type {base.Fixtures<OfficePageTestArgs, {}, base.PlaywrightTestArgs, base.PlaywrightWorkerArgs>} */
+const officeFixtures = {
   officePage: async ({ page, request }, use) => {
     const officePage = new OfficePage(page, request);
     await use(officePage);
   },
-});
+};
+
+exports.test = base.test.extend(officeFixtures);
 
 exports.expect = base.expect;
