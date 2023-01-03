@@ -185,7 +185,9 @@ export const usePPMShipmentDocsQueries = (shipmentID) => {
     enabled: !!shipmentID,
   });
 
-  const ppmShipmentID = mtoShipment?.ppmShipment?.id;
+  const ppmShipment = mtoShipment?.ppmShipment;
+
+  const ppmShipmentID = ppmShipment?.id;
 
   const { data: weightTickets = {}, ...weightTicketsQuery } = useQuery(
     [PPM_SHIPMENT, ppmShipmentID],
@@ -198,7 +200,7 @@ export const usePPMShipmentDocsQueries = (shipmentID) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, weightTicketsQuery]);
 
   return {
-    mtoShipment,
+    ppmShipment,
     weightTickets,
     isLoading,
     isError,
