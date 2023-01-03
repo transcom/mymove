@@ -23,3 +23,4 @@ export const COUNSELING_EVALUATION_REPORTS = 'counselingEvaluationReports';
 export const EVALUATION_REPORT = 'evaluationReport';
 export const PWS_VIOLATIONS = 'pwsViolations';
 export const REPORT_VIOLATIONS = 'reportViolations';
+export const PPM_SHIPMENT = 'ppmShipment';
