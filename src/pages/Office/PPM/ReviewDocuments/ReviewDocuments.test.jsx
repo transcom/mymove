@@ -1,5 +1,4 @@
 import React from 'react';
-import { mount } from 'enzyme';
 import { render, screen } from '@testing-library/react';
 
 import { ReviewDocuments } from './ReviewDocuments';
@@ -26,6 +25,16 @@ const mockXLSUpload = {
   url: '/storage/prime/99/uploads/10?contentType=image%2Fjpeg',
 };
 
+const mockJPGUpload = {
+  contentType: 'image/jpeg',
+  createdAt: '2020-09-17T16:00:48.099137Z',
+  filename: 'test.jpg',
+  id: '12',
+  status: 'PROCESSING',
+  updatedAt: '2020-09-17T16:00:48.099142Z',
+  url: '/storage/prime/99/uploads/10?contentType=image%2Fjpg',
+};
+
 jest.mock('hooks/queries', () => ({
   useMoveDetailsQueries: jest.fn(),
 }));
@@ -48,6 +57,9 @@ const useMoveDetailsQueriesReturnValue = {
             },
             fullDocument: {
               uploads: [mockXLSUpload],
+            },
+            proofOfTrailerOwnershipDocument: {
+              uploads: [mockJPGUpload],
             },
           },
         ],
@@ -94,17 +106,15 @@ describe('ReviewDocuments', () => {
   });
 
   describe('with data loaded', () => {
-    useMoveDetailsQueries.mockReturnValue(useMoveDetailsQueriesReturnValue);
-    const wrapper = mount(<ReviewDocuments {...requiredProps} />);
+    it('renders the DocumentViewer', async () => {
+      useMoveDetailsQueries.mockReturnValue(useMoveDetailsQueriesReturnValue);
+      render(<ReviewDocuments {...requiredProps} />);
 
-    it('renders without errors', () => {
-      expect(wrapper.find('[data-testid="ReviewDocuments"]').exists()).toBe(true);
-    });
-
-    it('renders the DocumentViewer', () => {
-      const documentViewer = wrapper.find('DocumentViewer');
-      expect(documentViewer.exists()).toBe(true);
-      expect(documentViewer.prop('files')).toEqual([mockPDFUpload, mockXLSUpload]);
+      const docs = await screen.getByText(/Documents/);
+      expect(docs).toBeInTheDocument();
+      expect(screen.getAllByText('test.pdf').length).toBe(2);
+      expect(screen.getByText('test.xls')).toBeInTheDocument();
+      expect(screen.getByText('test.jpg')).toBeInTheDocument();
     });
   });
 });
