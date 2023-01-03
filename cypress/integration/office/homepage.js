@@ -21,8 +21,8 @@ describe('Office Home Page', function () {
   // });
 
   it('office user can use a single click to view move info', function () {
-    cy.waitForReactTableLoad();
-    cy.get('[data-testid=queueTableRow]:first').click();
+    cy.signIntoOffice();
+    cy.get('tr[data-uuid]').first().click();
     cy.url().should('include', '/moves/');
   });
 });
