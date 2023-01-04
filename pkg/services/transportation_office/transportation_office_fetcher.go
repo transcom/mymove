@@ -65,6 +65,7 @@ func FindTransportationOffice(appCtx appcontext.AppContext, search string) (mode
 	with names as (select office.id as transportation_office_id, office.name, similarity(office.name, $1) as sim
         from transportation_offices as office
         where name % $1 and provides_ppm_closeout is true
+		order by sim desc
         limit 5)
 select office.*
         from names n inner join transportation_offices office on n.transportation_office_id = office.id
