@@ -322,6 +322,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation order.UpdateBillableWeight has not yet been implemented")
 		})
 	}
+	if api.MoveUpdateCloseoutOfficeHandler == nil {
+		api.MoveUpdateCloseoutOfficeHandler = move.UpdateCloseoutOfficeHandlerFunc(func(params move.UpdateCloseoutOfficeParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.UpdateCloseoutOffice has not yet been implemented")
+		})
+	}
 	if api.CustomerUpdateCustomerHandler == nil {
 		api.CustomerUpdateCustomerHandler = customer.UpdateCustomerHandlerFunc(func(params customer.UpdateCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.UpdateCustomer has not yet been implemented")

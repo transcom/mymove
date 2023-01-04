@@ -14,7 +14,9 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/assets"
+	"github.com/transcom/mymove/pkg/etag"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -53,6 +55,9 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 	if move.SubmittedAt != nil {
 		SubmittedAt = *move.SubmittedAt
 	}
+
+	eTag := etag.GenerateEtag(move.UpdatedAt)
+
 	movePayload := &internalmessages.MovePayload{
 		CreatedAt:               handlers.FmtDateTime(move.CreatedAt),
 		SubmittedAt:             handlers.FmtDateTime(SubmittedAt),
@@ -65,6 +70,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		OrdersID:                handlers.FmtUUID(order.ID),
 		ServiceMemberID:         *handlers.FmtUUID(order.ServiceMemberID),
 		Status:                  internalmessages.MoveStatus(move.Status),
+		ETag:                    &eTag,
 	}
 
 	if move.CloseoutOffice != nil {
@@ -107,45 +113,62 @@ func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Respond
 // PatchMoveHandler patches a move via PATCH /moves/{moveId}
 type PatchMoveHandler struct {
 	handlers.HandlerConfig
+	services.MoveCloseoutOfficeUpdater
 }
 
 // Handle ... patches a Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("PatchMoveHandler error", zap.Error(err))
+				switch errors.Cause(err) {
+				case models.ErrFetchForbidden:
+					return moveop.NewPatchMoveForbidden(), err
+				case models.ErrFetchNotFound:
+					return moveop.NewPatchMoveNotFound(), err
+				default:
+					switch err.(type) {
+					case apperror.NotFoundError:
+						return moveop.NewPatchMoveNotFound(), err
+					case apperror.PreconditionFailedError:
+						return moveop.NewPatchMovePreconditionFailed(), err
+					default:
+						return moveop.NewPatchMoveInternalServerError(), err
+					}
+				}
+			}
 
-			moveID, _ := uuid.FromString(params.MoveID.String())
+			if !appCtx.Session().IsMilApp() || !appCtx.Session().IsServiceMember() {
+				return moveop.NewPatchMoveUnauthorized(), nil
+			}
+
+			moveID := uuid.FromStringOrNil(params.MoveID.String())
 
 			// Validate that this move belongs to the current user
 			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+				return handleError(err)
 			}
-			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
 			// Fetch orders for authorized user
 			orders, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), move.OrdersID)
 			if err != nil {
-				return handlers.ResponseForError(logger, err), err
-			}
-			payload := params.PatchMovePayload
-			newSelectedMoveType := payload.SelectedMoveType
-
-			if newSelectedMoveType != nil {
-				stringSelectedMoveType := models.SelectedMoveType(*newSelectedMoveType)
-				move.SelectedMoveType = &stringSelectedMoveType
+				return handleError(err)
 			}
 
-			verrs, err := appCtx.DB().ValidateAndUpdate(move)
-			if err != nil || verrs.HasAny() {
-				return handlers.ResponseForVErrors(logger, verrs, err), err
+			closeoutOfficeID := uuid.FromStringOrNil(params.PatchMovePayload.CloseoutOfficeID.String())
+			move, err = h.MoveCloseoutOfficeUpdater.UpdateCloseoutOffice(appCtx, move.Locator, closeoutOfficeID, params.IfMatch)
+			if err != nil {
+				return handleError(err)
 			}
+
 			movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
 			if err != nil {
-				return handlers.ResponseForError(logger, err), err
+				return handleError(err)
 			}
 
-			return moveop.NewPatchMoveCreated().WithPayload(movePayload), nil
+			return moveop.NewPatchMoveOK().WithPayload(movePayload), nil
 		})
 }
 

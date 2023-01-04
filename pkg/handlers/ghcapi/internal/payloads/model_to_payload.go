@@ -63,6 +63,8 @@ func Move(move *models.Move) *ghcmessages.Move {
 		TioRemarks:                   handlers.FmtStringPtr(move.TIORemarks),
 		FinancialReviewFlag:          move.FinancialReviewFlag,
 		FinancialReviewRemarks:       move.FinancialReviewRemarks,
+		CloseoutOfficeID:             handlers.FmtUUIDPtr(move.CloseoutOfficeID),
+		CloseoutOffice:               TransportationOffice(move.CloseoutOffice),
 	}
 
 	return payload
@@ -258,7 +260,7 @@ func ReportViolation(reportViolation *models.ReportViolation) *ghcmessages.Repor
 
 // TransportationOffice payload
 func TransportationOffice(office *models.TransportationOffice) *ghcmessages.TransportationOffice {
-	if office.ID == uuid.Nil {
+	if office == nil || office.ID == uuid.Nil {
 		return nil
 	}
 
