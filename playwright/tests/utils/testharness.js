@@ -43,12 +43,20 @@ export async function buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForT
   return buildDefault(request, 'HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO');
 }
 
+export async function buildHHGMoveWithServiceItemsandPaymentRequestsForTIO(request) {
+  return buildDefault(request, 'HHGMoveWithServiceItemsandPaymentRequestsForTIO');
+}
+
 export async function buildHHGMoveWithNTSAndNeedsSC(request) {
   return buildDefault(request, 'HHGMoveWithNTSAndNeedsSC');
 }
 
 export async function buildNTSRMoveWithPaymentRequest(request) {
   return buildDefault(request, 'NTSRMoveWithPaymentRequest');
+}
+
+export async function buildNTSRMoveWithServiceItemsAndPaymentRequest(request) {
+  return buildDefault(request, 'NTSRMoveWithServiceItemsAndPaymentRequest');
 }
 
 export async function buildPrimeSimulatorMoveNeedsShipmentUpdate(request) {

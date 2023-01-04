@@ -17,9 +17,11 @@ const {
   buildPPMInProgressMove,
   buildOfficeUserWithTOOAndTIO,
   buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO,
+  buildHHGMoveWithServiceItemsandPaymentRequestsForTIO,
   buildPrimeSimulatorMoveNeedsShipmentUpdate,
   buildHHGMoveWithNTSAndNeedsSC,
   buildNTSRMoveWithPaymentRequest,
+  buildNTSRMoveWithServiceItemsAndPaymentRequest,
 } = require('./testharness');
 
 class OfficePage {
@@ -207,6 +209,13 @@ class OfficePage {
   }
 
   /**
+   * Use testharness to build move for TIO flow
+   */
+  async buildHHGMoveWithServiceItemsandPaymentRequestsForTIO() {
+    return buildHHGMoveWithServiceItemsandPaymentRequestsForTIO(this.request);
+  }
+
+  /**
    * Use testharness to build HHG Move with NTS that needs Service Counseling
    */
   async buildHHGMoveWithNTSAndNeedsSC() {
@@ -218,6 +227,13 @@ class OfficePage {
    */
   async buildNTSRMoveWithPaymentRequest() {
     return buildNTSRMoveWithPaymentRequest(this.request);
+  }
+
+  /**
+   * Use testharness to build NTS-R Move with Service Items and a Payment Request
+   */
+  async buildNTSRMoveWithServiceItemsAndPaymentRequest() {
+    return buildNTSRMoveWithServiceItemsAndPaymentRequest(this.request);
   }
 
   /**
