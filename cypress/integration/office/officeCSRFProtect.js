@@ -15,7 +15,7 @@ describe('testing CSRF protection', function () {
     method: 'POST',
     body: {
       id: userId,
-      userType: ServicesCounselorOfficeUserType,
+      userType: TOOOfficeUserType,
     },
     form: true,
     failOnStatusCode: false,

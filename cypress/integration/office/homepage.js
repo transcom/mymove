@@ -11,15 +11,6 @@ describe('Office Home Page', function () {
     cy.contains('Sign in');
   });
 
-  // it('open accepted shipments queue and see moves', function () {
-  //   cy.signInAsNewTOOUser();
-  //   cy.patientVisit('/queues/all');
-  //   cy.location().should((loc) => {
-  //     expect(loc.pathname).to.match(/^\/queues\/all/);
-  //   });
-  //   cy.get('[data-testid=locator]').contains('NOSHOW').should('not.exist');
-  // });
-
   it('office user can use a single click to view move info', function () {
     cy.signIntoOffice();
     cy.get('tr[data-uuid]').first().click();
@@ -97,16 +88,4 @@ describe('Queue staleness indicator', () => {
     cy.prepareOfficeApp();
     cy.clearAllCookies();
   });
-
-  // it('displays the correct time ago text', () => {
-  //   cy.clock();
-  //   cy.signInAsNewTOOUser();
-  //   cy.patientVisit('/queues/all');
-
-  //   cy.get('[data-testid=staleness-indicator]').contains('Last updated a few seconds ago');
-
-  //   cy.tick(120000);
-
-  //   cy.get('[data-testid=staleness-indicator]').contains('Last updated 2 mins ago');
-  // });
 });
