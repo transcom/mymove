@@ -293,7 +293,7 @@ const ppmShipmentQuery = {
       requestedDeliveryDate: '0001-01-01',
       requestedPickupDate: '0001-01-01',
       shipmentType: 'PPM',
-      status: 'SUBMITTED',
+      status: 'APPROVED',
       updatedAt: '2022-11-08T23:44:58.217Z',
     },
     {
@@ -343,7 +343,7 @@ const ppmShipmentQuery = {
       requestedDeliveryDate: '0001-01-01',
       requestedPickupDate: '0001-01-01',
       shipmentType: 'PPM',
-      status: 'SUBMITTED',
+      status: 'APPROVED',
       updatedAt: '2022-11-08T23:44:58.217Z',
     },
     {
@@ -553,7 +553,6 @@ describe('MoveDetails page', () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
 
       render(mockedComponent);
-
       expect(screen.getAllByRole('button', { name: 'Review documents' }).length).toBe(2);
     });
 

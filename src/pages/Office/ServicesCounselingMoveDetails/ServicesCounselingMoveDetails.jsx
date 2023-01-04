@@ -73,7 +73,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const errorIfMissing = { HHG_OUTOF_NTS_DOMESTIC: ['storageFacility'] };
 
   let shipmentsInfo = [];
-  let ppmShipmentsInfo = [];
+  let ppmShipmentsInfoNeedsApproval = [];
   let ppmShipmentsOtherStatuses = [];
   let disableSubmit = false;
   let disableSubmitDueToMissingOrderInfo = false;
@@ -100,7 +100,6 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     const submittedShipmentsNonPPM = submittedShipments.filter(
       (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
     );
-    // const submittedShipmentsNonPPM = submittedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
     const ppmNeedsApprovalShipments = submittedShipments.filter(
       (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
     );
@@ -109,13 +108,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
       (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
     );
 
-    ppmShipmentsInfo = ppmNeedsApprovalShipments.map((shipment) => {
+    ppmShipmentsInfoNeedsApproval = ppmNeedsApprovalShipments.map((shipment) => {
       const reviewURL = generatePath(servicesCounselingRoutes.SHIPMENT_REVIEW_PATH, {
         moveCode,
         shipmentId: shipment.id,
       });
-
-      const indexNum = ppmNeedsApprovalShipments.indexOf(shipment);
 
       const numberofPPMShipments = ppmNeedsApprovalShipments.length;
 
@@ -162,13 +159,12 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
         id: shipment.id,
         displayInfo,
         reviewURL,
-        indexNum,
         numberofPPMShipments,
         shipmentType: shipment.shipmentType,
       };
     });
 
-    const counselorCanReview = ppmShipmentsInfo.length > 0;
+    const counselorCanReview = ppmShipmentsInfoNeedsApproval.length > 0;
     counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && ppmShipmentsOtherStatuses.length > 0;
     counselorCanEditNonPPM =
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
@@ -397,7 +393,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <Grid col={6} className={scMoveDetailsStyles.pageTitle}>
               <h1>Move details</h1>
             </Grid>
-            {ppmShipmentsInfo.length > 0 ? null : (
+            {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
               <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
                 {(counselorCanEdit || counselorCanEditNonPPM) && (
                   <Button
@@ -432,7 +428,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
               }
               financialReviewOpen={handleShowFinancialReviewModal}
               title="Shipments"
-              ppmShipmentInfo={ppmShipmentsInfo}
+              ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
                 <div className={scMoveDetailsStyles.scFinancialReviewContainer}>
@@ -459,10 +455,9 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                     neverShow={neverShow[shipment.shipmentType]}
                   />
                 ))}
-                {ppmShipmentsInfo.length > 0 &&
-                  ppmShipmentsInfo.map((shipment) => (
+                {ppmShipmentsInfoNeedsApproval.length > 0 &&
+                  ppmShipmentsInfoNeedsApproval.map((shipment) => (
                     <ShipmentDisplay
-                      indexNum={shipment.indexNum}
                       numberofPPMShipments={shipment.numberofPPMShipments}
                       displayInfo={shipment.displayInfo}
                       reviewURL={shipment.reviewURL}
@@ -495,7 +490,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   </Link>
                 )
               }
-              ppmShipmentInfo={ppmShipmentsInfo}
+              ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
               <OrdersList ordersInfo={ordersInfo} />
             </DetailsPanel>
@@ -514,7 +509,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   </Link>
                 )
               }
-              ppmShipmentInfo={ppmShipmentsInfo}
+              ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
               <AllowancesList info={allowancesInfo} showVisualCues />
             </DetailsPanel>
@@ -533,7 +528,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   </Link>
                 )
               }
-              ppmShipmentInfo={ppmShipmentsInfo}
+              ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
               <CustomerInfoList customerInfo={customerInfo} />
             </DetailsPanel>

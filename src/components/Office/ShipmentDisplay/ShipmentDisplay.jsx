@@ -33,8 +33,6 @@ const ShipmentDisplay = ({
   errorIfMissing,
   showWhenCollapsed,
   neverShow,
-  numberofPPMShipments,
-  indexNum,
 }) => {
   const history = useHistory();
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !allowApproval });
@@ -75,18 +73,9 @@ const ShipmentDisplay = ({
             <FontAwesomeIcon icon={['far', 'circle-check']} className={styles.approved} />
           )}
           <div className={classnames(styles.headingTagWrapper, styles.serviceCounselingShipments)}>
-            {shipmentType === 'PPM' && numberofPPMShipments > 1 ? (
-              <h3>
-                <label id={`shipment-display-label-${shipmentId}`}>
-                  {displayInfo.heading}&nbsp;
-                  {indexNum + 1}
-                </label>
-              </h3>
-            ) : (
-              <h3>
-                <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
-              </h3>
-            )}
+            <h3>
+              <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
+            </h3>
             {displayInfo.isDiversion && <Tag>diversion</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && <Tag>diversion requested</Tag>}
@@ -201,8 +190,6 @@ ShipmentDisplay.propTypes = {
   allowApproval: PropTypes.bool,
   editURL: PropTypes.string,
   reviewURL: PropTypes.string,
-  numberofPPMShipments: PropTypes.number,
-  indexNum: PropTypes.number,
   ordersLOA: OrdersLOAShape,
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
@@ -216,8 +203,6 @@ ShipmentDisplay.defaultProps = {
   allowApproval: true,
   editURL: '',
   reviewURL: '',
-  numberofPPMShipments: 0,
-  indexNum: 0,
   ordersLOA: {
     tac: '',
     sac: '',
