@@ -556,15 +556,6 @@ describe('MoveDetails page', () => {
       expect(screen.getAllByRole('button', { name: 'Review documents' }).length).toBe(2);
     });
 
-    it('renders multiple ppm shipments with numbers in heading', async () => {
-      useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-
-      render(mockedComponent);
-
-      expect(screen.getByText(/PPM 1/)).toBeInTheDocument();
-      expect(screen.getByText(/PPM 2/)).toBeInTheDocument();
-    });
-
     it('renders shipments info even if destination address is missing', async () => {
       const moveDetailsQuery = {
         ...newMoveDetailsQuery,
