@@ -70,6 +70,7 @@ var ServicesCounselor = RolePermissions{
 		"update.billableWeight",
 		"update.MTOServiceItem",
 		"update.customer",
+		"update.closeoutOffice",
 	},
 }
 
