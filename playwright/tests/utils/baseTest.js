@@ -9,7 +9,8 @@ const { newSignIn } = require('./signIn');
 const { newTestHarness } = require('./testharness');
 
 /**
- * BaseTestPage
+ * base test fixture for playwright
+ * See https://playwright.dev/docs/test-fixtures
  */
 export class BaseTestPage {
   /**

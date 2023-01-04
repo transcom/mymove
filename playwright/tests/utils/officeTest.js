@@ -9,7 +9,8 @@ const base = require('@playwright/test');
 const { BaseTestPage } = require('./baseTest');
 
 /**
- * OfficePage
+ * office test fixture for playwright
+ * See https://playwright.dev/docs/test-fixtures
  * @extends BaseTestPage
  */
 class OfficePage extends BaseTestPage {
@@ -124,6 +125,17 @@ class OfficePage extends BaseTestPage {
     await this.waitForLoading();
 
     base.expect(this.page.url()).toContain(`/moves/${moveLocator}/details`);
+  }
+
+  /**
+   * TIO search for and navigate to move
+   * @param {string} moveLocator
+   */
+  async tioNavigateToMove(moveLocator) {
+    await this.page.locator('#locator').type(moveLocator);
+    await this.page.locator('th[data-testid="locator"]').first().click();
+    await this.page.locator('[data-testid="locator-0"]').click();
+    await this.waitForLoading();
   }
 }
 
