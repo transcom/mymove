@@ -487,11 +487,14 @@ export function submitExpensePage(options = { isEditExpense: false }) {
 }
 
 export function verifyFinalIncentiveAndTotals(
-  options = { totalNetWeight: '4,000 lbs', proGearWeight: '1,500 lbs', expensesClaimed: '450.00' },
+  options = {
+    totalNetWeight: '4,000 lbs',
+    proGearWeight: '1,500 lbs',
+    expensesClaimed: '450.00',
+    finalIncentiveAmount: '$500,000.00',
+  },
 ) {
-  // TODO: Once we get back final incentive, set a value in the testdatagen func
-  //  createMoveWithPPMShipmentReadyForFinalCloseout and check for it here.
-  // cy.get('h2').contains('Your final estimated incentive: $0.00');
+  cy.get('h2').contains(`Your final estimated incentive: ${options?.finalIncentiveAmount}`);
 
   cy.get('li').contains(`${options?.totalNetWeight} total net weight`);
 

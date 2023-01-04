@@ -63,6 +63,8 @@ func Move(move *models.Move) *ghcmessages.Move {
 		TioRemarks:                   handlers.FmtStringPtr(move.TIORemarks),
 		FinancialReviewFlag:          move.FinancialReviewFlag,
 		FinancialReviewRemarks:       move.FinancialReviewRemarks,
+		CloseoutOfficeID:             handlers.FmtUUIDPtr(move.CloseoutOfficeID),
+		CloseoutOffice:               TransportationOffice(move.CloseoutOffice),
 	}
 
 	return payload
@@ -252,6 +254,41 @@ func ReportViolation(reportViolation *models.ReportViolation) *ghcmessages.Repor
 		ViolationID: violationID,
 		ReportID:    reportID,
 		Violation:   PWSViolationItem(&reportViolation.Violation),
+	}
+	return payload
+}
+
+// TransportationOffice payload
+func TransportationOffice(office *models.TransportationOffice) *ghcmessages.TransportationOffice {
+	if office == nil || office.ID == uuid.Nil {
+		return nil
+	}
+
+	phoneLines := []string{}
+	for _, phoneLine := range office.PhoneLines {
+		if phoneLine.Type == "voice" {
+			phoneLines = append(phoneLines, phoneLine.Number)
+		}
+	}
+
+	payload := &ghcmessages.TransportationOffice{
+		ID:         handlers.FmtUUID(office.ID),
+		CreatedAt:  handlers.FmtDateTime(office.CreatedAt),
+		UpdatedAt:  handlers.FmtDateTime(office.UpdatedAt),
+		Name:       swag.String(office.Name),
+		Gbloc:      office.Gbloc,
+		Address:    Address(&office.Address),
+		PhoneLines: phoneLines,
+	}
+	return payload
+}
+
+func TransportationOffices(transportationOffices models.TransportationOffices) ghcmessages.TransportationOffices {
+	payload := make(ghcmessages.TransportationOffices, len(transportationOffices))
+
+	for i, to := range transportationOffices {
+		transportationOffice := to
+		payload[i] = TransportationOffice(&transportationOffice)
 	}
 	return payload
 }

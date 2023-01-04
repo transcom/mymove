@@ -5,9 +5,9 @@ go 1.19
 require (
 	github.com/DATA-DOG/go-txdb v0.1.5
 	github.com/XSAM/otelsql v0.17.1
-	github.com/alexedwards/scs/redisstore v0.0.0-20221206171621-0f0849773278
+	github.com/alexedwards/scs/redisstore v0.0.0-20221223131519-238b052508b6
 	github.com/alexedwards/scs/v2 v2.5.0
-	github.com/aws/aws-sdk-go v1.44.162
+	github.com/aws/aws-sdk-go v1.44.171
 	github.com/benbjohnson/clock v1.3.0
 	github.com/codegangsta/gin v0.0.0-20211113050330-71f90109db02
 	github.com/disintegration/imaging v1.6.2
@@ -50,7 +50,7 @@ require (
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.5
-	github.com/pterm/pterm v0.12.50
+	github.com/pterm/pterm v0.12.51
 	github.com/rickar/cal/v2 v2.1.9
 	github.com/spf13/afero v1.9.3
 	github.com/spf13/cobra v1.6.1
@@ -61,7 +61,7 @@ require (
 	github.com/tealeg/xlsx/v3 v3.2.4
 	github.com/tiaguinho/gosoap v1.4.4
 	github.com/trussworks/otelhttp v0.0.0-20220801182039-09272611890b
-	github.com/vektra/mockery/v2 v2.15.0
+	github.com/vektra/mockery/v2 v2.16.0
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.12.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.37.0
@@ -98,6 +98,7 @@ require (
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/brunoscheufler/aws-ecs-metadata-go v0.0.0-20220812150832-b6b31c6eeeaf // indirect
 	github.com/cenkalti/backoff/v4 v4.2.0 // indirect
+	github.com/chigopher/pathlib v0.12.0 // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect

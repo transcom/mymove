@@ -30,6 +30,7 @@ import (
 	pwsviolation "github.com/transcom/mymove/pkg/services/pws_violation"
 	"github.com/transcom/mymove/pkg/services/query"
 	reportviolation "github.com/transcom/mymove/pkg/services/report_violation"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 )
 
@@ -47,6 +48,10 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
 		moveRouter,
 	)
+
+	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
+	closeoutOfficeUpdater := move.NewCloseoutOfficeUpdater(move.NewMoveFetcher(), transportationOfficeFetcher)
+
 	shipmentSITStatus := mtoshipment.NewShipmentSITStatus()
 
 	ghcAPI.ServeError = handlers.ServeCustomError
@@ -432,6 +437,16 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.ReportViolationsGetReportViolationsByReportIDHandler = GetReportViolationsHandler{
 		handlerConfig,
 		reportviolation.NewReportViolationFetcher(),
+	}
+
+	ghcAPI.TransportationOfficeGetTransportationOfficesHandler = GetTransportationOfficesHandler{
+		handlerConfig,
+		transportationOfficeFetcher,
+	}
+
+	ghcAPI.MoveUpdateCloseoutOfficeHandler = UpdateMoveCloseoutOfficeHandler{
+		handlerConfig,
+		closeoutOfficeUpdater,
 	}
 
 	return ghcAPI

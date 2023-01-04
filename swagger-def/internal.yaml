@@ -14,6 +14,26 @@ consumes:
   - application/json
 produces:
   - application/json
+tags:
+  - name: responses
+  - name: orders
+  - name: certification
+  - name: moves
+  - name: office
+  - name: documents
+  - name: uploads
+  - name: service_members
+  - name: backup_contacts
+  - name: duty_locations
+  - name: transportation_offices
+  - name: queues
+  - name: entitlements
+  - name: calendar
+  - name: move_docs
+  - name: ppm
+  - name: postal_codes
+  - name: addresses
+  - name: mtoShipment
 definitions:
   LoggedInUserPayload:
     type: object
@@ -619,16 +639,21 @@ definitions:
         $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
       mto_shipments:
         $ref: '#/definitions/MTOShipments'
+      closeout_office:
+        $ref: 'definitions/TransportationOffice.yaml'
       cancel_reason:
         type: string
         example: 'Change of orders'
         x-nullable: true
+      eTag:
+        type: string
     required:
       - id
       - orders_id
       - locator
       - created_at
       - updated_at
+      - eTag
   CancelMove:
     type: object
     properties:
@@ -641,8 +666,12 @@ definitions:
   PatchMovePayload:
     type: object
     properties:
-      selected_move_type:
-        $ref: '#/definitions/SelectedMoveType'
+      closeoutOfficeId:
+        type: string
+        format: uuid
+        description: The transportation office that will handle the PPM shipment's closeout approvals for Army and Air Force service members
+    required:
+      - closeoutOfficeId
   SelectedMoveType:
     type: string
     title: Selected Move Type
@@ -990,6 +1019,10 @@ definitions:
       trailerMeetsCriteria:
         description: Indicates if the trailer that the customer used meets all the criteria to be claimable.
         type: boolean
+  TransportationOffices:
+    type: array
+    items:
+      $ref: 'definitions/TransportationOffice.yaml'
   OfficeUser:
     type: object
     properties:
@@ -2857,13 +2890,14 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
+        - $ref: 'parameters/ifMatch.yaml'
         - in: body
           name: patchMovePayload
           required: true
           schema:
             $ref: '#/definitions/PatchMovePayload'
       responses:
-        '201':
+        '200':
           description: updated instance of move
           schema:
             $ref: '#/definitions/MovePayload'
@@ -2874,7 +2908,11 @@ paths:
         '403':
           description: user is not authorized
         '404':
-          description: move is not found
+          description: move or closeout office is not found
+        '412':
+          description: precondition failed
+        '422':
+          description: unprocessable entity
         '500':
           description: internal server error
     get:
@@ -4172,6 +4210,37 @@ paths:
           description: transportation office not found
         '500':
           description: internal server error
+  /transportation-offices:
+    get:
+      produces:
+        - application/json
+      summary: Returns the transportation offices matching the search query
+      description: Returns the transportation offices matching the search query
+      operationId: getTransportationOffices
+      tags:
+        - transportation_offices
+      parameters:
+        - in: query
+          name: search
+          type: string
+          required: true
+          minLength: 2
+          description: Search string for transportation offices
+      responses:
+        '200':
+          description: Successfully retrieved transportation offices
+          schema:
+            $ref: '#/definitions/TransportationOffices'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/{queueType}:
     get:
       summary: Show all moves in a queue

@@ -27,6 +27,7 @@ import (
 	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	"github.com/transcom/mymove/pkg/services/query"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 )
 
@@ -48,6 +49,8 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
 	mtoShipmentRouter := mtoshipment.NewShipmentRouter()
 	ppmShipmentRouter := ppmshipment.NewPPMShipmentRouter(mtoShipmentRouter)
+	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
+	closeoutOfficeUpdater := move.NewCloseoutOfficeUpdater(move.NewMoveFetcher(), transportationOfficeFetcher)
 
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{handlerConfig, officeuser.NewOfficeUserFetcherPop()}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{handlerConfig}
@@ -74,7 +77,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		order.NewOrderUpdater(moveRouter),
 	}
 
-	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{handlerConfig}
+	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{handlerConfig, closeoutOfficeUpdater}
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler{handlerConfig}
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler{
 		handlerConfig,
@@ -190,6 +193,11 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	ppmShipmentUpdatedSubmitter := ppmshipment.NewPPMShipmentUpdatedSubmitter(signedCertificationUpdater, ppmShipmentRouter)
 
 	internalAPI.PpmResubmitPPMShipmentDocumentationHandler = ResubmitPPMShipmentDocumentationHandler{handlerConfig, ppmShipmentUpdatedSubmitter}
+
+	internalAPI.TransportationOfficesGetTransportationOfficesHandler = GetTransportationOfficesHandler{
+		handlerConfig,
+		transportationOfficeFetcher,
+	}
 
 	return internalAPI
 }

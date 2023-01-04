@@ -37,7 +37,9 @@ COPY pkg /build/pkg
 # fake src dir to silence make
 RUN mkdir /build/src
 
+# fake the .go-version
 RUN set -x \
+  && touch .go-version \
   && make bin/rds-ca-2019-root.pem \
   && rm -f bin/milmove && make bin/milmove \
   && make bin/generate-test-data

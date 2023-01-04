@@ -29,6 +29,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/transportation_office"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/ghc.yaml --api-package ghcoperations --model-package ghcmessages --server-package ghcapi --principal interface{} --exclude-main
@@ -246,6 +247,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation payment_requests.GetShipmentsPaymentSITBalance has not yet been implemented")
 		})
 	}
+	if api.TransportationOfficeGetTransportationOfficesHandler == nil {
+		api.TransportationOfficeGetTransportationOfficesHandler = transportation_office.GetTransportationOfficesHandlerFunc(func(params transportation_office.GetTransportationOfficesParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_office.GetTransportationOffices has not yet been implemented")
+		})
+	}
 	if api.PpmGetWeightTicketsHandler == nil {
 		api.PpmGetWeightTicketsHandler = ppm.GetWeightTicketsHandlerFunc(func(params ppm.GetWeightTicketsParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.GetWeightTickets has not yet been implemented")
@@ -314,6 +320,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.OrderUpdateBillableWeightHandler == nil {
 		api.OrderUpdateBillableWeightHandler = order.UpdateBillableWeightHandlerFunc(func(params order.UpdateBillableWeightParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.UpdateBillableWeight has not yet been implemented")
+		})
+	}
+	if api.MoveUpdateCloseoutOfficeHandler == nil {
+		api.MoveUpdateCloseoutOfficeHandler = move.UpdateCloseoutOfficeHandlerFunc(func(params move.UpdateCloseoutOfficeParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.UpdateCloseoutOffice has not yet been implemented")
 		})
 	}
 	if api.CustomerUpdateCustomerHandler == nil {
