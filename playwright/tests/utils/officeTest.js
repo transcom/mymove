@@ -107,23 +107,23 @@ class OfficePage extends BaseTestPage {
 
   /**
    * search for and navigate to move
-   * @param {string} moveCode
+   * @param {string} moveLocator
    */
-  async searchForAndNavigateToMove(moveCode) {
-    await this.page.locator('input[name="searchText"]').type(moveCode);
+  async qaeCsrSearchForAndNavigateToMove(moveLocator) {
+    await this.page.locator('input[name="searchText"]').type(moveLocator);
     await this.page.locator('input[name="searchText"]').blur();
 
     await this.page.getByRole('button', { name: 'Search' }).click();
     await this.waitForLoading();
 
     await base.expect(this.page.locator('tbody >> tr')).toHaveCount(1);
-    base.expect(this.page.locator('tbody >> tr').first()).toContainText(moveCode);
+    base.expect(this.page.locator('tbody >> tr').first()).toContainText(moveLocator);
 
     // click result to navigate to move details page
     await this.page.locator('tbody > tr').first().click();
     await this.waitForLoading();
 
-    base.expect(this.page.url()).toContain(`/moves/${moveCode}/details`);
+    base.expect(this.page.url()).toContain(`/moves/${moveLocator}/details`);
   }
 }
 
