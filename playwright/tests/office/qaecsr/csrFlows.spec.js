@@ -8,7 +8,7 @@ test.describe('Customer Support User Flows', () => {
       const moveCode = move.locator;
 
       await officePage.signInAsNewQAECSRUser();
-      await officePage.searchForAndNavigateToMove(moveCode);
+      await officePage.qaeCsrSearchForAndNavigateToMove(moveCode);
 
       // Go to Customer support remarks
       await page.getByText('Customer support remarks').click();
@@ -97,7 +97,7 @@ test.describe('Customer Support User Flows', () => {
       await Promise.all([page.waitForNavigation(), await page.getByText('Sign out').click()]);
 
       await officePage.signInAsNewQAECSRUser();
-      await officePage.searchForAndNavigateToMove(moveCode);
+      await officePage.qaeCsrSearchForAndNavigateToMove(moveCode);
 
       // Go to Customer support remarks
       await page.getByText('Customer support remarks').click();
@@ -116,7 +116,7 @@ test.describe('Customer Support User Flows', () => {
       const moveCode = move.locator;
 
       await officePage.signInAsNewQAECSRUser();
-      await officePage.searchForAndNavigateToMove(moveCode);
+      await officePage.qaeCsrSearchForAndNavigateToMove(moveCode);
 
       // Navigate to view orders page
       await page.locator('[data-testid="view-orders"]').getByText('View orders').click();
@@ -138,7 +138,7 @@ test.describe('Customer Support User Flows', () => {
       const moveCode = move.locator;
 
       await officePage.signInAsNewQAECSRUser();
-      await officePage.searchForAndNavigateToMove(moveCode);
+      await officePage.qaeCsrSearchForAndNavigateToMove(moveCode);
 
       // Navigate to view allowances page
       await page.locator('[data-testid="view-allowances"]').getByText('View allowances').click();

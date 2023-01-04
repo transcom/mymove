@@ -149,7 +149,7 @@ class OfficePage {
    * search for and navigate to move
    * @param {string} moveCode
    */
-  async searchForAndNavigateToMove(moveCode) {
+  async qaeCsrSearchForAndNavigateToMove(moveCode) {
     await this.page.locator('input[name="searchText"]').type(moveCode);
     await this.page.locator('input[name="searchText"]').blur();
 

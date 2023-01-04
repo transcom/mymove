@@ -9,7 +9,7 @@ test.describe('QAE/CSR Move Search', () => {
     await officePage.signInAsNewQAECSRUser();
 
     // Type move code into search bar (move code is default search type)
-    await officePage.searchForAndNavigateToMove(moveCode);
+    await officePage.qaeCsrSearchForAndNavigateToMove(moveCode);
     await expect(page.locator('h1').getByText('Move details', { exact: true })).toBeVisible();
   });
 
