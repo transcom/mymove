@@ -14,7 +14,8 @@ import (
 func (suite *HandlerSuite) TestGetTransportationOfficesHandler() {
 	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
-			Name: "LRC Fort Knox",
+			Name:             "LRC Fort Knox",
+			ProvidesCloseout: true,
 		},
 	})
 	fetcher := transportationofficeservice.NewTransportationOfficesFetcher()
