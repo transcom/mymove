@@ -448,6 +448,21 @@ describe('Office App', () => {
           '/simulator/moves/AU67C6/payment-requests/new',
           '/simulator/moves/:moveCodeOrID/payment-requests/new',
         ],
+        [
+          'PrimeSimulatorUpdateAddress',
+          '/simulator/moves/AU67C6/shipments/c73d3fbd-8a93-4bd9-8c0b-99bd52e45b2c/addresses/update',
+          '/simulator/moves/:moveCodeOrID/shipments/:shipmentId/addresses/update',
+        ],
+        [
+          'PrimeSimulatorCreatePaymentRequest',
+          '/simulator/moves/AU67C6/payment-requests/new',
+          '/simulator/moves/:moveCodeOrID/payment-requests/new',
+        ],
+        [
+          'PrimeSimulatorCreateServiceItem',
+          '/simulator/moves/AU67C6/shipments/c73d3fbd-8a93-4bd9-8c0b-99bd52e45b2c/service-items/new',
+          '/simulator/moves/:moveCodeOrID/shipments/:shipmentId/service-items/new',
+        ],
       ])('handles a %s URL (%s) with a given path of %s', (pageName, initialURL, pathToMatch) => {
         const app = mount(
           <MockProviders initialState={loggedInPrimeSimulatorState} initialEntries={[initialURL]}>
@@ -459,6 +474,39 @@ describe('Office App', () => {
         expect(renderedRoute).toHaveLength(1);
         expect(renderedRoute.prop('path')).toEqual(pathToMatch);
       });
+    });
+
+    describe('QAE/CSR Routes', () => {
+      const loggedInQAECSRState = {
+        auth: {
+          activeRole: roleTypes.QAE_CSR,
+          isLoading: false,
+          isLoggedIn: true,
+        },
+        entities: {
+          user: {
+            userId123: {
+              id: 'userId123',
+              roles: [{ roleType: roleTypes.QAE_CSR }],
+            },
+          },
+        },
+      };
+
+      it.each([['QAECSRMoveSearch', '/qaecsr/search', '/qaecsr/search']])(
+        'handles a %s URL (%s) with a given path of %s',
+        (pageName, initialURL, pathToMatch) => {
+          const app = mount(
+            <MockProviders initialState={loggedInQAECSRState} initialEntries={[initialURL]}>
+              <ConnectedOffice />
+            </MockProviders>,
+          );
+
+          const renderedRoute = app.find('PrivateRoute');
+          expect(renderedRoute).toHaveLength(1);
+          expect(renderedRoute.prop('path')).toEqual(pathToMatch);
+        },
+      );
     });
 
     describe('page not found route', () => {
