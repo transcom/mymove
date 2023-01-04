@@ -47,6 +47,10 @@ export async function buildHHGMoveWithNTSAndNeedsSC(request) {
   return buildDefault(request, 'HHGMoveWithNTSAndNeedsSC');
 }
 
+export async function buildNTSRMoveWithPaymentRequest(request) {
+  return buildDefault(request, 'NTSRMoveWithPaymentRequest');
+}
+
 export async function buildPrimeSimulatorMoveNeedsShipmentUpdate(request) {
   return buildDefault(request, 'PrimeSimulatorMoveNeedsShipmentUpdate');
 }

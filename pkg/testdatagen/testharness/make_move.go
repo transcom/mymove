@@ -578,8 +578,8 @@ func MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext) mod
 	return *newmove
 }
 
+// MakeHHGMoveWithNTSAndNeedsSC is similar to old shared.createUserWithLocatorAndDODID
 func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
-	// similar to old shared.createUserWithLocatorAndDODID
 
 	submittedAt := time.Now()
 	ntsMoveType := models.SelectedMoveTypeNTS
@@ -632,5 +632,151 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
 	}
 	return *newmove
+}
 
+// MakeNTSRMoveWithPaymentRequest is similar to old shared.createNTSRMoveWithPaymentRequest
+func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
+	// initialize this directly with defaults instead of using command
+	// line options. Simple for now, we can revist if we need to
+	fsParams := storage.NewFilesystemParams("tmp", "storage")
+	storer := storage.NewFilesystem(fsParams)
+
+	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	if err != nil {
+		appCtx.Logger().Fatal("could not instantiate user uploader", zap.Error(err))
+	}
+
+	currentTime := time.Now()
+	tac := "1111"
+
+	// Create Customer
+	email := strings.ToLower(fmt.Sprintf("%scustomer_%s@example.com",
+		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
+	username := strings.Split(email, "@")[0]
+	firstName := strings.Split(username, "_")[0]
+	lastName := username[len(firstName)+1:]
+	customer := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			PersonalEmail: &email,
+			FirstName:     &firstName,
+			LastName:      &lastName,
+		},
+	})
+
+	// Create Orders
+	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: customer.ID,
+			ServiceMember:   customer,
+			TAC:             &tac,
+		},
+		UserUploader: userUploader,
+	})
+
+	// Create Move
+	selectedMoveType := models.SelectedMoveTypeNTSR
+	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			OrdersID:           orders.ID,
+			AvailableToPrimeAt: swag.Time(time.Now()),
+			SelectedMoveType:   &selectedMoveType,
+			SubmittedAt:        &currentTime,
+		},
+		Order: orders,
+	})
+
+	// Create Pickup Address
+	shipmentPickupAddress := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			// KKFA GBLOC
+			PostalCode: "85004",
+		},
+	})
+
+	// Create Storage Facility
+	storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			// KKFA GBLOC
+			PostalCode: "85004",
+		},
+	})
+
+	// Create NTS-R Shipment
+	tacType := models.LOATypeHHG
+	serviceOrderNumber := testdatagen.MakeRandomNumberString(4)
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+	ntsrShipment := testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ApprovedDate:         swag.Time(time.Now()),
+			PickupAddress:        &shipmentPickupAddress,
+			TACType:              &tacType,
+			Status:               models.MTOShipmentStatusApproved,
+			StorageFacility:      &storageFacility,
+			ServiceOrderNumber:   &serviceOrderNumber,
+			UsesExternalVendor:   true,
+		},
+		Move: move,
+	})
+
+	// Create Releasing Agent
+	agentEmail := strings.ToLower(fmt.Sprintf("%sagent_%s@example.com",
+		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
+	agentUsername := strings.Split(agentEmail, "@")[0]
+	agentFirstName := strings.Split(agentUsername, "_")[0]
+	agentLastName := username[len(agentFirstName)+1:]
+	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.Must(uuid.NewV4()),
+			MTOShipment:   ntsrShipment,
+			MTOShipmentID: ntsrShipment.ID,
+			FirstName:     &agentFirstName,
+			LastName:      &agentLastName,
+			Email:         &agentEmail,
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	// Create Payment Request
+	paymentRequest := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:              uuid.Must(uuid.NewV4()),
+			MoveTaskOrder:   move,
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusPending,
+			RejectionReason: nil,
+		},
+		Move: move,
+	})
+
+	// create service item
+	msCostcos := unit.Cents(32400)
+	testdatagen.MakePaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeCS,
+		[]testdatagen.CreatePaymentServiceItemParams{
+			{
+				Key:     models.ServiceItemParamNameContractCode,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   testdatagen.DefaultContractCode,
+			}},
+		testdatagen.Assertions{
+			PaymentServiceItem: models.PaymentServiceItem{
+				PriceCents: &msCostcos,
+			},
+			Move:           move,
+			MTOShipment:    ntsrShipment,
+			PaymentRequest: paymentRequest,
+		},
+	)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
 }

@@ -19,6 +19,7 @@ const {
   buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles,
   buildPrimeSimulatorMoveNeedsShipmentUpdate,
   buildHHGMoveWithNTSAndNeedsSC,
+  buildNTSRMoveWithPaymentRequest,
 } = require('./testharness');
 
 class OfficePage {
@@ -194,8 +195,18 @@ class OfficePage {
     return buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(this.request);
   }
 
+  /**
+   * Use testharness to build HHG Move with NTS that needs Service Counseling
+   */
   async buildHHGMoveWithNTSAndNeedsSC() {
     return buildHHGMoveWithNTSAndNeedsSC(this.request);
+  }
+
+  /**
+   * Use testharness to build NTS-R Move with a Payment Request
+   */
+  async buildNTSRMoveWithPaymentRequest() {
+    return buildNTSRMoveWithPaymentRequest(this.request);
   }
 
   /**
