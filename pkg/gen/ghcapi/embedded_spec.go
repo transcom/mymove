@@ -1716,6 +1716,87 @@ func init() {
         }
       }
     },
+    "/moves/{locator}/closeout-office": {
+      "patch": {
+        "description": "Sets the transportation office closeout location for where the Move's PPM Shipment documentation will be reviewed by",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Updates a Move's PPM closeout office for Army and Air Force customers",
+        "operationId": "updateCloseoutOffice",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "closeoutOfficeId"
+              ],
+              "properties": {
+                "closeoutOfficeId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully set the closeout office for the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.closeoutOffice"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "string",
+          "description": "move code to identify a move to update the PPM shipment's closeout office for Army and Air Force service members",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{locator}/customer-support-remarks": {
       "get": {
         "description": "Fetches customer support remarks for a move",
@@ -6058,6 +6139,15 @@ func init() {
         "billableWeightsReviewedAt": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true
+        },
+        "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "closeoutOfficeId": {
+          "description": "The transportation office that will handle reviewing PPM Closeout documentation for Army and Air Force service members",
+          "type": "string",
+          "format": "uuid",
           "x-nullable": true
         },
         "contractor": {
@@ -11329,6 +11419,108 @@ func init() {
         }
       }
     },
+    "/moves/{locator}/closeout-office": {
+      "patch": {
+        "description": "Sets the transportation office closeout location for where the Move's PPM Shipment documentation will be reviewed by",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Updates a Move's PPM closeout office for Army and Air Force customers",
+        "operationId": "updateCloseoutOffice",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "closeoutOfficeId"
+              ],
+              "properties": {
+                "closeoutOfficeId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully set the closeout office for the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.closeoutOffice"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "string",
+          "description": "move code to identify a move to update the PPM shipment's closeout office for Army and Air Force service members",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{locator}/customer-support-remarks": {
       "get": {
         "description": "Fetches customer support remarks for a move",
@@ -16332,6 +16524,15 @@ func init() {
         "billableWeightsReviewedAt": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true
+        },
+        "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "closeoutOfficeId": {
+          "description": "The transportation office that will handle reviewing PPM Closeout documentation for Army and Air Force service members",
+          "type": "string",
+          "format": "uuid",
           "x-nullable": true
         },
         "contractor": {

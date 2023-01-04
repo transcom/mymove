@@ -222,6 +222,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderUpdateBillableWeightHandler: order.UpdateBillableWeightHandlerFunc(func(params order.UpdateBillableWeightParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.UpdateBillableWeight has not yet been implemented")
 		}),
+		MoveUpdateCloseoutOfficeHandler: move.UpdateCloseoutOfficeHandlerFunc(func(params move.UpdateCloseoutOfficeParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.UpdateCloseoutOffice has not yet been implemented")
+		}),
 		CustomerUpdateCustomerHandler: customer.UpdateCustomerHandlerFunc(func(params customer.UpdateCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.UpdateCustomer has not yet been implemented")
 		}),
@@ -419,6 +422,8 @@ type MymoveAPI struct {
 	OrderUpdateAllowanceHandler order.UpdateAllowanceHandler
 	// OrderUpdateBillableWeightHandler sets the operation handler for the update billable weight operation
 	OrderUpdateBillableWeightHandler order.UpdateBillableWeightHandler
+	// MoveUpdateCloseoutOfficeHandler sets the operation handler for the update closeout office operation
+	MoveUpdateCloseoutOfficeHandler move.UpdateCloseoutOfficeHandler
 	// CustomerUpdateCustomerHandler sets the operation handler for the update customer operation
 	CustomerUpdateCustomerHandler customer.UpdateCustomerHandler
 	// CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler sets the operation handler for the update customer support remark for move operation
@@ -689,6 +694,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrderUpdateBillableWeightHandler == nil {
 		unregistered = append(unregistered, "order.UpdateBillableWeightHandler")
+	}
+	if o.MoveUpdateCloseoutOfficeHandler == nil {
+		unregistered = append(unregistered, "move.UpdateCloseoutOfficeHandler")
 	}
 	if o.CustomerUpdateCustomerHandler == nil {
 		unregistered = append(unregistered, "customer.UpdateCustomerHandler")
@@ -1040,6 +1048,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/orders/{orderID}/update-billable-weight"] = order.NewUpdateBillableWeight(o.context, o.OrderUpdateBillableWeightHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/moves/{locator}/closeout-office"] = move.NewUpdateCloseoutOffice(o.context, o.MoveUpdateCloseoutOfficeHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

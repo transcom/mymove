@@ -20,12 +20,14 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/etag"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -33,30 +35,41 @@ import (
 func (suite *HandlerSuite) TestPatchMoveHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	move := testdatagen.MakeDefaultMove(suite.DB())
+	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			ProvidesCloseout: true,
+		},
+	})
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
-	var newType = internalmessages.SelectedMoveTypeHHGPPM
+	closeoutOfficeID := strfmt.UUID(transportationOffice.ID.String())
 	patchPayload := internalmessages.PatchMovePayload{
-		SelectedMoveType: &newType,
+		CloseoutOfficeID: &closeoutOfficeID,
 	}
 	params := moveop.PatchMoveParams{
 		HTTPRequest:      req,
+		IfMatch:          etag.GenerateEtag(move.UpdatedAt),
 		MoveID:           strfmt.UUID(move.ID.String()),
 		PatchMovePayload: &patchPayload,
 	}
+
+	closeoutOfficeUpdater := moverouter.NewCloseoutOfficeUpdater(moverouter.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 	// And: a move is patched
-	handler := PatchMoveHandler{suite.HandlerConfig()}
+	handler := PatchMoveHandler{suite.HandlerConfig(), closeoutOfficeUpdater}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
-	suite.Assertions.IsType(&moveop.PatchMoveCreated{}, response)
-	okResponse := response.(*moveop.PatchMoveCreated)
+	suite.Assertions.IsType(&moveop.PatchMoveOK{}, response)
+	okResponse := response.(*moveop.PatchMoveOK)
+	suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
-	// And: Returned query to include our added move
-	suite.Assertions.Equal(&newType, okResponse.Payload.SelectedMoveType)
+	suite.Equal(transportationOffice.ID.String(), okResponse.Payload.CloseoutOffice.ID.String())
+	suite.Equal(transportationOffice.Name, *okResponse.Payload.CloseoutOffice.Name)
+
+	suite.Equal(transportationOffice.Address.ID.String(), okResponse.Payload.CloseoutOffice.Address.ID.String())
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
@@ -69,21 +82,23 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
 	req = suite.AuthenticateRequest(req, anotherUser)
 
-	var newType = internalmessages.SelectedMoveTypeHHGPPM
+	closeoutOfficeID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	patchPayload := internalmessages.PatchMovePayload{
-		SelectedMoveType: &newType,
+		CloseoutOfficeID: &closeoutOfficeID,
 	}
 
 	params := moveop.PatchMoveParams{
 		HTTPRequest:      req,
+		IfMatch:          etag.GenerateEtag(move.UpdatedAt),
 		MoveID:           strfmt.UUID(move.ID.String()),
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler{suite.HandlerConfig()}
+	closeoutOfficeUpdater := moverouter.NewCloseoutOfficeUpdater(moverouter.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
+	handler := PatchMoveHandler{suite.HandlerConfig(), closeoutOfficeUpdater}
 	response := handler.Handle(params)
 
-	suite.CheckResponseForbidden(response)
+	suite.IsType(&moveop.PatchMoveForbidden{}, response)
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
@@ -96,45 +111,85 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
 	req = suite.AuthenticateRequest(req, user)
 
-	var newType = internalmessages.SelectedMoveTypeHHGPPM
+	closeoutOfficeID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	patchPayload := internalmessages.PatchMovePayload{
-		SelectedMoveType: &newType,
+		CloseoutOfficeID: &closeoutOfficeID,
 	}
 
 	params := moveop.PatchMoveParams{
 		HTTPRequest:      req,
+		IfMatch:          "fake",
 		MoveID:           strfmt.UUID(moveUUID.String()),
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler{suite.HandlerConfig()}
+	closeoutOfficeUpdater := moverouter.NewCloseoutOfficeUpdater(moverouter.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
+	handler := PatchMoveHandler{suite.HandlerConfig(), closeoutOfficeUpdater}
 	response := handler.Handle(params)
 
-	suite.CheckResponseNotFound(response)
+	suite.IsType(&moveop.PatchMoveNotFound{}, response)
 }
 
-func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
+func (suite *HandlerSuite) TestPatchMoveHandlerCloseoutOfficeNotFound() {
 	// Given: a set of orders, a move, user and servicemember
 	move := testdatagen.MakeDefaultMove(suite.DB())
+	// TransportationOffice doesn't provide PPM closeout so should not be found
+	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
-	patchPayload := internalmessages.PatchMovePayload{}
+	closeoutOfficeID := strfmt.UUID(transportationOffice.ID.String())
+	patchPayload := internalmessages.PatchMovePayload{
+		CloseoutOfficeID: &closeoutOfficeID,
+	}
 	params := moveop.PatchMoveParams{
 		HTTPRequest:      req,
+		IfMatch:          etag.GenerateEtag(move.UpdatedAt),
 		MoveID:           strfmt.UUID(move.ID.String()),
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler{suite.HandlerConfig()}
+	closeoutOfficeUpdater := moverouter.NewCloseoutOfficeUpdater(moverouter.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
+	// And: a move is patched
+	handler := PatchMoveHandler{suite.HandlerConfig(), closeoutOfficeUpdater}
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&moveop.PatchMoveCreated{}, response)
-	okResponse := response.(*moveop.PatchMoveCreated)
+	// Then: expect a 404 status code
+	suite.Assertions.IsType(&moveop.PatchMoveNotFound{}, response)
+}
 
-	suite.Assertions.Equal(move.ID.String(), okResponse.Payload.ID.String())
+func (suite *HandlerSuite) TestPatchMoveHandlerETagPreconditionFailure() {
+	// Given: a set of orders, a move, user and servicemember
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			ProvidesCloseout: true,
+		},
+	})
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+
+	closeoutOfficeID := strfmt.UUID(transportationOffice.ID.String())
+	patchPayload := internalmessages.PatchMovePayload{
+		CloseoutOfficeID: &closeoutOfficeID,
+	}
+	params := moveop.PatchMoveParams{
+		HTTPRequest:      req,
+		IfMatch:          etag.GenerateEtag(time.Now()), // should not match move updatedAt value
+		MoveID:           strfmt.UUID(move.ID.String()),
+		PatchMovePayload: &patchPayload,
+	}
+
+	closeoutOfficeUpdater := moverouter.NewCloseoutOfficeUpdater(moverouter.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
+	// And: a move is patched
+	handler := PatchMoveHandler{suite.HandlerConfig(), closeoutOfficeUpdater}
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&moveop.PatchMovePreconditionFailed{}, response)
 }
 
 func (suite *HandlerSuite) TestShowMoveHandler() {
