@@ -39,8 +39,8 @@ export async function buildWithShipmentMove(request) {
   return buildDefault(request, 'WithShipmentMove');
 }
 
-export async function buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(request) {
-  return buildDefault(request, 'HHGMoveWithServiceItemsAndPaymentRequestsAndFiles');
+export async function buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(request) {
+  return buildDefault(request, 'HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO');
 }
 
 export async function buildHHGMoveWithNTSAndNeedsSC(request) {

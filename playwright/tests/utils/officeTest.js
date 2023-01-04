@@ -16,7 +16,7 @@ const {
   buildWithShipmentMove,
   buildPPMInProgressMove,
   buildOfficeUserWithTOOAndTIO,
-  buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles,
+  buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO,
   buildPrimeSimulatorMoveNeedsShipmentUpdate,
   buildHHGMoveWithNTSAndNeedsSC,
   buildNTSRMoveWithPaymentRequest,
@@ -167,6 +167,17 @@ class OfficePage {
   }
 
   /**
+   * TIO search for and navigate to move
+   * @param {string} moveCode
+   */
+  async tioNavigateToMove(moveCode) {
+    await this.page.locator('#locator').type(moveCode);
+    await this.page.locator('th[data-testid="locator"]').first().click();
+    await this.page.locator('[data-testid="locator-0"]').click();
+    await this.waitForLoading();
+  }
+
+  /**
    * Use testharness to build in progress PPM Move
    */
   async buildInProgressPPMMove() {
@@ -191,8 +202,8 @@ class OfficePage {
    * Use testharness to build complicated move that will be visible to
    * TOO and TIO
    */
-  async buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles() {
-    return buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(this.request);
+  async buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO() {
+    return buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(this.request);
   }
 
   /**
