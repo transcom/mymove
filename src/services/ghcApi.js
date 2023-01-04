@@ -519,3 +519,16 @@ export function updateFinancialFlag({ moveID, ifMatchETag, body }) {
     { normalize: false },
   );
 }
+
+export function updateMoveCloseoutOffice({ locator, ifMatchETag, body }) {
+  const operationPath = 'move.updateCloseoutOffice';
+  return makeGHCRequest(
+    operationPath,
+    {
+      locator,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { normalize: false },
+  );
+}

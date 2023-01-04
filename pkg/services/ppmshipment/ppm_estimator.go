@@ -55,21 +55,20 @@ func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShi
 		((newPPMShipment.EstimatedWeight == nil && oldPPMShipment.EstimatedWeight == nil) || (oldPPMShipment.EstimatedWeight != nil && newPPMShipment.EstimatedWeight.Int() == oldPPMShipment.EstimatedWeight.Int()))
 }
 
-func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment, totalWeight unit.Pound) bool {
-	if len(newPPMShipment.WeightTickets) == 1 {
-		return false
-	}
+func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment, originalTotalWeight unit.Pound, newTotalWeight unit.Pound) bool {
+	// if oldPPMShipment field value is nil we know that the value has been updated and we should return false
+	return (oldPPMShipment.ActualMoveDate != nil && newPPMShipment.ActualMoveDate.Equal(*oldPPMShipment.ActualMoveDate)) &&
+		(oldPPMShipment.ActualPickupPostalCode != nil && *newPPMShipment.ActualPickupPostalCode == *oldPPMShipment.ActualPickupPostalCode) &&
+		(oldPPMShipment.ActualDestinationPostalCode != nil && *newPPMShipment.ActualDestinationPostalCode == *oldPPMShipment.ActualDestinationPostalCode) &&
+		newTotalWeight == originalTotalWeight
+}
 
-	if oldPPMShipment.ActualMoveDate == nil || newPPMShipment.ActualMoveDate == nil ||
-		oldPPMShipment.ActualPickupPostalCode == nil || newPPMShipment.ActualPickupPostalCode == nil ||
-		oldPPMShipment.ActualDestinationPostalCode == nil || newPPMShipment.ActualDestinationPostalCode == nil ||
-		totalWeight <= 0 {
+func shouldSetFinalIncentiveToNil(newPPMShipment *models.PPMShipment, newTotalWeight unit.Pound) bool {
+	if newPPMShipment.ActualMoveDate == nil || newPPMShipment.ActualPickupPostalCode == nil || newPPMShipment.ActualDestinationPostalCode == nil || newTotalWeight <= 0 {
 		return true
 	}
 
-	return oldPPMShipment.ActualMoveDate.Equal(*newPPMShipment.ActualMoveDate) &&
-		*newPPMShipment.ActualPickupPostalCode == *oldPPMShipment.ActualPickupPostalCode &&
-		*newPPMShipment.ActualDestinationPostalCode == *oldPPMShipment.ActualDestinationPostalCode
+	return false
 }
 
 func shouldCalculateSITCost(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
@@ -168,45 +167,45 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 			return nil, err
 		}
 	}
-	totalWeight := SumWeightTickets(oldPPMShipment, *newPPMShipment)
+	originalTotalWeight, newTotalWeight := SumWeightTickets(oldPPMShipment, *newPPMShipment)
 
-	skipCalculateFinalIncentive := shouldSkipCalculatingFinalIncentive(newPPMShipment, &oldPPMShipment, totalWeight)
-
+	isMissingInfo := shouldSetFinalIncentiveToNil(newPPMShipment, newTotalWeight)
+	var skipCalculateFinalIncentive bool
 	finalIncentive := oldPPMShipment.FinalIncentive
-	if !skipCalculateFinalIncentive {
 
-		finalIncentive, err = f.calculatePrice(appCtx, newPPMShipment, totalWeight)
-		if err != nil {
-			return nil, err
+	if !isMissingInfo {
+		skipCalculateFinalIncentive = shouldSkipCalculatingFinalIncentive(newPPMShipment, &oldPPMShipment, originalTotalWeight, newTotalWeight)
+		if !skipCalculateFinalIncentive {
+			finalIncentive, err = f.calculatePrice(appCtx, newPPMShipment, newTotalWeight)
+			if err != nil {
+				return nil, err
+			}
 		}
+	} else {
+		finalIncentive = nil
 	}
+
 	return finalIncentive, nil
 }
 
 // SumWeightTickets return the total weight of all weightTickets associated with a PPMShipment, returns 0 if there is no valid weight
-// when the second argument has a weight ticket that means a weight ticket was updated
-func SumWeightTickets(ppmShipment, newPPMShipment models.PPMShipment) (totalWeight unit.Pound) {
-	var updatedWeightTicketID uuid.UUID
-	var changedWeight unit.Pound
-	if len(newPPMShipment.WeightTickets) == 1 {
-		weightTicket := newPPMShipment.WeightTickets[0]
-		updatedWeightTicketID = weightTicket.ID
-		if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
-			changedWeight = *weightTicket.FullWeight - *weightTicket.EmptyWeight
-		}
-	}
-
+func SumWeightTickets(ppmShipment, newPPMShipment models.PPMShipment) (originalTotalWeight, newTotalWeight unit.Pound) {
 	if len(ppmShipment.WeightTickets) >= 1 {
 		for _, weightTicket := range ppmShipment.WeightTickets {
-			if weightTicket.ID == updatedWeightTicketID {
-				totalWeight += changedWeight
-			} else if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
-				totalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+			if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+				originalTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+			}
+		}
+	}
+	if len(newPPMShipment.WeightTickets) >= 1 {
+		for _, weightTicket := range newPPMShipment.WeightTickets {
+			if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+				newTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
 			}
 		}
 	}
 
-	return totalWeight
+	return originalTotalWeight, newTotalWeight
 }
 
 // calculatePrice returns an incentive value for the ppm shipment as if we were pricing the service items for

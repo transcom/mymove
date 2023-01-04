@@ -23,10 +23,17 @@ type MovePayload struct {
 	// Example: Change of orders
 	CancelReason *string `json:"cancel_reason,omitempty"`
 
+	// closeout office
+	CloseoutOffice *TransportationOffice `json:"closeout_office,omitempty"`
+
 	// created at
 	// Required: true
 	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"created_at"`
+
+	// e tag
+	// Required: true
+	ETag *string `json:"eTag"`
 
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -77,7 +84,15 @@ type MovePayload struct {
 func (m *MovePayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateCloseoutOffice(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateETag(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -127,6 +142,25 @@ func (m *MovePayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MovePayload) validateCloseoutOffice(formats strfmt.Registry) error {
+	if swag.IsZero(m.CloseoutOffice) { // not required
+		return nil
+	}
+
+	if m.CloseoutOffice != nil {
+		if err := m.CloseoutOffice.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("closeout_office")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("closeout_office")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MovePayload) validateCreatedAt(formats strfmt.Registry) error {
 
 	if err := validate.Required("created_at", "body", m.CreatedAt); err != nil {
@@ -134,6 +168,15 @@ func (m *MovePayload) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("created_at", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovePayload) validateETag(formats strfmt.Registry) error {
+
+	if err := validate.Required("eTag", "body", m.ETag); err != nil {
 		return err
 	}
 
@@ -286,6 +329,10 @@ func (m *MovePayload) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *MovePayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateCloseoutOffice(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateMtoShipments(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -309,6 +356,22 @@ func (m *MovePayload) ContextValidate(ctx context.Context, formats strfmt.Regist
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MovePayload) contextValidateCloseoutOffice(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CloseoutOffice != nil {
+		if err := m.CloseoutOffice.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("closeout_office")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("closeout_office")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

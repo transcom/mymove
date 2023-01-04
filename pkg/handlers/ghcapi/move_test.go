@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	moveops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -18,6 +19,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	moveservice "github.com/transcom/mymove/pkg/services/move"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -83,6 +86,52 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		suite.Equal(move.SubmittedAt.Format(swaggerTimeFormat), time.Time(*payload.SubmittedAt).Format(swaggerTimeFormat))
 		suite.Equal(move.UpdatedAt.Format(swaggerTimeFormat), time.Time(payload.UpdatedAt).Format(swaggerTimeFormat))
 		suite.Equal(ordersID, move.Orders.ID)
+		suite.Nil(payload.CloseoutOffice)
+	})
+
+	suite.Run("Successful move with a saved transportation office", func() {
+		transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
+			TransportationOffice: models.TransportationOffice{
+				ProvidesCloseout: true,
+			},
+		})
+
+		move = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status:           models.MoveStatusSUBMITTED,
+				SubmittedAt:      &submittedAt,
+				CloseoutOffice:   &transportationOffice,
+				CloseoutOfficeID: &transportationOffice.ID,
+			},
+		})
+		moveFetcher := moveservice.NewMoveFetcher()
+		requestOfficeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+		req = suite.AuthenticateOfficeRequest(req, requestOfficeUser)
+		params := moveops.GetMoveParams{
+			HTTPRequest: req,
+			Locator:     move.Locator,
+		}
+
+		// Validate incoming payload: no body to validate
+
+		handler := GetMoveHandler{
+			HandlerConfig: suite.HandlerConfig(),
+			MoveFetcher:   moveFetcher,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&moveops.GetMoveOK{}, response)
+		payload := response.(*moveops.GetMoveOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Equal(transportationOffice.ID.String(), payload.CloseoutOfficeID.String())
+		suite.Equal(transportationOffice.ID.String(), payload.CloseoutOffice.ID.String())
+		suite.Equal(transportationOffice.AddressID.String(), payload.CloseoutOffice.Address.ID.String())
+
 	})
 
 	suite.Run("Unsuccessful move fetch - empty string bad request", func() {
@@ -454,5 +503,137 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 
 		// Validate outgoing payload: nil payload
 		suite.Nil(payload)
+	})
+}
+
+func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
+	var move models.Move
+	var requestUser models.OfficeUser
+	var transportationOffice models.TransportationOffice
+
+	closeoutOfficeUpdater := moveservice.NewCloseoutOfficeUpdater(moveservice.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
+
+	setupTestData := func() (*http.Request, models.Move, models.TransportationOffice) {
+		move = testdatagen.MakeDefaultMove(suite.DB())
+		requestUser = testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		transportationOffice = testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
+			TransportationOffice: models.TransportationOffice{
+				ProvidesCloseout: true,
+			},
+		})
+
+		req := httptest.NewRequest("GET", "/move/#{move.locator}/closeout-office", nil)
+		req = suite.AuthenticateOfficeRequest(req, requestUser)
+		return req, move, transportationOffice
+	}
+
+	suite.Run("Successful update of closeout office", func() {
+		req, move, transportationOffice := setupTestData()
+		handler := UpdateMoveCloseoutOfficeHandler{
+			HandlerConfig:             suite.HandlerConfig(),
+			MoveCloseoutOfficeUpdater: closeoutOfficeUpdater,
+		}
+
+		closeoutOfficeID := strfmt.UUID(transportationOffice.ID.String())
+		params := moveops.UpdateCloseoutOfficeParams{
+			HTTPRequest: req,
+			IfMatch:     etag.GenerateEtag(move.UpdatedAt),
+			Body: moveops.UpdateCloseoutOfficeBody{
+				CloseoutOfficeID: &closeoutOfficeID,
+			},
+			Locator: move.Locator,
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&moveops.UpdateCloseoutOfficeOK{}, response)
+		payload := response.(*moveops.UpdateCloseoutOfficeOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Equal(closeoutOfficeID, *payload.CloseoutOfficeID)
+		suite.Equal(closeoutOfficeID, *payload.CloseoutOffice.ID)
+		suite.Equal(transportationOffice.AddressID.String(), payload.CloseoutOffice.Address.ID.String())
+	})
+
+	suite.Run("Unsuccessful move not found", func() {
+		req, move, transportationOffice := setupTestData()
+		handler := UpdateMoveCloseoutOfficeHandler{
+			HandlerConfig:             suite.HandlerConfig(),
+			MoveCloseoutOfficeUpdater: closeoutOfficeUpdater,
+		}
+
+		closeoutOfficeID := strfmt.UUID(transportationOffice.ID.String())
+		params := moveops.UpdateCloseoutOfficeParams{
+			HTTPRequest: req,
+			IfMatch:     etag.GenerateEtag(move.UpdatedAt),
+			Body: moveops.UpdateCloseoutOfficeBody{
+				CloseoutOfficeID: &closeoutOfficeID,
+			},
+			Locator: "ABC123",
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&moveops.UpdateCloseoutOfficeNotFound{}, response)
+	})
+
+	suite.Run("Unsuccessful closeout office not found", func() {
+		transportationOfficeNonCloseout := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
+			TransportationOffice: models.TransportationOffice{
+				ProvidesCloseout: false,
+			},
+		})
+
+		req, move, _ := setupTestData()
+		handler := UpdateMoveCloseoutOfficeHandler{
+			HandlerConfig:             suite.HandlerConfig(),
+			MoveCloseoutOfficeUpdater: closeoutOfficeUpdater,
+		}
+
+		closeoutOfficeID := strfmt.UUID(transportationOfficeNonCloseout.ID.String())
+		params := moveops.UpdateCloseoutOfficeParams{
+			HTTPRequest: req,
+			IfMatch:     etag.GenerateEtag(move.UpdatedAt),
+			Body: moveops.UpdateCloseoutOfficeBody{
+				CloseoutOfficeID: &closeoutOfficeID,
+			},
+			Locator: move.Locator,
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&moveops.UpdateCloseoutOfficeNotFound{}, response)
+	})
+
+	suite.Run("Unsuccessful eTag does not match", func() {
+		req, move, transportationOffice := setupTestData()
+		handler := UpdateMoveCloseoutOfficeHandler{
+			HandlerConfig:             suite.HandlerConfig(),
+			MoveCloseoutOfficeUpdater: closeoutOfficeUpdater,
+		}
+
+		closeoutOfficeID := strfmt.UUID(transportationOffice.ID.String())
+		params := moveops.UpdateCloseoutOfficeParams{
+			HTTPRequest: req,
+			IfMatch:     etag.GenerateEtag(time.Now()),
+			Body: moveops.UpdateCloseoutOfficeBody{
+				CloseoutOfficeID: &closeoutOfficeID,
+			},
+			Locator: move.Locator,
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&moveops.UpdateCloseoutOfficePreconditionFailed{}, response)
 	})
 }

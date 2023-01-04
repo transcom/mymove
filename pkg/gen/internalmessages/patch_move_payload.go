@@ -11,6 +11,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // PatchMovePayload patch move payload
@@ -18,15 +19,17 @@ import (
 // swagger:model PatchMovePayload
 type PatchMovePayload struct {
 
-	// selected move type
-	SelectedMoveType *SelectedMoveType `json:"selected_move_type,omitempty"`
+	// The transportation office that will handle the PPM shipment's closeout approvals for Army and Air Force service members
+	// Required: true
+	// Format: uuid
+	CloseoutOfficeID *strfmt.UUID `json:"closeoutOfficeId"`
 }
 
 // Validate validates this patch move payload
 func (m *PatchMovePayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateSelectedMoveType(formats); err != nil {
+	if err := m.validateCloseoutOfficeID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -36,52 +39,21 @@ func (m *PatchMovePayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *PatchMovePayload) validateSelectedMoveType(formats strfmt.Registry) error {
-	if swag.IsZero(m.SelectedMoveType) { // not required
-		return nil
+func (m *PatchMovePayload) validateCloseoutOfficeID(formats strfmt.Registry) error {
+
+	if err := validate.Required("closeoutOfficeId", "body", m.CloseoutOfficeID); err != nil {
+		return err
 	}
 
-	if m.SelectedMoveType != nil {
-		if err := m.SelectedMoveType.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("selected_move_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("selected_move_type")
-			}
-			return err
-		}
+	if err := validate.FormatOf("closeoutOfficeId", "body", "uuid", m.CloseoutOfficeID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-// ContextValidate validate this patch move payload based on the context it is used
+// ContextValidate validates this patch move payload based on context it is used
 func (m *PatchMovePayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.contextValidateSelectedMoveType(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *PatchMovePayload) contextValidateSelectedMoveType(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.SelectedMoveType != nil {
-		if err := m.SelectedMoveType.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("selected_move_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("selected_move_type")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 

@@ -13,15 +13,15 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
-// PatchMoveCreatedCode is the HTTP code returned for type PatchMoveCreated
-const PatchMoveCreatedCode int = 201
+// PatchMoveOKCode is the HTTP code returned for type PatchMoveOK
+const PatchMoveOKCode int = 200
 
 /*
-PatchMoveCreated updated instance of move
+PatchMoveOK updated instance of move
 
-swagger:response patchMoveCreated
+swagger:response patchMoveOK
 */
-type PatchMoveCreated struct {
+type PatchMoveOK struct {
 
 	/*
 	  In: Body
@@ -29,27 +29,27 @@ type PatchMoveCreated struct {
 	Payload *internalmessages.MovePayload `json:"body,omitempty"`
 }
 
-// NewPatchMoveCreated creates PatchMoveCreated with default headers values
-func NewPatchMoveCreated() *PatchMoveCreated {
+// NewPatchMoveOK creates PatchMoveOK with default headers values
+func NewPatchMoveOK() *PatchMoveOK {
 
-	return &PatchMoveCreated{}
+	return &PatchMoveOK{}
 }
 
-// WithPayload adds the payload to the patch move created response
-func (o *PatchMoveCreated) WithPayload(payload *internalmessages.MovePayload) *PatchMoveCreated {
+// WithPayload adds the payload to the patch move o k response
+func (o *PatchMoveOK) WithPayload(payload *internalmessages.MovePayload) *PatchMoveOK {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the patch move created response
-func (o *PatchMoveCreated) SetPayload(payload *internalmessages.MovePayload) {
+// SetPayload sets the payload to the patch move o k response
+func (o *PatchMoveOK) SetPayload(payload *internalmessages.MovePayload) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *PatchMoveCreated) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *PatchMoveOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(201)
+	rw.WriteHeader(200)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {
@@ -137,7 +137,7 @@ func (o *PatchMoveForbidden) WriteResponse(rw http.ResponseWriter, producer runt
 const PatchMoveNotFoundCode int = 404
 
 /*
-PatchMoveNotFound move is not found
+PatchMoveNotFound move or closeout office is not found
 
 swagger:response patchMoveNotFound
 */
@@ -156,6 +156,56 @@ func (o *PatchMoveNotFound) WriteResponse(rw http.ResponseWriter, producer runti
 	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(404)
+}
+
+// PatchMovePreconditionFailedCode is the HTTP code returned for type PatchMovePreconditionFailed
+const PatchMovePreconditionFailedCode int = 412
+
+/*
+PatchMovePreconditionFailed precondition failed
+
+swagger:response patchMovePreconditionFailed
+*/
+type PatchMovePreconditionFailed struct {
+}
+
+// NewPatchMovePreconditionFailed creates PatchMovePreconditionFailed with default headers values
+func NewPatchMovePreconditionFailed() *PatchMovePreconditionFailed {
+
+	return &PatchMovePreconditionFailed{}
+}
+
+// WriteResponse to the client
+func (o *PatchMovePreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(412)
+}
+
+// PatchMoveUnprocessableEntityCode is the HTTP code returned for type PatchMoveUnprocessableEntity
+const PatchMoveUnprocessableEntityCode int = 422
+
+/*
+PatchMoveUnprocessableEntity unprocessable entity
+
+swagger:response patchMoveUnprocessableEntity
+*/
+type PatchMoveUnprocessableEntity struct {
+}
+
+// NewPatchMoveUnprocessableEntity creates PatchMoveUnprocessableEntity with default headers values
+func NewPatchMoveUnprocessableEntity() *PatchMoveUnprocessableEntity {
+
+	return &PatchMoveUnprocessableEntity{}
+}
+
+// WriteResponse to the client
+func (o *PatchMoveUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(422)
 }
 
 // PatchMoveInternalServerErrorCode is the HTTP code returned for type PatchMoveInternalServerError

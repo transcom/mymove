@@ -5,9 +5,9 @@ go 1.19
 require (
 	github.com/DATA-DOG/go-txdb v0.1.5
 	github.com/XSAM/otelsql v0.17.1
-	github.com/alexedwards/scs/redisstore v0.0.0-20220216073957-c252878bcf5a
+	github.com/alexedwards/scs/redisstore v0.0.0-20221223131519-238b052508b6
 	github.com/alexedwards/scs/v2 v2.5.0
-	github.com/aws/aws-sdk-go v1.44.164
+	github.com/aws/aws-sdk-go v1.44.172
 	github.com/benbjohnson/clock v1.3.0
 	github.com/codegangsta/gin v0.0.0-20211113050330-71f90109db02
 	github.com/disintegration/imaging v1.6.2
@@ -30,7 +30,7 @@ require (
 	github.com/gobuffalo/flect v0.3.0
 	github.com/gobuffalo/pop/v6 v6.1.0
 	github.com/gobuffalo/validate/v3 v3.3.3
-	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
+	github.com/gocarina/gocsv v0.0.0-20221216233619-1fea7ae8d380
 	github.com/gofrs/uuid v4.3.1+incompatible
 	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/gomodule/redigo v1.8.9
@@ -38,19 +38,19 @@ require (
 	github.com/gorilla/csrf v1.7.1
 	github.com/gorilla/mux v1.8.0
 	github.com/imdario/mergo v0.3.13
-	github.com/jackc/pgerrcode v0.0.0-20201024163028-a0d42d470451
+	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jstemmer/go-junit-report v1.0.0
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/lib/pq v1.10.7
 	github.com/luna-duclos/instrumentedsql v1.1.3
-	github.com/markbates/goth v1.75.2
+	github.com/markbates/goth v1.76.0
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.5
-	github.com/pterm/pterm v0.12.50
+	github.com/pterm/pterm v0.12.51
 	github.com/rickar/cal/v2 v2.1.9
 	github.com/spf13/afero v1.9.3
 	github.com/spf13/cobra v1.6.1
@@ -62,7 +62,7 @@ require (
 	github.com/tiaguinho/gosoap v1.4.4
 	github.com/trussworks/otelhttp v0.0.0-20220801182039-09272611890b
 	github.com/vektra/mockery/v2 v2.16.0
-	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
+	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.12.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.37.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.37.0
