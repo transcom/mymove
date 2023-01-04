@@ -10,8 +10,6 @@ const { test, expect, OfficePage } = require('../../utils/officeTest');
  */
 class QaeFlowPage extends OfficePage {
   /**
-   * param {import('@playwright/test').Page} page
-   * param {import('@playwright/test').APIRequestContext} request
    * @param {OfficePage} officePage
    * @param {string} moveLocator
    * @override

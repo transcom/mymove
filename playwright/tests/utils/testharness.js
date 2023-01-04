@@ -80,13 +80,20 @@ export function newTestHarness(request) {
     },
 
     /**
-     * Use testharness to build hhg move
+     * Use testharness to build hhg move for TOO
      * @returns {Promise<Object>}
      */
     async buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO() {
       return buildDefault('HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO');
     },
 
+    /**
+     * Use testharness to build hhg move for TIO
+     * @returns {Promise<Object>}
+     */
+    async buildHHGMoveWithServiceItemsandPaymentRequestsForTIO() {
+      return buildDefault('HHGMoveWithServiceItemsandPaymentRequestsForTIO');
+    },
     /**
      * Use testharness to build hhg move with nts
      * @returns {Promise<Object>}
@@ -101,6 +108,14 @@ export function newTestHarness(request) {
      */
     async buildNTSRMoveWithPaymentRequest() {
       return buildDefault('NTSRMoveWithPaymentRequest');
+    },
+
+    /**
+     * Use testharness to build NTS-R move with service items payment request
+     * @returns {Promise<Object>}
+     */
+    async buildNTSRMoveWithServiceItemsAndPaymentRequest() {
+      return buildDefault('NTSRMoveWithServiceItemsAndPaymentRequest');
     },
 
     /**
