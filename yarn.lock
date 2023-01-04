@@ -4842,9 +4842,9 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-2.0.0.tgz#f544a148d3ab35801c1f633a7441fd87c2e484bf"
   integrity sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==
 
-"@trussworks/react-file-viewer@git+https://github.com/trussworks/react-file-viewer#pm-add-xls-unsupported-view":
+"@trussworks/react-file-viewer@git+https://github.com/trussworks/react-file-viewer":
   version "1.2.1"
-  resolved "git+https://github.com/trussworks/react-file-viewer#bd6affd3aac8e06f8f60a167299b3d8eb34ae412"
+  resolved "git+https://github.com/trussworks/react-file-viewer#9c74c57b519158f0f82f12a940220ac6baca80cc"
   dependencies:
     pdfjs-dist "1.8.357"
     prop-types "^15.5.10"
