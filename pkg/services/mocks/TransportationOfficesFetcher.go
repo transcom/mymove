@@ -39,13 +39,13 @@ func (_m *TransportationOfficesFetcher) GetTransportationOffice(appCtx appcontex
 	return r0, r1
 }
 
-// GetTransportationOffices provides a mock function with given fields: appCtx
-func (_m *TransportationOfficesFetcher) GetTransportationOffices(appCtx appcontext.AppContext) (*models.TransportationOffices, error) {
-	ret := _m.Called(appCtx)
+// GetTransportationOffices provides a mock function with given fields: appCtx, search
+func (_m *TransportationOfficesFetcher) GetTransportationOffices(appCtx appcontext.AppContext, search string) (*models.TransportationOffices, error) {
+	ret := _m.Called(appCtx, search)
 
 	var r0 *models.TransportationOffices
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext) *models.TransportationOffices); ok {
-		r0 = rf(appCtx)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string) *models.TransportationOffices); ok {
+		r0 = rf(appCtx, search)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.TransportationOffices)
@@ -53,8 +53,8 @@ func (_m *TransportationOfficesFetcher) GetTransportationOffices(appCtx appconte
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext) error); ok {
-		r1 = rf(appCtx)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string) error); ok {
+		r1 = rf(appCtx, search)
 	} else {
 		r1 = ret.Error(1)
 	}
