@@ -77,7 +77,10 @@ func (suite *TransportationOfficeServiceSuite) Test_SortedTransportationOffices(
 
 	suite.NoError(err)
 	suite.Equal(transportationOffice1.Name, office[0].Name)
+	suite.Equal(transportationOffice1.ProvidesCloseout, true)
 	suite.Equal(transportationOffice2.Name, office[1].Name)
+	suite.Equal(transportationOffice2.ProvidesCloseout, true)
 	suite.Equal(transportationOffice3.Name, office[2].Name)
+	suite.Equal(transportationOffice3.ProvidesCloseout, true)
 
 }
