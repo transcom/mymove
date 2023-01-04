@@ -308,6 +308,21 @@ describe('Office App', () => {
         expect(renderedRoute).toHaveLength(1);
         expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode');
       });
+
+      it('handles the edit shipment details URL', () => {
+        const app = mount(
+          <MockProviders
+            initialState={loggedInTOOState}
+            initialEntries={['/moves/AU67C6/shipments/c73d3fbd-8a93-4bd9-8c0b-99bd52e45b2c']}
+          >
+            <ConnectedOffice />
+          </MockProviders>,
+        );
+
+        const renderedRoute = app.find('PrivateRoute');
+        expect(renderedRoute).toHaveLength(1);
+        expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/shipments/:shipmentId');
+      });
     });
 
     describe('TIO routes', () => {
@@ -349,6 +364,20 @@ describe('Office App', () => {
         const renderedRoute = app.find('PrivateRoute');
         expect(renderedRoute).toHaveLength(1);
         expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode');
+      });
+
+      it('Tio should not render edit shipment details URL', () => {
+        const app = mount(
+          <MockProviders
+            initialState={loggedInTIOState}
+            initialEntries={['/moves/AU67C6/shipments/c73d3fbd-8a93-4bd9-8c0b-99bd52e45b2c']}
+          >
+            <ConnectedOffice />
+          </MockProviders>,
+        );
+
+        const renderedRoute = app.find('PrivateRoute');
+        expect(renderedRoute).toHaveLength(0);
       });
     });
 

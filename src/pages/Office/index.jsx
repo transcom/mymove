@@ -131,16 +131,6 @@ export class OfficeApp extends Component {
       history.push('/');
     };
 
-    // TODO - Services counseling routes not finalized, revisit
-    const txoRoutes = [
-      <PrivateRoute
-        key="txoMoveInfoRoute"
-        path="/moves/:moveCode"
-        component={TXOMoveInfo}
-        requiredRoles={[roleTypes.TOO, roleTypes.TIO, roleTypes.QAE_CSR]}
-      />,
-    ];
-
     const isFullscreenPage = matchPath(pathname, {
       path: '/moves/:moveCode/payment-requests/:id',
     });
@@ -300,7 +290,13 @@ export class OfficeApp extends Component {
                       requiredRoles={[roleTypes.QAE_CSR]}
                     />
 
-                    {txoRoutes}
+                    <PrivateRoute
+                      key="txoMoveInfoRoute"
+                      path="/moves/:moveCode"
+                      component={TXOMoveInfo}
+                      requiredRoles={[roleTypes.TOO, roleTypes.TIO, roleTypes.QAE_CSR]}
+                    />
+
                     <PrivateRoute exact path="/select-application" component={ConnectedSelectApplication} />
                     {/* ROOT */}
                     <PrivateRoute
