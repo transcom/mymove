@@ -33,8 +33,8 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveWithNTSAndNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithNTSAndNeedsSC(appCtx)
 	},
-	"HHGMoveWithServiceItemsAndPaymentRequestsAndFiles": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx)
+	"HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx)
 	},
 	"NTSRMoveWithPaymentRequest": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeNTSRMoveWithPaymentRequest(appCtx)
