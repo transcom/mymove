@@ -83,8 +83,8 @@ export function newTestHarness(request) {
      * Use testharness to build hhg move
      * @returns {Promise<Object>}
      */
-    async buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles() {
-      return buildDefault('HHGMoveWithServiceItemsAndPaymentRequestsAndFiles');
+    async buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO() {
+      return buildDefault('HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO');
     },
 
     /**

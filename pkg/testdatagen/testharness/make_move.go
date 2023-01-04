@@ -198,7 +198,7 @@ func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 }
 
 // copied almost verbatim from e2ebasic
-func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.AppContext) models.Move {
+func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appcontext.AppContext) models.Move {
 
 	// initialize this directly with defaults instead of using command
 	// line options. Simple for now, we can revist if we need to
@@ -464,6 +464,13 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.App
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
 	}
+
+	// load payment requests so tests can confirm
+	err = appCtx.DB().Load(newmove, "PaymentRequests")
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+	}
+
 	return *newmove
 }
 
