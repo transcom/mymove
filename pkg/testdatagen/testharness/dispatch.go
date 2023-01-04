@@ -36,6 +36,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveWithServiceItemsAndPaymentRequestsAndFiles": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx)
 	},
+	"NTSRMoveWithPaymentRequest": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeNTSRMoveWithPaymentRequest(appCtx)
+	},
 	"PrimeSimulatorMoveNeedsShipmentUpdate": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx)
 	},

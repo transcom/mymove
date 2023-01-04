@@ -96,6 +96,14 @@ export function newTestHarness(request) {
     },
 
     /**
+     * Use testharness to build NTS-R move with payment request
+     * @returns {Promise<Object>}
+     */
+    async buildNTSRMoveWithPaymentRequest() {
+      return buildDefault('NTSRMoveWithPaymentRequest');
+    },
+
+    /**
      * @returns {Promise<Object>}
      */
     async buildPrimeSimulatorMoveNeedsShipmentUpdate() {
