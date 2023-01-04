@@ -139,3 +139,32 @@ func (h SetFinancialReviewFlagHandler) Handle(params moveop.SetFinancialReviewFl
 			return moveop.NewSetFinancialReviewFlagOK().WithPayload(payload), nil
 		})
 }
+
+type UpdateMoveCloseoutOfficeHandler struct {
+	handlers.HandlerConfig
+	services.MoveCloseoutOfficeUpdater
+}
+
+func (h UpdateMoveCloseoutOfficeHandler) Handle(params moveop.UpdateCloseoutOfficeParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			closeoutOfficeID := uuid.FromStringOrNil(params.Body.CloseoutOfficeID.String())
+
+			move, err := h.MoveCloseoutOfficeUpdater.UpdateCloseoutOffice(appCtx, params.Locator, closeoutOfficeID, params.IfMatch)
+			if err != nil {
+				appCtx.Logger().Error("UpdateMoveCloseoutOfficeHandler error", zap.Error(err))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return moveop.NewUpdateCloseoutOfficeNotFound(), err
+				case apperror.PreconditionFailedError:
+					return moveop.NewUpdateCloseoutOfficePreconditionFailed(), err
+				case apperror.InvalidInputError:
+					return moveop.NewUpdateCloseoutOfficeUnprocessableEntity(), err
+				default:
+					return moveop.NewUpdateCloseoutOfficeInternalServerError(), err
+				}
+			}
+
+			return moveop.NewUpdateCloseoutOfficeOK().WithPayload(payloads.Move(move)), nil
+		})
+}
