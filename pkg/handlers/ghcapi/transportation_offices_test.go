@@ -49,7 +49,7 @@ func (suite *HandlerSuite) TestNoTransportationOfficesHandler() {
 	req := httptest.NewRequest("GET", "/transportation_offices", nil)
 	params := transportationofficeop.GetTransportationOfficesParams{
 		HTTPRequest: req,
-		Search:      "LRC Fort Know",
+		Search:      "LRC Fort Knox",
 	}
 
 	handler := GetTransportationOfficesHandler{
