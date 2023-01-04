@@ -76,9 +76,18 @@ const customStyles = {
   }),
 };
 
-export const LocationSearchBoxComponent = (props) => {
-  const { searchLocations, showAddress, title, input, name, errorMsg, displayAddress, hint, placeholder, isDisabled } =
-    props;
+export const LocationSearchBoxComponent = ({
+  searchLocations,
+  showAddress,
+  title,
+  input,
+  name,
+  errorMsg,
+  displayAddress,
+  hint,
+  placeholder,
+  isDisabled,
+}) => {
   const { value, onChange, name: inputName } = input;
 
   const [inputValue, setInputValue] = useState('');
