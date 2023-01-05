@@ -78,6 +78,9 @@ const DocumentViewer = ({ files }) => {
         <p title={selectedFilename} data-testid="documentTitle">
           <span>{selectedFilename}</span> <span>- Added on {selectedFileDate}</span>
         </p>
+        <p>
+          Download file <FontAwesomeIcon icon="download" />
+        </p>
       </div>
       <Content fileType={fileType} filePath={selectedFile.url} />
       {menuIsOpen && <div className={styles.overlay} />}
