@@ -76,19 +76,18 @@ func verifyReasonAndStatusAreConstant() progearWeightTicketValidator {
 	return progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, newProgearWeightTicket *models.ProgearWeightTicket, originalProgearWeightTicket *models.ProgearWeightTicket) error {
 		verrs := validate.NewErrors()
 
-		if newProgearWeightTicket == nil || originalProgearWeightTicket == nil {
-			return verrs
-		}
-
-		if originalProgearWeightTicket.Status == nil && newProgearWeightTicket.Status != nil {
-			verrs.Add("Status", "status cannot be modified")
-		} else if originalProgearWeightTicket.Status != nil && newProgearWeightTicket.Status != nil && *originalProgearWeightTicket.Status != *newProgearWeightTicket.Status {
+		if (originalProgearWeightTicket.Status == nil && newProgearWeightTicket.Status != nil) ||
+			(originalProgearWeightTicket.Status != nil && newProgearWeightTicket.Status == nil) ||
+			(originalProgearWeightTicket.Status != nil && newProgearWeightTicket.Status != nil && *originalProgearWeightTicket.Status != *newProgearWeightTicket.Status) {
 			verrs.Add("Status", "status cannot be modified")
 		}
 
-		if originalProgearWeightTicket.Reason != newProgearWeightTicket.Reason {
+		if (originalProgearWeightTicket.Reason == nil && newProgearWeightTicket.Reason != nil) ||
+			(originalProgearWeightTicket.Reason != nil && newProgearWeightTicket.Reason == nil) ||
+			(originalProgearWeightTicket.Reason != nil && newProgearWeightTicket.Reason != nil && *originalProgearWeightTicket.Reason != *newProgearWeightTicket.Reason) {
 			verrs.Add("Reason", "reason cannot be modified")
 		}
+
 		return verrs
 	})
 }
@@ -97,22 +96,15 @@ func verifyReasonAndStatusAreValid() progearWeightTicketValidator {
 	return progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, newProgearWeightTicket *models.ProgearWeightTicket, originalProgearWeightTicket *models.ProgearWeightTicket) error {
 		verrs := validate.NewErrors()
 
-		if newProgearWeightTicket == nil || originalProgearWeightTicket == nil {
-			return verrs
-		}
-
 		if newProgearWeightTicket.Status != nil {
 			if *newProgearWeightTicket.Status == models.PPMDocumentStatusApproved && newProgearWeightTicket.Reason != nil {
-				verrs.Add("Reason", "reason must be blank if the status is Approved")
-			}
-
-			if (*newProgearWeightTicket.Status == models.PPMDocumentStatusExcluded || *newProgearWeightTicket.Status == models.PPMDocumentStatusRejected) && (newProgearWeightTicket.Reason == nil || len(*newProgearWeightTicket.Reason) <= 0) {
+				verrs.Add("Reason", "reason must not be set if the status is Approved")
+			} else if (*newProgearWeightTicket.Status == models.PPMDocumentStatusExcluded || *newProgearWeightTicket.Status == models.PPMDocumentStatusRejected) &&
+				(newProgearWeightTicket.Reason == nil || *newProgearWeightTicket.Reason == "") {
 				verrs.Add("Reason", "reason is mandatory if the status is Excluded or Rejected")
 			}
-		} else {
-			if newProgearWeightTicket.Reason != nil && len(*newProgearWeightTicket.Reason) > 0 {
-				verrs.Add("Reason", "reason should be empty")
-			}
+		} else if newProgearWeightTicket.Reason != nil {
+			verrs.Add("Reason", "reason should not be set if the status is not set")
 		}
 
 		return verrs

@@ -201,199 +201,272 @@ func (suite *ProgearWeightTicketSuite) TestValidationRules() {
 	})
 
 	suite.Run("verifyReasonAndStatusAreConstant", func() {
-		suite.Run("Success", func() {
-			err := verifyReasonAndStatusAreConstant().Validate(suite.AppContextForTest(),
-				&models.ProgearWeightTicket{
-					ID:               progearWeightTicketID,
-					Description:      models.StringPointer("self progear"),
-					Weight:           models.PoundPointer(2500),
-					HasWeightTickets: models.BoolPointer(true),
-					BelongsToSelf:    models.BoolPointer(true),
-				},
-				existingProgearWeightTicket,
-			)
+		docApprovedStatus := models.PPMDocumentStatusApproved
+		docRejectedStatus := models.PPMDocumentStatusRejected
 
-			suite.NilOrNoVerrs(err)
+		suite.Run("Success", func() {
+			constantProgearWeightTicketTestCases := map[string]struct {
+				newProgearWeightTicket models.ProgearWeightTicket
+				oldProgearWeightTicket models.ProgearWeightTicket
+			}{
+				"Status is nil for both": {
+					newProgearWeightTicket: models.ProgearWeightTicket{Status: nil},
+					oldProgearWeightTicket: models.ProgearWeightTicket{Status: nil},
+				},
+				"Status is rejected for both": {
+					newProgearWeightTicket: models.ProgearWeightTicket{Status: &docRejectedStatus},
+					oldProgearWeightTicket: models.ProgearWeightTicket{Status: &docRejectedStatus},
+				},
+				"Reason is nil for both": {
+					newProgearWeightTicket: models.ProgearWeightTicket{Reason: nil},
+					oldProgearWeightTicket: models.ProgearWeightTicket{Reason: nil},
+				},
+				"Reason is filled for both": {
+					newProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &docRejectedStatus,
+						Reason: models.StringPointer("bad document"),
+					},
+					oldProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &docRejectedStatus,
+						Reason: models.StringPointer("bad document"),
+					},
+				},
+			}
+
+			for name, constantProgearWeightTickets := range constantProgearWeightTicketTestCases {
+				name := name
+				constantProgearWeightTickets := constantProgearWeightTickets
+
+				suite.Run(name, func() {
+					err := verifyReasonAndStatusAreConstant().Validate(
+						suite.AppContextForTest(),
+						&constantProgearWeightTickets.newProgearWeightTicket,
+						&constantProgearWeightTickets.oldProgearWeightTicket,
+					)
+
+					suite.NilOrNoVerrs(err)
+				})
+			}
 		})
 
 		suite.Run("Failure", func() {
-			status := models.PPMDocumentStatusRejected
-			err := verifyReasonAndStatusAreConstant().Validate(suite.AppContextForTest(),
-				&models.ProgearWeightTicket{
-					ID:               progearWeightTicketID,
-					Description:      models.StringPointer("self progear"),
-					Weight:           models.PoundPointer(2500),
-					HasWeightTickets: models.BoolPointer(true),
-					BelongsToSelf:    models.BoolPointer(true),
-					Status:           &status,
-					Reason:           models.StringPointer("bad data"),
+			changedProgearWeightTicketTestCases := map[string]struct {
+				newProgearWeightTicket models.ProgearWeightTicket
+				oldProgearWeightTicket models.ProgearWeightTicket
+				expectedErrorKey       string
+				expectedErrorMsg       string
+			}{
+				"Status changed from nil to Approved": {
+					newProgearWeightTicket: models.ProgearWeightTicket{Status: nil},
+					oldProgearWeightTicket: models.ProgearWeightTicket{Status: &docApprovedStatus},
+					expectedErrorKey:       "Status",
+					expectedErrorMsg:       "status cannot be modified",
 				},
-				existingProgearWeightTicket,
-			)
+				"Status changed from Rejected to nil": {
+					newProgearWeightTicket: models.ProgearWeightTicket{Status: &docRejectedStatus},
+					oldProgearWeightTicket: models.ProgearWeightTicket{Status: nil},
+					expectedErrorKey:       "Status",
+					expectedErrorMsg:       "status cannot be modified",
+				},
+				"Status is changed from Approved to Rejected": {
+					newProgearWeightTicket: models.ProgearWeightTicket{Status: &docRejectedStatus},
+					oldProgearWeightTicket: models.ProgearWeightTicket{Status: &docApprovedStatus},
+					expectedErrorKey:       "Status",
+					expectedErrorMsg:       "status cannot be modified",
+				},
+				"Reason is changed from nil to something": {
+					newProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &docRejectedStatus,
+						Reason: nil,
+					},
+					oldProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &docRejectedStatus,
+						Reason: models.StringPointer("document is ok!"),
+					},
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason cannot be modified",
+				},
+				"Reason is changed from something to nil": {
+					newProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &docRejectedStatus,
+						Reason: models.StringPointer("bad document!"),
+					},
+					oldProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &docRejectedStatus,
+						Reason: nil,
+					},
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason cannot be modified",
+				},
+				"Reason is changed": {
+					newProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &docRejectedStatus,
+						Reason: models.StringPointer("bad document!"),
+					},
+					oldProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &docRejectedStatus,
+						Reason: models.StringPointer("document is ok!"),
+					},
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason cannot be modified",
+				},
+			}
 
-			switch verr := err.(type) {
-			case *validate.Errors:
-				suite.True(verr.HasAny())
-				suite.Equal(len(verr.Keys()), 2)
-				suite.Contains(verr.Keys(), "Reason")
-				suite.Contains(verr.Keys(), "Status")
-			default:
-				suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+			for name, changedProgearWeightTicketTestCase := range changedProgearWeightTicketTestCases {
+				name := name
+				changedProgearWeightTicketTestCase := changedProgearWeightTicketTestCase
+
+				suite.Run(name, func() {
+					err := verifyReasonAndStatusAreConstant().Validate(
+						suite.AppContextForTest(),
+						&changedProgearWeightTicketTestCase.newProgearWeightTicket,
+						&changedProgearWeightTicketTestCase.oldProgearWeightTicket,
+					)
+
+					suite.Error(err)
+
+					suite.IsType(&validate.Errors{}, err)
+					verrs := err.(*validate.Errors)
+
+					suite.Len(verrs.Errors, 1)
+
+					suite.Contains(verrs.Keys(), changedProgearWeightTicketTestCase.expectedErrorKey)
+
+					suite.Contains(
+						verrs.Get(changedProgearWeightTicketTestCase.expectedErrorKey),
+						changedProgearWeightTicketTestCase.expectedErrorMsg,
+					)
+				})
 			}
 		})
 	})
 
 	suite.Run("verifyReasonAndStatusAreValid", func() {
+		docApprovedStatus := models.PPMDocumentStatusApproved
+		docExcludedStatus := models.PPMDocumentStatusExcluded
+		docRejectedStatus := models.PPMDocumentStatusRejected
+
 		suite.Run("Success", func() {
-			suite.Run("no status or reason", func() {
-				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
-					&models.ProgearWeightTicket{
-						ID:               progearWeightTicketID,
-						Description:      models.StringPointer("self progear"),
-						Weight:           models.PoundPointer(2500),
-						HasWeightTickets: models.BoolPointer(true),
-						BelongsToSelf:    models.BoolPointer(true),
-					},
-					existingProgearWeightTicket,
-				)
-				suite.NilOrNoVerrs(err)
-			})
+			validProgearWeightTicketTestCases := map[string]models.ProgearWeightTicket{
+				"Status is Approved with a nil reason": {
+					Status: &docApprovedStatus,
+					Reason: nil,
+				},
+				"Status is Excluded with a reason": {
+					Status: &docExcludedStatus,
+					Reason: models.StringPointer("not a valid expense."),
+				},
+				"Status is Rejected with a reason": {
+					Status: &docRejectedStatus,
+					Reason: models.StringPointer("bad document!"),
+				},
+			}
 
-			suite.Run("excluded with reason", func() {
-				status := models.PPMDocumentStatusExcluded
-				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
-					&models.ProgearWeightTicket{
-						ID:               progearWeightTicketID,
-						Description:      models.StringPointer("self progear"),
-						Weight:           models.PoundPointer(2500),
-						HasWeightTickets: models.BoolPointer(true),
-						BelongsToSelf:    models.BoolPointer(true),
-						Status:           &status,
-						Reason:           models.StringPointer("bad data"),
-					},
-					existingProgearWeightTicket,
-				)
-				suite.NilOrNoVerrs(err)
-			})
+			for name, validProgearWeightTicket := range validProgearWeightTicketTestCases {
+				name := name
+				validProgearWeightTicket := validProgearWeightTicket
 
-			suite.Run("approved with no reason", func() {
-				status := models.PPMDocumentStatusApproved
-				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
-					&models.ProgearWeightTicket{
-						ID:               progearWeightTicketID,
-						Description:      models.StringPointer("self progear"),
-						Weight:           models.PoundPointer(2500),
-						HasWeightTickets: models.BoolPointer(true),
-						BelongsToSelf:    models.BoolPointer(true),
-						Status:           &status,
-						Reason:           nil,
-					},
-					existingProgearWeightTicket,
-				)
-				suite.NilOrNoVerrs(err)
-			})
+				suite.Run(name, func() {
+					err := verifyReasonAndStatusAreValid().Validate(
+						suite.AppContextForTest(),
+						&validProgearWeightTicket,
+						nil,
+					)
+
+					suite.NilOrNoVerrs(err)
+				})
+			}
 		})
 
 		suite.Run("Failure", func() {
-			suite.Run("Reason cannot be provided without status", func() {
-				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
-					&models.ProgearWeightTicket{
-						ID:               progearWeightTicketID,
-						Description:      models.StringPointer("self progear"),
-						Weight:           models.PoundPointer(2500),
-						HasWeightTickets: models.BoolPointer(true),
-						BelongsToSelf:    models.BoolPointer(true),
-						Reason:           models.StringPointer("reason without status"),
+			changedProgearWeightTicketTestCases := map[string]struct {
+				newProgearWeightTicket models.ProgearWeightTicket
+				expectedErrorKey       string
+				expectedErrorMsg       string
+			}{
+				"Reason exists without a status": {
+					newProgearWeightTicket: models.ProgearWeightTicket{
+						Reason: models.StringPointer("interesting document..."),
 					},
-					existingProgearWeightTicket,
-				)
-
-				switch verr := err.(type) {
-				case *validate.Errors:
-					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 1)
-					suite.Contains(verr.Keys(), "Reason")
-					suite.Equal("reason should be empty", err.Error())
-				default:
-					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
-				}
-			})
-
-			suite.Run("Reason must be empty when status is approved", func() {
-				status := models.PPMDocumentStatusApproved
-				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
-					&models.ProgearWeightTicket{
-						ID:               progearWeightTicketID,
-						Description:      models.StringPointer("self progear"),
-						Weight:           models.PoundPointer(2500),
-						HasWeightTickets: models.BoolPointer(true),
-						BelongsToSelf:    models.BoolPointer(true),
-						Status:           &status,
-						Reason:           models.StringPointer("bad data"),
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason should not be set if the status is not set",
+				},
+				"Status is Approved and a blank reason is provided": {
+					newProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &docApprovedStatus,
+						Reason: models.StringPointer(""),
 					},
-					existingProgearWeightTicket,
-				)
-
-				switch verr := err.(type) {
-				case *validate.Errors:
-					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 1)
-					suite.Contains(verr.Keys(), "Reason")
-				default:
-					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
-				}
-			})
-
-			suite.Run("Reason must be populated when status is excluded", func() {
-				status := models.PPMDocumentStatusExcluded
-				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
-					&models.ProgearWeightTicket{
-						ID:               progearWeightTicketID,
-						Description:      models.StringPointer("self progear"),
-						Weight:           models.PoundPointer(2500),
-						HasWeightTickets: models.BoolPointer(true),
-						BelongsToSelf:    models.BoolPointer(true),
-						Status:           &status,
-						Reason:           models.StringPointer(""),
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason must not be set if the status is Approved",
+				},
+				"Status is Approved and a reason is provided": {
+					newProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &docApprovedStatus,
+						Reason: models.StringPointer("interesting document..."),
 					},
-					existingProgearWeightTicket,
-				)
-
-				switch verr := err.(type) {
-				case *validate.Errors:
-					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 1)
-					suite.Contains(verr.Keys(), "Reason")
-				default:
-					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
-				}
-
-			})
-
-			suite.Run("Reason must be populated when status is rejected", func() {
-				status := models.PPMDocumentStatusRejected
-				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
-					&models.ProgearWeightTicket{
-						ID:               progearWeightTicketID,
-						Description:      models.StringPointer("self progear"),
-						Weight:           models.PoundPointer(2500),
-						HasWeightTickets: models.BoolPointer(true),
-						BelongsToSelf:    models.BoolPointer(true),
-						Status:           &status,
-						Reason:           models.StringPointer(""),
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason must not be set if the status is Approved",
+				},
+				"Status is Excluded and reason is nil": {
+					newProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &docExcludedStatus,
+						Reason: nil,
 					},
-					existingProgearWeightTicket,
-				)
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason is mandatory if the status is Excluded or Rejected",
+				},
+				"Status is Excluded and reason is blank": {
+					newProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &docExcludedStatus,
+						Reason: models.StringPointer(""),
+					},
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason is mandatory if the status is Excluded or Rejected",
+				},
+				"Status is Rejected and reason is nil": {
+					newProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &docRejectedStatus,
+						Reason: nil,
+					},
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason is mandatory if the status is Excluded or Rejected",
+				},
+				"Status is Rejected and reason is blank": {
+					newProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &docRejectedStatus,
+						Reason: models.StringPointer(""),
+					},
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason is mandatory if the status is Excluded or Rejected",
+				},
+			}
 
-				switch verr := err.(type) {
-				case *validate.Errors:
-					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 1)
-					suite.Contains(verr.Keys(), "Reason")
-				default:
-					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
-				}
-			})
+			for name, changedProgearWeightTicketTestCase := range changedProgearWeightTicketTestCases {
+				name := name
+				changedProgearWeightTicketTestCase := changedProgearWeightTicketTestCase
+
+				suite.Run(name, func() {
+					err := verifyReasonAndStatusAreValid().Validate(
+						suite.AppContextForTest(),
+						&changedProgearWeightTicketTestCase.newProgearWeightTicket,
+						nil,
+					)
+
+					suite.Error(err)
+
+					suite.IsType(&validate.Errors{}, err)
+					verrs := err.(*validate.Errors)
+
+					suite.Len(verrs.Errors, 1)
+
+					suite.Contains(verrs.Keys(), changedProgearWeightTicketTestCase.expectedErrorKey)
+
+					suite.Contains(verrs.Get(
+						changedProgearWeightTicketTestCase.expectedErrorKey),
+						changedProgearWeightTicketTestCase.expectedErrorMsg,
+					)
+				})
+			}
 		})
 	})
 }

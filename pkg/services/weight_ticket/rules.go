@@ -100,19 +100,18 @@ func verifyReasonAndStatusAreConstant() weightTicketValidator {
 	return weightTicketValidatorFunc(func(_ appcontext.AppContext, newWeightTicket *models.WeightTicket, originalWeightTicket *models.WeightTicket) error {
 		verrs := validate.NewErrors()
 
-		if newWeightTicket == nil || originalWeightTicket == nil {
-			return verrs
-		}
-
-		if originalWeightTicket.Status == nil && newWeightTicket.Status != nil {
-			verrs.Add("Status", "status cannot be modified")
-		} else if originalWeightTicket.Status != nil && newWeightTicket.Status != nil && *originalWeightTicket.Status != *newWeightTicket.Status {
+		if (originalWeightTicket.Status == nil && newWeightTicket.Status != nil) ||
+			(originalWeightTicket.Status != nil && newWeightTicket.Status == nil) ||
+			(originalWeightTicket.Status != nil && newWeightTicket.Status != nil && *originalWeightTicket.Status != *newWeightTicket.Status) {
 			verrs.Add("Status", "status cannot be modified")
 		}
 
-		if originalWeightTicket.Reason != newWeightTicket.Reason {
+		if (originalWeightTicket.Reason == nil && newWeightTicket.Reason != nil) ||
+			(originalWeightTicket.Reason != nil && newWeightTicket.Reason == nil) ||
+			(originalWeightTicket.Reason != nil && newWeightTicket.Reason != nil && *originalWeightTicket.Reason != *newWeightTicket.Reason) {
 			verrs.Add("Reason", "reason cannot be modified")
 		}
+
 		return verrs
 	})
 }
@@ -121,22 +120,15 @@ func verifyReasonAndStatusAreValid() weightTicketValidator {
 	return weightTicketValidatorFunc(func(_ appcontext.AppContext, newWeightTicket *models.WeightTicket, originalWeightTicket *models.WeightTicket) error {
 		verrs := validate.NewErrors()
 
-		if newWeightTicket == nil || originalWeightTicket == nil {
-			return verrs
-		}
-
 		if newWeightTicket.Status != nil {
 			if *newWeightTicket.Status == models.PPMDocumentStatusApproved && newWeightTicket.Reason != nil {
-				verrs.Add("Reason", "reason must be blank if the status is Approved")
-			}
-
-			if (*newWeightTicket.Status == models.PPMDocumentStatusExcluded || *newWeightTicket.Status == models.PPMDocumentStatusRejected) && (newWeightTicket.Reason == nil || len(*newWeightTicket.Reason) <= 0) {
+				verrs.Add("Reason", "reason must not be set if the status is Approved")
+			} else if (*newWeightTicket.Status == models.PPMDocumentStatusExcluded || *newWeightTicket.Status == models.PPMDocumentStatusRejected) &&
+				(newWeightTicket.Reason == nil || *newWeightTicket.Reason == "") {
 				verrs.Add("Reason", "reason is mandatory if the status is Excluded or Rejected")
 			}
-		} else {
-			if newWeightTicket.Reason != nil && len(*newWeightTicket.Reason) > 0 {
-				verrs.Add("Reason", "reason should be empty")
-			}
+		} else if newWeightTicket.Reason != nil {
+			verrs.Add("Reason", "reason should not be set if the status is not set")
 		}
 
 		return verrs
