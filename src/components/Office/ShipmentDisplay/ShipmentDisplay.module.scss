@@ -23,7 +23,7 @@
     .serviceCounselingShipments {
       h3 {
         font-weight: 700;
-        font-size: 17px;
+        @include u-font-size('body', 'md');
       }
     }
 

@@ -50,7 +50,6 @@ describe('SelectApplication component', () => {
       wrapper.containsMatchingElement(<button type="button">Select {roleTypes.SERVICES_COUNSELOR}</button>),
     ).toEqual(true);
     expect(wrapper.containsMatchingElement(<button type="button">Select {roleTypes.QAE_CSR}</button>)).toEqual(true);
-    expect(wrapper.containsMatchingElement(<button type="button">Select {roleTypes.PPM}</button>)).toEqual(false);
   });
 
   it('handles setActiveRole with the selected role', () => {

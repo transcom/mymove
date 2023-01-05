@@ -12,17 +12,17 @@ describe('userIsAuthorized function', () => {
   });
 
   it('returns false if the user has no roles', () => {
-    expect(userIsAuthorized(undefined, [roleTypes.PPM])).toEqual(false);
+    expect(userIsAuthorized(undefined, [roleTypes.SERVICES_COUNSELOR])).toEqual(false);
   });
 
   it('returns true if the user has at least one required role', () => {
-    expect(userIsAuthorized([roleTypes.TIO], [roleTypes.TIO, roleTypes.PPM])).toEqual(true);
+    expect(userIsAuthorized([roleTypes.TIO], [roleTypes.TIO, roleTypes.SERVICES_COUNSELOR])).toEqual(true);
   });
 
   it('returns true if the user has at multiple required roles', () => {
-    expect(userIsAuthorized([roleTypes.TIO, roleTypes.TOO], [roleTypes.TOO, roleTypes.TIO, roleTypes.PPM])).toEqual(
-      true,
-    );
+    expect(
+      userIsAuthorized([roleTypes.TIO, roleTypes.TOO], [roleTypes.TOO, roleTypes.TIO, roleTypes.SERVICES_COUNSELOR]),
+    ).toEqual(true);
   });
 
   it('returns false if the user does not have a required role', () => {
@@ -94,7 +94,7 @@ describe('ConnectedPrivateRoute', () => {
                 user: {
                   userId123: {
                     id: 'userId123',
-                    roles: [{ roleType: roleTypes.PPM }],
+                    roles: [{ roleType: undefined }],
                   },
                 },
               },
@@ -130,14 +130,14 @@ describe('ConnectedPrivateRoute', () => {
                 user: {
                   userId123: {
                     id: 'userId123',
-                    roles: [{ roleType: roleTypes.PPM }],
+                    roles: [{ roleType: roleTypes.TIO }],
                   },
                 },
               },
             }}
             initialEntries={['/']}
           >
-            <PrivateRoute component={MyPrivateComponent} requiredRoles={[roleTypes.PPM]} />
+            <PrivateRoute component={MyPrivateComponent} requiredRoles={[roleTypes.TIO]} />
           </MockProviders>,
         );
         it('does not render the loading placeholder', () => {

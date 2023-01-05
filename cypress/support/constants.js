@@ -13,7 +13,6 @@ export const officeAppName = 'office';
 
 // User Types
 export const milmoveUserType = 'milmove';
-export const PPMOfficeUserType = 'PPM office';
 export const TOOOfficeUserType = 'TOO office';
 export const TIOOfficeUserType = 'TIO office';
 export const QAECSROfficeUserType = 'QAE/CSR office';
@@ -24,7 +23,6 @@ export const PrimeSimulatorUserType = 'Prime Simulator';
 /* eslint-disable security/detect-object-injection */
 export const userTypeToBaseURL = {};
 userTypeToBaseURL[milmoveUserType] = milmoveBaseURL;
-userTypeToBaseURL[PPMOfficeUserType] = officeBaseURL;
 userTypeToBaseURL[TOOOfficeUserType] = officeBaseURL;
 userTypeToBaseURL[TIOOfficeUserType] = officeBaseURL;
 userTypeToBaseURL[QAECSROfficeUserType] = officeBaseURL;

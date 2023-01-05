@@ -20,7 +20,7 @@ func (h GetTransportationOfficesHandler) Handle(params transportationofficeop.Ge
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			transportationOffices, err := h.TransportationOfficesFetcher.GetTransportationOffices(appCtx)
+			transportationOffices, err := h.TransportationOfficesFetcher.GetTransportationOffices(appCtx, params.Search)
 			if err != nil {
 				appCtx.Logger().Error("Error searching for Transportation Offices: ", zap.Error(err))
 				return transportationofficeop.NewGetTransportationOfficesInternalServerError(), err
