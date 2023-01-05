@@ -7,7 +7,18 @@ import LocationSearchBox from './LocationSearchBox';
 import dutyLocationFactory from 'utils/test/factories/dutyLocation';
 // import transportationOfficeFactory from 'utils/test/factories/transportationOffice';
 
-// const mockCloseoutLocations = [];
+// const mockCloseoutLocations = [
+//   transportationOfficeFactory(),
+//   transportationOfficeFactory(),
+//   transportationOfficeFactory(),
+//   transportationOfficeFactory(),
+//   transportationOfficeFactory(),
+//   transportationOfficeFactory(),
+//   transportationOfficeFactory(),
+// ];
+
+// const selectedCloseoutLocation = mockCloseoutLocations[2];
+
 const mockDutyLocations = [
   dutyLocationFactory(),
   dutyLocationFactory(),
