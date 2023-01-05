@@ -6,6 +6,7 @@ import { generatePath } from 'react-router';
 
 import styles from './RequestedShipments.module.scss';
 
+import { isPPMOnly } from 'utils/shipments';
 import ShipmentApprovalPreview from 'components/Office/ShipmentApprovalPreview/ShipmentApprovalPreview';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { tooRoutes } from 'constants/routes';
@@ -225,12 +226,14 @@ const SubmittedRequestedShipments = ({
               <>
                 <h2>Add service items to this move</h2>
                 <Fieldset legend="MTO service items" legendsronly="true" id="input-type-fieldset">
-                  <Checkbox
-                    id="shipmentManagementFee"
-                    label={serviceItemCodes.MS}
-                    name="shipmentManagementFee"
-                    onChange={formik.handleChange}
-                  />
+                  {!isPPMOnly(mtoShipments) && (
+                    <Checkbox
+                      id="shipmentManagementFee"
+                      label={serviceItemCodes.MS}
+                      name="shipmentManagementFee"
+                      onChange={formik.handleChange}
+                    />
+                  )}
                   {moveTaskOrder.serviceCounselingCompletedAt ? (
                     <p className={styles.serviceCounselingCompleted} data-testid="services-counseling-completed-text">
                       The customer has received counseling for this move.
