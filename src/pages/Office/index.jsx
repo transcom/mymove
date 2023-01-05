@@ -190,25 +190,6 @@ export class OfficeApp extends Component {
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
                     <PrivateRoute
-                      path={servicesCounselingRoutes.QUEUE_VIEW_PATH}
-                      exact
-                      component={ServicesCounselingQueue}
-                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
-                    />
-
-                    <PrivateRoute
-                      path={servicesCounselingRoutes.QUEUE_COUNSELING_PATH}
-                      exact
-                      component={ServicesCounselingQueue}
-                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
-                    />
-                    <PrivateRoute
-                      path={servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH}
-                      exact
-                      component={ServicesCounselingQueue}
-                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
-                    />
-                    <PrivateRoute
                       key="servicesCounselingMoveInfoRoute"
                       path={servicesCounselingRoutes.BASE_MOVE_PATH}
                       component={ServicesCounselingMoveInfo}
@@ -316,8 +297,6 @@ export class OfficeApp extends Component {
                             return <PaymentRequestQueue {...routeProps} />;
                           case roleTypes.TOO:
                             return <MoveQueue {...routeProps} />;
-                          case roleTypes.SERVICES_COUNSELOR:
-                            return <ServicesCounselingQueue {...routeProps} />;
                           case roleTypes.PRIME_SIMULATOR:
                             return <PrimeSimulatorAvailableMoves {...routeProps} />;
                           case roleTypes.QAE_CSR:
@@ -328,6 +307,12 @@ export class OfficeApp extends Component {
                         }
                       }}
                     />
+
+                    {/* Service Counseling */}
+                    {selectedRole && activeRole === roleTypes.SERVICES_COUNSELOR && (
+                      <PrivateRoute path="/" component={ServicesCounselingQueue} />
+                    )}
+
                     {/* 404 */}
                     <Route render={(routeProps) => <NotFound {...routeProps} handleOnClick={goBack} />} />
                   </Switch>
