@@ -55,13 +55,6 @@ func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyLocati
 	}
 }
 
-func subScenarioAdditionalPPMUsers(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
-	return func() {
-		// Create additional PPM users for mymove tests
-		createPPMUsers(appCtx, userUploader)
-	}
-}
-
 func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
 	return func() {
 		createTXO(appCtx)

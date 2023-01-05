@@ -54,16 +54,6 @@ func MakeServicesCounselorRole(db *pop.Connection) roles.Role {
 	})
 }
 
-// MakePPMOfficeRole creates a single ppm office user role.
-func MakePPMOfficeRole(db *pop.Connection) roles.Role {
-	return MakeRole(db, Assertions{
-		Role: roles.Role{
-			RoleType: roles.RoleTypePPMOfficeUsers,
-			RoleName: "PPP Office User",
-		},
-	})
-}
-
 // MakeTOORole creates a single transportation ordering officer role.
 func MakeTOORole(db *pop.Connection) roles.Role {
 	return MakeRole(db, Assertions{
