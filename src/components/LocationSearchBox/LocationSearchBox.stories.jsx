@@ -137,7 +137,7 @@ const mockShowAddress = async () => {
   return testAddress;
 };
 
-export const DutyStationStandard = () => {
+export const DutyStationBasic = () => {
   const [value, setValue] = useState();
 
   const onChange = (newValue) => {
@@ -229,7 +229,7 @@ export const DutyStationWithLocalError = () => {
   );
 };
 
-export const TransportationLocationStandard = () => {
+export const TransportationLocationBasic = () => {
   const [value, setValue] = useState();
 
   const onChange = (newValue) => {
