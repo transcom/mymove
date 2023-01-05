@@ -67,7 +67,6 @@ func (suite *AuthSuite) TestCreateUserHandlerMilMove() {
 
 func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 	// These roles are created during migrations but our test suite truncates all tables
-	testdatagen.MakePPMOfficeRole(suite.DB())
 	testdatagen.MakeTOORole(suite.DB())
 	testdatagen.MakeTIORole(suite.DB())
 	testdatagen.MakeServicesCounselorRole(suite.DB())
@@ -84,7 +83,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 		userType string
 		roleType roles.RoleType
 		email    string
-	}{{userType: PPMOfficeUserType, roleType: roles.RoleTypePPMOfficeUsers, email: "ppm_office_user@example.com"}, {userType: TOOOfficeUserType, roleType: roles.RoleTypeTOO, email: "too_office_user@example.com"}, {userType: TIOOfficeUserType, roleType: roles.RoleTypeTIO, email: "tio_office_user@example.com"}, {userType: ServicesCounselorOfficeUserType, roleType: roles.RoleTypeServicesCounselor, email: "services_counselor_office_user@example.com"}, {userType: QaeCsrOfficeUserType, roleType: roles.RoleTypeQaeCsr, email: "qae_csr_office_user@example.com"}} {
+	}{{userType: TOOOfficeUserType, roleType: roles.RoleTypeTOO, email: "too_office_user@example.com"}, {userType: TIOOfficeUserType, roleType: roles.RoleTypeTIO, email: "tio_office_user@example.com"}, {userType: ServicesCounselorOfficeUserType, roleType: roles.RoleTypeServicesCounselor, email: "services_counselor_office_user@example.com"}, {userType: QaeCsrOfficeUserType, roleType: roles.RoleTypeQaeCsr, email: "qae_csr_office_user@example.com"}} {
 		// Exercise all variables in the office user
 		form := url.Values{}
 		form.Add("userType", newOfficeUser.userType)
@@ -228,14 +227,14 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 	t := suite.T()
-	testdatagen.MakePPMOfficeRole(suite.DB())
+	testdatagen.MakeTOORole(suite.DB())
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
 	callbackPort := 1234
 
 	form := url.Values{}
-	form.Add("userType", "PPM office")
+	form.Add("userType", "TOO office")
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.MilServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
@@ -394,14 +393,14 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToMilMove() {
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToOffice() {
 	t := suite.T()
-	testdatagen.MakePPMOfficeRole(suite.DB())
+	testdatagen.MakeTOORole(suite.DB())
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
 	callbackPort := 1234
 
 	form := url.Values{}
-	form.Add("userType", "PPM office")
+	form.Add("userType", "TOO office")
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.AdminServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")

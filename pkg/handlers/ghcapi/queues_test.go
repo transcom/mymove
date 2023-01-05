@@ -778,10 +778,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-		RoleType: roles.RoleTypeTIO,
-	})
+	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -1365,10 +1362,10 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 
 	suite.Run("responds with forbidden error when user is not an office user", func() {
 		subtestData := suite.makeServicesCounselingSubtestData()
-		ppmOfficeUser := testdatagen.MakePPMOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		user := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
 		request := httptest.NewRequest("GET", "/queues/counseling", nil)
-		request = suite.AuthenticateOfficeRequest(request, ppmOfficeUser)
+		request = suite.AuthenticateOfficeRequest(request, user)
 
 		params := queues.GetServicesCounselingQueueParams{
 			HTTPRequest: request,
