@@ -3812,7 +3812,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 }
 
 // A generic method
-func createMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.Assertions) {
+func CreateMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.Assertions) models.Move {
 
 	ordersType := assertions.Order.OrdersType
 	shipmentType := assertions.MTOShipment.ShipmentType
@@ -3870,6 +3870,8 @@ func createMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 			RequestedDeliveryDate: &requestedDeliveryDate,
 		},
 	})
+
+	return move
 }
 
 func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {

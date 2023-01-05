@@ -137,6 +137,20 @@ class OfficePage extends BaseTestPage {
     await this.page.locator('[data-testid="locator-0"]').click();
     await this.waitForLoading();
   }
+
+  /**
+   * TOO search for and navigate to move
+   * @param {string} moveLocator
+   */
+  async tooNavigateToMove(moveLocator) {
+    await this.page.locator('input[name="locator"]').type(moveLocator);
+    await this.page.locator('input[name="locator"]').blur();
+
+    // click result to navigate to move details page
+    await this.page.locator('tbody > tr').first().click();
+    await this.waitForLoading();
+    base.expect(this.page.url()).toContain(`/moves/${moveLocator}/details`);
+  }
 }
 
 /**

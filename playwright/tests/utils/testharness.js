@@ -18,6 +18,7 @@ export function newTestHarness(request) {
       throw Error(`Error with testharness build for '${action}': ${body}`);
     }
     const obj = /** @type {Object} */ await r.json();
+    await r.dispose();
     return obj;
   };
 
@@ -88,12 +89,21 @@ export function newTestHarness(request) {
     },
 
     /**
+     * Use testharness to build retiree hhg move for TOO
+     * @returns {Promise<Object>}
+     */
+    async buildHHGMoveWithRetireeForTOO() {
+      return buildDefault('HHGMoveWithRetireeForTOO');
+    },
+
+    /**
      * Use testharness to build hhg move for TIO
      * @returns {Promise<Object>}
      */
     async buildHHGMoveWithServiceItemsandPaymentRequestsForTIO() {
       return buildDefault('HHGMoveWithServiceItemsandPaymentRequestsForTIO');
     },
+
     /**
      * Use testharness to build hhg move with nts
      * @returns {Promise<Object>}

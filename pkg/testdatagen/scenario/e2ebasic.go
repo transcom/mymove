@@ -4333,7 +4333,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createNTSRMoveWithPaymentRequest(appCtx, userUploader, "NTSRT3")
 
 	//Retiree, HOR, HHG
-	createMoveWithOptions(appCtx, testdatagen.Assertions{
+	CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 		Order: models.Order{
 			OrdersType: retirement,
 		},
