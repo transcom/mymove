@@ -9,7 +9,7 @@ import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
-import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
+import { getShipmentTypeLabel, isArmyOrAirForce } from 'utils/shipmentDisplay';
 
 const PPMShipmentCard = ({
   move,
@@ -21,6 +21,7 @@ const PPMShipmentCard = ({
   onDeleteClick,
 }) => {
   const { moveTaskOrderID, id, shipmentType } = shipment;
+  const closeoutOffice = move.closeout_office.name;
   const {
     pickupPostalCode,
     secondaryPickupPostalCode,
@@ -89,12 +90,12 @@ const PPMShipmentCard = ({
               <dd>{secondaryDestinationPostalCode}</dd>
             </div>
           )}
-          {affiliation === 'AIR_FORCE' && (
+          {isArmyOrAirForce ? (
             <div className={styles.row}>
               <dt>Closeout office</dt>
-              <dd>{move.closeout_office.name}</dd>
+              <dd>{closeoutOffice}</dd>
             </div>
-          )}
+          ) : null}
           <div className={styles.row}>
             <dt>Storage expected? (SIT)</dt>
             <dd>{sitExpected ? 'Yes' : 'No'}</dd>
