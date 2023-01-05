@@ -3,31 +3,6 @@ const { test, expect } = require('../../utils/customerTest');
 
 /**
  * @param {import('@playwright/test').Page} page
- * @param {string} inputData
- * @param {string} fieldName
- * @param {string} classSelector
- */
-async function genericSelect(page, inputData, fieldName, classSelector) {
-  // fieldName is passed as a classname to the react-select component,
-  // so select for it if provided
-  const actualClassSelector = fieldName ? `${classSelector}.${fieldName}` : classSelector;
-  await page.locator(`${actualClassSelector} input[type="text"]`).type(inputData);
-
-  // Click on the first presented option
-  await page.locator(classSelector).locator('div[class*="option"]').first().click();
-}
-
-/**
- * @param {import('@playwright/test').Page} page
- * @param {string} dutyLocationName
- * @param {string} fieldName
- */
-async function selectDutyLocation(page, dutyLocationName, fieldName) {
-  return genericSelect(page, dutyLocationName, fieldName, '.duty-input-box');
-}
-
-/**
- * @param {import('@playwright/test').Page} page
  * @param {string} flagVal
  */
 async function setFeatureFlag(page, flagVal, url = '/queues/new') {
@@ -68,13 +43,13 @@ test('orders entry will accept orders information', async ({ page, customerPage 
   await page.locator('div:has(label:has-text("Are dependents")) >> div.usa-radio').getByText('No').click();
 
   // Choosing same current and destination duty location should block you from progressing and give an error
-  await selectDutyLocation(page, 'Yuma AFB', 'new_duty_location');
+  await customerPage.selectDutyLocation('Yuma AFB', 'new_duty_location');
   await expect(page.locator('.usa-error-message')).toContainText(
     'You entered the same duty location for your origin and destination. Please change one of them.',
   );
   await expect(page.locator('button[data-testid="wizardNextButton"]')).toBeDisabled();
 
-  await selectDutyLocation(page, 'NAS Fort Worth JRB', 'new_duty_location');
+  await customerPage.selectDutyLocation('NAS Fort Worth JRB', 'new_duty_location');
 
   await page.getByRole('button', { name: 'Next' }).click();
   await expect(page.getByText('Upload your orders')).toBeVisible();

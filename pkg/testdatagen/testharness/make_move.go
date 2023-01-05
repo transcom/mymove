@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/storage"
@@ -1757,5 +1758,35 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
 	}
 
+	return *newmove
+}
+
+// MakeHHGMoveWithRetireeForTOO creates a retiree move for TOO
+func MakeHHGMoveWithRetireeForTOO(appCtx appcontext.AppContext) models.Move {
+	retirement := internalmessages.OrdersTypeRETIREMENT
+	hhg := models.MTOShipmentTypeHHG
+	hor := models.DestinationTypeHomeOfRecord
+	move := scenario.CreateMoveWithOptions(appCtx, testdatagen.Assertions{
+		Order: models.Order{
+			OrdersType: retirement,
+		},
+		MTOShipment: models.MTOShipment{
+			ShipmentType:    hhg,
+			DestinationType: &hor,
+		},
+		Move: models.Move{
+			Status: models.MoveStatusSUBMITTED,
+		},
+		DutyLocation: models.DutyLocation{
+			ProvidesServicesCounseling: false,
+		},
+	})
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
 	return *newmove
 }

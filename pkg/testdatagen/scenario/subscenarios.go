@@ -401,7 +401,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		separation := internalmessages.OrdersTypeSEPARATION
 
 		//Retiree, HOR, HHG
-		createMoveWithOptions(appCtx, testdatagen.Assertions{
+		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
 			},
@@ -420,7 +420,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 
 		//Retiree, HOS, NTS
 		ntsMoveType := models.SelectedMoveTypeNTS
-		createMoveWithOptions(appCtx, testdatagen.Assertions{
+		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
 			},
@@ -441,7 +441,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 
 		//Retiree, HOS, NTSR
 		ntsrMoveType := models.SelectedMoveTypeNTSR
-		createMoveWithOptions(appCtx, testdatagen.Assertions{
+		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
 			},
@@ -461,7 +461,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		})
 
 		//Separatee, HOS, hhg
-		createMoveWithOptions(appCtx, testdatagen.Assertions{
+		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: separation,
 			},
