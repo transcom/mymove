@@ -11,7 +11,15 @@ import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 
-const PPMShipmentCard = ({ move, shipment, shipmentNumber, showEditAndDeleteBtn, onEditClick, onDeleteClick }) => {
+const PPMShipmentCard = ({
+  move,
+  affiliation,
+  shipment,
+  shipmentNumber,
+  showEditAndDeleteBtn,
+  onEditClick,
+  onDeleteClick,
+}) => {
   const { moveTaskOrderID, id, shipmentType } = shipment;
   const {
     pickupPostalCode,
@@ -81,10 +89,12 @@ const PPMShipmentCard = ({ move, shipment, shipmentNumber, showEditAndDeleteBtn,
               <dd>{secondaryDestinationPostalCode}</dd>
             </div>
           )}
-          <div className={styles.row}>
-            <dt>Closeout office</dt>
-            <dd>{move.closeout_office.name}</dd>
-          </div>
+          {affiliation === 'AIR_FORCE' && (
+            <div className={styles.row}>
+              <dt>Closeout office</dt>
+              <dd>{move.closeout_office.name}</dd>
+            </div>
+          )}
           <div className={styles.row}>
             <dt>Storage expected? (SIT)</dt>
             <dd>{sitExpected ? 'Yes' : 'No'}</dd>
