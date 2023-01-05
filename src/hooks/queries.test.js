@@ -15,6 +15,7 @@ import {
   useEvaluationReportQueries,
 } from './queries';
 
+import { ReactQueryWrapper } from 'testUtils';
 import { serviceItemCodes } from 'content/serviceItems';
 
 jest.mock('services/ghcApi', () => ({
@@ -270,7 +271,7 @@ jest.mock('services/internalApi', () => ({
 describe('useTXOMoveInfoQueries', () => {
   it('loads data', async () => {
     const testMoveCode = 'ABCDEF';
-    const { result, waitForNextUpdate } = renderHook(() => useTXOMoveInfoQueries(testMoveCode));
+    const { result, waitForNextUpdate } = renderHook(() => useTXOMoveInfoQueries(testMoveCode), { ReactQueryWrapper });
 
     expect(result.current).toEqual({
       order: undefined,
@@ -310,7 +311,7 @@ describe('useTXOMoveInfoQueries', () => {
 describe('usePaymentRequestQueries', () => {
   it('loads data', async () => {
     const testId = 'a1b2';
-    const { result, waitForNextUpdate } = renderHook(() => usePaymentRequestQueries(testId));
+    const { result, waitForNextUpdate } = renderHook(() => usePaymentRequestQueries(testId), { ReactQueryWrapper });
 
     expect(result.current).toEqual({
       paymentRequest: undefined,
@@ -388,7 +389,7 @@ describe('usePaymentRequestQueries', () => {
 describe('useMoveDetailsQueries', () => {
   it('loads data', async () => {
     const moveCode = 'ABCDEF';
-    const { result, waitForNextUpdate } = renderHook(() => useMoveDetailsQueries(moveCode));
+    const { result, waitForNextUpdate } = renderHook(() => useMoveDetailsQueries(moveCode), { ReactQueryWrapper });
 
     expect(result.current).toEqual({
       move: {
@@ -507,7 +508,7 @@ describe('useMoveDetailsQueries', () => {
 describe('useMoveTaskOrderQueries', () => {
   it('loads data', async () => {
     const moveId = 'ABCDEF';
-    const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(moveId));
+    const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(moveId), { ReactQueryWrapper });
 
     await waitForNextUpdate();
 
@@ -599,7 +600,7 @@ describe('useMoveTaskOrderQueries', () => {
 describe('useEditShipmentQueries', () => {
   it('loads data', async () => {
     const moveCode = 'ABCDEF';
-    const { result, waitForNextUpdate } = renderHook(() => useEditShipmentQueries(moveCode));
+    const { result, waitForNextUpdate } = renderHook(() => useEditShipmentQueries(moveCode), { ReactQueryWrapper });
 
     await waitForNextUpdate();
 
@@ -680,7 +681,9 @@ describe('useOrdersDocumentQueries', () => {
   it('loads data', async () => {
     const testLocatorId = 'ABCDEF';
 
-    const { result, waitForNextUpdate } = renderHook(() => useOrdersDocumentQueries(testLocatorId));
+    const { result, waitForNextUpdate } = renderHook(() => useOrdersDocumentQueries(testLocatorId), {
+      ReactQueryWrapper,
+    });
 
     await waitForNextUpdate();
 
@@ -731,8 +734,9 @@ describe('useOrdersDocumentQueries', () => {
 
 describe('useMovesQueueQueries', () => {
   it('loads data', async () => {
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useMovesQueueQueries({ filters: [], currentPage: 1, currentPageSize: 100 }),
+    const { result, waitForNextUpdate } = renderHook(
+      () => useMovesQueueQueries({ filters: [], currentPage: 1, currentPageSize: 100 }),
+      { ReactQueryWrapper },
     );
 
     await waitForNextUpdate();
@@ -760,8 +764,9 @@ describe('useMovesQueueQueries', () => {
 
 describe('usePaymentRequestsQueueQueries', () => {
   it('loads data', async () => {
-    const { result, waitForNextUpdate } = renderHook(() =>
-      usePaymentRequestQueueQueries({ filters: [], currentPage: 1, currentPageSize: 100 }),
+    const { result, waitForNextUpdate } = renderHook(
+      () => usePaymentRequestQueueQueries({ filters: [], currentPage: 1, currentPageSize: 100 }),
+      { ReactQueryWrapper },
     );
 
     await waitForNextUpdate();
@@ -789,7 +794,7 @@ describe('usePaymentRequestsQueueQueries', () => {
 
 describe('useUserQueries', () => {
   it('loads data', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useUserQueries());
+    const { result, waitForNextUpdate } = renderHook(() => useUserQueries(), { ReactQueryWrapper });
 
     await waitForNextUpdate();
 
@@ -806,7 +811,7 @@ describe('useUserQueries', () => {
 
 describe('useEvaluationReportQueries', () => {
   it('loads data', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useEvaluationReportQueries('1234'));
+    const { result, waitForNextUpdate } = renderHook(() => useEvaluationReportQueries('1234'), { ReactQueryWrapper });
 
     expect(result.current).toEqual({
       evaluationReport: {},

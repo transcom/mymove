@@ -19,9 +19,9 @@ import { roleTypes } from 'constants/userRoles';
 const EditShipmentDetails = ({ match }) => {
   const { moveCode, shipmentId } = useParams();
   const history = useHistory();
-  const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const queryClient = new QueryClient();
-  const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
+  const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
+  const { mutateAsync: mutateMTOShipment } = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);

@@ -16,20 +16,36 @@ export const createMockHistory = (initialEntries) => {
   return createMemoryHistory({ initialEntries });
 };
 
+export const ReactQueryWrapper = ({ children }) => {
+  const queryClient = new QueryClient();
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+};
+
 export const renderWithRouter = (ui, { route = '/', history = createMockHistory([route]) } = {}) => {
   return {
-    ...render(<Router history={history}>{ui}</Router>),
+    ...render(
+      <ReactQueryWrapper>
+        <Router history={history}>{ui}</Router>
+      </ReactQueryWrapper>,
+    ),
     history,
   };
 };
 
-export const MockProviders = ({ children, initialState, initialEntries, permissions, history, currentUserId }) => {
+export const MockProviders = ({
+  children,
+  initialState,
+  initialEntries,
+  permissions,
+  history,
+  currentUserId,
+  client,
+}) => {
   const mockHistory = history || createMockHistory(initialEntries);
   const mockStore = configureStore(mockHistory, initialState);
-  const queryClient = new QueryClient();
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <ReactQueryWrapper client={client}>
       <PermissionProvider permissions={permissions} currentUserId={currentUserId}>
         <Provider store={mockStore.store}>
           <ConnectedRouter history={mockHistory}>
@@ -37,7 +53,7 @@ export const MockProviders = ({ children, initialState, initialEntries, permissi
           </ConnectedRouter>
         </Provider>
       </PermissionProvider>
-    </QueryClientProvider>
+    </ReactQueryWrapper>
   );
 };
 
