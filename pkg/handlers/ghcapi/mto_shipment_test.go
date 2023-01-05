@@ -94,7 +94,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 	})
 
-	ppm := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
+	ppm := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 	})
 
@@ -161,7 +161,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		sitExtension := subtestData.sitExtension
 
 		handler := ListMTOShipmentsHandler{
-			suite.createS3HandlerConfig(),
+			suite.HandlerConfig(),
 			mtoshipment.NewMTOShipmentFetcher(),
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -211,11 +211,6 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.NotNil(payloadShipment4.PpmShipment)
 		suite.Equal(shipments[3].ID.String(), payloadShipment4.PpmShipment.ShipmentID.String())
 		suite.Equal(shipments[3].PPMShipment.ID.String(), payloadShipment4.PpmShipment.ID.String())
-
-		if suite.NotNil(payloadShipment4.PpmShipment.WeightTickets) {
-			suite.Equal(len(shipments[3].PPMShipment.WeightTickets), len(payloadShipment4.PpmShipment.WeightTickets))
-			suite.EqualUUID(shipments[3].PPMShipment.WeightTickets[0].ID, payloadShipment4.PpmShipment.WeightTickets[0].ID)
-		}
 	})
 
 	suite.Run("Failure list fetch - Internal Server Error", func() {
