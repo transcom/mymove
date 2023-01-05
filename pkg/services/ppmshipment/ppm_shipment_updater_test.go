@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
@@ -902,7 +903,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		subtestData := setUpForTests(fakeEstimatedIncentive, nil, nil)
 
-		address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+		address := factory.BuildAddress(appCtx.DB(), nil, nil)
 		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
 				W2Address:   &address,

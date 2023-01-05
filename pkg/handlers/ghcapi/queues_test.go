@@ -10,6 +10,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -1204,15 +1205,17 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	})
 
 	// Create a move with an origin duty location outside of office user GBLOC
-	dutyLocationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "Fort Gordon",
-			City:           "Augusta",
-			State:          "GA",
-			PostalCode:     "30813",
-			Country:        swag.String("United States"),
+	dutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "Fort Gordon",
+				City:           "Augusta",
+				State:          "GA",
+				PostalCode:     "30813",
+				Country:        models.StringPointer("United States"),
+			},
 		},
-	})
+	}, nil)
 
 	originDutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
 		DutyLocation: models.DutyLocation{

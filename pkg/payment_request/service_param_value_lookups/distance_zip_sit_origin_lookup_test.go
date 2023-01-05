@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -35,26 +36,32 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 			},
 		)
 
-		originAddress = testdatagen.MakeAddress(suite.DB(),
-			testdatagen.Assertions{
-				Address: models.Address{
-					PostalCode: originZip,
+		originAddress = factory.BuildAddress(suite.DB(),
+			[]factory.Customization{
+				{
+					Model: models.Address{
+						PostalCode: originZip,
+					},
 				},
-			})
+			}, nil)
 
-		actualOriginSameZip3Address = testdatagen.MakeAddress(suite.DB(),
-			testdatagen.Assertions{
-				Address: models.Address{
-					PostalCode: actualOriginZipSameZip3,
+		actualOriginSameZip3Address = factory.BuildAddress(suite.DB(),
+			[]factory.Customization{
+				{
+					Model: models.Address{
+						PostalCode: actualOriginZipSameZip3,
+					},
 				},
-			})
+			}, nil)
 
-		actualOriginDiffZip3Address = testdatagen.MakeAddress(suite.DB(),
-			testdatagen.Assertions{
-				Address: models.Address{
-					PostalCode: actualOriginZipDiffZip3,
+		actualOriginDiffZip3Address = factory.BuildAddress(suite.DB(),
+			[]factory.Customization{
+				{
+					Model: models.Address{
+						PostalCode: actualOriginZipDiffZip3,
+					},
 				},
-			})
+			}, nil)
 
 		move := testdatagen.MakeDefaultMove(suite.DB())
 

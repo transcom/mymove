@@ -13,6 +13,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -62,7 +63,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// Make stubbed addresses just to collect address data for payload
-		newAddress := testdatagen.MakeStubbedAddress(suite.DB())
+		newAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		pickupAddress = primemessages.Address{
 			City:           &newAddress.City,
 			Country:        newAddress.Country,
@@ -72,7 +79,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress2: newAddress.StreetAddress2,
 			StreetAddress3: newAddress.StreetAddress3,
 		}
-		newAddress = testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
+		newAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 		destinationAddress = primemessages.Address{
 			City:           &newAddress.City,
 			Country:        newAddress.Country,
@@ -565,8 +572,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				Status:       models.MTOShipmentStatusApproved,
 				ApprovedDate: now,
 			},
-			SecondaryPickupAddress:   testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{}),
-			SecondaryDeliveryAddress: testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{}),
+			SecondaryPickupAddress:   factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3}),
+			SecondaryDeliveryAddress: factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4}),
 		})
 		return handler, shipment
 	}
@@ -1633,7 +1640,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 	suite.Run("PATCH Success 200 RequiredDeliveryDate updated on scheduledPickupDate update", func() {
 		handler, move := setupTestData()
 
-		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		address := factory.BuildAddress(suite.DB(), nil, nil)
 		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{})
 
 		hhgShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -1745,7 +1752,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
 		// Create shipment with populated estimated weight and scheduled date
 		tenDaysFromNow := now.AddDate(0, 0, 11)
-		pickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 		oldShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{

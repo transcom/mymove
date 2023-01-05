@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -1254,15 +1255,17 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 
 		// Create data for a second Origin ZANY
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
-		dutyLocationAddress2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "Anchor 1212",
-				City:           "Augusta",
-				State:          "GA",
-				PostalCode:     "89898",
-				Country:        swag.String("United States"),
+		dutyLocationAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "Anchor 1212",
+					City:           "Augusta",
+					State:          "GA",
+					PostalCode:     "89898",
+					Country:        models.StringPointer("United States"),
+				},
 			},
-		})
+		}, nil)
 		originDutyLocation2 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
 			DutyLocation: models.DutyLocation{
 				Name:      "Fort Sam Snap",
