@@ -6,13 +6,13 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *AddressSuite) TestAddressUpdater() {
 	createOriginalAddress := func() *models.Address {
-		originalAddress := testdatagen.MakeAddress(suite.AppContextForTest().DB(), testdatagen.Assertions{})
+		originalAddress := factory.BuildAddress(suite.AppContextForTest().DB(), nil, nil)
 		return &originalAddress
 	}
 

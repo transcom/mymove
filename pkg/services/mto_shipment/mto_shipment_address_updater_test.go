@@ -3,6 +3,7 @@ package mtoshipment
 import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -20,7 +21,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 	//             With mustBeAvailableToPrime = false, there should be no error
 	suite.Run("Using external vendor shipment", func() {
 		availableToPrimeMove := testdatagen.MakeAvailableMove(suite.DB())
-		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		address := factory.BuildAddress(suite.DB(), nil, nil)
 		externalShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: availableToPrimeMove,
 			MTOShipment: models.MTOShipment{

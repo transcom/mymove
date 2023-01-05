@@ -13,14 +13,10 @@ import { loadMove, loadMoveLabel } from 'shared/Entities/modules/moves';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import PrivateRoute from 'containers/PrivateRoute';
-import { Switch, Redirect } from 'react-router-dom';
 
-import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 
-import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
 import {
   selectAllDocumentsForMove,
   getMoveDocumentsForMove,
@@ -28,7 +24,6 @@ import {
 } from 'shared/Entities/modules/moveDocuments';
 import { stringifyName } from 'shared/utils/serviceMember';
 import { convertDollarsToCents } from 'shared/utils';
-import { roleTypes } from 'constants/userRoles';
 
 import DocumentDetailPanel from './DocumentDetailPanel';
 
@@ -111,13 +106,7 @@ class DocumentViewer extends Component {
     document.title = `Document Viewer for ${name}`;
 
     // urls: has full url with IDs
-    const defaultUrl = `/moves/${moveId}/documents`;
     const newUrl = `/moves/${moveId}/documents/new`;
-
-    // paths: has placeholders (e.g. ":moveId")
-    const defaultPath = `/moves/:moveId/documents`;
-    const newPath = `/moves/:moveId/documents/new`;
-    const documentPath = `/moves/:moveId/documents/:moveDocumentId`;
 
     const defaultTabIndex = this.props.match.params.moveDocumentId !== 'new' ? 1 : 0;
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
@@ -136,32 +125,6 @@ class DocumentViewer extends Component {
     return (
       <div className="grid-container-widescreen usa-prose">
         <div className="grid-row grid-gap doc-viewer">
-          <div className="grid-col-8">
-            <div className="tab-content">
-              <Switch>
-                <PrivateRoute
-                  exact
-                  path={defaultPath}
-                  render={() => <Redirect replace to={newUrl} />}
-                  requiredRoles={[roleTypes.PPM]}
-                />
-                <PrivateRoute
-                  path={newPath}
-                  moveId={moveId}
-                  render={() => {
-                    return <DocumentUploader {...this.getDocumentUploaderProps} />;
-                  }}
-                  requiredRoles={[roleTypes.PPM]}
-                />
-                <PrivateRoute path={documentPath} component={DocumentUploadViewer} requiredRoles={[roleTypes.PPM]} />
-                <PrivateRoute
-                  path={defaultUrl}
-                  render={() => <div> document viewer coming soon</div>}
-                  requiredRoles={[roleTypes.PPM]}
-                />
-              </Switch>
-            </div>
-          </div>
           <div className="grid-col-4">
             <h3>{name}</h3>
             <PanelField title="Move Locator">{moveLocator}</PanelField>

@@ -313,7 +313,7 @@ func mergeCustomization(customs []Customization, traits []Trait) []Customization
 }
 
 // Helper function for when you need to elevate the type of customization from say
-// ResidentialAddress to Address before you call makeAddress
+// ResidentialAddress to Address before you call BuildAddress
 // This is a little finicky because we want to be careful not to harm the existing list
 // TBD should we validate again here?
 func convertCustomizationInList(customs []Customization, from CustomType, to CustomType) []Customization {

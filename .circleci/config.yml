@@ -28,8 +28,9 @@ references:
   # in dp3-env (loadtest, demo, exp), or
   # `placeholder_branch_name` if you don't want to deploy to dp3
   #
-  # In addition, it's common practice to ignore tests for dp3 deploys.
-  # See the branch settings below.
+
+  # In addition, it's common practice to disable acceptance tests and
+  # ignore tests for dp3 deploys. See the branch settings below.
   dp3-branch: &dp3-branch placeholder_branch_name
   # MUST BE ONE OF: loadtest, demo, exp.
   # These are used to pull in env vars so the spelling matters!
@@ -1012,7 +1013,23 @@ jobs:
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - restore_cache:
           keys:
-            - server-tests-coverage
+          #
+          # https://circleci.com/docs/caching/#restoring-cache
+          #
+          # restore the latest version of the test coverage in the
+          # cache
+          #
+          # To manually reset test coverage (e.g. a refactor or
+          # deleting code means coverage has gone down and we are ok
+          # with it), increment the version number of the cache
+          # e.g. go from v1-server-tests-coverage- to
+          # v2-server-tests-coverage-
+          #
+          # Make sure you also update the key in the save_cache below
+          #
+          # The trailing hyphen in restore_cache seems important
+          # according to the page linked above
+            - v2-server-tests-coverage-
       - run:
           name: Save Baseline Test Coverage
           command: |
@@ -1046,8 +1063,13 @@ jobs:
           condition:
             equal: [main, << pipeline.git.branch >>]
           steps:
+            # Make sure this key prefix matches the one above in
+            # restore_cache
+            #
+            # Use the BuildNum to update the cache key so that the
+            # coverage cache is always updated
             save_cache:
-              key: server-tests-coverage
+              key: v1-server-tests-coverage-{{ .BuildNum }}
               paths:
                 - ~/transcom/mymove/tmp/test-results
       - announce_failure
@@ -1061,8 +1083,24 @@ jobs:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
+          #
+          # https://circleci.com/docs/caching/#restoring-cache
+          #
+          # restore the latest version of the test coverage in the
+          # cache
+          #
+          # To manually reset test coverage (e.g. a refactor or
+          # deleting code means coverage has gone down and we are ok
+          # with it), increment the version number of the cache
+          # e.g. go from v1-client-tests-coverage- to
+          # v2-client-tests-coverage-
+          #
+          # Make sure you also update the key in the save_cache below
+          #
+          # The trailing hyphen in restore_cache seems important
+          # according to the page linked above
           keys:
-            - client-tests-coverage
+            - v2-client-tests-coverage-
       - run:
           name: Save Baseline Test Coverage
           command: |
@@ -1087,8 +1125,12 @@ jobs:
           condition:
             equal: [main, << pipeline.git.branch >>]
           steps:
+            # Make sure this key prefix matches the one above in restore_cache
+            #
+            # Use the BuildNum to update the cache key so that the
+            # coverage cache is always updated
             save_cache:
-              key: client-tests-coverage
+              key: v2-client-tests-coverage-{{ .BuildNum }}
               paths:
                 - ~/transcom/mymove/coverage
       - announce_failure

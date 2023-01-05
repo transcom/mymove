@@ -86,10 +86,10 @@ func serviceMemberNoUploadedOrders(appCtx appcontext.AppContext) {
 }
 
 func basicUserWithOfficeAccess(appCtx appcontext.AppContext) {
-	ppmOfficeRole := roles.Role{}
-	err := appCtx.DB().Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&ppmOfficeRole)
+	tooRole := roles.Role{}
+	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypePPMOfficeUsers in the DB: %w", err))
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
 	}
 
 	email := "officeuser1@example.com"
@@ -101,7 +101,7 @@ func basicUserWithOfficeAccess(appCtx appcontext.AppContext) {
 			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
-			Roles:         []roles.Role{ppmOfficeRole},
+			Roles:         []roles.Role{tooRole},
 		},
 		OfficeUser: models.OfficeUser{
 			ID:     uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),
@@ -1989,13 +1989,14 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 		},
 	})
 
-	addressAssertion := testdatagen.Assertions{
-		Address: models.Address{
-			// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
-			PostalCode: "85004",
-		}}
-
-	shipmentPickupAddress := testdatagen.MakeAddress(appCtx.DB(), addressAssertion)
+	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
+				PostalCode: "85004",
+			},
+		},
+	}, nil)
 
 	mtoShipmentHHG := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
@@ -3126,7 +3127,7 @@ func createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext, u
 
 	requestedPickupDate := time.Now().AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
-	pickupAddress := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	shipmentFields := models.MTOShipment{
 		ID:                    uuid.FromStringOrNil("5375f237-430c-406d-9ec8-5a27244d563a"),
@@ -3139,7 +3140,7 @@ func createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext, u
 
 	// Uncomment to create the shipment with a destination address
 	/*
-		destinationAddress := testdatagen.MakeAddress2(appCtx.DB(), testdatagen.Assertions{})
+		destinationAddress := factory.BuildAddress(appCtx.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 		shipmentFields.DestinationAddress = &destinationAddress
 		shipmentFields.DestinationAddressID = &destinationAddress.ID
 	*/
@@ -3262,12 +3263,14 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 	})
 
 	// Create Pickup Address
-	shipmentPickupAddress := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			// KKFA GBLOC
-			PostalCode: "85004",
+	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// KKFA GBLOC
+				PostalCode: "85004",
+			},
 		},
-	})
+	}, nil)
 
 	// Create Storage Facility
 	storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(), testdatagen.Assertions{
@@ -3776,12 +3779,14 @@ func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader
 	})
 
 	// Create Pickup Address
-	shipmentPickupAddress := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			// KKFA GBLOC
-			PostalCode: "85004",
+	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// KKFA GBLOC
+				PostalCode: "85004",
+			},
 		},
-	})
+	}, nil)
 
 	// Create Storage Facility
 	storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(), testdatagen.Assertions{

@@ -25,6 +25,10 @@ export async function getPaymentRequest(key, paymentRequestID) {
   return makeGHCRequest('paymentRequests.getPaymentRequest', { paymentRequestID });
 }
 
+export async function getWeightTickets(key, ppmShipmentId) {
+  return makeGHCRequest('ppmgetWeightTickets', { ppmShipmentId }, { normalize: false });
+}
+
 export async function getMove(key, locator) {
   return makeGHCRequest('move.getMove', { locator }, { normalize: false });
 }

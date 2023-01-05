@@ -1,6 +1,7 @@
 package serviceparamvaluelookups
 
 import (
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -25,19 +26,23 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGActualAddressLook
 			},
 		)
 
-		originAddress := testdatagen.MakeAddress(suite.DB(),
-			testdatagen.Assertions{
-				Address: models.Address{
-					PostalCode: originZip,
+		originAddress := factory.BuildAddress(suite.DB(),
+			[]factory.Customization{
+				{
+					Model: models.Address{
+						PostalCode: originZip,
+					},
 				},
-			})
+			}, nil)
 
-		actualOriginSameZip3Address := testdatagen.MakeAddress(suite.DB(),
-			testdatagen.Assertions{
-				Address: models.Address{
-					PostalCode: actualOriginZipSameZip3,
+		actualOriginSameZip3Address := factory.BuildAddress(suite.DB(),
+			[]factory.Customization{
+				{
+					Model: models.Address{
+						PostalCode: actualOriginZipSameZip3,
+					},
 				},
-			})
+			}, nil)
 
 		move := testdatagen.MakeDefaultMove(suite.DB())
 
