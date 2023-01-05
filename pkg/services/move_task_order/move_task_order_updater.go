@@ -64,20 +64,12 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 			return err
 		}
 
-		ppmOnlyMove := true
-		for _, s := range move.MTOShipments {
-			if s.ShipmentType != models.MTOShipmentTypePPM {
-				ppmOnlyMove = false
-				break
-			}
-		}
-
 		// If this is a PPM-only move, then we also need to adjust other statuses:
 		//   - set MTO shipment status to APPROVED
 		//   - set PPM shipment status to WAITING_ON_CUSTOMER
 		// TODO: Perhaps this could be part of the shipment router. PPMs are a separate model/table,
 		//   so would need to figure out how they factor in.
-		if ppmOnlyMove {
+		if move.IsPPMOnly() {
 			// Note: Avoiding the copy of the element in the range so we can preserve the changes to the
 			// statuses when we return the entire move tree.
 			for i := range move.MTOShipments { // We should only have PPM shipments if we get to here.
@@ -223,7 +215,7 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 			}
 
 			// When provided, this will create and approve these Move-level service items.
-			if includeServiceCodeMS {
+			if includeServiceCodeMS && !move.IsPPMOnly() {
 				err = o.createMoveLevelServiceItem(txnAppCtx, *move, models.ReServiceCodeMS)
 			}
 
