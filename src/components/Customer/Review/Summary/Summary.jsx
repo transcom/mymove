@@ -119,6 +119,7 @@ export class Summary extends Component {
           <PPMShipmentCard
             key={shipment.id}
             move={currentMove}
+            affiliation={serviceMember.affiliation}
             shipment={shipment}
             shipmentNumber={ppmShipmentNumber}
             showEditAndDeleteBtn={showEditAndDeleteBtn}
