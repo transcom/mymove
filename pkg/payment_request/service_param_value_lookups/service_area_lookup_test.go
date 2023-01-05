@@ -1,6 +1,7 @@
 package serviceparamvaluelookups
 
 import (
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -16,16 +17,20 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 
 	setupTestData := func() {
 
-		originAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				PostalCode: "35007",
+		originAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "35007",
+				},
 			},
-		})
-		destAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				PostalCode: "45007",
+		}, nil)
+		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "45007",
+				},
 			},
-		})
+		}, nil)
 
 		mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{

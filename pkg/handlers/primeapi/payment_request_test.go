@@ -596,22 +596,26 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 }
 
 func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOServiceItems) {
-	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "7 Q St",
-			City:           "Birmingham",
-			State:          "AL",
-			PostalCode:     "90210",
+	pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "7 Q St",
+				City:           "Birmingham",
+				State:          "AL",
+				PostalCode:     "90210",
+			},
 		},
-	})
-	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "148 S East St",
-			City:           "Miami",
-			State:          "FL",
-			PostalCode:     "94535",
+	}, nil)
+	destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "148 S East St",
+				City:           "Miami",
+				State:          "FL",
+				PostalCode:     "94535",
+			},
 		},
-	})
+	}, nil)
 	testEstWeight := dlhTestWeight
 	testActualWeight := testEstWeight
 

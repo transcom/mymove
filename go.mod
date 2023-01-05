@@ -7,7 +7,7 @@ require (
 	github.com/XSAM/otelsql v0.17.1
 	github.com/alexedwards/scs/redisstore v0.0.0-20221223131519-238b052508b6
 	github.com/alexedwards/scs/v2 v2.5.0
-	github.com/aws/aws-sdk-go v1.44.172
+	github.com/aws/aws-sdk-go v1.44.173
 	github.com/benbjohnson/clock v1.3.0
 	github.com/codegangsta/gin v0.0.0-20211113050330-71f90109db02
 	github.com/disintegration/imaging v1.6.2
@@ -81,7 +81,7 @@ require (
 	golang.org/x/crypto v0.4.0
 	golang.org/x/net v0.4.0
 	golang.org/x/oauth2 v0.3.0
-	golang.org/x/text v0.5.0
+	golang.org/x/text v0.6.0
 	golang.org/x/tools v0.4.0
 	gotest.tools/gotestsum v1.8.2
 	pault.ag/go/pksigner v1.0.2

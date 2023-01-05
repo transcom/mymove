@@ -26,6 +26,7 @@ const ServicesCounselorCustomerSupportRemarks = lazy(() =>
   import('pages/Office/ServicesCounselorCustomerSupportRemarks/ServicesCounselorCustomerSupportRemarks'),
 );
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
+const ReviewDocuments = lazy(() => import('pages/Office/PPM/ReviewDocuments/ReviewDocuments'));
 
 const ServicesCounselingMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = useState(0);
@@ -151,6 +152,15 @@ const ServicesCounselingMoveInfo = () => {
             render={(props) => (
               // eslint-disable-next-line react/jsx-props-no-spreading
               <ServicesCounselingEditShipmentDetails {...props} onUpdate={onInfoSavedUpdate} isAdvancePage />
+            )}
+          />
+
+          <Route
+            path={servicesCounselingRoutes.SHIPMENT_REVIEW_PATH}
+            exact
+            render={(props) => (
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              <ReviewDocuments {...props} onUpdate={onInfoSavedUpdate} />
             )}
           />
 

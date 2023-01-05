@@ -28,8 +28,9 @@ references:
   # in dp3-env (loadtest, demo, exp), or
   # `placeholder_branch_name` if you don't want to deploy to dp3
   #
-  # In addition, it's common practice to ignore tests for dp3 deploys.
-  # See the branch settings below.
+
+  # In addition, it's common practice to disable acceptance tests and
+  # ignore tests for dp3 deploys. See the branch settings below.
   dp3-branch: &dp3-branch placeholder_branch_name
   # MUST BE ONE OF: loadtest, demo, exp.
   # These are used to pull in env vars so the spelling matters!

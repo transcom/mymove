@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -107,8 +108,8 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 
 		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{})
 
-		secondaryPickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
-		secondaryDeliveryAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
