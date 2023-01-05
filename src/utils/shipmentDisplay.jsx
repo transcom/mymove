@@ -129,3 +129,7 @@ export function getShipmentModificationType(shipment) {
 
   return undefined;
 }
+
+export function isArmyOrAirForce(affiliation) {
+  return affiliation === 'AIR_FORCE' || affiliation === 'ARMY';
+}
