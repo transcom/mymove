@@ -136,6 +136,8 @@ const MoveDetails = ({
       shipment.status === shipmentStatuses.CANCELED,
   );
 
+  const shipmentsInfoNonPPM = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
+
   useEffect(() => {
     const shipmentCount = submittedShipments?.length || 0;
     setUnapprovedShipmentCount(shipmentCount);
@@ -373,6 +375,7 @@ const MoveDetails = ({
                   </Link>
                 </Restricted>
               }
+              shipmentsInfoNonPpm={shipmentsInfoNonPPM}
             >
               <OrdersList ordersInfo={ordersInfo} />
             </DetailsPanel>
@@ -394,6 +397,7 @@ const MoveDetails = ({
                   </Link>
                 </Restricted>
               }
+              shipmentsInfoNonPpm={shipmentsInfoNonPPM}
             >
               <AllowancesList info={allowancesInfo} />
             </DetailsPanel>
