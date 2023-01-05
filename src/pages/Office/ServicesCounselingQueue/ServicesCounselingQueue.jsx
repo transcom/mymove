@@ -1,6 +1,6 @@
 import React from 'react';
 import { generatePath } from 'react-router';
-import { useHistory, Switch, Route } from 'react-router-dom';
+import { useHistory, Switch, Route, Redirect } from 'react-router-dom';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
@@ -218,14 +218,7 @@ const ServicesCounselingQueue = () => {
             useQueries={useServicesCounselingQueuePPMQueries}
           />
         </Route>
-        <Route
-          path={[
-            servicesCounselingRoutes.QUEUE_COUNSELING_PATH,
-            servicesCounselingRoutes.DEFAULT_QUEUE_PATH,
-            servicesCounselingRoutes.QUEUE_VIEW_PATH,
-          ]}
-          exact
-        >
+        <Route path={[servicesCounselingRoutes.QUEUE_COUNSELING_PATH, servicesCounselingRoutes.QUEUE_VIEW_PATH]} exact>
           <div>
             <TableQueue
               className={styles.ServicesCounseling}
@@ -244,6 +237,11 @@ const ServicesCounselingQueue = () => {
             />
           </div>
         </Route>
+        {inPPMCloseoutGBLOC ? (
+          <Route render={() => <Redirect to="/counseling" />} />
+        ) : (
+          <Route render={() => <Redirect to="/PPM-closeout" />} />
+        )}
       </Switch>
     </div>
   );
