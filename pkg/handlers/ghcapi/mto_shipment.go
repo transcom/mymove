@@ -210,7 +210,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 			}
 
 			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-			oldShipment, err := mtoshipment.FindShipment(appCtx, shipmentID)
+			mtoShipment, err := mtoshipment.FindShipment(appCtx, shipmentID)
 
 			if err != nil {
 				appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
@@ -226,16 +226,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 				}
 			}
 
-			mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
-			mtoShipment.ID = shipmentID
-			mtoShipment.ShipmentType = oldShipment.ShipmentType
-
-			//MTOShipmentModelFromUpdate defaults UsesExternalVendor to false if it's nil in the payload
-			if payload.UsesExternalVendor == nil {
-				mtoShipment.UsesExternalVendor = oldShipment.UsesExternalVendor
-			}
-			// booleans not passed will update to false
-			mtoShipment.Diversion = oldShipment.Diversion
+			payloads.UpdateMTOShipmentModelWithPayload(payload, mtoShipment)
 
 			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))

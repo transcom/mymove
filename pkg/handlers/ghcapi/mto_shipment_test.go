@@ -2886,7 +2886,7 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
 	customerRemarks := "help"
-	counselorRemarks := "counselor approved"
+	counselorRemarks := nullable.NewString("counselor approved")
 	billableWeightCap := int64(8000)
 	billableWeightJustification := "Unable to perform reweigh because shipment was already unloaded."
 	mtoAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
@@ -2911,7 +2911,7 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 		RequestedDeliveryDate:       &now,
 		ShipmentType:                ghcmessages.MTOShipmentTypeHHG,
 		CustomerRemarks:             &customerRemarks,
-		CounselorRemarks:            &counselorRemarks,
+		CounselorRemarks:            counselorRemarks,
 		Agents:                      agents,
 		TacType:                     nullable.NewString("NTS"),
 		SacType:                     nullable.NewString(""),
@@ -3001,7 +3001,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(params.Body.BillableWeightCap, updatedShipment.BillableWeightCap)
 		suite.Equal(params.Body.BillableWeightJustification, updatedShipment.BillableWeightJustification)
-		suite.Equal(params.Body.CounselorRemarks, updatedShipment.CounselorRemarks)
+		suite.Equal(params.Body.CounselorRemarks.Value, updatedShipment.CounselorRemarks)
 		suite.Equal(params.Body.PickupAddress.StreetAddress1, updatedShipment.PickupAddress.StreetAddress1)
 		suite.Equal(params.Body.DestinationAddress.StreetAddress1, updatedShipment.DestinationAddress.StreetAddress1)
 		suite.Equal(params.Body.RequestedPickupDate.String(), updatedShipment.RequestedPickupDate.String())

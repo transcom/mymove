@@ -4219,9 +4219,8 @@ definitions:
         example: handle with care
         x-nullable: true
       counselorRemarks:
-        type: string
         example: counselor approved
-        x-nullable: true
+        $ref: '#/definitions/NullableString'
       billableWeightCap:
         type: integer
         description: estimated weight of the shuttle service item provided by the prime
