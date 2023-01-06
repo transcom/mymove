@@ -166,32 +166,37 @@ const ShipmentForm = (props) => {
   const editOrdersRoute = isTOO ? tooRoutes.ORDERS_EDIT_PATH : servicesCounselingRoutes.ORDERS_EDIT_PATH;
   const editOrdersPath = generatePath(editOrdersRoute, { moveCode });
 
-  const submitMTOShipment = (formValues) => {
+  const submitMTOShipment = async (formValues) => {
+    //* PPM Shipment *//
+
     if (isPPM) {
       const ppmShipmentBody = formatPpmShipmentForAPI(formValues);
-
+      // Add a PPM shipment
       if (isCreatePage) {
         const body = { ...ppmShipmentBody, moveTaskOrderID };
-        submitHandler({ body, normalize: false })
-          .then((newShipment) => {
-            const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
-              moveCode,
-              shipmentId: newShipment.id,
-            });
-
-            const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
-              moveCode,
-              shipmentId: newShipment.id,
-            });
-
-            history.replace(currentPath);
-            history.push(advancePath);
-          })
-          .catch(() => {
-            setErrorMessage(`A server error occurred adding the shipment`);
-          });
+        submitHandler(
+          { body, normalize: false },
+          {
+            onSuccess: (newMTOShipment) => {
+              const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
+                moveCode,
+                shipmentId: newMTOShipment.id,
+              });
+              const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
+                moveCode,
+                shipmentId: newMTOShipment.id,
+              });
+              history.replace(currentPath);
+              history.push(advancePath);
+            },
+            onError: () => {
+              setErrorMessage(`A server error occurred adding the shipment`);
+            },
+          },
+        );
         return;
       }
+      // Edit a PPM Shipment
       const updatePPMPayload = {
         moveTaskOrderID,
         shipmentID: mtoShipment.id,
@@ -200,19 +205,23 @@ const ShipmentForm = (props) => {
         body: ppmShipmentBody,
       };
 
-      submitHandler(updatePPMPayload).then(() => {
-        if (!isAdvancePage) {
-          const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
-            moveCode,
-            shipmentId: mtoShipment.id,
-          });
-
-          history.push(advancePath);
-        }
+      submitHandler(updatePPMPayload, {
+        onSuccess: () => {
+          if (!isAdvancePage) {
+            const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
+              moveCode,
+              shipmentId: mtoShipment.id,
+            });
+            history.push(advancePath);
+            return;
+          }
+          history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+        },
       });
-
       return;
     }
+
+    //* MTO Shipments *//
 
     const {
       pickup,
@@ -265,26 +274,39 @@ const ShipmentForm = (props) => {
       body: pendingMtoShipment,
     };
 
+    // Add a MTO Shipment (Service counselor)
     if (isCreatePage) {
       const body = { ...pendingMtoShipment, moveTaskOrderID };
-      submitHandler({ body, normalize: false })
-        .then(() => {
+      submitHandler(
+        { body, normalize: false },
+        {
+          onSuccess: () => {
+            history.push(moveDetailsPath);
+          },
+          onError: () => {
+            setErrorMessage(`A server error occurred adding the shipment`);
+          },
+        },
+      );
+    }
+    // Edit MTO as Service Counselor
+    else if (isForServicesCounseling) {
+      submitHandler(updateMTOShipmentPayload, {
+        onSuccess: () => {
+          history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+        },
+      });
+    }
+    // Edit a MTO Shipment as TOO
+    else {
+      submitHandler(updateMTOShipmentPayload, {
+        onSuccess: () => {
           history.push(moveDetailsPath);
-        })
-        .catch(() => {
-          setErrorMessage(`A server error occurred adding the shipment`);
-        });
-    } else if (isForServicesCounseling) {
-      // routing and error handling handled in parent components
-      submitHandler(updateMTOShipmentPayload);
-    } else {
-      submitHandler(updateMTOShipmentPayload)
-        .then(() => {
-          history.push(moveDetailsPath);
-        })
-        .catch(() => {
+        },
+        onError: () => {
           setErrorMessage('A server error occurred editing the shipment details');
-        });
+        },
+      });
     }
   };
 

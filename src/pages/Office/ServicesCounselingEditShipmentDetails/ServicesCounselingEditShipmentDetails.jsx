@@ -23,12 +23,11 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
   const history = useHistory();
   const queryClient = new QueryClient();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
-  const { mutateAsync: mutateMTOShipment } = useMutation(updateMTOShipment, {
+  const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
-      history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
       onUpdate('success');
     },
     onError: () => {

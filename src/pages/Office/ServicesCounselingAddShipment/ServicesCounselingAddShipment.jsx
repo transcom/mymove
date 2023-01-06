@@ -1,5 +1,6 @@
 import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
+import { generatePath } from 'react-router';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { QueryClient, useMutation } from '@tanstack/react-query';
 
@@ -16,6 +17,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { roleTypes } from 'constants/userRoles';
 import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import { servicesCounselingRoutes } from 'constants/routes';
 
 const ServicesCounselingAddShipment = ({ match }) => {
   const params = useParams();
@@ -31,7 +33,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const queryClient = new QueryClient();
-  const { mutateAsync: mutateMTOShipments } = useMutation(createMTOShipment, {
+  const { mutate: mutateMTOShipments } = useMutation(createMTOShipment, {
     onSuccess: (newMTOShipment) => {
       mtoShipments.push(newMTOShipment);
       queryClient.setQueryData([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID, false], mtoShipments);
