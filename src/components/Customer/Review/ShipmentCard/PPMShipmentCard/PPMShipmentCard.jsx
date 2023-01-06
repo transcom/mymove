@@ -21,7 +21,6 @@ const PPMShipmentCard = ({
   onDeleteClick,
 }) => {
   const { moveTaskOrderID, id, shipmentType } = shipment;
-  const closeoutOffice = move.closeout_office.name;
   const {
     pickupPostalCode,
     secondaryPickupPostalCode,
@@ -41,6 +40,13 @@ const PPMShipmentCard = ({
     moveId: moveTaskOrderID,
     mtoShipmentId: id,
   })}?shipmentNumber=${shipmentNumber}`;
+
+  let closeoutOffice = move.closeout_office;
+  if (move.closeoutOffice == null) {
+    closeoutOffice = '';
+  } else {
+    closeoutOffice = move.closeout_office.name;
+  }
 
   return (
     <div className={styles.ShipmentCard}>
@@ -90,7 +96,7 @@ const PPMShipmentCard = ({
               <dd>{secondaryDestinationPostalCode}</dd>
             </div>
           )}
-          {isArmyOrAirForce ? (
+          {isArmyOrAirForce(affiliation) && closeoutOffice !== '' ? (
             <div className={styles.row}>
               <dt>Closeout office</dt>
               <dd>{closeoutOffice}</dd>
