@@ -3,6 +3,8 @@ package authentication
 import (
 	"net/http"
 
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/audit"
 	"github.com/transcom/mymove/pkg/services"
@@ -18,7 +20,7 @@ func AddAuditUserToRequestContextMiddleware(appCtx appcontext.AppContext) func(n
 			if newAppCtx.Session() != nil {
 				auditUser, err := user.NewUserFetcher(query.NewQueryBuilder()).FetchUser(newAppCtx, []services.QueryFilter{query.NewQueryFilter("id", "=", newAppCtx.Session().UserID)})
 				if err != nil {
-					newAppCtx.Logger().Info("No user attached to the session")
+					newAppCtx.Logger().Error("Error encountered when fetching user with session UserID.", zap.Error(err))
 					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 					return
 				}
