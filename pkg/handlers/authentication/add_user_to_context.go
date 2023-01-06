@@ -18,7 +18,8 @@ func AddAuditUserToRequestContextMiddleware(appCtx appcontext.AppContext) func(n
 			if newAppCtx.Session() != nil {
 				auditUser, err := user.NewUserFetcher(query.NewQueryBuilder()).FetchUser(newAppCtx, []services.QueryFilter{query.NewQueryFilter("id", "=", newAppCtx.Session().UserID)})
 				if err != nil {
-					newAppCtx.Logger().Info("No user attached to the session")
+					newAppCtx.Logger().Error("No user attached to the session")
+					newAppCtx.Logger().Error(err.Error())
 					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 					return
 				}
