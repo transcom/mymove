@@ -106,11 +106,11 @@ export function hasCompletedAllProGear(proGear) {
 }
 
 export function isPPMOnly(mtoShipments) {
-  // eslint-disable-next-line consistent-return
+  let onlyHasPPMShipments = true;
   Object.values(mtoShipments).forEach((shipment) => {
     if (shipment?.shipmentType !== SHIPMENT_OPTIONS.PPM) {
-      return false;
+      onlyHasPPMShipments = false;
     }
   });
-  return true;
+  return onlyHasPPMShipments;
 }
