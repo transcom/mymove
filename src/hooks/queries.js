@@ -58,7 +58,7 @@ import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants
 
 export const useUserQueries = () => {
   const { data = {}, ...userQuery } = useQuery([USER, false], ({ queryKey }) => getLoggedInUserQueries(...queryKey));
-  const { isInitialLoading: isLoading, isError, isSuccess } = userQuery;
+  const { isLoading, isError, isSuccess } = userQuery;
 
   return {
     data,
@@ -387,7 +387,7 @@ export const usePaymentRequestQueueQueries = ({
     ({ queryKey }) => getPaymentRequestsQueue(...queryKey),
   );
 
-  const { isInitialLoading: isLoading, isError, isSuccess } = paymentRequestsQueueQuery;
+  const { isLoading, isError, isSuccess } = paymentRequestsQueueQuery;
   const { queuePaymentRequests, ...dataProps } = data;
   return {
     queueResult: { data: queuePaymentRequests, ...dataProps },
