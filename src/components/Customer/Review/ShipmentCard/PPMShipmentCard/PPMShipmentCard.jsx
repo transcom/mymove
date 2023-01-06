@@ -41,8 +41,8 @@ const PPMShipmentCard = ({
     mtoShipmentId: id,
   })}?shipmentNumber=${shipmentNumber}`;
 
-  let closeoutOffice = move.closeout_office;
-  if (move.closeoutOffice == null) {
+  let closeoutOffice;
+  if (move.closeout_office === undefined) {
     closeoutOffice = '';
   } else {
     closeoutOffice = move.closeout_office.name;
