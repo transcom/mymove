@@ -138,7 +138,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
 	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(appCtx.Logger())
 	clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
-	addAuditUserToRequestContextMiddleware := authentication.AddAuditUserToRequestContextMiddleware(appCtx)
+	addAuditUserToRequestContextMiddleware := authentication.AddAuditUserIDToRequestContextMiddleware(appCtx)
 
 	// Serves files out of build folder
 	cfs := handlers.NewCustomFileSystem(
