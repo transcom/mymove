@@ -42,7 +42,7 @@ const PPMShipmentCard = ({
   })}?shipmentNumber=${shipmentNumber}`;
 
   let closeoutOffice;
-  if (move.closeout_office === undefined) {
+  if (move.closeout_office == null) {
     closeoutOffice = '';
   } else {
     closeoutOffice = move.closeout_office.name;
