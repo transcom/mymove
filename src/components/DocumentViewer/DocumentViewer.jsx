@@ -79,7 +79,7 @@ const DocumentViewer = ({ files }) => {
           <span>{selectedFilename}</span> <span>- Added on {selectedFileDate}</span>
         </p>
         <p className={styles.downloadLink}>
-          <a href="google.com">
+          <a href={selectedFile.url} download>
             <span>Download file</span> <FontAwesomeIcon icon="download" />
           </a>
         </p>
