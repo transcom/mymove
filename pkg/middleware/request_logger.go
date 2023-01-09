@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/handlers/authentication"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/server"
 )
 
 // RequestLogger returns a middleware that logs requests.
@@ -27,6 +28,7 @@ func RequestLogger(globalLogger *zap.Logger) func(inner http.Handler) http.Handl
 				zap.Int64("content-length", r.ContentLength),
 				zap.String("host", r.Host),
 				zap.String("method", r.Method),
+				zap.String("named-server", server.NamedServerFromContext(ctx)),
 				zap.String("protocol-version", r.Proto),
 				zap.String("referer", r.Header.Get("referer")),
 				zap.String("source", r.RemoteAddr),

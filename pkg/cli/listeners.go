@@ -13,6 +13,9 @@ const (
 	TLSListenerFlag string = "tls-enabled"
 	// NoTLSListenerFlag is the No TLS Listener Flag
 	NoTLSListenerFlag string = "no-tls-enabled"
+	// HealthListenerFlag is whether a special listener for health
+	// checks should be enabled
+	HealthListenerFlag string = "health-server-enabled"
 )
 
 // InitListenerFlags initializes Listener command line flags
@@ -20,6 +23,7 @@ func InitListenerFlags(flag *pflag.FlagSet) {
 	flag.Bool(MutualTLSListenerFlag, false, "enable the mutual TLS listener.")
 	flag.Bool(TLSListenerFlag, false, "enable the server side TLS listener.")
 	flag.Bool(NoTLSListenerFlag, false, "enable the listener not requiring any TLS.")
+	flag.Bool(HealthListenerFlag, false, "enable the listener for health checks.")
 }
 
 // CheckListeners validates the Listener command line flags

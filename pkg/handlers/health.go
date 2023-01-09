@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 
 	"github.com/gomodule/redigo/redis"
 	"go.uber.org/zap"
@@ -11,7 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 )
 
-func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]interface{}) map[string]interface{} {
+func redisHealthCheck(pool *redis.Pool, logger *zap.Logger) error {
 	conn := pool.Get()
 
 	defer func() {
@@ -23,12 +22,20 @@ func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]inte
 	pong, err := redis.String(conn.Do("PING"))
 	if err != nil {
 		logger.Error("Failed to ping Redis during health check", zap.Error(err))
+	} else {
+		logger.Info("Health check Redis ping", zap.String("ping_response", pong))
 	}
-	logger.Info("Health check Redis ping", zap.String("ping_response", pong))
 
-	data["redis"] = err == nil
+	return err
+}
 
-	return data
+func healthCheckError(appCtx appcontext.AppContext, w http.ResponseWriter, data map[string]interface{}) {
+	healthCheck, err := json.Marshal(data)
+	if err != nil {
+		appCtx.Logger().Warn("Cannot marshal health data", zap.Error(err))
+		healthCheck = []byte("{}")
+	}
+	http.Error(w, string(healthCheck), http.StatusInternalServerError)
 }
 
 // NewHealthHandler creates a http.HandlerFunc for a health endpoint.
@@ -48,54 +55,33 @@ func NewHealthHandler(appCtx appcontext.AppContext, redisPool *redis.Pool, gitBr
 		// Always show DB unless key set to "false"
 		if !ok || (ok && showDB[0] != "false") {
 			appCtx.Logger().Info("Health check connecting to the DB")
-			dbErr := appCtx.DB().RawQuery("SELECT 1;").Exec()
+			// include the request context for helpful tracing
+			db := appCtx.DB().WithContext(r.Context())
+			dbErr := db.RawQuery("SELECT 1;").Exec()
 			if dbErr != nil {
 				appCtx.Logger().Error("Failed database health check", zap.Error(dbErr))
+				data["database"] = false
+				healthCheckError(appCtx, w, data)
+				return
 			}
-			data["database"] = dbErr == nil
+			data["database"] = true
 			if redisPool != nil {
-				data = redisHealthCheck(redisPool, appCtx.Logger(), data)
+				redisErr := redisHealthCheck(redisPool, appCtx.Logger())
+				if redisErr != nil {
+					data["redis"] = false
+					healthCheckError(appCtx, w, data)
+					return
+				}
+				data["redis"] = true
 			}
 		}
 		newEncoderErr := json.NewEncoder(w).Encode(data)
 		if newEncoderErr != nil {
 			appCtx.Logger().Error("Failed encoding health check response", zap.Error(newEncoderErr))
+			http.Error(w, "failed health check", http.StatusInternalServerError)
+			return
 		}
 
-		// We are not using request middleware here so logging directly in the check
-		var protocol string
-		if r.TLS == nil {
-			protocol = "http"
-		} else {
-			protocol = "https"
-		}
-
-		fields := []zap.Field{
-			zap.String("accepted-language", r.Header.Get("accepted-language")),
-			zap.Int64("content-length", r.ContentLength),
-			zap.String("host", r.Host),
-			zap.String("method", r.Method),
-			zap.String("protocol", protocol),
-			zap.String("protocol-version", r.Proto),
-			zap.String("referer", r.Header.Get("referer")),
-			zap.String("source", r.RemoteAddr),
-			zap.String("url", r.URL.String()),
-			zap.String("user-agent", r.UserAgent()),
-		}
-
-		// Append x- headers, e.g., x-forwarded-for.
-		for name, values := range r.Header {
-			if nameLowerCase := strings.ToLower(name); strings.HasPrefix(nameLowerCase, "x-") {
-				if len(values) > 0 {
-					fields = append(fields, zap.String(nameLowerCase, values[0]))
-				}
-			}
-		}
-
-		// Log the number of headers, which can be used for finding abnormal requests
-		fields = append(fields, zap.Int("headers", len(r.Header)))
-
-		appCtx.Logger().Info("Request health", fields...)
-
+		appCtx.Logger().Info("Request health ok")
 	}
 }
