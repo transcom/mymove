@@ -105,12 +105,13 @@ export function hasCompletedAllProGear(proGear) {
   return !!proGear?.every(isProGearComplete);
 }
 
+export function isPPM(shipment) {
+  return shipment?.shipmentType === SHIPMENT_OPTIONS.PPM;
+}
+
 export function isPPMOnly(mtoShipments) {
-  let onlyHasPPMShipments = true;
-  Object.values(mtoShipments).forEach((shipment) => {
-    if (shipment?.shipmentType !== SHIPMENT_OPTIONS.PPM) {
-      onlyHasPPMShipments = false;
-    }
-  });
-  return onlyHasPPMShipments;
+  if (!mtoShipments?.length) {
+    return false;
+  }
+  return !!mtoShipments?.every(isPPM);
 }
