@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { generatePath } from 'react-router';
 import { useHistory, Switch, Route } from 'react-router-dom';
 
@@ -190,13 +190,28 @@ const ServicesCounselingQueue = () => {
     );
   };
 
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
-
   // If the office user is in a closeout GBLOC and on the closeout tab, then we will want to disable
   // the column filter for the closeout location column because it will have no effect.
-  const officeUserGBLOC = data.office_user.transportation_office.gbloc;
+  const officeUserGBLOC = data?.office_user?.transportation_office?.gbloc;
   const inPPMCloseoutGBLOC = officeUserGBLOC === 'TVCB' || officeUserGBLOC === 'NAVY' || officeUserGBLOC === 'USCG';
+
+  // Route the default queue path to the appropriate tab.
+  useEffect(() => {
+    if (isLoading || isError) {
+      return;
+    }
+
+    if (history.location.pathname === servicesCounselingRoutes.DEFAULT_QUEUE_PATH) {
+      history.replace(
+        inPPMCloseoutGBLOC
+          ? servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH
+          : servicesCounselingRoutes.QUEUE_COUNSELING_PATH,
+      );
+    }
+  }, [isLoading, isError, history, inPPMCloseoutGBLOC]);
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   return (
     // TODO: Pull out header count and add new move button
@@ -218,14 +233,7 @@ const ServicesCounselingQueue = () => {
             useQueries={useServicesCounselingQueuePPMQueries}
           />
         </Route>
-        <Route
-          path={[
-            servicesCounselingRoutes.QUEUE_COUNSELING_PATH,
-            servicesCounselingRoutes.DEFAULT_QUEUE_PATH,
-            servicesCounselingRoutes.QUEUE_VIEW_PATH,
-          ]}
-          exact
-        >
+        <Route path={servicesCounselingRoutes.QUEUE_COUNSELING_PATH} exact>
           <div>
             <TableQueue
               className={styles.ServicesCounseling}
