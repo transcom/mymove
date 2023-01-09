@@ -135,6 +135,13 @@ func verifyReasonAndStatusAreValid() weightTicketValidator {
 	})
 }
 
+func basicChecksForCreate() []weightTicketValidator {
+	return []weightTicketValidator{
+		checkID(),
+		checkRequiredFields(),
+	}
+}
+
 func basicChecksForCustomer() []weightTicketValidator {
 	return []weightTicketValidator{
 		checkID(),
