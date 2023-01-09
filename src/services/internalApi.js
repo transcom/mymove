@@ -501,3 +501,7 @@ export async function submitPPMShipmentSignedCertification(ppmShipmentId, payloa
     },
   );
 }
+
+export async function searchTransportationOffices(search) {
+  return makeInternalRequest('transportation_offices.getTransportationOffices', { search }, { normalize: false });
+}
