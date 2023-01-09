@@ -19,7 +19,7 @@ test.describe('Users Page', () => {
 
 test.describe('Users Details Show Page', () => {
   test('pulls up details page for a user', async ({ page, adminPage }) => {
-    const officeUser = await adminPage.buildOfficeUserWithTOOAndTIO();
+    const officeUser = await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
     const email = officeUser.login_gov_email;
     await adminPage.signInAsNewAdminUser();
 
@@ -46,7 +46,7 @@ test.describe('Users Details Show Page', () => {
 
 test.describe('Users Details Edit Page', () => {
   test('pulls up edit page for a user', async ({ page, adminPage }) => {
-    const officeUser = await adminPage.buildOfficeUserWithTOOAndTIO();
+    const officeUser = await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
     const email = officeUser.login_gov_email;
     await adminPage.signInAsNewAdminUser();
 

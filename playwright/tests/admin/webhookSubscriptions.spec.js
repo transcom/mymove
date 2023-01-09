@@ -3,7 +3,7 @@ const { test, expect } = require('../utils/adminTest');
 
 test.describe('Webhook Subscriptions', () => {
   test('successfully navigates to the webhook subscriptions list page', async ({ page, adminPage }) => {
-    await adminPage.buildWebhookSubscription();
+    await adminPage.testHarness.buildWebhookSubscription();
     await adminPage.signInAsNewAdminUser();
 
     await page.getByRole('menuitem', { name: 'Webhook Subscriptions' }).click();
@@ -17,7 +17,7 @@ test.describe('Webhook Subscriptions', () => {
 
 test.describe('WebhookSubscriptions Details Show Page', () => {
   test('pulls up details page for a webhook subscription', async ({ page, adminPage }) => {
-    const webhook = await adminPage.buildWebhookSubscription();
+    const webhook = await adminPage.testHarness.buildWebhookSubscription();
     const id = webhook.ID;
     await adminPage.signInAsNewAdminUser();
 
@@ -47,7 +47,7 @@ test.describe('WebhookSubscriptions Details Show Page', () => {
 
 test.describe('WebhookSubscriptions Details Edit Page', () => {
   test('pulls up edit page for a webhook subscription', async ({ page, adminPage }) => {
-    const webhook = await adminPage.buildWebhookSubscription();
+    const webhook = await adminPage.testHarness.buildWebhookSubscription();
     const id = webhook.ID;
     await adminPage.signInAsNewAdminUser();
 
@@ -89,7 +89,7 @@ test.describe('WebhookSubscriptions Details Edit Page', () => {
 
 test.describe('Webhook Subscription Create Page', () => {
   test('pulls up create page for a webhook subscription', async ({ page, adminPage }) => {
-    const webhook = await adminPage.buildWebhookSubscription();
+    const webhook = await adminPage.testHarness.buildWebhookSubscription();
     const subId = webhook.SubscriberID;
     await adminPage.signInAsNewAdminUser();
 

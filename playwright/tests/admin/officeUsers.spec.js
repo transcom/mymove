@@ -3,7 +3,7 @@ const { test, expect } = require('../utils/adminTest');
 
 test.describe('Office Users List Page', () => {
   test('successfully navigates to Office Users page', async ({ page, adminPage }) => {
-    await adminPage.buildOfficeUserWithTOOAndTIO();
+    await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
     await adminPage.signInAsNewAdminUser();
 
     // we should be at the office users list page by default,
@@ -74,7 +74,7 @@ test.describe('Office User Create Page', () => {
 
 test.describe('Office Users Show Page', () => {
   test('pulls up details page for an office user', async ({ page, adminPage }) => {
-    await adminPage.buildOfficeUserWithTOOAndTIO();
+    await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
     await adminPage.signInAsNewAdminUser();
 
     expect(page.url()).toContain('/system/office_users');
@@ -110,7 +110,7 @@ test.describe('Office Users Show Page', () => {
 
 test.describe('Office Users Edit Page', () => {
   test('pulls up edit page for an office user', async ({ page, adminPage }) => {
-    const officeUser = await adminPage.buildOfficeUserWithTOOAndTIO();
+    const officeUser = await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
     const email = officeUser.login_gov_email;
 
     await adminPage.signInAsNewAdminUser();

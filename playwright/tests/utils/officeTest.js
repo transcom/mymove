@@ -1,34 +1,15 @@
 // office test fixture for playwright
 // See https://playwright.dev/docs/test-fixtures
+// @ts-check
 const base = require('@playwright/test');
 
-const {
-  signIntoOfficeAsNewPPMUser,
-  signIntoOfficeAsNewTIOUser,
-  signIntoOfficeAsNewTOOUser,
-  signIntoOfficeAsNewServicesCounselorUser,
-  signIntoOfficeAsNewPrimeSimulatorUser,
-  signInAsExistingOfficeUser,
-} = require('./signIn');
-const {
-  buildDefaultMove,
-  buildWithShipmentMove,
-  buildPPMInProgressMove,
-  buildOfficeUserWithTOOAndTIO,
-  buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles,
-  buildPrimeSimulatorMoveNeedsShipmentUpdate,
-} = require('./testharness');
+const { BaseTestPage } = require('./baseTest');
 
-class OfficePage {
-  /**
-   * @param {base.Page} page
-   * @param {base.APIRequestContext} request
-   */
-  constructor(page, request) {
-    this.page = page;
-    this.request = request;
-  }
-
+/**
+ * OfficePage
+ * @extends BaseTestPage
+ */
+class OfficePage extends BaseTestPage {
   /**
    * Wait for the page to finish loading.
    */
@@ -52,12 +33,13 @@ class OfficePage {
    * Use devlocal auth to sign in as new PPM User
    *
    * @deprecated since the PPM office user is going away
+   * @this {BaseOfficePage & SignInMixin}
    */
   async signInAsNewPPMUser() {
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       this.page.waitForNavigation(),
-      signIntoOfficeAsNewPPMUser(this.page),
+      this.signIntoOfficeAsNewPPMUser(),
     ]);
     await this.waitForLoading();
   }
@@ -69,7 +51,7 @@ class OfficePage {
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       this.page.waitForNavigation(),
-      signIntoOfficeAsNewServicesCounselorUser(this.page),
+      this.signIn.office.newServicesCounselorUser(),
     ]);
     await this.waitForLoading();
   }
@@ -81,7 +63,7 @@ class OfficePage {
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       this.page.waitForNavigation(),
-      signIntoOfficeAsNewTIOUser(this.page),
+      this.signIn.office.newTIOUser(),
     ]);
     await this.waitForLoading();
   }
@@ -93,7 +75,7 @@ class OfficePage {
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       this.page.waitForNavigation(),
-      signIntoOfficeAsNewTOOUser(this.page),
+      this.signIn.office.newTOOUser(),
     ]);
     await this.waitForLoading();
   }
@@ -102,11 +84,11 @@ class OfficePage {
    * Use devlocal auth to sign in as office user with both TOO and TIO roles
    */
   async signInAsNewTIOAndTOOUser() {
-    const user = await this.buildOfficeUserWithTOOAndTIO();
+    const user = await this.testHarness.buildOfficeUserWithTOOAndTIO();
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       this.page.waitForNavigation(),
-      signInAsExistingOfficeUser(this.page, user.login_gov_email),
+      this.signIn.office.existingOfficeUser(user.login_gov_email),
     ]);
     await this.waitForLoading();
   }
@@ -115,52 +97,12 @@ class OfficePage {
    * Use devlocal auth to sign in as office user with prime simulator role
    */
   async signInAsNewPrimeSimulatorUser() {
-    await signIntoOfficeAsNewPrimeSimulatorUser(this.page);
+    await Promise.all([
+      // It is important to call waitForNavigation before click to set up waiting.
+      this.page.waitForNavigation(),
+      this.signIn.office.newPrimeSimulatorUser(),
+    ]);
     await this.waitForLoading();
-  }
-
-  /**
-   * Use testharness to build office user with both TOO and TIO roles
-   */
-  async buildOfficeUserWithTOOAndTIO() {
-    return buildOfficeUserWithTOOAndTIO(this.request);
-  }
-
-  /**
-   * Use testharness to build in progress PPM Move
-   */
-  async buildInProgressPPMMove() {
-    return buildPPMInProgressMove(this.request);
-  }
-
-  /**
-   * Use testharness to build default PPM Move
-   */
-  async buildDefaultMove() {
-    return buildDefaultMove(this.request);
-  }
-
-  /**
-   * Use testharness to build move with shipment
-   */
-  async buildWithShipmentMove() {
-    return buildWithShipmentMove(this.request);
-  }
-
-  /**
-   * Use testharness to build complicated move that will be visible to
-   * TOO and TIO
-   */
-  async buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles() {
-    return buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(this.request);
-  }
-
-  /**
-   * Use testharness to build complicated move that will be visible to
-   * prime simulator
-   */
-  async buildPrimeSimulatorMoveNeedsShipmentUpdate() {
-    return buildPrimeSimulatorMoveNeedsShipmentUpdate(this.request);
   }
 }
 

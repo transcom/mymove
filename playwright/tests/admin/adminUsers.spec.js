@@ -87,7 +87,7 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
 
   // create a new admin user to edit
   // using an existing one may stop on a concurrent playwright session
-  const adminUser = await adminPage.buildDefaultAdminUser();
+  const adminUser = await adminPage.testHarness.buildDefaultAdminUser();
   const adminUserId = adminUser.id;
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();

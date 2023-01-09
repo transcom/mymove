@@ -1,16 +1,15 @@
+// customer test fixture for playwright
+// See https://playwright.dev/docs/test-fixtures
+// @ts-check
 const base = require('@playwright/test');
 
-class CustomerPage {
-  /**
-   * Create a CustomerPage.
-   * @param {base.Page} page
-   * @param {base.APIRequestContext} request
-   */
-  constructor(page, request) {
-    this.page = page;
-    this.request = request;
-  }
+const { BaseTestPage } = require('./baseTest');
 
+/**
+ * CustomerPage
+ * @extends BaseTestPage
+ */
+class CustomerPage extends BaseTestPage {
   waitForPage = {
     localLogin: async () => {
       await base.expect(this.page.getByRole('heading', { name: 'Select an Existing User' })).toBeVisible();
@@ -56,12 +55,6 @@ class CustomerPage {
       await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Review your details');
     },
   };
-
-  async signInAsNewCustomer() {
-    await this.page.goto('/devlocal-auth/login');
-    await this.waitForPage.localLogin();
-    await this.page.getByRole('button', { name: 'Create a New milmove User' }).click();
-  }
 
   async navigateBack() {
     await this.page.getByTestId('wizardCancelButton').click();

@@ -1,11 +1,10 @@
+// @ts-check
 const { test, expect } = require('../../utils/customerTest');
-const { signInAsExistingCustomer } = require('../../utils/signIn');
-const { buildMoveWithOrders } = require('../../utils/testharness');
 
-test('A customer can create, edit, and delete an NTS-release shipment', async ({ page, customerPage, request }) => {
-  const move = await buildMoveWithOrders(request);
+test('A customer can create, edit, and delete an NTS-release shipment', async ({ page, customerPage }) => {
+  const move = await customerPage.testHarness.buildMoveWithOrders();
   const userId = move.Orders.ServiceMember.user_id;
-  await signInAsExistingCustomer(page, userId);
+  await customerPage.signIn.customer.existingCustomer(userId);
 
   // Navigate to create a new shipment
   await page.getByTestId('shipment-selection-btn').click();
@@ -26,7 +25,7 @@ test('A customer can create, edit, and delete an NTS-release shipment', async ({
 
   // Verify that form submitted
   await customerPage.waitForPage.reviewShipments();
-  await expect(await page.getByText('Grandfather antique clock')).toBeVisible();
+  await expect(page.getByText('Grandfather antique clock')).toBeVisible();
 
   // Navigate to edit shipment from the review page
   await page.getByTestId('edit-ntsr-shipment-btn').click();
@@ -41,7 +40,7 @@ test('A customer can create, edit, and delete an NTS-release shipment', async ({
 
   // Verify that form submitted
   await customerPage.waitForPage.reviewShipments();
-  await expect(await page.getByText('Grace Griffin')).toBeVisible();
+  await expect(page.getByText('Grace Griffin')).toBeVisible();
 
   // Navigate to homepage and delete shipment
   await customerPage.navigateBack();
@@ -49,6 +48,6 @@ test('A customer can create, edit, and delete an NTS-release shipment', async ({
   await page.getByRole('button', { name: 'Delete' }).click();
   await page.getByTestId('modal').getByTestId('button').click();
 
-  await expect(await page.getByText('The shipment was deleted.')).toBeVisible();
-  await expect(await page.getByTestId('stepContainer3').getByText('Set up shipments')).toBeVisible();
+  await expect(page.getByText('The shipment was deleted.')).toBeVisible();
+  await expect(page.getByTestId('stepContainer3').getByText('Set up shipments')).toBeVisible();
 });

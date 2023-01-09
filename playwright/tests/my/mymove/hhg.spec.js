@@ -1,9 +1,9 @@
 // @ts-check
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('../../utils/customerTest');
 
-const { signInAsExistingCustomer } = require('../../utils/signIn');
-const { buildSpouseProGearMove } = require('../../utils/testharness');
-
+/**
+ * @param {import('@playwright/test').Page} page
+ */
 async function customerChoosesAnHHGMove(page) {
   await page.getByRole('button', { name: 'Set up your shipments' }).click();
   await page.getByRole('button', { name: 'Next' }).click();
@@ -12,6 +12,9 @@ async function customerChoosesAnHHGMove(page) {
   await page.getByRole('button', { name: 'Next' }).click();
 }
 
+/**
+ * @param {import('@playwright/test').Page} page
+ */
 async function customerSetsUpAnHHGMove(page) {
   await expect(page.getByRole('button', { name: 'Next' })).toBeDisabled();
 
@@ -146,10 +149,10 @@ async function customerSetsUpAnHHGMove(page) {
   await page.getByRole('button', { name: 'Next' }).click();
 }
 
-test('A customer following HHG Setup flow', async ({ page, request }) => {
-  const move = await buildSpouseProGearMove(request);
+test('A customer following HHG Setup flow', async ({ page, customerPage }) => {
+  const move = await customerPage.testHarness.buildSpouseProGearMove();
   const userId = move.Orders.ServiceMember.user_id;
-  await signInAsExistingCustomer(page, userId);
+  await customerPage.signIn.customer.existingCustomer(userId);
 
   await customerChoosesAnHHGMove(page);
   await customerSetsUpAnHHGMove(page);

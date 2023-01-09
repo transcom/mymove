@@ -1,18 +1,22 @@
 // @ts-check
 const { test, expect } = require('../../utils/officeTest');
 
-// I was trying to avoid importing moment.js, these can definitely be improved
+// I was trying to avoid importing moment.js, these can definitely be
+// improved
+/**
+ * @param {number} daysInterval
+ */
 const formatRelativeDate = (daysInterval) => {
-  const dayFormat = { day: '2-digit' };
-  const monthFormat = { month: 'short' };
-  const yearFormat = { year: 'numeric' };
-
   const relativeDate = new Date();
   relativeDate.setDate(relativeDate.getDate() + daysInterval);
-  const formattedDate = `${relativeDate.toLocaleDateString(undefined, dayFormat)} ${relativeDate.toLocaleDateString(
-    undefined,
-    monthFormat,
-  )} ${relativeDate.toLocaleDateString(undefined, yearFormat)}`;
+  const formattedDay = relativeDate.toLocaleDateString(undefined, { day: '2-digit' });
+  const formattedMonth = relativeDate.toLocaleDateString(undefined, {
+    month: 'short',
+  });
+  const formattedYear = relativeDate.toLocaleDateString(undefined, {
+    year: 'numeric',
+  });
+  const formattedDate = `${formattedDay} ${formattedMonth} ${formattedYear}`;
 
   return {
     relativeDate,
@@ -20,20 +24,24 @@ const formatRelativeDate = (daysInterval) => {
   };
 };
 
+/**
+ * @param {Date} date
+ */
 const formatNumericDate = (date) => {
-  const dayFormat = { day: '2-digit' };
-  const monthFormat = { month: '2-digit' };
-  const yearFormat = { year: 'numeric' };
+  const formattedDay = date.toLocaleDateString(undefined, { day: '2-digit' });
+  const formattedMonth = date.toLocaleDateString(undefined, {
+    month: '2-digit',
+  });
+  const formattedYear = date.toLocaleDateString(undefined, {
+    year: 'numeric',
+  });
 
-  return `${date.toLocaleDateString(undefined, yearFormat)}-${date.toLocaleDateString(
-    undefined,
-    monthFormat,
-  )}-${date.toLocaleDateString(undefined, dayFormat)}`;
+  return [formattedYear, formattedMonth, formattedDay].join('-');
 };
 
 test.describe('Prime simulator user', () => {
   test('is able to update a shipment', async ({ page, officePage }) => {
-    const move = await officePage.buildPrimeSimulatorMoveNeedsShipmentUpdate();
+    const move = await officePage.testHarness.buildPrimeSimulatorMoveNeedsShipmentUpdate();
 
     await officePage.signInAsNewPrimeSimulatorUser();
     const moveLocator = move.locator;

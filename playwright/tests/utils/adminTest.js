@@ -3,25 +3,13 @@
 // @ts-check
 const base = require('@playwright/test');
 
-const { signIntoAdminAsNewAdminUser } = require('./signIn');
-const {
-  buildDefaultAdminUser,
-  buildDefaultMove,
-  buildOfficeUserWithTOOAndTIO,
-  buildWebhookSubscription,
-} = require('./testharness');
+const { BaseTestPage } = require('./baseTest');
 
-class AdminPage {
-  /**
-   * Create an AdminPage.
-   * @param {base.Page} page
-   * @param {base.APIRequestContext} request
-   */
-  constructor(page, request) {
-    this.page = page;
-    this.request = request;
-  }
-
+/**
+ * AdminPage
+ * @extends BaseTestPage
+ */
+class AdminPage extends BaseTestPage {
   /**
    * Wait for the loading placeholder to go away
    */
@@ -45,32 +33,8 @@ class AdminPage {
    * Create a new admin user and sign in as them
    */
   async signInAsNewAdminUser() {
-    await signIntoAdminAsNewAdminUser(this.page);
+    await this.signIn.admin.newAdminUser();
     await this.waitForAdminPageToLoad();
-  }
-
-  /**
-   */
-  async buildDefaultAdminUser() {
-    return buildDefaultAdminUser(this.request);
-  }
-
-  /**
-   */
-  async buildOfficeUserWithTOOAndTIO() {
-    return buildOfficeUserWithTOOAndTIO(this.request);
-  }
-
-  /**
-   */
-  async buildDefaultMove() {
-    return buildDefaultMove(this.request);
-  }
-
-  /**
-   */
-  async buildWebhookSubscription() {
-    return buildWebhookSubscription(this.request);
   }
 
   /**

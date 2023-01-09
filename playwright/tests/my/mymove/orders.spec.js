@@ -1,9 +1,12 @@
 // @ts-check
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('../../utils/customerTest');
 
-const { signInAsExistingCustomer } = require('../../utils/signIn');
-const { buildNeedsOrdersUser } = require('../../utils/testharness');
-
+/**
+ * @param {import('@playwright/test').Page} page
+ * @param {string} inputData
+ * @param {string} fieldName
+ * @param {string} classSelector
+ */
 async function genericSelect(page, inputData, fieldName, classSelector) {
   // fieldName is passed as a classname to the react-select component,
   // so select for it if provided
@@ -14,18 +17,27 @@ async function genericSelect(page, inputData, fieldName, classSelector) {
   await page.locator(classSelector).locator('div[class*="option"]').first().click();
 }
 
+/**
+ * @param {import('@playwright/test').Page} page
+ * @param {string} dutyLocationName
+ * @param {string} fieldName
+ */
 async function selectDutyLocation(page, dutyLocationName, fieldName) {
   return genericSelect(page, dutyLocationName, fieldName, '.duty-input-box');
 }
 
+/**
+ * @param {import('@playwright/test').Page} page
+ * @param {string} flagVal
+ */
 async function setFeatureFlag(page, flagVal, url = '/queues/new') {
   await page.goto(`${url}?flag:${flagVal}`);
 }
 
-test('orders entry will accept orders information', async ({ page, request }) => {
-  const user = await buildNeedsOrdersUser(request);
+test('orders entry will accept orders information', async ({ page, customerPage }) => {
+  const user = await customerPage.testHarness.buildNeedsOrdersUser();
   const userId = user.id;
-  await signInAsExistingCustomer(page, userId);
+  await customerPage.signIn.customer.existingCustomer(userId);
 
   await expect(page.getByText('Next step: Add your orders')).toBeVisible();
   await expect(page.getByText('Profile complete')).toBeVisible();

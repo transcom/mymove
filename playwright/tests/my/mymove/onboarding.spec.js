@@ -1,8 +1,9 @@
+// @ts-check
 const { test } = require('../../utils/customerTest');
 
 test('A customer can go through onboarding', async ({ page, customerPage }) => {
   // Create new customer user
-  await customerPage.signInAsNewCustomer();
+  await customerPage.signIn.customer.newCustomer();
 
   // CONUS/OCONUS section
   await customerPage.waitForPage.onboardingConus();
@@ -31,6 +32,9 @@ test('A customer can go through onboarding', async ({ page, customerPage }) => {
   // Current duty location section
   await customerPage.waitForPage.onboardingDutyLocation();
   await page.getByLabel('What is your current duty location?').fill('Scott AFB');
+  // 'mark' is not yet supported by react testing library
+  // https://github.com/testing-library/dom-testing-library/issues/1150
+  // @ts-ignore:next-line
   await page.getByRole('mark').click();
   await customerPage.navigateForward();
 

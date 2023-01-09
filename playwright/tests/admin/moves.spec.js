@@ -5,7 +5,7 @@ test('Moves Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();
 
   // make sure at least one move exists
-  await adminPage.buildDefaultMove();
+  await adminPage.testHarness.buildDefaultMove();
 
   await page.getByRole('menuitem', { name: 'Moves' }).click();
   expect(page.url()).toContain('/system/moves');
@@ -19,7 +19,7 @@ test('Moves Details Show Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();
 
   // make sure at least one move exists
-  await adminPage.buildDefaultMove();
+  await adminPage.testHarness.buildDefaultMove();
 
   await page.getByRole('menuitem', { name: 'Moves' }).click();
   await adminPage.waitForAdminPageToLoad();
@@ -51,7 +51,7 @@ test('Moves Details Show Page', async ({ page, adminPage }) => {
 test('Moves Details Edit Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();
 
-  const move = await adminPage.buildDefaultMove();
+  const move = await adminPage.testHarness.buildDefaultMove();
   const moveId = move.id;
   const moveLocator = move.locator;
 

@@ -1,3 +1,5 @@
+// @ts-check
+
 // User Types
 export const milmoveUserType = 'milmove';
 export const PPMOfficeUserType = 'PPM office';
@@ -7,46 +9,97 @@ export const QAECSROfficeUserType = 'QAE/CSR office';
 export const ServicesCounselorOfficeUserType = 'Services Counselor office';
 export const PrimeSimulatorUserType = 'Prime Simulator';
 
-async function signInAsNewUser(page, userType) {
-  await page.goto('/devlocal-auth/login');
-  await page.locator(`button[data-hook="new-user-login-${userType}"]`).click();
-}
+/**
+ * Sign In
+ *
+ * @param {import('@playwright/test').Page} page
+ */
+export function newSignIn(page) {
+  /**
+   * Sign in as a new user with devlocal
+   *
+   * @param {string} userType
+   */
+  const signInAsNewUser = async (userType) => {
+    await page.goto('/devlocal-auth/login');
+    await page.locator(`button[data-hook="new-user-login-${userType}"]`).click();
+  };
 
-export async function signIntoAdminAsNewAdminUser(page) {
-  await signInAsNewUser(page, 'admin');
-}
+  /**
+   * Sign in as existing user with devlocal
+   *
+   * @param {string} userId
+   */
+  const signInAsUserWithId = async (userId) => {
+    await page.goto('/devlocal-auth/login');
+    await page.locator(`button[value="${userId}"]`).click();
+  };
 
-export async function signIntoOfficeAsNewPPMUser(page) {
-  await signInAsNewUser(page, PPMOfficeUserType);
-}
+  return {
+    admin: {
+      /**
+       * Sign in as new admin user with devlocal
+       */
+      async newAdminUser() {
+        await signInAsNewUser('admin');
+      },
+    },
+    office: {
+      /**
+       * Sign in as new Service Counselor user with devlocal
+       */
+      async newServicesCounselorUser() {
+        await signInAsNewUser(ServicesCounselorOfficeUserType);
+      },
 
-export async function signIntoOfficeAsNewServicesCounselorUser(page) {
-  await signInAsNewUser(page, ServicesCounselorOfficeUserType);
-}
+      /**
+       * Sign in as new TOO user with devlocal
+       */
+      async newTOOUser() {
+        await signInAsNewUser(TOOOfficeUserType);
+      },
 
-export async function signIntoOfficeAsNewTOOUser(page) {
-  await signInAsNewUser(page, TOOOfficeUserType);
-}
+      /**
+       * Sign in as new TIO user with devlocal
+       */
+      async newTIOUser() {
+        await signInAsNewUser(TIOOfficeUserType);
+      },
 
-export async function signIntoOfficeAsNewTIOUser(page) {
-  await signInAsNewUser(page, TIOOfficeUserType);
+      /**
+       * Sign in as new prime simulator user with devlocal
+       */
+      async newPrimeSimulatorUser() {
+        await signInAsNewUser(PrimeSimulatorUserType);
+      },
+      /**
+       * Sign in as existing office user with devlocal
+       *
+       * @param {string} email
+       */
+      async existingOfficeUser(email) {
+        await page.goto('/devlocal-auth/login');
+        await page.locator('input[name=email]').fill(email);
+        await page.locator('p', { hasText: 'User Email' }).locator('button').click();
+      },
+    },
+    customer: {
+      /**
+       * Sign in as new customer with devlocal
+       *
+       */
+      async newCustomer() {
+        await signInAsNewUser(milmoveUserType);
+      },
+      /**
+       * Sign in as existing customer with devlocal
+       *
+       * @param {string} userId
+       */
+      async existingCustomer(userId) {
+        await signInAsUserWithId(userId);
+      },
+    },
+  };
 }
-
-export async function signIntoOfficeAsNewPrimeSimulatorUser(page) {
-  await signInAsNewUser(page, PrimeSimulatorUserType);
-}
-
-async function signInAsUserWithIdAndType(page, userId) {
-  await page.goto('/devlocal-auth/login');
-  await page.locator(`button[value="${userId}"]`).click();
-}
-
-export async function signInAsExistingCustomer(page, userId) {
-  return signInAsUserWithIdAndType(page, userId);
-}
-
-export async function signInAsExistingOfficeUser(page, email) {
-  await page.goto('/devlocal-auth/login');
-  await page.locator('input[name=email]').fill(email);
-  await page.locator('p', { hasText: 'User Email' }).locator('button').click();
-}
+export default newSignIn;

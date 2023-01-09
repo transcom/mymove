@@ -16,7 +16,7 @@ test.describe('testing CSRF protection', () => {
 
   test('cannot dev login with masked token only', async ({ browser, officePage }) => {
     // create a user we can log in with later
-    const user = await officePage.buildOfficeUserWithTOOAndTIO();
+    const user = await officePage.testHarness.buildOfficeUserWithTOOAndTIO();
     // need a browser context to look at cookies
     // this creates a new icognito browser context, which works great
     // for this test
@@ -55,7 +55,7 @@ test.describe('testing CSRF protection', () => {
 
   test('cannot dev login with unmasked token only', async ({ page, officePage }) => {
     // create a user we can log in with later
-    const user = await officePage.buildOfficeUserWithTOOAndTIO();
+    const user = await officePage.testHarness.buildOfficeUserWithTOOAndTIO();
 
     const context = page.context();
 
@@ -89,7 +89,7 @@ test.describe('testing CSRF protection', () => {
 
   test('cannot dev login without unmasked and masked token', async ({ page, officePage }) => {
     // create a user we can log in with later
-    const user = await officePage.buildOfficeUserWithTOOAndTIO();
+    const user = await officePage.testHarness.buildOfficeUserWithTOOAndTIO();
 
     const context = page.context();
 
@@ -129,7 +129,7 @@ test.describe('testing CSRF protection updating move info', () => {
     // blargh, too bad
     test.slow();
 
-    const move = await officePage.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles();
+    const move = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles();
     await officePage.signInAsNewTOOUser();
 
     // click on newly created move
@@ -148,7 +148,7 @@ test.describe('testing CSRF protection updating move info', () => {
   });
 
   test('tests updating user profile without masked token', async ({ page, officePage }) => {
-    const move = await officePage.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles();
+    const move = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles();
     await officePage.signInAsNewTOOUser();
 
     // click on newly created move
