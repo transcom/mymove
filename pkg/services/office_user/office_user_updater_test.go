@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -29,7 +30,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 	// Happy path
 	suite.Run("If the user is updated successfully it should be returned", func() {
 		officeUser := setupTestData()
-		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+		transportationOffice := factory.BuildDefaultTransportationOffice(suite.DB())
 
 		firstName := "Lea"
 		payload := &adminmessages.OfficeUserUpdatePayload{

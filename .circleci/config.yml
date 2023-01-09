@@ -28,16 +28,13 @@ references:
   # in dp3-env (loadtest, demo, exp), or
   # `placeholder_branch_name` if you don't want to deploy to dp3
   #
+
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for dp3 deploys. See the branch settings below.
   dp3-branch: &dp3-branch placeholder_branch_name
   # MUST BE ONE OF: loadtest, demo, exp.
   # These are used to pull in env vars so the spelling matters!
   dp3-env: &dp3-env placeholder_env
-
-  # set acceptance-branch to the branch you want to ENABLE acceptance
-  # tests, or `placeholder_branch_name` if you don't want to run them
-  acceptance-branch: &acceptance-branch placeholder_branch_name
 
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
@@ -841,63 +838,6 @@ jobs:
           destination: test-results
       - announce_failure
 
-  # `acceptance_tests` runs acceptance tests for the webserver against the local, exp, and staging environments.
-  acceptance_tests:
-    executor: mymove_compiler
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
-      - run:
-          name: Run Local acceptance tests
-          command: |
-            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
-            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-            source $BASH_ENV
-            make acceptance_test
-          environment:
-            CHAMBER_RETRIES: 20
-            DB_RETRY_INTERVAL: 5s
-            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
-            ENV: test
-            ENVIRONMENT: test
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
-            NO_TLS_ENABLED: true
-            PWD: /home/circleci/transcom/mymove
-      - aws_vars_dp3
-      - run:
-          name: Run dp3 acceptance tests
-          command: make acceptance_test
-          environment:
-            CHAMBER_RETRIES: 20
-            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
-            ENV: *dp3-env
-            ENVIRONMENT: *dp3-env
-            NO_TLS_ENABLED: true
-            PWD: /home/circleci/transcom/mymove
-            TEST_ACC_ENV: *dp3-env
-      - aws_vars_stg
-      - run:
-          name: Run Staging acceptance tests
-          command: make acceptance_test
-          environment:
-            CHAMBER_RETRIES: 20
-            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
-            ENV: stg
-            ENVIRONMENT: stg
-            NO_TLS_ENABLED: true
-            PWD: /home/circleci/transcom/mymove
-            TEST_ACC_ENV: stg
-      - run: echo "Prod acceptance tests are prohibited in CircleCI"
-      - announce_failure
-
   # separate the integration tests by site so that if there is a flaky
   # test, we only have to re-run part of the integration tests
   integration_tests_admin:
@@ -1073,7 +1013,23 @@ jobs:
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - restore_cache:
           keys:
-            - server-tests-coverage
+          #
+          # https://circleci.com/docs/caching/#restoring-cache
+          #
+          # restore the latest version of the test coverage in the
+          # cache
+          #
+          # To manually reset test coverage (e.g. a refactor or
+          # deleting code means coverage has gone down and we are ok
+          # with it), increment the version number of the cache
+          # e.g. go from v1-server-tests-coverage- to
+          # v2-server-tests-coverage-
+          #
+          # Make sure you also update the key in the save_cache below
+          #
+          # The trailing hyphen in restore_cache seems important
+          # according to the page linked above
+            - v2-server-tests-coverage-
       - run:
           name: Save Baseline Test Coverage
           command: |
@@ -1107,8 +1063,13 @@ jobs:
           condition:
             equal: [main, << pipeline.git.branch >>]
           steps:
+            # Make sure this key prefix matches the one above in
+            # restore_cache
+            #
+            # Use the BuildNum to update the cache key so that the
+            # coverage cache is always updated
             save_cache:
-              key: server-tests-coverage
+              key: v1-server-tests-coverage-{{ .BuildNum }}
               paths:
                 - ~/transcom/mymove/tmp/test-results
       - announce_failure
@@ -1122,8 +1083,24 @@ jobs:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
+          #
+          # https://circleci.com/docs/caching/#restoring-cache
+          #
+          # restore the latest version of the test coverage in the
+          # cache
+          #
+          # To manually reset test coverage (e.g. a refactor or
+          # deleting code means coverage has gone down and we are ok
+          # with it), increment the version number of the cache
+          # e.g. go from v1-client-tests-coverage- to
+          # v2-client-tests-coverage-
+          #
+          # Make sure you also update the key in the save_cache below
+          #
+          # The trailing hyphen in restore_cache seems important
+          # according to the page linked above
           keys:
-            - client-tests-coverage
+            - v2-client-tests-coverage-
       - run:
           name: Save Baseline Test Coverage
           command: |
@@ -1148,8 +1125,12 @@ jobs:
           condition:
             equal: [main, << pipeline.git.branch >>]
           steps:
+            # Make sure this key prefix matches the one above in restore_cache
+            #
+            # Use the BuildNum to update the cache key so that the
+            # coverage cache is always updated
             save_cache:
-              key: client-tests-coverage
+              key: v2-client-tests-coverage-{{ .BuildNum }}
               paths:
                 - ~/transcom/mymove/coverage
       - announce_failure
@@ -1602,6 +1583,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: *dp3-env
       - OPEN_TELEMETRY_SIDECAR: 'true'
+      - HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_dp3
@@ -1620,6 +1602,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: *dp3-env
       - OPEN_TELEMETRY_SIDECAR: 'true'
+      - HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_dp3
@@ -1804,15 +1787,6 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
-
-      - acceptance_tests:
-          requires:
-            - pre_deps_golang
-          # See comments at the top of this file for configuring/using
-          # this branch config
-          filters:
-            branches:
-              only: *acceptance-branch
 
       - integration_tests_admin:
           requires:

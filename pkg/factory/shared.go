@@ -31,22 +31,26 @@ var control CustomType = "Control"
 var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
 var Entitlement CustomType = "Entitlement"
+var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
 var ServiceMember CustomType = "ServiceMember"
 var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
+var TransportationOffice CustomType = "TransportationOffice"
 var User CustomType = "User"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
-	"models.Address":         Address,
-	"models.AdminUser":       AdminUser,
-	"models.Entitlement":     Entitlement,
-	"models.OfficeUser":      OfficeUser,
-	"models.Order":           Order,
-	"models.ServiceMember":   ServiceMember,
-	"models.Tariff400ngZip3": Tariff400ngZip3,
-	"models.User":            User,
+	"models.Address":              Address,
+	"models.AdminUser":            AdminUser,
+	"models.Entitlement":          Entitlement,
+	"models.OfficePhoneLine":      OfficePhoneLine,
+	"models.OfficeUser":           OfficeUser,
+	"models.Order":                Order,
+	"models.ServiceMember":        ServiceMember,
+	"models.Tariff400ngZip3":      Tariff400ngZip3,
+	"models.TransportationOffice": TransportationOffice,
+	"models.User":                 User,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
@@ -144,9 +148,6 @@ func linkOnlyHasID(clist []Customization) error {
 	}
 	return nil
 }
-
-// setDefaultTypesTraits assigns types to all customizations in the traits
-//func setDefaultTypesTraits()
 
 // setupCustomizations prepares the customizations customs for the factory
 // by applying and merging the traits.
@@ -313,7 +314,7 @@ func mergeCustomization(customs []Customization, traits []Trait) []Customization
 }
 
 // Helper function for when you need to elevate the type of customization from say
-// ResidentialAddress to Address before you call makeAddress
+// ResidentialAddress to Address before you call BuildAddress
 // This is a little finicky because we want to be careful not to harm the existing list
 // TBD should we validate again here?
 func convertCustomizationInList(customs []Customization, from CustomType, to CustomType) []Customization {

@@ -25,6 +25,10 @@ export async function getPaymentRequest(key, paymentRequestID) {
   return makeGHCRequest('paymentRequests.getPaymentRequest', { paymentRequestID });
 }
 
+export async function getWeightTickets(key, ppmShipmentId) {
+  return makeGHCRequest('ppm.getWeightTickets', { ppmShipmentId }, { normalize: false });
+}
+
 export async function getMove(key, locator) {
   return makeGHCRequest('move.getMove', { locator }, { normalize: false });
 }
@@ -513,6 +517,19 @@ export function updateFinancialFlag({ moveID, ifMatchETag, body }) {
     operationPath,
     {
       moveID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { normalize: false },
+  );
+}
+
+export function updateMoveCloseoutOffice({ locator, ifMatchETag, body }) {
+  const operationPath = 'move.updateCloseoutOffice';
+  return makeGHCRequest(
+    operationPath,
+    {
+      locator,
       'If-Match': ifMatchETag,
       body,
     },

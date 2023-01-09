@@ -8,6 +8,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -79,7 +80,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 func (suite *HandlerSuite) TestShowOrder() {
 	dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
 		DutyLocation: models.DutyLocation{
-			Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
+			Address: factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
 		},
 	})
 	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
@@ -121,7 +122,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
 		DutyLocation: models.DutyLocation{
-			Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
+			Address: factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
 		},
 	})
 	var moves models.Moves

@@ -13,6 +13,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	shipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -72,7 +73,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 	})
 
 	// third shipment with destination address and type
-	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	destinationType := models.DestinationTypeHomeOfRecord
 	thirdShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
@@ -2383,8 +2384,8 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 	subtestData = &createMTOShipmentSubtestData{}
 
 	mto := testdatagen.MakeAvailableMove(suite.DB())
-	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
-	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move:        mto,
 		MTOShipment: models.MTOShipment{},
@@ -2880,9 +2881,9 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	servicesCounselor.User.Roles = append(servicesCounselor.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeServicesCounselor,
 	})
-	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	pickupAddress.StreetAddress1 = "123 Fake Test St NW"
-	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
 	customerRemarks := "help"
 	counselorRemarks := "counselor approved"

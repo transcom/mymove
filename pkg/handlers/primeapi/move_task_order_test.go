@@ -138,7 +138,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				Status:             models.MoveStatusAPPROVED,
 			},
 		})
-		destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		destinationType := models.DestinationTypeHomeOfRecord
 		successShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{

@@ -10,6 +10,9 @@ import (
 // BuildEntitlement creates an Entitlement
 // Does not create other models
 // If Orders customization is provided - it will use the grade to calculate weight allotment
+// Params:
+// - customs is a slice that will be modified by the factory
+// - db can be set to nil to create a stubbed model that is not stored in DB.
 func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trait) models.Entitlement {
 	customs = setupCustomizations(customs, traits)
 

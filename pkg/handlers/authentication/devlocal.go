@@ -22,8 +22,6 @@ import (
 const (
 	// MilMoveUserType is the type of user for a Service Member
 	MilMoveUserType string = "milmove"
-	// PPMOfficeUserType is the type of user for an Office user
-	PPMOfficeUserType string = "PPM office"
 	// TOOOfficeUserType is the type of user for an Office user
 	TOOOfficeUserType string = "TOO office"
 	// TIOOfficeUserType is the type of user for an Office user
@@ -84,7 +82,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		IsMilApp                        bool
 		MilMoveUserType                 string
 		IsOfficeApp                     bool
-		PPMOfficeUserType               string
 		TOOOfficeUserType               string
 		TIOOfficeUserType               string
 		ServicesCounselorOfficeUserType string
@@ -103,7 +100,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		IsMilApp:                        auth.MilApp == appCtx.Session().ApplicationName,
 		MilMoveUserType:                 MilMoveUserType,
 		IsOfficeApp:                     auth.OfficeApp == appCtx.Session().ApplicationName,
-		PPMOfficeUserType:               PPMOfficeUserType,
 		TOOOfficeUserType:               TOOOfficeUserType,
 		TIOOfficeUserType:               TIOOfficeUserType,
 		ServicesCounselorOfficeUserType: ServicesCounselorOfficeUserType,
@@ -141,7 +137,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				<form method="post" action="/devlocal-auth/login">
 					<p>
 						<input type="hidden" name="gorilla.csrf.Token" value="{{$.CsrfToken}}">
-						<input type="hidden" name="userType" value="{{if $.IsOfficeApp}}{{$.PPMOfficeUserType}}{{else}}{{$.MilMoveUserType}}{{end}}">
+						<input type="hidden" name="userType" value="{{if $.IsOfficeApp}}{{$.TOOOfficeUserType}}{{else}}{{$.MilMoveUserType}}{{end}}">
 						<label for="email">User Email</label>
 						<input type="text" name="email" size="60">
 						<button type="submit" data-hook="existing-user-login">Login</button>
@@ -157,8 +153,8 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						  ({{$.AdminUserType}})
 						  <input type="hidden" name="userType" value="{{$.AdminUserType}}">
 						{{else if .OfficeUserID}}
-						  ({{$.PPMOfficeUserType}})
-						  <input type="hidden" name="userType" value="{{$.PPMOfficeUserType}}">
+						  ({{$.TOOOfficeUserType}})
+						  <input type="hidden" name="userType" value="{{$.TOOOfficeUserType}}">
 						{{else}}
 						  ({{$.MilMoveUserType}})
 						  <input type="hidden" name="userType" value="{{$.MilMoveUserType}}">
@@ -191,15 +187,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					</p>
 				  </form>
 			  {{else if $.IsOfficeApp }}
-				  <form method="post" action="/devlocal-auth/new">
-					<p>
-					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
-					  <input type="hidden" name="userType" value="{{.PPMOfficeUserType}}">
-					  ` + gblocSelectHTML + `
-					  <button type="submit" data-hook="new-user-login-{{.PPMOfficeUserType}}">Create a New {{.PPMOfficeUserType}} User</button>
-					</p>
-				  </form>
-
 				  <form method="post" action="/devlocal-auth/new">
 					<p>
 					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
@@ -438,78 +425,6 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		if smVerrs.HasAny() || smErr != nil {
 			appCtx.Logger().Error("Error creating service member for user", zap.Error(smErr))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		}
-	case PPMOfficeUserType:
-		// Now create the Truss JPPSO
-		address := models.Address{
-			StreetAddress1: "1333 Minna St",
-			City:           "San Francisco",
-			State:          "CA",
-			PostalCode:     "94115",
-		}
-
-		verrs, err := appCtx.DB().ValidateAndSave(&address)
-		if err != nil {
-			appCtx.Logger().Error("could not create address", zap.Error(err))
-		}
-		if verrs.HasAny() {
-			appCtx.Logger().Error("validation errors creating address", zap.Stringer("errors", verrs))
-		}
-
-		role := roles.Role{}
-		err = appCtx.DB().Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&role)
-		if err != nil {
-			appCtx.Logger().Error("could not fetch role ppm_office_users", zap.Error(err))
-		}
-
-		usersRole := models.UsersRoles{
-			UserID: user.ID,
-			RoleID: role.ID,
-		}
-
-		verrs, err = appCtx.DB().ValidateAndSave(&usersRole)
-		if err != nil {
-			appCtx.Logger().Error("could not create user role", zap.Error(err))
-		}
-		if verrs.HasAny() {
-			appCtx.Logger().Error("validation errors creating user role", zap.Stringer("errors", verrs))
-		}
-
-		office := models.TransportationOffice{
-			Name:      "Truss",
-			AddressID: address.ID,
-			Latitude:  37.7678355,
-			Longitude: -122.4199298,
-			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
-			Gbloc:     gbloc,
-		}
-
-		verrs, err = appCtx.DB().ValidateAndSave(&office)
-		if err != nil {
-			appCtx.Logger().Error("could not create office", zap.Error(err))
-		}
-		if verrs.HasAny() {
-			appCtx.Logger().Error("validation errors creating office", zap.Stringer("errors", verrs))
-		}
-
-		officeUser := models.OfficeUser{
-			FirstName:              firstName,
-			LastName:               lastName,
-			Telephone:              telephone,
-			TransportationOfficeID: office.ID,
-			Email:                  email,
-			Active:                 true,
-		}
-		if user.ID != uuid.Nil {
-			officeUser.UserID = &user.ID
-		}
-
-		verrs, err = appCtx.DB().ValidateAndSave(&officeUser)
-		if err != nil {
-			appCtx.Logger().Error("could not create office user", zap.Error(err))
-		}
-		if verrs.HasAny() {
-			appCtx.Logger().Error("validation errors creating office user", zap.Stringer("errors", verrs))
 		}
 	case TOOOfficeUserType:
 		// Now create the Truss JPPSO
@@ -919,7 +834,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 
 	// Keep the logic for redirection separate from setting the session user ids
 	switch userType {
-	case PPMOfficeUserType, TOOOfficeUserType, TIOOfficeUserType, ServicesCounselorOfficeUserType, PrimeSimulatorOfficeUserType, QaeCsrOfficeUserType:
+	case TOOOfficeUserType, TIOOfficeUserType, ServicesCounselorOfficeUserType, PrimeSimulatorOfficeUserType, QaeCsrOfficeUserType:
 		session.ApplicationName = auth.OfficeApp
 		session.Hostname = h.AppNames().OfficeServername
 		active = userIdentity.Active || (userIdentity.OfficeActive != nil && *userIdentity.OfficeActive)
@@ -1007,7 +922,7 @@ func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http
 }
 
 func isOfficeUser(userType string) bool {
-	if userType == PPMOfficeUserType || userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType || userType == QaeCsrOfficeUserType {
+	if userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType || userType == QaeCsrOfficeUserType {
 		return true
 	}
 	return false

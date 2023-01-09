@@ -91,3 +91,7 @@ type SearchMovesParams struct {
 	Sort                  *string
 	Order                 *string
 }
+
+type MoveCloseoutOfficeUpdater interface {
+	UpdateCloseoutOffice(appCtx appcontext.AppContext, moveLocator string, closeoutOfficeID uuid.UUID, eTag string) (*models.Move, error)
+}
