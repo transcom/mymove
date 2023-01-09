@@ -13,7 +13,7 @@ import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
 import formStyles from 'styles/form.module.scss';
 import { DutyLocationShape } from 'types';
-import { ServiceMemberShape } from 'types/customerShapes';
+import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX, InvalidZIPTypeError } from 'utils/validation';
 import { searchTransportationOffices } from 'services/internalApi';
@@ -47,6 +47,7 @@ const DateAndLocationForm = ({
   mtoShipment,
   destinationDutyLocation,
   serviceMember,
+  move,
   onBack,
   onSubmit,
   postalCodeValidator,
@@ -64,6 +65,7 @@ const DateAndLocationForm = ({
     secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
+    closeoutOffice: move?.closeout_office,
   };
 
   const residentialAddressPostalCode = serviceMember?.residential_address?.postalCode;
@@ -365,6 +367,7 @@ const DateAndLocationForm = ({
 DateAndLocationForm.propTypes = {
   mtoShipment: ShipmentShape,
   serviceMember: ServiceMemberShape.isRequired,
+  move: MoveShape,
   destinationDutyLocation: DutyLocationShape.isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
@@ -373,6 +376,7 @@ DateAndLocationForm.propTypes = {
 
 DateAndLocationForm.defaultProps = {
   mtoShipment: undefined,
+  move: undefined,
 };
 
 export default DateAndLocationForm;

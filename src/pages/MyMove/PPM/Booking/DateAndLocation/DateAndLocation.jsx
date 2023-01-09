@@ -14,11 +14,11 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
 import { updateMTOShipment } from 'store/entities/actions';
 import { DutyLocationShape } from 'types';
-import { ServiceMemberShape } from 'types/customerShapes';
+import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { validatePostalCode } from 'utils/validation';
 
-const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }) => {
+const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const history = useHistory();
   const { moveId, shipmentNumber } = useParams();
@@ -111,6 +111,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
               mtoShipment={mtoShipment}
               serviceMember={serviceMember}
               destinationDutyLocation={destinationDutyLocation}
+              move={move}
               onSubmit={handleSubmit}
               onBack={handleBack}
               postalCodeValidator={validatePostalCode}
@@ -126,9 +127,11 @@ DateAndLocation.propTypes = {
   mtoShipment: ShipmentShape,
   serviceMember: ServiceMemberShape.isRequired,
   destinationDutyLocation: DutyLocationShape.isRequired,
+  move: MoveShape,
 };
 
 DateAndLocation.defaultProps = {
+  move: {},
   mtoShipment: {},
 };
 
