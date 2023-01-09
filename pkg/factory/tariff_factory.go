@@ -14,6 +14,9 @@ import (
 var DefaultZip3 = "902"
 
 // BuildTariff400ngZip3 finds or makes a single Tariff400ngZip3 record
+// Params:
+// - customs is a slice that will be modified by the factory
+// - db can be set to nil to create a stubbed model that is not stored in DB.
 func BuildTariff400ngZip3(db *pop.Connection, customs []Customization, traits []Trait) models.Tariff400ngZip3 {
 	customs = setupCustomizations(customs, traits)
 

@@ -7,7 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest"
 )
 
 type RDSUTest struct {
@@ -30,26 +30,19 @@ func TestEnableIamNilCreds(t *testing.T) {
 	assert := assert.New(t)
 
 	rdsu := RDSUTest{}
-	logger, _ := zap.NewProduction()
+	logger := zaptest.NewLogger(t)
 
 	tmr := time.NewTicker(1 * time.Second)
 
 	shouldQuitChan := make(chan bool)
 
-	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
+	err := EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		nil,
 		&rdsu,
 		tmr,
 		logger,
 		shouldQuitChan)
-	time.Sleep(2 * time.Second)
-
-	iamConfig.currentPassMutex.Lock()
-	t.Logf("Current password: %s", iamConfig.currentIamPass)
-	assert.Equal(iamConfig.currentIamPass, "")
-	iamConfig.currentPassMutex.Unlock()
-	tmr.Stop()
-
+	assert.Error(err, "Enable IAM with nil creds?")
 }
 
 func TestGetCurrentPassword(t *testing.T) {
@@ -57,27 +50,38 @@ func TestGetCurrentPassword(t *testing.T) {
 
 	rdsu := RDSUTest{}
 	rdsu.passes = append(rdsu.passes, "abc")
-	logger, _ := zap.NewProduction()
+	logger := zaptest.NewLogger(t)
 	iamConfig.currentIamPass = "" // ensure iamConfig is in new state
 
-	tmr := time.NewTicker(2 * time.Second)
+	// use Millisecond so the tests run faster
+	tickerDuration := 1 * time.Millisecond
+	pauseCounter := 0
+	iamConfig.pauseFn = func() {
+		pauseCounter++
+		// make sure we wait at least one ticker duration for the
+		// password to be updated
+		time.Sleep(tickerDuration)
+	}
+
+	tmr := time.NewTicker(tickerDuration)
 
 	shouldQuitChan := make(chan bool)
 
-	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
+	err := EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		&rdsu,
 		tmr,
 		logger,
 		shouldQuitChan)
+	assert.Nil(err, "Enable IAM error")
 
-	// this should block for ~ 250ms and then continue
-	currentPass := GetCurrentPass()
+	// this should block once and then continue
+	currentPass := getCurrentPass()
 	assert.Equal(currentPass, "abc")
 	shouldQuitChan <- true
-
 	tmr.Stop()
 
+	assert.Equal(1, pauseCounter)
 }
 
 func TestGetCurrentPasswordFail(t *testing.T) {
@@ -87,26 +91,37 @@ func TestGetCurrentPasswordFail(t *testing.T) {
 
 	rdsu := RDSUTest{}
 	rdsu.passes = append(rdsu.passes, "") // set mocked pass to empty to simulate failed cred generation
-	logger, _ := zap.NewProduction()
+	logger := zaptest.NewLogger(t)
 	iamConfig.currentIamPass = ""
 
-	tmr := time.NewTicker(1 * time.Second)
+	// use Millisecond so the tests run faster
+	tickerDuration := 1 * time.Millisecond
+	pauseCounter := 0
+	iamConfig.pauseFn = func() {
+		pauseCounter++
+		// make sure we wait at least one ticker duration for the
+		// password to be updated
+		time.Sleep(tickerDuration)
+	}
+
+	tmr := time.NewTicker(tickerDuration)
 
 	shouldQuitChan := make(chan bool)
 
-	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
+	err := EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		&rdsu,
 		tmr,
 		logger,
 		shouldQuitChan)
+	assert.Nil(err, "Enable IAM error")
 
-	// this should block for 30s then return empty string
-	currentPass := GetCurrentPass()
+	// this should block until maxRetries, then return empty string
+	currentPass := getCurrentPass()
 	assert.Equal(currentPass, "")
 	shouldQuitChan <- true
 	tmr.Stop()
-
+	assert.Equal(int(iamConfig.maxRetries), pauseCounter)
 }
 
 /*
@@ -136,38 +151,46 @@ func TestEnableIAMNormal(t *testing.T) {
 	testData := []string{"abc"}
 	rdsu := RDSUTest{}
 	rdsu.passes = append(rdsu.passes, testData...)
-	logger, _ := zap.NewProduction()
+	logger := zaptest.NewLogger(t)
 	// Set the current password to something not in the above list of passwords
 	// to cycle through.
 	iamConfig.currentIamPass = "123"
+	pauseCounter := 0
+	iamConfig.pauseFn = func() { pauseCounter++ }
 
-	tmr := time.NewTicker(1 * time.Second)
+	// use Millisecond so the tests run faster
+	tmr := time.NewTicker(1 * time.Millisecond)
 
 	shouldQuitChan := make(chan bool)
 
 	// Confirm that the password got set to what we initially set it to.
-	pass := GetCurrentPass()
+	pass := getCurrentPass()
 	assert.Equal("123", pass)
 
 	// Start cycling through the list of passwords.
-	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
+	err := EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		&rdsu,
 		tmr,
 		logger,
 		shouldQuitChan)
+	assert.Nil(err, "Enable IAM error")
 
 	// The sleep time should be greater than how often the password will cycle
 	// so that the next time the password is fetched, it will have changed.
-	time.Sleep(2 * time.Second)
+	// use Millisecond so the tests run faster
+	time.Sleep(2 * time.Millisecond)
 
 	// Confirm that the password has changed (it's no longer the initial
 	// password) to the 1 password being cycled through.
-	pass = GetCurrentPass()
+	pass = getCurrentPass()
 	assert.Equal("abc", pass)
 
 	shouldQuitChan <- true
 	tmr.Stop()
+
+	// in this case, should never pause
+	assert.Equal(0, pauseCounter)
 }
 
 func TestUpdateDSN(t *testing.T) {

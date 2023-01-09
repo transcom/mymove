@@ -121,7 +121,7 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@babel/core": "~7.20.7",
+    "@babel/core": "~7.20.12",
     "@babel/helper-builder-react-jsx": "^7.19.0",
     "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
     "@dump247/storybook-state": "^1.6.1",
@@ -148,7 +148,7 @@
     "cypress": "8.5.0",
     "cypress-audit": "^1.1.0",
     "cypress-wait-until": "^1.7.2",
-    "danger": "^11.2.0",
+    "danger": "^11.2.1",
     "danger-plugin-jira-issue": "^1.4.1",
     "dotenv": "^16.0.3",
     "enzyme": "^3.11.0",

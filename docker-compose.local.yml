@@ -47,6 +47,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.local
+    # healthcheck:
+    #   test: ["CMD", "/bin/milmove", "health"]
+    #   interval: 5s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 10s
     links:
       - database
     ports:
