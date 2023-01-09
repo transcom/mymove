@@ -315,11 +315,13 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Expected outcome: Only the one ppmShipment with the right closeout office should be returned
 		officeUser, _ := setupTestData()
 
-		ftBragg := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-			TransportationOffice: models.TransportationOffice{
-				Name: "Ft Bragg",
+		ftBragg := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name: "Ft Bragg",
+				},
 			},
-		})
+		}, nil)
 		ppmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				CloseoutOfficeID: &ftBragg.ID,
@@ -1092,21 +1094,23 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 	suite.Run("Sort by PPM closeout location", func() {
 		officeUser := setupTestData()
 
-		locationA := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-			TransportationOffice: models.TransportationOffice{
-				Name: "A",
-			},
-		})
+		locationA := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name: "A",
+				},
+			}}, nil)
 		ppmShipmentA := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				CloseoutOfficeID: &locationA.ID,
 			},
 		})
-		locationB := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-			TransportationOffice: models.TransportationOffice{
-				Name: "B",
-			},
-		})
+		locationB := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name: "B",
+				},
+			}}, nil)
 		ppmShipmentB := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				CloseoutOfficeID: &locationB.ID,
