@@ -2,7 +2,6 @@
 
 // User Types
 export const milmoveUserType = 'milmove';
-export const PPMOfficeUserType = 'PPM office';
 export const TOOOfficeUserType = 'TOO office';
 export const TIOOfficeUserType = 'TIO office';
 export const QAECSROfficeUserType = 'QAE/CSR office';

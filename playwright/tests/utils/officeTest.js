@@ -30,21 +30,6 @@ class OfficePage extends BaseTestPage {
   }
 
   /**
-   * Use devlocal auth to sign in as new PPM User
-   *
-   * @deprecated since the PPM office user is going away
-   * @this {BaseOfficePage & SignInMixin}
-   */
-  async signInAsNewPPMUser() {
-    await Promise.all([
-      // It is important to call waitForNavigation before click to set up waiting.
-      this.page.waitForNavigation(),
-      this.signIntoOfficeAsNewPPMUser(),
-    ]);
-    await this.waitForLoading();
-  }
-
-  /**
    * Use devlocal auth to sign in as new Service Counselor
    */
   async signInAsNewServicesCounselorUser() {
