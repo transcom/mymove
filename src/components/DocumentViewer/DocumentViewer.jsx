@@ -75,11 +75,13 @@ const DocumentViewer = ({ files }) => {
         <Button data-testid="openMenu" type="button" onClick={openMenu} aria-label="Open menu" unstyled>
           <FontAwesomeIcon icon="th-list" />
         </Button>
-        <p title={selectedFilename} data-testid="documentTitle">
+        <p title={selectedFilename} className={styles.documentTitle} data-testid="documentTitle">
           <span>{selectedFilename}</span> <span>- Added on {selectedFileDate}</span>
         </p>
-        <p>
-          Download file <FontAwesomeIcon icon="download" />
+        <p className={styles.downloadLink}>
+          <a href="google.com">
+            <span>Download file</span> <FontAwesomeIcon icon="download" />
+          </a>
         </p>
       </div>
       <Content fileType={fileType} filePath={selectedFile.url} />
