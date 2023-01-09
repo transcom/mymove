@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { bool } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -18,7 +19,7 @@ import { filenameFromPath } from 'utils/formatters';
  * - handle fetch doc errors
  */
 
-const DocumentViewer = ({ files }) => {
+const DocumentViewer = ({ files, allowDownload }) => {
   const [selectedFileIndex, selectFile] = useState(0);
   const [menuIsOpen, setMenuOpen] = useState(false);
 
@@ -78,11 +79,13 @@ const DocumentViewer = ({ files }) => {
         <p title={selectedFilename} className={styles.documentTitle} data-testid="documentTitle">
           <span>{selectedFilename}</span> <span>- Added on {selectedFileDate}</span>
         </p>
-        <p className={styles.downloadLink}>
-          <a href={selectedFile.url} download>
-            <span>Download file</span> <FontAwesomeIcon icon="download" />
-          </a>
-        </p>
+        {allowDownload && (
+          <p className={styles.downloadLink}>
+            <a href={selectedFile.url} download>
+              <span>Download file</span> <FontAwesomeIcon icon="download" />
+            </a>
+          </p>
+        )}
       </div>
       <Content fileType={fileType} filePath={selectedFile.url} />
       {menuIsOpen && <div className={styles.overlay} />}
@@ -99,10 +102,12 @@ const DocumentViewer = ({ files }) => {
 
 DocumentViewer.propTypes = {
   files: FilesShape,
+  allowDownload: bool,
 };
 
 DocumentViewer.defaultProps = {
   files: [],
+  allowDownload: false,
 };
 
 export default DocumentViewer;
