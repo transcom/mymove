@@ -18,6 +18,9 @@ import dutyLocationFactory from 'utils/test/factories/dutyLocation';
 // ];
 
 // const selectedCloseoutLocation = mockCloseoutLocations[2];
+// const mockCloseoutAddress = selectedCloseoutLocation.address;
+// const displayCloseoutAddress = `${mockCloseoutAddress.city}, ${mockCloseoutAddress.state} ${mockCloseoutAddress.postalCode}`;
+// const closeoutOptionName = selectedCloseoutLocation.name.split(' AFB'[0]);
 
 const mockDutyLocations = [
   dutyLocationFactory(),
