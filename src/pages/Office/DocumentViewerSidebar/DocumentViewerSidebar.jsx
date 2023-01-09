@@ -5,11 +5,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './DocumentViewerSidebar.module.scss';
 
-export default function DocumentViewerSidebar({ children, description, title, subtitle, onClose }) {
+export default function DocumentViewerSidebar({ children, description, title, subtitle, supertitle, onClose }) {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <div>
+          {supertitle && <h2 className={styles.supertitle}>{supertitle}</h2>}
           <h1>{title}</h1>
           {subtitle && <h2>{subtitle}</h2>}
           {description && <h3>{description}</h3>}
@@ -27,12 +28,14 @@ DocumentViewerSidebar.propTypes = {
   children: node.isRequired,
   title: string.isRequired,
   subtitle: string,
+  supertitle: string,
   description: string,
   onClose: func.isRequired,
 };
 
 DocumentViewerSidebar.defaultProps = {
   subtitle: '',
+  supertitle: '',
   description: '',
 };
 

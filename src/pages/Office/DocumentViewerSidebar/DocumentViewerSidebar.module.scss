@@ -37,6 +37,14 @@
     @include u-margin-top(0.5);
   }
 
+  .supertitle {
+    font-size: 15px;
+    color: $base;
+    font-weight: normal;
+    text-transform: uppercase;
+    @include u-margin-bottom(2);
+  }
+
   .header {
     display: flex;
     justify-content: space-between;

@@ -1,19 +1,30 @@
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-// import { generatePath } from 'react-router'; // need this for close button on side panel
+import React, { useRef, useState } from 'react';
+import { Button } from '@trussworks/react-uswds';
+import { generatePath, useHistory, useParams, withRouter } from 'react-router-dom';
 
 import styles from './ReviewDocuments.module.scss';
 
+import { servicesCounselingRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
+import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import { usePPMShipmentDocsQueries } from 'hooks/queries';
-import ReviewDocumentsSidePanel from 'components/Office/PPM/ReviewDocumentsSidePanel/ReviewDocumentsSidePanel';
+import ReviewWeightTicket from 'components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket';
 
 export const ReviewDocuments = ({ match }) => {
   const { shipmentId } = match.params;
   const { mtoShipment, weightTickets, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
+
+  const [documentSetIndex, setDocumentSetIndex] = useState(0);
+  const [nextEnabled, setNextEnabled] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const history = useHistory();
+  const params = useParams();
+
+  const formRef = useRef();
 
   // placeholder pro-gear tickets & expenses
   const progearTickets = [];
@@ -28,19 +39,75 @@ export const ReviewDocuments = ({ match }) => {
     uploads = uploads.concat(weightTicket.proofOfTrailerOwnershipDocument?.uploads);
   });
 
+  // TODO: select the documentSet from among weight tickets, pro gear, and expenses
+  const documentSet = weightTickets[documentSetIndex];
+
+  const onClose = () => {};
+
+  const onBack = () => {
+    if (documentSetIndex > 0) {
+      setDocumentSetIndex(documentSetIndex - 1);
+    }
+  };
+
+  const onError = () => {
+    setSubmitting(false);
+  };
+
+  const onSuccess = () => {
+    setSubmitting(false);
+    if (documentSetIndex < weightTickets.length - 1) {
+      setDocumentSetIndex(documentSetIndex + 1);
+    } else {
+      const { moveCode } = params;
+      history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+    }
+  };
+
+  const onValid = (valid) => {
+    setNextEnabled(valid);
+  };
+
+  const onContinue = () => {
+    if (formRef.current) {
+      formRef.current.handleSubmit();
+    }
+  };
+
   return (
     <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
         <DocumentViewer files={uploads} allowDownload />
       </div>
-      <div className={styles.sidebar}>
-        <ReviewDocumentsSidePanel
-          ppmShipment={mtoShipment.ppmShipment}
-          weightTickets={weightTickets}
-          expenseTickets={expenses}
-          proGearTickets={progearTickets}
-        />
-      </div>
+      <DocumentViewerSidebar
+        title="Review documents"
+        onClose={onClose}
+        className={styles.sidebar}
+        // TODO: set this correctly based on total document sets, including pro gear and expenses
+        supertitle={`${documentSetIndex + 1} of ${weightTickets.length} Document Sets`}
+      >
+        <DocumentViewerSidebar.Content>
+          <ReviewWeightTicket
+            weightTicket={documentSet}
+            ppmNumber={1}
+            tripNumber={1}
+            mtoShipment={mtoShipment}
+            onError={onError}
+            onSuccess={onSuccess}
+            onValid={onValid}
+            formRef={formRef}
+            setSubmitting={setSubmitting}
+          />
+        </DocumentViewerSidebar.Content>
+        <DocumentViewerSidebar.Footer>
+          <Button onClick={onBack} disabled={documentSetIndex === 0}>
+            Back
+          </Button>
+          <Button type="submit" onClick={onContinue} disabled={!nextEnabled || submitting}>
+            Continue
+          </Button>
+        </DocumentViewerSidebar.Footer>
+      </DocumentViewerSidebar>
     </div>
   );
 };
