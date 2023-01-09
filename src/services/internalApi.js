@@ -223,11 +223,12 @@ export async function getMove(moveId) {
   );
 }
 
-export async function patchMove(move) {
+export async function patchMove(moveId, move, ifMatchETag) {
   return makeInternalRequest(
     'moves.patchMove',
     {
-      moveId: move.id,
+      moveId,
+      'If-Match': ifMatchETag,
       patchMovePayload: move,
     },
     {
