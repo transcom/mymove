@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -145,11 +146,13 @@ func (suite *MigrateSuite) TestExecWithUpdateFromSetSQL() {
 func (suite *MigrateSuite) TestExecWithInsertConflictSQL() {
 
 	// Create Transportation Office
-	testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-		TransportationOffice: models.TransportationOffice{
-			ID: uuid.Must(uuid.FromString("c219d9e5-2659-427d-be33-bf439251b7f3")),
+	factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ID: uuid.Must(uuid.FromString("c219d9e5-2659-427d-be33-bf439251b7f3")),
+			},
 		},
-	})
+	}, nil)
 
 	// Load the fixture with the sql example
 	f, err := os.Open("./fixtures/insert_conflict.sql")

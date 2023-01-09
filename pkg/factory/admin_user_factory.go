@@ -11,8 +11,12 @@ import (
 )
 
 // BuildAdminUser creates an AdminUser
-// Also creates
+// Also creates, if not provided
 //   - User
+//
+// Params:
+// - customs is a slice that will be modified by the factory
+// - db can be set to nil to create a stubbed model that is not stored in DB.
 func BuildAdminUser(db *pop.Connection, customs []Customization, traits []Trait) models.AdminUser {
 	customs = setupCustomizations(customs, traits)
 
