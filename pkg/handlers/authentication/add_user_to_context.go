@@ -20,7 +20,9 @@ func AddAuditUserToRequestContextMiddleware(appCtx appcontext.AppContext) func(n
 			if newAppCtx.Session() != nil {
 				auditUser, err := user.NewUserFetcher(query.NewQueryBuilder()).FetchUser(newAppCtx, []services.QueryFilter{query.NewQueryFilter("id", "=", newAppCtx.Session().UserID)})
 				if err != nil {
-					newAppCtx.Logger().Error("Error encountered when fetching user with session UserID.", zap.Error(err))
+					newAppCtx.Logger().Error("Error encountered when fetching user with session UserID.",
+						zap.String("UserId", newAppCtx.Session().UserID.String()),
+						zap.Error(err))
 					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 					return
 				}
