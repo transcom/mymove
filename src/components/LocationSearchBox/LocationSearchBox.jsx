@@ -203,11 +203,11 @@ export const LocationSearchBoxComponent = ({
 };
 
 export const LocationSearchBoxContainer = (props) => {
-  const { isDisabled } = props;
+  const { isDisabled, searchLocations } = props;
   return (
     <LocationSearchBoxComponent
       {...props}
-      searchLocations={SearchDutyLocations}
+      searchLocations={searchLocations || SearchDutyLocations}
       showAddress={ShowAddress}
       isDisabled={isDisabled}
     />
@@ -227,6 +227,7 @@ LocationSearchBoxContainer.propTypes = {
   hint: PropTypes.node,
   placeholder: PropTypes.string,
   isDisabled: PropTypes.bool,
+  searchLocations: PropTypes.func.isRequired,
 };
 
 LocationSearchBoxContainer.defaultProps = {
