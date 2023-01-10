@@ -1,5 +1,5 @@
 import React from 'react';
-import { bool, func, number } from 'prop-types';
+import { bool, func, number, shape, oneOf } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 
@@ -10,6 +10,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { getShipmentTypeLabel, isArmyOrAirForce } from 'utils/shipmentDisplay';
+import affiliations from 'content/serviceMemberAgencies';
 
 const PPMShipmentCard = ({
   move,
@@ -42,7 +43,7 @@ const PPMShipmentCard = ({
   })}?shipmentNumber=${shipmentNumber}`;
 
   let closeoutOffice;
-  if (move.closeout_office == null) {
+  if (move?.closeout_office == null) {
     closeoutOffice = '';
   } else {
     closeoutOffice = move.closeout_office.name;
@@ -138,6 +139,8 @@ PPMShipmentCard.propTypes = {
   showEditAndDeleteBtn: bool.isRequired,
   onEditClick: func,
   onDeleteClick: func,
+  move: shape({}),
+  affiliation: oneOf(Object.values(affiliations)),
 };
 
 PPMShipmentCard.defaultProps = {
