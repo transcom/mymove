@@ -550,6 +550,13 @@ export const useMoveDetailsQueries = (moveCode) => {
 
   const order = Object.values(orders || {})?.[0];
 
+  const customerId = order?.customerID;
+  const { data: { customer } = {}, ...customerQuery } = useQuery([CUSTOMER, customerId], getCustomer, {
+    enabled: !!customerId,
+  });
+  const customerAgency = customer && Object.values(customer)[0];
+  const ppmMove = move && Object.values(move)[0];
+
   const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
     enabled: !!moveId,
   });
@@ -564,6 +571,7 @@ export const useMoveDetailsQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
     orderQuery,
+    customerQuery,
     mtoShipmentQuery,
     mtoServiceItemQuery,
   ]);
@@ -571,6 +579,8 @@ export const useMoveDetailsQueries = (moveCode) => {
   return {
     move,
     order,
+    customerAgency,
+    ppmMove,
     mtoShipments,
     mtoServiceItems,
     isLoading,

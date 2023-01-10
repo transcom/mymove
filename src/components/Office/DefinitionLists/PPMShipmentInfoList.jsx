@@ -34,6 +34,20 @@ const PPMShipmentInfoList = ({
     spouseProGearWeight,
   } = shipment.ppmShipment || {};
 
+  const { closeoutOffice, agency, gbloc } = shipment;
+
+  let closeoutDisplay = gbloc;
+
+  if (agency === 'AIR_FORCE' || agency === 'ARMY') {
+    closeoutDisplay = closeoutOffice;
+  }
+
+  if (closeoutDisplay == null) {
+    closeoutDisplay = '—';
+  }
+
+  // console.log(shipment);
+
   setFlagStyles({
     row: styles.row,
     warning: shipmentDefinitionListsStyles.warning,
@@ -85,6 +99,14 @@ const PPMShipmentInfoList = ({
     <div className={secondDestinationZIPElementFlags.classes}>
       <dt>Second destination ZIP</dt>
       <dd data-testid="secondDestinationZIP">{secondaryDestinationPostalCode}</dd>
+    </div>
+  );
+
+  const closeoutOfficeElementFlags = getDisplayFlags('closeoutOffice');
+  const closeoutOfficeElement = (
+    <div className={closeoutOfficeElementFlags.classes}>
+      <dt>Closeout Office</dt>
+      <dd>{closeoutDisplay}</dd>
     </div>
   );
 
@@ -161,6 +183,7 @@ const PPMShipmentInfoList = ({
     >
       {expectedDepartureDateElement}
       {originZIPElement}
+      {closeoutOfficeElement}
       {showElement(secondOriginZIPElementFlags) && secondOriginZIPElement}
       {destinationZIPElement}
       {showElement(secondDestinationZIPElementFlags) && secondDestinationZIPElement}

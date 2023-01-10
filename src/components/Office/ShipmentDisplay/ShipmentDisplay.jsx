@@ -40,6 +40,8 @@ const ShipmentDisplay = ({
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
 
+  // console.log(displayInfo);
+
   const disableApproval = errorIfMissing.some((requiredInfo) => !displayInfo[requiredInfo]);
 
   const handleExpandClick = () => {
@@ -140,6 +142,8 @@ ShipmentDisplay.propTypes = {
   ]),
   displayInfo: PropTypes.oneOfType([
     PropTypes.shape({
+      agency: PropTypes.string,
+      closeoutOffice: PropTypes.string,
       heading: PropTypes.string.isRequired,
       isDiversion: PropTypes.bool,
       shipmentStatus: ShipmentStatusesOneOf,
