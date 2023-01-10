@@ -26,12 +26,12 @@ func RetrieveEventNameFromContext(ctx context.Context) string {
 	return operationID
 }
 
-// WithAuditUserID returns a new context with the auditUser.
+// WithAuditUserID returns a new context with the auditUserID.
 func WithAuditUserID(ctx context.Context, userID uuid.UUID) context.Context {
 	return context.WithValue(ctx, loggerAuditIDContextKey, userID)
 }
 
-// RetrieveAuditUserIDFromContext returns the auditUser associated with a context. If the
+// RetrieveAuditUserIDFromContext returns the auditUserID associated with a context. If the
 // context has no auditUser, the empty user model is returned
 func RetrieveAuditUserIDFromContext(ctx context.Context) uuid.UUID {
 	var userID uuid.UUID

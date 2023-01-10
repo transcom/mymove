@@ -44,11 +44,11 @@ func (suite *AuditSuite) TestContextFunctions() {
 		user := factory.BuildDefaultUser(suite.DB())
 		context := context.Background()
 
-		// If nothing is added to the context an empty user should be returned
+		// If nothing is added to the context an empty userID should be returned
 		returnedNilUserID := RetrieveAuditUserIDFromContext(context)
 		suite.Equal(nilUUID, returnedNilUserID)
 
-		// If an audit user is added to the context that audit user should be returned
+		// If an auditUserID is added to the context that auditUserID should be returned
 		context = WithAuditUserID(context, user.ID)
 		returnedUserID := RetrieveAuditUserIDFromContext(context)
 		suite.Equal(user.ID, returnedUserID)
