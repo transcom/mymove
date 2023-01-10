@@ -2036,10 +2036,11 @@ func createMoveWithCloseoutOffice(appCtx appcontext.AppContext, userUploader *up
 	})
 
 	// Make a transportation office to use as the closeout office
-	closeoutOffice := testdatagen.MakeTransportationOffice(appCtx.DB(), testdatagen.Assertions{TransportationOffice: models.TransportationOffice{
-		Name: "Los Angeles AFB",
-	},
-	})
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Name: "Los Angeles AFB"},
+		},
+	}, nil)
 
 	// Make a move with the closeout office
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{

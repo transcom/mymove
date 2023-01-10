@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/factory"
 	officeop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -12,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/office"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestIndexOfficesHandler() {
@@ -21,7 +21,7 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 
 	// test that everything is wired up
 	suite.Run("integration test ok response", func() {
-		to := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+		to := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 		params := officeop.IndexOfficesParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/offices"),
 		}

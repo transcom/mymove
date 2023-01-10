@@ -16,7 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func setUpMockNotificationSender() notifications.NotificationSender {
@@ -32,31 +31,42 @@ func setUpMockNotificationSender() notifications.NotificationSender {
 }
 
 func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
-	appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
-	queryBuilder := query.NewQueryBuilder()
 
-	loginGovUUID := uuid.Must(uuid.NewV4())
-	existingUser := factory.BuildUser(suite.DB(), []factory.Customization{
-		{
-			Model: models.User{
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: "spaceman+existing@leo.org",
-				Active:        true,
-			},
-		}}, nil)
-
-	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
-	userInfo := models.OfficeUser{
-		LastName:               "Spaceman",
-		FirstName:              "Leo",
-		Email:                  "spaceman@leo.org",
-		TransportationOfficeID: transportationOffice.ID,
-		Telephone:              "312-111-1111",
-		TransportationOffice:   transportationOffice,
+	setupTestData := func() (models.User, models.OfficeUser) {
+		loginGovUUID := uuid.Must(uuid.NewV4())
+		existingUser := factory.BuildUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.User{
+					LoginGovUUID:  &loginGovUUID,
+					LoginGovEmail: "spaceman+existing@leo.org",
+					Active:        true,
+				},
+			}}, nil)
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			}}, nil)
+		officeUser := models.OfficeUser{
+			LastName:               "Spaceman",
+			FirstName:              "Leo",
+			Email:                  "spaceman@leo.org",
+			TransportationOfficeID: transportationOffice.ID,
+			Telephone:              "312-111-1111",
+			TransportationOffice:   transportationOffice,
+		}
+		return existingUser, officeUser
 	}
 
 	// Happy path - creates a new User as well
 	suite.Run("If the user is created successfully it should be returned", func() {
+		_, userInfo := setupTestData()
+		transportationOffice := userInfo.TransportationOffice
+
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		queryBuilder := query.NewQueryBuilder()
+
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.TransportationOffice:
@@ -91,6 +101,11 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 
 	// Reuses existing user if it's already been created for an admin or service member
 	suite.Run("Finds existing user by email and associates with office user", func() {
+		existingUser, userInfo := setupTestData()
+		transportationOffice := userInfo.TransportationOffice
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		queryBuilder := query.NewQueryBuilder()
+
 		existingUserInfo := models.OfficeUser{
 			LastName:               "Spaceman",
 			FirstName:              "Leo",
@@ -131,6 +146,9 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 
 	// Bad transportation office ID
 	suite.Run("If we are provided a transportation office that doesn't exist, the create should fail", func() {
+		_, userInfo := setupTestData()
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			return models.ErrFetchNotFound
 		}
@@ -148,6 +166,10 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 
 	// Transaction rollback on createOne validation failure
 	suite.Run("CreateOne validation error should rollback transaction", func() {
+		_, userInfo := setupTestData()
+		transportationOffice := userInfo.TransportationOffice
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.TransportationOffice:
@@ -192,6 +214,10 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 
 	// Transaction rollback on createOne error failure
 	suite.Run("CreateOne error should rollback transaction", func() {
+		_, userInfo := setupTestData()
+		transportationOffice := userInfo.TransportationOffice
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.TransportationOffice:
