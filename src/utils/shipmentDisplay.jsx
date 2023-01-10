@@ -4,6 +4,7 @@ import React from 'react';
 
 import { LOA_TYPE, shipmentOptionLabels } from 'shared/constants';
 import { shipmentStatuses, shipmentModificationTypes } from 'constants/shipments';
+import affiliations from 'content/serviceMemberAgencies';
 
 export function formatAddress(address) {
   const { streetAddress1, streetAddress2, city, state, postalCode } = address;
@@ -131,5 +132,5 @@ export function getShipmentModificationType(shipment) {
 }
 
 export function isArmyOrAirForce(affiliation) {
-  return affiliation === 'AIR_FORCE' || affiliation === 'ARMY';
+  return affiliation === affiliations.AIR_FORCE || affiliation === affiliations.ARMY;
 }
