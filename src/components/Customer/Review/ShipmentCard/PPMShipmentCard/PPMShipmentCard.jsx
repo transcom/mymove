@@ -147,6 +147,8 @@ PPMShipmentCard.defaultProps = {
   shipmentNumber: undefined,
   onEditClick: undefined,
   onDeleteClick: undefined,
+  move: undefined,
+  affiliation: undefined,
 };
 
 export default PPMShipmentCard;
