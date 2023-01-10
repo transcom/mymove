@@ -170,6 +170,11 @@ test.describe('TIO user', () => {
 
       // Payment Requests page
       expect(page.url()).toContain('/payment-requests');
+
+      // confirm the move is set up as expected
+      await expect(page.getByRole('heading', { name: '$1,130.21' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: '$805.55' })).toBeVisible();
+
       // first payment request
       await Promise.all([page.waitForNavigation(), page.getByText('Review service items').first().click()]);
       await tioFlowPage.waitForLoading();
@@ -224,6 +229,7 @@ test.describe('TIO user', () => {
       await tioFlowPage.rejectServiceItem();
       await page.getByText('Next').click();
 
+      await expect(page.getByText('item still needs your review')).not.toBeVisible();
       // Complete Request
       await page.getByText('Complete request').click();
 
@@ -254,6 +260,10 @@ test.describe('TIO user', () => {
       await page.locator('a[title="Home"]').click();
       await tioFlowPage.waitForLoading();
 
+      // search for the moveLocator in case this move doesn't show up
+      // on the first page
+      await page.locator('#locator').type(tioFlowPage.moveLocator);
+      await page.locator('#locator').blur();
       const paymentSection = page.locator(`[data-uuid="${tioFlowPage.paymentRequest.id}"]`);
       await expect(paymentSection).toHaveCount(1);
       await expect(paymentSection.locator('td', { hasText: 'Reviewed' })).toBeVisible();
@@ -520,7 +530,7 @@ test.describe('TIO user', () => {
 
       // Go back home
       await page.locator('a[title="Home"]').click();
-      await expect(page.getByText('Payment requests')).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Payment requests' })).toBeVisible();
     });
   });
 
