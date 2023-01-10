@@ -65,7 +65,7 @@ describe('ReviewWeightTicket component', () => {
       expect(screen.queryByText("Is the trailer's weight claimable?")).not.toBeInTheDocument();
 
       expect(screen.getByRole('heading', { level: 3, name: 'Review trip 1' })).toBeInTheDocument();
-      expect(screen.getByLabelText('Approve')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Accept')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Reject')).toBeInstanceOf(HTMLInputElement);
     });
 

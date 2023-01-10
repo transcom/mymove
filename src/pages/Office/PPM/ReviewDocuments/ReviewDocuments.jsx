@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
+import { queryCache } from 'react-query';
 import { Button } from '@trussworks/react-uswds';
-import { generatePath, useHistory, useParams, withRouter } from 'react-router-dom';
+import { generatePath, useHistory, withRouter } from 'react-router-dom';
 
 import styles from './ReviewDocuments.module.scss';
 
@@ -12,9 +13,10 @@ import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import { usePPMShipmentDocsQueries } from 'hooks/queries';
 import ReviewWeightTicket from 'components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 export const ReviewDocuments = ({ match }) => {
-  const { shipmentId } = match.params;
+  const { shipmentId, moveCode } = match.params;
   const { mtoShipment, weightTickets, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
@@ -22,7 +24,6 @@ export const ReviewDocuments = ({ match }) => {
   const [submitting, setSubmitting] = useState(false);
 
   const history = useHistory();
-  const params = useParams();
 
   const formRef = useRef();
 
@@ -42,7 +43,9 @@ export const ReviewDocuments = ({ match }) => {
   // TODO: select the documentSet from among weight tickets, pro gear, and expenses
   const documentSet = weightTickets[documentSetIndex];
 
-  const onClose = () => {};
+  const onClose = () => {
+    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+  };
 
   const onBack = () => {
     if (documentSetIndex > 0) {
@@ -50,16 +53,18 @@ export const ReviewDocuments = ({ match }) => {
     }
   };
 
-  const onError = () => {
+  const onError = (error) => {
     setSubmitting(false);
+    const errorMsg = error?.response?.body;
+    milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
   };
 
   const onSuccess = () => {
     setSubmitting(false);
+    queryCache.invalidateQueries([], moveCode);
     if (documentSetIndex < weightTickets.length - 1) {
       setDocumentSetIndex(documentSetIndex + 1);
     } else {
-      const { moveCode } = params;
       history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
     }
   };

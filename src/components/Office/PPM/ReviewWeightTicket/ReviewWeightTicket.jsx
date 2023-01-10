@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useMutation } from 'react-query';
 import { func, number, object } from 'prop-types';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
@@ -41,11 +42,15 @@ export default function ReviewWeightTicket({
   ppmNumber,
   onError,
   onSuccess,
-  onValid,
   formRef,
   setSubmitting,
 }) {
   const [canEditRejection, setCanEditRejection] = useState(true);
+
+  const [patchWeightTicketMutation] = useMutation(patchWeightTicket, {
+    onSuccess,
+    onError,
+  });
 
   const ppmShipment = mtoShipment?.ppmShipment;
 
@@ -62,15 +67,13 @@ export default function ReviewWeightTicket({
       ownsTrailer,
       trailerMeetsCriteria,
     };
-
     setSubmitting(true);
-    patchWeightTicket(weightTicket.ppmShipmentId, weightTicket.id, payload, weightTicket.eTag)
-      .then(() => {
-        onSuccess();
-      })
-      .catch(() => {
-        onError();
-      });
+    await patchWeightTicketMutation({
+      ppmShipmentId: weightTicket.ppmShipmentId,
+      weightTicketId: weightTicket.id,
+      payload,
+      eTag: weightTicket.eTag,
+    });
   };
 
   const {
@@ -86,7 +89,7 @@ export default function ReviewWeightTicket({
     reason,
   } = weightTicket || {};
 
-  const hasProofOfTrailerOwnershipDocument = proofOfTrailerOwnershipDocument.uploads.length > 0;
+  const hasProofOfTrailerOwnershipDocument = proofOfTrailerOwnershipDocument?.uploads.length > 0;
 
   const initialValues = {
     weightType: missingEmptyWeightTicket || missingFullWeightTicket ? 'constructedWeight' : 'weightTicket',
@@ -105,13 +108,11 @@ export default function ReviewWeightTicket({
         innerRef={formRef}
         onSubmit={handleSubmit}
       >
-        {({ handleChange, isValid, values }) => {
+        {({ handleChange, values }) => {
           const handleApprovalChange = (event) => {
             handleChange(event);
             setCanEditRejection(true);
           };
-
-          onValid(isValid);
 
           return (
             <Form className={classnames(formStyles.form, styles.ReviewWeightTicket)}>
@@ -285,7 +286,6 @@ ReviewWeightTicket.propTypes = {
   tripNumber: number.isRequired,
   ppmNumber: number.isRequired,
   onSuccess: func,
-  onValid: func,
   formRef: object,
 };
 
@@ -293,6 +293,5 @@ ReviewWeightTicket.defaultProps = {
   weightTicket: null,
   mtoShipment: null,
   onSuccess: null,
-  onValid: null,
   formRef: null,
 };

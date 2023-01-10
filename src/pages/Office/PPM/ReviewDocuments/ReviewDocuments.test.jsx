@@ -85,7 +85,6 @@ describe('ReviewDocuments', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(loadingReturnValue);
-
       render(<ReviewDocuments {...requiredProps} />);
 
       const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
