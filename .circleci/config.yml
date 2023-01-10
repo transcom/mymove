@@ -31,10 +31,10 @@ references:
 
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for dp3 deploys. See the branch settings below.
-  dp3-branch: &dp3-branch placeholder_branch_name
+  dp3-branch: &dp3-branch pm-mb-14364-add-doc-download-to-ui
   # MUST BE ONE OF: loadtest, demo, exp.
   # These are used to pull in env vars so the spelling matters!
-  dp3-env: &dp3-env placeholder_env
+  dp3-env: &dp3-env exp
 
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
