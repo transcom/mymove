@@ -3,6 +3,7 @@ package factory
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/spf13/afero"
@@ -99,4 +100,15 @@ func BuildUpload(db *pop.Connection, customs []Customization, traits []Trait) mo
 //   - User
 func BuildDefaultUpload(db *pop.Connection) models.Upload {
 	return BuildUpload(db, nil, nil)
+}
+
+func GetTraitTimestampedUpload() []Customization {
+	return []Customization{
+		{
+			Model: models.Upload{
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+		},
+	}
 }
