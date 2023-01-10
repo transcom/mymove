@@ -139,7 +139,7 @@ test.describe('testing CSRF protection updating move info', () => {
     await officePage.signInAsNewTOOUser();
 
     // click on newly created move
-    await page.getByText(move.locator).click();
+    await officePage.tooNavigateToMove(move.locator);
     await officePage.waitForLoading();
 
     await page.getByTestId('edit-orders').click();
@@ -157,9 +157,7 @@ test.describe('testing CSRF protection updating move info', () => {
     const move = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO();
     await officePage.signInAsNewTOOUser();
 
-    // click on newly created move
-    await page.getByText(move.locator).click();
-    await officePage.waitForLoading();
+    await officePage.tooNavigateToMove(move.locator);
 
     await page.getByTestId('edit-orders').click();
     await officePage.waitForLoading();
