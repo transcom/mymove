@@ -81,7 +81,7 @@ const DocumentViewer = ({ files, allowDownload }) => {
         </p>
         {allowDownload && (
           <p className={styles.downloadLink}>
-            <a href={selectedFile.url} download>
+            <a href={selectedFile.url} download tabIndex={menuIsOpen ? '-1' : '0'}>
               <span>Download file</span> <FontAwesomeIcon icon="download" />
             </a>
           </p>
