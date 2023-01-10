@@ -5,8 +5,8 @@
  */
 // @ts-check
 
-const { newSignIn } = require('./signIn');
-const { newTestHarness } = require('./testharness');
+const { SignIn } = require('./signIn');
+const { TestHarness } = require('./testharness');
 
 /**
  * base test fixture for playwright
@@ -21,8 +21,8 @@ export class BaseTestPage {
   constructor(page, request) {
     this.page = page;
     this.request = request;
-    this.signIn = newSignIn(page);
-    this.testHarness = newTestHarness(request);
+    this.signIn = new SignIn(page);
+    this.testHarness = new TestHarness(request);
   }
 
   /**
