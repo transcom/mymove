@@ -779,3 +779,5 @@
 20221222212831_obliterate-ppm-office-user.up.sql
 20230104003529_transportation_offices_name_index.up.sql
 20230105211952_app_demo_cert_migration.up.sql
+20230106201854_app_loadtest_cert_migration.up.sql
+20230106211757_app_exp_cert_migration.up.sql
