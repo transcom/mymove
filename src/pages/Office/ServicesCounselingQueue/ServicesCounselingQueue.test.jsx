@@ -282,52 +282,44 @@ describe('ServicesCounselingQueue', () => {
   });
 
   describe('service counseling tab routing', () => {
-    const testUsersAndPaths = [
-      // fields: user, user description, path to try, is counselor view
-      [serviceCounselorUser, 'counselor', servicesCounselingRoutes.DEFAULT_QUEUE_PATH, true],
-      [serviceCounselorUser, 'counselor', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, true],
-      [serviceCounselorUser, 'counselor', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, false],
-      [serviceCounselorUserForCloseout, 'closeout', servicesCounselingRoutes.DEFAULT_QUEUE_PATH, false],
-      [serviceCounselorUserForCloseout, 'closeout', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, true],
-      [serviceCounselorUserForCloseout, 'closeout', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, false],
-    ];
+    it.each([
+      ['counselor', servicesCounselingRoutes.DEFAULT_QUEUE_PATH, true, serviceCounselorUser],
+      ['counselor', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, true, serviceCounselorUser],
+      ['counselor', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, false, serviceCounselorUser],
+      ['closeout', servicesCounselingRoutes.DEFAULT_QUEUE_PATH, false, serviceCounselorUserForCloseout],
+      ['closeout', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, true, serviceCounselorUserForCloseout],
+      ['closeout', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, false, serviceCounselorUserForCloseout],
+    ])('a %s user accessing path "%s"', (userDescription, path, showsCounselingTab, user) => {
+      useUserQueries.mockReturnValue(user);
+      useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
+      useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
+      render(
+        <MockProviders initialEntries={[path]}>
+          <ServicesCounselingQueue />
+        </MockProviders>,
+      );
 
-    testUsersAndPaths.forEach((testCase) => {
-      const [user, userDescription, path, showsCounselingTab] = testCase;
-      it(`a ${userDescription} user accessing ${path} should show ${
-        showsCounselingTab ? 'counselor' : 'PPM closeout'
-      } tab`, () => {
-        useUserQueries.mockReturnValue(user);
-        useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
-        useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
-        render(
-          <MockProviders initialEntries={[path]}>
-            <ServicesCounselingQueue />
-          </MockProviders>,
-        );
+      if (showsCounselingTab) {
+        // Make sure "Counseling" is the active tab.
+        const counselingActive = screen.getByText('Counseling', { selector: '.usa-current .tab-title' });
+        expect(counselingActive).toBeInTheDocument();
 
-        if (showsCounselingTab) {
-          // Make sure "Counseling" is the active tab.
-          const counselingActive = screen.getByText('Counseling', { selector: '.usa-current .tab-title' });
-          expect(counselingActive).toBeInTheDocument();
+        // Check for the "Counseling" columns.
+        expect(screen.getByText(/Status/)).toBeInTheDocument();
+        expect(screen.getByText(/Requested move date/)).toBeInTheDocument();
+        expect(screen.getByText(/Date submitted/)).toBeInTheDocument();
+        expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
+      } else {
+        // Make sure "PPM Closeout" is the active tab.
+        const ppmCloseoutActive = screen.getByText('PPM Closeout', { selector: '.usa-current .tab-title' });
+        expect(ppmCloseoutActive).toBeInTheDocument();
 
-          // Check for the "Counseling" columns.
-          expect(screen.getByText(/Status/)).toBeInTheDocument();
-          expect(screen.getByText(/Requested move date/)).toBeInTheDocument();
-          expect(screen.getByText(/Date submitted/)).toBeInTheDocument();
-          expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
-        } else {
-          // Make sure "PPM Closeout" is the active tab.
-          const ppmCloseoutActive = screen.getByText('PPM Closeout', { selector: '.usa-current .tab-title' });
-          expect(ppmCloseoutActive).toBeInTheDocument();
-
-          // Check for the "PPM Closeout" columns.
-          expect(screen.getByText(/Closeout initiated/)).toBeInTheDocument();
-          expect(screen.getByText(/PPM closeout location/)).toBeInTheDocument();
-          expect(screen.getByText(/Full or partial PPM/)).toBeInTheDocument();
-          expect(screen.getByText(/Destination duty location/)).toBeInTheDocument();
-        }
-      });
+        // Check for the "PPM Closeout" columns.
+        expect(screen.getByText(/Closeout initiated/)).toBeInTheDocument();
+        expect(screen.getByText(/PPM closeout location/)).toBeInTheDocument();
+        expect(screen.getByText(/Full or partial PPM/)).toBeInTheDocument();
+        expect(screen.getByText(/Destination duty location/)).toBeInTheDocument();
+      }
     });
   });
 });
