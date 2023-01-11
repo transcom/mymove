@@ -227,7 +227,7 @@ LocationSearchBoxContainer.propTypes = {
   hint: PropTypes.node,
   placeholder: PropTypes.string,
   isDisabled: PropTypes.bool,
-  searchLocations: PropTypes.func.isRequired,
+  searchLocations: PropTypes.func,
 };
 
 LocationSearchBoxContainer.defaultProps = {
@@ -242,17 +242,19 @@ LocationSearchBoxContainer.defaultProps = {
   hint: '',
   placeholder: 'Start typing a duty location...',
   isDisabled: false,
+  searchLocations: SearchDutyLocations,
 };
 
 LocationSearchBoxComponent.propTypes = {
   ...LocationSearchBoxContainer.propTypes,
-  searchLocations: PropTypes.func.isRequired,
+  searchLocations: PropTypes.func,
   showAddress: PropTypes.func.isRequired,
   isDisabled: PropTypes.bool,
 };
 
 LocationSearchBoxComponent.defaultProps = {
   ...LocationSearchBoxContainer.defaultProps,
+  searchLocations: SearchDutyLocations,
   isDisabled: false,
 };
 
