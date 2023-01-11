@@ -207,7 +207,7 @@ export const LocationSearchBoxContainer = (props) => {
   return (
     <LocationSearchBoxComponent
       {...props}
-      searchLocations={searchLocations || SearchDutyLocations}
+      searchLocations={searchLocations}
       showAddress={ShowAddress}
       isDisabled={isDisabled}
     />
