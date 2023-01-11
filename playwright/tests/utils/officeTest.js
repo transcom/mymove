@@ -8,7 +8,7 @@ const { BaseTestPage } = require('./baseTest');
  * See https://playwright.dev/docs/test-fixtures
  * @extends BaseTestPage
  */
-class OfficePage extends BaseTestPage {
+export class OfficePage extends BaseTestPage {
   /**
    * Wait for the page to finish loading.
    */
@@ -161,8 +161,8 @@ const officeFixtures = {
   },
 };
 
-exports.OfficePage = OfficePage;
+export const test = base.test.extend(officeFixtures);
 
-exports.test = base.test.extend(officeFixtures);
+export const { expect } = base;
 
-exports.expect = base.expect;
+export default test;

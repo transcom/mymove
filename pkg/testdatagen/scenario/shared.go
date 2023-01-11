@@ -8071,7 +8071,7 @@ func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 	})
 }
 
-func createMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {
+func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsMoveType := models.SelectedMoveTypeNTS
@@ -8116,8 +8116,11 @@ func createMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator stri
 			UsesExternalVendor: usesExternalVendor,
 		},
 	})
+
+	return move
 }
-func createMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {
+
+func CreateMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsrMoveType := models.SelectedMoveTypeNTSR
@@ -8161,9 +8164,11 @@ func createMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator str
 			UsesExternalVendor: usesExternalVendor,
 		},
 	})
+
+	return move
 }
 
-func createMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {
+func CreateMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsMoveType := models.SelectedMoveTypeNTS
@@ -8192,6 +8197,8 @@ func createMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, use
 			UsesExternalVendor: usesExternalVendor,
 		},
 	})
+
+	return move
 }
 
 func createMoveWithNTSRShipment(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {

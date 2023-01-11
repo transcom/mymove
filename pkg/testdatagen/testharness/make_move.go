@@ -10,15 +10,21 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/dates"
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
@@ -1781,6 +1787,125 @@ func MakeHHGMoveWithRetireeForTOO(appCtx appcontext.AppContext) models.Move {
 			ProvidesServicesCounseling: false,
 		},
 	})
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeHHGMoveWithNTSShipmentsForTOO creates an HHG Move with NTS-R Shipment
+func MakeHHGMoveWithNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
+	locator := models.GenerateLocator()
+	move := scenario.CreateMoveWithHHGAndNTSShipments(appCtx, locator, false)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeHHGMoveWithExternalNTSShipmentsForTOO creates an HHG Move with NTS-R Shipment
+func MakeHHGMoveWithExternalNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
+	locator := models.GenerateLocator()
+	move := scenario.CreateMoveWithHHGAndNTSShipments(appCtx, locator, true)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeHHGMoveWithApprovedNTSShipmentsForTOO creates an HHG Move with NTS
+// Prime Shipment
+func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
+	locator := models.GenerateLocator()
+	move := scenario.CreateMoveWithHHGAndNTSShipments(appCtx, locator, false)
+
+	moveRouter := moverouter.NewMoveRouter()
+	err := moveRouter.Approve(appCtx, &move)
+	if err != nil {
+		log.Panic("Failed to approve move: %w", err)
+	}
+
+	err = appCtx.DB().Save(&move)
+	if err != nil {
+		log.Panic("Failed to save move: %w", err)
+	}
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	orders := newmove.Orders
+	orders.SAC = swag.String("4K988AS098F")
+	orders.TAC = swag.String("E15A")
+	orders.NtsSAC = swag.String("3L988AS098F")
+	orders.NtsTAC = swag.String("F123")
+	err = appCtx.DB().Save(&orders)
+	if err != nil {
+		log.Panic("Failed to save orders: %w", err)
+	}
+
+	planner := &routemocks.Planner{}
+
+	// mock any and all planner calls
+	planner.On("TransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
+
+	queryBuilder := query.NewQueryBuilder()
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
+
+	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
+	for i := range newmove.MTOShipments {
+		shipment := newmove.MTOShipments[i]
+		updatedShipments[i], err = shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
+		if err != nil {
+			log.Panic("Error updating shipment status %w", err)
+		}
+	}
+
+	storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(),
+		testdatagen.Assertions{})
+
+	updatedShipment := updatedShipments[1]
+
+	sacType := models.LOATypeHHG
+	updatedShipment.SACType = &sacType
+	tacType := models.LOATypeNTS
+	updatedShipment.TACType = &tacType
+	updatedShipment.ServiceOrderNumber = swag.String("999999")
+	updatedShipment.StorageFacilityID = &storageFacility.ID
+	err = appCtx.DB().Save(updatedShipment)
+	if err != nil {
+		log.Panic("Failed to save shipment: %w", err)
+	}
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err = models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeMoveWithNTSShipmentsForTOO creates an HHG Move with NTS-R Shipment
+func MakeMoveWithNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
+	locator := models.GenerateLocator()
+	move := scenario.CreateMoveWithNTSShipment(appCtx, locator, true)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
