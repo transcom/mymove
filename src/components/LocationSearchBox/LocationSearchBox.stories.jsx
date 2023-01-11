@@ -239,6 +239,7 @@ export const TransportationLocationBasic = () => {
   return (
     <LocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
+      placeholder="Start typing a closeout office..."
       title="Transportation Office Test Component"
       name="test_component"
       searchLocations={mockSearchLocations}
@@ -257,6 +258,7 @@ export const TransportationLocationWithValue = () => {
   return (
     <LocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
+      placeholder="Start typing a closeout office..."
       title="Transportation Office Test Component"
       displayAddress={false}
       searchLocations={mockSearchLocations}
