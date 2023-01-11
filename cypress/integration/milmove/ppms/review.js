@@ -51,6 +51,7 @@ describe('PPM Onboarding - Review', function () {
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+    cy.intercept('PATCH', '**/internal/moves/**').as('patchMove');
     cy.intercept('DELETE', '**/internal/mto-shipments/**').as('deleteShipment');
     cy.intercept('GET', '**/internal/moves/**/signed_certifications').as('signedCertifications');
   });
@@ -104,7 +105,7 @@ describe('PPM Onboarding - Review', function () {
 
 function getToReviewPage(isMobile = false, userId) {
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId);
-  navigateFromDateAndLocationPageToEstimatedWeightsPage('@patchShipment');
+  navigateFromDateAndLocationPageToEstimatedWeightsPage(['@patchShipment', '@patchMove']);
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
   navigateFromEstimatedIncentivePageToAdvancesPage();
   navigateFromAdvancesPageToReviewPage(isMobile);

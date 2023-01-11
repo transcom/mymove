@@ -21,6 +21,7 @@ describe('Entire PPM onboarding flow', function () {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('POST', '**/internal/mto_shipments').as('createShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+    cy.intercept('PATCH', '**/internal/moves/**').as('patchMove');
     cy.intercept('GET', '**/internal/moves/**/signed_certifications').as('signedCertifications');
   });
 
@@ -94,7 +95,7 @@ function submitAndVerifyUpdateDateAndLocation() {
   cy.get('input[name="sitExpected"][value="false"]').check();
   cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
 
-  navigateFromDateAndLocationPageToEstimatedWeightsPage('@patchShipment');
+  navigateFromDateAndLocationPageToEstimatedWeightsPage(['@patchShipment', '@patchMove']);
 
   cy.get('button').contains('Back').click();
 
@@ -107,7 +108,7 @@ function submitAndVerifyUpdateDateAndLocation() {
   cy.get('input[name="expectedDepartureDate"]').should('have.value', '01 Feb 2022');
   cy.get('input[name="sitExpected"]').last().should('be.checked').and('have.value', 'false');
 
-  navigateFromDateAndLocationPageToEstimatedWeightsPage('@patchShipment');
+  navigateFromDateAndLocationPageToEstimatedWeightsPage(['@patchShipment', '@patchMove']);
 }
 
 // verify page and submit to go to next page
