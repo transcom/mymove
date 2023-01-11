@@ -1,72 +1,7 @@
 // @ts-check
-const { test, expect, OfficePage } = require('../../utils/officeTest');
+const { test, expect } = require('../../utils/officeTest');
 
-/**
- * TooFlowPage test fixture
- *
- * The logic in TooFlowPage is only used in this file, so keep the
- * playwright test fixture in this file.
- * @extends OfficePage
- */
-class TooFlowPage extends OfficePage {
-  /**
-   * @param {OfficePage} officePage
-   * @param {Object} move
-   * @override
-   */
-  constructor(officePage, move) {
-    super(officePage.page, officePage.request);
-    this.move = move;
-    this.moveLocator = move.locator;
-  }
-
-  /**
-   * select and approve all service items on the page
-   */
-  async selectAndApproveAllServiceItems() {
-    // Select & approve items
-    const checkboxes = this.page.locator('input[data-testid="shipment-display-checkbox"]');
-    const boxCount = await checkboxes.count();
-    expect(boxCount).toBeGreaterThan(0);
-    for (let i = 0; i < boxCount; i += 1) {
-      const id = await checkboxes.nth(i).getAttribute('id');
-      const label = this.page.locator(`label[for="${id}"]`);
-      await expect(label).toHaveCount(1);
-      await label.click();
-    }
-  }
-
-  /**
-   * approve all shipments on the move
-   */
-  async approveAllShipments() {
-    const shipmentCount = await this.page.locator('input[data-testid="shipment-display-checkbox"]').count();
-    // Select & approve items
-    this.selectAndApproveAllServiceItems();
-    // Select additional service items
-    await this.page.locator('label[for="shipmentManagementFee"]').click();
-    await this.page.locator('label[for="counselingFee"]').click();
-    // Open modal
-    await this.page.getByText('Approve selected').click();
-
-    const modal = this.page.locator('#approvalConfirmationModal [data-testid="modal"]');
-    await expect(modal).toBeVisible();
-    // Verify modal content
-    await expect(modal.getByText('Preview and post move task order')).toBeVisible();
-    await expect(this.page.locator('#approvalConfirmationModal [data-testid="ShipmentContainer"]')).toHaveCount(
-      shipmentCount,
-    );
-    expect(modal.getByText('Approved service items for this move')).toBeVisible();
-    const siTable = modal.getByText('Approved service items for this move').locator('..').locator('table');
-    await expect(siTable).toContainText('Move management');
-    await expect(siTable).toContainText('Counseling');
-
-    // Click approve
-    await modal.getByText('Approve and send').click();
-    await expect(this.page.locator('#approvalConfirmationModal [data-testid="modal"]')).not.toBeVisible();
-    await this.waitForLoading();
-  }
-}
+const { TooFlowPage } = require('./tooTestFixture');
 
 test.describe('TOO user', () => {
   /** @type {TooFlowPage} */

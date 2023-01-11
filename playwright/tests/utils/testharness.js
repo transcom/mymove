@@ -102,6 +102,38 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build HHG move with NTS for TOO
+   * @returns {Promise<Object>}
+   */
+  async buildHHGMoveWithNTSShipmentsForTOO() {
+    return this.buildDefault('HHGMoveWithNTSShipmentsForTOO');
+  }
+
+  /**
+   * Use testharness to build move with NTS for TOO
+   * @returns {Promise<Object>}
+   */
+  async buildMoveWithNTSShipmentsForTOO() {
+    return this.buildDefault('MoveWithNTSShipmentsForTOO');
+  }
+
+  /**
+   * Use testharness to build HHG move with NTS for TOO
+   * @returns {Promise<Object>}
+   */
+  async buildHHGMoveWithExternalNTSShipmentsForTOO() {
+    return this.buildDefault('HHGMoveWithExternalNTSShipmentsForTOO');
+  }
+
+  /**
+   * Use testharness to build HHG move with approved NTS shipment for TOO
+   * @returns {Promise<Object>}
+   */
+  async buildHHGMoveWithApprovedNTSShipmentsForTOO() {
+    return this.buildDefault('HHGMoveWithApprovedNTSShipmentsForTOO');
+  }
+
+  /**
    * Use testharness to build hhg move for TIO
    * @returns {Promise<Object>}
    */
