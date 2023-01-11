@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Button, Textarea, ErrorMessage } from '@trussworks/react-uswds';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Field, Formik } from 'formik';
 import { useParams } from 'react-router-dom';
 import * as Yup from 'yup';
@@ -19,7 +19,7 @@ import { createCustomerSupportRemarkForMove } from 'services/ghcApi';
 
 const CustomerSupportRemarkForm = ({ officeUser }) => {
   const { moveCode } = useParams();
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
 
   const { mutate: createRemarkMutation } = useMutation(createCustomerSupportRemarkForMove, {
     onSuccess: () => {

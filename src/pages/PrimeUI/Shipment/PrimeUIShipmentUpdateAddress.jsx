@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { generatePath } from 'react-router';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
 
@@ -48,7 +48,7 @@ const PrimeUIShipmentUpdateAddress = () => {
     history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
 
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const { mutateAsync: mutateMTOShipment } = useMutation(updatePrimeMTOShipmentAddress, {
     onSuccess: (updatedMTOShipmentAddress) => {
       const shipmentIndex = mtoShipments.findIndex((mtoShipment) => mtoShipment.id === shipmentId);

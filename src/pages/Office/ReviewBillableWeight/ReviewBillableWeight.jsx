@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Alert } from '@trussworks/react-uswds';
 import { useHistory, useParams } from 'react-router-dom';
 import { generatePath } from 'react-router';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import DocumentViewerSidebar from '../DocumentViewerSidebar/DocumentViewerSidebar';
 
@@ -75,7 +75,7 @@ export default function ReviewBillableWeight() {
 
   const selectedShipment = filteredShipments ? filteredShipments[selectedShipmentIndex] : {};
 
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
       filteredShipments[filteredShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] =
@@ -91,14 +91,14 @@ export default function ReviewBillableWeight() {
 
   const { mutate: mutateOrders } = useMutation(updateMaxBillableWeightAsTIO, {
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries([MOVES, moveCode]);
+      queryClient.invalidateQueries({ queryKey: [MOVES, moveCode] });
+      queryClient.invalidateQueries({ queryKey: [ORDERS, variables.orderID] });
       const updatedOrder = data.orders[variables.orderID];
       queryClient.setQueryData([ORDERS, variables.orderID], {
         orders: {
           [`${variables.orderID}`]: updatedOrder,
         },
       });
-      queryClient.invalidateQueries([ORDERS, variables.orderID]);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;

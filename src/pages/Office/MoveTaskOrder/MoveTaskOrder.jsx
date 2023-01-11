@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { withRouter, Link } from 'react-router-dom';
 import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 import classnames from 'classnames';
@@ -151,7 +151,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     });
     return serviceItemsForShipment;
   }, [mtoServiceItems]);
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const { mutate: mutateMTOServiceItemStatus } = useMutation(patchMTOServiceItemStatus, {
     onSuccess: (data, variables) => {
       const newMTOServiceItem = data.mtoServiceItems[variables.mtoServiceItemID];

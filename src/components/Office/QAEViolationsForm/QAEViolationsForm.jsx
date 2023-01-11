@@ -5,7 +5,7 @@ import { useParams, useHistory } from 'react-router';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
 import classnames from 'classnames';
-import { useMutation, QueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './QAEViolationsForm.module.scss';
@@ -32,7 +32,7 @@ const QAEViolationsForm = ({
   const { moveCode, reportId } = useParams();
   const history = useHistory();
 
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const { mutateAsync: mutateEvaluationReport } = useMutation(saveEvaluationReport, {
     onError: (error) => {
       const errorMsg = error?.response?.body;

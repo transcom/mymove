@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Alert, Button } from '@trussworks/react-uswds';
 import { Link, useParams, withRouter } from 'react-router-dom';
 import classnames from 'classnames';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -29,7 +29,7 @@ const MoveDetails = ({ setFlashMessage }) => {
 
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
 
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const { mutate: completeCounselingMutation } = useMutation(completeCounseling, {
     onSuccess: () => {
       setFlashMessage(

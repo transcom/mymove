@@ -3,7 +3,7 @@ import 'styles/office.scss';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { useParams } from 'react-router-dom';
 import classnames from 'classnames';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
@@ -24,7 +24,7 @@ const CustomerSupportRemarks = () => {
   const [showDeletionSuccess, setShowDeletionSuccess] = useState(false);
   const [customerSupportRemarkIDToDelete, setCustomerSupportRemarkIDToDelete] = useState(null);
   const { customerSupportRemarks, isLoading, isError } = useCustomerSupportRemarksQueries(moveCode);
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const { mutate: deleteCustomerSupportRemarkMutation } = useMutation(deleteCustomerSupportRemark, {
     onSuccess: async () => {
       await queryClient.invalidateQueries([CUSTOMER_SUPPORT_REMARKS, moveCode]);

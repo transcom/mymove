@@ -3,7 +3,7 @@ import { useParams, useHistory, withRouter } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import moment from 'moment';
 import { generatePath } from 'react-router';
 import { connect } from 'react-redux';
@@ -32,7 +32,7 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
 
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
 
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const { mutate: createPaymentRequestMutation } = useMutation(createPaymentRequest, {
     onSuccess: (data) => {
       if (!moveTaskOrder.paymentRequests?.length) {

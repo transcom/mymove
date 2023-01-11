@@ -2,7 +2,7 @@ import React, { useEffect, useReducer } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import ordersFormValidationSchema from './ordersFormValidationSchema';
@@ -38,7 +38,7 @@ const Orders = () => {
   const handleClose = React.useCallback(() => {
     history.push(`/moves/${moveCode}/details`);
   }, [history, moveCode]);
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const { mutate: mutateOrders } = useMutation(updateOrder, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];

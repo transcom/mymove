@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 import { useHistory, useParams, withRouter } from 'react-router-dom';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 
@@ -31,7 +31,7 @@ const PrimeUIShipmentUpdateReweigh = ({ setFlashMessage }) => {
     history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
 
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const { mutate: mutateMTOShipmentReweigh } = useMutation(updatePrimeMTOShipmentReweigh, {
     onSuccess: (updatedReweigh) => {
       const updatedMTOShipment = {

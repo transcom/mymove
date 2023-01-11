@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
@@ -70,7 +70,7 @@ const MoveDetails = ({
   }, []);
 
   // use mutation calls
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const { mutate: mutateMoveStatus } = useMutation(updateMoveStatus, {
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);

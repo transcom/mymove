@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Button, Textarea, ErrorMessage } from '@trussworks/react-uswds';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import * as Yup from 'yup';
@@ -18,7 +18,7 @@ import { CUSTOMER_SUPPORT_REMARKS } from 'constants/queryKeys';
 const CustomerSupportRemarkText = ({ customerSupportRemark, onDelete }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isEdit, setIsEdit] = useState(false);
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
 
   const isLongEnough = (text) => {
     return text.length >= 350;

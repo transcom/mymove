@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useHistory, useLocation } from 'react-router-dom';
 import { Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
-import { useMutation, QueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
@@ -27,7 +27,7 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
   const history = useHistory();
   const [reportToDelete, setReportToDelete] = useState(undefined);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
 
   const { shipmentEvaluationReports, counselingEvaluationReports, shipments, isLoading, isError } =
     useEvaluationReportsQueries(moveCode);

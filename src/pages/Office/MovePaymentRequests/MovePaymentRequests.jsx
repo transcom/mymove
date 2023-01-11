@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { useParams, useHistory } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
@@ -56,7 +56,7 @@ const MovePaymentRequests = ({
   const filteredShipments = mtoShipments?.filter((shipment) => {
     return includedStatusesForCalculatingWeights(shipment.status);
   });
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const { mutate: mutateMoves } = useMutation(updateMTOReviewedBillableWeights, {
     onSuccess: (data, variables) => {
       const updatedMove = data.moves[variables.moveTaskOrderID];

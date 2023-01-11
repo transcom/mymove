@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useParams, useHistory } from 'react-router-dom';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { generatePath } from 'react-router';
 import { func } from 'prop-types';
 import classnames from 'classnames';
@@ -282,7 +282,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   };
 
   // use mutation calls
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const { mutate: mutateMoveStatus } = useMutation(updateMoveStatusServiceCounselingCompleted, {
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import styles from './PaymentRequestReview.module.scss';
 
@@ -29,7 +29,7 @@ export const PaymentRequestReview = ({ history, match, order }) => {
     isLoading,
     isError,
   } = usePaymentRequestQueries(paymentRequestId);
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const { mutate: mutatePaymentRequest } = useMutation(patchPaymentRequest, {
     onSuccess: (data, variables) => {
       const { paymentRequestID } = variables;

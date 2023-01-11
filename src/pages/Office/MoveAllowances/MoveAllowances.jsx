@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as Yup from 'yup';
 
@@ -57,7 +57,7 @@ const MoveAllowances = () => {
   const handleClose = () => {
     history.push(`/moves/${moveCode}/details`);
   };
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
 
   const { mutate: mutateOrders } = useMutation(updateAllowance, {
     onSuccess: (data, variables) => {

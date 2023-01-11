@@ -1,7 +1,7 @@
 import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
@@ -30,7 +30,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
 
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const { mutate: mutateMTOShipments } = useMutation(createMTOShipment, {
     onSuccess: (newMTOShipment) => {
       mtoShipments.push(newMTOShipment);
