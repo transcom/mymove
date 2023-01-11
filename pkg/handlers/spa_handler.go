@@ -16,17 +16,13 @@ import (
 // path to the index file within that static directory are used to
 // serve the SPA in the given static directory.
 type SpaHandler struct {
-	staticPath string
-	indexPath  string
-	cfs        CustomFileSystem
+	cfs CustomFileSystem
 }
 
 // NewSpaHandler returns a new handler for a Single Page App
-func NewSpaHandler(staticPath string, indexPath string, cfs CustomFileSystem) SpaHandler {
+func NewSpaHandler(cfs CustomFileSystem) SpaHandler {
 	return SpaHandler{
-		staticPath: staticPath,
-		indexPath:  indexPath,
-		cfs:        cfs,
+		cfs: cfs,
 	}
 }
 
@@ -52,12 +48,19 @@ func (cfs CustomFileSystem) Open(path string) (http.File, error) {
 
 	if openErr != nil {
 		logger.Error("Error with opening", zap.Error(openErr))
-		return nil, openErr
+
+		notFoundFile, notFoundFileOpenErr := cfs.fs.Open("404.html")
+		if notFoundFileOpenErr != nil {
+			return nil, notFoundFileOpenErr
+		}
+
+		return notFoundFile, nil
 	}
 
 	s, _ := f.Stat()
 	if s.IsDir() {
 		index := filepath.Join(path, cfs.indexPath)
+		// Try to open the index file in the directory
 		if _, indexOpenErr := cfs.fs.Open(index); indexOpenErr != nil {
 			closeErr := f.Close()
 			if closeErr != nil {
@@ -66,7 +69,14 @@ func (cfs CustomFileSystem) Open(path string) (http.File, error) {
 			}
 
 			logger.Error("Unable to open index.html in the directory", zap.Error(indexOpenErr))
-			return nil, indexOpenErr
+
+			notFoundFile, notFoundFileOpenErr := cfs.fs.Open("404.html")
+
+			if notFoundFileOpenErr != nil {
+				return nil, notFoundFileOpenErr
+			}
+
+			return notFoundFile, nil
 		}
 	}
 

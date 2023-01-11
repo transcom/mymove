@@ -149,8 +149,6 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	)
 
 	clientHandler := handlers.NewSpaHandler(
-		routingConfig.BuildRoot,
-		"index.html",
 		cfs,
 	)
 
@@ -172,7 +170,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	downloadMux.Use(middleware.ValidMethodsStatic(appCtx.Logger()))
 	downloadMux.Use(middleware.RequestLogger(appCtx.Logger()))
 	if telemetryConfig.Enabled {
-		downloadMux.Use(otelmux.Middleware("download"))
+		downloadMux.Use(otelmux.Middleware("downloads"))
 	}
 	downloadMux.PathPrefix("/").Handler(clientHandler).Methods("GET", "HEAD")
 

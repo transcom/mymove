@@ -143,7 +143,7 @@ func (suite *SpaHandlerSuite) TestSpaHandlerServeHttp() {
 
 			// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
 			// directly and pass in our Request and ResponseRecorder.
-			sh := NewSpaHandler("", "index.html", cfs)
+			sh := NewSpaHandler(cfs)
 			sh.ServeHTTP(rr, req)
 
 			suite.Equal(testCase.expectedStatusCode, rr.Code, "Status codes did not match when retreiving %v for request %v: expected %v, got %v", testCase.name, testCase.request, testCase.expectedStatusCode, rr.Code)
