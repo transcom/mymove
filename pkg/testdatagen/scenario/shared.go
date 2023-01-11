@@ -455,17 +455,20 @@ func createUnSubmittedMoveWithMinimumPPMShipment(appCtx appcontext.AppContext, u
 }
 
 func createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	closeoutOfficeID := uuid.FromStringOrNil("4afd7912-5cb5-4a90-a85d-ec72b436380e")
+
 	/*
 	 * A service member with orders and a PPM shipment updated with an estimated weight value and estimated incentive
 	 */
 	moveInfo := moveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("4512dc8c-c777-444e-b6dc-7971e398f2dc"),
-		email:       "estimated_weights@ppm.unsubmitted",
-		smID:        testdatagen.ConvertUUIDStringToUUID("81b772ab-86ff-4bda-b0fa-21b14dfe14d5"),
-		firstName:   "EstimatedWeights",
-		lastName:    "PPM",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("e89a7018-be76-449a-b99b-e30a09c485dc"),
-		moveLocator: "PPMEWH",
+		userID:           testdatagen.ConvertUUIDStringToUUID("4512dc8c-c777-444e-b6dc-7971e398f2dc"),
+		email:            "estimated_weights@ppm.unsubmitted",
+		smID:             testdatagen.ConvertUUIDStringToUUID("81b772ab-86ff-4bda-b0fa-21b14dfe14d5"),
+		firstName:        "EstimatedWeights",
+		lastName:         "PPM",
+		moveID:           testdatagen.ConvertUUIDStringToUUID("e89a7018-be76-449a-b99b-e30a09c485dc"),
+		moveLocator:      "PPMEWH",
+		closeoutOfficeID: &closeoutOfficeID,
 	}
 
 	assertions := testdatagen.Assertions{
