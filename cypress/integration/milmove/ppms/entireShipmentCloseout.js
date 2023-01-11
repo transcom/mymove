@@ -82,7 +82,7 @@ function navigateHappyPathWithEditsAndBacks(userId, isMobile = false) {
   signInAndNavigateToPPMReviewPage(userId);
   navigateFromCloseoutReviewPageToAboutPage();
   fillOutAboutPage();
-  submitWeightTicketPage(); // temporary until about page routing is fixed, 2 weight tickets will exist for now
+  // submitWeightTicketPage(); // temporary until about page routing is fixed, 2 weight tickets will exist for now
   navigateFromCloseoutReviewPageToEditWeightTicketPage();
   submitWeightTicketPage();
   navigateFromCloseoutReviewPageToEditProGearPage();
