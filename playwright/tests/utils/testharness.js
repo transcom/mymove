@@ -134,6 +134,30 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build HHG move with NTS-R for TOO
+   * @returns {Promise<Object>}
+   */
+  async buildHHGMoveWithNTSRShipmentsForTOO() {
+    return this.buildDefault('HHGMoveWithNTSRShipmentsForTOO');
+  }
+
+  /**
+   * Use testharness to build HHG move with approved NTS-R shipment for TOO
+   * @returns {Promise<Object>}
+   */
+  async buildHHGMoveWithApprovedNTSRShipmentsForTOO() {
+    return this.buildDefault('HHGMoveWithApprovedNTSRShipmentsForTOO');
+  }
+
+  /**
+   * Use testharness to build HHG move with NTS-R for TOO
+   * @returns {Promise<Object>}
+   */
+  async buildHHGMoveWithExternalNTSRShipmentsForTOO() {
+    return this.buildDefault('HHGMoveWithExternalNTSRShipmentsForTOO');
+  }
+
+  /**
    * Use testharness to build hhg move for TIO
    * @returns {Promise<Object>}
    */

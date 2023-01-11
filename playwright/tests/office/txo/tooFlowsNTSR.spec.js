@@ -8,7 +8,7 @@ test.describe('TOO user', () => {
   let tooFlowPage;
   test.describe('with unapproved HHG + NTS Move', () => {
     test.beforeEach(async ({ officePage }) => {
-      const move = await officePage.testHarness.buildHHGMoveWithNTSShipmentsForTOO();
+      const move = await officePage.testHarness.buildHHGMoveWithNTSRShipmentsForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await officePage.tooNavigateToMove(move.locator);
@@ -19,14 +19,17 @@ test.describe('TOO user', () => {
     // TOO has to enter Service Order Number (SON) for NTS-RELEASE shipments prior to posting to the MTO
 
     // This test covers editing the NTS shipment and prepares it for approval
-    test('TOO can edit a request for Domestic NTS Shipment handled by the Prime', async ({ page }) => {
+    test('TOO can edit a request for Domestic NTS-R Shipment handled by the Prime', async ({ page }) => {
       // This test is almost exactly a duplicate of the test in
-      // tooFlowsNTSR.
+      // tooFlowsNTS.
       await expect(page.getByText('Approve selected')).toBeDisabled();
       let lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
       await expect(lastShipment.locator('[data-testid="shipment-display-checkbox"]')).toBeDisabled();
       await lastShipment.locator('[data-icon="chevron-down"]').click();
 
+      await expect(
+        lastShipment.locator('div[class*="missingInfoError"] [data-testid="ntsRecordedWeight"]'),
+      ).toBeVisible();
       await expect(
         lastShipment.locator('div[class*="missingInfoError"] [data-testid="storageFacilityName"]'),
       ).toBeVisible();
@@ -45,9 +48,8 @@ test.describe('TOO user', () => {
       // Edit shipments to enter missing info
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
       // Basic info
-      await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').type('16 Mar 2022');
-      await page.getByText('Use current address').click();
+      await page.locator('#ntsRecordedWeight').clear();
+      await page.locator('#ntsRecordedWeight').type('3000');
 
       // Storage facility info
       await page.locator('#facilityName').type('Sample Facility Name');
@@ -71,6 +73,21 @@ test.describe('TOO user', () => {
       await page.locator('input[name="storageFacility.address.postalCode"]').blur();
       await page.locator('#facilityLotNumber').type('1111111');
       await page.locator('#facilityLotNumber').blur();
+
+      // Delivery info
+      await page.locator('#requestedDeliveryDate').clear();
+      await page.locator('#requestedDeliveryDate').type('16 Mar 2022');
+
+      await page.locator('input[name="delivery.address.streetAddress1"]').clear();
+      await page.locator('input[name="delivery.address.streetAddress1"]').type('148 S East St');
+      await page.locator('input[name="delivery.address.streetAddress2"]').clear();
+      await page.locator('input[name="delivery.address.streetAddress2"]').type('Suite 7A');
+      await page.locator('input[name="delivery.address.city"]').clear();
+      await page.locator('input[name="delivery.address.city"]').type('Sample City');
+      await page.locator('select[name="delivery.address.state"]').selectOption({ label: 'GA' });
+      await page.locator('input[name="delivery.address.postalCode"]').clear();
+      await page.locator('input[name="delivery.address.postalCode"]').type('30301');
+      await page.locator('#destinationType').selectOption({ label: 'Home of record (HOR)' });
 
       // TAC and SAC
       await page.locator('[data-testid="radio"] [for="tacType-NTS"]').click();
@@ -106,6 +123,9 @@ test.describe('TOO user', () => {
       await lastShipment.locator('[data-icon="chevron-down"]').click();
 
       await expect(
+        lastShipment.locator('div[class*="missingInfoError"] [data-testid="ntsRecordedWeight"]'),
+      ).not.toBeVisible();
+      await expect(
         lastShipment.locator('div[class*="missingInfoError"] [data-testid="storageFacilityName"]'),
       ).not.toBeVisible();
       await expect(
@@ -119,11 +139,12 @@ test.describe('TOO user', () => {
       // Combine this test with the one above as it needs the state
       // after the test above
 
-      // test('TOO can approve an NTS shipment handled by the Prime')
+      // test('TOO can approve an NTS-R shipment handled by the Prime')
 
       // Make sure that it shows all the relevant information on the approve page
       // captures the information about the NTS Facility and relevant storage information
       // verifies that all the information is shown for NTS shipments handled by the GHC Contractor
+
       await expect(page.locator('#approved-shipments')).not.toBeVisible();
       await expect(page.locator('#requested-shipments')).toBeVisible();
       await expect(page.getByText('Approve selected')).toBeDisabled();
@@ -137,9 +158,9 @@ test.describe('TOO user', () => {
 
       // confirm the changes made above
       lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
-      // pickup address header
+      // delivery address header
       await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
-        'Pickup address',
+        'Delivery address',
       );
       // facility address header
       await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
@@ -163,17 +184,17 @@ test.describe('TOO user', () => {
     });
   });
 
-  test.describe('with approved HHG + NTS Move', () => {
+  test.describe('with approved HHG + NTSR Move', () => {
     test.beforeEach(async ({ officePage }) => {
-      const move = await officePage.testHarness.buildHHGMoveWithApprovedNTSShipmentsForTOO();
+      const move = await officePage.testHarness.buildHHGMoveWithApprovedNTSRShipmentsForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await officePage.tooNavigateToMove(move.locator);
     });
 
-    test('TOO can view and edit Domestic NTS Shipments handled by the Prime on the MTO page', async ({ page }) => {
+    test('TOO can view and edit Domestic NTS-R Shipments handled by the Prime on the MTO page', async ({ page }) => {
       // This test is almost exactly a duplicate of the test in
-      // tooFlowsNTSR.
+      // tooFlowsNTS.
       await page.getByTestId('MoveTaskOrder-Tab').click();
       await tooFlowPage.waitForLoading();
 
@@ -187,14 +208,15 @@ test.describe('TOO user', () => {
 
       // non-temp storage header
       await expect(lastShipment.locator('h2')).toContainText('Non-temp storage');
-      // pickup address header
+      // delivery address header
       await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
-        'Pickup address',
+        'Delivery address',
       );
       // facility address header
       await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
         'Facility address',
       );
+
       // edit facility info and address
       await page.locator('[data-testid="edit-facility-info-modal-open"]').click();
 
@@ -263,9 +285,9 @@ test.describe('TOO user', () => {
     });
   });
 
-  test.describe('with HHG Move plus NTS Shipment handled by external vendor', () => {
+  test.describe('with HHG Move plus NTS-R Shipment handled by external vendor', () => {
     test.beforeEach(async ({ officePage }) => {
-      const move = await officePage.testHarness.buildHHGMoveWithExternalNTSShipmentsForTOO();
+      const move = await officePage.testHarness.buildHHGMoveWithExternalNTSRShipmentsForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await officePage.tooNavigateToMove(move.locator);
@@ -273,7 +295,7 @@ test.describe('TOO user', () => {
 
     test('can approve an shipment', async ({ page }) => {
       // This test is almost exactly a duplicate of the test in
-      // tooFlowsNTSR.
+      // tooFlowsNTS.
       await expect(page.locator('#approved-shipments')).not.toBeVisible();
       await expect(page.locator('#requested-shipments')).toBeVisible();
       await expect(page.getByText('Approve selected')).toBeDisabled();
@@ -319,7 +341,7 @@ test.describe('TOO user', () => {
 
     test('can submit service items', async ({ page }) => {
       // This test is almost exactly a duplicate of the test in
-      // tooFlowsNTSR.
+      // tooFlowsNTS.
       await expect(page.locator('#approved-shipments')).not.toBeVisible();
       await expect(page.locator('#requested-shipments')).toBeVisible();
       await expect(page.getByText('Approve selected')).toBeDisabled();
