@@ -208,7 +208,7 @@ const ServicesCounselingQueue = () => {
           : servicesCounselingRoutes.QUEUE_COUNSELING_PATH,
       );
     }
-  }, [isLoading, isError, history, inPPMCloseoutGBLOC]);
+  });
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
