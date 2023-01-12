@@ -199,7 +199,11 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 		return &models.Move{}, apperror.NewPreconditionFailedError(move.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
+	// If the move is already been made available to prime, we will not need to approve and update the move,
+	// just the provided service items.
+	updateMove := false
 	if move.AvailableToPrimeAt == nil {
+		updateMove = true
 		now := time.Now()
 		move.AvailableToPrimeAt = &now
 
@@ -207,32 +211,34 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 		if err != nil {
 			return &models.Move{}, apperror.NewConflictError(move.ID, err.Error())
 		}
+	}
 
-		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		if updateMove {
 			err = o.updateMove(txnAppCtx, move, order.CheckRequiredFields())
 			if err != nil {
 				return err
 			}
-
-			// When provided, this will create and approve these Move-level service items.
-			if includeServiceCodeMS && !move.IsPPMOnly() {
-				err = o.createMoveLevelServiceItem(txnAppCtx, *move, models.ReServiceCodeMS)
-			}
-
-			if err != nil {
-				return err
-			}
-
-			if includeServiceCodeCS {
-				err = o.createMoveLevelServiceItem(txnAppCtx, *move, models.ReServiceCodeCS)
-			}
-
-			return err
-		})
-
-		if transactionError != nil {
-			return &models.Move{}, transactionError
 		}
+
+		// When provided, this will create and approve these Move-level service items.
+		if includeServiceCodeMS && !move.IsPPMOnly() {
+			err = o.createMoveLevelServiceItem(txnAppCtx, *move, models.ReServiceCodeMS)
+		}
+
+		if err != nil {
+			return err
+		}
+
+		if includeServiceCodeCS {
+			err = o.createMoveLevelServiceItem(txnAppCtx, *move, models.ReServiceCodeCS)
+		}
+
+		return err
+	})
+
+	if transactionError != nil {
+		return &models.Move{}, transactionError
 	}
 
 	return move, nil

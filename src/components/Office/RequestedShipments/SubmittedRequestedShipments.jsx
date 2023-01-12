@@ -91,63 +91,41 @@ const SubmittedRequestedShipments = ({
         serviceCodeCS: values.counselingFee,
       };
 
-      // The MTO has not yet been approved so resolve before updating the shipment statuses and creating accessorial service items
-      if (!moveTaskOrder.availableToPrimeAt) {
-        approveMTO({
-          moveTaskOrderID: moveTaskOrder.id,
-          ifMatchETag: moveTaskOrder.eTag,
-          mtoApprovalServiceItemCodes,
-          normalize: false,
-        })
-          .then(() => {
-            Promise.all(
-              filteredShipments.map((shipment) =>
-                approveMTOShipment({
-                  shipmentID: shipment.id,
-                  operationPath: 'shipment.approveShipment',
-                  ifMatchETag: shipment.eTag,
-                  normalize: false,
-                }),
-              ),
-            )
-              .then(() => {
-                handleAfterSuccess('mto', { showMTOpostedMessage: true });
-              })
-              .catch(() => {
-                // TODO: Decide if we want to display an error notice, log error event, or retry
-                setSubmitting(false);
+      approveMTO({
+        moveTaskOrderID: moveTaskOrder.id,
+        ifMatchETag: moveTaskOrder.eTag,
+        mtoApprovalServiceItemCodes,
+        normalize: false,
+      })
+        .then(() => {
+          Promise.all(
+            filteredShipments.map((shipment) => {
+              let operationPath = 'shipment.approveShipment';
+
+              if (shipment.approvedDate) {
+                operationPath = 'shipment.approveShipmentDiversion';
+              }
+
+              return approveMTOShipment({
+                shipmentID: shipment.id,
+                operationPath,
+                ifMatchETag: shipment.eTag,
+                normalize: false,
               });
-          })
-          .catch(() => {
-            // TODO: Decide if we want to display an error notice, log error event, or retry
-            setSubmitting(false);
-          });
-      } else {
-        // The MTO was previously approved along with at least one shipment, only update the new shipment statuses
-        Promise.all(
-          filteredShipments.map((shipment) => {
-            let operationPath = 'shipment.approveShipment';
-
-            if (shipment.approvedDate) {
-              operationPath = 'shipment.approveShipmentDiversion';
-            }
-
-            return approveMTOShipment({
-              shipmentID: shipment.id,
-              operationPath,
-              ifMatchETag: shipment.eTag,
-              normalize: false,
+            }),
+          )
+            .then(() => {
+              handleAfterSuccess('mto', { showMTOpostedMessage: true });
+            })
+            .catch(() => {
+              // TODO: Decide if we want to display an error notice, log error event, or retry
+              setSubmitting(false);
             });
-          }),
-        )
-          .then(() => {
-            handleAfterSuccess('mto');
-          })
-          .catch(() => {
-            // TODO: Decide if we want to display an error notice, log error event, or retry
-            setSubmitting(false);
-          });
-      }
+        })
+        .catch(() => {
+          // TODO: Decide if we want to display an error notice, log error event, or retry
+          setSubmitting(false);
+        });
     },
   });
 
