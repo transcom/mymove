@@ -187,8 +187,8 @@ const ShipmentForm = (props) => {
         console.log('isCreatePage');
         const body = { ...ppmShipmentBody, moveTaskOrderID };
         submitHandler({ shipment: { body, normalize: false }, closeoutOffice: formValues.closeoutOffice })
-          .then((newShipment) => {
-            console.log('done updating, now redirecting to advance path');
+          .then(({ newShipment }) => {
+            console.log('done updating, now redirecting to advance path', newShipment);
             const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
               moveCode,
               shipmentId: newShipment.id,
