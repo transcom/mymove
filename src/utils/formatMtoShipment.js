@@ -87,7 +87,6 @@ const emptyAddressShape = {
 };
 
 export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment = {}, closeoutOffice = {} }) {
-  console.log('formatPpmShipmentForDisplay', ppmShipment, closeoutOffice);
   const displayValues = {
     expectedDepartureDate: ppmShipment.expectedDepartureDate,
     pickupPostalCode: ppmShipment.pickupPostalCode || '',

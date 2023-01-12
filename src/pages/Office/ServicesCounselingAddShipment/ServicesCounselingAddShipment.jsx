@@ -19,7 +19,6 @@ import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 
 // this returns an object that contains a promise and another thing
 function foobar({ shipment, closeoutOffice }) {
-  console.log('addship submitHandler (foobar)', { shipment, closeoutOffice });
   return createMTOShipment(shipment).then((newShipment) => {
     return { newShipment, closeoutOffice };
   });
@@ -40,14 +39,11 @@ const ServicesCounselingAddShipment = ({ match }) => {
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   // what does this syntax do?
   const [mutateMoveCloseoutOffice] = useMutation(updateMoveCloseoutOffice, {
-    onSuccess: (updatedMove) => {
-      // invalidate some query data?
+    onSuccess: () => {
       queryCache.invalidateQueries([MOVES, moveCode]);
-      console.log('updateMoveCloseoutOffice success');
     },
-    onError: (error) => {
-      // invalidate some query data?
-      console.error('update closeout office mutation', error);
+    onError: () => {
+      // TODO invalidate some query data?
     },
   });
   // I think useMutation might wait for a promise to be resolved from the return value, but if it's not a promise, what will it do?
@@ -55,14 +51,14 @@ const ServicesCounselingAddShipment = ({ match }) => {
   const [mutateMTOShipments] = useMutation(foobar, {
     onSuccess: (result) => {
       if (result.closeoutOffice) {
-        console.log('lets try to submit the closeout office', result.closeoutOffice);
         // TODO this is wrong, need move info in args
+        // TODO should i await this?
         mutateMoveCloseoutOffice({
           locator: moveCode,
           ifMatchETag: move.eTag,
           body: { closeoutOfficeId: result.closeoutOffice.id },
         }).then(() => {
-          console.log('mutate closeout done');
+          // TODO do query invalidation
         });
       }
       // TODO i'm not sure if we wait for the promise above to resolve before getting to this stuff
@@ -71,9 +67,8 @@ const ServicesCounselingAddShipment = ({ match }) => {
       queryCache.invalidateQueries([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID]);
       return result.newShipment;
     },
-    onError: (error) => {
+    onError: () => {
       // TODO invalidate some query data?
-      console.error('create shipment mutation error', error);
     },
   });
 

@@ -19,7 +19,6 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
 
 function foobar({ shipment, closeoutOffice }) {
-  console.log('editship submitHandler', { shipment, closeoutOffice });
   return updateMTOShipment(shipment).then((newShipment) => {
     return { newShipment, closeoutOffice };
   });
@@ -29,8 +28,7 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const [mutateMoveCloseoutOffice] = useMutation(updateMoveCloseoutOffice, {
-    onSuccess: (updatedMove) => {
-      console.log('ROUTE redirecting to move view path after updating closeout office (SKIPPED)');
+    onSuccess: () => {
       // history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
       onUpdate('success');
     },
@@ -41,25 +39,19 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
   });
   const [mutateMTOShipment] = useMutation(foobar, {
     onSuccess: (result) => {
-      console.log('updatedMTOShipment', result);
       if (result.closeoutOffice) {
-        console.log('lets try to submit the closeout office', result.closeoutOffice);
         mutateMoveCloseoutOffice({
           locator: moveCode,
           ifMatchETag: move.eTag,
           body: { closeoutOfficeId: result.closeoutOffice.id },
         }).then(() => {
-          console.log('mutate closeout done');
           mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === result.newShipment.id)] =
             result.newShipment;
           queryCache.setQueryData([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID, false], mtoShipments);
           queryCache.invalidateQueries([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID]);
-          // console.log('--------------- redirect to move view path 2');
-          // history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
           onUpdate('success');
         });
       } else {
-        console.log('no closeout office, skipping that update');
         mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === result.newShipment.id)] = result.newShipment;
         queryCache.setQueryData([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID, false], mtoShipments);
         queryCache.invalidateQueries([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID]);
@@ -69,7 +61,6 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
         // TODO ohhhhh because it is not called on the advance page.
         // TODO but then why doesn't this one break stuff by redirecting before we can start the other
         // TODO mutation?
-        console.log('--------------- redirect to move view path 1');
         history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
         onUpdate('success');
       }
@@ -98,8 +89,6 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
     NTS: order.ntsSac,
   };
 
-  // console.log('ServicesCounselingEditShipmentDetails move', move);
-  // console.log('ServicesCounselingEditShipmentDetails closeoutOffice', move.closeoutOffice);
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>

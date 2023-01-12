@@ -358,7 +358,6 @@ export function updateMTOShipment(args) {
   if (args.schemaKey === undefined) {
     actualSchemaKey = 'mtoShipment';
   }
-  console.log('AAAA updateMTOShipment', args);
   const operationPath = 'mtoShipment.updateMTOShipment';
   return makeGHCRequest(
     operationPath,
@@ -529,7 +528,6 @@ export function updateFinancialFlag({ moveID, ifMatchETag, body }) {
 
 export function updateMoveCloseoutOffice(args) {
   const { locator, ifMatchETag, body } = args; // TODO
-  console.log('updateMoveCloseoutOffice', args, locator, ifMatchETag, body);
   const operationPath = 'move.updateCloseoutOffice';
   return makeGHCRequest(
     operationPath,

@@ -75,7 +75,6 @@ const ShipmentForm = (props) => {
     move,
   } = props;
 
-  console.log('ShipmentForm move', move);
   const [errorMessage, setErrorMessage] = useState(null);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
 
@@ -130,7 +129,6 @@ const ShipmentForm = (props) => {
   // todo use constants
   const showCloseoutOffice =
     isServiceCounselor && isPPM && (serviceMember.agency === 'ARMY' || serviceMember.agency === 'AIR_FORCE');
-  console.log('showCloseoutOffice', showCloseoutOffice, serviceMember);
 
   const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 
@@ -178,17 +176,13 @@ const ShipmentForm = (props) => {
   const editOrdersPath = generatePath(editOrdersRoute, { moveCode });
 
   const submitMTOShipment = (formValues, actions) => {
-    console.log('submitMTOShipment', formValues);
     if (isPPM) {
-      console.log('isPPM');
       const ppmShipmentBody = formatPpmShipmentForAPI(formValues);
 
       if (isCreatePage) {
-        console.log('isCreatePage');
         const body = { ...ppmShipmentBody, moveTaskOrderID };
         submitHandler({ shipment: { body, normalize: false }, closeoutOffice: formValues.closeoutOffice })
           .then(({ newShipment }) => {
-            console.log('done updating, now redirecting to advance path', newShipment);
             const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
               moveCode,
               shipmentId: newShipment.id,
@@ -202,8 +196,7 @@ const ShipmentForm = (props) => {
             history.replace(currentPath);
             history.push(advancePath);
           })
-          .catch((error) => {
-            console.error('error after attempting to submit', error);
+          .catch(() => {
             actions.setSubmitting(false);
             setErrorMessage(`A server error occurred adding the shipment`);
           });
@@ -244,7 +237,6 @@ const ShipmentForm = (props) => {
         moveETag: move.eTag,
         closeoutOfficeId: formValues.closeoutOffice.id, // TODO probably unused
       };
-      console.log('updating PPM');
 
       const payload = {
         shipment: updatePPMPayload,
@@ -256,15 +248,12 @@ const ShipmentForm = (props) => {
 
       submitHandler(payload).then(() => {
         if (!isAdvancePage) {
-          console.log('!isAdvancePage');
           const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
             moveCode,
             shipmentId: mtoShipment.id,
           });
 
-          console.log('setSubmitting false');
           actions.setSubmitting(false);
-          console.log('ROUTE redirect to advance');
           history.push(advancePath);
           // TODO error handling?
           // submitCloseoutOfficeHandler({
@@ -370,7 +359,6 @@ const ShipmentForm = (props) => {
     >
       {({ values, isValid, isSubmitting, setValues, handleSubmit, errors }) => {
         const { hasDeliveryAddress } = values;
-        // console.log('ShipmentForm values', values);
 
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
@@ -401,7 +389,6 @@ const ShipmentForm = (props) => {
           }
         };
 
-        console.log('disabled?', isSubmitting || !isValid, 'isSubmitting?', isSubmitting, 'isValid?', isValid);
         return (
           <>
             <ConnectedDestructiveShipmentConfirmationModal
@@ -616,7 +603,7 @@ const ShipmentForm = (props) => {
                       <SectionWrapper>
                         <h2>Closeout office</h2>
                         <CloseoutOfficeInput
-                          hint="If there is more than one PPM for this  closeoutOffice move, the closeout office will be the same for all your PPMs."
+                          hint="If there is more than one PPM for this move, the closeout office will be the same for all your PPMs."
                           name="closeoutOffice"
                           placeholder="Start typing a closeout location..."
                           label="Closeout location"
@@ -778,6 +765,8 @@ ShipmentForm.defaultProps = {
   SACs: {},
   displayDestinationType: false,
   isAdvancePage: false,
+  closeoutOffice: {},
+  move: {},
 };
 
 export default ShipmentForm;
