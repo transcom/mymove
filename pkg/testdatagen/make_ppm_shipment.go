@@ -224,6 +224,10 @@ func MakeApprovedPPMShipmentWithActualInfo(db *pop.Connection, assertions Assert
 		MustSave(db, &ppmShipment)
 	}
 
+	// Because of the way we're working with the PPMShipment, the changes we've made to it aren't reflected in the
+	// pointer reference that the MTOShipment has, so we'll need to update it to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
 	return ppmShipment
 }
 
@@ -251,6 +255,10 @@ func MakePPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, assertions
 	if !assertions.Stub {
 		MustSave(db, &ppmShipment)
 	}
+
+	// Because of the way we're working with the PPMShipment, the changes we've made to it aren't reflected in the
+	// pointer reference that the MTOShipment has, so we'll need to update it to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
 
 	return ppmShipment
 }
@@ -288,6 +296,10 @@ func MakePPMShipmentThatNeedsPaymentApproval(db *pop.Connection, assertions Asse
 		MustSave(db, &ppmShipment)
 	}
 
+	// Because of the way we're working with the PPMShipment, the changes we've made to it aren't reflected in the
+	// pointer reference that the MTOShipment has, so we'll need to update it to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
 	return ppmShipment
 }
 
@@ -320,6 +332,10 @@ func MakePPMShipmentThatNeedsToBeResubmitted(db *pop.Connection, assertions Asse
 	if !assertions.Stub {
 		MustSave(db, &ppmShipment)
 	}
+
+	// Because of the way we're working with the PPMShipment, the changes we've made to it aren't reflected in the
+	// pointer reference that the MTOShipment has, so we'll need to update it to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
 
 	return ppmShipment
 }

@@ -179,226 +179,272 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 	})
 
 	suite.Run("verifyReasonAndStatusAreConstant", func() {
-		suite.Run("Success", func() {
-			err := verifyReasonAndStatusAreConstant().Validate(suite.AppContextForTest(),
-				&models.WeightTicket{
-					ID:                       weightTicketID,
-					VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
-					EmptyWeight:              models.PoundPointer(2500),
-					MissingEmptyWeightTicket: models.BoolPointer(true),
-					FullWeight:               models.PoundPointer(3300),
-					MissingFullWeightTicket:  models.BoolPointer(true),
-					OwnsTrailer:              models.BoolPointer(false),
-					TrailerMeetsCriteria:     models.BoolPointer(false),
-				},
-				existingWeightTicket,
-			)
+		docApprovedStatus := models.PPMDocumentStatusApproved
+		docRejectedStatus := models.PPMDocumentStatusRejected
 
-			suite.NilOrNoVerrs(err)
+		suite.Run("Success", func() {
+			constantWeightTicketTestCases := map[string]struct {
+				newWeightTicket models.WeightTicket
+				oldWeightTicket models.WeightTicket
+			}{
+				"Status is nil for both": {
+					newWeightTicket: models.WeightTicket{Status: nil},
+					oldWeightTicket: models.WeightTicket{Status: nil},
+				},
+				"Status is rejected for both": {
+					newWeightTicket: models.WeightTicket{Status: &docRejectedStatus},
+					oldWeightTicket: models.WeightTicket{Status: &docRejectedStatus},
+				},
+				"Reason is nil for both": {
+					newWeightTicket: models.WeightTicket{Reason: nil},
+					oldWeightTicket: models.WeightTicket{Reason: nil},
+				},
+				"Reason is filled for both": {
+					newWeightTicket: models.WeightTicket{
+						Status: &docRejectedStatus,
+						Reason: models.StringPointer("bad document"),
+					},
+					oldWeightTicket: models.WeightTicket{
+						Status: &docRejectedStatus,
+						Reason: models.StringPointer("bad document"),
+					},
+				},
+			}
+
+			for name, constantWeightTicket := range constantWeightTicketTestCases {
+				name := name
+				constantWeightTicket := constantWeightTicket
+
+				suite.Run(name, func() {
+					err := verifyReasonAndStatusAreConstant().Validate(
+						suite.AppContextForTest(),
+						&constantWeightTicket.newWeightTicket,
+						&constantWeightTicket.oldWeightTicket,
+					)
+
+					suite.NilOrNoVerrs(err)
+				})
+			}
 		})
 
 		suite.Run("Failure", func() {
-			status := models.PPMDocumentStatusRejected
-			err := verifyReasonAndStatusAreConstant().Validate(suite.AppContextForTest(),
-				&models.WeightTicket{
-					ID:                       weightTicketID,
-					VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
-					EmptyWeight:              models.PoundPointer(2500),
-					MissingEmptyWeightTicket: models.BoolPointer(true),
-					FullWeight:               models.PoundPointer(3300),
-					MissingFullWeightTicket:  models.BoolPointer(true),
-					OwnsTrailer:              models.BoolPointer(false),
-					TrailerMeetsCriteria:     models.BoolPointer(false),
-					Status:                   &status,
-					Reason:                   models.StringPointer("bad data"),
+			changedWeightTicketTestCases := map[string]struct {
+				newWeightTicket  models.WeightTicket
+				oldWeightTicket  models.WeightTicket
+				expectedErrorKey string
+				expectedErrorMsg string
+			}{
+				"Status changed from nil to Approved": {
+					newWeightTicket:  models.WeightTicket{Status: nil},
+					oldWeightTicket:  models.WeightTicket{Status: &docApprovedStatus},
+					expectedErrorKey: "Status",
+					expectedErrorMsg: "status cannot be modified",
 				},
-				existingWeightTicket,
-			)
+				"Status changed from Rejected to nil": {
+					newWeightTicket:  models.WeightTicket{Status: &docRejectedStatus},
+					oldWeightTicket:  models.WeightTicket{Status: nil},
+					expectedErrorKey: "Status",
+					expectedErrorMsg: "status cannot be modified",
+				},
+				"Status is changed from Approved to Rejected": {
+					newWeightTicket:  models.WeightTicket{Status: &docRejectedStatus},
+					oldWeightTicket:  models.WeightTicket{Status: &docApprovedStatus},
+					expectedErrorKey: "Status",
+					expectedErrorMsg: "status cannot be modified",
+				},
+				"Reason is changed from nil to something": {
+					newWeightTicket: models.WeightTicket{
+						Status: &docRejectedStatus,
+						Reason: nil,
+					},
+					oldWeightTicket: models.WeightTicket{
+						Status: &docRejectedStatus,
+						Reason: models.StringPointer("document is ok!"),
+					},
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason cannot be modified",
+				},
+				"Reason is changed from something to nil": {
+					newWeightTicket: models.WeightTicket{
+						Status: &docRejectedStatus,
+						Reason: models.StringPointer("bad document!"),
+					},
+					oldWeightTicket: models.WeightTicket{
+						Status: &docRejectedStatus,
+						Reason: nil,
+					},
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason cannot be modified",
+				},
+				"Reason is changed": {
+					newWeightTicket: models.WeightTicket{
+						Status: &docRejectedStatus,
+						Reason: models.StringPointer("bad document!"),
+					},
+					oldWeightTicket: models.WeightTicket{
+						Status: &docRejectedStatus,
+						Reason: models.StringPointer("document is ok!"),
+					},
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason cannot be modified",
+				},
+			}
 
-			switch verr := err.(type) {
-			case *validate.Errors:
-				suite.True(verr.HasAny())
-				suite.Equal(len(verr.Keys()), 2)
-				suite.Contains(verr.Keys(), "Reason")
-				suite.Contains(verr.Keys(), "Status")
-			default:
-				suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+			for name, changedWeightTicketTestCase := range changedWeightTicketTestCases {
+				name := name
+				changedWeightTicketTestCase := changedWeightTicketTestCase
+
+				suite.Run(name, func() {
+					err := verifyReasonAndStatusAreConstant().Validate(
+						suite.AppContextForTest(),
+						&changedWeightTicketTestCase.newWeightTicket,
+						&changedWeightTicketTestCase.oldWeightTicket,
+					)
+
+					suite.Error(err)
+
+					suite.IsType(&validate.Errors{}, err)
+					verrs := err.(*validate.Errors)
+
+					suite.Len(verrs.Errors, 1)
+
+					suite.Contains(verrs.Keys(), changedWeightTicketTestCase.expectedErrorKey)
+
+					suite.Contains(
+						verrs.Get(changedWeightTicketTestCase.expectedErrorKey),
+						changedWeightTicketTestCase.expectedErrorMsg,
+					)
+				})
 			}
 		})
 	})
 
 	suite.Run("verifyReasonAndStatusAreValid", func() {
+		docApprovedStatus := models.PPMDocumentStatusApproved
+		docExcludedStatus := models.PPMDocumentStatusExcluded
+		docRejectedStatus := models.PPMDocumentStatusRejected
+
 		suite.Run("Success", func() {
-			suite.Run("no status or reason", func() {
-				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
-					&models.WeightTicket{
-						ID:                       weightTicketID,
-						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
-						EmptyWeight:              models.PoundPointer(2500),
-						MissingEmptyWeightTicket: models.BoolPointer(true),
-						FullWeight:               models.PoundPointer(3300),
-						MissingFullWeightTicket:  models.BoolPointer(true),
-						OwnsTrailer:              models.BoolPointer(false),
-						TrailerMeetsCriteria:     models.BoolPointer(false),
-					},
-					existingWeightTicket,
-				)
-				suite.NilOrNoVerrs(err)
-			})
+			validWeightTicketTestCases := map[string]models.WeightTicket{
+				"Status is Approved with a nil reason": {
+					Status: &docApprovedStatus,
+					Reason: nil,
+				},
+				"Status is Excluded with a reason": {
+					Status: &docExcludedStatus,
+					Reason: models.StringPointer("not a valid expense."),
+				},
+				"Status is Rejected with a reason": {
+					Status: &docRejectedStatus,
+					Reason: models.StringPointer("bad document!"),
+				},
+			}
 
-			suite.Run("excluded with reason", func() {
-				status := models.PPMDocumentStatusExcluded
-				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
-					&models.WeightTicket{
-						ID:                       weightTicketID,
-						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
-						EmptyWeight:              models.PoundPointer(2500),
-						MissingEmptyWeightTicket: models.BoolPointer(true),
-						FullWeight:               models.PoundPointer(3300),
-						MissingFullWeightTicket:  models.BoolPointer(true),
-						OwnsTrailer:              models.BoolPointer(false),
-						TrailerMeetsCriteria:     models.BoolPointer(false),
-						Status:                   &status,
-						Reason:                   models.StringPointer("bad data"),
-					},
-					existingWeightTicket,
-				)
-				suite.NilOrNoVerrs(err)
-			})
+			for name, validWeightTicket := range validWeightTicketTestCases {
+				name := name
+				validWeightTicket := validWeightTicket
 
-			suite.Run("approved with no reason", func() {
-				status := models.PPMDocumentStatusApproved
-				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
-					&models.WeightTicket{
-						ID:                       weightTicketID,
-						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
-						EmptyWeight:              models.PoundPointer(2500),
-						MissingEmptyWeightTicket: models.BoolPointer(true),
-						FullWeight:               models.PoundPointer(3300),
-						MissingFullWeightTicket:  models.BoolPointer(true),
-						OwnsTrailer:              models.BoolPointer(false),
-						TrailerMeetsCriteria:     models.BoolPointer(false),
-						Status:                   &status,
-						Reason:                   nil,
-					},
-					existingWeightTicket,
-				)
-				suite.NilOrNoVerrs(err)
-			})
+				suite.Run(name, func() {
+					err := verifyReasonAndStatusAreValid().Validate(
+						suite.AppContextForTest(),
+						&validWeightTicket,
+						nil,
+					)
+
+					suite.NilOrNoVerrs(err)
+				})
+			}
 		})
 
 		suite.Run("Failure", func() {
-			suite.Run("Reason cannot be provided without status", func() {
-				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
-					&models.WeightTicket{
-						ID:                       weightTicketID,
-						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
-						EmptyWeight:              models.PoundPointer(2500),
-						MissingEmptyWeightTicket: models.BoolPointer(true),
-						FullWeight:               models.PoundPointer(3300),
-						MissingFullWeightTicket:  models.BoolPointer(true),
-						OwnsTrailer:              models.BoolPointer(false),
-						TrailerMeetsCriteria:     models.BoolPointer(false),
-						Reason:                   models.StringPointer("reason without status"),
+			changedWeightTicketTestCases := map[string]struct {
+				newWeightTicket  models.WeightTicket
+				expectedErrorKey string
+				expectedErrorMsg string
+			}{
+				"Reason exists without a status": {
+					newWeightTicket: models.WeightTicket{
+						Reason: models.StringPointer("interesting document..."),
 					},
-					existingWeightTicket,
-				)
-
-				switch verr := err.(type) {
-				case *validate.Errors:
-					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 1)
-					suite.Contains(verr.Keys(), "Reason")
-					suite.Equal("reason should be empty", err.Error())
-				default:
-					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
-				}
-			})
-
-			suite.Run("Reason must be empty when status is approved", func() {
-				status := models.PPMDocumentStatusApproved
-				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
-					&models.WeightTicket{
-						ID:                       weightTicketID,
-						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
-						EmptyWeight:              models.PoundPointer(2500),
-						MissingEmptyWeightTicket: models.BoolPointer(true),
-						FullWeight:               models.PoundPointer(3300),
-						MissingFullWeightTicket:  models.BoolPointer(true),
-						OwnsTrailer:              models.BoolPointer(false),
-						TrailerMeetsCriteria:     models.BoolPointer(false),
-						Status:                   &status,
-						Reason:                   models.StringPointer("bad data"),
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason should not be set if the status is not set",
+				},
+				"Status is Approved and a blank reason is provided": {
+					newWeightTicket: models.WeightTicket{
+						Status: &docApprovedStatus,
+						Reason: models.StringPointer(""),
 					},
-					existingWeightTicket,
-				)
-
-				switch verr := err.(type) {
-				case *validate.Errors:
-					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 1)
-					suite.Contains(verr.Keys(), "Reason")
-				default:
-					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
-				}
-			})
-
-			suite.Run("Reason must be populated when status is excluded", func() {
-				status := models.PPMDocumentStatusExcluded
-				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
-					&models.WeightTicket{
-						ID:                       weightTicketID,
-						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
-						EmptyWeight:              models.PoundPointer(2500),
-						MissingEmptyWeightTicket: models.BoolPointer(true),
-						FullWeight:               models.PoundPointer(3300),
-						MissingFullWeightTicket:  models.BoolPointer(true),
-						OwnsTrailer:              models.BoolPointer(false),
-						TrailerMeetsCriteria:     models.BoolPointer(false),
-						Status:                   &status,
-						Reason:                   models.StringPointer(""),
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason must not be set if the status is Approved",
+				},
+				"Status is Approved and a reason is provided": {
+					newWeightTicket: models.WeightTicket{
+						Status: &docApprovedStatus,
+						Reason: models.StringPointer("interesting document..."),
 					},
-					existingWeightTicket,
-				)
-
-				switch verr := err.(type) {
-				case *validate.Errors:
-					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 1)
-					suite.Contains(verr.Keys(), "Reason")
-				default:
-					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
-				}
-
-			})
-
-			suite.Run("Reason must be populated when status is rejected", func() {
-				status := models.PPMDocumentStatusRejected
-				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
-					&models.WeightTicket{
-						ID:                       weightTicketID,
-						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
-						EmptyWeight:              models.PoundPointer(2500),
-						MissingEmptyWeightTicket: models.BoolPointer(true),
-						FullWeight:               models.PoundPointer(3300),
-						MissingFullWeightTicket:  models.BoolPointer(true),
-						OwnsTrailer:              models.BoolPointer(false),
-						TrailerMeetsCriteria:     models.BoolPointer(false),
-						Status:                   &status,
-						Reason:                   models.StringPointer(""),
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason must not be set if the status is Approved",
+				},
+				"Status is Excluded and reason is nil": {
+					newWeightTicket: models.WeightTicket{
+						Status: &docExcludedStatus,
+						Reason: nil,
 					},
-					existingWeightTicket,
-				)
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason is mandatory if the status is Excluded or Rejected",
+				},
+				"Status is Excluded and reason is blank": {
+					newWeightTicket: models.WeightTicket{
+						Status: &docExcludedStatus,
+						Reason: models.StringPointer(""),
+					},
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason is mandatory if the status is Excluded or Rejected",
+				},
+				"Status is Rejected and reason is nil": {
+					newWeightTicket: models.WeightTicket{
+						Status: &docRejectedStatus,
+						Reason: nil,
+					},
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason is mandatory if the status is Excluded or Rejected",
+				},
+				"Status is Rejected and reason is blank": {
+					newWeightTicket: models.WeightTicket{
+						Status: &docRejectedStatus,
+						Reason: models.StringPointer(""),
+					},
+					expectedErrorKey: "Reason",
+					expectedErrorMsg: "reason is mandatory if the status is Excluded or Rejected",
+				},
+			}
 
-				switch verr := err.(type) {
-				case *validate.Errors:
-					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 1)
-					suite.Contains(verr.Keys(), "Reason")
-				default:
-					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
-				}
-			})
+			for name, changedWeightTicketTestCase := range changedWeightTicketTestCases {
+				name := name
+				changedWeightTicketTestCase := changedWeightTicketTestCase
+
+				suite.Run(name, func() {
+					err := verifyReasonAndStatusAreValid().Validate(
+						suite.AppContextForTest(),
+						&changedWeightTicketTestCase.newWeightTicket,
+						nil,
+					)
+
+					suite.Error(err)
+
+					suite.IsType(&validate.Errors{}, err)
+					verrs := err.(*validate.Errors)
+
+					suite.Len(verrs.Errors, 1)
+
+					suite.Contains(verrs.Keys(), changedWeightTicketTestCase.expectedErrorKey)
+
+					suite.Contains(verrs.Get(
+						changedWeightTicketTestCase.expectedErrorKey),
+						changedWeightTicketTestCase.expectedErrorMsg,
+					)
+				})
+			}
 		})
 	})
 }

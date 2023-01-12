@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite MovingExpenseSuite) TestWeightTicketValidatorFuncValidate() {
+func (suite *MovingExpenseSuite) TestWeightTicketValidatorFuncValidate() {
 	suite.Run("Calling Validate runs validation function with no errors", func() {
 		validator := movingExpenseValidatorFunc(func(_ appcontext.AppContext, _ *models.MovingExpense, _ *models.MovingExpense) error {
 			return nil
@@ -36,7 +36,7 @@ func (suite MovingExpenseSuite) TestWeightTicketValidatorFuncValidate() {
 	})
 }
 
-func (suite MovingExpenseSuite) TestValidateMovingExpense() {
+func (suite *MovingExpenseSuite) TestValidateMovingExpense() {
 	suite.Run("Runs validation and returns nil when there are no errors", func() {
 		checkAlwaysReturnNil := movingExpenseValidatorFunc(func(_ appcontext.AppContext, _ *models.MovingExpense, _ *models.MovingExpense) error {
 			return nil
