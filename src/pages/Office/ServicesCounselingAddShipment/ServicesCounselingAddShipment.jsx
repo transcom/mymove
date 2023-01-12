@@ -17,7 +17,10 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { roleTypes } from 'constants/userRoles';
 import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 
-function foobar({ shipment, closeoutOffice }) {
+// createMTOShipmentWrapper allows us to pass in the closeout office and include it
+// with the results from creating the shipment, which allows us to chain on the closeout office
+// update.
+function createMTOShipmentWrapper({ shipment, closeoutOffice }) {
   return createMTOShipment(shipment).then((newShipment) => {
     return { newShipment, closeoutOffice };
   });
@@ -43,7 +46,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
       // TODO invalidate some query data?
     },
   });
-  const [mutateMTOShipments] = useMutation(foobar, {
+  const [mutateMTOShipments] = useMutation(createMTOShipmentWrapper, {
     onSuccess: (result) => {
       if (result.closeoutOffice) {
         mutateMoveCloseoutOffice({

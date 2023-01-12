@@ -18,7 +18,10 @@ import { updateMTOShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
 
-function foobar({ shipment, closeoutOffice }) {
+// updateMTOShipmentWrapper allows us to pass in the closeout office and include it
+// with the results from updating the shipment, which allows us to chain on the closeout office
+// update.
+function updateMTOShipmentWrapper({ shipment, closeoutOffice }) {
   return updateMTOShipment(shipment).then((newShipment) => {
     return { newShipment, closeoutOffice };
   });
@@ -36,7 +39,7 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
       onUpdate('error');
     },
   });
-  const [mutateMTOShipment] = useMutation(foobar, {
+  const [mutateMTOShipment] = useMutation(updateMTOShipmentWrapper, {
     onSuccess: (result) => {
       // if we have a closeout office, we must be on the first page of creating a PPM shipment,
       // so we should update the closeout office and redirect to the advance page
