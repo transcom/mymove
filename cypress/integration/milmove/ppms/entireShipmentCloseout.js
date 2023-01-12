@@ -82,7 +82,6 @@ function navigateHappyPathWithEditsAndBacks(userId, isMobile = false) {
   signInAndNavigateToPPMReviewPage(userId);
   navigateFromCloseoutReviewPageToAboutPage();
   fillOutAboutPage();
-  // submitWeightTicketPage(); // temporary until about page routing is fixed, 2 weight tickets will exist for now
   navigateFromCloseoutReviewPageToEditWeightTicketPage();
   submitWeightTicketPage();
   navigateFromCloseoutReviewPageToEditProGearPage();
@@ -91,9 +90,9 @@ function navigateHappyPathWithEditsAndBacks(userId, isMobile = false) {
   submitExpensePage({ isEditExpense: true, amount: '833.41' });
   navigateFromPPMReviewPageToFinalCloseoutPage();
   submitFinalCloseout({
-    totalNetWeight: '4,000 lbs',
+    totalNetWeight: '2,000 lbs',
     proGearWeight: '500 lbs',
     expensesClaimed: '833.41',
-    finalIncentiveAmount: '$62,363.15',
+    finalIncentiveAmount: '$31,180.87',
   });
 }
