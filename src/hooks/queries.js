@@ -25,7 +25,6 @@ import {
   getReportViolationsByReportID,
   getMTOShipmentByID,
   getServicesCounselingPPMQueue,
-  // getProGearWeighTickets,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorAvailableMoves, getPrimeSimulatorMove } from 'services/primeApi';
@@ -56,7 +55,6 @@ import {
   REPORT_VIOLATIONS,
   MTO_SHIPMENT,
   WEIGHT_TICKETS,
-  // PRO_GEAR_WEIGHT_TICKETS,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
