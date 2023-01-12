@@ -2,6 +2,7 @@ package factory
 
 import (
 	"github.com/gobuffalo/pop/v6"
+
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -13,34 +14,52 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 
 	// Find dutyLocation customization and extract the custom dutyLocation
 	var cDutyLocation models.DutyLocation
-	var address models.Address
-	var transportationOffice models.TransportationOffice
 	if result := findValidCustomization(customs, DutyLocation); result != nil {
 		cDutyLocation = result.Model.(models.DutyLocation)
 		if result.LinkOnly {
 			return cDutyLocation
 		}
-		if cDutyLocation.TransportationOfficeID == nil {
-			// BuildTransportationOffice Func goes here
-			//transportationOffice = BuildTransportationOffice(db, customs, traits)
-		}
 	}
 
-	//// Find a transportationOffice customization if available to BuildTransportationOffice
-	//var transportationOffice models.TransportationOffice
-	//if result := findValidCustomization(customs, TransportationOffice); result != nil {
-	//	// Build Transportation Office func goes here
-	//}
+	// Find/create the transportationOffice Model
+	var transportationOffice models.TransportationOffice
+	result := findValidCustomization(customs, TransportationOffice)
+	if result != nil {
+		transportationOffice = result.Model.(models.TransportationOffice)
+	}
+	transportationOffice = BuildTransportationOffice(db, customs, nil)
+
+	// Find/create the address Model
+	var address models.Address
+	addressResult := findValidCustomization(customs, Address)
+	if addressResult != nil {
+		address = addressResult.Model.(models.Address)
+	}
+	address = BuildAddress(db, customs, []Trait{GetTraitAddress3})
+
+	// Build the required Tariff 400 NG Zip3 to correspond with the duty location address
+	FetchOrBuildTariff400ngZip3(db, []Customization{
+		{
+			Model: models.Tariff400ngZip3{
+				Zip3:          "503",
+				BasepointCity: "Des Moines",
+				State:         "IA",
+				ServiceArea:   "296",
+				RateArea:      "US53",
+				Region:        "7",
+			},
+		},
+	}, nil)
 
 	// Create default Duty Location
 	affiliation := internalmessages.AffiliationAIRFORCE
 	location := models.DutyLocation{
-		Name:        makeRandomString(10),
-		Affiliation: &affiliation,
-		AddressID:   address.ID,
-		Address:     address,
-		//TransportationOfficeID: &transportationOffice.ID,
-		//TransportationOffice:   transportationOffice,
+		Name:                   makeRandomString(10),
+		Affiliation:            &affiliation,
+		AddressID:              address.ID,
+		Address:                address,
+		TransportationOfficeID: &transportationOffice.ID,
+		TransportationOffice:   transportationOffice,
 	}
 
 	// Overwrite values with those from customizations
