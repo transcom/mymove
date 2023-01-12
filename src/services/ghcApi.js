@@ -348,16 +348,14 @@ export async function getMTOShipmentByID(key, shipmentID) {
   return makeGHCRequest('mtoShipment.getShipment', { shipmentID }, { schemaKey: 'mtoShipment', normalize: false });
 }
 
-export function updateMTOShipment(args) {
-  const { moveTaskOrderID, shipmentID, ifMatchETag, normalize, schemaKey, body } = args;
-  let actualNormalize = normalize;
-  let actualSchemaKey = schemaKey;
-  if (args.normalize === undefined) {
-    actualNormalize = true;
-  }
-  if (args.schemaKey === undefined) {
-    actualSchemaKey = 'mtoShipment';
-  }
+export function updateMTOShipment({
+  moveTaskOrderID,
+  shipmentID,
+  ifMatchETag,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
   const operationPath = 'mtoShipment.updateMTOShipment';
   return makeGHCRequest(
     operationPath,
@@ -367,7 +365,7 @@ export function updateMTOShipment(args) {
       'If-Match': ifMatchETag,
       body,
     },
-    { schemaKey: actualSchemaKey, normalize: actualNormalize },
+    { schemaKey, normalize },
   );
 }
 
@@ -526,8 +524,7 @@ export function updateFinancialFlag({ moveID, ifMatchETag, body }) {
   );
 }
 
-export function updateMoveCloseoutOffice(args) {
-  const { locator, ifMatchETag, body } = args; // TODO
+export function updateMoveCloseoutOffice({ locator, ifMatchETag, body }) {
   const operationPath = 'move.updateCloseoutOffice';
   return makeGHCRequest(
     operationPath,
