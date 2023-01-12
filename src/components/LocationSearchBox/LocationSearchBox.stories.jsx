@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
-import { DutyLocationSearchBoxComponent } from './DutyLocationSearchBox';
+import { LocationSearchBoxComponent } from './LocationSearchBox';
 
 export default {
-  title: 'Components/Duty Location Search Box',
-  component: DutyLocationSearchBoxComponent,
+  title: 'Components/Location Search Box',
+  component: LocationSearchBoxComponent,
 };
 
 const testAddress = {
@@ -129,7 +129,7 @@ const baseValue = {
   address: { ...testAddress },
 };
 
-const mockSearchDutyLocations = async () => {
+const mockSearchLocations = async () => {
   return testLocations;
 };
 
@@ -137,7 +137,7 @@ const mockShowAddress = async () => {
   return testAddress;
 };
 
-export const Standard = () => {
+export const DutyStationBasic = () => {
   const [value, setValue] = useState();
 
   const onChange = (newValue) => {
@@ -145,17 +145,17 @@ export const Standard = () => {
   };
 
   return (
-    <DutyLocationSearchBoxComponent
+    <LocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
-      title="Test Component"
+      title="Duty Station Test Component"
       name="test_component"
-      searchDutyLocations={mockSearchDutyLocations}
+      searchLocations={mockSearchLocations}
       showAddress={mockShowAddress}
     />
   );
 };
 
-export const WithValue = () => {
+export const DutyStationWithValue = () => {
   const [value, setValue] = useState(baseValue);
 
   const onChange = (newValue) => {
@@ -163,17 +163,17 @@ export const WithValue = () => {
   };
 
   return (
-    <DutyLocationSearchBoxComponent
+    <LocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
-      title="Test Component"
+      title="Duty Station Test Component"
       displayAddress={false}
-      searchDutyLocations={mockSearchDutyLocations}
+      searchLocations={mockSearchLocations}
       showAddress={mockShowAddress}
     />
   );
 };
 
-export const WithValueAndAddress = () => {
+export const DutyStationWithValueAndAddress = () => {
   const [value, setValue] = useState(baseValue);
 
   const onChange = (newValue) => {
@@ -181,16 +181,16 @@ export const WithValueAndAddress = () => {
   };
 
   return (
-    <DutyLocationSearchBoxComponent
+    <LocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
-      title="Test Component"
-      searchDutyLocations={mockSearchDutyLocations}
+      title="Duty Station Test Component"
+      searchLocations={mockSearchLocations}
       showAddress={mockShowAddress}
     />
   );
 };
 
-export const WithErrorMessage = () => {
+export const DutyStationWithErrorMessage = () => {
   const [value, setValue] = useState();
 
   const onChange = (newValue) => {
@@ -198,17 +198,17 @@ export const WithErrorMessage = () => {
   };
 
   return (
-    <DutyLocationSearchBoxComponent
+    <LocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
-      title="Test Component"
+      title="Duty Station Test Component"
       errorMsg="Something went wrong"
-      searchDutyLocations={mockSearchDutyLocations}
+      searchLocations={mockSearchLocations}
       showAddress={mockShowAddress}
     />
   );
 };
 
-export const WithLocalError = () => {
+export const DutyStationWithLocalError = () => {
   const [value, setValue] = useState();
 
   const onChange = (newValue) => {
@@ -220,10 +220,48 @@ export const WithLocalError = () => {
   };
 
   return (
-    <DutyLocationSearchBoxComponent
+    <LocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
-      title="Test Component"
-      searchDutyLocations={brokenSearchDutyLocations}
+      title="Duty Station Test Component"
+      searchLocations={brokenSearchDutyLocations}
+      showAddress={mockShowAddress}
+    />
+  );
+};
+
+export const TransportationLocationBasic = () => {
+  const [value, setValue] = useState();
+
+  const onChange = (newValue) => {
+    setValue(newValue);
+  };
+
+  return (
+    <LocationSearchBoxComponent
+      input={{ name: 'test_component', onChange, value }}
+      placeholder="Start typing a closeout office..."
+      title="Transportation Office Test Component"
+      name="test_component"
+      searchLocations={mockSearchLocations}
+      showAddress={mockShowAddress}
+    />
+  );
+};
+
+export const TransportationLocationWithValue = () => {
+  const [value, setValue] = useState(baseValue);
+
+  const onChange = (newValue) => {
+    setValue(newValue);
+  };
+
+  return (
+    <LocationSearchBoxComponent
+      input={{ name: 'test_component', onChange, value }}
+      placeholder="Start typing a closeout office..."
+      title="Transportation Office Test Component"
+      displayAddress={false}
+      searchLocations={mockSearchLocations}
       showAddress={mockShowAddress}
     />
   );

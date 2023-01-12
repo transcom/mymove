@@ -2,11 +2,11 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import DutyLocationSearchBox from './DutyLocationSearchBox';
+import LocationSearchBox from './LocationSearchBox';
 
 import dutyLocationFactory from 'utils/test/factories/dutyLocation';
 
-const mockDutyLocations = [
+const mockLocations = [
   dutyLocationFactory(),
   dutyLocationFactory(),
   dutyLocationFactory(),
@@ -16,51 +16,72 @@ const mockDutyLocations = [
   dutyLocationFactory(),
 ];
 
-const selectedDutyLocation = mockDutyLocations[2];
-const mockAddress = selectedDutyLocation.address;
+const selectedLocations = mockLocations[2];
+const mockAddress = selectedLocations.address;
 const displayAddress = `${mockAddress.city}, ${mockAddress.state} ${mockAddress.postalCode}`;
-const optionName = selectedDutyLocation.name.split(' AFB')[0];
+const optionName = selectedLocations.name.split(' AFB')[0];
 
 jest.mock('./api.js', () => ({
-  SearchDutyLocations: async (search) => {
-    if (search === 'empty') {
-      return [];
-    }
-
-    if (search === 'broken') {
-      throw new Error('Server returned an error');
-    }
-
-    return mockDutyLocations;
-  },
   ShowAddress: async () => {
     return mockAddress;
   },
 }));
 
-describe('DutyLocationSearchBoxContainer', () => {
+const mockLocationSearch = jest.fn(async (search) => {
+  if (search === 'empty') {
+    return [];
+  }
+
+  if (search === 'broken') {
+    throw new Error('Server returned an error');
+  }
+
+  return mockLocations;
+});
+
+describe('LocationSearchBoxContainer', () => {
   describe('basic rendering', () => {
     it('renders with minimal props', () => {
-      render(<DutyLocationSearchBox input={{ name: 'test_component' }} name="test_component" />);
+      render(
+        <LocationSearchBox
+          input={{ name: 'test_component' }}
+          name="test_component"
+          searchLocations={mockLocationSearch}
+        />,
+      );
       expect(screen.getByLabelText('Name of Duty Location:')).toBeInTheDocument();
     });
 
     it('renders the title', () => {
-      render(<DutyLocationSearchBox input={{ name: 'test_component' }} name="test_component" title="Test Component" />);
+      render(
+        <LocationSearchBox
+          input={{ name: 'test_component' }}
+          name="test_component"
+          title="Test Component"
+          searchLocations={mockLocationSearch}
+        />,
+      );
       expect(screen.getByLabelText('Test Component')).toBeInTheDocument();
     });
 
     it('renders the default placeholder text', () => {
-      render(<DutyLocationSearchBox input={{ name: 'test_component' }} name="test_component" />);
+      render(
+        <LocationSearchBox
+          input={{ name: 'test_component' }}
+          name="test_component"
+          searchLocations={mockLocationSearch}
+        />,
+      );
       expect(screen.getByText('Start typing a duty location...')).toBeInTheDocument();
     });
 
     it('renders an error message', () => {
       render(
-        <DutyLocationSearchBox
+        <LocationSearchBox
           input={{ name: 'test_component' }}
           name="test_component"
           errorMsg="Test Error Message"
+          searchLocations={mockLocationSearch}
         />,
       );
       expect(screen.getByText('Test Error Message')).toBeInTheDocument();
@@ -68,46 +89,48 @@ describe('DutyLocationSearchBoxContainer', () => {
 
     it('renders a value passed in via prop', () => {
       render(
-        <DutyLocationSearchBox
+        <LocationSearchBox
           name="test_component"
           input={{
             name: 'test_component',
             value: {
-              ...selectedDutyLocation,
+              ...selectedLocations,
               address: mockAddress,
             },
           }}
         />,
       );
-      expect(screen.getByText(selectedDutyLocation.name)).toBeInTheDocument();
+      expect(screen.getByText(selectedLocations.name)).toBeInTheDocument();
       expect(screen.getByText(displayAddress)).toBeInTheDocument();
     });
 
     it('can render without the address', () => {
       render(
-        <DutyLocationSearchBox
+        <LocationSearchBox
           name="test_component"
           displayAddress={false}
+          searchLocations={mockLocationSearch}
           input={{
             name: 'test_component',
             value: {
-              ...selectedDutyLocation,
+              ...selectedLocations,
               address: mockAddress,
             },
           }}
         />,
       );
-      expect(screen.getByText(selectedDutyLocation.name)).toBeInTheDocument();
+      expect(screen.getByText(selectedLocations.name)).toBeInTheDocument();
       expect(screen.queryByText(displayAddress)).not.toBeInTheDocument();
     });
 
     it('can show placeholder text based on prop', () => {
       const testPlaceholderText = 'Test Placeholder Text';
       render(
-        <DutyLocationSearchBox
+        <LocationSearchBox
           input={{ name: 'test_component' }}
           name="test_component"
           placeholder={testPlaceholderText}
+          searchLocations={mockLocationSearch}
         />,
       );
       expect(screen.getByText(testPlaceholderText)).toBeInTheDocument();
@@ -116,7 +139,14 @@ describe('DutyLocationSearchBoxContainer', () => {
 
   describe('updating options based on text', () => {
     it('searches user input and renders options', async () => {
-      render(<DutyLocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
+      render(
+        <LocationSearchBox
+          input={{ name: 'test_component' }}
+          title="Test Component"
+          name="test_component"
+          searchLocations={mockLocationSearch}
+        />,
+      );
       await userEvent.type(screen.getByLabelText('Test Component'), 'AFB');
 
       const option = await screen.findByText(optionName);
@@ -127,21 +157,42 @@ describe('DutyLocationSearchBoxContainer', () => {
     });
 
     it('searches user input and renders a message if empty', async () => {
-      render(<DutyLocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
+      render(
+        <LocationSearchBox
+          input={{ name: 'test_component' }}
+          title="Test Component"
+          name="test_component"
+          searchLocations={mockLocationSearch}
+        />,
+      );
       await userEvent.type(screen.getByLabelText('Test Component'), 'empty');
 
       expect(await screen.findByText('No Options')).toBeInTheDocument();
     });
 
     it("doesnt search if user input isn't 2+ characters in length", async () => {
-      render(<DutyLocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
+      render(
+        <LocationSearchBox
+          input={{ name: 'test_component' }}
+          title="Test Component"
+          name="test_component"
+          searchLocations={mockLocationSearch}
+        />,
+      );
       await userEvent.type(screen.getByLabelText('Test Component'), '1');
 
       expect(await screen.findByText('No Options')).toBeInTheDocument();
     });
 
     it('handles server errors', async () => {
-      render(<DutyLocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
+      render(
+        <LocationSearchBox
+          input={{ name: 'test_component' }}
+          title="Test Component"
+          name="test_component"
+          searchLocations={mockLocationSearch}
+        />,
+      );
       await userEvent.type(screen.getByLabelText('Test Component'), 'broken');
 
       expect(await screen.findByText('No Options')).toBeInTheDocument();
@@ -152,10 +203,11 @@ describe('DutyLocationSearchBoxContainer', () => {
     it('selects an option, calls the onChange callback prop', async () => {
       const onChange = jest.fn();
       render(
-        <DutyLocationSearchBox
+        <LocationSearchBox
           input={{ name: 'test_component', onChange }}
           title="Test Component"
           name="test_component"
+          searchLocations={mockLocationSearch}
         />,
       );
       await userEvent.type(screen.getByLabelText('Test Component'), 'AFB');
@@ -163,7 +215,7 @@ describe('DutyLocationSearchBoxContainer', () => {
 
       await waitFor(() =>
         expect(onChange).toHaveBeenCalledWith({
-          ...selectedDutyLocation,
+          ...selectedLocations,
           address: mockAddress,
         }),
       );
