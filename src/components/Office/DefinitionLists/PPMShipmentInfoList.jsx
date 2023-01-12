@@ -34,7 +34,20 @@ const PPMShipmentInfoList = ({
     spouseProGearWeight,
   } = shipment.ppmShipment || {};
 
-  const { closeoutOffice, agency, gbloc } = shipment;
+  const { closeoutOffice, agency } = shipment;
+  let gbloc;
+
+  if (agency === 'MARINES') {
+    gbloc = 'TVCB';
+  }
+
+  if (agency === 'NAVY') {
+    gbloc = 'NAVY';
+  }
+
+  if (agency === 'COAST_GUARD') {
+    gbloc = 'USCG';
+  }
 
   let closeoutDisplay = gbloc;
 
@@ -45,8 +58,6 @@ const PPMShipmentInfoList = ({
   if (closeoutDisplay == null) {
     closeoutDisplay = '—';
   }
-
-  // console.log(shipment);
 
   setFlagStyles({
     row: styles.row,

@@ -122,9 +122,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
         destinationAddress: shipment.destinationAddress || {
           postalCode: order.destinationDutyLocation.address.postalCode,
         },
-        agency: customerAgency.agency,
-        closeoutOffice: ppmMove.name,
-        gbloc: ppmMove.gbloc,
+        agency: customerAgency,
+        closeoutOffice: ppmMove,
         ...shipment,
         displayDestinationType: isRetirementOrSeparation,
       };

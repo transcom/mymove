@@ -554,8 +554,8 @@ export const useMoveDetailsQueries = (moveCode) => {
   const { data: { customer } = {}, ...customerQuery } = useQuery([CUSTOMER, customerId], getCustomer, {
     enabled: !!customerId,
   });
-  const customerAgency = customer && Object.values(customer)[0];
-  const ppmMove = move && Object.values(move)[0];
+  const customerAgency = customer && Object.values(customer)[0].agency;
+  const ppmMove = move.closeoutOffice && move.closeoutOffice.name;
 
   const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
     enabled: !!moveId,
