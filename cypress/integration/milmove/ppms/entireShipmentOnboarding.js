@@ -95,6 +95,9 @@ function submitAndVerifyUpdateDateAndLocation() {
   cy.get('input[name="sitExpected"][value="false"]').check();
   cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
 
+  // Change closeout location
+  cy.selectDutyLocation('Fort Bragg');
+
   navigateFromDateAndLocationPageToEstimatedWeightsPage(['@patchShipment', '@patchMove']);
 
   cy.get('button').contains('Back').click();
