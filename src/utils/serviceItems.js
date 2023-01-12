@@ -1,4 +1,4 @@
-import { SERVICE_ITEM_OPTIONS } from '../shared/constants';
+import { SERVICE_ITEM_CODES } from '../constants/serviceItems';
 
 import { dateSort } from 'shared/utils';
 import { convertFromThousandthInchToInch } from 'utils/formatters';
@@ -62,7 +62,7 @@ export function formatDimensions(dimensions, conversion = convertFromThousandthI
 }
 
 export function isCounseling(serviceItem) {
-  return serviceItem?.reServiceCode === SERVICE_ITEM_OPTIONS.COUNSELING;
+  return serviceItem?.reServiceCode === SERVICE_ITEM_CODES.CS;
 }
 
 export function hasCounseling(mtoServiceItems) {
@@ -73,7 +73,7 @@ export function hasCounseling(mtoServiceItems) {
 }
 
 export function isMoveManagement(serviceItem) {
-  return serviceItem?.reServiceCode === SERVICE_ITEM_OPTIONS.MOVE_MANAGEMENT;
+  return serviceItem?.reServiceCode === SERVICE_ITEM_CODES.MS;
 }
 
 export function hasMoveManagement(mtoServiceItems) {

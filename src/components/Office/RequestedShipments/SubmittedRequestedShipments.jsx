@@ -4,10 +4,9 @@ import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 
-import { hasCounseling, hasMoveManagement } from '../../../utils/serviceItems';
-
 import styles from './RequestedShipments.module.scss';
 
+import { hasCounseling, hasMoveManagement } from 'utils/serviceItems';
 import { isPPMOnly } from 'utils/shipments';
 import ShipmentApprovalPreview from 'components/Office/ShipmentApprovalPreview/ShipmentApprovalPreview';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
