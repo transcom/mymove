@@ -550,6 +550,7 @@ export const useMoveDetailsQueries = (moveCode) => {
 
   const order = Object.values(orders || {})?.[0];
 
+  console.log('use move details queries moveID', moveId);
   const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
     enabled: !!moveId,
   });

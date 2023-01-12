@@ -6,6 +6,7 @@ import { queryCache, useMutation } from 'react-query';
 import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio } from '@trussworks/react-uswds';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
+import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
 
 import styles from './ShipmentForm.module.scss';
 import ppmShipmentSchema from './ppmShipmentSchema';
@@ -15,7 +16,7 @@ import ConnectedDestructiveShipmentConfirmationModal from 'components/Confirmati
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
-import { DatePickerInput, DropdownInput } from 'components/form/fields';
+import { DutyLocationInput, DatePickerInput, DropdownInput } from 'components/form/fields';
 import { Form } from 'components/form/Form';
 import DestinationZIPInfo from 'components/Office/DestinationZIPInfo/DestinationZIPInfo';
 import OriginZIPInfo from 'components/Office/OriginZIPInfo/OriginZIPInfo';
@@ -40,6 +41,7 @@ import { AccountingCodesShape } from 'types/accountingCodes';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { MatchShape } from 'types/officeShapes';
 import { ShipmentShape } from 'types/shipment';
+import { TransportationOfficeShape } from 'types/transportationOffice';
 import {
   formatMtoShipmentForAPI,
   formatMtoShipmentForDisplay,
@@ -60,6 +62,7 @@ const ShipmentForm = (props) => {
     isForServicesCounseling,
     mtoShipment,
     submitHandler,
+    submitCloseoutOfficeHandler,
     mtoShipments,
     serviceMember,
     currentResidence,
@@ -69,8 +72,11 @@ const ShipmentForm = (props) => {
     userRole,
     displayDestinationType,
     isAdvancePage,
+    closeoutOffice,
+    move,
   } = props;
 
+  console.log('ShipmentForm move', move);
   const [errorMessage, setErrorMessage] = useState(null);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
 
@@ -122,13 +128,19 @@ const ShipmentForm = (props) => {
 
   const isTOO = userRole === roleTypes.TOO;
   const isServiceCounselor = userRole === roleTypes.SERVICES_COUNSELOR;
+  // todo use constants
+  const showCloseoutOffice =
+    isServiceCounselor && isPPM && (serviceMember.agency === 'ARMY' || serviceMember.agency === 'AIR_FORCE');
+  console.log('showCloseoutOffice', showCloseoutOffice, serviceMember);
 
   const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 
   const shipmentNumber = isHHG ? getShipmentNumber() : null;
   const initialValues = isPPM
     ? formatPpmShipmentForDisplay(
-        isCreatePage ? {} : { counselorRemarks: mtoShipment.counselorRemarks, ppmShipment: mtoShipment.ppmShipment },
+        isCreatePage
+          ? { closeoutOffice }
+          : { counselorRemarks: mtoShipment.counselorRemarks, ppmShipment: mtoShipment.ppmShipment, closeoutOffice },
       )
     : formatMtoShipmentForDisplay(
         isCreatePage
@@ -147,6 +159,7 @@ const ShipmentForm = (props) => {
       advanceAmountRequested: mtoShipment.ppmShipment?.advanceAmountRequested,
       hasRequestedAdvance: mtoShipment.ppmShipment?.hasRequestedAdvance,
       isAdvancePage,
+      isArmyOrAirforce: showCloseoutOffice,
     });
   } else {
     const shipmentOptions = getShipmentOptions(shipmentType, userRole);
@@ -165,14 +178,19 @@ const ShipmentForm = (props) => {
   const editOrdersRoute = isTOO ? tooRoutes.ORDERS_EDIT_PATH : servicesCounselingRoutes.ORDERS_EDIT_PATH;
   const editOrdersPath = generatePath(editOrdersRoute, { moveCode });
 
-  const submitMTOShipment = (formValues) => {
+  const submitMTOShipment = (formValues, actions) => {
+    console.log('submitMTOShipment', formValues);
     if (isPPM) {
+      console.log('isPPM');
       const ppmShipmentBody = formatPpmShipmentForAPI(formValues);
 
       if (isCreatePage) {
+        console.log('isCreatePage');
         const body = { ...ppmShipmentBody, moveTaskOrderID };
-        submitHandler({ body, normalize: false })
+        submitHandler({ shipment: { body, normalize: false }, closeoutOffice: formValues.closeoutOffice })
           .then((newShipment) => {
+            console.log('done updating, now redirecting to advance path');
+            debugger;
             const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
               moveCode,
               shipmentId: newShipment.id,
@@ -187,8 +205,34 @@ const ShipmentForm = (props) => {
             history.push(advancePath);
           })
           .catch(() => {
+            actions.setSubmitting(false);
             setErrorMessage(`A server error occurred adding the shipment`);
           });
+        // .then((newShipment) => {
+        //   console.log('attempting to submit closeout office');
+        //   // TODO Why does this run when submit handler has failed?
+        //   return submitCloseoutOfficeHandler({
+        //     locator: move.locator,
+        //     ifMatchETag: move.eTag,
+        //     body: { closeoutOfficeId: formValues.closeoutOffice.id },
+        //   }).then(() => {
+        //     const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
+        //       moveCode,
+        //       shipmentId: newShipment.id,
+        //     });
+        //
+        //     const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
+        //       moveCode,
+        //       shipmentId: newShipment.id,
+        //     });
+        //     history.replace(currentPath);
+        //     history.push(advancePath);
+        //   });
+        // })
+        // .catch(() => {
+        //   console.log('catch!');
+        //   setErrorMessage(`A server error occurred adding the shipment`);
+        // });
         return;
       }
       const updatePPMPayload = {
@@ -197,16 +241,45 @@ const ShipmentForm = (props) => {
         ifMatchETag: mtoShipment.eTag,
         normalize: false,
         body: ppmShipmentBody,
+        locator: move.locator,
+        moveETag: move.eTag,
+        closeoutOfficeId: formValues.closeoutOffice.id, // TODO probably unused
       };
+      console.log('updating PPM');
 
-      submitHandler(updatePPMPayload).then(() => {
+      const payload = {
+        shipment: updatePPMPayload,
+      };
+      // don't send closeout office if we're on the advance page
+      if (!isAdvancePage) {
+        payload.closeoutOffice = formValues.closeoutOffice;
+      }
+
+      submitHandler(payload).then(() => {
         if (!isAdvancePage) {
+          console.log('!isAdvancePage');
           const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
             moveCode,
             shipmentId: mtoShipment.id,
           });
 
+          console.log('setSubmitting false');
+          actions.setSubmitting(false);
+          console.log('ROUTE redirect to advance');
           history.push(advancePath);
+          // TODO error handling?
+          // submitCloseoutOfficeHandler({
+          //   locator: move.locator,
+          //   ifMatchETag: move.eTag,
+          //   body: { closeoutOfficeId: formValues.closeoutOffice.id },
+          // }).then(() => {
+          //   const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
+          //     moveCode,
+          //     shipmentId: mtoShipment.id,
+          //   });
+          //
+          //   history.push(advancePath);
+          // });
         }
       });
 
@@ -265,8 +338,9 @@ const ShipmentForm = (props) => {
     };
 
     if (isCreatePage) {
+      // TODO might need to work on this body
       const body = { ...pendingMtoShipment, moveTaskOrderID };
-      submitHandler({ body, normalize: false })
+      submitHandler({ shipment: { body, normalize: false } })
         .then(() => {
           history.push(moveDetailsPath);
         })
@@ -275,9 +349,9 @@ const ShipmentForm = (props) => {
         });
     } else if (isForServicesCounseling) {
       // routing and error handling handled in parent components
-      submitHandler(updateMTOShipmentPayload);
+      submitHandler({ shipment: updateMTOShipmentPayload });
     } else {
-      submitHandler(updateMTOShipmentPayload)
+      submitHandler({ shipment: updateMTOShipmentPayload })
         .then(() => {
           history.push(moveDetailsPath);
         })
@@ -297,6 +371,7 @@ const ShipmentForm = (props) => {
     >
       {({ values, isValid, isSubmitting, setValues, handleSubmit, errors }) => {
         const { hasDeliveryAddress } = values;
+        // console.log('ShipmentForm values', values);
 
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
@@ -327,6 +402,7 @@ const ShipmentForm = (props) => {
           }
         };
 
+        console.log('disabled?', isSubmitting || !isValid, 'isSubmitting?', isSubmitting, 'isValid?', isValid);
         return (
           <>
             <ConnectedDestructiveShipmentConfirmationModal
@@ -537,6 +613,18 @@ const ShipmentForm = (props) => {
                       postalCodeValidator={validatePostalCode}
                       dutyZip={newDutyLocationAddress.postalCode}
                     />
+                    {showCloseoutOffice && (
+                      <SectionWrapper>
+                        <h2>Closeout office</h2>
+                        <CloseoutOfficeInput
+                          hint="If there is more than one PPM for this  closeoutOffice move, the closeout office will be the same for all your PPMs."
+                          name="closeoutOffice"
+                          placeholder="Start typing a closeout location..."
+                          label="Closeout location"
+                          displayAddress
+                        />
+                      </SectionWrapper>
+                    )}
                     <ShipmentCustomerSIT />
                     <ShipmentWeight authorizedWeight={serviceMember.weightAllotment.totalWeightSelf.toString()} />
                   </>
@@ -631,6 +719,7 @@ ShipmentForm.propTypes = {
     push: func.isRequired,
   }),
   submitHandler: func.isRequired,
+  submitCloseoutOfficeHandler: func.isRequired,
   isCreatePage: bool,
   isForServicesCounseling: bool,
   currentResidence: AddressShape.isRequired,
@@ -644,12 +733,19 @@ ShipmentForm.propTypes = {
     weightAllotment: shape({
       totalWeightSelf: number,
     }),
+    agency: string.isRequired,
   }).isRequired,
   TACs: AccountingCodesShape,
   SACs: AccountingCodesShape,
   userRole: oneOf(officeRoles).isRequired,
   displayDestinationType: bool,
   isAdvancePage: bool,
+  closeoutOffice: TransportationOfficeShape,
+  move: shape({
+    eTag: string,
+    id: string,
+    closeoutOffice: TransportationOfficeShape,
+  }),
 };
 
 ShipmentForm.defaultProps = {

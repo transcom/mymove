@@ -8,15 +8,23 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 import 'styles/office.scss';
 import CustomerHeader from 'components/CustomerHeader';
 import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
-import { MTO_SHIPMENTS } from 'constants/queryKeys';
+import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
-import { createMTOShipment } from 'services/ghcApi';
+import { createMTOShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { roleTypes } from 'constants/userRoles';
 import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 
+// this returns an object that contains a promise and another thing
+function foobar({ shipment, closeoutOffice }) {
+  console.log('addship submitHandler (foobar)', { shipment, closeoutOffice });
+  return createMTOShipment(shipment).then((newShipment) => {
+    return { newShipment, closeoutOffice };
+  });
+  // return { newShipment: createMTOShipment(shipment), closeoutOffice };
+}
 const ServicesCounselingAddShipment = ({ match }) => {
   const params = useParams();
   let { shipmentType } = params;
@@ -30,12 +38,42 @@ const ServicesCounselingAddShipment = ({ match }) => {
 
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
-  const [mutateMTOShipments] = useMutation(createMTOShipment, {
-    onSuccess: (newMTOShipment) => {
-      mtoShipments.push(newMTOShipment);
-      queryCache.setQueryData([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID]);
-      return newMTOShipment;
+  // what does this syntax do?
+  const [mutateMoveCloseoutOffice] = useMutation(updateMoveCloseoutOffice, {
+    onSuccess: (updatedMove) => {
+      // invalidate some query data?
+      queryCache.invalidateQueries([MOVES, moveCode]);
+      console.log('updateMoveCloseoutOffice success');
+    },
+    onError: (error) => {
+      // invalidate some query data?
+      console.error('update closeout office mutation', error);
+    },
+  });
+  // I think useMutation might wait for a promise to be resolved from the return value, but if it's not a promise, what will it do?
+  // I need to find the expectations for this function
+  const [mutateMTOShipments] = useMutation(foobar, {
+    onSuccess: (result) => {
+      if (result.closeoutOffice) {
+        console.log('lets try to submit the closeout office', result.closeoutOffice);
+        // TODO this is wrong, need move info in args
+        mutateMoveCloseoutOffice({
+          locator: moveCode,
+          ifMatchETag: move.eTag,
+          body: { closeoutOfficeId: result.closeoutOffice.id },
+        }).then(() => {
+          console.log('mutate closeout done');
+        });
+      }
+      // TODO i'm not sure if we wait for the promise above to resolve before getting to this stuff
+      mtoShipments.push(result.newShipment);
+      queryCache.setQueryData([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID]);
+      return result.newShipment;
+    },
+    onError: (error) => {
+      // TODO invalidate some query data?
+      console.error('create shipment mutation error', error);
     },
   });
 
@@ -67,19 +105,22 @@ const ServicesCounselingAddShipment = ({ match }) => {
                   match={match}
                   history={history}
                   submitHandler={mutateMTOShipments}
+                  submitCloseoutOfficeHandler={mutateMoveCloseoutOffice}
                   isCreatePage
                   ServicesCounselingShipmentForm
                   currentResidence={customer.current_address}
                   originDutyLocationAddress={order.originDutyLocation?.address}
                   newDutyLocationAddress={order.destinationDutyLocation?.address}
                   shipmentType={shipmentType}
-                  serviceMember={{ weightAllotment }}
+                  serviceMember={{ weightAllotment, agency: customer.agency }}
                   moveTaskOrderID={move.id}
                   mtoShipments={mtoShipments}
                   TACs={TACs}
                   SACs={SACs}
                   userRole={roleTypes.SERVICES_COUNSELOR}
                   displayDestinationType
+                  closeoutOffice={move.closeoutOffice}
+                  move={move}
                 />
               </Grid>
             </Grid>
