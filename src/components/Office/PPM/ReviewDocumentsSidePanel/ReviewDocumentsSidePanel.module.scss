@@ -26,7 +26,6 @@
   }
 
   .rowContainer {
-    flex-shrink: 0;
     @include u-padding-left(2);
     @include u-padding-right(2);
 
@@ -49,7 +48,8 @@
     span {
       font-weight: bold;
     }
-    > div {
+
+    .iconRow {
       flex-shrink: 0;
     }
   }

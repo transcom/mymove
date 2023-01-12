@@ -37,14 +37,14 @@ export default function ReviewDocumentsSidePanel({ ppmShipment, ppmNumber, expen
   const statusWithIcon = (ticket) => {
     if (ticket.status === ReviewDocumentsStatus.ACCEPT) {
       status = (
-        <div className={styles.accepted}>
+        <div className={styles.iconRow}>
           <FontAwesomeIcon icon="check" />
           <span>Accept</span>
         </div>
       );
     } else if (ticket.status === ReviewDocumentsStatus.EXCLUDE) {
       status = (
-        <div className={styles.excluded}>
+        <div className={styles.iconRow}>
           <FontAwesomeIcon icon="ban" />
           <span>Exclude</span>
         </div>
@@ -52,7 +52,7 @@ export default function ReviewDocumentsSidePanel({ ppmShipment, ppmNumber, expen
       showReason = true;
     } else {
       status = (
-        <div className={styles.rejected}>
+        <div className={styles.iconRow}>
           <FontAwesomeIcon icon="times" />
           <span>Reject</span>
         </div>
