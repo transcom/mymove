@@ -16,7 +16,7 @@ import ConnectedDestructiveShipmentConfirmationModal from 'components/Confirmati
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
-import { DutyLocationInput, DatePickerInput, DropdownInput } from 'components/form/fields';
+import { DatePickerInput, DropdownInput } from 'components/form/fields';
 import { Form } from 'components/form/Form';
 import DestinationZIPInfo from 'components/Office/DestinationZIPInfo/DestinationZIPInfo';
 import OriginZIPInfo from 'components/Office/OriginZIPInfo/OriginZIPInfo';
@@ -62,7 +62,6 @@ const ShipmentForm = (props) => {
     isForServicesCounseling,
     mtoShipment,
     submitHandler,
-    submitCloseoutOfficeHandler,
     mtoShipments,
     serviceMember,
     currentResidence,
@@ -190,7 +189,6 @@ const ShipmentForm = (props) => {
         submitHandler({ shipment: { body, normalize: false }, closeoutOffice: formValues.closeoutOffice })
           .then((newShipment) => {
             console.log('done updating, now redirecting to advance path');
-            debugger;
             const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
               moveCode,
               shipmentId: newShipment.id,
@@ -204,7 +202,8 @@ const ShipmentForm = (props) => {
             history.replace(currentPath);
             history.push(advancePath);
           })
-          .catch(() => {
+          .catch((error) => {
+            console.error('error after attempting to submit', error);
             actions.setSubmitting(false);
             setErrorMessage(`A server error occurred adding the shipment`);
           });
@@ -719,7 +718,6 @@ ShipmentForm.propTypes = {
     push: func.isRequired,
   }),
   submitHandler: func.isRequired,
-  submitCloseoutOfficeHandler: func.isRequired,
   isCreatePage: bool,
   isForServicesCounseling: bool,
   currentResidence: AddressShape.isRequired,

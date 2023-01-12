@@ -14,7 +14,7 @@ import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { updateMTOShipment, updateMoveCloseoutOffice, createMTOShipment } from 'services/ghcApi';
+import { updateMTOShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
 
@@ -23,7 +23,6 @@ function foobar({ shipment, closeoutOffice }) {
   return updateMTOShipment(shipment).then((newShipment) => {
     return { newShipment, closeoutOffice };
   });
-  // return { newShipment: createMTOShipment(shipment), closeoutOffice };
 }
 const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage }) => {
   const { moveCode, shipmentId } = useParams();
@@ -111,7 +110,6 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
                 match={match}
                 history={history}
                 submitHandler={mutateMTOShipment}
-                submitCloseoutOfficeHandler={mutateMoveCloseoutOffice}
                 isCreatePage={false}
                 isForServicesCounseling
                 currentResidence={customer.current_address}

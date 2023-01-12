@@ -105,7 +105,6 @@ const ServicesCounselingAddShipment = ({ match }) => {
                   match={match}
                   history={history}
                   submitHandler={mutateMTOShipments}
-                  submitCloseoutOfficeHandler={mutateMoveCloseoutOffice}
                   isCreatePage
                   ServicesCounselingShipmentForm
                   currentResidence={customer.current_address}
