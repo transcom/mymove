@@ -48,7 +48,7 @@ describe('Office authorization', () => {
 
     cy.contains('Moves');
     cy.contains('Needs counseling');
-    cy.url().should('eq', officeBaseURL + '/');
+    cy.url().should('eq', officeBaseURL + '/counseling');
   });
 
   describe('multiple role selection', () => {
