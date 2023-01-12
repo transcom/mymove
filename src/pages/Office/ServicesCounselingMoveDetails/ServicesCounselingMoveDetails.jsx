@@ -170,7 +170,6 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
 
     shipmentsInfo = submittedShipmentsNonPPM.map((shipment) => {
-      // console.log('non ppm shipment', shipment); // TODO
       const editURL =
         counselorCanEdit || counselorCanEditNonPPM
           ? generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {

@@ -6,17 +6,11 @@ import './DropdownInput.module.scss';
 import LocationSearchBox from 'components/LocationSearchBox/LocationSearchBox';
 import { SearchTransportationOffices } from 'services/ghcApi';
 
-// async function showAddress(addressId) {
-//   return 'nope';
-// }
-// TODO: refactor component when we can to make it more user friendly with Formik
 export const CloseoutOfficeInput = (props) => {
   const { label, name, displayAddress, hint, placeholder, isDisabled } = props;
   const [field, meta, helpers] = useField(props);
-
   const errorString = meta.value?.name ? meta.error?.name || meta.error : '';
 
-  // console.log('CloseoutOfficeInput field', name, field.value);
   return (
     <LocationSearchBox
       title={label}
@@ -34,24 +28,6 @@ export const CloseoutOfficeInput = (props) => {
       searchLocations={SearchTransportationOffices}
     />
   );
-  // return (
-  //   <DutyLocationSearchBoxComponent
-  //     searchDutyLocations={SearchTransportationOffices}
-  //     showAddress={showAddress}
-  //     title={label}
-  //     name={name}
-  //     input={{
-  //       value: field.value,
-  //       onChange: helpers.setValue,
-  //       name,
-  //     }}
-  //     errorMsg={errorString}
-  //     displayAddress={displayAddress}
-  //     hint={hint}
-  //     placeholder={placeholder}
-  //     isDisabled={isDisabled}
-  //   />
-  // );
 };
 
 CloseoutOfficeInput.propTypes = {

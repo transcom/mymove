@@ -200,31 +200,6 @@ const ShipmentForm = (props) => {
             actions.setSubmitting(false);
             setErrorMessage(`A server error occurred adding the shipment`);
           });
-        // .then((newShipment) => {
-        //   console.log('attempting to submit closeout office');
-        //   // TODO Why does this run when submit handler has failed?
-        //   return submitCloseoutOfficeHandler({
-        //     locator: move.locator,
-        //     ifMatchETag: move.eTag,
-        //     body: { closeoutOfficeId: formValues.closeoutOffice.id },
-        //   }).then(() => {
-        //     const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
-        //       moveCode,
-        //       shipmentId: newShipment.id,
-        //     });
-        //
-        //     const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
-        //       moveCode,
-        //       shipmentId: newShipment.id,
-        //     });
-        //     history.replace(currentPath);
-        //     history.push(advancePath);
-        //   });
-        // })
-        // .catch(() => {
-        //   console.log('catch!');
-        //   setErrorMessage(`A server error occurred adding the shipment`);
-        // });
         return;
       }
       const updatePPMPayload = {
@@ -256,21 +231,8 @@ const ShipmentForm = (props) => {
           actions.setSubmitting(false);
           history.push(advancePath);
           // TODO error handling?
-          // submitCloseoutOfficeHandler({
-          //   locator: move.locator,
-          //   ifMatchETag: move.eTag,
-          //   body: { closeoutOfficeId: formValues.closeoutOffice.id },
-          // }).then(() => {
-          //   const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
-          //     moveCode,
-          //     shipmentId: mtoShipment.id,
-          //   });
-          //
-          //   history.push(advancePath);
-          // });
         }
       });
-
       return;
     }
 

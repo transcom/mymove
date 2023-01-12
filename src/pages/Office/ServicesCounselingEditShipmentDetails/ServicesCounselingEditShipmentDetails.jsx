@@ -29,7 +29,6 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const [mutateMoveCloseoutOffice] = useMutation(updateMoveCloseoutOffice, {
     onSuccess: () => {
-      // history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
       onUpdate('success');
     },
     onError: () => {
@@ -39,6 +38,8 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
   });
   const [mutateMTOShipment] = useMutation(foobar, {
     onSuccess: (result) => {
+      // if we have a closeout office, we must be on the first page of creating a PPM shipment,
+      // so we should update the closeout office and redirect to the advance page
       if (result.closeoutOffice) {
         mutateMoveCloseoutOffice({
           locator: moveCode,
@@ -52,15 +53,11 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
           onUpdate('success');
         });
       } else {
+        // if we don't have a closeout office, we're either on the advance page for a PPM, or the first
+        // page for another type of shipment. In either case, we're done now and can head back to the move view
         mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === result.newShipment.id)] = result.newShipment;
         queryCache.setQueryData([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID, false], mtoShipments);
         queryCache.invalidateQueries([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID]);
-        // and then what do i pass in here?
-        // TODO removing this makes it so we don't move on after the advance page. i dont know why
-        // TODO as i put the same code in the mutation that is supposed to run AFTER this one
-        // TODO ohhhhh because it is not called on the advance page.
-        // TODO but then why doesn't this one break stuff by redirecting before we can start the other
-        // TODO mutation?
         history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
         onUpdate('success');
       }

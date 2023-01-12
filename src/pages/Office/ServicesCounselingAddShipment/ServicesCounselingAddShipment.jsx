@@ -17,12 +17,10 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { roleTypes } from 'constants/userRoles';
 import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 
-// this returns an object that contains a promise and another thing
 function foobar({ shipment, closeoutOffice }) {
   return createMTOShipment(shipment).then((newShipment) => {
     return { newShipment, closeoutOffice };
   });
-  // return { newShipment: createMTOShipment(shipment), closeoutOffice };
 }
 const ServicesCounselingAddShipment = ({ match }) => {
   const params = useParams();
@@ -37,7 +35,6 @@ const ServicesCounselingAddShipment = ({ match }) => {
 
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
-  // what does this syntax do?
   const [mutateMoveCloseoutOffice] = useMutation(updateMoveCloseoutOffice, {
     onSuccess: () => {
       queryCache.invalidateQueries([MOVES, moveCode]);
@@ -46,13 +43,9 @@ const ServicesCounselingAddShipment = ({ match }) => {
       // TODO invalidate some query data?
     },
   });
-  // I think useMutation might wait for a promise to be resolved from the return value, but if it's not a promise, what will it do?
-  // I need to find the expectations for this function
   const [mutateMTOShipments] = useMutation(foobar, {
     onSuccess: (result) => {
       if (result.closeoutOffice) {
-        // TODO this is wrong, need move info in args
-        // TODO should i await this?
         mutateMoveCloseoutOffice({
           locator: moveCode,
           ifMatchETag: move.eTag,
@@ -61,7 +54,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
           // TODO do query invalidation
         });
       }
-      // TODO i'm not sure if we wait for the promise above to resolve before getting to this stuff
+      // TODO i think it's OK if this happens before the closeout office mutation runs
       mtoShipments.push(result.newShipment);
       queryCache.setQueryData([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID, false], mtoShipments);
       queryCache.invalidateQueries([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID]);
