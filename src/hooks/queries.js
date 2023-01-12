@@ -25,6 +25,7 @@ import {
   getReportViolationsByReportID,
   getMTOShipmentByID,
   getServicesCounselingPPMQueue,
+  // getProGearWeighTickets,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorAvailableMoves, getPrimeSimulatorMove } from 'services/primeApi';
@@ -55,6 +56,7 @@ import {
   REPORT_VIOLATIONS,
   MTO_SHIPMENT,
   WEIGHT_TICKETS,
+  // PRO_GEAR_WEIGHT_TICKETS,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -181,6 +183,24 @@ export const useEditShipmentQueries = (moveCode) => {
 };
 
 export const usePPMShipmentDocsQueries = (shipmentID) => {
+  const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentID], getMTOShipmentByID);
+
+  const ppmShipmentId = mtoShipment?.ppmShipment?.id;
+  const { data: weightTickets, ...weightTicketsQuery } = useQuery([WEIGHT_TICKETS, ppmShipmentId], getWeightTickets, {
+    enabled: !!ppmShipmentId,
+  });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, weightTicketsQuery]);
+  return {
+    mtoShipment,
+    weightTickets,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useQueries = (shipmentID) => {
   const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentID], getMTOShipmentByID);
 
   const ppmShipmentId = mtoShipment?.ppmShipment?.id;
