@@ -4,6 +4,8 @@ import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 
+import { hasCounseling, hasMoveManagement } from '../../../utils/serviceItems';
+
 import styles from './RequestedShipments.module.scss';
 
 import { isPPMOnly } from 'utils/shipments';
@@ -16,7 +18,7 @@ import Restricted from 'components/Restricted/Restricted';
 import { serviceItemCodes } from 'content/serviceItems';
 import { shipmentTypeLabels } from 'content/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
-import { MoveTaskOrderShape, OrdersInfoShape } from 'types/order';
+import { MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import { ShipmentShape } from 'types/shipment';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
@@ -45,6 +47,7 @@ const SubmittedRequestedShipments = ({
   moveCode,
   errorIfMissing,
   displayDestinationType,
+  mtoServiceItems,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
@@ -161,13 +164,22 @@ const SubmittedRequestedShipments = ({
       (formik.values.counselingFee || formik.values.shipmentManagementFee) &&
       !missingRequiredOrdersInfo;
 
-  // on a move with only External Vendor shipments enable button if a a service item is selected
+  // on a move with only External Vendor shipments enable button if a service item is selected
   const externalVendorShipmentsOnly = formik.values.counselingFee || formik.values.shipmentManagementFee;
 
   // Check that there are Prime-handled shipments before determining if the button should be enabled
   const isButtonEnabled = filterPrimeShipments.length > 0 ? primeShipmentsForApproval : externalVendorShipmentsOnly;
 
   const dutyLocationPostal = { postalCode: ordersInfo.newDutyLocation?.address?.postalCode };
+
+  // Hide counseling line item if prime counseling is already in the service items or if service counseling has been applied
+  const hideCounselingCheckbox = hasCounseling(mtoServiceItems) || moveTaskOrder?.serviceCounselingCompletedAt;
+
+  // Hide move management line item if it is already in the service items or for PPM only moves
+  const hideMoveManagementCheckbox = hasMoveManagement(mtoServiceItems) || isPPMOnly(mtoShipments);
+
+  // If we are hiding both counseling and move management then hide the entire service item form
+  const hideAddServiceItemsForm = hideCounselingCheckbox && hideMoveManagementCheckbox;
 
   return (
     <div className={styles.RequestedShipments} data-testid="requested-shipments">
@@ -222,19 +234,20 @@ const SubmittedRequestedShipments = ({
 
         <Restricted to={permissionTypes.updateShipment}>
           <div className={styles.serviceItems}>
-            {!moveTaskOrder.availableToPrimeAt && (
+            {!hideAddServiceItemsForm && (
               <>
                 <h2>Add service items to this move</h2>
                 <Fieldset legend="MTO service items" legendsronly="true" id="input-type-fieldset">
-                  {!isPPMOnly(mtoShipments) && (
+                  {!hideMoveManagementCheckbox && (
                     <Checkbox
                       id="shipmentManagementFee"
                       label={serviceItemCodes.MS}
                       name="shipmentManagementFee"
                       onChange={formik.handleChange}
+                      data-testid="shipmentManagementFee"
                     />
                   )}
-                  {moveTaskOrder.serviceCounselingCompletedAt ? (
+                  {hideCounselingCheckbox ? (
                     <p className={styles.serviceCounselingCompleted} data-testid="services-counseling-completed-text">
                       The customer has received counseling for this move.
                     </p>
@@ -244,6 +257,7 @@ const SubmittedRequestedShipments = ({
                       label={serviceItemCodes.CS}
                       name="counselingFee"
                       onChange={formik.handleChange}
+                      data-testid="counselingFee"
                     />
                   )}
                 </Fieldset>
@@ -301,6 +315,7 @@ SubmittedRequestedShipments.propTypes = {
   handleAfterSuccess: PropTypes.func,
   errorIfMissing: PropTypes.shape({}),
   displayDestinationType: PropTypes.bool,
+  mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
 };
 
 SubmittedRequestedShipments.defaultProps = {
@@ -311,6 +326,7 @@ SubmittedRequestedShipments.defaultProps = {
   handleAfterSuccess: () => {},
   errorIfMissing: {},
   displayDestinationType: false,
+  mtoServiceItems: [],
 };
 
 export default SubmittedRequestedShipments;

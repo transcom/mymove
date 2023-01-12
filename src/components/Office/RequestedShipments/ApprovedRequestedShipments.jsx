@@ -3,6 +3,8 @@ import * as PropTypes from 'prop-types';
 import { generatePath } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { SERVICE_ITEM_OPTIONS } from '../../../shared/constants';
+
 import styles from './RequestedShipments.module.scss';
 
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
@@ -98,7 +100,11 @@ const ApprovedRequestedShipments = ({
           <tbody>
             {mtoServiceItems &&
               mtoServiceItems
-                .filter((serviceItem) => serviceItem.reServiceCode === 'MS' || serviceItem.reServiceCode === 'CS')
+                .filter(
+                  (serviceItem) =>
+                    serviceItem.reServiceCode === SERVICE_ITEM_OPTIONS.MOVE_MANAGEMENT ||
+                    serviceItem.reServiceCode === SERVICE_ITEM_OPTIONS.COUNSELING,
+                )
                 .map((serviceItem) => (
                   <tr key={serviceItem.id}>
                     <td data-testid="basicServiceItemName">{serviceItem.reServiceName}</td>

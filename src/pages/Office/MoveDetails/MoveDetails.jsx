@@ -341,6 +341,7 @@ const MoveDetails = ({
                 moveCode={moveCode}
                 errorIfMissing={errorIfMissing}
                 displayDestinationType={isRetirementOrSeparation}
+                mtoServiceItems={mtoServiceItems}
               />
             </div>
           )}
