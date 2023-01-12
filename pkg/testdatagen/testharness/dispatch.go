@@ -90,6 +90,15 @@ var actionDispatcher = map[string]actionFunc{
 	"PPMInProgressMove": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakePPMInProgressMove(appCtx)
 	},
+	"MoveWithPPMShipmentReadyForFinalCloseout": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx)
+	},
+	"PPMMoveWithCloseout": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakePPMMoveWithCloseout(appCtx)
+	},
+	"PPMMoveWithCloseoutOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakePPMMoveWithCloseoutOffice(appCtx)
+	},
 	"OfficeUserWithTOOAndTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeOfficeUserWithTOOAndTIO(appCtx)
 	},

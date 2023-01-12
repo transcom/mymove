@@ -1,18 +1,24 @@
+/**
+ * Semi-automated converted from a cypress test, and thus may contain
+ * non best-practices, in particular: heavy use of `page.locator`
+ * instead of `page.getBy*`.
+ */
+
 // @ts-check
 const { test, expect } = require('../../utils/officeTest');
 
-const { ServiceCounselorFlowPage } = require('./serviceCounselorTestFixture');
+const { ServiceCounselorPage } = require('./servicesCounselingTestFixture');
 
 test.describe('Services counselor user', () => {
-  /** @type {ServiceCounselorFlowPage} */
-  let scFlowPage;
+  /** @type {ServiceCounselorPage} */
+  let scPage;
 
   test.describe('with basic HHG move', () => {
     test.beforeEach(async ({ officePage }) => {
       const move = await officePage.testHarness.buildHHGMoveNeedsSC();
       await officePage.signInAsNewServicesCounselorUser();
-      scFlowPage = new ServiceCounselorFlowPage(officePage, move);
-      await scFlowPage.navigateToMove();
+      scPage = new ServiceCounselorPage(officePage, move);
+      await scPage.navigateToMove();
     });
 
     test('is able to click on move and submit after using the move code filter', async ({ page }) => {
@@ -43,7 +49,7 @@ test.describe('Services counselor user', () => {
 
       // Click save on the modal
       await page.getByRole('button', { name: 'Save' }).click();
-      await scFlowPage.waitForLoading();
+      await scPage.waitForLoading();
 
       // Verify sucess alert and tag
       await expect(page.getByText('Move flagged for financial review.')).toBeVisible();
@@ -60,7 +66,7 @@ test.describe('Services counselor user', () => {
 
       // Click save on the modal
       await page.getByRole('button', { name: 'Save' }).click();
-      await scFlowPage.waitForLoading();
+      await scPage.waitForLoading();
 
       // Verify sucess alert and tag
       await expect(page.getByText('Move unflagged for financial review.', { exact: true })).toBeVisible();
@@ -71,8 +77,8 @@ test.describe('Services counselor user', () => {
     test.beforeEach(async ({ officePage }) => {
       const move = await officePage.testHarness.buildHHGMoveForSeparationNeedsSC();
       await officePage.signInAsNewServicesCounselorUser();
-      scFlowPage = new ServiceCounselorFlowPage(officePage, move);
-      await scFlowPage.navigateToMove();
+      scPage = new ServiceCounselorPage(officePage, move);
+      await scPage.navigateToMove();
     });
 
     test('is able to add a shipment', async ({ page }) => {
@@ -94,7 +100,7 @@ test.describe('Services counselor user', () => {
       await page.locator('input[name="delivery.address.postalCode"]').type('90210');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of record (HOR)' });
       await page.locator('[data-testid="submitForm"]').click();
-      await scFlowPage.waitForLoading();
+      await scPage.waitForLoading();
 
       // expect new shipment to show up
       await expect(page.locator('[data-testid="ShipmentContainer"] .usa-button')).toHaveCount(3);
@@ -105,8 +111,8 @@ test.describe('Services counselor user', () => {
     test.beforeEach(async ({ officePage }) => {
       const move = await officePage.testHarness.buildHHGMoveForRetireeNeedsSC();
       await officePage.signInAsNewServicesCounselorUser();
-      scFlowPage = new ServiceCounselorFlowPage(officePage, move);
-      await scFlowPage.navigateToMove();
+      scPage = new ServiceCounselorPage(officePage, move);
+      await scPage.navigateToMove();
     });
 
     /**
@@ -202,7 +208,7 @@ test.describe('Services counselor user', () => {
       await page.locator('input[name="delivery.address.postalCode"]').type('90210');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
       await page.locator('[data-testid="submitForm"]').click();
-      await scFlowPage.waitForLoading();
+      await scPage.waitForLoading();
 
       await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
     });
@@ -215,7 +221,7 @@ test.describe('Services counselor user', () => {
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
       await page.locator('[data-testid="submitForm"]').click();
-      await scFlowPage.waitForLoading();
+      await scPage.waitForLoading();
 
       await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
 

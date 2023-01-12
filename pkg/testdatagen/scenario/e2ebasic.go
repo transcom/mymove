@@ -1701,7 +1701,7 @@ func serviceMemberWithOrdersAndPPMMove04(appCtx appcontext.AppContext, userUploa
 }
 
 func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	moveInfo := moveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("9b9ce6ed-70ba-4edf-b016-488c87fc1250"),
 		email:       "profile_full_ppm@move.draft",
 		smID:        testdatagen.ConvertUUIDStringToUUID("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
@@ -1728,11 +1728,11 @@ func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploa
 		},
 	}
 
-	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
 func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	moveInfo := moveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("4fd6726d-2d05-4640-96dd-983bec236a9c"),
 		email:       "full_ppm_mobile@complete.profile",
 		smID:        testdatagen.ConvertUUIDStringToUUID("08606458-cee9-4529-a2e6-9121e67dac72"),
@@ -1759,7 +1759,7 @@ func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploa
 		},
 	}
 
-	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
 func serviceMemberWithOrdersAndPPMMove07(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -4227,7 +4227,16 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	serviceMemberWithOrdersAndPPMMove07(appCtx, userUploader)
 	serviceMemberWithOrdersAndPPMMove08(appCtx, userUploader)
 	createMoveWithPPMShipmentReadyForFinalCloseout(appCtx, userUploader)
-	createMoveWithCloseoutOffice(appCtx, userUploader)
+
+	CreateMoveWithCloseoutOffice(appCtx, MoveCreatorInfo{
+		userID:      uuid.Must(uuid.NewV4()),
+		email:       "closeoutoffice@ppm.closeout",
+		smID:        uuid.Must(uuid.NewV4()),
+		firstName:   "CLOSEOUT",
+		lastName:    "OFFICE",
+		moveID:      uuid.Must(uuid.NewV4()),
+		moveLocator: "CLSOFF",
+	}, userUploader)
 
 	//destination type
 	hos := models.DestinationTypeHomeOfSelection
@@ -4318,7 +4327,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createApprovedMoveWithPPMProgearWeightTicket(appCtx, userUploader)
 	createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)
 	createApprovedMoveWithPPMMovingExpense(appCtx, nil, userUploader)
-	createApprovedMoveWithPPMMovingExpense(appCtx, &moveCreatorInfo{userID: uuid.FromStringOrNil("da65c290-6256-46db-a1a0-3779191638a2"), email: "movingExpensePPM2@ppm.approved", moveLocator: "EXPNS2"}, userUploader)
+	createApprovedMoveWithPPMMovingExpense(appCtx, &MoveCreatorInfo{userID: uuid.FromStringOrNil("da65c290-6256-46db-a1a0-3779191638a2"), email: "movingExpensePPM2@ppm.approved", moveLocator: "EXPNS2"}, userUploader)
 	createMoveWithPPMShipmentReadyForFinalCloseout2(appCtx, userUploader)
 	createMoveWithPPMShipmentReadyForFinalCloseout3(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")

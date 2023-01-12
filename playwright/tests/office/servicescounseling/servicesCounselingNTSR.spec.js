@@ -1,29 +1,35 @@
+/**
+ * Semi-automated converted from a cypress test, and thus may contain
+ * non best-practices, in particular: heavy use of `page.locator`
+ * instead of `page.getBy*`.
+ */
+
 // @ts-check
 const { test, expect } = require('../../utils/officeTest');
 
-const { ServiceCounselorFlowPage } = require('./serviceCounselorTestFixture');
+const { ServiceCounselorPage } = require('./servicesCounselingTestFixture');
 
 test.describe('Services counselor user', () => {
-  /** @type {ServiceCounselorFlowPage} */
-  let scFlowPage;
+  /** @type {ServiceCounselorPage} */
+  let scPage;
 
   test.describe('without NTS-R on move', () => {
     test.beforeEach(async ({ officePage }) => {
       const move = await officePage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
       await officePage.signInAsNewServicesCounselorUser();
-      scFlowPage = new ServiceCounselorFlowPage(officePage, move);
-      await scFlowPage.navigateToMove();
+      scPage = new ServiceCounselorPage(officePage, move);
+      await scPage.navigateToMove();
     });
 
     test('Services Counselor can delete/remove an NTS-release shipment request', async ({ page }) => {
       // this test is almost identical to the NTS test
-      await scFlowPage.addNTSReleaseShipment();
+      await scPage.addNTSReleaseShipment();
 
       // single HHG plus added NTS
       await expect(page.locator('[data-testid="ShipmentContainer"] .usa-button')).toHaveCount(2);
 
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
-      await scFlowPage.waitForLoading();
+      await scPage.waitForLoading();
 
       // click to trigger confirmation modal
       await page.locator('[data-testid="grid"] button').getByText('Delete shipment').click();
@@ -31,17 +37,17 @@ test.describe('Services counselor user', () => {
       await expect(page.getByTestId('modal')).toBeVisible();
 
       await page.getByTestId('modal').getByRole('button', { name: 'Delete shipment' }).click();
-      await scFlowPage.waitForLoading();
+      await scPage.waitForLoading();
 
       await expect(page.locator('[data-testid="ShipmentContainer"] .usa-button')).toHaveCount(1);
     });
 
     test('Services Counselor can enter accounting codes and submit shipment', async ({ page }) => {
       // this test is almost identical to the NTS test
-      await scFlowPage.addNTSReleaseShipment();
+      await scPage.addNTSReleaseShipment();
       // edit the newly added NTS shipment
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
-      await scFlowPage.waitForLoading();
+      await scPage.waitForLoading();
 
       await page.locator('[data-testid="grid"]').getByRole('button', { name: 'Add or edit codes' }).click();
 
@@ -56,7 +62,7 @@ test.describe('Services counselor user', () => {
       await form.locator('select[name="ordersTypeDetail"]').selectOption({ label: 'Shipment of HHG Permitted' });
       // Edit orders page | Save
       await form.getByRole('button', { name: 'Save' }).click();
-      await scFlowPage.waitForLoading();
+      await scPage.waitForLoading();
 
       await expect(page.locator('[data-testid="tacMDC"]')).toContainText('E15A');
       await expect(page.locator('[data-testid="sacSDN"]')).toContainText('4K988AS098F');
@@ -71,7 +77,7 @@ test.describe('Services counselor user', () => {
       await page.locator('[data-testid="radio"] [for="sacType-HHG"]').click();
 
       await page.locator('[data-testid="submitForm"]').click();
-      await scFlowPage.waitForLoading();
+      await scPage.waitForLoading();
 
       await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
 
@@ -100,8 +106,8 @@ test.describe('Services counselor user', () => {
     test.beforeEach(async ({ officePage }) => {
       const move = await officePage.testHarness.buildMoveWithMinimalNTSRNeedsSC();
       await officePage.signInAsNewServicesCounselorUser();
-      scFlowPage = new ServiceCounselorFlowPage(officePage, move);
-      await scFlowPage.navigateToMove();
+      scPage = new ServiceCounselorPage(officePage, move);
+      await scPage.navigateToMove();
     });
 
     test('Services Counselor can see errors/warnings for missing data, then make edits', async ({ page }) => {
@@ -123,7 +129,7 @@ test.describe('Services counselor user', () => {
       await expect(lastShipment.locator('div[class*="warning"] [data-testid="tacType"]')).toBeVisible();
       await expect(lastShipment.locator('div[class*="warning"] [data-testid="sacType"]')).toBeVisible();
 
-      await scFlowPage.addNTSReleaseShipment();
+      await scPage.addNTSReleaseShipment();
     });
   });
 });

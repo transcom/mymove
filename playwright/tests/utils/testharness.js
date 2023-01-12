@@ -81,6 +81,27 @@ export class TestHarness {
   /**
    * @returns {Promise<Object>}
    */
+  async buildMoveWithPPMShipmentReadyForFinalCloseout() {
+    return this.buildDefault('MoveWithPPMShipmentReadyForFinalCloseout');
+  }
+
+  /**
+   * @returns {Promise<Object>}
+   */
+  async buildPPMMoveWithCloseout() {
+    return this.buildDefault('PPMMoveWithCloseout');
+  }
+
+  /**
+   * @returns {Promise<Object>}
+   */
+  async buildPPMMoveWithCloseoutOffice() {
+    return this.buildDefault('PPMMoveWithCloseoutOffice');
+  }
+
+  /**
+   * @returns {Promise<Object>}
+   */
   async buildWithShipmentMove() {
     return this.buildDefault('WithShipmentMove');
   }

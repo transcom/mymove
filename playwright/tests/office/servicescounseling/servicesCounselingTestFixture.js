@@ -7,11 +7,11 @@
 // @ts-check
 const { expect, OfficePage } = require('../../utils/officeTest');
 /**
- * ScFlowPage test fixture
+ * ServiceCounselorPage test fixture
  *
  * @extends OfficePage
  */
-export class ServiceCounselorFlowPage extends OfficePage {
+export class ServiceCounselorPage extends OfficePage {
   /**
    * @param {OfficePage} officePage
    * @param {Object} move
@@ -201,4 +201,4 @@ export class ServiceCounselorFlowPage extends OfficePage {
   }
 }
 
-export default ServiceCounselorFlowPage;
+export default ServiceCounselorPage;
