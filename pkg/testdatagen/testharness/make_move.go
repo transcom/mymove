@@ -2021,3 +2021,71 @@ func MakeHHGMoveWithExternalNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	}
 	return *newmove
 }
+
+// MakeMoveWithMinimalNTSRNeedsSC creates an Move with
+// NTS-R Shipment
+func MakeMoveWithMinimalNTSRNeedsSC(appCtx appcontext.AppContext) models.Move {
+	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	locator := models.GenerateLocator()
+	move := scenario.CreateNeedsServicesCounselingMinimalNTSR(appCtx, pcos, locator)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeHHGMoveNeedsSC creates an fully ready move needing SC approval
+func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
+	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	hhg := models.MTOShipmentTypeHHG
+	locator := models.GenerateLocator()
+	move := scenario.CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, locator)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeHHGMoveForSeparationNeedsSC creates an fully ready move for
+// separation needing SC approval
+func MakeHHGMoveForSeparationNeedsSC(appCtx appcontext.AppContext) models.Move {
+	separation := internalmessages.OrdersTypeSEPARATION
+	hhg := models.MTOShipmentTypeHHG
+	hor := models.DestinationTypeHomeOfRecord
+	locator := models.GenerateLocator()
+	move := scenario.CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, locator)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeHHGMoveForRetireeNeedsSC creates an fully ready move for
+// separation needing SC approval
+func MakeHHGMoveForRetireeNeedsSC(appCtx appcontext.AppContext) models.Move {
+	retirement := internalmessages.OrdersTypeRETIREMENT
+	hhg := models.MTOShipmentTypeHHG
+	hos := models.DestinationTypeHomeOfSelection
+	locator := models.GenerateLocator()
+	move := scenario.CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hos, locator)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}

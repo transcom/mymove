@@ -166,11 +166,43 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build hhg move needing SC approval
+   * @returns {Promise<Object>}
+   */
+  async buildHHGMoveNeedsSC() {
+    return this.buildDefault('HHGMoveNeedsSC');
+  }
+
+  /**
+   * Use testharness to build hhg move needing SC approval
+   * @returns {Promise<Object>}
+   */
+  async buildHHGMoveForSeparationNeedsSC() {
+    return this.buildDefault('HHGMoveForSeparationNeedsSC');
+  }
+
+  /**
+   * Use testharness to build hhg move needing SC approval
+   * @returns {Promise<Object>}
+   */
+  async buildHHGMoveForRetireeNeedsSC() {
+    return this.buildDefault('HHGMoveForRetireeNeedsSC');
+  }
+
+  /**
    * Use testharness to build hhg move with nts
    * @returns {Promise<Object>}
    */
   async buildHHGMoveWithNTSAndNeedsSC() {
     return this.buildDefault('HHGMoveWithNTSAndNeedsSC');
+  }
+
+  /**
+   * Use testharness to build move with minimal NTS-R
+   * @returns {Promise<Object>}
+   */
+  async buildMoveWithMinimalNTSRNeedsSC() {
+    return this.buildDefault('MoveWithMinimalNTSRNeedsSC');
   }
 
   /**

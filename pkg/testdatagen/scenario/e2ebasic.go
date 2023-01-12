@@ -4241,18 +4241,18 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	retirement := internalmessages.OrdersTypeRETIREMENT
 	separation := internalmessages.OrdersTypeSEPARATION
 
-	createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE1ET")
-	createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE2ET")
-	createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE3ET")
-	createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE4ET")
+	CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE1ET")
+	CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE2ET")
+	CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE3ET")
+	CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE4ET")
 
 	// Creates moves and shipments for NTS and NTS-release tests
 	createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSHHG")
 	createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSRHG")
-	createNeedsServicesCounselingMinimalNTSR(appCtx, pcos, "NTSRMN")
+	CreateNeedsServicesCounselingMinimalNTSR(appCtx, pcos, "NTSRMN")
 
-	createNeedsServicesCounseling(appCtx, retirement, hhg, &hos, "RET1RE")
-	createNeedsServicesCounseling(appCtx, separation, hhg, &hor, "S3PAR3")
+	CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hos, "RET1RE")
+	CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, "S3PAR3")
 
 	createBasicNTSMove(appCtx, userUploader)
 

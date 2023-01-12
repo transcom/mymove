@@ -7177,7 +7177,7 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 /*
 Create Needs Service Counseling - pass in orders with all required information, shipment type, destination type, locator
 */
-func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) {
+func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	hhgPermitted := internalmessages.OrdersTypeDetailHHGPERMITTED
@@ -7239,6 +7239,8 @@ func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 			MoveID:       move.ID,
 		},
 	})
+
+	return move
 }
 
 /*
@@ -7371,7 +7373,7 @@ func createNeedsServicesCounselingSingleHHG(appCtx appcontext.AppContext, orders
 
 }
 
-func createNeedsServicesCounselingMinimalNTSR(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, locator string) {
+func CreateNeedsServicesCounselingMinimalNTSR(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, locator string) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsMoveType := models.SelectedMoveTypeNTS
@@ -7404,6 +7406,8 @@ func createNeedsServicesCounselingMinimalNTSR(appCtx appcontext.AppContext, orde
 			DestinationAddressID:  &destinationAddress.ID,
 		},
 	})
+
+	return move
 }
 
 func createHHGNeedsServicesCounselingUSMC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
