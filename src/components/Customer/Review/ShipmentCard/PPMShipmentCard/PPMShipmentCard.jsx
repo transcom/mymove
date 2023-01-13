@@ -1,5 +1,5 @@
 import React from 'react';
-import { bool, func, number, shape, oneOf } from 'prop-types';
+import { bool, func, number, oneOf } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 

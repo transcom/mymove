@@ -1,4 +1,4 @@
-import { arrayOf, bool, func, number, string } from 'prop-types';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 
 import { TransportationOfficeShape } from './user';
 import { AddressShape } from 'types/address';
