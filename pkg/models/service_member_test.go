@@ -42,8 +42,20 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	lastName := "sally"
 	telephone := "510 555-5555"
 	email := "bobsally@gmail.com"
-	fakeAddress := testdatagen.MakeStubbedAddress(suite.DB())
-	fakeBackupAddress := testdatagen.MakeStubbedAddress(suite.DB())
+	fakeAddress := factory.BuildAddress(nil, []factory.Customization{
+		{
+			Model: Address{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		},
+	}, nil)
+	fakeBackupAddress := factory.BuildAddress(nil, []factory.Customization{
+		{
+			Model: Address{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		},
+	}, nil)
 	location := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
 		DutyLocation: DutyLocation{
 			ID: uuid.Must(uuid.NewV4()),
@@ -90,7 +102,7 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 	user2 := factory.BuildDefaultUser(suite.DB())
 
 	firstName := "Oliver"
-	resAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	resAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	sm := ServiceMember{
 		User:                 user1,
 		UserID:               user1.ID,
@@ -132,7 +144,7 @@ func (suite *ModelSuite) TestFetchServiceMemberNotForUser() {
 	user1 := factory.BuildDefaultUser(suite.DB())
 
 	firstName := "Nino"
-	resAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	resAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	sm := ServiceMember{
 		User:                 user1,
 		UserID:               user1.ID,

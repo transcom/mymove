@@ -18,6 +18,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -89,7 +90,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		reason := "because we did this service"
 		sitEntryDate := time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)
 
-		newAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{Stub: true})
+		newAddress := factory.BuildAddress(nil, nil, nil)
 		newServiceItem := serviceItem
 		newServiceItem.Reason = &reason
 		newServiceItem.SITEntryDate = &sitEntryDate

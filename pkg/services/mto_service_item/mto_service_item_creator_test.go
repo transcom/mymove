@@ -19,6 +19,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -622,7 +623,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		shipment := setupTestData()
 
 		// Create and address where ID != uuid.Nil
-		actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+		actualPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 
 		serviceItemDOFSIT := models.MTOServiceItem{
 			MoveTaskOrder:             shipment.MoveTaskOrder,
@@ -661,7 +662,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		// Do not create Address in the database (Assertions.Stub = true) because if the information is coming from the Prime
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
-		actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
+		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 		actualPickupAddress.ID = uuid.Nil
 
 		serviceItemDOFSIT := models.MTOServiceItem{
@@ -716,7 +717,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 
 	setupDOFSIT := func(shipment models.MTOShipment) services.MTOServiceItemCreator {
 		// Create DOFSIT
-		actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
+		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 		actualPickupAddress.ID = uuid.Nil
 
 		serviceItemDOFSIT := models.MTOServiceItem{
@@ -799,7 +800,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
-		actualPickupAddress2 := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
+		actualPickupAddress2 := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 		existingServiceItem := &serviceItemDOASIT
 		existingServiceItem.SITOriginHHGActualAddress = &actualPickupAddress2
 

@@ -33,7 +33,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
-		secondaryPickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		approvedShipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status:              models.MTOShipmentStatusApproved,
@@ -915,9 +915,9 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
-		secondaryPickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
-		destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
-		secondaryDestinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		secondaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		approvedShipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status:              models.MTOShipmentStatusApproved,
@@ -977,8 +977,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		serviceMember := move.Orders.ServiceMember
 		suite.NotNil(serviceMember)
 
-		residentialAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
-		backupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		residentialAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		backupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
 		serviceMember.ResidentialAddress = &residentialAddress
 		serviceMember.BackupMailingAddress = &backupAddress

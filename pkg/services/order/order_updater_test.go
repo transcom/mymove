@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -779,7 +780,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
 			DutyLocation: models.DutyLocation{
-				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
+				Address: factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
 			},
 		})
 		var moves models.Moves
@@ -869,7 +870,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
 			DutyLocation: models.DutyLocation{
-				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
+				Address: factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
 			},
 		})
 		var moves models.Moves

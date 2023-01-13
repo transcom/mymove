@@ -8,6 +8,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -140,7 +141,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		// Under Test: UpdateMTOShipmentAddress handler code and mtoShipmentAddressUpdater service object
 		handler, _ := setupTestData()
 		// Make a shipment with an unavailable MTO
-		pickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				PickupAddress: &pickupAddress,
@@ -179,7 +180,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			Move: availableMove,
 		})
 		// Make a random address that is not associated
-		randomAddress := testdatagen.MakeDefaultAddress(suite.DB())
+		randomAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
 		payload := payloads.Address(&randomAddress)
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", shipment.ID.String(), randomAddress.ID.String()), nil)

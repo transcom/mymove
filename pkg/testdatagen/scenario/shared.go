@@ -906,7 +906,7 @@ func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUpl
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -952,7 +952,7 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -999,7 +999,7 @@ func createApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1038,7 +1038,7 @@ func createApprovedMoveWithPPMWithAboutFormComplete2(appCtx appcontext.AppContex
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1077,7 +1077,7 @@ func createApprovedMoveWithPPMWithAboutFormComplete3(appCtx appcontext.AppContex
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1116,7 +1116,7 @@ func createApprovedMoveWithPPMWithAboutFormComplete4(appCtx appcontext.AppContex
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1155,7 +1155,7 @@ func createApprovedMoveWithPPMWithAboutFormComplete5(appCtx appcontext.AppContex
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1194,7 +1194,7 @@ func createApprovedMoveWithPPMWithAboutFormComplete6(appCtx appcontext.AppContex
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1233,7 +1233,7 @@ func createApprovedMoveWithPPMWithAboutFormComplete7(appCtx appcontext.AppContex
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1272,7 +1272,7 @@ func createApprovedMoveWithPPMWithAboutFormComplete8(appCtx appcontext.AppContex
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1315,7 +1315,7 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, info *
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1374,7 +1374,7 @@ func createApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext, 
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1422,7 +1422,7 @@ func createApprovedMoveWithPPMProgearWeightTicket2(appCtx appcontext.AppContext,
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1469,7 +1469,7 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1534,7 +1534,7 @@ func createMoveWithPPMShipmentReadyForFinalCloseout2(appCtx appcontext.AppContex
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1598,7 +1598,7 @@ func createMoveWithPPMShipmentReadyForFinalCloseout3(appCtx appcontext.AppContex
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1719,17 +1719,19 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		},
 	})
 
-	address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "2 Second St",
-			StreetAddress2: swag.String("Apt 2"),
-			StreetAddress3: swag.String("Suite B"),
-			City:           "Columbia",
-			State:          "SC",
-			PostalCode:     "29212",
-			Country:        swag.String("US"),
+	address := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "2 Second St",
+				StreetAddress2: models.StringPointer("Apt 2"),
+				StreetAddress3: models.StringPointer("Suite B"),
+				City:           "Columbia",
+				State:          "SC",
+				PostalCode:     "29212",
+				Country:        models.StringPointer("US"),
+			},
 		},
-	})
+	}, nil)
 
 	newDutyLocation := testdatagen.MakeDutyLocation(appCtx.DB(), testdatagen.Assertions{
 		DutyLocation: models.DutyLocation{
@@ -2039,10 +2041,11 @@ func createMoveWithCloseoutOffice(appCtx appcontext.AppContext, userUploader *up
 	})
 
 	// Make a transportation office to use as the closeout office
-	closeoutOffice := testdatagen.MakeTransportationOffice(appCtx.DB(), testdatagen.Assertions{TransportationOffice: models.TransportationOffice{
-		Name: "Los Angeles AFB",
-	},
-	})
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Name: "Los Angeles AFB"},
+		},
+	}, nil)
 
 	// Make a move with the closeout office
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
@@ -2530,8 +2533,8 @@ func createUnsubmittedHHGMoveMultipleDestinations(appCtx appcontext.AppContext) 
 		},
 	})
 
-	destinationAddress1 := testdatagen.MakeAddress3(db, testdatagen.Assertions{})
-	destinationAddress2 := testdatagen.MakeAddress4(db, testdatagen.Assertions{})
+	destinationAddress1 := factory.BuildAddress(db, nil, []factory.Trait{factory.GetTraitAddress3})
+	destinationAddress2 := factory.BuildAddress(db, nil, []factory.Trait{factory.GetTraitAddress4})
 
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
@@ -2602,31 +2605,35 @@ func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
 		},
 	})
 
-	pickupAddress1 := testdatagen.MakeAddress(db, testdatagen.Assertions{
-		Address: models.Address{
-			ID:             uuid.Must(uuid.NewV4()),
-			StreetAddress1: "1 First St",
-			StreetAddress2: swag.String("Apt 1"),
-			StreetAddress3: swag.String("Suite A"),
-			City:           "Columbia",
-			State:          "SC",
-			PostalCode:     "29212",
-			Country:        swag.String("US"),
+	pickupAddress1 := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "1 First St",
+				StreetAddress2: models.StringPointer("Apt 1"),
+				StreetAddress3: models.StringPointer("Suite A"),
+				City:           "Columbia",
+				State:          "SC",
+				PostalCode:     "29212",
+				Country:        models.StringPointer("US"),
+			},
 		},
-	})
+	}, nil)
 
-	pickupAddress2 := testdatagen.MakeAddress(db, testdatagen.Assertions{
-		Address: models.Address{
-			ID:             uuid.Must(uuid.NewV4()),
-			StreetAddress1: "2 Second St",
-			StreetAddress2: swag.String("Apt 2"),
-			StreetAddress3: swag.String("Suite B"),
-			City:           "Columbia",
-			State:          "SC",
-			PostalCode:     "29212",
-			Country:        swag.String("US"),
+	pickupAddress2 := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "2 Second St",
+				StreetAddress2: models.StringPointer("Apt 2"),
+				StreetAddress3: models.StringPointer("Suite B"),
+				City:           "Columbia",
+				State:          "SC",
+				PostalCode:     "29212",
+				Country:        models.StringPointer("US"),
+			},
 		},
-	})
+	}, nil)
 
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
@@ -2697,31 +2704,35 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 		},
 	})
 
-	pickupAddress1 := testdatagen.MakeAddress(db, testdatagen.Assertions{
-		Address: models.Address{
-			ID:             uuid.Must(uuid.NewV4()),
-			StreetAddress1: "1 First St",
-			StreetAddress2: swag.String("Apt 1"),
-			StreetAddress3: swag.String("Suite A"),
-			City:           "Columbia",
-			State:          "SC",
-			PostalCode:     "29212",
-			Country:        swag.String("US"),
+	pickupAddress1 := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "1 First St",
+				StreetAddress2: models.StringPointer("Apt 1"),
+				StreetAddress3: models.StringPointer("Suite A"),
+				City:           "Columbia",
+				State:          "SC",
+				PostalCode:     "29212",
+				Country:        models.StringPointer("US"),
+			},
 		},
-	})
+	}, nil)
 
-	pickupAddress2 := testdatagen.MakeAddress(db, testdatagen.Assertions{
-		Address: models.Address{
-			ID:             uuid.Must(uuid.NewV4()),
-			StreetAddress1: "2 Second St",
-			StreetAddress2: swag.String("Apt 2"),
-			StreetAddress3: swag.String("Suite B"),
-			City:           "Columbia",
-			State:          "SC",
-			PostalCode:     "29212",
-			Country:        swag.String("US"),
+	pickupAddress2 := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "2 Second St",
+				StreetAddress2: models.StringPointer("Apt 2"),
+				StreetAddress3: models.StringPointer("Suite B"),
+				City:           "Columbia",
+				State:          "SC",
+				PostalCode:     "29212",
+				Country:        models.StringPointer("US"),
+			},
 		},
-	})
+	}, nil)
 
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
@@ -2844,79 +2855,6 @@ func createNTSRMove(appCtx appcontext.AppContext) {
 	})
 }
 
-func getPpmUuids(moveNumber int) [3]string {
-	var uuids [3]string
-
-	switch moveNumber {
-	case 1:
-		uuids = [3]string{
-			"2194daed-3589-408f-b988-e9889c9f120e",
-			"1319a13d-019b-4afa-b8fe-f51c15572681",
-			"7c4c7aa0-9e28-4065-93d2-74ea75e6323c",
-		}
-	case 2:
-		uuids = [3]string{
-			"4635b5a7-0f57-4557-8ba4-bbbb760c300a",
-			"7d756c59-1a46-4f59-9c51-6e708886eaf1",
-			"4397b137-f4ee-49b7-baae-3aa0b237d08e",
-		}
-	case 3:
-		uuids = [3]string{
-			"324dec0a-850c-41c8-976b-068e27121b84",
-			"a9b51cc4-e73e-4734-9714-a2066f207c3b",
-			"a738f6b8-4dee-4875-bdb1-1b4da2aa4f4b",
-		}
-	case 4:
-		uuids = [3]string{
-			"f154929c-5f07-41f5-b90c-d90b83d5773d",
-			"9027d05d-4c4e-4e5d-9954-6a6ba4017b4d",
-			"460011f4-126d-40e5-b4f4-62cc9c2f0b7a",
-		}
-	}
-
-	return uuids
-}
-
-func createPPMUsers(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	db := appCtx.DB()
-	for moveNumber := 1; moveNumber < 4; moveNumber++ {
-		uuids := getPpmUuids(moveNumber)
-		email := fmt.Sprintf("ppm.test.user%d@example.com", moveNumber)
-		uuidStr := uuids[0]
-		loginGovID := uuid.Must(uuid.NewV4())
-
-		factory.BuildUser(db, []factory.Customization{
-			{
-				Model: models.User{
-					ID:            uuid.Must(uuid.FromString(uuidStr)),
-					LoginGovUUID:  &loginGovID,
-					LoginGovEmail: email,
-					Active:        true,
-				}},
-		}, nil)
-
-		testdatagen.MakeMove(db, testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				ID:            uuid.FromStringOrNil(uuids[1]),
-				UserID:        uuid.FromStringOrNil(uuidStr),
-				FirstName:     models.StringPointer("Move"),
-				LastName:      models.StringPointer("Draft"),
-				Edipi:         models.StringPointer("7273579005"),
-				PersonalEmail: models.StringPointer(email),
-			},
-			Order: models.Order{
-				HasDependents:    false,
-				SpouseHasProGear: false,
-			},
-			Move: models.Move{
-				ID:      uuid.FromStringOrNil(uuids[2]),
-				Locator: fmt.Sprintf("NTS00%d", moveNumber),
-			},
-			UserUploader: userUploader,
-		})
-	}
-}
-
 func createDefaultHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation) {
 	createHHGMoveWithPaymentRequest(appCtx, userUploader, affiliation, testdatagen.Assertions{})
 }
@@ -2955,13 +2893,15 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 			IssueDate:    issueDate,
 			ReportByDate: reportByDate,
 		},
-		DestinationAddress: testdatagen.MakeAddress(db, testdatagen.Assertions{
-			Address: models.Address{
-				City:       "Harlem",
-				State:      "GA",
-				PostalCode: "30813",
+		DestinationAddress: factory.BuildAddress(db, []factory.Customization{
+			{
+				Model: models.Address{
+					City:       "Harlem",
+					State:      "GA",
+					PostalCode: "30813",
+				},
 			},
-		}),
+		}, nil),
 	})
 
 	move := shipment.MoveTaskOrder
@@ -3165,13 +3105,15 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 			IssueDate:    issueDate,
 			ReportByDate: reportByDate,
 		},
-		DestinationAddress: testdatagen.MakeAddress(db, testdatagen.Assertions{
-			Address: models.Address{
-				City:       "Harlem",
-				State:      "GA",
-				PostalCode: "30813",
+		DestinationAddress: factory.BuildAddress(db, []factory.Customization{
+			{
+				Model: models.Address{
+					City:       "Harlem",
+					State:      "GA",
+					PostalCode: "30813",
+				},
 			},
-		}),
+		}, nil),
 	})
 
 	move := shipment.MoveTaskOrder
@@ -3376,11 +3318,13 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 
 	move := longhaulShipment.MoveTaskOrder
 
-	shorthaulDestinationAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
-		Address: models.Address{
-			PostalCode: "90211",
+	shorthaulDestinationAddress := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "90211",
+			},
 		},
-	})
+	}, nil)
 	shorthaulShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -3548,7 +3492,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	// have a departure date for the payment request param lookup to not encounter an error
 	originEntryDate := actualPickupDate
 
-	originSITAddress := testdatagen.MakeAddress2(db, testdatagen.Assertions{Stub: true})
+	originSITAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 	originSITAddress.ID = uuid.Nil
 
 	originSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
@@ -3574,7 +3518,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 
 	destEntryDate := actualPickupDate
 	destDepDate := actualPickupDate
-	destSITAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{})
+	destSITAddress := factory.BuildAddress(db, nil, nil)
 	destSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		Move:        move,
 		MTOShipment: longhaulShipment,
@@ -3901,7 +3845,7 @@ func createMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -3961,13 +3905,14 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		Move: move,
 	})
 
-	addressAssertion := testdatagen.Assertions{
-		Address: models.Address{
-			// This is a postal code that maps to the default office user gbloc LKNQ in the PostalCodeToGBLOC table
-			PostalCode: "85325",
-		}}
-
-	shipmentPickupAddress := testdatagen.MakeAddress(db, addressAssertion)
+	shipmentPickupAddress := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				// This is a postal code that maps to the default office user gbloc LKNQ in the PostalCodeToGBLOC table
+				PostalCode: "85325",
+			},
+		},
+	}, nil)
 
 	shipment := models.MTOShipment{
 		PrimeEstimatedWeight: &estimatedWeight,
@@ -4603,31 +4548,35 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 	})
 
 	// Create an HHG MTO Shipment
-	pickupAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
-		Address: models.Address{
-			ID:             uuid.Must(uuid.NewV4()),
-			StreetAddress1: "2 Second St",
-			StreetAddress2: swag.String("Apt 2"),
-			StreetAddress3: swag.String("Suite B"),
-			City:           "Columbia",
-			State:          "SC",
-			PostalCode:     "29212",
-			Country:        swag.String("US"),
+	pickupAddress := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "2 Second St",
+				StreetAddress2: models.StringPointer("Apt 2"),
+				StreetAddress3: models.StringPointer("Suite B"),
+				City:           "Columbia",
+				State:          "SC",
+				PostalCode:     "29212",
+				Country:        models.StringPointer("US"),
+			},
 		},
-	})
+	}, nil)
 
-	destinationAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
-		Address: models.Address{
-			ID:             uuid.Must(uuid.NewV4()),
-			StreetAddress1: "2 Second St",
-			StreetAddress2: swag.String("Apt 2"),
-			StreetAddress3: swag.String("Suite B"),
-			City:           "Princeton",
-			State:          "NJ",
-			PostalCode:     "08540",
-			Country:        swag.String("US"),
+	destinationAddress := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "2 Second St",
+				StreetAddress2: models.StringPointer("Apt 2"),
+				StreetAddress3: models.StringPointer("Suite B"),
+				City:           "Princeton",
+				State:          "NJ",
+				PostalCode:     "08540",
+				Country:        models.StringPointer("US"),
+			},
 		},
-	})
+	}, nil)
 
 	hhgShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
@@ -4647,15 +4596,17 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 
 	storageFacility := testdatagen.MakeStorageFacility(db, testdatagen.Assertions{
 		StorageFacility: models.StorageFacility{
-			Address: testdatagen.MakeAddress(db, testdatagen.Assertions{
-				Address: models.Address{
-					StreetAddress1: "1234 Over Here Street",
-					City:           "Houston",
-					State:          "TX",
-					PostalCode:     "77083",
-					Country:        swag.String("US"),
+			Address: factory.BuildAddress(db, []factory.Customization{
+				{
+					Model: models.Address{
+						StreetAddress1: "1234 Over Here Street",
+						City:           "Houston",
+						State:          "TX",
+						PostalCode:     "77083",
+						Country:        models.StringPointer("US"),
+					},
 				},
-			}),
+			}, nil),
 			Email:        swag.String("old@email.com"),
 			FacilityName: "Storage R Us",
 			LotNumber:    &lotNumber,
@@ -5213,7 +5164,7 @@ func createApprovedMoveWithMinimalShipment(appCtx appcontext.AppContext, userUpl
 
 	// requestedPickupDate := time.Now().AddDate(0, 3, 0)
 	// requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
-	pickupAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{})
+	pickupAddress := factory.BuildAddress(db, nil, nil)
 
 	shipmentFields := models.MTOShipment{
 		Status: models.MTOShipmentStatusApproved,
@@ -5225,7 +5176,7 @@ func createApprovedMoveWithMinimalShipment(appCtx appcontext.AppContext, userUpl
 
 	// Uncomment to create the shipment with a destination address
 	/*
-		destinationAddress := testdatagen.MakeAddress2(db, testdatagen.Assertions{})
+		destinationAddress := factory.BuildAddress(db, nil, []factory.Trait{factory.GetTraitAddress2})
 		shipmentFields.DestinationAddress = &destinationAddress
 		shipmentFields.DestinationAddressID = &destinationAddress.ID
 	*/
@@ -5335,31 +5286,35 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 	})
 
 	// Create an HHG MTO Shipment
-	pickupAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
-		Address: models.Address{
-			ID:             uuid.Must(uuid.NewV4()),
-			StreetAddress1: "2 Second St",
-			StreetAddress2: swag.String("Apt 2"),
-			StreetAddress3: swag.String("Suite B"),
-			City:           "Columbia",
-			State:          "SC",
-			PostalCode:     "29212",
-			Country:        swag.String("US"),
+	pickupAddress := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "2 Second St",
+				StreetAddress2: models.StringPointer("Apt 2"),
+				StreetAddress3: models.StringPointer("Suite B"),
+				City:           "Columbia",
+				State:          "SC",
+				PostalCode:     "29212",
+				Country:        models.StringPointer("US"),
+			},
 		},
-	})
+	}, nil)
 
-	destinationAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
-		Address: models.Address{
-			ID:             uuid.Must(uuid.NewV4()),
-			StreetAddress1: "2 Second St",
-			StreetAddress2: swag.String("Apt 2"),
-			StreetAddress3: swag.String("Suite B"),
-			City:           "Princeton",
-			State:          "NJ",
-			PostalCode:     "08540",
-			Country:        swag.String("US"),
+	destinationAddress := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "2 Second St",
+				StreetAddress2: models.StringPointer("Apt 2"),
+				StreetAddress3: models.StringPointer("Suite B"),
+				City:           "Princeton",
+				State:          "NJ",
+				PostalCode:     "08540",
+				Country:        models.StringPointer("US"),
+			},
 		},
-	})
+	}, nil)
 
 	hhgShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
@@ -7163,17 +7118,19 @@ func createMoveWithBasicServiceItems(appCtx appcontext.AppContext, userUploader 
 
 func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
-	address := testdatagen.MakeAddress(db, testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "2 Second St",
-			StreetAddress2: swag.String("Apt 2"),
-			StreetAddress3: swag.String("Suite B"),
-			City:           "Columbia",
-			State:          "SC",
-			PostalCode:     "29212",
-			Country:        swag.String("US"),
+	address := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "2 Second St",
+				StreetAddress2: models.StringPointer("Apt 2"),
+				StreetAddress3: models.StringPointer("Suite B"),
+				City:           "Columbia",
+				State:          "SC",
+				PostalCode:     "29212",
+				Country:        models.StringPointer("US"),
+			},
 		},
-	})
+	}, nil)
 
 	newDutyLocation := testdatagen.MakeDutyLocation(db, testdatagen.Assertions{
 		DutyLocation: models.DutyLocation{
@@ -7234,7 +7191,7 @@ func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -7293,7 +7250,7 @@ func createNeedsServicesCounselingWithoutCompletedOrders(appCtx appcontext.AppCo
 
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -7345,7 +7302,7 @@ func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string,
 	// Makes a basic HHG shipment to reflect likely real scenario
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -7384,7 +7341,7 @@ func createNeedsServicesCounselingSingleHHG(appCtx appcontext.AppContext, orders
 	// Makes a basic HHG shipment to reflect likely real scenario
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -7422,7 +7379,7 @@ func createNeedsServicesCounselingMinimalNTSR(appCtx appcontext.AppContext, orde
 
 	// Makes a basic NTS-R shipment with minimal info.
 	requestedDeliveryDate := time.Now().AddDate(0, 0, 14)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
 	testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -8148,7 +8105,7 @@ func createMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator stri
 	// Makes a basic HHG shipment to reflect likely real scenario
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -8194,7 +8151,7 @@ func createMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator str
 	// Makes a basic HHG shipment to reflect likely real scenario
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{

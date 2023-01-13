@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -207,10 +208,10 @@ func (suite *EventServiceSuite) TestAssembleOrderPayload() {
 func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 	suite.Run("Non-external shipment returns payload with all associations", func() {
 		// Setup test data
-		pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
-		secondaryPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
-		destinationAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
-		secondaryDeliveryAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
 
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{

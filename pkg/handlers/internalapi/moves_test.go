@@ -21,6 +21,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -419,15 +420,17 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 }
 
 func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
-	dutyLocationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "Fort Gordon",
-			City:           "Augusta",
-			State:          "GA",
-			PostalCode:     "30813",
-			Country:        swag.String("United States"),
+	dutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "Fort Gordon",
+				City:           "Augusta",
+				State:          "GA",
+				PostalCode:     "30813",
+				Country:        models.StringPointer("United States"),
+			},
 		},
-	})
+	}, nil)
 
 	dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
 		DutyLocation: models.DutyLocation{
@@ -446,15 +449,17 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		},
 	})
 
-	newDutyLocationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "n/a",
-			City:           "San Antonio",
-			State:          "TX",
-			PostalCode:     "78234",
-			Country:        swag.String("United States"),
+	newDutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "n/a",
+				City:           "San Antonio",
+				State:          "TX",
+				PostalCode:     "78234",
+				Country:        models.StringPointer("United States"),
+			},
 		},
-	})
+	}, nil)
 
 	newDutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
 		DutyLocation: models.DutyLocation{

@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/factory"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -39,18 +39,18 @@ func (suite *AuditSuite) TestContextFunctions() {
 		suite.Equal(eventName, returnedEventName)
 	})
 
-	suite.Run("WithAuditUser returns context with audit user", func() {
-		var emptyUser models.User
+	suite.Run("WithAuditUserID returns context with audit user", func() {
+		var nilUUID uuid.UUID
 		user := factory.BuildDefaultUser(suite.DB())
 		context := context.Background()
 
-		// If nothing is added to the context an empty user should be returned
-		returnedEmptyUser := RetrieveAuditUserFromContext(context)
-		suite.Equal(emptyUser, returnedEmptyUser)
+		// If nothing is added to the context an empty userID should be returned
+		returnedNilUserID := RetrieveAuditUserIDFromContext(context)
+		suite.Equal(nilUUID, returnedNilUserID)
 
-		// If an audit user is added to the context that audit user should be returned
-		context = WithAuditUser(context, user)
-		returnedUser := RetrieveAuditUserFromContext(context)
-		suite.Equal(user, returnedUser)
+		// If an auditUserID is added to the context that auditUserID should be returned
+		context = WithAuditUserID(context, user.ID)
+		returnedUserID := RetrieveAuditUserIDFromContext(context)
+		suite.Equal(user.ID, returnedUserID)
 	})
 }

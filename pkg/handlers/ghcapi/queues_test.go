@@ -10,6 +10,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -778,10 +779,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-		RoleType: roles.RoleTypeTIO,
-	})
+	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -1207,15 +1205,17 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	})
 
 	// Create a move with an origin duty location outside of office user GBLOC
-	dutyLocationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "Fort Gordon",
-			City:           "Augusta",
-			State:          "GA",
-			PostalCode:     "30813",
-			Country:        swag.String("United States"),
+	dutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "Fort Gordon",
+				City:           "Augusta",
+				State:          "GA",
+				PostalCode:     "30813",
+				Country:        models.StringPointer("United States"),
+			},
 		},
-	})
+	}, nil)
 
 	originDutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
 		DutyLocation: models.DutyLocation{
@@ -1365,10 +1365,10 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 
 	suite.Run("responds with forbidden error when user is not an office user", func() {
 		subtestData := suite.makeServicesCounselingSubtestData()
-		ppmOfficeUser := testdatagen.MakePPMOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		user := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
 		request := httptest.NewRequest("GET", "/queues/counseling", nil)
-		request = suite.AuthenticateOfficeRequest(request, ppmOfficeUser)
+		request = suite.AuthenticateOfficeRequest(request, user)
 
 		params := queues.GetServicesCounselingQueueParams{
 			HTTPRequest: request,

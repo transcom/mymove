@@ -722,6 +722,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// start each server:
 	//
+	// * healthServer that is only for health checks
 	// * noTLSServer that is not listening on TLS. This server is
 	//   generally only run in local development environments
 	// * tlsServer that does listen using TLS. This server is run in
@@ -730,11 +731,33 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	//   server handles prime API requests
 	//
 	// However, you will note that for historical reasons, each server
-	// has the entire routing setup for all servers. It's thus the
-	// responsibility of routing config and middleware to prevent the
-	// server from responding to the wrong requests. The ideal would
-	// be for each server to have separate routing config to limit the
-	// options.
+	// (other than the healthServer) has the entire routing setup for
+	// all servers. It's thus the responsibility of routing config and
+	// middleware to prevent the server from responding to the wrong
+	// requests. The ideal would be for each server to have separate
+	// routing config to limit the options.
+
+	// see cmd/milmove/health.go for more rationale about why a
+	// separate thread for a health listener was chosen
+	healthEnabled := v.GetBool(cli.HealthListenerFlag)
+	var healthServer *server.NamedServer
+	if healthEnabled {
+		healthSite, herr := routing.InitHealthRouting(appCtx, redisPool, routingConfig)
+		if herr != nil {
+			return herr
+		}
+		healthServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
+			Name:        "health",
+			Host:        "127.0.0.1", // health server is always localhost only
+			Port:        v.GetInt(cli.HealthPortFlag),
+			Logger:      logger,
+			HTTPHandler: otelhttp.NewHandler(healthSite, "health", otelHTTPOptions...),
+		})
+		if err != nil {
+			logger.Fatal("error creating health server", zap.Error(err))
+		}
+		go startListener(healthServer, logger, false)
+	}
 
 	noTLSEnabled := v.GetBool(cli.NoTLSListenerFlag)
 	var noTLSServer *server.NamedServer
@@ -837,6 +860,14 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		wg.Add(1)
 		go func() {
 			shutdownErrors.Store(mutualTLSServer, mutualTLSServer.Shutdown(ctx))
+			wg.Done()
+		}()
+	}
+
+	if healthEnabled {
+		wg.Add(1)
+		go func() {
+			shutdownErrors.Store(healthServer, healthServer.Shutdown(ctx))
 			wg.Done()
 		}()
 	}

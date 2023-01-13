@@ -150,7 +150,9 @@ describe('DocumentViewer component', () => {
 
     const docContent = screen.getByTestId('DocViewerContent');
 
-    expect(docContent.textContent).toEqual('.zip is not supported.');
+    expect(docContent.textContent).toEqual(
+      'No preview available for this kind of file.Download file to see the contents.',
+    );
   });
 
   it('displays file not found for empty files array', async () => {

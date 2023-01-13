@@ -50,7 +50,6 @@ export const servicesCounselingRoutes = {
   CUSTOMER_INFO_EDIT_PATH: `${BASE_MOVE_PATH}/customer`,
   MOVE_VIEW_PATH: `${BASE_MOVE_PATH}/details`,
   ORDERS_EDIT_PATH: `${BASE_MOVE_PATH}/orders`,
-  QUEUE_VIEW_PATH: '/counseling/queue',
   DEFAULT_QUEUE_PATH: '/',
   QUEUE_COUNSELING_PATH: '/counseling',
   QUEUE_CLOSEOUT_PATH: '/PPM-closeout',
@@ -59,6 +58,7 @@ export const servicesCounselingRoutes = {
   SHIPMENT_ADVANCE_PATH: `${BASE_MOVE_PATH}/shipments/:shipmentId/advance`,
   MOVE_HISTORY_PATH: `${BASE_MOVE_PATH}/history`,
   CUSTOMER_SUPPORT_REMARKS_PATH: `/counseling/moves/:moveCode/customer-support-remarks`,
+  SHIPMENT_REVIEW_PATH: `${BASE_MOVE_PATH}/shipments/:shipmentId/document-review`,
 };
 
 export const tioRoutes = {

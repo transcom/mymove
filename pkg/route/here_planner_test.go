@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -117,8 +117,8 @@ func (suite *HereFullSuite) SetupTest() {
 }
 
 func (suite *HereTestSuite) TestGeocodeResponses() {
-	address1 := testdatagen.MakeDefaultAddress(suite.DB())
-	address2 := testdatagen.MakeDefaultAddress(suite.DB())
+	address1 := factory.BuildAddress(suite.DB(), nil, nil)
+	address2 := factory.BuildAddress(suite.DB(), nil, nil)
 	// Given a HERE server that returns 400 geo codes
 	planner := suite.setupTestPlanner(testClient{
 		geoStatusCode: 400,

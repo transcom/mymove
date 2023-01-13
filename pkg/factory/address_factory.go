@@ -8,6 +8,9 @@ import (
 )
 
 // BuildAddress creates a single Address.
+// Params:
+// - customs is a slice that will be modified by the factory
+// - db can be set to nil to create a stubbed model that is not stored in DB.
 func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) models.Address {
 	customs = setupCustomizations(customs, traits)
 
