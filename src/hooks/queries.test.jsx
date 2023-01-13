@@ -250,7 +250,7 @@ jest.mock('services/ghcApi', () => ({
         violationID: '789',
       },
     ]),
-  getShipmentsPaymentSITBalance: () => {
+  getShipmentsPaymentSITBalance: () =>
     Promise.resolve({
       shipmentsPaymentSITBalance: {
         a1: {
@@ -263,8 +263,7 @@ jest.mock('services/ghcApi', () => ({
           totalSITEndDate: '2021-10-29',
         },
       },
-    });
-  },
+    }),
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -324,6 +323,7 @@ describe('usePaymentRequestQueries', () => {
       paymentRequests: undefined,
       paymentServiceItems: undefined,
       mtoShipments: undefined,
+      shipmentsPaymentSITBalance: undefined,
       isLoading: true,
       isError: false,
       isSuccess: false,
@@ -385,6 +385,17 @@ describe('usePaymentRequestQueries', () => {
           ],
         },
       ],
+      shipmentsPaymentSITBalance: {
+        a1: {
+          pendingBilledEndDate: '2021-08-29',
+          pendingSITDaysInvoiced: 30,
+          previouslyBilledDays: 0,
+          shipmentID: 'a1',
+          totalSITDaysAuthorized: 90,
+          totalSITDaysRemaining: 60,
+          totalSITEndDate: '2021-10-29',
+        },
+      },
       isLoading: false,
       isError: false,
       isSuccess: true,
@@ -828,7 +839,7 @@ describe('useEvaluationReportQueries', () => {
       isSuccess: false,
     });
 
-    await waitFor( () => result.current.isSuccess);
+    await waitFor(() => result.current.isSuccess);
 
     expect(result.current).toEqual({
       evaluationReport: { id: '1234', moveReferenceID: '4321', type: 'SHIPMENT', shipmentID: '123' },
