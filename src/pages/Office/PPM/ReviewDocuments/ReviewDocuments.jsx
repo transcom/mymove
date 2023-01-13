@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { queryCache } from 'react-query';
 import { Button } from '@trussworks/react-uswds';
 import { generatePath, useHistory, withRouter } from 'react-router-dom';
@@ -27,9 +27,12 @@ export const ReviewDocuments = ({ match }) => {
 
   const formRef = useRef();
 
-  // placeholder pro-gear tickets & expenses
-  const progearTickets = [];
-  const expenses = [];
+  useEffect(() => {
+    if (weightTickets) {
+      setNextEnabled(formRef.current.isValid);
+    }
+  }, [weightTickets, setNextEnabled]);
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -41,7 +44,10 @@ export const ReviewDocuments = ({ match }) => {
   });
 
   // TODO: select the documentSet from among weight tickets, pro gear, and expenses
-  const documentSet = weightTickets[documentSetIndex];
+  let documentSet;
+  if (weightTickets) {
+    documentSet = weightTickets[documentSetIndex];
+  }
 
   const onClose = () => {
     history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
@@ -95,7 +101,7 @@ export const ReviewDocuments = ({ match }) => {
           <ReviewWeightTicket
             weightTicket={documentSet}
             ppmNumber={1}
-            tripNumber={1}
+            tripNumber={documentSetIndex + 1}
             mtoShipment={mtoShipment}
             onError={onError}
             onSuccess={onSuccess}

@@ -20,13 +20,17 @@ const defaultProps = {
   ppmNumber: 1,
 };
 
+const baseWeightTicketProps = {
+  id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
+  ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
+  vehicleDescription: 'Kia Forte',
+  emptyWeight: 400,
+  fullWeight: 1200,
+};
+
 const missingWeightTicketProps = {
   weightTicket: {
-    id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
-    ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    vehicleDescription: 'Kia Forte',
-    emptyWeight: 400,
-    fullWeight: 1200,
+    ...baseWeightTicketProps,
     ownsTrailer: false,
     missingEmptyWeightTicket: true,
   },
@@ -34,12 +38,16 @@ const missingWeightTicketProps = {
 
 const weightTicketRequiredProps = {
   weightTicket: {
-    id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
-    ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    vehicleDescription: 'Kia Forte',
-    emptyWeight: 400,
-    fullWeight: 1200,
+    ...baseWeightTicketProps,
     ownsTrailer: false,
+  },
+};
+
+const claimableTrailerProps = {
+  weightTicket: {
+    ...baseWeightTicketProps,
+    ownsTrailer: true,
+    trailerMeetsCriteria: true,
   },
 };
 
@@ -88,6 +96,15 @@ describe('ReviewWeightTicket component', () => {
       });
       expect(screen.getByText('Empty constructed weight')).toBeInTheDocument();
       expect(screen.getByText('Full constructed weight')).toBeInTheDocument();
+    });
+
+    it('notifies the user when a trailer is claimable, and disables approval', async () => {
+      render(<ReviewWeightTicket {...defaultProps} {...claimableTrailerProps} />);
+      await waitFor(() => {
+        expect(screen.queryByText("Is the trailer's weight claimable?")).toBeInTheDocument();
+      });
+      expect(screen.queryByText('Proof of ownership is needed to accept this item.')).toBeInTheDocument();
+      expect(screen.getByLabelText('Accept')).toHaveAttribute('disabled');
     });
   });
 });
