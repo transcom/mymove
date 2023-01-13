@@ -156,7 +156,7 @@ const ShipmentForm = (props) => {
       advanceAmountRequested: mtoShipment.ppmShipment?.advanceAmountRequested,
       hasRequestedAdvance: mtoShipment.ppmShipment?.hasRequestedAdvance,
       isAdvancePage,
-      isArmyOrAirforce: showCloseoutOffice,
+      showCloseoutOffice,
     });
   } else {
     const shipmentOptions = getShipmentOptions(shipmentType, userRole);
