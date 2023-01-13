@@ -26,6 +26,7 @@ describe('Services counselor user', () => {
     cy.intercept('GET', '**/ghc/v1/orders/**').as('getOrders');
     cy.intercept('GET', '**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**').as('updateMTOShipments');
+    cy.intercept('PATCH', '**/ghc/v1/moves/**/closeout-office').as('updateCloseoutOffice');
     cy.intercept('POST', '**/ghc/v1/mto-shipments').as('createShipment');
     cy.intercept('GET', '**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
 
@@ -44,10 +45,18 @@ describe('Services counselor user', () => {
     cy.wait(['@getMTOShipments', '@getMoves', '@getOrders']);
 
     fillOutSitExpected();
+    cy.selectDutyLocation('JPPSO NORTHWEST', 'closeoutOffice');
 
     // Submit page 1 of form
     cy.get('[data-testid="submitForm"]').should('be.enabled').click();
-    cy.wait(['@updateMTOShipments', '@getMTOShipments', '@getMoves', '@getOrders', '@getMTOServiceItems']);
+    cy.wait([
+      '@updateMTOShipments',
+      '@updateCloseoutOffice',
+      '@getMTOShipments',
+      '@getMoves',
+      '@getOrders',
+      '@getMTOServiceItems',
+    ]);
 
     // Verify SIT info
     cy.contains('Government constructed cost: $326');
