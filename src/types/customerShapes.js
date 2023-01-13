@@ -2,6 +2,7 @@ import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 
 import { AddressShape } from 'types/address';
 import { DutyLocationShape } from 'types/dutyLocation';
+import { TransportationOfficeShape } from './user';
 
 export const WeightAllotment = shape({
   total_weight_self: number.isRequired,
@@ -34,6 +35,7 @@ export const MoveShape = shape({
   locator: string,
   selected_move_type: string,
   status: string,
+  closeout_office: TransportationOfficeShape,
 });
 
 export const UploadShape = shape({
