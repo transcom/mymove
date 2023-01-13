@@ -3,6 +3,7 @@ import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
 import { v4 } from 'uuid';
+import moment from 'moment';
 
 import About from 'pages/MyMove/PPM/Closeout/About/About';
 import { selectMTOShipmentById } from 'store/entities/selectors';
@@ -11,6 +12,7 @@ import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { MockProviders } from 'testUtils';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 
 const mockMoveId = v4();
 const mockMTOShipmentId = v4();
@@ -34,24 +36,43 @@ jest.mock('services/internalApi', () => ({
   getResponseError: jest.fn(),
 }));
 
+const mtoShipmentCreatedDate = new Date();
+const ppmShipmentCreatedDate = moment(mtoShipmentCreatedDate).add(5, 'seconds');
+const approvedDate = moment(ppmShipmentCreatedDate).add(2, 'days');
+
 const mockMTOShipment = {
   id: mockMTOShipmentId,
   shipmentType: SHIPMENT_OPTIONS.PPM,
+  status: shipmentStatuses.APPROVED,
+  moveTaskOrderId: mockMoveId,
   ppmShipment: {
     id: mockPPMShipmentId,
+    shipmentId: mockMTOShipmentId,
+    status: ppmShipmentStatuses.WAITING_ON_CUSTOMER,
     pickupPostalCode: '10001',
     destinationPostalCode: '10002',
     expectedDepartureDate: '2022-04-30',
-    advanceRequested: true,
-    advance: 598700,
+    hasRequestedAdvance: true,
+    advanceAmountRequested: 598700,
     estimatedWeight: 4000,
     estimatedIncentive: 1000000,
     sitExpected: false,
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
+    actualMoveDate: null,
+    actualPickupPostalCode: null,
+    actualDestinationPostalCode: null,
+    hasReceivedAdvance: null,
+    advanceAmountReceived: null,
+    weightTickets: [],
+    createdAt: ppmShipmentCreatedDate.toISOString(),
+    updatedAt: approvedDate.toISOString(),
+    eTag: window.btoa(approvedDate.toISOString()),
   },
-  eTag: 'dGVzdGluZzIzNDQzMjQ',
+  createdAt: mtoShipmentCreatedDate.toISOString(),
+  updatedAt: approvedDate.toISOString(),
+  eTag: window.btoa(approvedDate.toISOString()),
 };
 
 const partialPayload = {
@@ -70,7 +91,7 @@ const partialPayload = {
 };
 
 const mockPayload = {
-  shipmentType: 'PPM',
+  shipmentType: SHIPMENT_OPTIONS.PPM,
   ppmShipment: {
     id: mockPPMShipmentId,
     ...partialPayload,
