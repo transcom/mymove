@@ -16,8 +16,8 @@ export const createMockHistory = (initialEntries) => {
   return createMemoryHistory({ initialEntries });
 };
 
-export const ReactQueryWrapper = ({ children }) => {
-  const queryClient = new QueryClient();
+export const ReactQueryWrapper = ({ children, client }) => {
+  const queryClient = client || new QueryClient();
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
 
