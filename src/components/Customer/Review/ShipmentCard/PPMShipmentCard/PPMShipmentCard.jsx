@@ -11,6 +11,7 @@ import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { getShipmentTypeLabel, isArmyOrAirForce } from 'utils/shipmentDisplay';
 import affiliations from 'content/serviceMemberAgencies';
+import { MoveShape } from 'types/customerShapes';
 
 const PPMShipmentCard = ({
   move,
@@ -139,7 +140,7 @@ PPMShipmentCard.propTypes = {
   showEditAndDeleteBtn: bool.isRequired,
   onEditClick: func,
   onDeleteClick: func,
-  move: shape({}),
+  move: MoveShape,
   affiliation: oneOf(Object.values(affiliations)),
 };
 
