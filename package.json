@@ -14,7 +14,7 @@
     "core-js": "^3.27.1",
     "customize-cra": "^1.0.0",
     "deep-object-diff": "^1.1.9",
-    "eslint-plugin-react": "^7.31",
+    "eslint-plugin-react": "^7.32",
     "filepond": "^4.30.4",
     "filepond-plugin-file-validate-size": "^2.2.8",
     "filepond-plugin-file-validate-type": "^1.2.8",
