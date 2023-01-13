@@ -210,7 +210,6 @@ const ShipmentForm = (props) => {
         body: ppmShipmentBody,
         locator: move.locator,
         moveETag: move.eTag,
-        closeoutOfficeId: formValues.closeoutOffice.id, // TODO probably unused
       };
 
       const payload = {
