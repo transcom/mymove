@@ -51,7 +51,7 @@ test.describe('Office authorization', () => {
     await officePage.signInAsNewServicesCounselorUser();
     await expect(page.getByText('Moves')).toBeVisible();
     await expect(page.getByRole('link', { name: 'Counseling' })).toBeVisible();
-    expect(new URL(page.url()).pathname).toBe('/');
+    expect(new URL(page.url()).pathname).toBe('/counseling');
   });
 
   // test('redirects PPM office user to old office queue', async ({page}) => {
