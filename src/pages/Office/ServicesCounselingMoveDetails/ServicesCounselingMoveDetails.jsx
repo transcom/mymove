@@ -47,7 +47,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
 
-  const { order, customerAgency, move, ppmMove, mtoShipments, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { order, customerAgency, move, closeoutOffice, mtoShipments, isLoading, isError } =
+    useMoveDetailsQueries(moveCode);
   const { customer, entitlement: allowances } = order;
 
   let counselorCanEdit;
@@ -123,7 +124,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
           postalCode: order.destinationDutyLocation.address.postalCode,
         },
         agency: customerAgency,
-        closeoutOffice: ppmMove,
+        closeoutOffice,
         ...shipment,
         displayDestinationType: isRetirementOrSeparation,
       };

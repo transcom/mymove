@@ -40,8 +40,6 @@ const ShipmentDisplay = ({
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
 
-  // console.log(displayInfo);
-
   const disableApproval = errorIfMissing.some((requiredInfo) => !displayInfo[requiredInfo]);
 
   const handleExpandClick = () => {
