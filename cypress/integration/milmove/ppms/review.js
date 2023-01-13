@@ -20,6 +20,21 @@ const fullPPMShipmentFields = [
   ['Second origin ZIP', '90211'],
   ['Destination ZIP', '30813'],
   ['Second destination ZIP', '30814'],
+  ['Closeout office', 'Los Angeles AFB'],
+  ['Storage expected? (SIT)', 'No'],
+  ['Estimated weight', '4,000 lbs'],
+  ['Pro-gear', 'Yes, 1,987 lbs'],
+  ['Spouse pro-gear', 'Yes, 498 lbs'],
+  ['Estimated incentive', '$10,000'],
+  ['Advance requested?', 'Yes, $5,987'],
+];
+
+const missingCloseoutPPMShipmentFields = [
+  ['Expected departure', '15 Mar 2020'],
+  ['Origin ZIP', '90210'],
+  ['Second origin ZIP', '90211'],
+  ['Destination ZIP', '30813'],
+  ['Second destination ZIP', '30814'],
   ['Storage expected? (SIT)', 'No'],
   ['Estimated weight', '4,000 lbs'],
   ['Pro-gear', 'Yes, 1,987 lbs'],
