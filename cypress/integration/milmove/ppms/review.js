@@ -96,7 +96,7 @@ describe('PPM Onboarding - Review', function () {
       navigateToAgreementAndSign();
       submitMove('@signedCertifications');
       navigateFromHomePageToReviewPage(true);
-      verifyPPMShipmentCard(missingCloseoutPPMShipmentFields, false);
+      verifyPPMShipmentCard(fullPPMShipmentFields, false);
       navigateFromReviewPageToHomePage();
     });
   });

@@ -156,6 +156,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"SignedCertifications",
 		"Orders.ServiceMember",
 		"Orders.UploadedAmendedOrders",
+		"CloseoutOffice",
 	).Where("show = TRUE").Find(&move, id)
 
 	if err != nil {
