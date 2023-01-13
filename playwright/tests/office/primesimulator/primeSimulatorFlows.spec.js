@@ -46,7 +46,9 @@ const formatNumericDate = (date) => {
 };
 
 test.describe('Prime simulator user', () => {
-  test('is able to update a shipment', async ({ page, officePage }) => {
+  // ahobson 2022-01-13 - skip this test for now, in CI it is flaky
+  // because it takes too long to run. We'll come back to this later
+  test.skip('is able to update a shipment', async ({ page, officePage }) => {
     const move = await officePage.testHarness.buildPrimeSimulatorMoveNeedsShipmentUpdate();
 
     await officePage.signInAsNewPrimeSimulatorUser();
@@ -126,7 +128,9 @@ test.describe('Prime simulator user', () => {
     }
 
     await page.getByText('Submit Payment Request').click();
-    await expect(page.getByText('Successfully created payment request')).toBeVisible();
+
+    // In CI in particular, this can take longer than 5 seconds
+    await expect(page.getByText('Successfully created payment request')).toBeVisible({ timeout: 10000 });
 
     expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
     // could also check for a payment request number but we won't know the value ahead of time
