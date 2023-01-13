@@ -166,7 +166,7 @@ const ShipmentForm = (props) => {
   const editOrdersRoute = isTOO ? tooRoutes.ORDERS_EDIT_PATH : servicesCounselingRoutes.ORDERS_EDIT_PATH;
   const editOrdersPath = generatePath(editOrdersRoute, { moveCode });
 
-  const submitMTOShipment = async (formValues) => {
+  const submitMTOShipment = (formValues) => {
     //* PPM Shipment *//
 
     if (isPPM) {

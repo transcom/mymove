@@ -2,6 +2,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { debug } from 'jest-preview';
 
 import ShipmentForm from './ShipmentForm';
 
@@ -48,6 +49,7 @@ const defaultProps = {
   mtoShipments: [],
   userRole: roleTypes.SERVICES_COUNSELOR,
   orderType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+  isForServivcesCounseling: false,
 };
 
 const mockMtoShipment = {
@@ -506,7 +508,13 @@ describe('ShipmentForm component', () => {
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalledWith(
-          expect.objectContaining({ body: expect.objectContaining({ tacType: 'NTS', sacType: '' }) }),
+          expect.objectContaining({
+            body: expect.objectContaining({ tacType: 'NTS', sacType: '' }),
+          }),
+          expect.objectContaining({
+            onError: expect.any(Function),
+            onSuccess: expect.any(Function),
+          }),
         );
       });
     });
@@ -539,6 +547,10 @@ describe('ShipmentForm component', () => {
         expect(mockSubmitHandler).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.not.objectContaining({ tacType: expect.any(String), sacType: expect.any(String) }),
+          }),
+          expect.objectContaining({
+            onError: expect.any(Function),
+            onSuccess: expect.any(Function),
           }),
         );
       });
@@ -646,18 +658,10 @@ describe('ShipmentForm component', () => {
 
   describe('filling the form', () => {
     it('shows an error if the submitHandler returns an error', async () => {
-      const mockSubmitHandler = jest.fn(() =>
-        // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
-        // eslint-disable-next-line prefer-promise-reject-errors
-        Promise.reject({
-          message: 'A server error occurred editing the shipment details',
-          response: {
-            body: {
-              detail: 'A server error occurred editing the shipment details',
-            },
-          },
-        }),
-      );
+      const mockSubmitHandler = jest.fn((payload, { onError }) => {
+        // fire onError handler on form
+        onError();
+      });
 
       render(
         <MockProviders>
@@ -674,6 +678,7 @@ describe('ShipmentForm component', () => {
       const saveButton = screen.getByRole('button', { name: 'Save' });
 
       expect(saveButton).not.toBeDisabled();
+      debug();
 
       await userEvent.click(saveButton);
 
@@ -750,7 +755,6 @@ describe('ShipmentForm component', () => {
           />
         </MockProviders>,
       );
-
       const counselorRemarks = await screen.findByLabelText('Counselor remarks');
 
       await userEvent.clear(counselorRemarks);
@@ -758,13 +762,15 @@ describe('ShipmentForm component', () => {
       await userEvent.type(counselorRemarks, newCounselorRemarks);
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
-
       expect(saveButton).not.toBeDisabled();
 
       await userEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockSubmitHandler).toHaveBeenCalledWith(expectedPayload);
+        expect(mockSubmitHandler).toHaveBeenCalledWith(expectedPayload, {
+          onSuccess: expect.any(Function),
+          onError: expect.any(Function),
+        });
       });
     });
   });
@@ -890,6 +896,9 @@ describe('ShipmentForm component', () => {
               ppmShipment: expect.objectContaining({ hasRequestedAdvance: true, advanceAmountRequested: 487500 }),
             }),
           }),
+          expect.objectContaining({
+            onSuccess: expect.any(Function),
+          }),
         );
       });
     });
@@ -942,6 +951,9 @@ describe('ShipmentForm component', () => {
               counselorRemarks: 'retirees are not given advances',
               ppmShipment: expect.objectContaining({ hasRequestedAdvance: false }),
             }),
+          }),
+          expect.objectContaining({
+            onSuccess: expect.any(Function),
           }),
         );
       });
