@@ -731,7 +731,7 @@ commands:
             make db_dev_create
             bin/milmove migrate
             # playwright tests DO NOT NEED SEED DATA
-            bin/milmove serve 2>&1 | fmt
+            bin/milmove serve 2>&1 | tee server.log | fmt
       - run:
           name: wait for server
           command: |
@@ -754,6 +754,14 @@ commands:
             --shard="${SHARD}/${CIRCLE_NODE_TOTAL}"
       - store_artifacts:
           path: playwright-report
+      - run:
+          name: create playwright report archive for download
+          command: |
+            zip -r playwright-report.zip playwright-report
+      - store_artifacts:
+          path: playwright-report.zip
+      - store_artifacts:
+          path: server.log
       - store_test_results:
           path: playwright-results.xml
 
