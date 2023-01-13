@@ -1,8 +1,9 @@
-import { arrayOf, bool, func, number, shape, string } from 'prop-types';
+import { arrayOf, bool, func, number, string } from 'prop-types';
 
+import { TransportationOfficeShape } from './user';
 import { AddressShape } from 'types/address';
 import { DutyLocationShape } from 'types/dutyLocation';
-import { TransportationOfficeShape } from './user';
+
 
 export const WeightAllotment = shape({
   total_weight_self: number.isRequired,
