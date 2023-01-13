@@ -291,6 +291,7 @@ const ShipmentForm = (props) => {
     }
     // Edit MTO as Service Counselor
     else if (isForServicesCounseling) {
+      // error handling handled in parent components
       submitHandler(updateMTOShipmentPayload, {
         onSuccess: () => {
           history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
