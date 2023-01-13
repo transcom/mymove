@@ -298,6 +298,7 @@ const ShipmentForm = (props) => {
         });
     } else if (isForServicesCounseling) {
       // routing and error handling handled in parent components
+      // TODO is this still true? do we need to do routing here?
       submitHandler({ shipment: updateMTOShipmentPayload });
     } else {
       submitHandler({ shipment: updateMTOShipmentPayload })
