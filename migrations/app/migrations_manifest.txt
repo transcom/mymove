@@ -781,3 +781,6 @@
 20230105211952_app_demo_cert_migration.up.sql
 20230106201854_app_loadtest_cert_migration.up.sql
 20230106211757_app_exp_cert_migration.up.sql
+20230106220242_create_new_schemas.up.sql
+20230106220247_move_security_role_tables_to_secure_schema.up.sql
+20230109195101_set-search-path-order.up.sql
