@@ -173,10 +173,10 @@ func (c *Config) AuditableAppContextFromRequestBasicHandler(
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		appCtx := c.AppContextFromRequest(r)
 		err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			auditUser := audit.RetrieveAuditUserFromContext(r.Context())
+			auditUserID := audit.RetrieveAuditUserIDFromContext(r.Context())
 			// not sure why, but using RawQuery("SET LOCAL foo = ?",
 			// thing) did not work
-			err := txnAppCtx.DB().RawQuery("SET LOCAL audit.current_user_id = '" + auditUser.ID.String() + "'").Exec()
+			err := txnAppCtx.DB().RawQuery("SET LOCAL audit.current_user_id = '" + auditUserID.String() + "'").Exec()
 			if err != nil {
 				return err
 			}
