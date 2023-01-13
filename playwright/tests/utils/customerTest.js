@@ -1,5 +1,8 @@
-// customer test fixture for playwright
-// See https://playwright.dev/docs/test-fixtures
+/**
+ * customer test fixture for playwright
+ * Using javascript classes following the examples in
+ * <https://playwright.dev/docs/test-fixtures>
+ */
 // @ts-check
 const base = require('@playwright/test');
 
