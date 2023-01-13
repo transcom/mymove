@@ -126,7 +126,9 @@ test.describe('Prime simulator user', () => {
     }
 
     await page.getByText('Submit Payment Request').click();
-    await expect(page.getByText('Successfully created payment request')).toBeVisible();
+
+    // In CI in particular, this can take longer than 5 seconds
+    await expect(page.getByText('Successfully created payment request')).toBeVisible({ timeout: 10000 });
 
     expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
     // could also check for a payment request number but we won't know the value ahead of time
