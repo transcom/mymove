@@ -678,6 +678,11 @@ commands:
         # xlarge has 8 CPUs, reserve 2 CPUs for server and postgres
         default: 6
     steps:
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - run:
           name: setup hosts
           command: |
@@ -693,17 +698,18 @@ commands:
             MIGRATION_MANIFEST: '/home/circleci/project/migrations/app/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/project/migrations/app/schema;file:///home/circleci/project/migrations/app/secure'
           command: |
-            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)' >> $BASH_ENV
-            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
-            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-            echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
-            echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
+            export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)
+            export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
+            export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
+            export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)
+            export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+            export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
+            export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
             # pull in review app settings here so we don't have to
             # reproduce them
-            sed 's,^,export ,' config/env/review.app.env >> $BASH_ENV
-            source $BASH_ENV
+            sed 's,^,export ,' config/env/review.app.env > server_env
+            source server_env
+
             # now do a few overrides
             export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
             export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
@@ -719,13 +725,12 @@ commands:
             export HTTP_OFFICE_SERVER_NAME=officelocal
             export HTTP_ORDERS_SERVER_NAME=orderslocal
             export HTTP_PRIME_SERVER_NAME=primelocal
-            export DTOD_USE_MOCK=true
             export ENVIRONMENT=test
 
             make db_dev_create
             bin/milmove migrate
             # playwright tests DO NOT NEED SEED DATA
-            bin/milmove serve | fmt 2>&1 -t
+            bin/milmove serve 2>&1 | fmt
       - run:
           name: wait for server
           command: |
@@ -1070,11 +1075,6 @@ jobs:
     executor: milmove_playwright_tester
     parallelism: 2
     steps:
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - e2e_tests_playwright
       # at some point
       # - announce_failure
