@@ -283,3 +283,25 @@ func (suite *ModelSuite) TestFetchMoveByOrderID() {
 		suite.Equal(move.ID, ts.resultID, "Wrong moveID: %s", ts.lookupID)
 	}
 }
+
+func (suite *ModelSuite) TestMoveIsPPMOnly() {
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	isPPMOnly := move.IsPPMOnly()
+	suite.False(isPPMOnly, "A move with no shipments will return false for isPPMOnly.")
+
+	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{
+		MTOShipment: MTOShipment{
+			ShipmentType: MTOShipmentTypePPM,
+		},
+	})
+	isPPMOnly = move.IsPPMOnly()
+	suite.True(isPPMOnly, "A move with only PPM shipments will return true for isPPMOnly")
+
+	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{
+		MTOShipment: MTOShipment{
+			ShipmentType: MTOShipmentTypeHHG,
+		},
+	})
+	isPPMOnly = move.IsPPMOnly()
+	suite.False(isPPMOnly, "A move with one PPM shipment and one HHG shipment will return false for isPPMOnly.")
+}
