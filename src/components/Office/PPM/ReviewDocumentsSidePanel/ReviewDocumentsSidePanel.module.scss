@@ -39,7 +39,7 @@
     border-top: 1px solid #dcdee0;
     padding: 12px 8px;
     h3 {
-      @include u-font-size('body', 'md');
+      @include u-font-size('body', 'xs');
       @include u-margin-bottom(0);
       font-weight: normal;
       width: 220px;
@@ -47,6 +47,8 @@
 
     span {
       font-weight: bold;
+      @include u-font-size('body', 'xs');
+      color: $base-darker;
     }
 
     .iconRow {
