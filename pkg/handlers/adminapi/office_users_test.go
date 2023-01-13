@@ -10,6 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/factory"
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -145,7 +146,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		// Test:				CreateOfficeUserHandler, Fetcher
 		// Set up:				Create a new Office User, save new user to the DB
 		// Expected Outcome:	The office user is created and we get a 200 OK.
-		transportationOfficeID := testdatagen.MakeDefaultTransportationOffice(suite.DB()).ID
+		transportationOfficeID := factory.BuildDefaultTransportationOffice(suite.DB()).ID
 
 		params := officeuserop.CreateOfficeUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/office_users"),
@@ -243,7 +244,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 
 	suite.Run("Office user is successfully updated", func() {
 		officeUser := setupTestData()
-		transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{Stub: true})
+		transportationOffice := factory.BuildTransportationOffice(nil, nil, nil)
 		firstName := "Riley"
 		middleInitials := "RB"
 		telephone := "865-555-5309"

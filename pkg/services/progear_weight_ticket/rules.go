@@ -23,7 +23,27 @@ func checkID() progearWeightTicketValidator {
 	})
 }
 
-func checkRequiredFields() progearWeightTicketValidator {
+func checkBaseRequiredFields() progearWeightTicketValidator {
+	return progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, newProgearWeightTicket *models.ProgearWeightTicket, oldProgearWeightTicket *models.ProgearWeightTicket) error {
+		verrs := validate.NewErrors()
+
+		if newProgearWeightTicket == nil {
+			return verrs
+		}
+
+		if newProgearWeightTicket.PPMShipmentID.IsNil() {
+			verrs.Add("PPMShipmentID", "PPMShipmentID must exist")
+		}
+
+		if newProgearWeightTicket.Document.ServiceMemberID.IsNil() {
+			verrs.Add("ServiceMemberID", "Document ServiceMemberID must exist")
+		}
+
+		return verrs
+	})
+}
+
+func checkAdditionalRequiredFields() progearWeightTicketValidator {
 	return progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, newProgearWeightTicket *models.ProgearWeightTicket, oldProgearWeightTicket *models.ProgearWeightTicket) error {
 		verrs := validate.NewErrors()
 
@@ -47,34 +67,6 @@ func checkRequiredFields() progearWeightTicketValidator {
 			verrs.Add("Document", "At least 1 weight ticket is required")
 		}
 
-		if newProgearWeightTicket.Status != nil {
-			if (*newProgearWeightTicket.Status == models.PPMDocumentStatusExcluded || *newProgearWeightTicket.Status == models.PPMDocumentStatusRejected) && (newProgearWeightTicket.Reason == nil || *newProgearWeightTicket.Reason == "") {
-				verrs.Add("Reason", "A reason must be provided when the status is EXCLUDED or REJECTED")
-			}
-		} else if newProgearWeightTicket.Status == nil && (newProgearWeightTicket.Reason != nil && *newProgearWeightTicket.Reason != "") {
-			verrs.Add("Status", "A Status is expected when a reason has been provided")
-		}
-
-		return verrs
-	})
-}
-
-func checkCreateRequiredFields() progearWeightTicketValidator {
-	return progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, newProgearWeightTicket *models.ProgearWeightTicket, oldProgearWeightTicket *models.ProgearWeightTicket) error {
-		verrs := validate.NewErrors()
-
-		if newProgearWeightTicket == nil {
-			return verrs
-		}
-
-		if newProgearWeightTicket.PPMShipmentID.IsNil() {
-			verrs.Add("PPMShipmentID", "PPMShipmentID must exist")
-		}
-
-		if newProgearWeightTicket.Document.ServiceMemberID.IsNil() {
-			verrs.Add("ServiceMemberID", "Document ServiceMemberID must exist")
-		}
-
 		return verrs
 	})
 }
@@ -84,19 +76,18 @@ func verifyReasonAndStatusAreConstant() progearWeightTicketValidator {
 	return progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, newProgearWeightTicket *models.ProgearWeightTicket, originalProgearWeightTicket *models.ProgearWeightTicket) error {
 		verrs := validate.NewErrors()
 
-		if newProgearWeightTicket == nil || originalProgearWeightTicket == nil {
-			return verrs
-		}
-
-		if originalProgearWeightTicket.Status == nil && newProgearWeightTicket.Status != nil {
-			verrs.Add("Status", "status cannot be modified")
-		} else if originalProgearWeightTicket.Status != nil && newProgearWeightTicket.Status != nil && *originalProgearWeightTicket.Status != *newProgearWeightTicket.Status {
+		if (originalProgearWeightTicket.Status == nil && newProgearWeightTicket.Status != nil) ||
+			(originalProgearWeightTicket.Status != nil && newProgearWeightTicket.Status == nil) ||
+			(originalProgearWeightTicket.Status != nil && newProgearWeightTicket.Status != nil && *originalProgearWeightTicket.Status != *newProgearWeightTicket.Status) {
 			verrs.Add("Status", "status cannot be modified")
 		}
 
-		if originalProgearWeightTicket.Reason != newProgearWeightTicket.Reason {
+		if (originalProgearWeightTicket.Reason == nil && newProgearWeightTicket.Reason != nil) ||
+			(originalProgearWeightTicket.Reason != nil && newProgearWeightTicket.Reason == nil) ||
+			(originalProgearWeightTicket.Reason != nil && newProgearWeightTicket.Reason != nil && *originalProgearWeightTicket.Reason != *newProgearWeightTicket.Reason) {
 			verrs.Add("Reason", "reason cannot be modified")
 		}
+
 		return verrs
 	})
 }
@@ -105,22 +96,15 @@ func verifyReasonAndStatusAreValid() progearWeightTicketValidator {
 	return progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, newProgearWeightTicket *models.ProgearWeightTicket, originalProgearWeightTicket *models.ProgearWeightTicket) error {
 		verrs := validate.NewErrors()
 
-		if newProgearWeightTicket == nil || originalProgearWeightTicket == nil {
-			return verrs
-		}
-
 		if newProgearWeightTicket.Status != nil {
 			if *newProgearWeightTicket.Status == models.PPMDocumentStatusApproved && newProgearWeightTicket.Reason != nil {
-				verrs.Add("Reason", "reason must be blank if the status is Approved")
-			}
-
-			if (*newProgearWeightTicket.Status == models.PPMDocumentStatusExcluded || *newProgearWeightTicket.Status == models.PPMDocumentStatusRejected) && (newProgearWeightTicket.Reason == nil || len(*newProgearWeightTicket.Reason) <= 0) {
+				verrs.Add("Reason", "reason must not be set if the status is Approved")
+			} else if (*newProgearWeightTicket.Status == models.PPMDocumentStatusExcluded || *newProgearWeightTicket.Status == models.PPMDocumentStatusRejected) &&
+				(newProgearWeightTicket.Reason == nil || *newProgearWeightTicket.Reason == "") {
 				verrs.Add("Reason", "reason is mandatory if the status is Excluded or Rejected")
 			}
-		} else {
-			if newProgearWeightTicket.Reason != nil && len(*newProgearWeightTicket.Reason) > 0 {
-				verrs.Add("Reason", "reason should be empty")
-			}
+		} else if newProgearWeightTicket.Reason != nil {
+			verrs.Add("Reason", "reason should not be set if the status is not set")
 		}
 
 		return verrs
@@ -130,14 +114,15 @@ func verifyReasonAndStatusAreValid() progearWeightTicketValidator {
 func basicChecksForCreate() []progearWeightTicketValidator {
 	return []progearWeightTicketValidator{
 		checkID(),
-		checkCreateRequiredFields(),
+		checkBaseRequiredFields(),
 	}
 }
 
 func basicChecksForCustomer() []progearWeightTicketValidator {
 	return []progearWeightTicketValidator{
 		checkID(),
-		checkRequiredFields(),
+		checkBaseRequiredFields(),
+		checkAdditionalRequiredFields(),
 		verifyReasonAndStatusAreConstant(),
 	}
 }
@@ -145,7 +130,8 @@ func basicChecksForCustomer() []progearWeightTicketValidator {
 func basicChecksForOffice() []progearWeightTicketValidator {
 	return []progearWeightTicketValidator{
 		checkID(),
-		checkRequiredFields(),
+		checkBaseRequiredFields(),
+		checkAdditionalRequiredFields(),
 		verifyReasonAndStatusAreValid(),
 	}
 }

@@ -1724,6 +1724,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: *dp3-env
       - OPEN_TELEMETRY_SIDECAR: 'true'
+      - HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_dp3
@@ -1742,6 +1743,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: *dp3-env
       - OPEN_TELEMETRY_SIDECAR: 'true'
+      - HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_dp3

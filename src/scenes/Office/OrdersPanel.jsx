@@ -14,7 +14,7 @@ import { openLinkInNewWindow } from 'shared/utils';
 import { defaultRelativeWindowSize } from 'shared/constants';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import DutyLocationSearchBox from 'components/DutyLocationSearchBox/DutyLocationSearchBox';
+import LocationSearchBox from 'components/LocationSearchBox/LocationSearchBox';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
@@ -117,17 +117,13 @@ const OrdersEdit = (props) => {
 
         <FormSection name="serviceMember">
           <div className="duty-location">
-            <Field
-              name="current_location"
-              component={DutyLocationSearchBox}
-              props={{ title: 'Current Duty Location' }}
-            />
+            <Field name="current_location" component={LocationSearchBox} props={{ title: 'Current Duty Location' }} />
           </div>
         </FormSection>
 
         <FormSection name="orders">
           <div className="duty-location">
-            <Field name="new_duty_location" component={DutyLocationSearchBox} props={{ title: 'New Duty Location' }} />
+            <Field name="new_duty_location" component={LocationSearchBox} props={{ title: 'New Duty Location' }} />
           </div>
         </FormSection>
       </div>

@@ -6,7 +6,7 @@ import AsyncSelect from 'react-select/async';
 import classNames from 'classnames';
 import { debounce } from 'lodash';
 
-import styles from './DutyLocationSearchBox.module.scss';
+import styles from './LocationSearchBox.module.scss';
 import { SearchDutyLocations, ShowAddress } from './api';
 
 import Hint from 'components/Hint';
@@ -76,19 +76,18 @@ const customStyles = {
   }),
 };
 
-export const DutyLocationSearchBoxComponent = (props) => {
-  const {
-    searchDutyLocations,
-    showAddress,
-    title,
-    input,
-    name,
-    errorMsg,
-    displayAddress,
-    hint,
-    placeholder,
-    isDisabled,
-  } = props;
+export const LocationSearchBoxComponent = ({
+  searchLocations,
+  showAddress,
+  title,
+  input,
+  name,
+  errorMsg,
+  displayAddress,
+  hint,
+  placeholder,
+  isDisabled,
+}) => {
   const { value, onChange, name: inputName } = input;
 
   const [inputValue, setInputValue] = useState('');
@@ -127,7 +126,7 @@ export const DutyLocationSearchBoxComponent = (props) => {
       return undefined;
     }
 
-    searchDutyLocations(query)
+    searchLocations(query)
       .then((locations) => {
         callback(locations);
       })
@@ -166,7 +165,7 @@ export const DutyLocationSearchBoxComponent = (props) => {
   });
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
-  const hasDutyLocation = !!value && !!value.address;
+  const hasLocation = !!value && !!value.address;
   return (
     <FormGroup>
       <div className="labelWrapper">
@@ -187,13 +186,13 @@ export const DutyLocationSearchBoxComponent = (props) => {
           onChange={selectOption}
           onInputChange={changeInputText}
           placeholder={placeholder || 'Start typing a duty location...'}
-          value={hasDutyLocation ? value : null}
+          value={hasLocation ? value : null}
           noOptionsMessage={noOptionsMessage}
           styles={isDisabled ? disabledStyles : customStyles}
           isDisabled={isDisabled}
         />
       </div>
-      {displayAddress && hasDutyLocation && (
+      {displayAddress && hasLocation && (
         <p className={locationClasses}>
           {value.address.city}, {value.address.state} {value.address.postalCode}
         </p>
@@ -203,19 +202,19 @@ export const DutyLocationSearchBoxComponent = (props) => {
   );
 };
 
-export const DutyLocationSearchBoxContainer = (props) => {
-  const { isDisabled } = props;
+export const LocationSearchBoxContainer = (props) => {
+  const { isDisabled, searchLocations } = props;
   return (
-    <DutyLocationSearchBoxComponent
+    <LocationSearchBoxComponent
       {...props}
-      searchDutyLocations={SearchDutyLocations}
+      searchLocations={searchLocations}
       showAddress={ShowAddress}
       isDisabled={isDisabled}
     />
   );
 };
 
-DutyLocationSearchBoxContainer.propTypes = {
+LocationSearchBoxContainer.propTypes = {
   displayAddress: PropTypes.bool,
   name: PropTypes.string.isRequired,
   errorMsg: PropTypes.string,
@@ -228,9 +227,10 @@ DutyLocationSearchBoxContainer.propTypes = {
   hint: PropTypes.node,
   placeholder: PropTypes.string,
   isDisabled: PropTypes.bool,
+  searchLocations: PropTypes.func,
 };
 
-DutyLocationSearchBoxContainer.defaultProps = {
+LocationSearchBoxContainer.defaultProps = {
   displayAddress: true,
   title: 'Name of Duty Location:',
   errorMsg: '',
@@ -242,18 +242,20 @@ DutyLocationSearchBoxContainer.defaultProps = {
   hint: '',
   placeholder: 'Start typing a duty location...',
   isDisabled: false,
+  searchLocations: SearchDutyLocations,
 };
 
-DutyLocationSearchBoxComponent.propTypes = {
-  ...DutyLocationSearchBoxContainer.propTypes,
-  searchDutyLocations: PropTypes.func.isRequired,
+LocationSearchBoxComponent.propTypes = {
+  ...LocationSearchBoxContainer.propTypes,
+  searchLocations: PropTypes.func,
   showAddress: PropTypes.func.isRequired,
   isDisabled: PropTypes.bool,
 };
 
-DutyLocationSearchBoxComponent.defaultProps = {
-  ...DutyLocationSearchBoxContainer.defaultProps,
+LocationSearchBoxComponent.defaultProps = {
+  ...LocationSearchBoxContainer.defaultProps,
+  searchLocations: SearchDutyLocations,
   isDisabled: false,
 };
 
-export default DutyLocationSearchBoxContainer;
+export default LocationSearchBoxContainer;

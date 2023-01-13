@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import OrdersInfoForm from './OrdersInfoForm';
 
-jest.mock('components/DutyLocationSearchBox/api', () => ({
+jest.mock('components/LocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
     Promise.resolve({
       city: 'Glendale Luke AFB',
