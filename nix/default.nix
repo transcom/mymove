@@ -23,7 +23,7 @@ buildEnv {
     (import
       (builtins.fetchGit {
         # Descriptive name to make the store path easier to identify
-        name = "nodejs-16.15.0";
+        name = "nodejs-16.15.0"; # TODO: should be 16.19.0, but nix only goes up to 16.18.1 at the moment.
         url = "https://github.com/NixOS/nixpkgs/";
         ref = "refs/heads/nixpkgs-unstable";
         rev = "0b45cae8a35412e461c13c5037dcdc99c06b7451";
