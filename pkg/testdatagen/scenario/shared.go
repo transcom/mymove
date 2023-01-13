@@ -7703,7 +7703,7 @@ func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploade
 		Move:        move,
 	})
 
-	makeSITExtensionsForShipment(appCtx, mtoShipmentSIT)
+	MakeSITExtensionsForShipment(appCtx, mtoShipmentSIT)
 
 	testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
@@ -8057,7 +8057,8 @@ func makePendingSITExtensionsForShipment(appCtx appcontext.AppContext, shipment 
 	}
 }
 
-func makeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.MTOShipment) {
+// MakeSITExtensionsForShipment helper function
+func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.MTOShipment) {
 	db := appCtx.DB()
 	sitContractorRemarks1 := "The customer requested an extension."
 	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
