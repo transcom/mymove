@@ -284,7 +284,7 @@ const DateAndLocationForm = ({
                     </Hint>
                     <DutyLocationInput
                       name="closeoutOffice"
-                      label="What office will you closeout your PPM?"
+                      label="Which closeout office should review your PPM?"
                       placeholder="Start typing a closeout office..."
                       searchLocations={searchTransportationOffices}
                     />
