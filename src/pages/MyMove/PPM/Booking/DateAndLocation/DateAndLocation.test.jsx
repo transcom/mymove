@@ -566,7 +566,6 @@ describe('DateAndLocation component', () => {
 
     it('calls patch move when there is a closeout office (Army/Air Force) and update shipment succeeds', async () => {
       patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
-
       patchMove.mockResolvedValueOnce(mockMove);
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
 
@@ -603,6 +602,111 @@ describe('DateAndLocation component', () => {
             mtoShipmentId: fullShipmentProps.mtoShipment.id,
           }),
         );
+      });
+    });
+
+    it('does not call patch move when there is not a closeout office (not Army/Air Force)', async () => {
+      patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
+
+      render(<DateAndLocation {...fullShipmentProps} serviceMember={navyServiceMember} move={mockMove} />, {
+        wrapper: MemoryRouter,
+      });
+
+      // Submit form
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      await waitFor(() => {
+        // Shipment should get updated
+        expect(patchMTOShipment).toHaveBeenCalledTimes(1);
+
+        // Should not try to patch the move
+        expect(patchMove).toHaveBeenCalledTimes(0);
+
+        // Redux updated with new shipment (and not a updated move)
+        expect(mockDispatch).toHaveBeenCalledTimes(1);
+        expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: fullShipmentProps.mtoShipment.id }));
+
+        // Finally, should get redirected to the estimated weight page
+        expect(mockPush).toHaveBeenCalledWith(
+          generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
+            moveId: mockMoveId,
+            mtoShipmentId: fullShipmentProps.mtoShipment.id,
+          }),
+        );
+      });
+    });
+
+    it('does not patch the move when patch shipment fails', async () => {
+      patchMTOShipment.mockRejectedValueOnce('fatal error');
+
+      render(
+        <DateAndLocation
+          {...fullShipmentProps}
+          serviceMember={armyServiceMember}
+          move={{
+            ...mockMove,
+            closeout_office: mockCloseoutOffice,
+          }}
+        />,
+        { wrapper: MemoryRouter },
+      );
+
+      // Submit form
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      await waitFor(() => {
+        // Should have called called patch shipment (set to fail above)
+        expect(patchMTOShipment).toHaveBeenCalledTimes(1);
+
+        // Should not have patched the move since the patch shipment failed
+        expect(patchMove).not.toHaveBeenCalled();
+
+        // Should not have done any redux updates
+        expect(mockDispatch).not.toHaveBeenCalled();
+
+        // No redirect should have happened
+        expect(mockPush).not.toHaveBeenCalled();
+
+        // Should show appropriate error message
+        expect(screen.getByText('There was an error attempting to update your shipment.')).toBeInTheDocument();
+      });
+    });
+
+    it('displays appropriate error when patch move fails after patch shipment succeeds', async () => {
+      patchMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
+      patchMove.mockRejectedValueOnce('fatal error');
+      searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
+
+      render(
+        <DateAndLocation
+          {...fullShipmentProps}
+          serviceMember={armyServiceMember}
+          move={{
+            ...mockMove,
+            closeout_office: mockCloseoutOffice,
+          }}
+        />,
+        { wrapper: MemoryRouter },
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      await waitFor(() => {
+        // Should have called both patch shipment and patch move
+        expect(patchMTOShipment).toHaveBeenCalledTimes(1);
+        expect(patchMove).toHaveBeenCalledTimes(1);
+
+        // Should have only updated the shipment in redux
+        expect(mockDispatch).toHaveBeenCalledTimes(1);
+        expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: mockNewShipmentId }));
+
+        // No redirect should have happened
+        expect(mockPush).not.toHaveBeenCalled();
+
+        // Should show appropriate error message
+        expect(
+          screen.getByText('There was an error attempting to update the move closeout office.'),
+        ).toBeInTheDocument();
       });
     });
   });
