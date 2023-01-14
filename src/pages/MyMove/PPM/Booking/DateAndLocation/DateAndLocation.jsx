@@ -16,6 +16,7 @@ import { updateMTOShipment, updateMove } from 'store/entities/actions';
 import { DutyLocationShape } from 'types';
 import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
+import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { validatePostalCode } from 'utils/validation';
 
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move }) => {
@@ -24,7 +25,9 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
   const { moveId, shipmentNumber } = useParams();
   const dispatch = useDispatch();
 
-  const includeCloseoutOffice = serviceMember.affiliation === 'ARMY' || serviceMember.affiliation === 'AIR_FORCE';
+  const includeCloseoutOffice =
+    serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.ARMY ||
+    serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE;
   const isNewShipment = !mtoShipment?.id;
   const handleBack = () => {
     if (isNewShipment) {

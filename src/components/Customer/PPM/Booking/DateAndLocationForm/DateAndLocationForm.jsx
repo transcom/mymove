@@ -17,6 +17,7 @@ import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX, InvalidZIPTypeError } from 'utils/validation';
 import { searchTransportationOffices } from 'services/internalApi';
+import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 
 const validationShape = {
   pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
@@ -103,9 +104,13 @@ const DateAndLocationForm = ({
     setFieldValue(postalCodeField, value);
   };
 
-  const showCloseoutOffice = serviceMember.affiliation === 'ARMY' || serviceMember.affiliation === 'AIR_FORCE';
+  const showCloseoutOffice =
+    serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.ARMY ||
+    serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE;
   if (showCloseoutOffice) {
     validationShape.closeoutOffice = Yup.object().required('Required');
+  } else {
+    delete validationShape.closeoutOffice;
   }
 
   return (
