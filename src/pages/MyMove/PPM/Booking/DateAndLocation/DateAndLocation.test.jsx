@@ -563,5 +563,47 @@ describe('DateAndLocation component', () => {
         );
       });
     });
+
+    it('calls patch move when there is a closeout office (Army/Air Force) and update shipment succeeds', async () => {
+      patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
+
+      patchMove.mockResolvedValueOnce(mockMove);
+      searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
+
+      render(
+        <DateAndLocation
+          {...fullShipmentProps}
+          serviceMember={armyServiceMember}
+          move={{
+            ...mockMove,
+            closeout_office: mockCloseoutOffice,
+          }}
+        />,
+        { wrapper: MemoryRouter },
+      );
+
+      // Submit form
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      await waitFor(() => {
+        // Shipment should get updated
+        expect(patchMTOShipment).toHaveBeenCalledTimes(1);
+
+        // Move patched with the closeout office
+        expect(patchMove).toHaveBeenCalledTimes(1);
+        expect(patchMove).toHaveBeenCalledWith(mockMove.id, { closeoutOfficeId: mockCloseoutId }, mockMove.eTag);
+
+        // Redux updated with new shipment and updated move
+        expect(mockDispatch).toHaveBeenCalledTimes(2);
+
+        // Finally, should get redirected to the estimated weight page
+        expect(mockPush).toHaveBeenCalledWith(
+          generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
+            moveId: mockMoveId,
+            mtoShipmentId: fullShipmentProps.mtoShipment.id,
+          }),
+        );
+      });
+    });
   });
 });
