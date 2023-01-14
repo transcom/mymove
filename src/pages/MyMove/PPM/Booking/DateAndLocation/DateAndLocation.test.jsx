@@ -366,7 +366,6 @@ describe('DateAndLocation component', () => {
 
     it('does not patch the move when create shipment fails', async () => {
       createMTOShipment.mockRejectedValueOnce('fatal error');
-      patchMove.mockResolvedValueOnce(mockMove);
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
 
       render(<DateAndLocation {...defaultProps} serviceMember={armyServiceMember} move={mockMove} />, {
@@ -428,7 +427,7 @@ describe('DateAndLocation component', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
       await waitFor(() => {
-        // Should have called called create shipment and patch move
+        // Should have called both create shipment and patch move
         expect(createMTOShipment).toHaveBeenCalledTimes(1);
         expect(patchMove).toHaveBeenCalledTimes(1);
 
