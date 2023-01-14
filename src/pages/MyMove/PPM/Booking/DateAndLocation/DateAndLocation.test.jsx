@@ -363,6 +363,88 @@ describe('DateAndLocation component', () => {
         );
       });
     });
+
+    it('does not patch the move when create shipment fails', async () => {
+      createMTOShipment.mockRejectedValueOnce('fatal error');
+      patchMove.mockResolvedValueOnce(mockMove);
+      searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
+
+      render(<DateAndLocation {...defaultProps} serviceMember={armyServiceMember} move={mockMove} />, {
+        wrapper: MemoryRouter,
+      });
+
+      // Fill in form
+      const primaryPostalCodes = screen.getAllByLabelText('ZIP');
+      await userEvent.type(primaryPostalCodes[0], '10001');
+      await userEvent.type(primaryPostalCodes[1], '10002');
+      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+
+      // Set Closeout office
+      const closeoutOfficeInput = await screen.getByLabelText('Which closeout office should review your PPM?');
+      await fireEvent.change(closeoutOfficeInput, { target: { value: 'Tester' } });
+      await act(() => selectEvent.select(closeoutOfficeInput, /Tester/));
+
+      // Submit form
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      await waitFor(() => {
+        // Should have called called create shipment (set to fail above)
+        expect(createMTOShipment).toHaveBeenCalledTimes(1);
+
+        // Should not have patched the move since the create shipment failed
+        expect(patchMove).not.toHaveBeenCalled();
+
+        // Should not have done any redux updates
+        expect(mockDispatch).not.toHaveBeenCalled();
+
+        // No redirect should have happened
+        expect(mockPush).not.toHaveBeenCalled();
+
+        // Should show appropriate error message
+        expect(screen.getByText('There was an error attempting to create your shipment.')).toBeInTheDocument();
+      });
+    });
+
+    it('displays appropriate error when patch move fails after create shipment succeeds', async () => {
+      createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
+      patchMove.mockRejectedValueOnce('fatal error');
+      searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
+
+      render(<DateAndLocation {...defaultProps} serviceMember={armyServiceMember} move={mockMove} />, {
+        wrapper: MemoryRouter,
+      });
+
+      // Fill in form
+      const primaryPostalCodes = screen.getAllByLabelText('ZIP');
+      await userEvent.type(primaryPostalCodes[0], '10001');
+      await userEvent.type(primaryPostalCodes[1], '10002');
+      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+
+      // Set Closeout office
+      const closeoutOfficeInput = await screen.getByLabelText('Which closeout office should review your PPM?');
+      await fireEvent.change(closeoutOfficeInput, { target: { value: 'Tester' } });
+      await act(() => selectEvent.select(closeoutOfficeInput, /Tester/));
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      await waitFor(() => {
+        // Should have called called create shipment and patch move
+        expect(createMTOShipment).toHaveBeenCalledTimes(1);
+        expect(patchMove).toHaveBeenCalledTimes(1);
+
+        // Should have only updated the shipment in redux
+        expect(mockDispatch).toHaveBeenCalledTimes(1);
+        expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: mockNewShipmentId }));
+
+        // No redirect should have happened
+        expect(mockPush).not.toHaveBeenCalled();
+
+        // Should show appropriate error message
+        expect(
+          screen.getByText('There was an error attempting to create the move closeout office.'),
+        ).toBeInTheDocument();
+      });
+    });
   });
 
   describe('editing an existing PPM shipment', () => {
