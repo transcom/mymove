@@ -78,21 +78,23 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
 
     if (isNewShipment) {
       createMTOShipment(createOrUpdateShipment)
-        .then((createResponse) => {
+        .then((shipmentResponse) => {
           if (includeCloseoutOffice) {
             // Associate the selected closeout office with the move
             patchMove(move.id, { closeoutOfficeId: values.closeoutOffice.id }, move.eTag)
               .then((moveResponse) => {
                 // Both create and patch were successful
                 dispatch(updateMove(moveResponse));
-                onShipmentSaveSuccess(createResponse, setSubmitting);
+                onShipmentSaveSuccess(shipmentResponse, setSubmitting);
               })
               .catch(() => {
                 setSubmitting(false);
-                setErrorMessage('There was an error attempting to update the move closeout office.');
+                // Still need to update the shipment in the store since it had a successful create
+                dispatch(updateMTOShipment(shipmentResponse));
+                setErrorMessage('There was an error attempting to create the move closeout office.');
               });
           } else {
-            onShipmentSaveSuccess(createResponse, setSubmitting);
+            onShipmentSaveSuccess(shipmentResponse, setSubmitting);
           }
         })
         .catch(() => {
@@ -114,6 +116,8 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
               })
               .catch(() => {
                 setSubmitting(false);
+                // Still need to update the shipment in the store since it had a successful update
+                dispatch(updateMTOShipment(shipmentResponse));
                 setErrorMessage('There was an error attempting to update the move closeout office.');
               });
           } else {
