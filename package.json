@@ -127,7 +127,7 @@
     "@dump247/storybook-state": "^1.6.1",
     "@faker-js/faker": "^7.6.0",
     "@jackfranklin/test-data-bot": "^2.0.0",
-    "@playwright/test": "^1.28.1",
+    "@playwright/test": "^1.29.2",
     "@stoplight/spectral-cli": "^6.6.0",
     "@storybook/addon-a11y": "^6.5.15",
     "@storybook/addon-actions": "6.5.15",
