@@ -53,7 +53,6 @@ const ServicesCounselingQueue = lazy(() => import('pages/Office/ServicesCounseli
 const ServicesCounselingAddShipment = lazy(() =>
   import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
 );
-const ReviewDocuments = lazy(() => import('pages/Office/PPM/ReviewDocuments/ReviewDocuments'));
 const EditShipmentDetails = lazy(() => import('pages/Office/EditShipmentDetails/EditShipmentDetails'));
 const PrimeSimulatorAvailableMoves = lazy(() => import('pages/PrimeUI/AvailableMoves/AvailableMovesQueue'));
 const PrimeSimulatorMoveDetails = lazy(() => import('pages/PrimeUI/MoveTaskOrder/MoveDetails'));
@@ -118,8 +117,6 @@ export class OfficeApp extends Component {
 
     // TODO - test login page?
 
-    // TODO - I don't love this solution but it will work for now. Ideally we can abstract the page layout into a separate file where each route can use it or not
-    // Don't show Header on OrdersInfo or DocumentViewer pages (PPM only)
     const displayChangeRole =
       userIsLoggedIn &&
       userRoles?.length > 1 &&
@@ -208,13 +205,6 @@ export class OfficeApp extends Component {
                       key="servicesCounselingMoveInfoRoute"
                       path={servicesCounselingRoutes.BASE_MOVE_PATH}
                       component={ServicesCounselingMoveInfo}
-                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
-                    />
-                    <PrivateRoute
-                      key="servicesCounselingReviewDocumentsRoute"
-                      exact
-                      path={servicesCounselingRoutes.SHIPMENT_REVIEW_PATH}
-                      component={ReviewDocuments}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
 
