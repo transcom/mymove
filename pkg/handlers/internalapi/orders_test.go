@@ -21,7 +21,7 @@ import (
 
 func (suite *HandlerSuite) TestCreateOrder() {
 	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
-	dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	dutyLocation := factory.FetchOrBuildDutyLocation(suite.DB())
 	testdatagen.MakeDefaultContractor(suite.DB())
 
 	req := httptest.NewRequest("POST", "/orders", nil)

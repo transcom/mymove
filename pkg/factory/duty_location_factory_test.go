@@ -9,7 +9,12 @@ import (
 
 func (suite *FactorySuite) TestBuildDutyLocation() {
 	defaultAffiliation := internalmessages.AffiliationAIRFORCE
-	//defaultTransportationOffice := BuildTransportationOffice(suite.DB(), nil, nil)
+
+	suite.Run("test fetch system", func() {
+		dutyLocation := FetchOrBuildDutyLocation(suite.DB())
+
+		suite.Equal(dutyLocation.ID, dutyLocation.ID)
+	})
 	suite.Run("Successful creation of default duty location", func() {
 		// Under test:      BuildDutyLocation
 		// Mocked:          None

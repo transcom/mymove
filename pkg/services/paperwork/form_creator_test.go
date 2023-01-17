@@ -17,6 +17,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	paperworkforms "github.com/transcom/mymove/pkg/paperwork"
@@ -29,8 +30,8 @@ import (
 
 func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.ShipmentSummaryWorksheetPage1Values {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
-	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
+	yuma := factory.FetchOrBuildDutyLocation(suite.DB())
+	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
 	moveType := models.SelectedMoveTypeHHGPPM
 

@@ -317,8 +317,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	origAffiliation := models.AffiliationAIRFORCE
 	newAffiliation := internalmessages.AffiliationARMY
 
-	origDutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
-	newDutyLocation := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
+	origDutyLocation := factory.FetchOrBuildDutyLocation(suite.DB())
+	newDutyLocation := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	newDutyLocationID := strfmt.UUID(newDutyLocation.ID.String())
 
 	origFirstName := swag.String("random string bla")

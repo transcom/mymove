@@ -16,7 +16,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestShowDutyLocationTransportationOfficeHandler() {
-	location := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	location := factory.FetchOrBuildDutyLocation(suite.DB())
 
 	path := fmt.Sprintf("/duty_locations/%v/transportation_offices", location.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
@@ -37,7 +37,7 @@ func (suite *HandlerSuite) TestShowDutyLocationTransportationOfficeHandler() {
 }
 
 func (suite *HandlerSuite) TestShowDutyLocationTransportationOfficeHandlerNoOffice() {
-	location := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	location := factory.FetchOrBuildDutyLocation(suite.DB())
 	location.TransportationOffice = models.TransportationOffice{}
 	location.TransportationOfficeID = nil
 	suite.MustSave(&location)

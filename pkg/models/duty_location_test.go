@@ -1,8 +1,8 @@
 package models_test
 
 import (
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestFindDutyLocations() {
@@ -111,7 +111,7 @@ func (suite *ModelSuite) Test_DutyLocationValidations() {
 }
 func (suite *ModelSuite) Test_FetchDutyLocationTransportationOffice() {
 	t := suite.T()
-	dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	dutyLocation := factory.FetchOrBuildDutyLocation(suite.DB())
 
 	office, err := models.FetchDutyLocationTransportationOffice(suite.DB(), dutyLocation.ID)
 	if err != nil {

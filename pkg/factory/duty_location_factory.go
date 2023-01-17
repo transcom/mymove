@@ -27,7 +27,7 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 	if result != nil {
 		transportationOffice = result.Model.(models.TransportationOffice)
 	}
-	transportationOffice = BuildTransportationOffice(db, customs, nil)
+	transportationOffice = BuildTransportationOfficeWithPhoneLine(db, customs, nil)
 
 	// Find/create the address Model
 	var address models.Address
@@ -72,4 +72,60 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 
 	return location
 
+}
+
+// FetchOrBuildDutyLocation returns a default duty location - Yuma AFB
+func FetchOrBuildDutyLocation(db *pop.Connection) models.DutyLocation {
+	// Check if Yuma Duty Location exists, if not, create it.
+	defaultLocation, err := models.FetchDutyLocationByName(db, "Yuma AFB")
+	if err != nil {
+		return BuildDutyLocation(db, []Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Yuma AFB",
+				},
+			},
+		}, nil)
+	}
+
+	return defaultLocation
+}
+
+// FetchOrBuildOrdersDutyLocation returns a default duty location - Fort Gordon
+func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
+	fortGordon, err := models.FetchDutyLocationByName(db, "Fort Gordon")
+	if err == nil {
+		fortGordon.TransportationOffice, err = models.FetchDutyLocationTransportationOffice(db, fortGordon.ID)
+		if err == nil {
+			return fortGordon
+		}
+	}
+
+	FetchOrBuildTariff400ngZip3(db, []Customization{
+		{
+			Model: models.Tariff400ngZip3{
+				Zip3:          "308",
+				BasepointCity: "Harlem",
+				State:         "GA",
+				ServiceArea:   "208",
+				RateArea:      "US45",
+				Region:        "12",
+			},
+		},
+	}, nil)
+
+	return BuildDutyLocation(db, []Customization{
+		{
+			Model: models.DutyLocation{
+				Name: "Fort Gordon",
+			},
+		},
+		{
+			Model: models.Address{
+				City:       "Augusta",
+				State:      "GA",
+				PostalCode: "30813",
+			},
+		},
+	}, nil)
 }
