@@ -2,7 +2,6 @@ package routing
 
 import (
 	"encoding/hex"
-	"io"
 	"net/http"
 	"net/http/pprof"
 	"path"
@@ -425,20 +424,6 @@ func InitHealthRouting(appCtx appcontext.AppContext, redisPool *redis.Pool, rout
 		routingConfig.GitBranch, routingConfig.GitCommit)
 	requestLoggerMiddlware := middleware.RequestLogger(appCtx.Logger())
 	site.Handle("/health", requestLoggerMiddlware(healthHandler)).Methods("GET")
-
-	// this handler will only be called if the health check fails. It
-	// is helpful to see in the logs why the health check fails
-	// because otherwise the health check failure reason is lost
-	logHandler := func(w http.ResponseWriter, r *http.Request) {
-		data, err := io.ReadAll(r.Body)
-		if err != nil {
-			appCtx.Logger().Error("logs handler error", zap.Error(err))
-		} else {
-			appCtx.Logger().Info("Health Check Log", zap.Any("logdata", string(data)))
-		}
-	}
-
-	site.Handle("/logs", requestLoggerMiddlware(http.HandlerFunc(logHandler))).Methods("POST")
 
 	return site, nil
 }
