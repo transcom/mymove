@@ -26,18 +26,6 @@ jest.mock('react-router-dom', () => ({
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   updateMTOShipment: jest.fn(),
-}));
-
-jest.mock('hooks/queries', () => ({
-  useEditShipmentQueries: jest.fn(),
-}));
-
-jest.mock('utils/validation', () => ({
-  ...jest.requireActual('utils/validation'),
-  validatePostalCode: jest.fn(),
-}));
-
-jest.mock('services/ghcapi', () => ({
   SearchTransportationOffices: jest.fn().mockImplementation(() =>
     Promise.resolve([
       {
@@ -57,6 +45,15 @@ jest.mock('services/ghcapi', () => ({
       },
     ]),
   ),
+}));
+
+jest.mock('hooks/queries', () => ({
+  useEditShipmentQueries: jest.fn(),
+}));
+
+jest.mock('utils/validation', () => ({
+  ...jest.requireActual('utils/validation'),
+  validatePostalCode: jest.fn(),
 }));
 
 jest.mock('components/LocationSearchBox/api', () => ({
@@ -421,6 +418,8 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       await waitFor(() => {
         expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('1,111');
       });
+      await userEvent.type(screen.getByLabelText('Closeout location'), 'Altus');
+      await userEvent.click(await screen.findByText('Altus'));
 
       const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
       expect(saveButton).not.toBeDisabled();
