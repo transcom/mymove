@@ -34,7 +34,6 @@ const PPMShipmentInfoList = ({
     sitExpected,
     spouseProGearWeight,
   } = shipment.ppmShipment || {};
-
   const { closeoutOffice, agency } = shipment;
   let closeoutDisplay;
   switch (agency) {
@@ -47,18 +46,11 @@ const PPMShipmentInfoList = ({
     case affiliation.COAST_GUARD:
       closeoutDisplay = 'USCG';
       break;
-    case affiliation.AIR_FORCE:
-    case affiliation.ARMY:
-      closeoutDisplay = closeoutOffice;
-      if (!closeoutOffice) {
-        closeoutDisplay = '—';
-      }
-      break;
     default:
-      closeoutDisplay = '—';
+      closeoutDisplay = closeoutOffice;
+      if (!closeoutOffice) closeoutDisplay = '—';
       break;
   }
-
   setFlagStyles({
     row: styles.row,
     warning: shipmentDefinitionListsStyles.warning,

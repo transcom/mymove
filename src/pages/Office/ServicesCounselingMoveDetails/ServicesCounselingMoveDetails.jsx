@@ -119,7 +119,6 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
-
         destinationAddress: shipment.destinationAddress || {
           postalCode: order.destinationDutyLocation.address.postalCode,
         },
