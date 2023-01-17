@@ -33,19 +33,22 @@ export const ReviewDocuments = ({ match }) => {
   const history = useHistory();
 
   const formRef = useRef();
+  // let nextEnabled = false;
+  // if (formRef.current?.isValid) {
+  //   nextEnabled = true;
+  // }
 
   useEffect(() => {
     // console.log('hi from useEffect in ReviewDocuments');
-    if (weightTickets) {
-      const sortedWeightTickets = weightTickets;
-      sortedWeightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
-      // setDocumentSet(sortedWeightTickets[documentSetIndex]);
-      // NB: this setter appears to work correctly, and is not affected by subsequent Formik rerenders:
-      setNextEnabled(formRef.current?.isValid);
-      // formRef.current?.resetForm();
-      // formRef.current?.validateForm();
-    }
-  }, [weightTickets, documentSetIndex]);
+
+    // const sortedWeightTickets = weightTickets;
+    // sortedWeightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+    // setDocumentSet(sortedWeightTickets[documentSetIndex]);
+    // NB: this setter appears to work correctly, and is not affected by subsequent Formik rerenders:
+    setNextEnabled(formRef.current?.isValid);
+    // formRef.current?.resetForm();
+    // formRef.current?.validateForm();
+  }, [formRef, setNextEnabled]);
 
   // useEffect(() => {
   //   console.log('documentSet', documentSet);
@@ -97,6 +100,10 @@ export const ReviewDocuments = ({ match }) => {
     }
   };
 
+  const onValid = (errors) => {
+    setNextEnabled(Object.keys(errors).length === 0);
+  };
+
   return (
     <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
@@ -111,16 +118,19 @@ export const ReviewDocuments = ({ match }) => {
       >
         <NotificationScrollToTop dependency={documentSetIndex} />
         <DocumentViewerSidebar.Content>
-          <ReviewWeightTicket
-            weightTicket={documentSet}
-            ppmNumber={1}
-            tripNumber={documentSetIndex + 1}
-            mtoShipment={mtoShipment}
-            onError={onError}
-            onSuccess={onSuccess}
-            formRef={formRef}
-            setSubmitting={setSubmitting}
-          />
+          {documentSet && (
+            <ReviewWeightTicket
+              weightTicket={documentSet}
+              ppmNumber={1}
+              tripNumber={documentSetIndex + 1}
+              mtoShipment={mtoShipment}
+              onError={onError}
+              onSuccess={onSuccess}
+              onValid={onValid}
+              formRef={formRef}
+              setSubmitting={setSubmitting}
+            />
+          )}
         </DocumentViewerSidebar.Content>
         <DocumentViewerSidebar.Footer>
           <Button onClick={onBack} disabled={documentSetIndex === 0}>

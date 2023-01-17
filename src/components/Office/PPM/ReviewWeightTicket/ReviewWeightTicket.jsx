@@ -3,13 +3,14 @@ import { useMutation } from 'react-query';
 import { func, number, object } from 'prop-types';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
-import { Alert, Form, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
+import { Alert, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
 
 import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewWeightTicket.module.scss';
 
+import { Form } from 'components/form';
 import { patchWeightTicket } from 'services/ghcApi';
 import { ShipmentShape, WeightTicketShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
@@ -42,6 +43,7 @@ export default function ReviewWeightTicket({
   ppmNumber,
   onError,
   onSuccess,
+  onValid,
   formRef,
   setSubmitting,
 }) {
@@ -121,18 +123,22 @@ export default function ReviewWeightTicket({
         validateOnMount
       >
         {(formikProps) => {
-          const { handleChange, values } = formikProps;
+          const { handleChange, isValid, values } = formikProps;
           // console.log('formik rerender initialValues', initialValues);
           // console.log('formik errors', formikProps.errors);
           // console.log('formik props', formikProps);
           const handleApprovalChange = (event) => {
             handleChange(event);
+            onValid(isValid);
             setCanEditRejection(true);
           };
 
           const weightType = values.weightType === 'weightTicket' ? 'Weight tickets' : 'Constructed weight';
           return (
-            <Form className={classnames(formStyles.form, styles.ReviewWeightTicket)}>
+            <Form
+              className={classnames(formStyles.form, styles.ReviewWeightTicket)}
+              errorCallback={(errors) => onValid(errors)}
+            >
               <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
               <hr />
               <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
@@ -284,6 +290,7 @@ ReviewWeightTicket.propTypes = {
   tripNumber: number.isRequired,
   ppmNumber: number.isRequired,
   onSuccess: func,
+  onValid: func,
   formRef: object,
 };
 
@@ -291,5 +298,6 @@ ReviewWeightTicket.defaultProps = {
   weightTicket: null,
   mtoShipment: null,
   onSuccess: null,
+  onValid: null,
   formRef: null,
 };
