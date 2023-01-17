@@ -14,14 +14,14 @@ describe('PPMShipmentInfoList', () => {
   });
 
   it('renders closeout display for Navy', () => {
-    render(<PPMShipmentInfoList shipment={{ agency: affiliation.MARINES }} />);
+    render(<PPMShipmentInfoList shipment={{ agency: affiliation.NAVY }} />);
     expect(screen.getByTestId('closeout')).toBeInTheDocument();
     expect(screen.getByTestId('closeout').textContent).toEqual('NAVY');
     expect(screen.getByText('Closeout office')).toBeInTheDocument();
   });
 
   it('renders closeout display Coast guard', () => {
-    render(<PPMShipmentInfoList shipment={{ agency: affiliation.MARINES }} />);
+    render(<PPMShipmentInfoList shipment={{ agency: affiliation.COAST_GUARD }} />);
     expect(screen.getByTestId('closeout')).toBeInTheDocument();
     expect(screen.getByTestId('closeout').textContent).toEqual('UMCG');
     expect(screen.getByText('Closeout office')).toBeInTheDocument();
