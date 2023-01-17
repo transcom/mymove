@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './RequestedShipments.module.scss';
 
+import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { tooRoutes } from 'constants/routes';
 import { shipmentDestinationTypes } from 'constants/shipments';
@@ -98,7 +99,11 @@ const ApprovedRequestedShipments = ({
           <tbody>
             {mtoServiceItems &&
               mtoServiceItems
-                .filter((serviceItem) => serviceItem.reServiceCode === 'MS' || serviceItem.reServiceCode === 'CS')
+                .filter(
+                  (serviceItem) =>
+                    serviceItem.reServiceCode === SERVICE_ITEM_CODES.MS ||
+                    serviceItem.reServiceCode === SERVICE_ITEM_CODES.CS,
+                )
                 .map((serviceItem) => (
                   <tr key={serviceItem.id}>
                     <td data-testid="basicServiceItemName">{serviceItem.reServiceName}</td>

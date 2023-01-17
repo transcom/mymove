@@ -39,7 +39,7 @@ export const ReviewDocuments = ({ match }) => {
   return (
     <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
-        <DocumentViewer files={uploads} />
+        <DocumentViewer files={uploads} allowDownload />
       </div>
       <div className={styles.sidebar}>
         <ReviewDocumentsSidePanel

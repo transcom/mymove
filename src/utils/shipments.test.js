@@ -6,6 +6,7 @@ import {
   isPPMShipmentComplete,
   isWeightTicketComplete,
   hasCompletedAllWeightTickets,
+  isPPMOnly,
 } from './shipments';
 
 import { ppmShipmentStatuses } from 'constants/shipments';
@@ -207,6 +208,37 @@ describe('shipments utils', () => {
     it('returns true when all weight tickets are complete', () => {
       expect(hasCompletedAllWeightTickets([createBaseWeightTicket()])).toBe(false);
       expect(hasCompletedAllWeightTickets([createCompleteWeightTicket(), createCompleteWeightTicket()])).toBe(true);
+    });
+  });
+
+  describe('isPPMOnly', () => {
+    const ppmShipment = {
+      id: v4(),
+      shipmentType: SHIPMENT_OPTIONS.PPM,
+    };
+    const secondPPMShipment = {
+      id: v4(),
+      shipmentType: SHIPMENT_OPTIONS.PPM,
+    };
+    const hhgShipment = {
+      id: v4(),
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+    };
+    const ntsShipment = {
+      id: v4(),
+      shipmentType: SHIPMENT_OPTIONS.NTS,
+    };
+    it('returns false when there are no shipments', () => {
+      expect(isPPMOnly()).toBe(false);
+      expect(isPPMOnly([])).toBe(false);
+    });
+    it('returns false when not all shipments are PPM', () => {
+      expect(isPPMOnly([ppmShipment, hhgShipment, ntsShipment])).toBe(false);
+      expect(isPPMOnly([hhgShipment, ntsShipment])).toBe(false);
+    });
+    it('returns true when all shipments are PPM', () => {
+      expect(isPPMOnly([ppmShipment])).toBe(true);
+      expect(isPPMOnly([ppmShipment, secondPPMShipment])).toBe(true);
     });
   });
 });

@@ -62,6 +62,9 @@ module.exports = {
           '**/setupTests.js',
           '**/testUtils.jsx',
           '**/test/factories/**',
+          // playwright
+          '**/playwright.config.js',
+          '**/playwright/**/*.js',
         ],
       },
     ],
@@ -97,6 +100,13 @@ module.exports = {
       files: ['src/utils/test/factories/**'],
       rules: {
         'no-param-reassign': ['error', { props: false }],
+      },
+    },
+    {
+      files: ['playwright/**/*.js*'],
+      rules: {
+        'no-restricted-syntax': 'off',
+        'no-await-in-loop': 'off',
       },
     },
   ],
