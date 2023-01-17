@@ -8,6 +8,7 @@ import styles from './ReviewDocuments.module.scss';
 import { servicesCounselingRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
@@ -20,6 +21,7 @@ export const ReviewDocuments = ({ match }) => {
   const { mtoShipment, weightTickets, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
+  const [documentSet, setDocumentSet] = useState({});
   const [nextEnabled, setNextEnabled] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -28,10 +30,25 @@ export const ReviewDocuments = ({ match }) => {
   const formRef = useRef();
 
   useEffect(() => {
+    // console.log('hi from useEffect in ReviewDocuments');
     if (weightTickets) {
-      setNextEnabled(formRef.current.isValid);
+      const sortedWeightTickets = weightTickets;
+      sortedWeightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+      setDocumentSet(sortedWeightTickets[documentSetIndex]);
+      // NB: this setter appears to work correctly, and is not affected by subsequent Formik rerenders:
+      setNextEnabled(formRef.current?.isValid);
+      // formRef.current?.resetForm();
+      // formRef.current?.validateForm();
     }
-  }, [weightTickets, setNextEnabled]);
+  }, [weightTickets, documentSetIndex]);
+
+  // useEffect(() => {
+  //   console.log('documentSet', documentSet);
+  // }, [documentSet]);
+
+  // useEffect(() => {
+  //   console.log('formRef', formRef);
+  // }, [formRef]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -42,12 +59,6 @@ export const ReviewDocuments = ({ match }) => {
     uploads = uploads.concat(weightTicket.fullDocument?.uploads);
     uploads = uploads.concat(weightTicket.proofOfTrailerOwnershipDocument?.uploads);
   });
-
-  // TODO: select the documentSet from among weight tickets, pro gear, and expenses
-  let documentSet;
-  if (weightTickets) {
-    documentSet = weightTickets[documentSetIndex];
-  }
 
   const onClose = () => {
     history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
@@ -75,10 +86,6 @@ export const ReviewDocuments = ({ match }) => {
     }
   };
 
-  const onValid = (valid) => {
-    setNextEnabled(valid);
-  };
-
   const onContinue = () => {
     if (formRef.current) {
       formRef.current.handleSubmit();
@@ -97,6 +104,7 @@ export const ReviewDocuments = ({ match }) => {
         // TODO: set this correctly based on total document sets, including pro gear and expenses
         supertitle={`${documentSetIndex + 1} of ${weightTickets.length} Document Sets`}
       >
+        <NotificationScrollToTop dependency={documentSetIndex} />
         <DocumentViewerSidebar.Content>
           <ReviewWeightTicket
             weightTicket={documentSet}
@@ -105,7 +113,6 @@ export const ReviewDocuments = ({ match }) => {
             mtoShipment={mtoShipment}
             onError={onError}
             onSuccess={onSuccess}
-            onValid={onValid}
             formRef={formRef}
             setSubmitting={setSubmitting}
           />

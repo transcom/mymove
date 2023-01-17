@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMutation } from 'react-query';
 import { func, number, object } from 'prop-types';
 import { Field, Formik } from 'formik';
@@ -66,6 +66,8 @@ export default function ReviewWeightTicket({
       missingFullWeightTicket: weightTicket.missingFullWeightTicket,
       ownsTrailer,
       trailerMeetsCriteria,
+      reason: values.status === 'APPROVED' ? null : values.rejectionReason,
+      status: values.status,
     };
     setSubmitting(true);
     await patchWeightTicketMutation({
@@ -100,6 +102,14 @@ export default function ReviewWeightTicket({
     status: status || '',
     rejectionReason: reason || '',
   };
+
+  useEffect(() => {
+    // console.log('reviewWeightTicket rerender', initialValues);
+    // console.log('formRef.current', formRef.current);
+    formRef.current.resetForm();
+    formRef.current.validateForm();
+  }, [formRef, weightTicket]);
+
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
       <Formik
@@ -107,13 +117,20 @@ export default function ReviewWeightTicket({
         validationSchema={validationSchema}
         innerRef={formRef}
         onSubmit={handleSubmit}
+        enableReinitialize
+        validateOnMount
       >
-        {({ handleChange, values }) => {
+        {(formikProps) => {
+          const { handleChange, values } = formikProps;
+          // console.log('formik rerender initialValues', initialValues);
+          // console.log('formik errors', formikProps.errors);
+          // console.log('formik props', formikProps);
           const handleApprovalChange = (event) => {
             handleChange(event);
             setCanEditRejection(true);
           };
 
+          const weightType = values.weightType === 'weightTicket' ? 'Weight tickets' : 'Constructed weight';
           return (
             <Form className={classnames(formStyles.form, styles.ReviewWeightTicket)}>
               <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
@@ -121,27 +138,8 @@ export default function ReviewWeightTicket({
               <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
               <legend className={classnames('usa-label', styles.label)}>Vehicle description</legend>
               <div className={styles.displayValue}>{vehicleDescription}</div>
-              <FormGroup>
-                <Fieldset>
-                  <legend className="usa-label">Weight type</legend>
-                  <Field
-                    as={Radio}
-                    id="weight-tickets"
-                    label="Weight tickets"
-                    name="weightType"
-                    value="weightTicket"
-                    checked={values.weightType === 'weightTicket'}
-                  />
-                  <Field
-                    as={Radio}
-                    id="constructed-weight"
-                    label="Constructed weight"
-                    name="weightType"
-                    value="constructedWeight"
-                    checked={values.weightType === 'constructedWeight'}
-                  />
-                </Fieldset>
-              </FormGroup>
+              <legend className={classnames('usa-label', styles.label)}>Weight type</legend>
+              <div className={styles.displayValue}>{weightType}</div>
               <MaskedTextField
                 defaultValue="0"
                 name="emptyWeight"
