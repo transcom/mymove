@@ -24,7 +24,7 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS } from 'shared/constants';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
@@ -191,7 +191,12 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
         displayDestinationType: isRetirementOrSeparation,
       };
 
+      if (shipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
+        displayInfo.agency = customerAgency;
+        displayInfo.closeoutOffice = closeoutOffice;
+      }
       const errorIfMissingList = errorIfMissing[shipment.shipmentType];
+
       if (errorIfMissingList) {
         errorIfMissingList.forEach((fieldToCheck) => {
           if (!displayInfo[fieldToCheck]) {
