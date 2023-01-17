@@ -1,13 +1,7 @@
-/**
- * Semi-automated converted from a cypress test, and thus may contain
- * non best-practices, in particular: heavy use of `page.locator`
- * instead of `page.getBy*`.
- */
-
 // @ts-check
-const { test, expect } = require('../../utils/customerTest');
+const { test, expect } = require('../customerPage');
 
-test('A customer can create, edit, and delete an NTS-release shipment', async ({ page, customerPage }) => {
+test('A customer can create, edit, and delete an HHG shipment', async ({ page, customerPage }) => {
   const move = await customerPage.testHarness.buildMoveWithOrders();
   const userId = move.Orders.ServiceMember.user_id;
   await customerPage.signIn.customer.existingCustomer(userId);
@@ -15,17 +9,15 @@ test('A customer can create, edit, and delete an NTS-release shipment', async ({
   // Navigate to create a new shipment
   await page.getByTestId('shipment-selection-btn').click();
   await customerPage.navigateForward();
-  await page.getByText('It was stored during a previous move (NTS-release)Movers pick up things you put ').click();
+  await page.getByText('Movers pack and ship it, paid by the government (HHG)').click();
   await customerPage.navigateForward();
 
-  // Fill in form to create NTS shipment
-  await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
-  await page.getByLabel('Preferred delivery date').blur();
-  await page.getByLabel('Address 1').fill('7 Q St');
-  await page.getByLabel('City').fill('Atco');
-  await page.getByLabel('State').selectOption('NJ');
-  await page.getByLabel('ZIP').fill('08004');
-
+  // Fill in form to create HHG shipment
+  await customerPage.waitForPage.hhgShipment();
+  await page.getByLabel('Preferred pickup date').fill('25 Dec 2022');
+  await page.getByLabel('Preferred pickup date').blur();
+  await page.getByText('Use my current address').click();
+  await page.getByLabel('Preferred delivery date').fill('29 Dec 2022');
   await page.getByTestId('remarks').fill('Grandfather antique clock');
   await customerPage.navigateForward();
 
@@ -34,15 +26,18 @@ test('A customer can create, edit, and delete an NTS-release shipment', async ({
   await expect(page.getByText('Grandfather antique clock')).toBeVisible();
 
   // Navigate to edit shipment from the review page
-  await page.getByTestId('edit-ntsr-shipment-btn').click();
-  await customerPage.waitForPage.ntsReleaseShipment();
+  await page.getByTestId('edit-shipment-btn').click();
+  await customerPage.waitForPage.hhgShipment();
 
   // Update form (adding releasing agent)
-  await page.getByLabel('First name').fill('Grace');
-  await page.getByLabel('Last name').fill('Griffin');
-  await page.getByLabel('Phone').fill('2025551234');
-  await page.getByLabel('Email').fill('grace.griffin@example.com');
-  await customerPage.navigateForward();
+  await page.getByRole('group', { name: 'Releasing agent Optional' }).getByLabel('First name').fill('Grace');
+  await page.getByRole('group', { name: 'Releasing agent Optional' }).getByLabel('Last name').fill('Griffin');
+  await page.getByRole('group', { name: 'Releasing agent Optional' }).getByLabel('Phone').fill('2025551234');
+  await page
+    .getByRole('group', { name: 'Releasing agent Optional' })
+    .getByLabel('Email')
+    .fill('grace.griffin@example.com');
+  await page.getByTestId('wizardNextButton').click();
 
   // Verify that form submitted
   await customerPage.waitForPage.reviewShipments();

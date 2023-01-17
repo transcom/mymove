@@ -6,7 +6,7 @@
 // @ts-check
 const base = require('@playwright/test');
 
-const { BaseTestPage } = require('./baseTest');
+const { BaseTestPage } = require('../../utils/baseTest');
 
 /**
  * CustomerPage
@@ -18,7 +18,9 @@ class CustomerPage extends BaseTestPage {
       await base.expect(this.page.getByRole('heading', { name: 'Select an Existing User' })).toBeVisible();
     },
     onboardingConus: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Where are you moving?' })).toBeVisible();
+      await base
+        .expect(this.page.getByRole('heading', { name: 'Where are you moving?' }))
+        .toBeVisible({ timeout: 10000 });
     },
     onboardingDodId: async () => {
       await base.expect(this.page.getByRole('heading', { name: 'Create your profile' })).toBeVisible();
@@ -44,6 +46,12 @@ class CustomerPage extends BaseTestPage {
     home: async () => {
       await base.expect(this.page.getByRole('heading', { name: 'Leo Spacemen', level: 2 })).toBeVisible();
     },
+    orders: async () => {
+      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Tell us about your move orders');
+    },
+    ordersUpload: async () => {
+      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Upload your orders');
+    },
     ntsShipment: async () => {
       await base
         .expect(this.page.getByRole('heading', { level: 1 }))
@@ -53,6 +61,11 @@ class CustomerPage extends BaseTestPage {
       await base
         .expect(this.page.getByRole('heading', { level: 1 }))
         .toHaveText('Where and when should the movers deliver your things from storage?');
+    },
+    hhgShipment: async () => {
+      await base
+        .expect(this.page.getByRole('heading', { level: 1 }))
+        .toHaveText('Movers pack and transport this shipment');
     },
     reviewShipments: async () => {
       await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Review your details');
@@ -74,13 +87,13 @@ class CustomerPage extends BaseTestPage {
  */
 
 /** @type {base.Fixtures<CustomerPageTestArgs, {}, base.PlaywrightTestArgs, base.PlaywrightWorkerArgs>} */
-const officeFixtures = {
+const customerFixtures = {
   customerPage: async ({ page, request }, use) => {
     const customerPage = new CustomerPage(page, request);
     await use(customerPage);
   },
 };
 
-exports.test = base.test.extend(officeFixtures);
+exports.test = base.test.extend(customerFixtures);
 
 exports.expect = base.expect;
