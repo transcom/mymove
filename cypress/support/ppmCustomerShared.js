@@ -228,9 +228,7 @@ export function submitsDateAndLocation() {
 export function navigateFromDateAndLocationPageToEstimatedWeightsPage(actionsToWaitOn) {
   cy.get('button').contains('Save & Continue').should('be.enabled').click();
 
-  if (actionsToWaitOn && actionsToWaitOn.length > 0) {
-    actionsToWaitOn.forEach((action) => cy.wait(action));
-  }
+  if (actionsToWaitOn) cy.wait(actionsToWaitOn);
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-weight/);
