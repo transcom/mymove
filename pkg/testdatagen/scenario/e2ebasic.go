@@ -2669,7 +2669,6 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
 			SITDaysAllowance:     &sitDaysAllowance,
 		},
@@ -2789,7 +2788,7 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 		Move:        mto,
 	})
 
-	makeSITExtensionsForShipment(appCtx, MTOShipment)
+	MakeSITExtensionsForShipment(appCtx, MTOShipment)
 
 	dcrtCost := unit.Cents(99999)
 	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{

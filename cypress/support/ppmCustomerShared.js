@@ -107,9 +107,8 @@ export function fillOutAboutPage(selectAdvance) {
   cy.get('select[name="w2Address.state"]').select('AZ');
   cy.get('input[name="w2Address.postalCode"]').clear().type('85369').blur();
 
-  // when editing an existing about page record it should take us back to the review page when the existing bug is
-  // fixed
-  navigateFromAboutPageToWeightTicketPage();
+  cy.get('button').contains('Save & Continue').should('be.enabled').click();
+  cy.wait('@patchShipment');
 }
 
 export function navigateFromAboutPageToWeightTicketPage() {

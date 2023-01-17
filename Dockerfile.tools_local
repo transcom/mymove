@@ -18,7 +18,7 @@ RUN rm -f bin/prime-api-client && make bin/prime-api-client
 # FINAL #
 #########
 
-FROM alpine:3.17.0
+FROM alpine:3.17.1
 
 # hadolint ignore=DL3017
 RUN apk upgrade --no-cache busybox

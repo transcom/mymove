@@ -53,9 +53,11 @@ import {
   faTruckMoving,
   faUndoAlt,
   faWeightHanging,
+  faDownload,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
+  faDownload,
   faQuestionCircle,
   fasFaQuestionCircle,
   faFile,

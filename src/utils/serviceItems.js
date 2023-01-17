@@ -1,3 +1,5 @@
+import { SERVICE_ITEM_CODES } from '../constants/serviceItems';
+
 import { dateSort } from 'shared/utils';
 import { convertFromThousandthInchToInch } from 'utils/formatters';
 
@@ -57,4 +59,26 @@ export function formatDimensions(dimensions, conversion = convertFromThousandthI
   return `${conversion(dimensions.length)}${symbol}x${conversion(dimensions.width)}${symbol}x${conversion(
     dimensions.height,
   )}${symbol}`;
+}
+
+export function isCounseling(serviceItem) {
+  return serviceItem?.reServiceCode === SERVICE_ITEM_CODES.CS;
+}
+
+export function hasCounseling(mtoServiceItems) {
+  if (!mtoServiceItems?.length) {
+    return false;
+  }
+  return !!mtoServiceItems?.some(isCounseling);
+}
+
+export function isMoveManagement(serviceItem) {
+  return serviceItem?.reServiceCode === SERVICE_ITEM_CODES.MS;
+}
+
+export function hasMoveManagement(mtoServiceItems) {
+  if (!mtoServiceItems?.length) {
+    return false;
+  }
+  return !!mtoServiceItems?.some(isMoveManagement);
 }

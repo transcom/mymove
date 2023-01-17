@@ -16,7 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite WeightTicketSuite) TestUpdateWeightTicket() {
+func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 	ppmShipmentUpdater := mocks.PPMShipmentUpdater{}
 
 	setupForTest := func(appCtx appcontext.AppContext, overrides *models.WeightTicket, hasEmptyFiles bool, hasFullFiles bool, hasProofFiles bool) *models.WeightTicket {

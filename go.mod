@@ -7,7 +7,7 @@ require (
 	github.com/XSAM/otelsql v0.17.1
 	github.com/alexedwards/scs/redisstore v0.0.0-20221223131519-238b052508b6
 	github.com/alexedwards/scs/v2 v2.5.0
-	github.com/aws/aws-sdk-go v1.44.175
+	github.com/aws/aws-sdk-go v1.44.179
 	github.com/benbjohnson/clock v1.3.0
 	github.com/codegangsta/gin v0.0.0-20211113050330-71f90109db02
 	github.com/disintegration/imaging v1.6.2
@@ -19,10 +19,10 @@ require (
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/loads v0.21.2
 	github.com/go-openapi/runtime v0.25.0
-	github.com/go-openapi/spec v0.20.7
+	github.com/go-openapi/spec v0.20.8
 	github.com/go-openapi/strfmt v0.21.3
 	github.com/go-openapi/swag v0.22.3
-	github.com/go-openapi/validate v0.22.0
+	github.com/go-openapi/validate v0.22.1
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/go-swagger/go-swagger v0.30.3
 	github.com/gobuffalo/envy v1.10.2
@@ -50,8 +50,8 @@ require (
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.5
-	github.com/pterm/pterm v0.12.51
-	github.com/rickar/cal/v2 v2.1.9
+	github.com/pterm/pterm v0.12.53
+	github.com/rickar/cal/v2 v2.1.10
 	github.com/spf13/afero v1.9.3
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
@@ -78,9 +78,9 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v0.34.0
 	go.opentelemetry.io/otel/trace v1.11.2
 	go.uber.org/zap v1.24.0
-	golang.org/x/crypto v0.4.0
+	golang.org/x/crypto v0.5.0
 	golang.org/x/net v0.5.0
-	golang.org/x/oauth2 v0.3.0
+	golang.org/x/oauth2 v0.4.0
 	golang.org/x/text v0.6.0
 	golang.org/x/tools v0.5.0
 	gotest.tools/gotestsum v1.8.2

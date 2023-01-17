@@ -63,13 +63,14 @@ var ppmMoveType = models.SelectedMoveTypePPM
 var tioRemarks = "New billable weight set"
 
 type moveCreatorInfo struct {
-	userID      uuid.UUID
-	email       string
-	smID        uuid.UUID
-	firstName   string
-	lastName    string
-	moveID      uuid.UUID
-	moveLocator string
+	userID           uuid.UUID
+	email            string
+	smID             uuid.UUID
+	firstName        string
+	lastName         string
+	moveID           uuid.UUID
+	moveLocator      string
+	closeoutOfficeID *uuid.UUID
 }
 
 // mergeModels won't work for moveCreatorInfo because the fields aren't settable, this is a temporary workaround
@@ -147,8 +148,12 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo moveCrea
 			ID:               moveInfo.moveID,
 			Locator:          moveInfo.moveLocator,
 			SelectedMoveType: &ppmMoveType,
+			CloseoutOfficeID: moveInfo.closeoutOfficeID,
 		},
 	}
+	println("##############################################################################################################################")
+	println(moveInfo.closeoutOfficeID)
+	println("##############################################################################################################################")
 
 	testdatagen.MergeModels(&moveAssertions, assertions)
 
@@ -2241,14 +2246,17 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx appcontext
 	/*
 	 * A service member with orders and two full PPM Shipments.
 	 */
+
+	closeoutOfficeID := uuid.FromStringOrNil("ca6234a4-ed56-4094-a39c-738802798c6b")
 	moveInfo := moveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("afcc7029-4810-4f19-999a-2b254c659e19"),
-		email:       "multiComplete@ppm.unsubmitted",
-		smID:        testdatagen.ConvertUUIDStringToUUID("2dba3c65-1e69-429d-b797-0565014d0384"),
-		firstName:   "Multiple",
-		lastName:    "Complete",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("d94789bb-f8f7-4b5f-b86e-48503af70bfc"),
-		moveLocator: "MULTI1",
+		userID:           testdatagen.ConvertUUIDStringToUUID("afcc7029-4810-4f19-999a-2b254c659e19"),
+		email:            "multiComplete@ppm.unsubmitted",
+		smID:             testdatagen.ConvertUUIDStringToUUID("2dba3c65-1e69-429d-b797-0565014d0384"),
+		firstName:        "Multiple",
+		lastName:         "Complete",
+		moveID:           testdatagen.ConvertUUIDStringToUUID("d94789bb-f8f7-4b5f-b86e-48503af70bfc"),
+		moveLocator:      "MULTI1",
+		closeoutOfficeID: &closeoutOfficeID,
 	}
 
 	assertions := testdatagen.Assertions{
@@ -2270,14 +2278,17 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete2(appCtx appcontext
 	/*
 	 * A service member with orders and two full PPM Shipments.
 	 */
+
+	closeoutOfficeID := uuid.FromStringOrNil("ca6234a4-ed56-4094-a39c-738802798c6b")
 	moveInfo := moveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("836d8363-1a5a-45b7-aee0-996a97724c24"),
-		email:       "multiComplete2@ppm.unsubmitted",
-		smID:        testdatagen.ConvertUUIDStringToUUID("bde2125f-63cf-4a4b-aff4-162a02120d89"),
-		firstName:   "Multiple2",
-		lastName:    "Complete2",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("839f893c-1c72-44e9-8544-298a19f1229a"),
-		moveLocator: "MULTI2",
+		userID:           testdatagen.ConvertUUIDStringToUUID("836d8363-1a5a-45b7-aee0-996a97724c24"),
+		email:            "multiComplete2@ppm.unsubmitted",
+		smID:             testdatagen.ConvertUUIDStringToUUID("bde2125f-63cf-4a4b-aff4-162a02120d89"),
+		firstName:        "Multiple2",
+		lastName:         "Complete2",
+		moveID:           testdatagen.ConvertUUIDStringToUUID("839f893c-1c72-44e9-8544-298a19f1229a"),
+		moveLocator:      "MULTI2",
+		closeoutOfficeID: &closeoutOfficeID,
 	}
 
 	assertions := testdatagen.Assertions{
@@ -7698,7 +7709,7 @@ func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploade
 		Move:        move,
 	})
 
-	makeSITExtensionsForShipment(appCtx, mtoShipmentSIT)
+	MakeSITExtensionsForShipment(appCtx, mtoShipmentSIT)
 
 	testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
@@ -8052,7 +8063,8 @@ func makePendingSITExtensionsForShipment(appCtx appcontext.AppContext, shipment 
 	}
 }
 
-func makeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.MTOShipment) {
+// MakeSITExtensionsForShipment helper function
+func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.MTOShipment) {
 	db := appCtx.DB()
 	sitContractorRemarks1 := "The customer requested an extension."
 	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."

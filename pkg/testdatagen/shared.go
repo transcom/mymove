@@ -185,7 +185,7 @@ func MergeModels(dst, src interface{}) {
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 
 // Returns a random alphanumeric string of specified length
-func makeRandomString(n int) string {
+func MakeRandomString(n int) string {
 	b := make([]byte, n)
 	for i := range b {
 		randInt, err := random.GetRandomInt(len(letterBytes))
