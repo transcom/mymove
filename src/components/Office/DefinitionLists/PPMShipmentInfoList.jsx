@@ -10,6 +10,8 @@ import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatWeight } from 'utils/formatters';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags } from 'utils/displayFlags';
 import affiliation from 'content/serviceMemberAgencies';
+import { permissionTypes } from 'constants/permissions';
+import Restricted from 'components/Restricted/Restricted';
 
 const PPMShipmentInfoList = ({
   className,
@@ -190,7 +192,7 @@ const PPMShipmentInfoList = ({
       {showElement(secondOriginZIPElementFlags) && secondOriginZIPElement}
       {destinationZIPElement}
       {showElement(secondDestinationZIPElementFlags) && secondDestinationZIPElement}
-      {closeoutOfficeElement}
+      <Restricted to={permissionTypes.viewCloseoutOffice}>{closeoutOfficeElement}</Restricted>
       {sitPlannedElement}
       {estimatedWeightElement}
       {showElement(proGearWeightElementFlags) && proGearWeightElement}

@@ -4,31 +4,41 @@ import { render, screen } from '@testing-library/react';
 import PPMShipmentInfoList from './PPMShipmentInfoList';
 
 import affiliation from 'content/serviceMemberAgencies';
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
+
+const renderWithPermissions = (shipment) => {
+  render(
+    <MockProviders permissions={[permissionTypes.viewCloseoutOffice]}>
+      <PPMShipmentInfoList shipment={shipment} />
+    </MockProviders>,
+  );
+};
 
 describe('PPMShipmentInfoList', () => {
   it('renders closeout display for Marines', () => {
-    render(<PPMShipmentInfoList shipment={{ agency: affiliation.MARINES }} />);
+    renderWithPermissions({ agency: affiliation.MARINES });
     expect(screen.getByTestId('closeout')).toBeInTheDocument();
     expect(screen.getByTestId('closeout').textContent).toEqual('TVCB');
     expect(screen.getByText('Closeout office')).toBeInTheDocument();
   });
 
   it('renders closeout display for Navy', () => {
-    render(<PPMShipmentInfoList shipment={{ agency: affiliation.NAVY }} />);
+    renderWithPermissions({ agency: affiliation.NAVY });
     expect(screen.getByTestId('closeout')).toBeInTheDocument();
     expect(screen.getByTestId('closeout').textContent).toEqual('NAVY');
     expect(screen.getByText('Closeout office')).toBeInTheDocument();
   });
 
   it('renders closeout display Coast guard', () => {
-    render(<PPMShipmentInfoList shipment={{ agency: affiliation.COAST_GUARD }} />);
+    renderWithPermissions({ agency: affiliation.COAST_GUARD });
     expect(screen.getByTestId('closeout')).toBeInTheDocument();
     expect(screen.getByTestId('closeout').textContent).toEqual('USCG');
     expect(screen.getByText('Closeout office')).toBeInTheDocument();
   });
 
   it('renders closeout display for Army and Air Force', () => {
-    render(<PPMShipmentInfoList shipment={{ closeoutOffice: 'Test office' }} />);
+    renderWithPermissions({ closeoutOffice: 'Test office' });
     expect(screen.getByTestId('closeout')).toBeInTheDocument();
     expect(screen.getByTestId('closeout').textContent).toEqual('Test office');
     expect(screen.getByText('Closeout office')).toBeInTheDocument();
