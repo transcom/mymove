@@ -34,8 +34,10 @@ const PPMShipmentInfoList = ({
     sitExpected,
     spouseProGearWeight,
   } = shipment.ppmShipment || {};
+
   const { closeoutOffice, agency } = shipment;
   let closeoutDisplay;
+
   switch (agency) {
     case affiliation.MARINES:
       closeoutDisplay = 'TVCB';
@@ -47,8 +49,7 @@ const PPMShipmentInfoList = ({
       closeoutDisplay = 'USCG';
       break;
     default:
-      closeoutDisplay = closeoutOffice;
-      if (!closeoutOffice) closeoutDisplay = '—';
+      closeoutDisplay = closeoutOffice || '-';
       break;
   }
   setFlagStyles({
@@ -109,7 +110,7 @@ const PPMShipmentInfoList = ({
   const closeoutOfficeElement = (
     <div className={closeoutOfficeElementFlags.classes}>
       <dt>Closeout office</dt>
-      <dd>{closeoutDisplay}</dd>
+      <dd data-testid="closeout">{closeoutDisplay}</dd>
     </div>
   );
 
@@ -186,10 +187,10 @@ const PPMShipmentInfoList = ({
     >
       {expectedDepartureDateElement}
       {originZIPElement}
-      {closeoutOfficeElement}
       {showElement(secondOriginZIPElementFlags) && secondOriginZIPElement}
       {destinationZIPElement}
       {showElement(secondDestinationZIPElementFlags) && secondDestinationZIPElement}
+      {closeoutOfficeElement}
       {sitPlannedElement}
       {estimatedWeightElement}
       {showElement(proGearWeightElementFlags) && proGearWeightElement}
