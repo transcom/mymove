@@ -21,7 +21,12 @@ export const ReviewDocuments = ({ match }) => {
   const { mtoShipment, weightTickets, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
-  const [documentSet, setDocumentSet] = useState({});
+
+  let documentSet;
+  if (weightTickets) {
+    weightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+    documentSet = weightTickets[documentSetIndex];
+  }
   const [nextEnabled, setNextEnabled] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -34,7 +39,7 @@ export const ReviewDocuments = ({ match }) => {
     if (weightTickets) {
       const sortedWeightTickets = weightTickets;
       sortedWeightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
-      setDocumentSet(sortedWeightTickets[documentSetIndex]);
+      // setDocumentSet(sortedWeightTickets[documentSetIndex]);
       // NB: this setter appears to work correctly, and is not affected by subsequent Formik rerenders:
       setNextEnabled(formRef.current?.isValid);
       // formRef.current?.resetForm();
