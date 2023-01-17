@@ -36,26 +36,27 @@ const PPMShipmentInfoList = ({
   } = shipment.ppmShipment || {};
 
   const { closeoutOffice, agency } = shipment;
-  let gbloc;
-
-  if (agency === affiliation.MARINES) {
-    gbloc = 'TVCB';
-  } else if (agency === affiliation.NAVY) {
-    gbloc = 'NAVY';
-  } else if (agency === affiliation.COAST_GUARD) {
-    gbloc = 'USCG';
-  } else {
-    gbloc = '';
-  }
-
-  let closeoutDisplay = gbloc;
-
-  if (agency === affiliation.AIR_FORCE || agency === affiliation.ARMY) {
-    closeoutDisplay = closeoutOffice;
-  }
-
-  if (!closeoutDisplay) {
-    closeoutDisplay = '—';
+  let closeoutDisplay;
+  switch (agency) {
+    case affiliation.MARINES:
+      closeoutDisplay = 'TVCB';
+      break;
+    case affiliation.NAVY:
+      closeoutDisplay = 'NAVY';
+      break;
+    case affiliation.COAST_GUARD:
+      closeoutDisplay = 'USCG';
+      break;
+    case affiliation.AIR_FORCE:
+    case affiliation.ARMY:
+      closeoutDisplay = closeoutOffice;
+      if (!closeoutOffice) {
+        closeoutDisplay = '—';
+      }
+      break;
+    default:
+      closeoutDisplay = '—';
+      break;
   }
 
   setFlagStyles({
