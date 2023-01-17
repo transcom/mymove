@@ -2164,6 +2164,10 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 	sitLocationType := models.SITLocationTypeOrigin
+	closeoutOffice := testdatagen.MakeTransportationOffice(appCtx.DB(), testdatagen.Assertions{TransportationOffice: models.TransportationOffice{
+		Name: "Los Angeles AFB",
+	},
+	})
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
@@ -2195,6 +2199,8 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 			SelectedMoveType: &ppmMoveType,
 			Status:           models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt:      &submittedAt,
+			CloseoutOfficeID: &closeoutOffice.ID,
+			CloseoutOffice:   &closeoutOffice,
 		},
 	})
 

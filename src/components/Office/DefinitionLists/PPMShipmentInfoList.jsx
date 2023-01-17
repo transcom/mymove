@@ -9,6 +9,7 @@ import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatWeight } from 'utils/formatters';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags } from 'utils/displayFlags';
+import affiliation from 'content/serviceMemberAgencies';
 
 const PPMShipmentInfoList = ({
   className,
@@ -37,25 +38,23 @@ const PPMShipmentInfoList = ({
   const { closeoutOffice, agency } = shipment;
   let gbloc;
 
-  if (agency === 'MARINES') {
+  if (agency === affiliation.MARINES) {
     gbloc = 'TVCB';
-  }
-
-  if (agency === 'NAVY') {
+  } else if (agency === affiliation.NAVY) {
     gbloc = 'NAVY';
-  }
-
-  if (agency === 'COAST_GUARD') {
+  } else if (agency === affiliation.COAST_GUARD) {
     gbloc = 'USCG';
+  } else {
+    gbloc = '';
   }
 
   let closeoutDisplay = gbloc;
 
-  if (agency === 'AIR_FORCE' || agency === 'ARMY') {
+  if (agency === affiliation.AIR_FORCE || agency === affiliation.ARMY) {
     closeoutDisplay = closeoutOffice;
   }
 
-  if (closeoutDisplay == null) {
+  if (!closeoutDisplay) {
     closeoutDisplay = '—';
   }
 
@@ -116,7 +115,7 @@ const PPMShipmentInfoList = ({
   const closeoutOfficeElementFlags = getDisplayFlags('closeoutOffice');
   const closeoutOfficeElement = (
     <div className={closeoutOfficeElementFlags.classes}>
-      <dt>Closeout Office</dt>
+      <dt>Closeout office</dt>
       <dd>{closeoutDisplay}</dd>
     </div>
   );

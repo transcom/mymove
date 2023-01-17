@@ -18,6 +18,7 @@ import { ShipmentStatusesOneOf } from 'types/shipment';
 import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import affiliation from 'content/serviceMemberAgencies';
 
 const ShipmentDisplay = ({
   shipmentType,
@@ -140,7 +141,7 @@ ShipmentDisplay.propTypes = {
   ]),
   displayInfo: PropTypes.oneOfType([
     PropTypes.shape({
-      agency: PropTypes.string,
+      agency: PropTypes.oneOf(Object.values(affiliation)),
       closeoutOffice: PropTypes.string,
       heading: PropTypes.string.isRequired,
       isDiversion: PropTypes.bool,
