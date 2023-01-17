@@ -56,12 +56,13 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 			},
 		},
 	}, nil)
-	location := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		DutyLocation: DutyLocation{
-			ID: uuid.Must(uuid.NewV4()),
+	location := factory.BuildDutyLocation(nil, []factory.Customization{
+		{
+			Model: DutyLocation{
+				ID: uuid.Must(uuid.NewV4()),
+			},
 		},
-		Stub: true,
-	})
+	}, nil)
 
 	serviceMember := ServiceMember{
 		ID:                     uuid.Must(uuid.NewV4()),

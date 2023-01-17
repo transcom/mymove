@@ -78,11 +78,12 @@ func (suite *HandlerSuite) TestCreateOrder() {
 }
 
 func (suite *HandlerSuite) TestShowOrder() {
-	dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			Address: factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
+	dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model:    factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			OriginDutyLocation: &dutyLocation,
@@ -120,11 +121,12 @@ func (suite *HandlerSuite) TestShowOrder() {
 }
 
 func (suite *HandlerSuite) TestUploadAmendedOrder() {
-	dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			Address: factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
+	dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model:    factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 	var moves models.Moves
 	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{

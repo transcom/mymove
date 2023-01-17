@@ -778,11 +778,12 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 	suite.Run("Creates and saves new amendedOrder doc when the order.UploadedAmendedOrders is nil", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
-		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-			DutyLocation: models.DutyLocation{
-				Address: factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
+		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 		var moves models.Moves
 		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
@@ -868,11 +869,12 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 	suite.Run("Saves userUpload payload to order.UploadedAmendedOrders if the document already exists", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
-		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-			DutyLocation: models.DutyLocation{
-				Address: factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
+		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 		var moves models.Moves
 		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 

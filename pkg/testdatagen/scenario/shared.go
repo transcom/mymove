@@ -1771,12 +1771,12 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		},
 	}, nil)
 
-	newDutyLocation := testdatagen.MakeDutyLocation(appCtx.DB(), testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			AddressID: address.ID,
-			Address:   address,
+	newDutyLocation := factory.BuildDutyLocation(appCtx.DB(), []factory.Customization{
+		{
+			Model:    address,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
@@ -7258,12 +7258,12 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 		},
 	}, nil)
 
-	newDutyLocation := testdatagen.MakeDutyLocation(db, testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			AddressID: address.ID,
-			Address:   address,
+	newDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
+		{
+			Model:    address,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 
 	order := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
