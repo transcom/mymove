@@ -23,7 +23,7 @@ describe('PPMShipmentInfoList', () => {
   it('renders closeout display Coast guard', () => {
     render(<PPMShipmentInfoList shipment={{ agency: affiliation.COAST_GUARD }} />);
     expect(screen.getByTestId('closeout')).toBeInTheDocument();
-    expect(screen.getByTestId('closeout').textContent).toEqual('UMCG');
+    expect(screen.getByTestId('closeout').textContent).toEqual('USCG');
     expect(screen.getByText('Closeout office')).toBeInTheDocument();
   });
 
