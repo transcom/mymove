@@ -154,9 +154,6 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo moveCrea
 			CloseoutOfficeID: moveInfo.closeoutOfficeID,
 		},
 	}
-	println("##############################################################################################################################")
-	println(moveInfo.closeoutOfficeID)
-	println("##############################################################################################################################")
 
 	testdatagen.MergeModels(&moveAssertions, assertions)
 
