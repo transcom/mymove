@@ -48,6 +48,10 @@ const ServicesCounselingAddShipment = ({ match }) => {
   });
   const [mutateMTOShipments] = useMutation(createMTOShipmentWrapper, {
     onSuccess: (result) => {
+      mtoShipments.push(result.newShipment);
+      queryCache.setQueryData([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID]);
+
       if (result.closeoutOffice) {
         mutateMoveCloseoutOffice({
           locator: moveCode,
@@ -57,10 +61,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
           // TODO do query invalidation
         });
       }
-      // TODO i think it's OK if this happens before the closeout office mutation runs
-      mtoShipments.push(result.newShipment);
-      queryCache.setQueryData([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID]);
+
       return result.newShipment;
     },
     onError: () => {
