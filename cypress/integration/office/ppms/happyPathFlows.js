@@ -49,14 +49,7 @@ describe('Services counselor user', () => {
 
     // Submit page 1 of form
     cy.get('[data-testid="submitForm"]').should('be.enabled').click();
-    cy.wait([
-      '@updateMTOShipments',
-      '@updateCloseoutOffice',
-      '@getMTOShipments',
-      '@getMoves',
-      '@getOrders',
-      '@getMTOServiceItems',
-    ]);
+    cy.wait(['@updateMTOShipments', '@updateCloseoutOffice', '@getMTOShipments', '@getMoves', '@getOrders']);
 
     // Verify SIT info
     cy.contains('Government constructed cost: $326');
