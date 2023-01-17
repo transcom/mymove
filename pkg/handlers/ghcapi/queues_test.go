@@ -572,7 +572,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		},
 	}, nil)
 
-	dutyLocation2 := testdatagen.MakeDefaultDutyLocation(suite.DB())
+	dutyLocation2 := factory.BuildDutyLocation(suite.DB(), nil, nil)
 
 	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
