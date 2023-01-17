@@ -66,3 +66,9 @@ export const ImageViewer = () => (
     <DocumentViewer files={testImageFiles} />
   </div>
 );
+
+export const DisplayDownloadOption = () => (
+  <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    <DocumentViewer files={testImageFiles} allowDownload />
+  </div>
+);
