@@ -16,5 +16,5 @@
 
 .hint {
   @include u-margin-top(0);
-  @include u-margin-bottom(1);
+  @include u-margin-bottom(1 !important);
 }
