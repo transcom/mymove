@@ -33,30 +33,10 @@ export const ReviewDocuments = ({ match }) => {
   const history = useHistory();
 
   const formRef = useRef();
-  // let nextEnabled = false;
-  // if (formRef.current?.isValid) {
-  //   nextEnabled = true;
-  // }
 
   useEffect(() => {
-    // console.log('hi from useEffect in ReviewDocuments');
-
-    // const sortedWeightTickets = weightTickets;
-    // sortedWeightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
-    // setDocumentSet(sortedWeightTickets[documentSetIndex]);
-    // NB: this setter appears to work correctly, and is not affected by subsequent Formik rerenders:
     setNextEnabled(formRef.current?.isValid);
-    // formRef.current?.resetForm();
-    // formRef.current?.validateForm();
   }, [formRef, setNextEnabled]);
-
-  // useEffect(() => {
-  //   console.log('documentSet', documentSet);
-  // }, [documentSet]);
-
-  // useEffect(() => {
-  //   console.log('formRef', formRef);
-  // }, [formRef]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;

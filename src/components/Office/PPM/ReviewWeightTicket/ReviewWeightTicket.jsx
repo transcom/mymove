@@ -96,7 +96,6 @@ export default function ReviewWeightTicket({
   const hasProofOfTrailerOwnershipDocument = proofOfTrailerOwnershipDocument?.uploads.length > 0;
 
   const initialValues = {
-    weightType: missingEmptyWeightTicket || missingFullWeightTicket ? 'constructedWeight' : 'weightTicket',
     emptyWeight: emptyWeight ? `${emptyWeight}` : '',
     fullWeight: fullWeight ? `${fullWeight}` : '',
     ownsTrailer: ownsTrailer ? 'true' : 'false',
@@ -106,8 +105,6 @@ export default function ReviewWeightTicket({
   };
 
   useEffect(() => {
-    // console.log('reviewWeightTicket rerender', initialValues);
-    // console.log('formRef.current', formRef.current);
     if (formRef?.current) {
       formRef.current.resetForm();
       formRef.current.validateForm();
@@ -126,9 +123,6 @@ export default function ReviewWeightTicket({
       >
         {(formikProps) => {
           const { handleChange, isValid, values } = formikProps;
-          // console.log('formik rerender initialValues', initialValues);
-          // console.log('formik errors', formikProps.errors);
-          // console.log('formik props', formikProps);
           const handleApprovalChange = (event) => {
             handleChange(event);
             onValid(isValid);
@@ -166,7 +160,7 @@ export default function ReviewWeightTicket({
                 label="Full weight"
                 id="fullWeight"
                 mask={Number}
-                prefix={missingFullWeightTicket ? 'Constructed weight' : 'Weight tickets'}
+                description={missingFullWeightTicket ? 'Constructed weight' : 'Weight tickets'}
                 scale={0} // digits after point, 0 for integers
                 signed={false} // disallow negative
                 thousandsSeparator=","
