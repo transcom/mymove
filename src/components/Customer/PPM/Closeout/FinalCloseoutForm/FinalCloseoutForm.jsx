@@ -17,6 +17,7 @@ import {
 } from 'utils/ppmCloseout';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
+import affiliations from 'content/serviceMemberAgencies';
 
 const validationSchema = Yup.object().shape({
   signature: Yup.string().required('Required'),
@@ -29,7 +30,7 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
     mtoShipment?.ppmShipment?.proGearWeightTickets,
   );
 
-  const isArmyOrAirForce = affiliation === 'ARMY' || affiliation === 'AIR_FORCE';
+  const isArmyOrAirForce = affiliation === affiliations.ARMY || affiliation === affiliations.AIR_FORCE;
 
   const totalExpensesClaimed = calculateTotalMovingExpensesAmount(mtoShipment?.ppmShipment?.movingExpenses);
 
