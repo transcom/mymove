@@ -191,7 +191,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
       };
 
       if (shipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
-        displayInfo.agency = customerData;
+        displayInfo.agency = customerData.agency;
         displayInfo.closeoutOffice = closeoutOffice;
       }
       const errorIfMissingList = errorIfMissing[shipment.shipmentType];
