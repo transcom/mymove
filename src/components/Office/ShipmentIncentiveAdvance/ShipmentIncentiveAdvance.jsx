@@ -8,14 +8,14 @@ import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { calculateMaxAdvanceAndFormatAdvanceAndIncentive } from 'utils/incentives';
-import ppmDocumentStatus from 'constants/ppms';
+import ppmAdvanceStatus from 'constants/ppms';
 
-const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
+const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceStatus }) => {
   const [advanceInput, , advanceHelper] = useField('advanceRequested');
   const [statusInput, , statusHelper] = useField('advanceRequestStatus');
 
   const advanceRequested = String(advanceInput.value) === 'true';
-  const advanceRequestStatus = String(statusInput.value) === 'true';
+  const advanceRequestStatus = advanceStatus === ppmAdvanceStatus.APPROVED;
 
   const { formattedMaxAdvance, formattedIncentive } =
     calculateMaxAdvanceAndFormatAdvanceAndIncentive(estimatedIncentive);
@@ -28,14 +28,12 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
   const handleAdvanceRequestStatusChange = (event) => {
     const selected = event.target.value;
     // eslint-disable-next-line no-console
-    // console.log('selected: ', selected);
-    statusHelper.setValue(selected === ppmDocumentStatus.APPROVED);
+    console.log(selected);
+    statusHelper.setValue(selected);
   };
 
   // eslint-disable-next-line no-console
-  // console.log('advanceRequested: ', advanceRequested);
-  // eslint-disable-next-line no-console
-  console.log('advanceRequestStatus: ', advanceRequestStatus);
+  console.log('statusInput:', statusInput);
 
   return (
     <SectionWrapper className={formStyles.formSection}>
@@ -95,7 +93,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                     id="approveAdvanceRequest"
                     label="Approve"
                     name="advanceRequestStatus"
-                    value={ppmDocumentStatus.APPROVED}
+                    value={ppmAdvanceStatus.APPROVED}
                     title="Approve"
                     checked={advanceRequestStatus}
                     onChange={handleAdvanceRequestStatusChange}
@@ -104,7 +102,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                     id="rejectAdvanceRequest"
                     label="Reject"
                     name="advanceRequestStatus"
-                    value={ppmDocumentStatus.REJECTED}
+                    value={ppmAdvanceStatus.REJECTED}
                     title="Reject"
                     checked={!advanceRequestStatus}
                     onChange={handleAdvanceRequestStatusChange}
