@@ -163,6 +163,14 @@ const newMoveDetailsQuery = {
     ordersId: '1',
     status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
   },
+  closeoutOffice: undefined,
+  customerData: {
+    id: '2468',
+    last_name: 'Kerry',
+    first_name: 'Smith',
+    dodID: '999999999',
+    agency: 'NAVY',
+  },
   order: {
     id: '1',
     originDutyLocation: {
@@ -551,7 +559,7 @@ describe('MoveDetails page', () => {
 
     it('renders review documents button', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-
+      screen.debug();
       render(mockedComponent);
       expect(screen.getAllByRole('button', { name: 'Review documents' }).length).toBe(2);
     });
