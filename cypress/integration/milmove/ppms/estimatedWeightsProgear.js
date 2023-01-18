@@ -13,6 +13,7 @@ describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+    cy.intercept('PATCH', '**/internal/moves/**').as('patchMove');
   });
 
   it('doesn’t allow SM to progress if form is in an invalid state', () => {
@@ -87,5 +88,5 @@ function getToEstimatedWeightsPage() {
   const userId = '4512dc8c-c777-444e-b6dc-7971e398f2dc';
 
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId);
-  navigateFromDateAndLocationPageToEstimatedWeightsPage('@patchShipment');
+  navigateFromDateAndLocationPageToEstimatedWeightsPage(['@patchShipment', '@patchMove']);
 }
