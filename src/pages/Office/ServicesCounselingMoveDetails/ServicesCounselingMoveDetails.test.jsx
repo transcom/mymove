@@ -559,7 +559,6 @@ describe('MoveDetails page', () => {
 
     it('renders review documents button', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-      screen.debug();
       render(mockedComponent);
       expect(screen.getAllByRole('button', { name: 'Review documents' }).length).toBe(2);
     });
