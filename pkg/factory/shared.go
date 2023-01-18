@@ -41,6 +41,7 @@ var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
 var ServiceMember CustomType = "ServiceMember"
+var Role CustomType = "Role"
 var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
@@ -59,6 +60,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.TransportationOffice": TransportationOffice,
 	"models.Upload":               Upload,
 	"models.User":                 User,
+	"roles.Role":                  Role,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
