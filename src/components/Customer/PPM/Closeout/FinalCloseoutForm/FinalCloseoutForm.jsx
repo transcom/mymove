@@ -8,6 +8,7 @@ import styles from './FinalCloseoutForm.module.scss';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import { ShipmentShape } from 'types/shipment';
+import { MoveShape } from 'types/customerShapes';
 import { formatCents, formatWeight } from 'utils/formatters';
 import {
   calculateTotalMovingExpensesAmount,
@@ -27,6 +28,8 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
   const totalProGearWeight = calculateTotalNetWeightForProGearWeightTickets(
     mtoShipment?.ppmShipment?.proGearWeightTickets,
   );
+
+  const isArmyOrAirForce = affiliation === 'ARMY' || affiliation === 'AIR_FORCE';
 
   const totalExpensesClaimed = calculateTotalMovingExpensesAmount(mtoShipment?.ppmShipment?.movingExpenses);
 
@@ -87,7 +90,7 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
               again as moving expenses. Federal tax withholding will be deducted from the profit (entitlement less
               eligible operating expenses.)
             </p>
-            {(affiliation === 'ARMY' || 'AIR_FORCE') && (
+            {isArmyOrAirForce && (
               <p>
                 Your closeout office for your PPM(s) is {selectedMove.closeout_office.name}. This is where your PPM
                 paperwork will be reviewed before you can submit it to finance to receive your incentive.
@@ -143,6 +146,8 @@ FinalCloseoutForm.propTypes = {
   mtoShipment: ShipmentShape.isRequired,
   onBack: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  affiliation: PropTypes.string.isRequired,
+  selectedMove: MoveShape.isRequired,
 };
 
 export default FinalCloseoutForm;

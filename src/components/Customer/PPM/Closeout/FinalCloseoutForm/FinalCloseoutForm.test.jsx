@@ -17,6 +17,12 @@ const defaultProps = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
   initialValues: { date: '2022-11-01', signature: '' },
+  affiliation: 'ARMY',
+  selectedMove: {
+    closeout_office: {
+      name: 'Altus AFB',
+    },
+  },
 };
 
 describe('FinalCloseoutForm component', () => {
@@ -58,6 +64,8 @@ describe('FinalCloseoutForm component', () => {
     ).toBeInTheDocument();
 
     expect(findListItemWithText('minus any advances you were given (you received $900,000.00)')).toBeInTheDocument();
+
+    expect(screen.getByText('Altus AFB', { exact: false })).toBeInTheDocument();
   });
 
   it('properly handles multiple weight tickets, pro gear weight tickets, and moving expenses', () => {
@@ -126,7 +134,7 @@ describe('FinalCloseoutForm component', () => {
     expect(await screen.findByText('Required')).toBeInTheDocument();
     expect(saveButton).toBeDisabled();
 
-    // Save should be re-enabbled after valid input
+    // Save should be re-enabled after valid input
     const signatureField = screen.getByRole('textbox', { name: 'Signature' });
     await userEvent.type(signatureField, 'Grace Griffin');
     await waitFor(() => expect(saveButton).toBeEnabled());
