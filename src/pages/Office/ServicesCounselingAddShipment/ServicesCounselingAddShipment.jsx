@@ -110,7 +110,6 @@ const ServicesCounselingAddShipment = ({ match }) => {
                   SACs={SACs}
                   userRole={roleTypes.SERVICES_COUNSELOR}
                   displayDestinationType
-                  closeoutOffice={move.closeoutOffice}
                   move={move}
                 />
               </Grid>

@@ -71,7 +71,6 @@ const ShipmentForm = (props) => {
     userRole,
     displayDestinationType,
     isAdvancePage,
-    closeoutOffice,
     move,
   } = props;
 
@@ -136,8 +135,12 @@ const ShipmentForm = (props) => {
   const initialValues = isPPM
     ? formatPpmShipmentForDisplay(
         isCreatePage
-          ? { closeoutOffice }
-          : { counselorRemarks: mtoShipment.counselorRemarks, ppmShipment: mtoShipment.ppmShipment, closeoutOffice },
+          ? { closeoutOffice: move.closeoutOffice }
+          : {
+              counselorRemarks: mtoShipment.counselorRemarks,
+              ppmShipment: mtoShipment.ppmShipment,
+              closeoutOffice: move.closeoutOffice,
+            },
       )
     : formatMtoShipmentForDisplay(
         isCreatePage
@@ -687,7 +690,6 @@ ShipmentForm.propTypes = {
   userRole: oneOf(officeRoles).isRequired,
   displayDestinationType: bool,
   isAdvancePage: bool,
-  closeoutOffice: TransportationOfficeShape,
   move: shape({
     eTag: string,
     id: string,
@@ -727,7 +729,6 @@ ShipmentForm.defaultProps = {
   SACs: {},
   displayDestinationType: false,
   isAdvancePage: false,
-  closeoutOffice: {},
   move: {},
 };
 

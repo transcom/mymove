@@ -114,7 +114,6 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
                 userRole={roleTypes.SERVICES_COUNSELOR}
                 displayDestinationType
                 isAdvancePage={isAdvancePage}
-                closeoutOffice={move.closeoutOffice}
                 move={move}
               />
             </Grid>
