@@ -20,7 +20,7 @@ const fullPPMShipmentFields = [
   ['Second origin ZIP', '90211'],
   ['Destination ZIP', '30813'],
   ['Second destination ZIP', '30814'],
-  ['Closeout office', 'Los Angeles AFB'],
+  ['Closeout office', 'Base Ketchikan'],
   ['Storage expected? (SIT)', 'No'],
   ['Estimated weight', '4,000 lbs'],
   ['Pro-gear', 'Yes, 1,987 lbs'],
