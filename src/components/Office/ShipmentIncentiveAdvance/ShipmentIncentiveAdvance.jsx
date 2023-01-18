@@ -13,9 +13,10 @@ import ppmAdvanceStatus from 'constants/ppms';
 const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceStatus }) => {
   const [advanceInput, , advanceHelper] = useField('advanceRequested');
   const [statusInput, , statusHelper] = useField('advanceRequestStatus');
-
+  // eslint-disable-next-line no-console
+  console.log('advanceStatus:', advanceStatus);
   const advanceRequested = String(advanceInput.value) === 'true';
-  const advanceRequestStatus = advanceStatus === ppmAdvanceStatus.APPROVED;
+  const advanceRequestStatus = statusInput.value === advanceStatus;
 
   const { formattedMaxAdvance, formattedIncentive } =
     calculateMaxAdvanceAndFormatAdvanceAndIncentive(estimatedIncentive);
@@ -27,11 +28,8 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceStatus }) => {
 
   const handleAdvanceRequestStatusChange = (event) => {
     const selected = event.target.value;
-    // eslint-disable-next-line no-console
-    console.log(selected);
     statusHelper.setValue(selected);
   };
-
   // eslint-disable-next-line no-console
   console.log('statusInput:', statusInput);
 
