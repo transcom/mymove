@@ -47,7 +47,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
 
-  const { order, customerAgency, move, closeoutOffice, mtoShipments, isLoading, isError } =
+  const { order, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
   const { customer, entitlement: allowances } = order;
 
@@ -122,7 +122,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
         destinationAddress: shipment.destinationAddress || {
           postalCode: order.destinationDutyLocation.address.postalCode,
         },
-        agency: customerAgency,
+        agency: customerData.agency,
         closeoutOffice,
         ...shipment,
         displayDestinationType: isRetirementOrSeparation,
@@ -191,7 +191,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
       };
 
       if (shipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
-        displayInfo.agency = customerAgency;
+        displayInfo.agency = customerData;
         displayInfo.closeoutOffice = closeoutOffice;
       }
       const errorIfMissingList = errorIfMissing[shipment.shipmentType];

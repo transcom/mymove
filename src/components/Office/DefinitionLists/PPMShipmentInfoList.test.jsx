@@ -43,4 +43,11 @@ describe('PPMShipmentInfoList', () => {
     expect(screen.getByTestId('closeout').textContent).toEqual('Test office');
     expect(screen.getByText('Closeout office')).toBeInTheDocument();
   });
+
+  it('renders closeout display when there is no closeout office', () => {
+    renderWithPermissions({ closeoutOffice: '-' });
+    expect(screen.getByTestId('closeout')).toBeInTheDocument();
+    expect(screen.getByTestId('closeout').textContent).toEqual('-');
+    expect(screen.getByText('Closeout office')).toBeInTheDocument();
+  });
 });

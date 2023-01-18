@@ -554,7 +554,7 @@ export const useMoveDetailsQueries = (moveCode) => {
   const { data: { customer } = {}, ...customerQuery } = useQuery([CUSTOMER, customerId], getCustomer, {
     enabled: !!customerId,
   });
-  const customerAgency = customer && Object.values(customer)[0].agency;
+  const customerData = customer && Object.values(customer)[0];
   const closeoutOffice = move.closeoutOffice && move.closeoutOffice.name;
 
   const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
@@ -579,7 +579,7 @@ export const useMoveDetailsQueries = (moveCode) => {
   return {
     move,
     order,
-    customerAgency,
+    customerData,
     closeoutOffice,
     mtoShipments,
     mtoServiceItems,

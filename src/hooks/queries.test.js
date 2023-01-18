@@ -396,8 +396,14 @@ describe('useMoveDetailsQueries', () => {
         ordersId: '4321',
         moveCode: 'ABCDEF',
       },
-      ppmMove: undefined,
-      customerAgency: 'NAVY',
+      closeoutOffice: undefined,
+      customerData: {
+        id: '2468',
+        last_name: 'Kerry',
+        first_name: 'Smith',
+        dodID: '999999999',
+        agency: 'NAVY',
+      },
       order: {
         id: '4321',
         customerID: '2468',
@@ -429,8 +435,14 @@ describe('useMoveDetailsQueries', () => {
         ordersId: '4321',
         moveCode: 'ABCDEF',
       },
-      ppmMove: undefined,
-      customerAgency: 'NAVY',
+      closeoutOffice: undefined,
+      customerData: {
+        id: '2468',
+        last_name: 'Kerry',
+        first_name: 'Smith',
+        dodID: '999999999',
+        agency: 'NAVY',
+      },
       order: {
         id: '4321',
         customerID: '2468',
