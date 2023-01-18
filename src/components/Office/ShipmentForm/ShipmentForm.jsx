@@ -125,7 +125,6 @@ const ShipmentForm = (props) => {
 
   const isTOO = userRole === roleTypes.TOO;
   const isServiceCounselor = userRole === roleTypes.SERVICES_COUNSELOR;
-  // todo use constants
   const showCloseoutOffice =
     isServiceCounselor && isPPM && (serviceMember.agency === 'ARMY' || serviceMember.agency === 'AIR_FORCE');
 
@@ -232,7 +231,6 @@ const ShipmentForm = (props) => {
 
           actions.setSubmitting(false);
           history.push(advancePath);
-          // TODO error handling?
         }
       });
       return;
@@ -290,7 +288,6 @@ const ShipmentForm = (props) => {
     };
 
     if (isCreatePage) {
-      // TODO might need to work on this body
       const body = { ...pendingMtoShipment, moveTaskOrderID };
       submitHandler({ shipment: { body, normalize: false } })
         .then(() => {
@@ -301,7 +298,6 @@ const ShipmentForm = (props) => {
         });
     } else if (isForServicesCounseling) {
       // routing and error handling handled in parent components
-      // TODO is this still true? do we need to do routing here?
       submitHandler({ shipment: updateMTOShipmentPayload });
     } else {
       submitHandler({ shipment: updateMTOShipmentPayload })
