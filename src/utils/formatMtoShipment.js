@@ -86,7 +86,7 @@ const emptyAddressShape = {
   postalCode: '',
 };
 
-export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment = {} }) {
+export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment = {}, closeoutOffice = {} }) {
   const displayValues = {
     expectedDepartureDate: ppmShipment.expectedDepartureDate,
     pickupPostalCode: ppmShipment.pickupPostalCode || '',
@@ -108,7 +108,7 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     estimatedIncentive: ppmShipment.estimatedIncentive,
     advanceRequested: ppmShipment.hasRequestedAdvance ?? false,
     advance: (ppmShipment.advanceAmountRequested / 100 || '').toString(),
-
+    closeoutOffice,
     counselorRemarks,
   };
 
