@@ -208,15 +208,8 @@ export const LocationSearchBoxComponent = ({
 };
 
 export const LocationSearchBoxContainer = (props) => {
-  const { isDisabled, searchLocations } = props;
-  return (
-    <LocationSearchBoxComponent
-      {...props}
-      searchLocations={searchLocations}
-      showAddress={ShowAddress}
-      isDisabled={isDisabled}
-    />
-  );
+  const { searchLocations } = props;
+  return <LocationSearchBoxComponent {...props} searchLocations={searchLocations} showAddress={ShowAddress} />;
 };
 
 LocationSearchBoxContainer.propTypes = {

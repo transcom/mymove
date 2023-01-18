@@ -82,6 +82,10 @@ const ServicesCounselingMoveInfo = () => {
       exact: true,
     }) ||
     matchPath(pathname, {
+      path: servicesCounselingRoutes.SHIPMENT_REVIEW_PATH,
+      exact: true,
+    }) ||
+    matchPath(pathname, {
       path: servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH,
       exact: true,
     });
@@ -116,6 +120,10 @@ const ServicesCounselingMoveInfo = () => {
 
           <Route path={servicesCounselingRoutes.CUSTOMER_SUPPORT_REMARKS_PATH} exact>
             <ServicesCounselorCustomerSupportRemarks />
+          </Route>
+
+          <Route path={servicesCounselingRoutes.SHIPMENT_REVIEW_PATH} exact>
+            <ReviewDocuments />
           </Route>
 
           <Route path={servicesCounselingRoutes.MOVE_HISTORY_PATH} exact>

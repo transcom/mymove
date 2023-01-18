@@ -1,4 +1,4 @@
-import { sortServiceItemsByGroup, formatDimensions } from './serviceItems';
+import { sortServiceItemsByGroup, formatDimensions, hasCounseling, hasMoveManagement } from './serviceItems';
 
 import { formatToThousandthInches } from 'utils/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -226,6 +226,59 @@ describe('serviceItems utils', () => {
             },
           ]);
         });
+      });
+    });
+  });
+  describe('service item lookup functions', () => {
+    const serviceItems = {
+      MS: {
+        reServiceName: 'Move management',
+        approvedAt: '2020-01-01',
+        id: '76055c99-0990-410c-a7c9-69373b0b53eb',
+        status: 'APPROVED',
+        reServiceCode: 'MS',
+      },
+      CS: {
+        reServiceName: 'Counseling fee',
+        id: '76055c99-0990-410c-a7c9-69373b0b5322',
+        status: 'APPROVED',
+        reServiceCode: 'CS',
+        approvedAt: '2020-01-01',
+      },
+      DLH: {
+        reServiceName: 'Domestic linehaul',
+        id: '76055c99-0990-410c-a7c9-69373b0b5322',
+        status: 'APPROVED',
+        reServiceCode: 'DLH',
+        approvedAt: '2020-01-01',
+      },
+    };
+    describe('has counseling function', () => {
+      it('returns false when given an empty array of service items', () => {
+        expect(hasCounseling([])).toBe(false);
+      });
+      it('returns false when given an array of service items without counseling', () => {
+        expect(hasCounseling([serviceItems.MS, serviceItems.DLH])).toBe(false);
+      });
+      it('returns true when given an array of service items with counseling', () => {
+        expect(hasCounseling([serviceItems.MS, serviceItems.DLH, serviceItems.CS])).toBe(true);
+      });
+      it('returns true when given an array of service items with only counseling', () => {
+        expect(hasCounseling([serviceItems.CS])).toBe(true);
+      });
+    });
+    describe('has move management function', () => {
+      it('returns false when given an empty array of service items', () => {
+        expect(hasMoveManagement([])).toBe(false);
+      });
+      it('returns false when given an array of service items without counseling', () => {
+        expect(hasMoveManagement([serviceItems.CS, serviceItems.DLH])).toBe(false);
+      });
+      it('returns true when given an array of service items with counseling', () => {
+        expect(hasMoveManagement([serviceItems.MS, serviceItems.DLH, serviceItems.CS])).toBe(true);
+      });
+      it('returns true when given an array of service items with only counseling', () => {
+        expect(hasMoveManagement([serviceItems.MS])).toBe(true);
       });
     });
   });

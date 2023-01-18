@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { shipments, ordersInfo, customerInfo, serviceItems } from './RequestedShipmentsTestData';
+import { shipments, ordersInfo, customerInfo, serviceItemsMSandCS } from './RequestedShipmentsTestData';
 import ApprovedRequestedShipments from './ApprovedRequestedShipments';
 
 import { MockProviders } from 'testUtils';
@@ -32,7 +32,7 @@ export const withOneApprovedShipment = () => (
       mtoShipments={[shipments[0]]}
       ordersInfo={ordersInfo}
       customerInfo={customerInfo}
-      mtoServiceItems={serviceItems}
+      mtoServiceItems={serviceItemsMSandCS}
       moveCode="TE5TC0DE"
     />
   </div>
@@ -44,7 +44,7 @@ export const withMultipleApprovedShipments = () => (
       mtoShipments={shipments}
       ordersInfo={ordersInfo}
       customerInfo={customerInfo}
-      mtoServiceItems={serviceItems}
+      mtoServiceItems={serviceItemsMSandCS}
       moveCode="TE5TC0DE"
     />
   </div>
@@ -56,7 +56,7 @@ export const withOneApprovedShipmentReadOnly = () => (
       mtoShipments={[shipments[0]]}
       ordersInfo={ordersInfo}
       customerInfo={customerInfo}
-      mtoServiceItems={serviceItems}
+      mtoServiceItems={serviceItemsMSandCS}
       moveCode="TE5TC0DE"
     />
   </div>
@@ -68,7 +68,7 @@ export const withMultipleApprovedShipmentsReadOnly = () => (
       mtoShipments={shipments}
       ordersInfo={ordersInfo}
       customerInfo={customerInfo}
-      mtoServiceItems={serviceItems}
+      mtoServiceItems={serviceItemsMSandCS}
       moveCode="TE5TC0DE"
     />
   </div>
