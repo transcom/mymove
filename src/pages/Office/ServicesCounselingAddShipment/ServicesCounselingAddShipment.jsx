@@ -38,14 +38,6 @@ const ServicesCounselingAddShipment = ({ match }) => {
 
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
-  const [mutateMoveCloseoutOffice] = useMutation(updateMoveCloseoutOffice, {
-    onSuccess: () => {
-      queryCache.invalidateQueries([MOVES, moveCode]);
-    },
-    onError: () => {
-      // TODO invalidate some query data?
-    },
-  });
   const [mutateMTOShipments] = useMutation(createMTOShipmentWrapper, {
     onSuccess: (result) => {
       mtoShipments.push(result.newShipment);
@@ -53,19 +45,19 @@ const ServicesCounselingAddShipment = ({ match }) => {
       queryCache.invalidateQueries([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID]);
 
       if (result.closeoutOffice) {
-        mutateMoveCloseoutOffice({
+        updateMoveCloseoutOffice({
           locator: moveCode,
           ifMatchETag: move.eTag,
           body: { closeoutOfficeId: result.closeoutOffice.id },
         }).then(() => {
-          // TODO do query invalidation
+          queryCache.invalidateQueries([MOVES, moveCode]);
         });
       }
 
       return result.newShipment;
     },
     onError: () => {
-      // TODO invalidate some query data?
+      // TODO
     },
   });
 
