@@ -17,6 +17,7 @@ import { getMTOShipmentsForMove, getResponseError, submitPPMShipmentSignedCertif
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { updateMTOShipment } from 'store/entities/actions';
 import { selectServiceMemberAffiliation, selectMTOShipmentById } from 'store/entities/selectors';
+import { selectMove } from 'shared/Entities/modules/moves';
 import { formatSwaggerDate } from 'utils/formatters';
 import { setFlashMessage } from 'store/flash/actions';
 
@@ -29,6 +30,7 @@ const FinalCloseout = () => {
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const affiliation = useSelector((state) => selectServiceMemberAffiliation(state));
+  const closeoutOffice = useSelector((state) => selectMove(state, moveId));
 
   useEffect(() => {
     getMTOShipmentsForMove(moveId)
@@ -109,6 +111,7 @@ const FinalCloseout = () => {
               onBack={handleBack}
               onSubmit={handleSubmit}
               affiliation={affiliation}
+              closeoutOffice={closeoutOffice}
             />
           </Grid>
         </Grid>

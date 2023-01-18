@@ -1,5 +1,4 @@
 import React from 'react';
-// import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -8,7 +7,6 @@ import * as Yup from 'yup';
 import styles from './FinalCloseoutForm.module.scss';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
-// import { selectMove } from 'shared/Entities/modules/moves';
 import { ShipmentShape } from 'types/shipment';
 import { formatCents, formatWeight } from 'utils/formatters';
 import {
@@ -18,20 +16,17 @@ import {
 } from 'utils/ppmCloseout';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
-// import { moveTaskOrder } from 'shared/Entities/schema';
 
 const validationSchema = Yup.object().shape({
   signature: Yup.string().required('Required'),
   date: Yup.string(),
 });
 
-const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation }) => {
+const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, closeoutOffice }) => {
   const totalNetWeight = calculateTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
   const totalProGearWeight = calculateTotalNetWeightForProGearWeightTickets(
     mtoShipment?.ppmShipment?.proGearWeightTickets,
   );
-
-  // const move = useSelector((state) => selectMove(state, moveId))
 
   const totalExpensesClaimed = calculateTotalMovingExpensesAmount(mtoShipment?.ppmShipment?.movingExpenses);
 
@@ -94,8 +89,8 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
             </p>
             {(affiliation === 'ARMY' || 'AIR_FORCE') && (
               <p>
-                Your closeout office for your PPM(s) is _______________. This is where your PPM paperwork will be
-                reviewed before you can submit it to finance to receive your incentive.
+                Your closeout office for your PPM(s) is {closeoutOffice.closeout_office.name}. This is where your PPM
+                paperwork will be reviewed before you can submit it to finance to receive your incentive.
               </p>
             )}
           </div>
