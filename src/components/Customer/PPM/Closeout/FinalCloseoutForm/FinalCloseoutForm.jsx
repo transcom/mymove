@@ -22,7 +22,7 @@ const validationSchema = Yup.object().shape({
   date: Yup.string(),
 });
 
-const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, closeoutOffice }) => {
+const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, selectedMove }) => {
   const totalNetWeight = calculateTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
   const totalProGearWeight = calculateTotalNetWeightForProGearWeightTickets(
     mtoShipment?.ppmShipment?.proGearWeightTickets,
@@ -89,7 +89,7 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
             </p>
             {(affiliation === 'ARMY' || 'AIR_FORCE') && (
               <p>
-                Your closeout office for your PPM(s) is {closeoutOffice.closeout_office.name}. This is where your PPM
+                Your closeout office for your PPM(s) is {selectedMove.closeout_office.name}. This is where your PPM
                 paperwork will be reviewed before you can submit it to finance to receive your incentive.
               </p>
             )}

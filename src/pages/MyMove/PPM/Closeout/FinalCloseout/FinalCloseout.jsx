@@ -30,7 +30,7 @@ const FinalCloseout = () => {
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const affiliation = useSelector((state) => selectServiceMemberAffiliation(state));
-  const closeoutOffice = useSelector((state) => selectMove(state, moveId));
+  const selectedMove = useSelector((state) => selectMove(state, moveId));
 
   useEffect(() => {
     getMTOShipmentsForMove(moveId)
@@ -111,7 +111,7 @@ const FinalCloseout = () => {
               onBack={handleBack}
               onSubmit={handleSubmit}
               affiliation={affiliation}
-              closeoutOffice={closeoutOffice}
+              selectedMove={selectedMove}
             />
           </Grid>
         </Grid>
