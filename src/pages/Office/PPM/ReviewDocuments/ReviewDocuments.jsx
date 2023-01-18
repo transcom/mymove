@@ -9,12 +9,9 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import { usePPMShipmentDocsQueries } from 'hooks/queries';
-// import { servicesCounselingRoutes } from 'constants/routes'; // need this for close button on side panel
 import ReviewDocumentsSidePanel from 'components/Office/PPM/ReviewDocumentsSidePanel/ReviewDocumentsSidePanel';
 
 export const ReviewDocuments = ({ match }) => {
-  // const history = useHistory(); // need this for close button on side panel
-  // const { moveCode } = useParams(); // need this for close button on side panel
   const { shipmentId } = match.params;
   const { mtoShipment, weightTickets, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
@@ -30,11 +27,6 @@ export const ReviewDocuments = ({ match }) => {
     uploads = uploads.concat(weightTicket.fullDocument?.uploads);
     uploads = uploads.concat(weightTicket.proofOfTrailerOwnershipDocument?.uploads);
   });
-
-  // might need this for the close button on the side panel
-  // const handleClose = () => {
-  //   history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
-  // };
 
   return (
     <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>

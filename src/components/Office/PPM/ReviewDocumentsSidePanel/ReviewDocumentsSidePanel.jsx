@@ -68,7 +68,7 @@ export default function ReviewDocumentsSidePanel({ ppmShipment, ppmNumber, expen
         <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
         <hr />
         <h3 className={styles.send}>Send to customer?</h3>
-        <DocumentViewerSidebar.Content>
+        <DocumentViewerSidebar.Content className={styles.sideBar}>
           {weightTickets.length > 0
             ? weightTickets.map((weight) => {
                 return (
