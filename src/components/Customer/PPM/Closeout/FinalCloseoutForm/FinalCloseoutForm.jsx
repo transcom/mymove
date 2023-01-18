@@ -148,7 +148,11 @@ FinalCloseoutForm.propTypes = {
   onBack: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   affiliation: PropTypes.string.isRequired,
-  selectedMove: MoveShape.isRequired,
+  selectedMove: MoveShape,
+};
+
+FinalCloseoutForm.defaultProps = {
+  selectedMove: {},
 };
 
 export default FinalCloseoutForm;
