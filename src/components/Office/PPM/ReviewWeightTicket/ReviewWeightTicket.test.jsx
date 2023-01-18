@@ -33,6 +33,7 @@ const missingWeightTicketProps = {
     ...baseWeightTicketProps,
     ownsTrailer: false,
     missingEmptyWeightTicket: true,
+    missingFullWeightTicket: true,
   },
 };
 
@@ -61,10 +62,6 @@ describe('ReviewWeightTicket component', () => {
       });
 
       expect(screen.getByText('Vehicle description')).toBeInTheDocument();
-      expect(screen.getByText('Weight type')).toBeInTheDocument();
-      expect(screen.getByLabelText('Weight tickets')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('Constructed weight')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('Empty weight')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Full weight')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByText('Net weight')).toBeInTheDocument();
       expect(screen.getByText('Did they use a trailer they owned?')).toBeInTheDocument();
@@ -83,8 +80,8 @@ describe('ReviewWeightTicket component', () => {
       await waitFor(() => {
         expect(screen.getByText('Kia Forte')).toBeInTheDocument();
       });
-      expect(screen.getByLabelText('Empty weight')).toHaveDisplayValue('400');
-      expect(screen.getByLabelText('Full weight')).toHaveDisplayValue('1,200');
+      expect(screen.getByLabelText('Empty weight', { description: 'Weight tickets' })).toHaveDisplayValue('400');
+      expect(screen.getByLabelText('Full weight', { description: 'Weight tickets' })).toHaveDisplayValue('1,200');
       expect(screen.getByText('800 lbs')).toBeInTheDocument();
       expect(screen.getByLabelText('No')).toBeChecked();
     });
@@ -92,10 +89,9 @@ describe('ReviewWeightTicket component', () => {
     it('populates edit form when weight ticket is missing', async () => {
       render(<ReviewWeightTicket {...defaultProps} {...missingWeightTicketProps} />);
       await waitFor(() => {
-        expect(screen.getByLabelText('Constructed weight')).toBeChecked();
+        expect(screen.getByLabelText('Empty weight', { description: 'Constructed weight' })).toBeInTheDocument();
       });
-      expect(screen.getByText('Empty constructed weight')).toBeInTheDocument();
-      expect(screen.getByText('Full constructed weight')).toBeInTheDocument();
+      expect(screen.getByLabelText('Full weight', { description: 'Constructed weight' })).toBeInTheDocument();
     });
 
     it('notifies the user when a trailer is claimable, and disables approval', async () => {

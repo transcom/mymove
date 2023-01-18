@@ -108,8 +108,10 @@ export default function ReviewWeightTicket({
   useEffect(() => {
     // console.log('reviewWeightTicket rerender', initialValues);
     // console.log('formRef.current', formRef.current);
-    formRef.current.resetForm();
-    formRef.current.validateForm();
+    if (formRef?.current) {
+      formRef.current.resetForm();
+      formRef.current.validateForm();
+    }
   }, [formRef, weightTicket]);
 
   return (
@@ -133,7 +135,6 @@ export default function ReviewWeightTicket({
             setCanEditRejection(true);
           };
 
-          const weightType = values.weightType === 'weightTicket' ? 'Weight tickets' : 'Constructed weight';
           return (
             <Form
               className={classnames(formStyles.form, styles.ReviewWeightTicket)}
@@ -144,26 +145,28 @@ export default function ReviewWeightTicket({
               <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
               <legend className={classnames('usa-label', styles.label)}>Vehicle description</legend>
               <div className={styles.displayValue}>{vehicleDescription}</div>
-              <legend className={classnames('usa-label', styles.label)}>Weight type</legend>
-              <div className={styles.displayValue}>{weightType}</div>
+
               <MaskedTextField
                 defaultValue="0"
                 name="emptyWeight"
-                label={values.weightType === 'weightTicket' ? 'Empty weight' : 'Empty constructed weight'}
+                label="Empty weight"
                 id="emptyWeight"
                 mask={Number}
+                description={missingEmptyWeightTicket ? 'Constructed weight' : 'Weight tickets'}
                 scale={0} // digits after point, 0 for integers
                 signed={false} // disallow negative
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
               />
+
               <MaskedTextField
                 defaultValue="0"
                 name="fullWeight"
-                label={values.weightType === 'weightTicket' ? 'Full weight' : 'Full constructed weight'}
+                label="Full weight"
                 id="fullWeight"
                 mask={Number}
+                prefix={missingFullWeightTicket ? 'Constructed weight' : 'Weight tickets'}
                 scale={0} // digits after point, 0 for integers
                 signed={false} // disallow negative
                 thousandsSeparator=","
@@ -298,6 +301,6 @@ ReviewWeightTicket.defaultProps = {
   weightTicket: null,
   mtoShipment: null,
   onSuccess: null,
-  onValid: null,
+  onValid: () => {},
   formRef: null,
 };
