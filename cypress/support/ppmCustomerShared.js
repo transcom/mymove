@@ -492,6 +492,7 @@ export function verifyFinalIncentiveAndTotals(
     proGearWeight: '1,500 lbs',
     expensesClaimed: '450.00',
     finalIncentiveAmount: '$500,000.00',
+    closeoutOffice: 'Altus AFB',
   },
 ) {
   cy.get('h2').contains(`Your final estimated incentive: ${options?.finalIncentiveAmount}`);
@@ -502,6 +503,7 @@ export function verifyFinalIncentiveAndTotals(
 
   cy.get('li').contains(`${options?.proGearWeight} of pro-gear`);
   cy.get('li').contains(`$${options?.expensesClaimed} in expenses claimed`);
+  cy.get('p').contains(`${options?.closeoutOffice}`);
 }
 
 export function signCloseoutAgreement() {
