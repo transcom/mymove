@@ -7,17 +7,19 @@ import classnames from 'classnames';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { CheckboxField, DatePickerInput } from 'components/form/fields';
+import { CheckboxField, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import TextField from 'components/form/fields/TextField/TextField';
 import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
 import formStyles from 'styles/form.module.scss';
 import { DutyLocationShape } from 'types';
-import { ServiceMemberShape } from 'types/customerShapes';
+import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX, InvalidZIPTypeError } from 'utils/validation';
+import { searchTransportationOffices } from 'services/internalApi';
+import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 
-const validationSchema = Yup.object().shape({
+const validationShape = {
   pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
   useResidentialAddressZIP: Yup.boolean(),
   hasSecondaryPickupPostalCode: Yup.boolean().required('Required'),
@@ -36,8 +38,7 @@ const validationSchema = Yup.object().shape({
   expectedDepartureDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .required('Required'),
-});
-
+};
 const setZip = (setFieldValue, postalCodeField, postalCode, isChecked, isCheckedField) => {
   setFieldValue(isCheckedField, !isChecked);
   setFieldValue(postalCodeField, isChecked ? '' : postalCode);
@@ -47,6 +48,7 @@ const DateAndLocationForm = ({
   mtoShipment,
   destinationDutyLocation,
   serviceMember,
+  move,
   onBack,
   onSubmit,
   postalCodeValidator,
@@ -64,6 +66,7 @@ const DateAndLocationForm = ({
     secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
+    closeoutOffice: move?.closeout_office,
   };
 
   const residentialAddressPostalCode = serviceMember?.residential_address?.postalCode;
@@ -101,8 +104,17 @@ const DateAndLocationForm = ({
     setFieldValue(postalCodeField, value);
   };
 
+  const showCloseoutOffice =
+    serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.ARMY ||
+    serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE;
+  if (showCloseoutOffice) {
+    validationShape.closeoutOffice = Yup.object().required('Required');
+  } else {
+    delete validationShape.closeoutOffice;
+  }
+
   return (
-    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+    <Formik initialValues={initialValues} validationSchema={Yup.object().shape(validationShape)} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, setFieldValue, values }) => {
         return (
           <div className={ppmStyles.formContainer}>
@@ -263,6 +275,31 @@ const DateAndLocationForm = ({
                   </>
                 )}
               </SectionWrapper>
+              {showCloseoutOffice && (
+                <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
+                  <h2>Closeout Office</h2>
+                  <Fieldset>
+                    <Hint className={ppmStyles.hint}>
+                      <p>
+                        A closeout office is where your PPM paperwork will be reviewed before you can submit it to
+                        finance to receive your incentive. This will typically be your destination installation&apos;s
+                        transportation office or an installation near your destination. If you are not sure what to
+                        select, contact your origin transportation office.
+                      </p>
+                    </Hint>
+                    <DutyLocationInput
+                      name="closeoutOffice"
+                      label="Which closeout office should review your PPM?"
+                      placeholder="Start typing a closeout office..."
+                      searchLocations={searchTransportationOffices}
+                    />
+                    <Hint className={ppmStyles.hint}>
+                      If you have more than one PPM for this move, your closeout office will be the same for all your
+                      PPMs.
+                    </Hint>
+                  </Fieldset>
+                </SectionWrapper>
+              )}
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Storage</h2>
                 <Fieldset>
@@ -335,6 +372,7 @@ const DateAndLocationForm = ({
 DateAndLocationForm.propTypes = {
   mtoShipment: ShipmentShape,
   serviceMember: ServiceMemberShape.isRequired,
+  move: MoveShape,
   destinationDutyLocation: DutyLocationShape.isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
@@ -343,6 +381,7 @@ DateAndLocationForm.propTypes = {
 
 DateAndLocationForm.defaultProps = {
   mtoShipment: undefined,
+  move: undefined,
 };
 
 export default DateAndLocationForm;

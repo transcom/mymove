@@ -219,15 +219,16 @@ export function submitsDateAndLocation() {
   cy.get('input[name="destinationPostalCode"]').clear().type('76127');
   cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
 
+  // Select closeout office
+  cy.selectDutyLocation('Fort Bragg');
+
   navigateFromDateAndLocationPageToEstimatedWeightsPage();
 }
 
-export function navigateFromDateAndLocationPageToEstimatedWeightsPage(actionToWaitOn) {
+export function navigateFromDateAndLocationPageToEstimatedWeightsPage(actionsToWaitOn) {
   cy.get('button').contains('Save & Continue').should('be.enabled').click();
 
-  if (actionToWaitOn) {
-    cy.wait(actionToWaitOn);
-  }
+  if (actionsToWaitOn) cy.wait(actionsToWaitOn);
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-weight/);

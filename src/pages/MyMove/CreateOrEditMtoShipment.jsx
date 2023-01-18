@@ -16,9 +16,10 @@ import {
 } from 'store/entities/selectors';
 import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import { HistoryShape, MatchShape, OrdersShape } from 'types/customerShapes';
+import { HistoryShape, MatchShape, MoveShape, OrdersShape } from 'types/customerShapes';
 import { LocationShape } from 'types/index';
 import { ShipmentShape } from 'types/shipment';
+import { selectMove } from 'shared/Entities/modules/moves';
 
 export class CreateOrEditMtoShipment extends Component {
   componentDidMount() {
@@ -37,6 +38,7 @@ export class CreateOrEditMtoShipment extends Component {
       updateMTOShipment,
       serviceMember,
       orders,
+      move,
     } = this.props;
 
     const { type } = qs.parse(location.search);
@@ -46,6 +48,7 @@ export class CreateOrEditMtoShipment extends Component {
       if (type === SHIPMENT_OPTIONS.PPM || mtoShipment?.shipmentType === SHIPMENT_OPTIONS.PPM) {
         return (
           <DateAndLocation
+            move={move}
             mtoShipment={mtoShipment}
             serviceMember={serviceMember}
             destinationDutyLocation={orders.new_duty_location}
@@ -88,6 +91,7 @@ CreateOrEditMtoShipment.propTypes = {
     }),
   }).isRequired,
   orders: OrdersShape,
+  move: MoveShape,
 };
 
 CreateOrEditMtoShipment.defaultProps = {
@@ -110,6 +114,7 @@ CreateOrEditMtoShipment.defaultProps = {
     postalCode: '',
   },
   orders: {},
+  move: {},
 };
 
 function mapStateToProps(state, ownProps) {
@@ -121,6 +126,7 @@ function mapStateToProps(state, ownProps) {
     mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId) || {},
     currentResidence: serviceMember?.residential_address || {},
     newDutyLocationAddress: selectCurrentOrders(state)?.new_duty_location?.address || {},
+    move: selectMove(state, ownProps.match.params.moveId),
   };
 
   return props;
