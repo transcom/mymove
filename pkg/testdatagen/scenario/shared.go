@@ -991,6 +991,63 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
 }
 
+func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("f8af6fb0-101e-489c-9d9c-051931c52cf7"),
+		email:       "weightTicketPPM+closeout@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("cd4d7838-d8c1-441f-b7ce-af30b6257c3a"),
+		firstName:   "PPMCloseout",
+		lastName:    "WeightTickets",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("eb6f09b4-0856-466c-b5e1-854310ccf486"),
+		moveLocator: "CLOSE1",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("c0791087-9798-44e9-99df-59ae3ea9a71e"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          testdatagen.ConvertUUIDStringToUUID("defb263e-bf01-4c67-85f5-b64ab54fd4fe"),
+			ApprovedAt:                  &approvedAt,
+			SubmittedAt:                 models.TimePointer(approvedAt.Add(7 * time.Hour * 24)),
+			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	weightTicketAssertions := testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+	}
+
+	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+
+	weightTicketAssertions = testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		WeightTicket: models.WeightTicket{
+			MissingEmptyWeightTicket: models.BoolPointer(true),
+			MissingFullWeightTicket:  models.BoolPointer(true),
+		},
+	}
+	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+}
+
 func createApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("88007896-6ae7-4600-866a-873d3bc67fd3"),
