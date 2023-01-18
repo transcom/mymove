@@ -71,6 +71,7 @@ var ServicesCounselor = RolePermissions{
 		"update.MTOServiceItem",
 		"update.customer",
 		"update.closeoutOffice",
+		"view.closeoutOffice",
 	},
 }
 

@@ -24,7 +24,7 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS } from 'shared/constants';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
@@ -47,7 +47,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
 
-  const { order, move, mtoShipments, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { order, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
+    useMoveDetailsQueries(moveCode);
   const { customer, entitlement: allowances } = order;
 
   let counselorCanEdit;
@@ -121,6 +122,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
         destinationAddress: shipment.destinationAddress || {
           postalCode: order.destinationDutyLocation.address.postalCode,
         },
+        agency: customerData.agency,
+        closeoutOffice,
         ...shipment,
         displayDestinationType: isRetirementOrSeparation,
       };
@@ -187,7 +190,12 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
         displayDestinationType: isRetirementOrSeparation,
       };
 
+      if (shipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
+        displayInfo.agency = customerData.agency;
+        displayInfo.closeoutOffice = closeoutOffice;
+      }
       const errorIfMissingList = errorIfMissing[shipment.shipmentType];
+
       if (errorIfMissingList) {
         errorIfMissingList.forEach((fieldToCheck) => {
           if (!displayInfo[fieldToCheck]) {

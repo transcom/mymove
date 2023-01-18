@@ -16,4 +16,5 @@ export const permissionTypes = {
   createEvaluationReport: 'create.evaluationReport',
   updateEvaluationReport: 'update.evaluationReport',
   createReportViolation: 'create.reportViolation',
+  viewCloseoutOffice: 'view.closeoutOffice',
 };
