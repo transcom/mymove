@@ -8,10 +8,14 @@ import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { calculateMaxAdvanceAndFormatAdvanceAndIncentive } from 'utils/incentives';
+import ppmDocumentStatus from 'constants/ppms';
 
 const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
   const [advanceInput, , advanceHelper] = useField('advanceRequested');
+  const [statusInput, , statusHelper] = useField('advanceRequestStatus');
+
   const advanceRequested = String(advanceInput.value) === 'true';
+  const advanceRequestStatus = String(statusInput.value) === 'true';
 
   const { formattedMaxAdvance, formattedIncentive } =
     calculateMaxAdvanceAndFormatAdvanceAndIncentive(estimatedIncentive);
@@ -20,6 +24,18 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
     const selected = event.target.value;
     advanceHelper.setValue(selected === 'Yes');
   };
+
+  const handleAdvanceRequestStatusChange = (event) => {
+    const selected = event.target.value;
+    // eslint-disable-next-line no-console
+    // console.log('selected: ', selected);
+    statusHelper.setValue(selected === ppmDocumentStatus.APPROVED);
+  };
+
+  // eslint-disable-next-line no-console
+  // console.log('advanceRequested: ', advanceRequested);
+  // eslint-disable-next-line no-console
+  console.log('advanceRequestStatus: ', advanceRequestStatus);
 
   return (
     <SectionWrapper className={formStyles.formSection}>
@@ -70,6 +86,29 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
 
                 <FormGroup>
                   <div className={styles.AdvanceText}>Maximum advance: ${formattedMaxAdvance}</div>
+                </FormGroup>
+
+                <FormGroup>
+                  <h3 className={styles.NoSpacing}>Review the advance (AOA) request:</h3>
+                  <Label className={styles.Label}>Advance request status:</Label>
+                  <Radio
+                    id="approveAdvanceRequest"
+                    label="Approve"
+                    name="advanceRequestStatus"
+                    value={ppmDocumentStatus.APPROVED}
+                    title="Approve"
+                    checked={advanceRequestStatus}
+                    onChange={handleAdvanceRequestStatusChange}
+                  />
+                  <Radio
+                    id="rejectAdvanceRequest"
+                    label="Reject"
+                    name="advanceRequestStatus"
+                    value={ppmDocumentStatus.REJECTED}
+                    title="Reject"
+                    checked={!advanceRequestStatus}
+                    onChange={handleAdvanceRequestStatusChange}
+                  />
                 </FormGroup>
               </>
             )}
