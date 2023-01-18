@@ -15,6 +15,7 @@ describe('PPM On-boarding - Advances', function () {
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+    cy.intercept('PATCH', '**/internal/moves/**').as('patchMove');
   });
 
   it('does not allow SM to progress if form is in an invalid state', () => {
@@ -88,7 +89,7 @@ function getToAdvancesPage() {
   const userId = '4512dc8c-c777-444e-b6dc-7971e398f2dc';
 
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId);
-  navigateFromDateAndLocationPageToEstimatedWeightsPage('@patchShipment');
+  navigateFromDateAndLocationPageToEstimatedWeightsPage(['@patchShipment', '@patchMove']);
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
   navigateFromEstimatedIncentivePageToAdvancesPage();
 }
