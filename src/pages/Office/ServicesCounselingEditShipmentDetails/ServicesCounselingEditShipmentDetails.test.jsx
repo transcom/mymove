@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingEditShipmentDetails from './ServicesCounselingEditShipmentDetails';
 
-import { updateMTOShipment } from 'services/ghcApi';
+import { updateMTOShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
 import { validatePostalCode } from 'utils/validation';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
@@ -26,6 +26,7 @@ jest.mock('react-router-dom', () => ({
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   updateMTOShipment: jest.fn(),
+  updateMoveCloseoutOffice: jest.fn(),
   SearchTransportationOffices: jest.fn().mockImplementation(() =>
     Promise.resolve([
       {
@@ -410,6 +411,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     it('calls props.onUpdate with success and routes to Advance page when the save button is clicked and the shipment update is successful', async () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
       updateMTOShipment.mockImplementation(() => Promise.resolve({}));
+      updateMoveCloseoutOffice.mockImplementation(() => Promise.resolve({}));
       validatePostalCode.mockImplementation(() => Promise.resolve(false));
       const onUpdateMock = jest.fn();
 
