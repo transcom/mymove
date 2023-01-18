@@ -675,8 +675,9 @@ commands:
       workers:
         type: integer
         # assume this runs in an xlarge resource
-        # xlarge has 8 CPUs, reserve 2 CPUs for server and postgres
-        default: 6
+        # xlarge has 8 CPUs, reserve 2 CPUs for server and postgres,
+        # plus spare
+        default: 5
     steps:
       - attach_workspace:
           at: .
