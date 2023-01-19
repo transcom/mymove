@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { queryCache } from 'react-query';
 import { Button } from '@trussworks/react-uswds';
 import { generatePath, useHistory, withRouter } from 'react-router-dom';
@@ -27,16 +27,9 @@ export const ReviewDocuments = ({ match }) => {
     weightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
     documentSet = weightTickets[documentSetIndex];
   }
-  const [nextEnabled, setNextEnabled] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-
   const history = useHistory();
 
   const formRef = useRef();
-
-  useEffect(() => {
-    setNextEnabled(formRef.current?.isValid);
-  }, [formRef, setNextEnabled]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -59,13 +52,11 @@ export const ReviewDocuments = ({ match }) => {
   };
 
   const onError = (error) => {
-    setSubmitting(false);
     const errorMsg = error?.response?.body;
     milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
   };
 
   const onSuccess = () => {
-    setSubmitting(false);
     queryCache.invalidateQueries([], moveCode);
     if (documentSetIndex < weightTickets.length - 1) {
       setDocumentSetIndex(documentSetIndex + 1);
@@ -80,10 +71,6 @@ export const ReviewDocuments = ({ match }) => {
     }
   };
 
-  const onValid = (errors) => {
-    setNextEnabled(Object.keys(errors).length === 0);
-  };
-
   return (
     <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
@@ -95,6 +82,7 @@ export const ReviewDocuments = ({ match }) => {
         className={styles.sidebar}
         // TODO: set this correctly based on total document sets, including pro gear and expenses
         supertitle={`${documentSetIndex + 1} of ${weightTickets.length} Document Sets`}
+        defaultH3
       >
         <NotificationScrollToTop dependency={documentSetIndex} />
         <DocumentViewerSidebar.Content>
@@ -106,9 +94,7 @@ export const ReviewDocuments = ({ match }) => {
               mtoShipment={mtoShipment}
               onError={onError}
               onSuccess={onSuccess}
-              onValid={onValid}
               formRef={formRef}
-              setSubmitting={setSubmitting}
             />
           )}
         </DocumentViewerSidebar.Content>
@@ -116,7 +102,7 @@ export const ReviewDocuments = ({ match }) => {
           <Button onClick={onBack} disabled={documentSetIndex === 0}>
             Back
           </Button>
-          <Button type="submit" onClick={onContinue} disabled={!nextEnabled || submitting}>
+          <Button type="submit" onClick={onContinue}>
             Continue
           </Button>
         </DocumentViewerSidebar.Footer>

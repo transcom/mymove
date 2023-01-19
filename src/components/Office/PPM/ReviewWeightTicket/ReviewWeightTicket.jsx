@@ -10,7 +10,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewWeightTicket.module.scss';
 
-import { Form } from 'components/form';
+import { ErrorMessage, Form } from 'components/form';
 import { patchWeightTicket } from 'services/ghcApi';
 import { ShipmentShape, WeightTicketShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
@@ -29,6 +29,10 @@ const validationSchema = Yup.object().shape({
         ? schema.min(emptyWeight + 1, 'The full weight must be greater than the empty weight')
         : schema;
     }),
+  trailerMeetsCriteria: Yup.string().when('ownsTrailer', {
+    is: 'true',
+    then: (schema) => schema.required('Required'),
+  }),
   rejectionReason: Yup.string().when('status', {
     is: ppmDocumentStatus.REJECTED,
     then: (schema) => schema.required('Add a reason why this weight ticket is rejected'),
@@ -45,7 +49,6 @@ export default function ReviewWeightTicket({
   onSuccess,
   onValid,
   formRef,
-  setSubmitting,
 }) {
   const [canEditRejection, setCanEditRejection] = useState(true);
 
@@ -56,7 +59,7 @@ export default function ReviewWeightTicket({
 
   const ppmShipment = mtoShipment?.ppmShipment;
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = (values) => {
     const ownsTrailer = values.ownsTrailer === 'true';
     const trailerMeetsCriteria = ownsTrailer ? values.trailerMeetsCriteria === 'true' : false;
     const payload = {
@@ -71,8 +74,7 @@ export default function ReviewWeightTicket({
       reason: values.status === 'APPROVED' ? null : values.rejectionReason,
       status: values.status,
     };
-    setSubmitting(true);
-    await patchWeightTicketMutation({
+    patchWeightTicketMutation({
       ppmShipmentId: weightTicket.ppmShipmentId,
       weightTicketId: weightTicket.id,
       payload,
@@ -95,11 +97,18 @@ export default function ReviewWeightTicket({
 
   const hasProofOfTrailerOwnershipDocument = proofOfTrailerOwnershipDocument?.uploads.length > 0;
 
+  let isTrailerClaimable;
+  if (ownsTrailer) {
+    isTrailerClaimable = trailerMeetsCriteria ? 'true' : 'false';
+  } else {
+    isTrailerClaimable = '';
+  }
+
   const initialValues = {
     emptyWeight: emptyWeight ? `${emptyWeight}` : '',
     fullWeight: fullWeight ? `${fullWeight}` : '',
     ownsTrailer: ownsTrailer ? 'true' : 'false',
-    trailerMeetsCriteria: trailerMeetsCriteria ? 'true' : 'false',
+    trailerMeetsCriteria: isTrailerClaimable,
     status: status || '',
     rejectionReason: reason || '',
   };
@@ -121,19 +130,31 @@ export default function ReviewWeightTicket({
         enableReinitialize
         validateOnMount
       >
-        {(formikProps) => {
-          const { handleChange, isValid, values } = formikProps;
+        {({ handleChange, errors, isValid, setFieldError, setFieldTouched, setFieldValue, touched, values }) => {
           const handleApprovalChange = (event) => {
             handleChange(event);
             onValid(isValid);
             setCanEditRejection(true);
           };
 
+          const handleTrailerOwnedChange = (event) => {
+            if (event.target.value === 'true') {
+              setFieldValue('trailerMeetsCriteria', '');
+              setFieldTouched('trailerMeetsCriteria', false, false);
+              setFieldError('trailerMeetsCriteria', null);
+            }
+            handleChange(event);
+          };
+
+          const handleTrailerClaimableChange = (event) => {
+            if (event.target.value === 'true') {
+              setFieldValue('status', '');
+            }
+            handleChange(event);
+          };
+
           return (
-            <Form
-              className={classnames(formStyles.form, styles.ReviewWeightTicket)}
-              errorCallback={(errors) => onValid(errors)}
-            >
+            <Form className={classnames(formStyles.form, styles.ReviewWeightTicket)}>
               <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
               <hr />
               <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
@@ -179,6 +200,7 @@ export default function ReviewWeightTicket({
                     name="ownsTrailer"
                     value="true"
                     checked={values.ownsTrailer === 'true'}
+                    onChange={handleTrailerOwnedChange}
                   />
                   <Field
                     as={Radio}
@@ -187,6 +209,7 @@ export default function ReviewWeightTicket({
                     name="ownsTrailer"
                     value="false"
                     checked={values.ownsTrailer === 'false'}
+                    onChange={handleTrailerOwnedChange}
                   />
                 </Fieldset>
               </FormGroup>
@@ -194,6 +217,9 @@ export default function ReviewWeightTicket({
                 <FormGroup>
                   <Fieldset>
                     <legend className="usa-label">{`Is the trailer's weight claimable?`}</legend>
+                    <ErrorMessage display={!!errors.trailerMeetsCriteria && touched.trailerMeetsCriteria}>
+                      {errors.trailerMeetsCriteria}
+                    </ErrorMessage>
                     <Field
                       as={Radio}
                       id="trailerCriteriaYes"
@@ -201,6 +227,7 @@ export default function ReviewWeightTicket({
                       name="trailerMeetsCriteria"
                       value="true"
                       checked={values.trailerMeetsCriteria === 'true'}
+                      onChange={handleTrailerClaimableChange}
                     />
                     <Field
                       as={Radio}
@@ -209,6 +236,7 @@ export default function ReviewWeightTicket({
                       name="trailerMeetsCriteria"
                       value="false"
                       checked={values.trailerMeetsCriteria === 'false'}
+                      onChange={handleTrailerClaimableChange}
                     />
                     {values.trailerMeetsCriteria === 'true' && !hasProofOfTrailerOwnershipDocument && (
                       <Alert type="info">Proof of ownership is needed to accept this item.</Alert>
@@ -218,6 +246,7 @@ export default function ReviewWeightTicket({
               )}
               <h3 className={styles.reviewHeader}>Review trip {tripNumber}</h3>
               <p>Add a review for this weight ticket</p>
+              <ErrorMessage display={!!errors.status && touched.status}>{errors.status}</ErrorMessage>
               <Fieldset>
                 <div
                   className={classnames(approveRejectStyles.statusOption, {
@@ -259,10 +288,14 @@ export default function ReviewWeightTicket({
 
                       {canEditRejection && (
                         <>
+                          <ErrorMessage display={!!errors.rejectionReason && touched.rejectionReason}>
+                            {errors.rejectionReason}
+                          </ErrorMessage>
                           <Textarea
                             id={`rejectReason-${weightTicket?.id}`}
                             name="rejectionReason"
                             onChange={handleChange}
+                            error={errors.rejectionReason}
                             value={values.rejectionReason}
                             placeholder="Type something"
                           />

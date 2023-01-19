@@ -40,6 +40,6 @@ input:disabled {
   margin-top: 0.53rem;
 }
 
-:global(.labelWrapper).hasDescription {
+:global(.usa-form-group) :global(.labelWrapper).hasDescription {
   display: block;
 }
