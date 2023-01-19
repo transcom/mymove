@@ -17,6 +17,7 @@
 
   &.collapsed {
     transform: translateX(-100%);
+    visibility: hidden;
   }
 }
 

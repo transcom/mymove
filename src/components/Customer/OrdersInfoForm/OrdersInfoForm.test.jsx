@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import OrdersInfoForm from './OrdersInfoForm';
 
-jest.mock('components/DutyLocationSearchBox/api', () => ({
+jest.mock('components/LocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
     Promise.resolve({
       city: 'Glendale Luke AFB',
@@ -49,11 +49,12 @@ jest.mock('components/DutyLocationSearchBox/api', () => ({
       },
       {
         address: {
-          city: '',
-          id: '00000000-0000-0000-0000-000000000000',
-          postalCode: '',
-          state: '',
-          streetAddress1: '',
+          city: 'Glendale Luke AFB',
+          country: 'United States',
+          id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+          postalCode: '85309',
+          state: 'AZ',
+          streetAddress1: 'n/a',
         },
         address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
         affiliation: 'AIR_FORCE',

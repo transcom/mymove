@@ -9,9 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/audit"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/services/user"
 )
 
 type authClientCertKey string
@@ -60,13 +57,7 @@ func ClientCertMiddleware(appCtx appcontext.AppContext) func(next http.Handler) 
 				return
 			}
 			ctx := SetClientCertInRequestContext(r, clientCert)
-			user, err := user.NewUserFetcher(query.NewQueryBuilder()).FetchUser(newAppCtx, []services.QueryFilter{query.NewQueryFilter("id", "=", clientCert.UserID)})
-			if err != nil {
-				newAppCtx.Logger().Info("Client certificate not linked to user")
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
-			}
-			ctx = audit.WithAuditUser(ctx, user)
+			ctx = audit.WithAuditUserID(ctx, clientCert.UserID)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
@@ -104,13 +95,7 @@ func DevlocalClientCertMiddleware(appCtx appcontext.AppContext) func(next http.H
 				return
 			}
 			ctx := SetClientCertInRequestContext(r, clientCert)
-			user, err := user.NewUserFetcher(query.NewQueryBuilder()).FetchUser(newAppCtx, []services.QueryFilter{query.NewQueryFilter("id", "=", clientCert.UserID)})
-			if err != nil {
-				newAppCtx.Logger().Info("Client certificate not linked to user")
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
-			}
-			ctx = audit.WithAuditUser(ctx, user)
+			ctx = audit.WithAuditUserID(ctx, clientCert.UserID)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}

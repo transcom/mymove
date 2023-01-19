@@ -6,7 +6,7 @@ import { act } from 'react-dom/test-utils';
 
 import ServiceInfoForm from './ServiceInfoForm';
 
-jest.mock('components/DutyLocationSearchBox/api', () => ({
+jest.mock('components/LocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
     Promise.resolve({
       city: 'Test City',
@@ -51,7 +51,7 @@ jest.mock('components/DutyLocationSearchBox/api', () => ({
       {
         address: {
           city: 'Test City',
-          id: '00000000-0000-0000-0000-000000000010',
+          id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
           postalCode: '12345',
           state: 'NY',
           streetAddress1: '123 Main St',

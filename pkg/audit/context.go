@@ -3,7 +3,7 @@ package audit
 import (
 	"context"
 
-	"github.com/transcom/mymove/pkg/models"
+	"github.com/gofrs/uuid"
 )
 
 type contextKey string
@@ -26,18 +26,18 @@ func RetrieveEventNameFromContext(ctx context.Context) string {
 	return operationID
 }
 
-// WithAuditUser returns a new context with the auditUser.
-func WithAuditUser(ctx context.Context, auditUser models.User) context.Context {
-	return context.WithValue(ctx, loggerAuditIDContextKey, auditUser)
+// WithAuditUserID returns a new context with the auditUserID.
+func WithAuditUserID(ctx context.Context, userID uuid.UUID) context.Context {
+	return context.WithValue(ctx, loggerAuditIDContextKey, userID)
 }
 
-// RetrieveAuditUserFromContext returns the auditUser associated with a context. If the
+// RetrieveAuditUserIDFromContext returns the auditUserID associated with a context. If the
 // context has no auditUser, the empty user model is returned
-func RetrieveAuditUserFromContext(ctx context.Context) models.User {
-	var user models.User
-	auditUser, ok := ctx.Value(loggerAuditIDContextKey).(models.User)
+func RetrieveAuditUserIDFromContext(ctx context.Context) uuid.UUID {
+	var userID uuid.UUID
+	auditUserID, ok := ctx.Value(loggerAuditIDContextKey).(uuid.UUID)
 	if !ok {
-		return user
+		return userID
 	}
-	return auditUser
+	return auditUserID
 }

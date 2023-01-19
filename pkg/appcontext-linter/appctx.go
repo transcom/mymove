@@ -73,6 +73,7 @@ func checkIfPackageCanBeSkipped(packageName string) bool {
 		"models":       true,
 		"roles":        true,
 		"testdatagen":  true,
+		"testharness":  true,
 		"testingsuite": true,
 		"utilities":    true,
 		"factory":      true,

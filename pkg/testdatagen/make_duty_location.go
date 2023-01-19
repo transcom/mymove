@@ -34,7 +34,7 @@ func MakeDutyLocation(db *pop.Connection, assertions Assertions) models.DutyLoca
 	}
 	affiliation := internalmessages.AffiliationAIRFORCE
 	location := models.DutyLocation{
-		Name:                   makeRandomString(10),
+		Name:                   MakeRandomString(10),
 		Affiliation:            &affiliation,
 		AddressID:              address.ID,
 		Address:                address,

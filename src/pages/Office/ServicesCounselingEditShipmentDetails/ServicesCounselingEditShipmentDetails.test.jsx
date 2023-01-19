@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingEditShipmentDetails from './ServicesCounselingEditShipmentDetails';
 
-import { updateMTOShipment } from 'services/ghcApi';
+import { updateMTOShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
 import { validatePostalCode } from 'utils/validation';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
@@ -27,6 +27,26 @@ jest.mock('react-router-dom', () => ({
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   updateMTOShipment: jest.fn(),
+  updateMoveCloseoutOffice: jest.fn(),
+  SearchTransportationOffices: jest.fn().mockImplementation(() =>
+    Promise.resolve([
+      {
+        address: {
+          city: '',
+          id: '00000000-0000-0000-0000-000000000000',
+          postalCode: '',
+          state: '',
+          streetAddress1: '',
+        },
+        address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
+        affiliation: 'AIR_FORCE',
+        created_at: '2021-02-11T16:48:04.117Z',
+        id: '93f0755f-6f35-478b-9a75-35a69211da1c',
+        name: 'Altus AFB',
+        updated_at: '2021-02-11T16:48:04.117Z',
+      },
+    ]),
+  ),
 }));
 
 jest.mock('hooks/queries', () => ({
@@ -37,6 +57,19 @@ jest.mock('hooks/queries', () => ({
 jest.mock('utils/validation', () => ({
   ...jest.requireActual('utils/validation'),
   validatePostalCode: jest.fn(),
+}));
+
+jest.mock('components/LocationSearchBox/api', () => ({
+  ShowAddress: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      city: 'Glendale Luke AFB',
+      country: 'United States',
+      id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+      postalCode: '85309',
+      state: 'AZ',
+      streetAddress1: 'n/a',
+    }),
+  ),
 }));
 
 const useEditShipmentQueriesReturnValue = {
@@ -404,6 +437,8 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       await userEvent.type(screen.getByLabelText('Estimated storage start'), '15 Jun 2022');
       await userEvent.type(screen.getByLabelText('Estimated storage end'), '25 Jun 2022');
       await userEvent.tab();
+      await userEvent.type(screen.getByLabelText('Closeout location'), 'Altus');
+      await userEvent.click(await screen.findByText('Altus'));
 
       await waitFor(() => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -414,6 +449,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     it('calls props.onUpdate with success and routes to Advance page when the save button is clicked and the shipment update is successful', async () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
       updateMTOShipment.mockImplementation(() => Promise.resolve({}));
+      updateMoveCloseoutOffice.mockImplementation(() => Promise.resolve({}));
       validatePostalCode.mockImplementation(() => Promise.resolve(false));
       const onUpdateMock = jest.fn();
       render(
@@ -425,6 +461,8 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       await waitFor(() => {
         expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('1,111');
       });
+      await userEvent.type(screen.getByLabelText('Closeout location'), 'Altus');
+      await userEvent.click(await screen.findByText('Altus'));
 
       const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
       expect(saveButton).not.toBeDisabled();
