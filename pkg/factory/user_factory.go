@@ -38,9 +38,54 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 	// If db is false, it's a stub. No need to create in database
 	if db != nil {
 		mustCreate(db, &user)
+		for _, userRole := range user.Roles {
+			// make sure role exists
+			role := FetchOrBuildRoleByRoleType(db, userRole.RoleType)
+			BuildUsersRoles(db, []Customization{
+				{
+					Model: models.UsersRoles{
+						UserID: user.ID,
+						RoleID: role.ID,
+					},
+				},
+			}, nil)
+		}
 	}
 
 	return user
+}
+
+// BuildUsersRoles creates UsersRoles and ties roles to the user
+// Params:
+// - customs is a slice that will be modified by the factory
+//   - UserID and RoleID are required to be in customs
+//
+// - db can be set to nil to create a stubbed model that is not stored in DB.
+func BuildUsersRoles(db *pop.Connection, customs []Customization, traits []Trait) models.UsersRoles {
+	customs = setupCustomizations(customs, traits)
+
+	// Find role assertion and convert to model UsersRoles
+	var cUsersRoles models.UsersRoles
+	if result := findValidCustomization(customs, UsersRoles); result != nil {
+		cUsersRoles = result.Model.(models.UsersRoles)
+		if result.LinkOnly {
+			return cUsersRoles
+		}
+	}
+
+	// create UsersRoles
+	usersRoles := models.UsersRoles{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+
+	// Overwrite values with those from assertions
+	testdatagen.MergeModels(&usersRoles, cUsersRoles)
+
+	if db != nil {
+		mustCreate(db, &usersRoles)
+	}
+
+	return usersRoles
 }
 
 // BuildDefaultUser creates an active user
