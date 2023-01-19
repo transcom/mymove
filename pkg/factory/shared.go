@@ -462,7 +462,9 @@ func FixtureOpen(name string) afero.File {
 		log.Panic(fmt.Errorf("failed to get current directory: %s", err))
 	}
 
-	// if this is called from inside another package remove so we're left with the parent dir
+	// if this is called from inside another package, we want to drop everything
+	// including and after 'pkg'
+	// 'a/b/c/pkg/something/' → 'a/b/c/'
 	cwd = strings.Split(cwd, "pkg")[0]
 
 	fixturePath := path.Join(cwd, "pkg/testdatagen", fixtureDir, name)

@@ -25,7 +25,7 @@ type UploadExtendedParams struct {
 // The customization for BuildUpload allows dev to provide an UploadExtendedParams object.
 // This extended mode uses an Uploader object to create the upload vs. using the model.
 // If an Uploader is provided, the model customizations are ignored in favor of the actual
-// file provided for upload.
+// file provided for upload. In addition, an AppContext must be provided.
 //
 // Params:
 //   - customs is a slice that will be modified by the factory
@@ -39,6 +39,10 @@ func BuildUpload(db *pop.Connection, customs []Customization, traits []Trait) mo
 	if result := findValidCustomization(customs, Upload); result != nil {
 		cUpload = result.Model.(models.Upload)
 
+		if result.LinkOnly {
+			return cUpload
+		}
+
 		// If extendedParams were provided, extract them
 		typedResult, ok := result.ExtendedParams.(*UploadExtendedParams)
 		if result.ExtendedParams != nil && !ok {
@@ -46,9 +50,6 @@ func BuildUpload(db *pop.Connection, customs []Customization, traits []Trait) mo
 		}
 		cUploadParams = typedResult
 
-		if result.LinkOnly {
-			return cUpload
-		}
 	}
 
 	// UPLOADER MODE
@@ -56,6 +57,11 @@ func BuildUpload(db *pop.Connection, customs []Customization, traits []Trait) mo
 	// If the Uploader is passed in, models.Upload assertions are ignored in favor of the Uploader.
 	// Instead we use the Uploader functionality to add the file. This creates the Upload model.
 	if db != nil && cUploadParams != nil && cUploadParams.Uploader != nil {
+		// Appcontext required if uploader mode used.
+		if cUploadParams.AppContext == nil {
+			log.Panic("If Uploader is provided, AppContext must also be provided.")
+		}
+
 		// Get file object
 		var file afero.File
 		if cUploadParams.File != nil {
@@ -65,9 +71,6 @@ func BuildUpload(db *pop.Connection, customs []Customization, traits []Trait) mo
 		}
 
 		// Create file upload
-		if cUploadParams.AppContext == nil {
-			log.Panic("If Uploader is provided, AppContext must also be provided.")
-		}
 		upload, verrs, err := cUploadParams.Uploader.CreateUpload(cUploadParams.AppContext, uploader.File{File: file}, uploader.AllowedTypesServiceMember)
 		if verrs.HasAny() || err != nil {
 			log.Panic(fmt.Errorf("errors encountered saving upload %v, %v", verrs, err))
@@ -93,13 +96,6 @@ func BuildUpload(db *pop.Connection, customs []Customization, traits []Trait) mo
 	}
 
 	return upload
-}
-
-// BuildDefaultUpload returns an admin user with appropriate email
-// Also creates
-//   - User
-func BuildDefaultUpload(db *pop.Connection) models.Upload {
-	return BuildUpload(db, nil, nil)
 }
 
 func GetTraitTimestampedUpload() []Customization {
