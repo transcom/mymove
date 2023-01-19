@@ -107,6 +107,7 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
 
     estimatedIncentive: ppmShipment.estimatedIncentive,
     advanceRequested: ppmShipment.hasRequestedAdvance ?? false,
+    advanceStatus: ppmShipment.advanceStatus,
     advance: (ppmShipment.advanceAmountRequested / 100 || '').toString(),
 
     counselorRemarks,
