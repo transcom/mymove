@@ -756,8 +756,9 @@ commands:
           path: playwright-report
       - run:
           name: create playwright report archive for download
+          when: always
           command: |
-            zip -r playwright-report.zip playwright-report
+            zip -r complete-playwright-report.zip playwright-report
       - store_artifacts:
           path: playwright-report.zip
       - store_artifacts:
