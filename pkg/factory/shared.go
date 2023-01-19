@@ -36,7 +36,11 @@ type CustomType string
 var control CustomType = "Control"
 var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
+<<<<<<< HEAD
 var DutyLocation CustomType = "DutyLocation"
+=======
+var Contractor CustomType = "Contractor"
+>>>>>>> 2845a92706 (add BuildContractor funcs + tests)
 var Entitlement CustomType = "Entitlement"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
@@ -53,6 +57,7 @@ var UsersRoles CustomType = "UsersRoles"
 var defaultTypesMap = map[string]CustomType{
 	"models.Address":              Address,
 	"models.AdminUser":            AdminUser,
+	"models.Contractor":           Contractor,
 	"models.DutyLocation":         DutyLocation,
 	"models.Entitlement":          Entitlement,
 	"models.OfficePhoneLine":      OfficePhoneLine,
