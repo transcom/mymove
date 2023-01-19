@@ -246,6 +246,17 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	}
 
 	if routingConfig.ServeSupport {
+		// only enable the test harness if support and devlocal auth
+		// is enabled, and do it before CSRF and other middleware
+		if routingConfig.ServeDevlocalAuth {
+			appCtx.Logger().Info("Enabling testharness")
+			testHarnessMux := site.PathPrefix("/testharness").Subrouter()
+			testHarnessMux.Use(middleware.RequestLogger(appCtx.Logger()))
+			testHarnessMux.Use(addAuditUserToRequestContextMiddleware)
+			testHarnessMux.Handle("/build/{action}",
+				testharnessapi.NewDefaultBuilder(routingConfig.HandlerConfig)).Methods("POST")
+
+		}
 		primeServerName := routingConfig.HandlerConfig.AppNames().PrimeServername
 		supportMux := site.Host(primeServerName).PathPrefix("/support/v1/").Subrouter()
 
@@ -400,13 +411,6 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	authMux.Handle("/logout", authentication.NewLogoutHandler(routingConfig.AuthContext, routingConfig.HandlerConfig)).Methods("POST")
 
 	if routingConfig.ServeDevlocalAuth {
-		// only enable the test harness if devlocal auth is enabled
-		testHarnessMux := site.PathPrefix("/testharness").Subrouter()
-		testHarnessMux.Use(middleware.RequestLogger(appCtx.Logger()))
-		testHarnessMux.Use(addAuditUserToRequestContextMiddleware)
-		testHarnessMux.Handle("/build/{action}",
-			testharnessapi.NewDefaultBuilder(routingConfig.HandlerConfig)).Methods("POST")
-
 		appCtx.Logger().Info("Enabling devlocal auth")
 		localAuthMux := root.PathPrefix("/devlocal-auth/").Subrouter()
 		localAuthMux.Use(middleware.NoCache(appCtx.Logger()))
