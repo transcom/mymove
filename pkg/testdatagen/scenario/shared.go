@@ -993,12 +993,12 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 
 func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("f8af6fb0-101e-489c-9d9c-051931c52cf7"),
-		email:       "weightTicketPPM+closeout@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("cd4d7838-d8c1-441f-b7ce-af30b6257c3a"),
+		userID:      testdatagen.ConvertUUIDStringToUUID("385bb8f6-ee86-4948-b69d-615417bf71f9"),
+		email:       "weightTicketsPPM+closeout@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("7ad9b8d5-db20-4d00-946b-53531a24a9e1"),
 		firstName:   "PPMCloseout",
 		lastName:    "WeightTickets",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("eb6f09b4-0856-466c-b5e1-854310ccf486"),
+		moveID:      testdatagen.ConvertUUIDStringToUUID("6c121a40-7037-46ba-9e94-1b63c598bcd9"),
 		moveLocator: "CLOSE1",
 	}
 
@@ -1011,11 +1011,11 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 			Status: models.MoveStatusAPPROVED,
 		},
 		MTOShipment: models.MTOShipment{
-			ID:     testdatagen.ConvertUUIDStringToUUID("c0791087-9798-44e9-99df-59ae3ea9a71e"),
+			ID:     testdatagen.ConvertUUIDStringToUUID("443750dc-def6-40ae-a60a-b6a5a4742c6b"),
 			Status: models.MTOShipmentStatusApproved,
 		},
 		PPMShipment: models.PPMShipment{
-			ID:                          testdatagen.ConvertUUIDStringToUUID("defb263e-bf01-4c67-85f5-b64ab54fd4fe"),
+			ID:                          testdatagen.ConvertUUIDStringToUUID("08ab7a25-ef97-4134-bbb5-5be0e0de4734"),
 			ApprovedAt:                  &approvedAt,
 			SubmittedAt:                 models.TimePointer(approvedAt.Add(7 * time.Hour * 24)),
 			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
