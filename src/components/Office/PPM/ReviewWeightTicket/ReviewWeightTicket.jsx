@@ -45,7 +45,6 @@ export default function ReviewWeightTicket({
   weightTicket,
   tripNumber,
   ppmNumber,
-  onError,
   onSuccess,
   onValid,
   formRef,
@@ -54,7 +53,6 @@ export default function ReviewWeightTicket({
 
   const [patchWeightTicketMutation] = useMutation(patchWeightTicket, {
     onSuccess,
-    onError,
   });
 
   const ppmShipment = mtoShipment?.ppmShipment;

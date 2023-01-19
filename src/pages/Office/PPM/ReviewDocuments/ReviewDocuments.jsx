@@ -14,7 +14,6 @@ import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import { usePPMShipmentDocsQueries } from 'hooks/queries';
 import ReviewWeightTicket from 'components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 export const ReviewDocuments = ({ match }) => {
   const { shipmentId, moveCode } = match.params;
@@ -49,11 +48,6 @@ export const ReviewDocuments = ({ match }) => {
     if (documentSetIndex > 0) {
       setDocumentSetIndex(documentSetIndex - 1);
     }
-  };
-
-  const onError = (error) => {
-    const errorMsg = error?.response?.body;
-    milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
   };
 
   const onSuccess = () => {
@@ -92,7 +86,6 @@ export const ReviewDocuments = ({ match }) => {
               ppmNumber={1}
               tripNumber={documentSetIndex + 1}
               mtoShipment={mtoShipment}
-              onError={onError}
               onSuccess={onSuccess}
               formRef={formRef}
             />
