@@ -14,6 +14,7 @@ import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import { usePPMShipmentDocsQueries } from 'hooks/queries';
 import ReviewWeightTicket from 'components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket';
+import { WEIGHT_TICKETS } from 'constants/queryKeys';
 
 export const ReviewDocuments = ({ match }) => {
   const { shipmentId, moveCode } = match.params;
@@ -51,7 +52,7 @@ export const ReviewDocuments = ({ match }) => {
   };
 
   const onSuccess = () => {
-    queryCache.invalidateQueries([], moveCode);
+    queryCache.invalidateQueries([WEIGHT_TICKETS, shipmentId]);
     if (documentSetIndex < weightTickets.length - 1) {
       setDocumentSetIndex(documentSetIndex + 1);
     } else {
