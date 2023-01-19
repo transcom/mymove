@@ -184,6 +184,7 @@ export const usePPMShipmentDocsQueries = (shipmentID) => {
   const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentID], getMTOShipmentByID);
 
   const ppmShipmentId = mtoShipment?.ppmShipment?.id;
+
   const { data: weightTickets, ...weightTicketsQuery } = useQuery([WEIGHT_TICKETS, ppmShipmentId], getWeightTickets, {
     enabled: !!ppmShipmentId,
   });

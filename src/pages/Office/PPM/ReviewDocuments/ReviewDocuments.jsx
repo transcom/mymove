@@ -1,5 +1,6 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
+// import { generatePath } from 'react-router'; // need this for close button on side panel
 
 import styles from './ReviewDocuments.module.scss';
 
@@ -8,11 +9,15 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import { usePPMShipmentDocsQueries } from 'hooks/queries';
+import ReviewDocumentsSidePanel from 'components/Office/PPM/ReviewDocumentsSidePanel/ReviewDocumentsSidePanel';
 
 export const ReviewDocuments = ({ match }) => {
   const { shipmentId } = match.params;
-  const { weightTickets, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
+  const { mtoShipment, weightTickets, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
+  // placeholder pro-gear tickets & expenses
+  const progearTickets = [];
+  const expenses = [];
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -27,6 +32,14 @@ export const ReviewDocuments = ({ match }) => {
     <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
         <DocumentViewer files={uploads} allowDownload />
+      </div>
+      <div className={styles.sidebar}>
+        <ReviewDocumentsSidePanel
+          ppmShipment={mtoShipment.ppmShipment}
+          weightTickets={weightTickets}
+          expenseTickets={expenses}
+          proGearTickets={progearTickets}
+        />
       </div>
     </div>
   );
