@@ -160,4 +160,10 @@ describe('DocumentViewer component', () => {
 
     expect(await screen.findByRole('heading', { name: 'File Not Found' })).toBeInTheDocument();
   });
+
+  it('shows the download link option when allowDownload is true', async () => {
+    render(<DocumentViewer files={mockFiles} allowDownload />);
+
+    expect(await screen.findByText('Download file')).toBeInTheDocument();
+  });
 });

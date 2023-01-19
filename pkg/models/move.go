@@ -462,3 +462,18 @@ func (m Move) IsCanceled() *bool {
 	}
 	return swag.Bool(false)
 }
+
+// IsPPMOnly returns true of the only type of shipment associate with the move is "PPM", false otherwise
+func (m Move) IsPPMOnly() bool {
+	if len(m.MTOShipments) == 0 {
+		return false
+	}
+	ppmOnlyMove := true
+	for _, s := range m.MTOShipments {
+		if s.ShipmentType != MTOShipmentTypePPM {
+			ppmOnlyMove = false
+			break
+		}
+	}
+	return ppmOnlyMove
+}

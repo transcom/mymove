@@ -184,6 +184,7 @@ describe('MoveDocumentWrapper', () => {
 
       const wrapper = shallow(<MoveDocumentWrapper />);
       expect(wrapper.find('DocumentViewer').props('files')).toEqual({
+        allowDownload: false,
         files: [
           {
             contentType: 'application/pdf',

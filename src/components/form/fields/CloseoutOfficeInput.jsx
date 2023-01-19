@@ -2,14 +2,13 @@ import { useField } from 'formik';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import LocationSearchBox from 'components/LocationSearchBox/LocationSearchBox';
 import './DropdownInput.module.scss';
+import LocationSearchBox from 'components/LocationSearchBox/LocationSearchBox';
+import { SearchTransportationOffices } from 'services/ghcApi';
 
-// TODO: refactor component when we can to make it more user friendly with Formik
-export const DutyLocationInput = (props) => {
-  const { label, name, displayAddress, hint, placeholder, isDisabled, searchLocations } = props;
+export const CloseoutOfficeInput = (props) => {
+  const { label, name, displayAddress, hint, placeholder, isDisabled } = props;
   const [field, meta, helpers] = useField(props);
-
   const errorString = meta.value?.name ? meta.error?.name || meta.error : '';
 
   return (
@@ -26,12 +25,12 @@ export const DutyLocationInput = (props) => {
       hint={hint}
       placeholder={placeholder}
       isDisabled={isDisabled}
-      searchLocations={searchLocations}
+      searchLocations={SearchTransportationOffices}
     />
   );
 };
 
-DutyLocationInput.propTypes = {
+CloseoutOfficeInput.propTypes = {
   // label displayed for input
   label: PropTypes.string.isRequired,
   // name is for the input
@@ -40,15 +39,13 @@ DutyLocationInput.propTypes = {
   hint: PropTypes.node,
   placeholder: PropTypes.string,
   isDisabled: PropTypes.bool,
-  searchLocations: PropTypes.func,
 };
 
-DutyLocationInput.defaultProps = {
+CloseoutOfficeInput.defaultProps = {
   displayAddress: true,
   hint: '',
   placeholder: '',
   isDisabled: false,
-  searchLocations: undefined,
 };
 
-export default DutyLocationInput;
+export default CloseoutOfficeInput;

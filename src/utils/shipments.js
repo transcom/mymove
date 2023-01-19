@@ -1,6 +1,8 @@
 // The PPM shipment creation is a multi-step flow so it's possible to get in a state with missing
 // information and get to the review screen in an incomplete state from creating another shipment
 
+import { SHIPMENT_OPTIONS } from '../shared/constants';
+
 import { expenseTypes } from 'constants/ppmExpenseTypes';
 
 // on the move. hasRequestedAdvance is the last required field that would mean they're finished.
@@ -101,4 +103,15 @@ export function hasCompletedAllProGear(proGear) {
     return true;
   }
   return !!proGear?.every(isProGearComplete);
+}
+
+export function isPPM(shipment) {
+  return shipment?.shipmentType === SHIPMENT_OPTIONS.PPM;
+}
+
+export function isPPMOnly(mtoShipments) {
+  if (!mtoShipments?.length) {
+    return false;
+  }
+  return !!mtoShipments?.every(isPPM);
 }

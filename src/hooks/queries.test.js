@@ -20,7 +20,7 @@ import { serviceItemCodes } from 'content/serviceItems';
 jest.mock('services/ghcApi', () => ({
   getCustomer: (key, id) =>
     Promise.resolve({
-      customer: { [id]: { id, last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' } },
+      customer: { [id]: { id, last_name: 'Kerry', first_name: 'Smith', dodID: '999999999', agency: 'NAVY' } },
     }),
   getPaymentRequest: (key, id) =>
     Promise.resolve({
@@ -283,7 +283,7 @@ describe('useTXOMoveInfoQueries', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+      customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999', agency: 'NAVY' },
       order: {
         id: '4321',
         customerID: '2468',
@@ -396,6 +396,14 @@ describe('useMoveDetailsQueries', () => {
         ordersId: '4321',
         moveCode: 'ABCDEF',
       },
+      closeoutOffice: undefined,
+      customerData: {
+        id: '2468',
+        last_name: 'Kerry',
+        first_name: 'Smith',
+        dodID: '999999999',
+        agency: 'NAVY',
+      },
       order: {
         id: '4321',
         customerID: '2468',
@@ -426,6 +434,14 @@ describe('useMoveDetailsQueries', () => {
         id: '1234',
         ordersId: '4321',
         moveCode: 'ABCDEF',
+      },
+      closeoutOffice: undefined,
+      customerData: {
+        id: '2468',
+        last_name: 'Kerry',
+        first_name: 'Smith',
+        dodID: '999999999',
+        agency: 'NAVY',
       },
       order: {
         id: '4321',
