@@ -46,7 +46,7 @@ export class TooFlowPage extends OfficePage {
     const shipmentCount = await this.page.locator('input[data-testid="shipment-display-checkbox"]').count();
     if (hasServiceItems) {
       // Select & approve items
-      this.selectAndApproveAllServiceItems();
+      await this.selectAndApproveAllServiceItems();
     }
     // Select additional service items
     await this.page.locator('label[for="shipmentManagementFee"]').click();
@@ -75,8 +75,8 @@ export class TooFlowPage extends OfficePage {
 
     // Click approve
     await modal.getByRole('button', { name: 'Approve and send' }).click();
-    await expect(this.page.locator('#approvalConfirmationModal [data-testid="modal"]')).not.toBeVisible();
     await this.waitForLoading();
+    await expect(this.page.locator('#approvalConfirmationModal [data-testid="modal"]')).not.toBeVisible();
   }
 
   /**

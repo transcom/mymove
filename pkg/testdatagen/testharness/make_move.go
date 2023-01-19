@@ -205,7 +205,7 @@ func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 
 }
 
-// copied almost verbatim from e2ebasic
+// copied almost verbatim from e2ebasic createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles
 func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appcontext.AppContext) models.Move {
 
 	// initialize this directly with defaults instead of using command
@@ -275,7 +275,6 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
 			SITDaysAllowance:     &sitDaysAllowance,
 		},
