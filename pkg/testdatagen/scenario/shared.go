@@ -1474,11 +1474,17 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+	closeoutOfficeID := testdatagen.ConvertUUIDStringToUUID("59131551-efc8-4e63-bb06-9cc88bd8f8a0")
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
+		TransportationOffice: models.TransportationOffice{
+			ID:   closeoutOfficeID,
+			Name: "Awesome base",
+		},
 		Move: models.Move{
-			Status: models.MoveStatusAPPROVED,
+			Status:           models.MoveStatusAPPROVED,
+			CloseoutOfficeID: &closeoutOfficeID,
 		},
 		MTOShipment: models.MTOShipment{
 			ID:     testdatagen.ConvertUUIDStringToUUID("226b81a7-9e56-4de2-b8ec-2cb5e8f72a35"),

@@ -93,7 +93,8 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
             </p>
             {isArmyOrAirForce && (
               <p>
-                Your closeout office for your PPM(s) is {selectedMove.closeout_office.name}. This is where your PPM
+                Your closeout office for your PPM(s) is{' '}
+                {selectedMove?.closeout_office?.name ? selectedMove.closeout_office.name : ''}. This is where your PPM
                 paperwork will be reviewed before you can submit it to finance to receive your incentive.
               </p>
             )}
