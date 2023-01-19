@@ -148,7 +148,7 @@ func (suite *FactorySuite) TestBuildRoleTraits() {
 }
 
 func (suite *FactorySuite) TestBuildRoleHelpers() {
-	suite.Run("FetchOrBuildRole - role exists", func() {
+	suite.Run("FetchOrBuildRoleByRoleType - role exists", func() {
 		// Under test:      FetchOrBuildRoleByRoleType
 		// Set up:          Create a role, then call FetchOrBuildRoleByRoleType
 		// Expected outcome:Existing Role should be returned
@@ -162,7 +162,7 @@ func (suite *FactorySuite) TestBuildRoleHelpers() {
 		precount, err := suite.DB().Count(&roles.Role{})
 		suite.NoError(err)
 
-		role, err := FetchOrBuildRole(suite.DB(), ServicesCounselorRole.RoleType, ServicesCounselorRole.RoleName)
+		role := FetchOrBuildRoleByRoleType(suite.DB(), ServicesCounselorRole.RoleType)
 		suite.NoError(err)
 		suite.Equal(ServicesCounselorRole.RoleName, role.RoleName)
 		suite.Equal(ServicesCounselorRole.RoleType, role.RoleType)
@@ -174,20 +174,19 @@ func (suite *FactorySuite) TestBuildRoleHelpers() {
 		suite.Equal(precount, count)
 	})
 
-	suite.Run("FetchOrBuildRole - role does not exists", func() {
+	suite.Run("FetchOrBuildRoleByRoleType - role does not exists", func() {
 		// Under test:      FetchOrBuildRoleByRoleType
-		// Set up:          Create a role, then call FetchOrBuildRoleByRoleType
-		// Expected outcome:Existing Role should be returned
-		//                  No new role should be created in database
+		// Set up:          Call FetchOrBuildRoleByRoleType with a non-existent role
+		// Expected outcome:new role is created
 
 		precount, err := suite.DB().Count(&roles.Role{})
 		suite.NoError(err)
 
 		ServicesCounselorRole := roles.Role{
 			RoleType: roles.RoleTypeServicesCounselor,
-			RoleName: "Services Counselor",
+			RoleName: "Services_counselor",
 		}
-		role, err := FetchOrBuildRole(suite.DB(), ServicesCounselorRole.RoleType, ServicesCounselorRole.RoleName)
+		role := FetchOrBuildRoleByRoleType(suite.DB(), ServicesCounselorRole.RoleType)
 		suite.NoError(err)
 
 		suite.Equal(ServicesCounselorRole.RoleName, role.RoleName)

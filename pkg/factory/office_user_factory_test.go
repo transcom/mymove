@@ -91,12 +91,7 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 	suite.Run("Successful creation of TIO Office User", func() {
 
 		// Create the TIO Role
-		tioRole := roles.Role{
-			RoleType: roles.RoleTypeTIO,
-			RoleName: "Transportation Invoicing Officer",
-		}
-		_, err := FetchOrBuildRole(suite.DB(), tioRole.RoleType, tioRole.RoleName)
-		suite.NoError(err)
+		FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTIO)
 
 		// FUNCTION UNDER TEST
 		officeUser := BuildOfficeUser(suite.DB(), nil, []Trait{

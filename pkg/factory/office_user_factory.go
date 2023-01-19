@@ -107,11 +107,8 @@ func GetTraitOfficeUserTIO() []Customization {
 	// There's a uniqueness constraint on office user emails so add some randomness
 	email := strings.ToLower(fmt.Sprintf("leo_spaceman_office_%s@example.com", makeRandomString(5)))
 
-	//tioRole, _ := testdatagen.LookupOrMakeRole(db, roles.RoleTypeTIO, "Transportation Invoicing Officer")
 	tioRole := roles.Role{
-		//ID:       uuid.Must(uuid.NewV4()),
 		RoleType: roles.RoleTypeTIO,
-		RoleName: "Transportation Invoicing Officer",
 	}
 
 	return []Customization{
@@ -119,6 +116,32 @@ func GetTraitOfficeUserTIO() []Customization {
 			Model: models.User{
 				LoginGovEmail: email,
 				Roles:         []roles.Role{tioRole},
+			},
+			Type: &User,
+		},
+		{
+			Model: models.OfficeUser{
+				Email: email,
+			},
+			Type: &OfficeUser,
+		},
+	}
+}
+
+// GetTraitOfficeUserTIO helps comply with the uniqueness constraint on emails
+func GetTraitOfficeUserTOO() []Customization {
+	// There's a uniqueness constraint on office user emails so add some randomness
+	email := strings.ToLower(fmt.Sprintf("leo_spaceman_office_%s@example.com", makeRandomString(5)))
+
+	tooRole := roles.Role{
+		RoleType: roles.RoleTypeTOO,
+	}
+
+	return []Customization{
+		{
+			Model: models.User{
+				LoginGovEmail: email,
+				Roles:         []roles.Role{tooRole},
 			},
 			Type: &User,
 		},

@@ -5,6 +5,8 @@ import (
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -17,7 +19,7 @@ import (
 func BuildRole(db *pop.Connection, customs []Customization, traits []Trait) roles.Role {
 	customs = setupCustomizations(customs, traits)
 
-	// Find user assertion and convert to models user
+	// Find role assertion and convert to roles Role
 	var cRole roles.Role
 	if result := findValidCustomization(customs, Role); result != nil {
 		cRole = result.Model.(roles.Role)
@@ -116,8 +118,8 @@ func GetTraitContractingOfficerRole() []Customization {
 	}
 }
 
-// Fetch a role by role type, if it doesn't exist make it
-func FetchOrBuildRole(db *pop.Connection, roleType roles.RoleType, roleName roles.RoleName) (roles.Role, error) {
+// lookup a role by role type, if it doesn't exist make it
+func FetchOrBuildRoleByRoleType(db *pop.Connection, roleType roles.RoleType) roles.Role {
 
 	var role roles.Role
 	err := db.RawQuery(`SELECT * FROM roles WHERE role_type = ?`, roleType).First(&role)
@@ -125,6 +127,7 @@ func FetchOrBuildRole(db *pop.Connection, roleType roles.RoleType, roleName role
 	if err != nil {
 		// if no role found we need to create one - there may be a better way to do this
 		if strings.Contains(err.Error(), "no rows in result set") {
+			roleName := roles.RoleName(cases.Title(language.Und).String(string(roleType)))
 			role = BuildRole(db, []Customization{
 				{
 					Model: roles.Role{
@@ -133,9 +136,9 @@ func FetchOrBuildRole(db *pop.Connection, roleType roles.RoleType, roleName role
 					},
 				},
 			}, nil)
-			return role, nil
+			return role
 		}
 	}
 
-	return role, err
+	return role
 }
