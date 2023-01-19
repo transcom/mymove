@@ -19,7 +19,8 @@ references:
   cypress: &cypress milmove/circleci-docker:milmove-cypress-e44706ef28d1cad04ee6ebf45b2316d825991af7
 
   # the playwright image to use
-  playwright: &playwright cimg/node:16.15.0-browsers
+  # this image has postgres and redis installed
+  playwright: &playwright milmove/circleci-docker:milmove-playwright-95fba458522e1dbc043f3841c5f169a346eccd7b
 
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
   postgres: &postgres cimg/postgres:12.7
@@ -181,17 +182,6 @@ executors:
           password: $DOCKERHUB_PASSWORD
         environment:
           GOPATH: /home/circleci/go
-      - image: *postgres
-        auth:
-          username: $DOCKERHUB_USERNAME
-          password: $DOCKERHUB_PASSWORD
-        environment:
-          POSTGRES_PASSWORD: mysecretpassword
-          POSTGRES_DB: test_db
-      - image: *redis
-        auth:
-          username: $DOCKERHUB_USERNAME
-          password: $DOCKERHUB_PASSWORD
 commands:
   aws_vars_stg:
     steps:
@@ -685,6 +675,16 @@ commands:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - run:
+          name: run postgres
+          background: true
+          command: |
+            sudo pg_ctlcluster --foreground 12 main start
+      - run:
+          name: run redis
+          background: true
+          command: |
+            sudo redis-server
+      - run:
           name: setup hosts
           command: |
             # futz with /etc/hosts for running in circleci
@@ -728,6 +728,12 @@ commands:
             export HTTP_PRIME_SERVER_NAME=primelocal
             export ENVIRONMENT=test
 
+            # ok to loop forever here as the dockerize command below
+            # will kill the job after 5 minutes if this loop never exits
+            while ! sudo su postgres -c "psql -c 'SELECT 1'" >/dev/null ; do
+              sleep 1
+            done
+            sudo su postgres -c "psql -c \"ALTER ROLE postgres PASSWORD '${PGPASSWORD}'\""
             make db_dev_create
             bin/milmove migrate
             # playwright tests DO NOT NEED SEED DATA
