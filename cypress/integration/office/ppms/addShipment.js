@@ -61,6 +61,7 @@ describe('Services counselor user', () => {
     fillOutOriginInfo();
     fillOutDestinationInfo();
     fillOutWeight({ hasProGear: true });
+    cy.selectDutyLocation('JPPSO NORTHWEST', 'closeoutOffice');
 
     cy.get('[data-testid="submitForm"]').should('be.enabled').click();
     cy.wait(['@createShipment', '@getMTOShipments', '@getMoves', '@getOrders']);

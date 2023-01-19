@@ -536,3 +536,8 @@ export function updateMoveCloseoutOffice({ locator, ifMatchETag, body }) {
     { normalize: false },
   );
 }
+
+export async function SearchTransportationOffices(search) {
+  const operationPath = 'transportationOffice.getTransportationOffices';
+  return makeGHCRequest(operationPath, { search }, { normalize: false });
+}
