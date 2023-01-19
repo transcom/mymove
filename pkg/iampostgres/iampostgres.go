@@ -101,7 +101,10 @@ func refreshRDSIAM(host string, port string, region string, user string, creds *
 	for {
 		select {
 		case <-shouldQuitChan:
-			logger.Warn("Shutting down IAM credential refresh")
+			// Disable logging here as this goroutine is never
+			// shutdown except in tests (as of 2023-01-19).
+			// The logging causes a race condition in the tests
+			// logger.Warn("Shutting down IAM credential refresh")
 			return
 		default:
 			authToken, err := rus.GetToken(host+":"+port, region, user, creds)
