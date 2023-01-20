@@ -289,7 +289,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 
 	suite.Run("returns Audit History with session information", func() {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
-		fakeRole, _ := testdatagen.LookupOrMakeRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
+		fakeRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
 		fakeUser := factory.BuildUser(suite.DB(), nil, nil)
 		_ = testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
 			User: fakeUser,
