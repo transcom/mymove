@@ -111,7 +111,7 @@
     "lint:production": "NODE_ENV=production yarn lint",
     "test:lint-rules": "jest eslint-plugin-ato/tests",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
+    "build-storybook": "NODE_OPTIONS=--openssl-legacy-provider build-storybook",
     "happo": "happo",
     "happo-ci-github-actions": "happo-ci-github-actions",
     "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts",
