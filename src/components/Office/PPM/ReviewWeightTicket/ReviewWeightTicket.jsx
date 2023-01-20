@@ -47,7 +47,6 @@ export default function ReviewWeightTicket({
   ppmNumber,
   onError,
   onSuccess,
-  onValid,
   formRef,
 }) {
   const [canEditRejection, setCanEditRejection] = useState(true);
@@ -130,10 +129,9 @@ export default function ReviewWeightTicket({
         enableReinitialize
         validateOnMount
       >
-        {({ handleChange, errors, isValid, setFieldError, setFieldTouched, setFieldValue, touched, values }) => {
+        {({ handleChange, errors, setFieldError, setFieldTouched, setFieldValue, touched, values }) => {
           const handleApprovalChange = (event) => {
             handleChange(event);
-            onValid(isValid);
             setCanEditRejection(true);
           };
 
@@ -215,7 +213,7 @@ export default function ReviewWeightTicket({
                 <FormGroup>
                   <Fieldset>
                     <legend className="usa-label">{`Is the trailer's weight claimable?`}</legend>
-                    <ErrorMessage display={(!!errors.trailerMeetsCriteria && touched.trailerMeetsCriteria) || false}>
+                    <ErrorMessage display={!!errors?.trailerMeetsCriteria && !!touched?.trailerMeetsCriteria}>
                       {errors.trailerMeetsCriteria}
                     </ErrorMessage>
                     <Field
@@ -244,7 +242,7 @@ export default function ReviewWeightTicket({
               )}
               <h3 className={styles.reviewHeader}>Review trip {tripNumber}</h3>
               <p>Add a review for this weight ticket</p>
-              <ErrorMessage display={!!errors.status && touched.status}>{errors.status}</ErrorMessage>
+              <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
               <Fieldset>
                 <div
                   className={classnames(approveRejectStyles.statusOption, {
@@ -318,7 +316,6 @@ ReviewWeightTicket.propTypes = {
   tripNumber: number.isRequired,
   ppmNumber: number.isRequired,
   onSuccess: func,
-  onValid: func,
   formRef: object,
 };
 
@@ -326,6 +323,5 @@ ReviewWeightTicket.defaultProps = {
   weightTicket: null,
   mtoShipment: null,
   onSuccess: null,
-  onValid: () => {},
   formRef: null,
 };

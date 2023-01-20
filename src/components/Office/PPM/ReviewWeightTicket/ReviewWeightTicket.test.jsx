@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, waitFor, screen, fireEvent } from '@testing-library/react';
 
 import ReviewWeightTicket from './ReviewWeightTicket';
 
@@ -100,7 +100,19 @@ describe('ReviewWeightTicket component', () => {
         expect(screen.queryByText("Is the trailer's weight claimable?")).toBeInTheDocument();
       });
       expect(screen.queryByText('Proof of ownership is needed to accept this item.')).toBeInTheDocument();
+      expect(screen.getByLabelText('Accept')).not.toBeChecked();
       expect(screen.getByLabelText('Accept')).toHaveAttribute('disabled');
+    });
+
+    it('reenables approval after disabling it and updating weight claimable field', async () => {
+      render(<ReviewWeightTicket {...defaultProps} {...claimableTrailerProps} />);
+      await waitFor(() => {
+        expect(screen.queryByText("Is the trailer's weight claimable?")).toBeInTheDocument();
+      });
+      const claimableYesButton = screen.getAllByRole('radio', { name: 'No' })[1];
+      await fireEvent.click(claimableYesButton);
+      expect(screen.queryByText('Proof of ownership is needed to accept this item.')).not.toBeInTheDocument();
+      expect(screen.getByLabelText('Accept')).not.toHaveAttribute('disabled');
     });
   });
 });

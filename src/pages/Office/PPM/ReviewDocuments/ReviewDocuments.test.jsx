@@ -1,11 +1,24 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { ReviewDocuments } from './ReviewDocuments';
 
 import { usePPMShipmentDocsQueries } from 'hooks/queries';
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+const mockPush = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useHistory: () => ({
+    push: mockPush,
+  }),
+}));
+
 const mockPDFUpload = {
+  bytes: 0,
   contentType: 'application/pdf',
   createdAt: '2020-09-17T16:00:48.099137Z',
   filename: 'test.pdf',
@@ -16,6 +29,7 @@ const mockPDFUpload = {
 };
 
 const mockXLSUpload = {
+  bytes: 0,
   contentType: 'application/vnd.ms-excel',
   createdAt: '2020-09-17T16:00:48.099137Z',
   filename: 'test.xls',
@@ -26,6 +40,7 @@ const mockXLSUpload = {
 };
 
 const mockJPGUpload = {
+  bytes: 0,
   contentType: 'image/jpeg',
   createdAt: '2020-09-17T16:00:48.099137Z',
   filename: 'test.jpg',
@@ -40,6 +55,18 @@ jest.mock('hooks/queries', () => ({
 }));
 
 const testShipmentId = '4321';
+const ticketDocuments = {
+  emptyDocument: {
+    uploads: [mockPDFUpload],
+  },
+  fullDocument: {
+    uploads: [mockXLSUpload],
+  },
+  proofOfTrailerOwnershipDocument: {
+    uploads: [mockJPGUpload],
+  },
+};
+
 const usePPMShipmentDocsQueriesReturnValue = {
   mtoShipment: {
     ppmShipment: {
@@ -52,15 +79,7 @@ const usePPMShipmentDocsQueriesReturnValue = {
   },
   weightTickets: [
     {
-      emptyDocument: {
-        uploads: [mockPDFUpload],
-      },
-      fullDocument: {
-        uploads: [mockXLSUpload],
-      },
-      proofOfTrailerOwnershipDocument: {
-        uploads: [mockJPGUpload],
-      },
+      ...ticketDocuments,
     },
   ],
 };
@@ -111,6 +130,38 @@ describe('ReviewDocuments', () => {
       expect(screen.getAllByText('test.pdf').length).toBe(2);
       expect(screen.getByText('test.xls')).toBeInTheDocument();
       expect(screen.getByText('test.jpg')).toBeInTheDocument();
+
+      expect(screen.getByRole('heading', { level: 2, name: '1 of 1 Document Sets' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
+    });
+  });
+
+  describe('returns to Review page when', () => {
+    it('Close button is clicked', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+      render(<ReviewDocuments {...requiredProps} />);
+
+      const closeButton = await screen.getByTestId('closeSidebar');
+      await waitFor(() => {
+        expect(closeButton).toBeInTheDocument();
+      });
+      await fireEvent.click(closeButton);
+      expect(mockPush).toHaveBeenCalled();
+    });
+  });
+
+  describe('shows an error when review is invalid', () => {
+    it('Continue button is clicked', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+      render(<ReviewDocuments {...requiredProps} />);
+
+      const continueButton = await screen.getByRole('button', { name: 'Continue' });
+      await waitFor(() => {
+        expect(continueButton).toBeInTheDocument();
+      });
+      await fireEvent.click(continueButton);
+      expect(screen.getByText('Reviewing this weight ticket is required')).toBeInTheDocument();
     });
   });
 });
