@@ -509,7 +509,9 @@ describe('ShipmentForm component', () => {
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalledWith(
           expect.objectContaining({
-            body: expect.objectContaining({ tacType: 'NTS', sacType: '' }),
+            shipment: expect.objectContaining({
+              body: expect.objectContaining({ tacType: 'NTS', sacType: '' }),
+            }),
           }),
           expect.objectContaining({
             onError: expect.any(Function),

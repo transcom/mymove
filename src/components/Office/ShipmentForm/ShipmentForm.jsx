@@ -227,7 +227,7 @@ const ShipmentForm = (props) => {
         payload.closeoutOffice = formValues.closeoutOffice;
       }
 
-      submitHandler(updatePPMPayload, {
+      submitHandler(payload, {
         onSuccess: () => {
           if (!isAdvancePage) {
             const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
