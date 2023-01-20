@@ -117,9 +117,19 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	if routingConfig.LocalStorageRoot != "" && routingConfig.LocalStorageWebRoot != "" {
 		localStorageHandlerFunc := storage.NewFilesystemHandler(routingConfig.LocalStorageRoot)
 
-		site.HandleFunc(path.Join("/", routingConfig.LocalStorageWebRoot),
-			localStorageHandlerFunc)
+		// path.Join removes trailing slashes, but we want it
+		storageHandlerPath := path.Join("/", routingConfig.LocalStorageWebRoot) + "/"
+		appCtx.Logger().Info("Registering storage handler",
+			zap.Any("storageHandlerPath", storageHandlerPath))
+		storageMux := site.PathPrefix(storageHandlerPath).Subrouter()
+		storageMux.Use(middleware.ValidMethodsStatic(appCtx.Logger()))
+		storageMux.Use(middleware.RequestLogger(appCtx.Logger()))
+		if telemetryConfig.Enabled {
+			storageMux.Use(otelmux.Middleware("storage"))
+		}
+		storageMux.PathPrefix("/").HandlerFunc(localStorageHandlerFunc).Methods("GET", "HEAD")
 	}
+
 	// Add middleware: they are evaluated in the reverse order in which they
 	// are added, but the resulting http.Handlers execute in "normal" order
 	// (i.e., the http.Handler returned by the first Middleware added gets
@@ -236,12 +246,17 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	}
 
 	if routingConfig.ServeSupport {
-		testHarnessMux := site.PathPrefix("/testharness").Subrouter()
-		testHarnessMux.Use(middleware.RequestLogger(appCtx.Logger()))
-		testHarnessMux.Use(addAuditUserToRequestContextMiddleware)
-		testHarnessMux.Handle("/build/{action}",
-			testharnessapi.NewDefaultBuilder(routingConfig.HandlerConfig)).Methods("POST")
+		// only enable the test harness if support and devlocal auth
+		// is enabled, and do it before CSRF and other middleware
+		if routingConfig.ServeDevlocalAuth {
+			appCtx.Logger().Info("Enabling testharness")
+			testHarnessMux := site.PathPrefix("/testharness").Subrouter()
+			testHarnessMux.Use(middleware.RequestLogger(appCtx.Logger()))
+			testHarnessMux.Use(addAuditUserToRequestContextMiddleware)
+			testHarnessMux.Handle("/build/{action}",
+				testharnessapi.NewDefaultBuilder(routingConfig.HandlerConfig)).Methods("POST")
 
+		}
 		primeServerName := routingConfig.HandlerConfig.AppNames().PrimeServername
 		supportMux := site.Host(primeServerName).PathPrefix("/support/v1/").Subrouter()
 

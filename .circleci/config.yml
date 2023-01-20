@@ -170,7 +170,7 @@ executors:
           password: $DOCKERHUB_PASSWORD
 
   milmove_playwright_tester:
-    resource_class: xlarge
+    resource_class: large
     # use ~/project as that already exists in cimg/node and is owned
     # by circleci
     working_directory: ~/project
@@ -674,9 +674,11 @@ commands:
     parameters:
       workers:
         type: integer
-        # assume this runs in an xlarge resource
-        # xlarge has 8 CPUs, reserve 2 CPUs for server and postgres
-        default: 6
+        # We tried this in an xlarge resource with 5 workers and still
+        # had flaky tests because of pages being slow to load
+        # Instead, we run in a large instance with 2 workers and
+        # increased parallelism as needed
+        default: 2
     steps:
       - attach_workspace:
           at: .
@@ -730,7 +732,7 @@ commands:
             make db_dev_create
             bin/milmove migrate
             # playwright tests DO NOT NEED SEED DATA
-            bin/milmove serve 2>&1 | fmt
+            bin/milmove serve 2>&1 | tee server.log | fmt
       - run:
           name: wait for server
           command: |
@@ -753,6 +755,15 @@ commands:
             --shard="${SHARD}/${CIRCLE_NODE_TOTAL}"
       - store_artifacts:
           path: playwright-report
+      - run:
+          name: create playwright report archive for download
+          when: always
+          command: |
+            zip -r complete-playwright-report.zip playwright-report
+      - store_artifacts:
+          path: complete-playwright-report.zip
+      - store_artifacts:
+          path: server.log
       - store_test_results:
           path: playwright-results.xml
 
@@ -1073,7 +1084,7 @@ jobs:
   # playwright. We are migrating away from cypress
   integration_tests_playwright:
     executor: milmove_playwright_tester
-    parallelism: 2
+    parallelism: 6
     steps:
       - e2e_tests_playwright
       # at some point
