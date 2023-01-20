@@ -82,6 +82,27 @@ func (suite *FactorySuite) TestBuildUpload() {
 		suite.Equal("application/pdf", upload.ContentType)
 		suite.Equal(models.UploadTypeUSER, upload.UploadType)
 	})
+	suite.Run("Failed creation of upload - no appcontext", func() {
+		// Under test:      BuildUser
+		// Mocked:          None
+		// Set up:          Create an upload with an uploader but no appcontext
+		// Expected outcome:Should cause a panic
+		storer := storageTest.NewFakeS3Storage(true)
+		uploader, err := uploader.NewUploader(storer, 100*uploader.MB, "USER")
+		suite.NoError(err)
+
+		suite.Panics(func() {
+			BuildUpload(suite.DB(), []Customization{
+				{
+					Model: models.Upload{},
+					ExtendedParams: &UploadExtendedParams{
+						Uploader: uploader,
+					},
+				},
+			}, nil)
+		})
+
+	})
 	suite.Run("Successful creation of uploader with custom file", func() {
 		// Under test:      BuildUser
 		// Mocked:          None
