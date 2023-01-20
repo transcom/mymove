@@ -13,13 +13,13 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-4ac893fa1efd33ff1c06a54a2417bfb2a3176bac
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-4c83eceb0ca6483fcb20bb18b9b7d5246559e121
 
   # the cypress image to use
-  cypress: &cypress milmove/circleci-docker:milmove-cypress-4ac893fa1efd33ff1c06a54a2417bfb2a3176bac
+  cypress: &cypress milmove/circleci-docker:milmove-cypress-e44706ef28d1cad04ee6ebf45b2316d825991af7
 
   # the playwright image to use
-  playwright: &playwright cimg/node:16.19.0-browsers
+  playwright: &playwright cimg/node:18.13.0-browsers
 
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
   postgres: &postgres cimg/postgres:12.7
