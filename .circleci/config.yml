@@ -760,7 +760,7 @@ commands:
           command: |
             zip -r complete-playwright-report.zip playwright-report
       - store_artifacts:
-          path: playwright-report.zip
+          path: complete-playwright-report.zip
       - store_artifacts:
           path: server.log
       - store_test_results:
