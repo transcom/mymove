@@ -12,9 +12,9 @@ import ppmAdvanceStatus from 'constants/ppms';
 
 const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceStatus }) => {
   const [advanceInput, , advanceHelper] = useField('advanceRequested');
-  const [statusInput, , statusHelper] = useField('advanceRequestStatus');
+  const [statusInput, , statusHelper] = useField('advanceStatus');
   // eslint-disable-next-line no-console
-  console.log('advanceStatus:', advanceStatus);
+  console.log('advanceInput:', advanceInput);
   const advanceRequested = String(advanceInput.value) === 'true';
   const advanceRequestStatus = statusInput.value === advanceStatus;
 
@@ -90,7 +90,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceStatus }) => {
                   <Radio
                     id="approveAdvanceRequest"
                     label="Approve"
-                    name="advanceRequestStatus"
+                    name="advanceStatus"
                     value={ppmAdvanceStatus.APPROVED}
                     title="Approve"
                     checked={advanceRequestStatus}
@@ -99,7 +99,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceStatus }) => {
                   <Radio
                     id="rejectAdvanceRequest"
                     label="Reject"
-                    name="advanceRequestStatus"
+                    name="advanceStatus"
                     value={ppmAdvanceStatus.REJECTED}
                     title="Reject"
                     checked={!advanceRequestStatus}
