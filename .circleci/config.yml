@@ -19,7 +19,7 @@ references:
   cypress: &cypress milmove/circleci-docker:milmove-cypress-e44706ef28d1cad04ee6ebf45b2316d825991af7
 
   # the playwright image to use
-  playwright: &playwright cimg/node:16.15.0-browsers
+  playwright: &playwright cimg/node:16.19.0-browsers
 
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
   postgres: &postgres cimg/postgres:12.7
