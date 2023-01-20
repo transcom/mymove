@@ -321,9 +321,9 @@ test.describe('TOO user', () => {
       await page.locator('input[name="delivery.address.postalCode"]').clear();
       await page.locator('input[name="delivery.address.postalCode"]').type('90210');
       await page.locator('[data-testid="submitForm"]').click();
-      await tooFlowPage.waitForLoading();
-
       await expect(page.locator('[data-testid="submitForm"]')).not.toBeEnabled();
+
+      await tooFlowPage.waitForMoveDetailsPage();
     });
     /**
      * This test is being temporarily skipped until flakiness issues
@@ -411,10 +411,11 @@ test.describe('TOO user', () => {
       await page.locator('input[name="delivery.address.postalCode"]').clear();
       await page.locator('input[name="delivery.address.postalCode"]').type('90210');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
-      await page.locator('[data-testid="submitForm"]').click();
-      await tooFlowPage.waitForLoading();
 
+      await page.locator('[data-testid="submitForm"]').click();
       await expect(page.locator('[data-testid="submitForm"]')).not.toBeEnabled();
+
+      await tooFlowPage.waitForMoveDetailsPage();
     });
   });
 });

@@ -24,6 +24,14 @@ export class OfficePage extends BaseTestPage {
   }
 
   /**
+   * Wait for office user Move details page
+   */
+  async waitForMoveDetailsPage() {
+    await this.waitForLoading();
+    await base.expect(this.page.getByRole('heading', { name: 'Move details' })).toBeVisible();
+  }
+
+  /**
    * Goto URL and wait for the page to finish loading.
    *
    * @param {string} url to visit
