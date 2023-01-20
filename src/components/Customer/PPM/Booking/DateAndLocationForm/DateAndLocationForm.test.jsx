@@ -4,22 +4,31 @@ import userEvent from '@testing-library/user-event';
 
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
+import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
+
+const serviceMember = {
+  serviceMember: {
+    id: '123',
+    current_location: {
+      name: 'Fort Drum',
+    },
+    residential_address: {
+      postalCode: '90210',
+    },
+    affiliation: SERVICE_MEMBER_AGENCIES.ARMY,
+  },
+};
 
 const defaultProps = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
-  serviceMember: {
-    id: '123',
-    residential_address: {
-      postalCode: '90210',
-    },
-  },
   destinationDutyLocation: {
     address: {
       postalCode: '94611',
     },
   },
   postalCodeValidator: jest.fn(),
+  ...serviceMember,
 };
 
 const mtoShipmentProps = {
@@ -54,6 +63,8 @@ describe('DateAndLocationForm component', () => {
       expect(screen.getAllByLabelText('ZIP')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Yes')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[1]).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByRole('heading', { level: 2, name: 'Closeout Office' })).toBeInTheDocument();
+      expect(screen.getByLabelText('Which closeout office should review your PPM?')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Storage' })).toBeInTheDocument();
       expect(screen.getAllByLabelText('Yes')[2]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[2]).toBeInstanceOf(HTMLInputElement);
@@ -137,6 +148,42 @@ describe('DateAndLocationForm component', () => {
         expect(screen.queryByLabelText('Second ZIP')).toBeInstanceOf(HTMLInputElement);
       });
     });
+
+    it('displays the closeout office select when the service member is in the Army', async () => {
+      const armyServiceMember = {
+        ...defaultProps.serviceMember,
+        affiliation: SERVICE_MEMBER_AGENCIES.ARMY,
+      };
+      render(<DateAndLocationForm {...defaultProps} serviceMember={armyServiceMember} />);
+
+      expect(screen.getByText('Closeout Office')).toBeInTheDocument();
+      expect(screen.getByLabelText('Which closeout office should review your PPM?')).toBeInTheDocument();
+      expect(screen.getByText('Start typing a closeout office...')).toBeInTheDocument();
+    });
+
+    it('displays the closeout office select when the service member is in the Air Force', async () => {
+      const airForceServiceMember = {
+        ...defaultProps.serviceMember,
+        affiliation: SERVICE_MEMBER_AGENCIES.AIR_FORCE,
+      };
+      render(<DateAndLocationForm {...defaultProps} serviceMember={airForceServiceMember} />);
+
+      expect(screen.getByText('Closeout Office')).toBeInTheDocument();
+      expect(screen.getByLabelText('Which closeout office should review your PPM?')).toBeInTheDocument();
+      expect(screen.getByText('Start typing a closeout office...')).toBeInTheDocument();
+    });
+
+    it('does not display the closeout office select when the service member is not in the Army/Air-Force', async () => {
+      const navyServiceMember = {
+        ...defaultProps.serviceMember,
+        affiliation: SERVICE_MEMBER_AGENCIES.NAVY,
+      };
+
+      render(<DateAndLocationForm {...defaultProps} serviceMember={navyServiceMember} />);
+      expect(screen.queryByText('Closeout Office')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Which closeout office should review your PPM?')).not.toBeInTheDocument();
+      expect(screen.queryByText('Start typing a closeout office...')).not.toBeInTheDocument();
+    });
   });
 
   describe('pull values from the ppm shipment when available', () => {
@@ -151,6 +198,7 @@ describe('DateAndLocationForm component', () => {
       );
       expect(screen.getAllByLabelText('Yes')[1].value).toBe('true');
       expect(screen.getAllByLabelText('Yes')[2].value).toBe('true');
+      expect(screen.getByText('Start typing a closeout office...')).toBeInTheDocument();
     });
   });
 

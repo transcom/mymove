@@ -135,11 +135,11 @@ test.describe('testing CSRF protection updating move info', () => {
     // blargh, too bad
     test.slow();
 
-    const move = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles();
+    const move = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO();
     await officePage.signInAsNewTOOUser();
 
     // click on newly created move
-    await page.getByText(move.locator).click();
+    await officePage.tooNavigateToMove(move.locator);
     await officePage.waitForLoading();
 
     await page.getByTestId('edit-orders').click();
@@ -154,12 +154,10 @@ test.describe('testing CSRF protection updating move info', () => {
   });
 
   test('tests updating user profile without masked token', async ({ page, officePage }) => {
-    const move = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFiles();
+    const move = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO();
     await officePage.signInAsNewTOOUser();
 
-    // click on newly created move
-    await page.getByText(move.locator).click();
-    await officePage.waitForLoading();
+    await officePage.tooNavigateToMove(move.locator);
 
     await page.getByTestId('edit-orders').click();
     await officePage.waitForLoading();

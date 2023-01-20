@@ -8,15 +8,23 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 import 'styles/office.scss';
 import CustomerHeader from 'components/CustomerHeader';
 import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
-import { MTO_SHIPMENTS } from 'constants/queryKeys';
+import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
-import { createMTOShipment } from 'services/ghcApi';
+import { createMTOShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { roleTypes } from 'constants/userRoles';
 import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 
+// createMTOShipmentWrapper allows us to pass in the closeout office and include it
+// with the results from creating the shipment, which allows us to chain on the closeout office
+// update.
+function createMTOShipmentWrapper({ shipment, closeoutOffice }) {
+  return createMTOShipment(shipment).then((newShipment) => {
+    return { newShipment, closeoutOffice };
+  });
+}
 const ServicesCounselingAddShipment = ({ match }) => {
   const params = useParams();
   let { shipmentType } = params;
@@ -30,12 +38,26 @@ const ServicesCounselingAddShipment = ({ match }) => {
 
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
-  const [mutateMTOShipments] = useMutation(createMTOShipment, {
-    onSuccess: (newMTOShipment) => {
-      mtoShipments.push(newMTOShipment);
-      queryCache.setQueryData([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID]);
-      return newMTOShipment;
+  const [mutateMTOShipments] = useMutation(createMTOShipmentWrapper, {
+    onSuccess: (result) => {
+      mtoShipments.push(result.newShipment);
+      queryCache.setQueryData([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID]);
+
+      if (result.closeoutOffice) {
+        updateMoveCloseoutOffice({
+          locator: moveCode,
+          ifMatchETag: move.eTag,
+          body: { closeoutOfficeId: result.closeoutOffice.id },
+        }).then(() => {
+          queryCache.invalidateQueries([MOVES, moveCode]);
+        });
+      }
+
+      return result.newShipment;
+    },
+    onError: () => {
+      // TODO
     },
   });
 
@@ -73,13 +95,14 @@ const ServicesCounselingAddShipment = ({ match }) => {
                   originDutyLocationAddress={order.originDutyLocation?.address}
                   newDutyLocationAddress={order.destinationDutyLocation?.address}
                   shipmentType={shipmentType}
-                  serviceMember={{ weightAllotment }}
+                  serviceMember={{ weightAllotment, agency: customer.agency }}
                   moveTaskOrderID={move.id}
                   mtoShipments={mtoShipments}
                   TACs={TACs}
                   SACs={SACs}
                   userRole={roleTypes.SERVICES_COUNSELOR}
                   displayDestinationType
+                  move={move}
                 />
               </Grid>
             </Grid>
