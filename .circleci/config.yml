@@ -950,6 +950,28 @@ jobs:
       - restore_cache:
           keys:
             - v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+      - restore_cache:
+          keys:
+          #
+          # https://circleci.com/docs/caching/#restoring-cache
+          #
+          # restore the latest version of the test coverage in the
+          # cache
+          #
+          # To manually reset counts increment the version number of
+          # the cache e.g. go from v1-spectrial-lint- to
+          # v2-spectral-lint-
+          #
+          # Make sure you also update the key in the save_cache below
+          #
+          # The trailing hyphen in restore_cache seems important
+          # according to the page linked above
+            - v1-spectral-lint-
+      - run:
+          name: Save Baseline Spectral Lint
+          command: |
+            [ -d ~/transcom/mymove/spectral ] && cp -r ~/transcom/mymove/spectral /tmp/spectral_baseline || echo "Skipping saving baseline"
+            rm -rf ~/transcom/mymove/spectral
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Install Frozen YARN dependencies
@@ -982,13 +1004,31 @@ jobs:
           name: Run DangerJS checks
           command: yarn danger ci --failOnErrors
       # `v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
+      - run:
+          name: Run spectral linter on all files
+          command: |
+            ./scripts/ensure-spectral-lint /tmp/spectral_baseline spectral
       - save_cache:
           key: v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
+      # only save the cache on default branch builds because we only want to
+      # change the baseline of test results on main builds
+      - when:
+          condition:
+            equal: [main, << pipeline.git.branch >>]
+          steps:
+            # Make sure this key prefix matches the one above in
+            # restore_cache
+            #
+            # Use the BuildNum to update the cache key so that the
+            # coverage cache is always updated
+            save_cache:
+              key: v1-spectral-lint-{{ .BuildNum }}
+              paths:
+                - ~/transcom/mymove/spectral
       - store_artifacts:
-          path: ~/transcom/mymove/tmp/test-results
-          destination: test-results
+          path: ~/transcom/mymove/spectral
       - announce_failure
 
   # separate the integration tests by site so that if there is a flaky
