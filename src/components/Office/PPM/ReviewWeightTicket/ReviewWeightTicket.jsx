@@ -45,6 +45,7 @@ export default function ReviewWeightTicket({
   weightTicket,
   tripNumber,
   ppmNumber,
+  onError,
   onSuccess,
   onValid,
   formRef,
@@ -53,6 +54,7 @@ export default function ReviewWeightTicket({
 
   const [patchWeightTicketMutation] = useMutation(patchWeightTicket, {
     onSuccess,
+    onError,
   });
 
   const ppmShipment = mtoShipment?.ppmShipment;
@@ -136,12 +138,10 @@ export default function ReviewWeightTicket({
           };
 
           const handleTrailerOwnedChange = (event) => {
-            if (event.target.value === 'true') {
-              setFieldValue('trailerMeetsCriteria', '');
-              setFieldTouched('trailerMeetsCriteria', false, false);
-              setFieldError('trailerMeetsCriteria', null);
-            }
             handleChange(event);
+            setFieldValue('trailerMeetsCriteria', '');
+            setFieldTouched('trailerMeetsCriteria', false, false);
+            setFieldError('trailerMeetsCriteria', null);
           };
 
           const handleTrailerClaimableChange = (event) => {
@@ -215,7 +215,7 @@ export default function ReviewWeightTicket({
                 <FormGroup>
                   <Fieldset>
                     <legend className="usa-label">{`Is the trailer's weight claimable?`}</legend>
-                    <ErrorMessage display={!!errors.trailerMeetsCriteria && touched.trailerMeetsCriteria}>
+                    <ErrorMessage display={(!!errors.trailerMeetsCriteria && touched.trailerMeetsCriteria) || false}>
                       {errors.trailerMeetsCriteria}
                     </ErrorMessage>
                     <Field
@@ -286,18 +286,18 @@ export default function ReviewWeightTicket({
 
                       {canEditRejection && (
                         <>
-                          <ErrorMessage display={!!errors.rejectionReason && touched.rejectionReason}>
+                          <ErrorMessage display={!!errors?.rejectionReason && !!touched?.rejectionReason}>
                             {errors.rejectionReason}
                           </ErrorMessage>
                           <Textarea
                             id={`rejectReason-${weightTicket?.id}`}
                             name="rejectionReason"
                             onChange={handleChange}
-                            error={errors.rejectionReason}
+                            error={touched.rejectionReason ? errors.rejectionReason : null}
                             value={values.rejectionReason}
                             placeholder="Type something"
                           />
-                          <div className={styles.hint}>500 characters</div>
+                          <div className={styles.hint}>{500 - values.rejectionReason.length} characters</div>
                         </>
                       )}
                     </FormGroup>

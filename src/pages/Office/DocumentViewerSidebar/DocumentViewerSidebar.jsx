@@ -1,5 +1,5 @@
 import React from 'react';
-import { bool, func, node, string } from 'prop-types';
+import { bool, func, object, node, string } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
@@ -55,12 +55,17 @@ DocumentViewerSidebar.defaultProps = {
   defaultH3: false,
 };
 
-DocumentViewerSidebar.Content = function Content({ children }) {
-  return <main>{children}</main>;
+DocumentViewerSidebar.Content = function Content({ children, mainRef }) {
+  return <main ref={mainRef}>{children}</main>;
 };
 
 DocumentViewerSidebar.Content.propTypes = {
   children: node.isRequired,
+  mainRef: object,
+};
+
+DocumentViewerSidebar.Content.defaultProps = {
+  mainRef: null,
 };
 
 DocumentViewerSidebar.Footer = function Footer({ children }) {

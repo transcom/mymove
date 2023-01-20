@@ -5,6 +5,7 @@ import { generatePath, useHistory, withRouter } from 'react-router-dom';
 
 import styles from './ReviewDocuments.module.scss';
 
+import { ErrorMessage } from 'components/form';
 import { servicesCounselingRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -20,9 +21,12 @@ export const ReviewDocuments = ({ match }) => {
   const { shipmentId, moveCode } = match.params;
   const { mtoShipment, weightTickets, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
+  const ppmShipment = mtoShipment?.ppmShipment;
+
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
 
   let documentSet;
+
   if (weightTickets) {
     weightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
     documentSet = weightTickets[documentSetIndex];
@@ -31,6 +35,13 @@ export const ReviewDocuments = ({ match }) => {
 
   const formRef = useRef();
 
+  const weightTicketPanelRef = useRef();
+
+  const [serverError, setServerError] = useState(null);
+
+  // placeholder pro-gear tickets & expenses
+  // const progearTickets = [];
+  // const expenses = [];
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -46,13 +57,14 @@ export const ReviewDocuments = ({ match }) => {
   };
 
   const onBack = () => {
+    setServerError(null);
     if (documentSetIndex > 0) {
       setDocumentSetIndex(documentSetIndex - 1);
     }
   };
 
   const onSuccess = () => {
-    queryCache.invalidateQueries([WEIGHT_TICKETS, shipmentId]);
+    queryCache.invalidateQueries([WEIGHT_TICKETS, ppmShipment.id]);
     if (documentSetIndex < weightTickets.length - 1) {
       setDocumentSetIndex(documentSetIndex + 1);
     } else {
@@ -60,7 +72,12 @@ export const ReviewDocuments = ({ match }) => {
     }
   };
 
+  const onError = () => {
+    setServerError('There was an error submitting the form. Please try again later.');
+  };
+
   const onContinue = () => {
+    setServerError(null);
     if (formRef.current) {
       formRef.current.handleSubmit();
     }
@@ -79,14 +96,16 @@ export const ReviewDocuments = ({ match }) => {
         supertitle={`${documentSetIndex + 1} of ${weightTickets.length} Document Sets`}
         defaultH3
       >
-        <NotificationScrollToTop dependency={documentSetIndex} />
-        <DocumentViewerSidebar.Content>
+        <DocumentViewerSidebar.Content mainRef={weightTicketPanelRef}>
+          <NotificationScrollToTop dependency={documentSetIndex || serverError} target={weightTicketPanelRef.current} />
+          <ErrorMessage display={!!serverError}>{serverError}</ErrorMessage>
           {documentSet && (
             <ReviewWeightTicket
               weightTicket={documentSet}
               ppmNumber={1}
               tripNumber={documentSetIndex + 1}
               mtoShipment={mtoShipment}
+              onError={onError}
               onSuccess={onSuccess}
               formRef={formRef}
             />
