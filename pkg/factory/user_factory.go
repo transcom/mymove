@@ -9,6 +9,7 @@ import (
 )
 
 // BuildUser creates a User
+// It does not create Roles or UsersRoles. To create a User associated certain roles, use BuildOfficeUserWithRoles
 // Params:
 // - customs is a slice that will be modified by the factory
 // - db can be set to nil to create a stubbed model that is not stored in DB.
@@ -38,6 +39,21 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 	// If db is false, it's a stub. No need to create in database
 	if db != nil {
 		mustCreate(db, &user)
+	}
+
+	return user
+}
+
+// BuildUserAndUsersRoles creates a User
+//   - If the user has Roles in the customizations, Roles and UsersRoles will also be created
+//
+// Params:
+// - customs is a slice that will be modified by the factory
+// - db can be set to nil to create a stubbed model that is not stored in DB, but Roles and UsersRoles won't be created
+func BuildUserAndUsersRoles(db *pop.Connection, customs []Customization, traits []Trait) models.User {
+
+	user := BuildUser(db, customs, nil)
+	if db != nil {
 		for _, userRole := range user.Roles {
 			// make sure role exists
 			role := FetchOrBuildRoleByRoleType(db, userRole.RoleType)
@@ -51,7 +67,6 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 			}, nil)
 		}
 	}
-
 	return user
 }
 

@@ -1,6 +1,8 @@
 package factory
 
 import (
+	"fmt"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -8,7 +10,7 @@ import (
 )
 
 func (suite *FactorySuite) TestBuildOfficeUser() {
-	suite.Run("Successful creation of default office user", func() {
+	suite.Run("Successful creation of office user", func() {
 		// Under test:      BuildOfficeUser
 		// Mocked:          None
 		// Set up:          Create a User with no customizations or traits
@@ -82,31 +84,33 @@ func (suite *FactorySuite) TestBuildOfficeUser() {
 		suite.False(officeUser.User.Active)
 	})
 }
-func (suite *FactorySuite) TestBuildOfficeUserExtra() {
-	// Under test:      BuildOfficeUser
-	// Mocked:          None
-	// Set up:          Create a OfficeUser but pass in a role
-	// Expected outcome:Created User should have the associated Role
+func (suite *FactorySuite) TestBuildOfficeUserUsingTraits() {
+	var tests = []struct {
+		role  roles.RoleType
+		trait Trait
+	}{
+		{roles.RoleTypeServicesCounselor, GetTraitOfficeUserServicesCounselor},
+		{roles.RoleTypeTIO, GetTraitOfficeUserTIO},
+		{roles.RoleTypeTOO, GetTraitOfficeUserTOO},
+		{roles.RoleTypeQaeCsr, GetTraitOfficeUserQAECSR},
+	}
 
-	suite.Run("Successful creation of TIO Office User", func() {
+	for _, tt := range tests {
+		suite.Run(fmt.Sprintf("Successful creation of %v Office User", tt.role), func() {
+			// FUNCTION UNDER TEST
+			officeUser := BuildOfficeUser(suite.DB(), nil, []Trait{
+				tt.trait,
+			})
 
-		// Create the TIO Role
-		FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTIO)
-
-		// FUNCTION UNDER TEST
-		officeUser := BuildOfficeUser(suite.DB(), nil, []Trait{
-			GetTraitOfficeUserTIO,
+			// VALIDATE RESULT
+			// Check that the user has the office user role
+			_, hasRole := officeUser.User.Roles.GetRole(tt.role)
+			suite.True(hasRole)
 		})
+	}
+}
 
-		// VALIDATE RESULT
-		// Check that the email trait worked
-		suite.Equal(officeUser.Email, officeUser.User.LoginGovEmail)
-		suite.False(officeUser.User.Active)
-		// Check that the user has the office user role
-		_, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeTIO)
-		suite.True(hasRole)
-	})
-
+func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 	suite.Run("Successful creation of OfficeUser with linked User", func() {
 		// Under test:       BuildOfficeUser
 		// Set up:           Create an officeUser and pass in a precreated user
@@ -204,5 +208,62 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 
 		// Check that email was applied to user
 		suite.Equal(officeUser.Email, officeUser.User.LoginGovEmail)
+	})
+
+	suite.Run("Successful creation of OfficeUser using BuildOfficeUserWithRoles", func() {
+		// Under test:       BuildOfficeUserWithRoles
+		// Set up:           Use BuildOfficeUserWithRoles helper function to create
+		//					 an OfficeUser with 1 role
+		// Expected outcome: officeUser and User should be returned as expected
+		officeUser := BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+
+		// Check that the user has the office user role
+		_, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeTOO)
+		suite.True(hasRole)
+	})
+	suite.Run("Successful creation of OfficeUser with multiple roles using BuildOfficeUserWithRoles", func() {
+		// Under test:       BuildOfficeUserWithRoles
+		// Set up:           Use BuildOfficeUserWithRoles helper function to create
+		//					 an OfficeUser with multiple role
+		// Expected outcome: officeUser and User should be returned as expected
+		officeUser := BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO})
+
+		// Check that the user has the office user role
+		_, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeTOO)
+		suite.True(hasRole)
+		_, hasRole = officeUser.User.Roles.GetRole(roles.RoleTypeTIO)
+		suite.True(hasRole)
+	})
+
+	suite.Run("Successful creation of Stubbed OfficeUser using BuildOfficeUserWithRoles", func() {
+		// Under test:       BuildOfficeUserWithRoles
+		// Set up:           Use BuildOfficeUserWithRoles helper function to create
+		//					 an OfficeUser with 1 role
+		// Expected outcome: officeUser and User should be returned with UUIDs, but no new db entries
+		// Count how many users we have
+		precountUser, err := suite.DB().Count(&models.User{})
+		suite.NoError(err)
+
+		precountOfficeUser, err := suite.DB().Count(&models.User{})
+		suite.NoError(err)
+
+		officeUser := BuildOfficeUserWithRoles(nil, []roles.RoleType{roles.RoleTypeTOO})
+
+		// Check that the user has the office user role
+		_, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeTOO)
+		suite.True(hasRole)
+		// Check that UUIDs were still created
+		suite.NotNil(officeUser.ID)
+		suite.NotNil(officeUser.UserID)
+
+		// VALIDATION
+		// Check that no new user was created
+		count, err := suite.DB().Count(&models.User{})
+		suite.NoError(err)
+		suite.Equal(precountUser, count)
+		// Check that no new officeUser was created
+		count, err = suite.DB().Count(&models.User{})
+		suite.NoError(err)
+		suite.Equal(precountOfficeUser, count)
 	})
 }

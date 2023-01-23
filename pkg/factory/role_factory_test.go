@@ -192,9 +192,33 @@ func (suite *FactorySuite) TestBuildRoleHelpers() {
 		suite.Equal(ServicesCounselorRole.RoleName, role.RoleName)
 		suite.Equal(ServicesCounselorRole.RoleType, role.RoleType)
 
-		// Count how many roles are in the DB, no new roles should have been created.
+		// Count how many roles are in the DB, new role should have been created.
 		count, err := suite.DB().Count(&roles.Role{})
 		suite.NoError(err)
 		suite.Equal(precount+1, count)
+	})
+
+	suite.Run("FetchOrBuildRoleByRoleType - stubbed role", func() {
+		// Under test:      FetchOrBuildRoleByRoleType
+		// Set up:          Call FetchOrBuildRoleByRoleType without a db
+		// Expected outcome:Role is created but not saved to db
+
+		precount, err := suite.DB().Count(&roles.Role{})
+		suite.NoError(err)
+
+		ServicesCounselorRole := roles.Role{
+			RoleType: roles.RoleTypeServicesCounselor,
+			RoleName: "Services_counselor",
+		}
+		role := FetchOrBuildRoleByRoleType(nil, ServicesCounselorRole.RoleType)
+		suite.NoError(err)
+
+		suite.Equal(ServicesCounselorRole.RoleName, role.RoleName)
+		suite.Equal(ServicesCounselorRole.RoleType, role.RoleType)
+
+		// Count how many roles are in the DB, no new roles should have been created.
+		count, err := suite.DB().Count(&roles.Role{})
+		suite.NoError(err)
+		suite.Equal(precount, count)
 	})
 }

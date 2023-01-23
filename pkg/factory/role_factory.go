@@ -120,6 +120,18 @@ func GetTraitContractingOfficerRole() []Customization {
 
 // lookup a role by role type, if it doesn't exist make it
 func FetchOrBuildRoleByRoleType(db *pop.Connection, roleType roles.RoleType) roles.Role {
+	roleName := roles.RoleName(cases.Title(language.Und).String(string(roleType)))
+
+	if db == nil {
+		return BuildRole(db, []Customization{
+			{
+				Model: roles.Role{
+					RoleType: roleType,
+					RoleName: roleName,
+				},
+			},
+		}, nil)
+	}
 
 	var role roles.Role
 	err := db.RawQuery(`SELECT * FROM roles WHERE role_type = ?`, roleType).First(&role)
@@ -127,7 +139,6 @@ func FetchOrBuildRoleByRoleType(db *pop.Connection, roleType roles.RoleType) rol
 	if err != nil {
 		// if no role found we need to create one - there may be a better way to do this
 		if strings.Contains(err.Error(), "no rows in result set") {
-			roleName := roles.RoleName(cases.Title(language.Und).String(string(roleType)))
 			role = BuildRole(db, []Customization{
 				{
 					Model: roles.Role{
