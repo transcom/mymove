@@ -955,7 +955,7 @@ jobs:
           #
           # https://circleci.com/docs/caching/#restoring-cache
           #
-          # restore the latest version of the test coverage in the
+          # restore the latest version of the listing results in the
           # cache
           #
           # To manually reset counts increment the version number of

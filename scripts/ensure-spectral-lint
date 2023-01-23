@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from collections import Counter
 import glob
 import json
 import os
@@ -7,7 +8,7 @@ import os.path
 import sys
 import subprocess
 
-HELP_URL = "https://transcom.github.io/mymove-docs/docs/frontend/testing/how-to-run-frontend-test-coverage-reports"
+HELP_URL = "https://transcom.github.io/mymove-docs/docs/frontend/testing/how-to-run-spectral-lint"
 
 SEVERITY_NAMES = {
   0: "error",
@@ -16,27 +17,24 @@ SEVERITY_NAMES = {
   3: "hint"
 }
 
+
 def total_linting_counts(filename):
     """parse out the total lint problems from the json
     """
-    total_count = {}
+    total_count = Counter()
     with open(filename) as f:
-        for entry in json.load(f):
-            if "severity" in entry:
-                severity = entry["severity"]
-                severity_name = "unknown"
-                if severity in SEVERITY_NAMES:
-                    severity_name = SEVERITY_NAMES[severity]
-                if severity_name not in total_count:
-                    total_count[severity_name] = 0
-                total_count[severity_name] += 1
+        findings = json.load(f)
+    for entry in findings:
+        severity = entry.get("severity")
+        severity_name = SEVERITY_NAMES.get(severity, "unknown")
+        total_count.update([severity_name])
 
     return total_count
 
 
 def linting_filename_from_basename(filename):
     """convert the base filename to a linting result filename"""
-    root, ext = os.path.splitext(os.path.basename(fn))
+    root, ext = os.path.splitext(os.path.basename(filename))
     return root + ".json"
 
 
@@ -49,7 +47,7 @@ new_dir = sys.argv[2]
 
 os.makedirs(new_dir, exist_ok=True)
 files = []
-for fn in glob.glob("swagger-def/*.yaml"):
+for fn in glob.glob("swagger/*.yaml"):
     basename = os.path.basename(fn)
     files.append(basename)
     root, ext = os.path.splitext(os.path.basename(fn))
