@@ -5,7 +5,6 @@
  */
 // @ts-check
 
-const { SignIn } = require('./signIn');
 const { TestHarness } = require('./testharness');
 
 /**
@@ -21,7 +20,6 @@ export class BaseTestPage {
   constructor(page, request) {
     this.page = page;
     this.request = request;
-    this.signIn = new SignIn(page);
     this.testHarness = new TestHarness(request);
   }
 
@@ -48,6 +46,26 @@ export class BaseTestPage {
    */
   async selectDutyLocation(dutyLocationName, fieldName, nth = 0) {
     return this.genericSelect(dutyLocationName, fieldName, '.duty-input-box', nth);
+  }
+
+  /**
+   * Sign in as a new user with devlocal
+   *
+   * @param {string} userType
+   */
+  async signInAsNewUser(userType) {
+    await this.page.goto('/devlocal-auth/login');
+    await this.page.locator(`button[data-hook="new-user-login-${userType}"]`).click();
+  }
+
+  /**
+   * Sign in as existing user with devlocal
+   *
+   * @param {string} userId
+   */
+  async signInAsUserWithId(userId) {
+    await this.page.goto('/devlocal-auth/login');
+    await this.page.locator(`button[value="${userId}"]`).click();
   }
 }
 
