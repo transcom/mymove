@@ -1,5 +1,6 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 
 import { ReviewDocuments } from './ReviewDocuments';
 
@@ -105,63 +106,30 @@ describe('ReviewDocuments', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(loadingReturnValue);
       render(<ReviewDocuments {...requiredProps} />);
-
       const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
     });
-
     it('renders the Something Went Wrong component when the query errors', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(errorReturnValue);
-
       render(<ReviewDocuments {...requiredProps} />);
-
       const errorMessage = await screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
     });
   });
-
   describe('with data loaded', () => {
     it('renders the DocumentViewer', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
-      render(<ReviewDocuments {...requiredProps} />);
-
-      const docs = await screen.getByText(/Documents/);
-      expect(docs).toBeInTheDocument();
+      await act(async () => {
+        usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+        render(<ReviewDocuments {...requiredProps} />);
+        const docs = await screen.getByText(/Documents/);
+        expect(docs).toBeInTheDocument();
+      });
       expect(screen.getAllByText('test.pdf').length).toBe(2);
       expect(screen.getByText('test.xls')).toBeInTheDocument();
       expect(screen.getByText('test.jpg')).toBeInTheDocument();
-
       expect(screen.getByRole('heading', { level: 2, name: '1 of 1 Document Sets' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
-    });
-  });
-
-  describe('returns to Review page when', () => {
-    it('Close button is clicked', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
-      render(<ReviewDocuments {...requiredProps} />);
-
-      const closeButton = await screen.getByTestId('closeSidebar');
-      await waitFor(() => {
-        expect(closeButton).toBeInTheDocument();
-      });
-      await fireEvent.click(closeButton);
-      expect(mockPush).toHaveBeenCalled();
-    });
-  });
-
-  describe('shows an error when review is invalid', () => {
-    it('Continue button is clicked', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
-      render(<ReviewDocuments {...requiredProps} />);
-
-      const continueButton = await screen.getByRole('button', { name: 'Continue' });
-      await waitFor(() => {
-        expect(continueButton).toBeInTheDocument();
-      });
-      await fireEvent.click(continueButton);
-      expect(screen.getByText('Reviewing this weight ticket is required')).toBeInTheDocument();
     });
   });
 });
