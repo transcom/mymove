@@ -174,6 +174,30 @@ executors:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
 
+  milmove_mtls_tester:
+    resource_class: large
+    # use ~/project as that already exists in cimg/node and is owned
+    # by circleci
+    working_directory: ~/project
+    docker:
+      - image: *cimg_base
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+        environment:
+          GOPATH: /home/circleci/go
+      - image: *postgres
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+        environment:
+          POSTGRES_PASSWORD: mysecretpassword
+          POSTGRES_DB: test_db
+      - image: *redis
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+
   milmove_playwright_tester:
     resource_class: large
     # use ~/project as that already exists in cimg/node and is owned
@@ -778,34 +802,69 @@ commands:
   # steps below in parallel
   e2e_tests_mtls:
     steps:
-      - setup_remote_docker:
-          version: 17.09.0-ce
-          docker_layer_caching: false
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - run:
-          name: setup docker for server
+          name: setup hosts
           command: |
-            docker network create e2e_mtls
-            docker build -t milmove_mtls:local -f Dockerfile.e2e .
+            # futz with /etc/hosts for running in circleci
+            echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
+            echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
+            echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
+            echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
       - run:
           background: true
           name: run server
+          environment:
+            MIGRATION_MANIFEST: '/home/circleci/project/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/project/migrations/app/schema;file:///home/circleci/project/migrations/app/secure'
           command: |
-            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
-            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
-            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-            echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
-            source $BASH_ENV
-            docker-compose -f docker-compose.mtls.yml up
+            export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)
+            export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
+            export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
+            export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)
+            export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+            export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
+            export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
+            # pull in review app settings here so we don't have to
+            # reproduce them
+            sed 's,^,export ,' config/env/review.app.env > server_env
+            source server_env
+
+            # now do a few overrides
+            export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
+            export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
+            export LOGIN_GOV_CALLBACK_PORT=4000
+            export LOGIN_GOV_CALLBACK_PROTOCOL=http
+            export SERVE_API_PRIME=true
+            export SERVE_API_SUPPORT=true
+            export SERVE_PRIME_SIMULATOR=false
+            export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
+            export DOD_CA_PACKAGE=$PWD/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            export HTTP_ADMIN_SERVER_NAME=adminlocal
+            export HTTP_MY_SERVER_NAME=milmovelocal
+            export HTTP_OFFICE_SERVER_NAME=officelocal
+            export HTTP_ORDERS_SERVER_NAME=orderslocal
+            export HTTP_PRIME_SERVER_NAME=primelocal
+            export ENVIRONMENT=test
+            export MUTUAL_TLS_ENABLED=1
+            export MUTUAL_TLS_PORT=9443
+
+            make db_dev_create
+            bin/milmove migrate
+            # mtls tests DO NOT NEED SEED DATA
+            bin/milmove serve 2>&1 | tee server.log | fmt
+      - run:
+          name: wait for server
+          command: |
+            dockerize -wait http://milmovelocal:4000 -timeout 5m
       - run:
           name: run e2e mtls tests
           command: |
-            docker run \
-            --name prime_api_client \
-            --network e2e_mtls \
-            --entrypoint /scripts/run-e2e-mtls-test \
-            milmove_mtls:local
+            ./scripts/run-e2e-mtls-test
 
 jobs:
   # `pre_deps_golang` is used for caching Go module sources
@@ -1301,7 +1360,7 @@ jobs:
   # prime-api-client.
   #
   integration_tests_mtls:
-    executor: milmove_integration_tester
+    executor: milmove_mtls_tester
     steps:
       - attach_workspace:
           at: .
