@@ -16,7 +16,7 @@ references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-4c83eceb0ca6483fcb20bb18b9b7d5246559e121
 
   # the cypress image to use
-  cypress: &cypress milmove/circleci-docker:milmove-cypress-e44706ef28d1cad04ee6ebf45b2316d825991af7
+  cypress: &cypress milmove/circleci-docker:milmove-cypress-4c83eceb0ca6483fcb20bb18b9b7d5246559e121
 
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
