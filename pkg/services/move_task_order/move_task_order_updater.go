@@ -64,20 +64,12 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 			return err
 		}
 
-		ppmOnlyMove := true
-		for _, s := range move.MTOShipments {
-			if s.ShipmentType != models.MTOShipmentTypePPM {
-				ppmOnlyMove = false
-				break
-			}
-		}
-
 		// If this is a PPM-only move, then we also need to adjust other statuses:
 		//   - set MTO shipment status to APPROVED
 		//   - set PPM shipment status to WAITING_ON_CUSTOMER
 		// TODO: Perhaps this could be part of the shipment router. PPMs are a separate model/table,
 		//   so would need to figure out how they factor in.
-		if ppmOnlyMove {
+		if move.IsPPMOnly() {
 			// Note: Avoiding the copy of the element in the range so we can preserve the changes to the
 			// statuses when we return the entire move tree.
 			for i := range move.MTOShipments { // We should only have PPM shipments if we get to here.
@@ -207,7 +199,11 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 		return &models.Move{}, apperror.NewPreconditionFailedError(move.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
+	// If the move is already been made available to prime, we will not need to approve and update the move,
+	// just the provided service items.
+	updateMove := false
 	if move.AvailableToPrimeAt == nil {
+		updateMove = true
 		now := time.Now()
 		move.AvailableToPrimeAt = &now
 
@@ -215,32 +211,34 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 		if err != nil {
 			return &models.Move{}, apperror.NewConflictError(move.ID, err.Error())
 		}
+	}
 
-		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		if updateMove {
 			err = o.updateMove(txnAppCtx, move, order.CheckRequiredFields())
 			if err != nil {
 				return err
 			}
-
-			// When provided, this will create and approve these Move-level service items.
-			if includeServiceCodeMS {
-				err = o.createMoveLevelServiceItem(txnAppCtx, *move, models.ReServiceCodeMS)
-			}
-
-			if err != nil {
-				return err
-			}
-
-			if includeServiceCodeCS {
-				err = o.createMoveLevelServiceItem(txnAppCtx, *move, models.ReServiceCodeCS)
-			}
-
-			return err
-		})
-
-		if transactionError != nil {
-			return &models.Move{}, transactionError
 		}
+
+		// When provided, this will create and approve these Move-level service items.
+		if includeServiceCodeMS && !move.IsPPMOnly() {
+			err = o.createMoveLevelServiceItem(txnAppCtx, *move, models.ReServiceCodeMS)
+		}
+
+		if err != nil {
+			return err
+		}
+
+		if includeServiceCodeCS {
+			err = o.createMoveLevelServiceItem(txnAppCtx, *move, models.ReServiceCodeCS)
+		}
+
+		return err
+	})
+
+	if transactionError != nil {
+		return &models.Move{}, transactionError
 	}
 
 	return move, nil

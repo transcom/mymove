@@ -13,7 +13,7 @@ import (
 func MakeAdminUser(db *pop.Connection, assertions Assertions) models.AdminUser {
 	user := assertions.AdminUser.User
 	// There's a uniqueness constraint on admin user emails so add some randomness
-	email := fmt.Sprintf("admin_%s@example.com", makeRandomString(5))
+	email := fmt.Sprintf("admin_%s@example.com", MakeRandomString(5))
 
 	if assertions.AdminUser.UserID == nil || isZeroUUID(*assertions.AdminUser.UserID) {
 		if assertions.User.LoginGovEmail == "" {
@@ -45,7 +45,7 @@ func MakeAdminUser(db *pop.Connection, assertions Assertions) models.AdminUser {
 // MakeAdminUserWithNoUser creates a single admin user and associated TransportOffice
 func MakeAdminUserWithNoUser(db *pop.Connection, assertions Assertions) models.AdminUser {
 	// There's a uniqueness constraint on admin user emails so add some randomness
-	email := fmt.Sprintf("admin_%s@example.com", makeRandomString(5))
+	email := fmt.Sprintf("admin_%s@example.com", MakeRandomString(5))
 
 	if assertions.User.LoginGovEmail != "" {
 		email = assertions.User.LoginGovEmail

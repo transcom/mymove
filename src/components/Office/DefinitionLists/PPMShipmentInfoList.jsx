@@ -9,6 +9,9 @@ import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatWeight } from 'utils/formatters';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags } from 'utils/displayFlags';
+import affiliation from 'content/serviceMemberAgencies';
+import { permissionTypes } from 'constants/permissions';
+import Restricted from 'components/Restricted/Restricted';
 
 const PPMShipmentInfoList = ({
   className,
@@ -34,6 +37,23 @@ const PPMShipmentInfoList = ({
     spouseProGearWeight,
   } = shipment.ppmShipment || {};
 
+  const { closeoutOffice, agency } = shipment;
+  let closeoutDisplay;
+
+  switch (agency) {
+    case affiliation.MARINES:
+      closeoutDisplay = 'TVCB';
+      break;
+    case affiliation.NAVY:
+      closeoutDisplay = 'NAVY';
+      break;
+    case affiliation.COAST_GUARD:
+      closeoutDisplay = 'USCG';
+      break;
+    default:
+      closeoutDisplay = closeoutOffice || '-';
+      break;
+  }
   setFlagStyles({
     row: styles.row,
     warning: shipmentDefinitionListsStyles.warning,
@@ -85,6 +105,14 @@ const PPMShipmentInfoList = ({
     <div className={secondDestinationZIPElementFlags.classes}>
       <dt>Second destination ZIP</dt>
       <dd data-testid="secondDestinationZIP">{secondaryDestinationPostalCode}</dd>
+    </div>
+  );
+
+  const closeoutOfficeElementFlags = getDisplayFlags('closeoutOffice');
+  const closeoutOfficeElement = (
+    <div className={closeoutOfficeElementFlags.classes}>
+      <dt>Closeout office</dt>
+      <dd data-testid="closeout">{closeoutDisplay}</dd>
     </div>
   );
 
@@ -164,6 +192,7 @@ const PPMShipmentInfoList = ({
       {showElement(secondOriginZIPElementFlags) && secondOriginZIPElement}
       {destinationZIPElement}
       {showElement(secondDestinationZIPElementFlags) && secondDestinationZIPElement}
+      <Restricted to={permissionTypes.viewCloseoutOffice}>{closeoutOfficeElement}</Restricted>
       {sitPlannedElement}
       {estimatedWeightElement}
       {showElement(proGearWeightElementFlags) && proGearWeightElement}

@@ -184,6 +184,7 @@ export const usePPMShipmentDocsQueries = (shipmentID) => {
   const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentID], getMTOShipmentByID);
 
   const ppmShipmentId = mtoShipment?.ppmShipment?.id;
+
   const { data: weightTickets, ...weightTicketsQuery } = useQuery([WEIGHT_TICKETS, ppmShipmentId], getWeightTickets, {
     enabled: !!ppmShipmentId,
   });
@@ -550,6 +551,13 @@ export const useMoveDetailsQueries = (moveCode) => {
 
   const order = Object.values(orders || {})?.[0];
 
+  const customerId = order?.customerID;
+  const { data: { customer } = {}, ...customerQuery } = useQuery([CUSTOMER, customerId], getCustomer, {
+    enabled: !!customerId,
+  });
+  const customerData = customer && Object.values(customer)[0];
+  const closeoutOffice = move.closeoutOffice && move.closeoutOffice.name;
+
   const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
     enabled: !!moveId,
   });
@@ -564,6 +572,7 @@ export const useMoveDetailsQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
     orderQuery,
+    customerQuery,
     mtoShipmentQuery,
     mtoServiceItemQuery,
   ]);
@@ -571,6 +580,8 @@ export const useMoveDetailsQueries = (moveCode) => {
   return {
     move,
     order,
+    customerData,
+    closeoutOffice,
     mtoShipments,
     mtoServiceItems,
     isLoading,

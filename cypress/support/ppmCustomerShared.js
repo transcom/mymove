@@ -107,9 +107,8 @@ export function fillOutAboutPage(selectAdvance) {
   cy.get('select[name="w2Address.state"]').select('AZ');
   cy.get('input[name="w2Address.postalCode"]').clear().type('85369').blur();
 
-  // when editing an existing about page record it should take us back to the review page when the existing bug is
-  // fixed
-  navigateFromAboutPageToWeightTicketPage();
+  cy.get('button').contains('Save & Continue').should('be.enabled').click();
+  cy.wait('@patchShipment');
 }
 
 export function navigateFromAboutPageToWeightTicketPage() {
@@ -220,15 +219,16 @@ export function submitsDateAndLocation() {
   cy.get('input[name="destinationPostalCode"]').clear().type('76127');
   cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
 
+  // Select closeout office
+  cy.selectDutyLocation('Fort Bragg');
+
   navigateFromDateAndLocationPageToEstimatedWeightsPage();
 }
 
-export function navigateFromDateAndLocationPageToEstimatedWeightsPage(actionToWaitOn) {
+export function navigateFromDateAndLocationPageToEstimatedWeightsPage(actionsToWaitOn) {
   cy.get('button').contains('Save & Continue').should('be.enabled').click();
 
-  if (actionToWaitOn) {
-    cy.wait(actionToWaitOn);
-  }
+  if (actionsToWaitOn) cy.wait(actionsToWaitOn);
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-weight/);

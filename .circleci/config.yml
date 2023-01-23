@@ -18,6 +18,9 @@ references:
   # the cypress image to use
   cypress: &cypress milmove/circleci-docker:milmove-cypress-e44706ef28d1cad04ee6ebf45b2316d825991af7
 
+  # the playwright image to use
+  playwright: &playwright cimg/node:16.15.0-browsers
+
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
   postgres: &postgres cimg/postgres:12.7
 
@@ -166,6 +169,29 @@ executors:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
 
+  milmove_playwright_tester:
+    resource_class: large
+    # use ~/project as that already exists in cimg/node and is owned
+    # by circleci
+    working_directory: ~/project
+    docker:
+      - image: *playwright
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+        environment:
+          GOPATH: /home/circleci/go
+      - image: *postgres
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+        environment:
+          POSTGRES_PASSWORD: mysecretpassword
+          POSTGRES_DB: test_db
+      - image: *redis
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
 commands:
   aws_vars_stg:
     steps:
@@ -636,6 +662,111 @@ commands:
             docker cp cypress:/home/circleci/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
             docker cp cypress:/home/circleci/cypress/reports cypress/ 2>/dev/null || echo "No cypress reports copied"
 
+  # run playwright tests without using setup_remote_docker
+  # the remote docker resources are not configurable and thus are
+  # SLOOOOOOW
+  #
+  # https://circleci.com/docs/building-docker-images/#specifications
+  #
+  # Run postgresql + redis in docker, but run the tests locally
+  #
+  e2e_tests_playwright:
+    parameters:
+      workers:
+        type: integer
+        # We tried this in an xlarge resource with 5 workers and still
+        # had flaky tests because of pages being slow to load
+        # Instead, we run in a large instance with 2 workers and
+        # increased parallelism as needed
+        default: 2
+    steps:
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+      - run:
+          name: setup hosts
+          command: |
+            # futz with /etc/hosts for running in circleci
+            echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
+            echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
+            echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
+            echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
+      - run:
+          background: true
+          name: run server
+          environment:
+            MIGRATION_MANIFEST: '/home/circleci/project/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/project/migrations/app/schema;file:///home/circleci/project/migrations/app/secure'
+          command: |
+            export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)
+            export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
+            export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
+            export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)
+            export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+            export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
+            export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
+            # pull in review app settings here so we don't have to
+            # reproduce them
+            sed 's,^,export ,' config/env/review.app.env > server_env
+            source server_env
+
+            # now do a few overrides
+            export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
+            export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
+            export LOGIN_GOV_CALLBACK_PORT=4000
+            export LOGIN_GOV_CALLBACK_PROTOCOL=http
+            export SERVE_API_PRIME=false
+            export SERVE_API_SUPPORT=true
+            export SERVE_PRIME_SIMULATOR=true
+            export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
+            export DOD_CA_PACKAGE=$PWD/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            export HTTP_ADMIN_SERVER_NAME=adminlocal
+            export HTTP_MY_SERVER_NAME=milmovelocal
+            export HTTP_OFFICE_SERVER_NAME=officelocal
+            export HTTP_ORDERS_SERVER_NAME=orderslocal
+            export HTTP_PRIME_SERVER_NAME=primelocal
+            export ENVIRONMENT=test
+
+            make db_dev_create
+            bin/milmove migrate
+            # playwright tests DO NOT NEED SEED DATA
+            bin/milmove serve 2>&1 | tee server.log | fmt
+      - run:
+          name: wait for server
+          command: |
+            # install yarn dependencies while waiting for the server
+            # to start. This installs our pinned version of playwright
+            yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+            # install playwright browsers while waiting for the server to start
+            ./node_modules/.bin/playwright install
+            dockerize -wait http://milmovelocal:4000 -timeout 5m
+      - run:
+          name: run e2e_test playwright
+          # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
+          command: |
+            SHARD=$((${CIRCLE_NODE_INDEX}+1))
+            PLAYWRIGHT_JUNIT_OUTPUT_NAME=playwright-results.xml \
+            ./node_modules/.bin/playwright test \
+            --reporter=html,junit \
+            --trace=on \
+            --workers << parameters.workers >> \
+            --shard="${SHARD}/${CIRCLE_NODE_TOTAL}"
+      - store_artifacts:
+          path: playwright-report
+      - run:
+          name: create playwright report archive for download
+          when: always
+          command: |
+            zip -r complete-playwright-report.zip playwright-report
+      - store_artifacts:
+          path: complete-playwright-report.zip
+      - store_artifacts:
+          path: server.log
+      - store_test_results:
+          path: playwright-results.xml
+
   # this custom step has some duplication with
   # scripts/run-e2e-mtls-test-docker because we want to run some of the
   # steps below in parallel
@@ -948,6 +1079,17 @@ jobs:
       - store_test_results:
           path: cypress/results
       - announce_failure
+
+  # integration_tests_playwright runs the integration tests using
+  # playwright. We are migrating away from cypress
+  integration_tests_playwright:
+    executor: milmove_playwright_tester
+    parallelism: 6
+    steps:
+      - e2e_tests_playwright
+      # at some point
+      # - announce_failure
+
 
   # `integration_tests_devseed` runs the devseed data generation
   integration_tests_devseed:
@@ -1272,9 +1414,19 @@ jobs:
                 - ./node_modules/.cache
       - persist_to_workspace:
           root: .
+          # Need build for integration tests
+          # Need cypress for, uh, cypress tests
+          # Need playwright, playwright.config.js, package.json, and
+          # yarn.lock for playwright
+          # Need eslint-plugin-ato as referenced by package.json/yarn.lock
           paths:
             - build
             - cypress
+            - playwright
+            - playwright.config.js
+            - package.json
+            - yarn.lock
+            - eslint-plugin-ato
       - announce_failure
 
   # `build_app` builds the application container
@@ -1841,6 +1993,17 @@ workflows:
       - integration_tests_devseed:
           requires:
             - pre_deps_golang
+          # See comments at the top of this file for configuring/using
+          # this branch config
+          filters:
+            branches:
+              ignore: *integration-ignore-branch
+
+      # not yet required, just testing
+      - integration_tests_playwright:
+          requires:
+            - compile_app_server
+            - compile_app_client
           # See comments at the top of this file for configuring/using
           # this branch config
           filters:

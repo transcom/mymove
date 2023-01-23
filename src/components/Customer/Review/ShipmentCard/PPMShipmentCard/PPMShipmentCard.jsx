@@ -1,5 +1,5 @@
 import React from 'react';
-import { bool, func, number } from 'prop-types';
+import { bool, func, number, oneOf } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 
@@ -9,9 +9,19 @@ import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
-import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
+import { getShipmentTypeLabel, isArmyOrAirForce } from 'utils/shipmentDisplay';
+import affiliations from 'content/serviceMemberAgencies';
+import { MoveShape } from 'types/customerShapes';
 
-const PPMShipmentCard = ({ shipment, shipmentNumber, showEditAndDeleteBtn, onEditClick, onDeleteClick }) => {
+const PPMShipmentCard = ({
+  move,
+  affiliation,
+  shipment,
+  shipmentNumber,
+  showEditAndDeleteBtn,
+  onEditClick,
+  onDeleteClick,
+}) => {
   const { moveTaskOrderID, id, shipmentType } = shipment;
   const {
     pickupPostalCode,
@@ -32,6 +42,13 @@ const PPMShipmentCard = ({ shipment, shipmentNumber, showEditAndDeleteBtn, onEdi
     moveId: moveTaskOrderID,
     mtoShipmentId: id,
   })}?shipmentNumber=${shipmentNumber}`;
+
+  let closeoutOffice;
+  if (move?.closeout_office == null) {
+    closeoutOffice = '';
+  } else {
+    closeoutOffice = move.closeout_office.name;
+  }
 
   return (
     <div className={styles.ShipmentCard}>
@@ -81,6 +98,12 @@ const PPMShipmentCard = ({ shipment, shipmentNumber, showEditAndDeleteBtn, onEdi
               <dd>{secondaryDestinationPostalCode}</dd>
             </div>
           )}
+          {isArmyOrAirForce(affiliation) && closeoutOffice !== '' ? (
+            <div className={styles.row}>
+              <dt>Closeout office</dt>
+              <dd>{closeoutOffice}</dd>
+            </div>
+          ) : null}
           <div className={styles.row}>
             <dt>Storage expected? (SIT)</dt>
             <dd>{sitExpected ? 'Yes' : 'No'}</dd>
@@ -117,12 +140,16 @@ PPMShipmentCard.propTypes = {
   showEditAndDeleteBtn: bool.isRequired,
   onEditClick: func,
   onDeleteClick: func,
+  move: MoveShape,
+  affiliation: oneOf(Object.values(affiliations)),
 };
 
 PPMShipmentCard.defaultProps = {
   shipmentNumber: undefined,
   onEditClick: undefined,
   onDeleteClick: undefined,
+  move: undefined,
+  affiliation: undefined,
 };
 
 export default PPMShipmentCard;

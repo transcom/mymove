@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite ProgearWeightTicketSuite) TestProgearWeightTicketValidatorFuncValidate() {
+func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketValidatorFuncValidate() {
 	suite.Run("Calling Validate runs validation function with no errors", func() {
 		validator := progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, _ *models.ProgearWeightTicket, _ *models.ProgearWeightTicket) error {
 			return nil
@@ -36,7 +36,7 @@ func (suite ProgearWeightTicketSuite) TestProgearWeightTicketValidatorFuncValida
 	})
 }
 
-func (suite ProgearWeightTicketSuite) TestValidateProgearWeightTicket() {
+func (suite *ProgearWeightTicketSuite) TestValidateProgearWeightTicket() {
 	suite.Run("Runs validation and returns nil when there are no errors", func() {
 		checkAlwaysReturnNil := progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, _ *models.ProgearWeightTicket, _ *models.ProgearWeightTicket) error {
 			return nil

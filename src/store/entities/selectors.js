@@ -27,6 +27,11 @@ export const selectCurrentDutyLocation = (state) => {
   return serviceMember?.current_location || null;
 };
 
+export const selectServiceMemberAffiliation = (state) => {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  return serviceMember?.affiliation || null;
+};
+
 export const selectServiceMemberProfileState = createSelector(selectServiceMemberFromLoggedInUser, (serviceMember) => {
   if (!serviceMember) return profileStates.EMPTY_PROFILE;
 

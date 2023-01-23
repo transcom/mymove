@@ -3,12 +3,22 @@ import * as Yup from 'yup';
 import { getFormattedMaxAdvancePercentage } from 'utils/incentives';
 import { InvalidZIPTypeError, ZIP5_CODE_REGEX } from 'utils/validation';
 
+function closeoutOfficeSchema(showCloseoutOffice, isAdvancePage) {
+  if (showCloseoutOffice && !isAdvancePage) {
+    return Yup.object().shape({
+      name: Yup.string().required('Required'),
+    });
+  }
+  return Yup.object().notRequired();
+}
+
 const ppmShipmentSchema = ({
   estimatedIncentive = 0,
   weightAllotment = {},
   advanceAmountRequested = 0,
   hasRequestedAdvance,
   isAdvancePage,
+  showCloseoutOffice,
 }) => {
   const estimatedWeightLimit = weightAllotment.totalWeightSelf || 0;
   const proGearWeightLimit = weightAllotment.proGearWeight || 0;
@@ -78,6 +88,7 @@ const ppmShipmentSchema = ({
         then: (schema) => schema.required('Required'),
       }),
 
+    closeoutOffice: closeoutOfficeSchema(showCloseoutOffice, isAdvancePage),
     counselorRemarks: Yup.string().when(['advance', 'advanceRequested'], {
       is: (advance, advanceRequested) =>
         isAdvancePage && (Number(advance) !== advanceAmountRequested / 100 || advanceRequested !== hasRequestedAdvance),

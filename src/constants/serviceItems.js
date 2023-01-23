@@ -102,6 +102,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
 };
 
 const SERVICE_ITEM_CODES = {
+  CS: 'CS',
   DDASIT: 'DDASIT',
   DDDSIT: 'DDDSIT',
   DDFSIT: 'DDFSIT',
@@ -120,6 +121,7 @@ const SERVICE_ITEM_CODES = {
   DDSHUT: 'DDSHUT',
   DCRT: 'DCRT',
   DUCRT: 'DUCRT',
+  MS: 'MS',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented

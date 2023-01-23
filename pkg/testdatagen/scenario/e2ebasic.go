@@ -2669,7 +2669,6 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
 			SITDaysAllowance:     &sitDaysAllowance,
 		},
@@ -2789,7 +2788,7 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 		Move:        mto,
 	})
 
-	makeSITExtensionsForShipment(appCtx, MTOShipment)
+	MakeSITExtensionsForShipment(appCtx, MTOShipment)
 
 	dcrtCost := unit.Cents(99999)
 	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
@@ -4260,19 +4259,19 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createUserWithLocatorAndDODID(appCtx, "QAEHLP", "1000000000")
 
 	// Create a move with an HHG and NTS prime-handled shipment
-	createMoveWithHHGAndNTSShipments(appCtx, "PRINTS", false)
+	CreateMoveWithHHGAndNTSShipments(appCtx, "PRINTS", false)
 
 	// Create a move with an HHG and NTS external vendor-handled shipment
-	createMoveWithHHGAndNTSShipments(appCtx, "PRXNTS", true)
+	CreateMoveWithHHGAndNTSShipments(appCtx, "PRXNTS", true)
 
 	// Create a move with only an NTS external vendor-handled shipment
-	createMoveWithNTSShipment(appCtx, "EXTNTS", true)
+	CreateMoveWithNTSShipment(appCtx, "EXTNTS", true)
 
 	// Create a move with an HHG and NTS-release prime-handled shipment
-	createMoveWithHHGAndNTSRShipments(appCtx, "PRINTR", false)
+	CreateMoveWithHHGAndNTSRShipments(appCtx, "PRINTR", false)
 
 	// Create a move with an HHG and NTS-release external vendor-handled shipment
-	createMoveWithHHGAndNTSRShipments(appCtx, "PRXNTR", true)
+	CreateMoveWithHHGAndNTSRShipments(appCtx, "PRXNTR", true)
 
 	// Create a move with only an NTS-release external vendor-handled shipment
 	createMoveWithNTSRShipment(appCtx, "EXTNTR", true)
@@ -4333,7 +4332,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createNTSRMoveWithPaymentRequest(appCtx, userUploader, "NTSRT3")
 
 	//Retiree, HOR, HHG
-	createMoveWithOptions(appCtx, testdatagen.Assertions{
+	CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 		Order: models.Order{
 			OrdersType: retirement,
 		},

@@ -25,6 +25,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
 	"github.com/transcom/mymove/pkg/handlers/supportapi"
+	"github.com/transcom/mymove/pkg/handlers/testharnessapi"
 	"github.com/transcom/mymove/pkg/middleware"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/telemetry"
@@ -116,9 +117,19 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	if routingConfig.LocalStorageRoot != "" && routingConfig.LocalStorageWebRoot != "" {
 		localStorageHandlerFunc := storage.NewFilesystemHandler(routingConfig.LocalStorageRoot)
 
-		site.HandleFunc(path.Join("/", routingConfig.LocalStorageWebRoot),
-			localStorageHandlerFunc)
+		// path.Join removes trailing slashes, but we want it
+		storageHandlerPath := path.Join("/", routingConfig.LocalStorageWebRoot) + "/"
+		appCtx.Logger().Info("Registering storage handler",
+			zap.Any("storageHandlerPath", storageHandlerPath))
+		storageMux := site.PathPrefix(storageHandlerPath).Subrouter()
+		storageMux.Use(middleware.ValidMethodsStatic(appCtx.Logger()))
+		storageMux.Use(middleware.RequestLogger(appCtx.Logger()))
+		if telemetryConfig.Enabled {
+			storageMux.Use(otelmux.Middleware("storage"))
+		}
+		storageMux.PathPrefix("/").HandlerFunc(localStorageHandlerFunc).Methods("GET", "HEAD")
 	}
+
 	// Add middleware: they are evaluated in the reverse order in which they
 	// are added, but the resulting http.Handlers execute in "normal" order
 	// (i.e., the http.Handler returned by the first Middleware added gets
@@ -139,7 +150,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
 	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(appCtx.Logger())
 	clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
-	addAuditUserToRequestContextMiddleware := authentication.AddAuditUserToRequestContextMiddleware(appCtx)
+	addAuditUserToRequestContextMiddleware := authentication.AddAuditUserIDToRequestContextMiddleware(appCtx)
 
 	// Serves files out of build folder
 	cfs := handlers.NewCustomFileSystem(
@@ -235,6 +246,17 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	}
 
 	if routingConfig.ServeSupport {
+		// only enable the test harness if support and devlocal auth
+		// is enabled, and do it before CSRF and other middleware
+		if routingConfig.ServeDevlocalAuth {
+			appCtx.Logger().Info("Enabling testharness")
+			testHarnessMux := site.PathPrefix("/testharness").Subrouter()
+			testHarnessMux.Use(middleware.RequestLogger(appCtx.Logger()))
+			testHarnessMux.Use(addAuditUserToRequestContextMiddleware)
+			testHarnessMux.Handle("/build/{action}",
+				testharnessapi.NewDefaultBuilder(routingConfig.HandlerConfig)).Methods("POST")
+
+		}
 		primeServerName := routingConfig.HandlerConfig.AppNames().PrimeServername
 		supportMux := site.Host(primeServerName).PathPrefix("/support/v1/").Subrouter()
 

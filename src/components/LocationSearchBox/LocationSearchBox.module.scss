@@ -14,7 +14,8 @@
   max-width: 32rem;
 }
 
-.hint {
+
+.hint.hint {
   @include u-margin-top(0);
   @include u-margin-bottom(1);
 }
