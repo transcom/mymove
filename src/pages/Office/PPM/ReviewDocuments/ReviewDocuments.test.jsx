@@ -41,6 +41,15 @@ jest.mock('hooks/queries', () => ({
 
 const testShipmentId = '4321';
 const usePPMShipmentDocsQueriesReturnValue = {
+  mtoShipment: {
+    ppmShipment: {
+      actualPickupPostalCode: '90210',
+      actualDestinationPostalCode: '11201',
+      actualMoveDate: '2022-03-16',
+      hasReceivedAdvance: true,
+      advanceAmountReceived: 340000,
+    },
+  },
   weightTickets: [
     {
       emptyDocument: {

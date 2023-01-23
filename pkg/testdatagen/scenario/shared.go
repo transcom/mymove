@@ -62,6 +62,9 @@ var hhgMoveType = models.SelectedMoveTypeHHG
 var ppmMoveType = models.SelectedMoveTypePPM
 var tioRemarks = "New billable weight set"
 
+// Closeout offices populated via migrations, this is the ID of one with the name 'Base Ketchikan'
+var defaultCloseoutOfficeID = uuid.FromStringOrNil("4afd7912-5cb5-4a90-a85d-ec72b436380e")
+
 type moveCreatorInfo struct {
 	userID           uuid.UUID
 	email            string
@@ -475,17 +478,19 @@ func createUnSubmittedMoveWithMinimumPPMShipment(appCtx appcontext.AppContext, u
 }
 
 func createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+
 	/*
 	 * A service member with orders and a PPM shipment updated with an estimated weight value and estimated incentive
 	 */
 	moveInfo := moveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("4512dc8c-c777-444e-b6dc-7971e398f2dc"),
-		email:       "estimated_weights@ppm.unsubmitted",
-		smID:        testdatagen.ConvertUUIDStringToUUID("81b772ab-86ff-4bda-b0fa-21b14dfe14d5"),
-		firstName:   "EstimatedWeights",
-		lastName:    "PPM",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("e89a7018-be76-449a-b99b-e30a09c485dc"),
-		moveLocator: "PPMEWH",
+		userID:           testdatagen.ConvertUUIDStringToUUID("4512dc8c-c777-444e-b6dc-7971e398f2dc"),
+		email:            "estimated_weights@ppm.unsubmitted",
+		smID:             testdatagen.ConvertUUIDStringToUUID("81b772ab-86ff-4bda-b0fa-21b14dfe14d5"),
+		firstName:        "EstimatedWeights",
+		lastName:         "PPM",
+		moveID:           testdatagen.ConvertUUIDStringToUUID("e89a7018-be76-449a-b99b-e30a09c485dc"),
+		moveLocator:      "PPMEWH",
+		closeoutOfficeID: &defaultCloseoutOfficeID,
 	}
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -562,13 +567,14 @@ func createUnSubmittedMoveWithFullPPMShipment2(appCtx appcontext.AppContext, use
 	 * A service member with orders and a full PPM Shipment.
 	 */
 	moveInfo := moveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("b54d5368-a633-4e3e-a8df-22133b9f8c7c"),
-		email:       "happyPathWithEdits@ppm.unsubmitted",
-		smID:        testdatagen.ConvertUUIDStringToUUID("f7bd4d55-c245-4f58-b638-e44f98ab2f32"),
-		firstName:   "Finished",
-		lastName:    "PPM",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("b122621c-8577-4b3f-a392-4ade43169fe9"),
-		moveLocator: "PPMHPE",
+		userID:           testdatagen.ConvertUUIDStringToUUID("b54d5368-a633-4e3e-a8df-22133b9f8c7c"),
+		email:            "happyPathWithEdits@ppm.unsubmitted",
+		smID:             testdatagen.ConvertUUIDStringToUUID("f7bd4d55-c245-4f58-b638-e44f98ab2f32"),
+		firstName:        "Finished",
+		lastName:         "PPM",
+		moveID:           testdatagen.ConvertUUIDStringToUUID("b122621c-8577-4b3f-a392-4ade43169fe9"),
+		moveLocator:      "PPMHPE",
+		closeoutOfficeID: &defaultCloseoutOfficeID,
 	}
 
 	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
@@ -593,13 +599,14 @@ func createUnSubmittedMoveWithFullPPMShipment3(appCtx appcontext.AppContext, use
 	 * A service member with orders and a full PPM Shipment.
 	 */
 	moveInfo := moveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("9365990e-5813-4031-aa42-170886150912"),
-		email:       "happyPathWithEditsMobile@ppm.unsubmitted",
-		smID:        testdatagen.ConvertUUIDStringToUUID("70d7372a-7e91-4b8f-927d-624cfe29ab6d"),
-		firstName:   "Finished",
-		lastName:    "PPM",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("4d0aa509-e6ee-4757-ad14-368e334fc51f"),
-		moveLocator: "PPMHPM",
+		userID:           testdatagen.ConvertUUIDStringToUUID("9365990e-5813-4031-aa42-170886150912"),
+		email:            "happyPathWithEditsMobile@ppm.unsubmitted",
+		smID:             testdatagen.ConvertUUIDStringToUUID("70d7372a-7e91-4b8f-927d-624cfe29ab6d"),
+		firstName:        "Finished",
+		lastName:         "PPM",
+		moveID:           testdatagen.ConvertUUIDStringToUUID("4d0aa509-e6ee-4757-ad14-368e334fc51f"),
+		moveLocator:      "PPMHPM",
+		closeoutOfficeID: &defaultCloseoutOfficeID,
 	}
 
 	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
@@ -1489,11 +1496,17 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+	closeoutOfficeID := testdatagen.ConvertUUIDStringToUUID("59131551-efc8-4e63-bb06-9cc88bd8f8a0")
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
+		TransportationOffice: models.TransportationOffice{
+			ID:   closeoutOfficeID,
+			Name: "Awesome base",
+		},
 		Move: models.Move{
-			Status: models.MoveStatusAPPROVED,
+			Status:           models.MoveStatusAPPROVED,
+			CloseoutOfficeID: &closeoutOfficeID,
 		},
 		MTOShipment: models.MTOShipment{
 			ID:     testdatagen.ConvertUUIDStringToUUID("226b81a7-9e56-4de2-b8ec-2cb5e8f72a35"),
@@ -2246,6 +2259,11 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 	sitLocationType := models.SITLocationTypeOrigin
+	closeoutOffice := testdatagen.MakeTransportationOffice(appCtx.DB(), testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Name: "Los Angeles AFB",
+		},
+	})
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
@@ -2277,6 +2295,8 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 			SelectedMoveType: &ppmMoveType,
 			Status:           models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt:      &submittedAt,
+			CloseoutOfficeID: &closeoutOffice.ID,
+			CloseoutOffice:   &closeoutOffice,
 		},
 	})
 
@@ -2329,8 +2349,6 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx appcontext
 	/*
 	 * A service member with orders and two full PPM Shipments.
 	 */
-
-	closeoutOfficeID := uuid.FromStringOrNil("ca6234a4-ed56-4094-a39c-738802798c6b")
 	moveInfo := moveCreatorInfo{
 		userID:           testdatagen.ConvertUUIDStringToUUID("afcc7029-4810-4f19-999a-2b254c659e19"),
 		email:            "multiComplete@ppm.unsubmitted",
@@ -2339,7 +2357,7 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx appcontext
 		lastName:         "Complete",
 		moveID:           testdatagen.ConvertUUIDStringToUUID("d94789bb-f8f7-4b5f-b86e-48503af70bfc"),
 		moveLocator:      "MULTI1",
-		closeoutOfficeID: &closeoutOfficeID,
+		closeoutOfficeID: &defaultCloseoutOfficeID,
 	}
 
 	assertions := testdatagen.Assertions{
@@ -2362,7 +2380,6 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete2(appCtx appcontext
 	 * A service member with orders and two full PPM Shipments.
 	 */
 
-	closeoutOfficeID := uuid.FromStringOrNil("ca6234a4-ed56-4094-a39c-738802798c6b")
 	moveInfo := moveCreatorInfo{
 		userID:           testdatagen.ConvertUUIDStringToUUID("836d8363-1a5a-45b7-aee0-996a97724c24"),
 		email:            "multiComplete2@ppm.unsubmitted",
@@ -2371,7 +2388,7 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete2(appCtx appcontext
 		lastName:         "Complete2",
 		moveID:           testdatagen.ConvertUUIDStringToUUID("839f893c-1c72-44e9-8544-298a19f1229a"),
 		moveLocator:      "MULTI2",
-		closeoutOfficeID: &closeoutOfficeID,
+		closeoutOfficeID: &defaultCloseoutOfficeID,
 	}
 
 	assertions := testdatagen.Assertions{
@@ -3913,7 +3930,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 }
 
 // A generic method
-func createMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.Assertions) {
+func CreateMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.Assertions) models.Move {
 
 	ordersType := assertions.Order.OrdersType
 	shipmentType := assertions.MTOShipment.ShipmentType
@@ -3971,6 +3988,8 @@ func createMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 			RequestedDeliveryDate: &requestedDeliveryDate,
 		},
 	})
+
+	return move
 }
 
 func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
@@ -8194,7 +8213,7 @@ func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 	})
 }
 
-func createMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {
+func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsMoveType := models.SelectedMoveTypeNTS
@@ -8239,8 +8258,11 @@ func createMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator stri
 			UsesExternalVendor: usesExternalVendor,
 		},
 	})
+
+	return move
 }
-func createMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {
+
+func CreateMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsrMoveType := models.SelectedMoveTypeNTSR
@@ -8284,9 +8306,11 @@ func createMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator str
 			UsesExternalVendor: usesExternalVendor,
 		},
 	})
+
+	return move
 }
 
-func createMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {
+func CreateMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsMoveType := models.SelectedMoveTypeNTS
@@ -8315,6 +8339,8 @@ func createMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, use
 			UsesExternalVendor: usesExternalVendor,
 		},
 	})
+
+	return move
 }
 
 func createMoveWithNTSRShipment(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {

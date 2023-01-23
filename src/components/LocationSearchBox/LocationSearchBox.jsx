@@ -138,14 +138,19 @@ export const LocationSearchBoxComponent = ({
   }, DEBOUNCE_TIMER_MS);
 
   const selectOption = async (selectedValue) => {
-    const address = await showAddress(selectedValue.address_id);
-    const newValue = {
-      ...selectedValue,
-      address,
-    };
+    if (!selectedValue.address) {
+      const address = await showAddress(selectedValue.address_id);
+      const newValue = {
+        ...selectedValue,
+        address,
+      };
 
-    onChange(newValue);
-    return newValue;
+      onChange(newValue);
+      return newValue;
+    }
+
+    onChange(selectedValue);
+    return selectedValue;
   };
 
   const changeInputText = (text) => {
@@ -203,15 +208,8 @@ export const LocationSearchBoxComponent = ({
 };
 
 export const LocationSearchBoxContainer = (props) => {
-  const { isDisabled, searchLocations } = props;
-  return (
-    <LocationSearchBoxComponent
-      {...props}
-      searchLocations={searchLocations}
-      showAddress={ShowAddress}
-      isDisabled={isDisabled}
-    />
-  );
+  const { searchLocations } = props;
+  return <LocationSearchBoxComponent {...props} searchLocations={searchLocations} showAddress={ShowAddress} />;
 };
 
 LocationSearchBoxContainer.propTypes = {

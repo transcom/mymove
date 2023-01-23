@@ -415,7 +415,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		separation := internalmessages.OrdersTypeSEPARATION
 
 		//Retiree, HOR, HHG
-		createMoveWithOptions(appCtx, testdatagen.Assertions{
+		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
 			},
@@ -434,7 +434,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 
 		//Retiree, HOS, NTS
 		ntsMoveType := models.SelectedMoveTypeNTS
-		createMoveWithOptions(appCtx, testdatagen.Assertions{
+		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
 			},
@@ -455,7 +455,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 
 		//Retiree, HOS, NTSR
 		ntsrMoveType := models.SelectedMoveTypeNTSR
-		createMoveWithOptions(appCtx, testdatagen.Assertions{
+		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
 			},
@@ -475,7 +475,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		})
 
 		//Separatee, HOS, hhg
-		createMoveWithOptions(appCtx, testdatagen.Assertions{
+		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: separation,
 			},
@@ -591,22 +591,22 @@ func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.
 		createNeedsServicesCounselingMinimalNTSR(appCtx, pcos, "NTSRMN")
 
 		// Create a move with an HHG and NTS prime-handled shipment
-		createMoveWithHHGAndNTSShipments(appCtx, "PRINTS", false)
+		CreateMoveWithHHGAndNTSShipments(appCtx, "PRINTS", false)
 
 		// Create a move with an HHG and NTS external vendor-handled shipment
-		createMoveWithHHGAndNTSShipments(appCtx, "PRXNTS", true)
+		CreateMoveWithHHGAndNTSShipments(appCtx, "PRXNTS", true)
 
 		// Create a move with only NTS external vendor-handled shipment
-		createMoveWithNTSShipment(appCtx, "EXTNTS", true)
+		CreateMoveWithNTSShipment(appCtx, "EXTNTS", true)
 
 		// Create a move with only an NTS external vendor-handled shipment
-		createMoveWithNTSShipment(appCtx, "NTSNTS", true)
+		CreateMoveWithNTSShipment(appCtx, "NTSNTS", true)
 
 		// Create a move with an HHG and NTS-release prime-handled shipment
-		createMoveWithHHGAndNTSRShipments(appCtx, "PRINTR", false)
+		CreateMoveWithHHGAndNTSRShipments(appCtx, "PRINTR", false)
 
 		// Create a move with an HHG and NTS-release external vendor-handled shipment
-		createMoveWithHHGAndNTSRShipments(appCtx, "PRXNTR", true)
+		CreateMoveWithHHGAndNTSRShipments(appCtx, "PRXNTR", true)
 
 		// Create a move with only an NTS-release external vendor-handled shipment
 		createMoveWithNTSRShipment(appCtx, "EXTNTR", true)
