@@ -992,7 +992,7 @@ jobs:
             - &pre_commit_cache_key v1-pre-commit-install-v2.20.0
       - restore_cache:
           keys:
-            - &shellcheck_cache_key v1-shellcheck-install-v0.7.2
+            - &shellcheck_cache_key v1-shellcheck-install-v0.8.0
       - run:
           name: Install pre-commit
           command: >
@@ -1011,7 +1011,7 @@ jobs:
           command: >
             test -r ~/bin/shellcheck ||
             curl -L -o -
-            https://github.com/koalaman/shellcheck/releases/download/v0.7.2/shellcheck-v0.7.2.linux.x86_64.tar.xz |
+            https://github.com/koalaman/shellcheck/releases/download/v0.8.0/shellcheck-v0.8.0.linux.x86_64.tar.xz |
             tar Jxf - --strip-components=1 --exclude='*txt' -C ~/bin
       - run:
           name: shellcheck version
