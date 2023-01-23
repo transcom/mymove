@@ -84,7 +84,7 @@ executors:
   mymove_docker_pusher:
     # needs to be medium+ so it can checkout and restore the workspace
     resource_class: medium+
-    working_directory: ~/transcom/mymove
+    working_directory: /mnt/ramdisk
     docker:
       - image: *cimg_base
         auth:
@@ -92,7 +92,7 @@ executors:
           password: $DOCKERHUB_PASSWORD
   mymove_docker_builder:
     resource_class: medium+
-    working_directory: ~/transcom/mymove
+    working_directory: /mnt/ramdisk
     docker:
       - image: *cimg_base
         auth:
@@ -500,6 +500,7 @@ commands:
         type: string
       working_dir:
         type: string
+        default: .
     steps:
       - attach_workspace:
           at: .
@@ -1607,7 +1608,6 @@ jobs:
           dockerfile: Dockerfile
           image_name: app
           tag: web-dev
-          working_dir: /mnt/ramdisk
       - announce_failure
 
   # `build_dp3_app` builds the application container, replacing DoD chain/certs with non-ato version
@@ -1618,7 +1618,6 @@ jobs:
           dockerfile: Dockerfile.dp3
           image_name: app
           tag: web-dev
-          working_dir: /mnt/ramdisk
       - announce_failure
 
   # `push_app_gov_dev` pushes the app container to the gov_dev container repository
@@ -1762,7 +1761,6 @@ jobs:
           dockerfile: Dockerfile.tasks
           image_name: tasks
           tag: dev
-          working_dir: /mnt/ramdisk
       - announce_failure
 
   #`build_dp3_tasks` builds the task container, replacing DoD chain/certs with non-ato version
@@ -1773,7 +1771,6 @@ jobs:
           dockerfile: Dockerfile.tasks_dp3
           image_name: tasks
           tag: dev
-          working_dir: /mnt/ramdisk
       - announce_failure
 
   # `push_tasks_gov_dev` pushes the tasks containers to the gov_dev container repository
@@ -1832,7 +1829,6 @@ jobs:
           dockerfile: Dockerfile.webhook_client
           image_name: webhook_client
           tag: dev
-          working_dir: /mnt/ramdisk
       - announce_failure
 
   # `build_dp3_webhook_client`builds the webhookd container, replacing DoD chain/certs with non-ato version
@@ -1843,7 +1839,6 @@ jobs:
           dockerfile: Dockerfile.webhook_client_dp3
           image_name: webhook_client
           tag: dev
-          working_dir: /mnt/ramdisk
       - announce_failure
 
   # `push_webhook_client_dp3` pushes the webhook client container to the dp3 container repository
