@@ -148,13 +148,24 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo moveCrea
 			ID:               moveInfo.moveID,
 			Locator:          moveInfo.moveLocator,
 			SelectedMoveType: &ppmMoveType,
-			CloseoutOfficeID: moveInfo.closeoutOfficeID,
 		},
 	}
 
 	testdatagen.MergeModels(&moveAssertions, assertions)
 
 	move := testdatagen.MakeMove(appCtx.DB(), moveAssertions)
+
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Name: "Los Angeles AFB"},
+		},
+	}, nil)
+
+	if *smWithPPM.Affiliation == models.AffiliationARMY || *smWithPPM.Affiliation == models.AffiliationAIRFORCE {
+		move.CloseoutOffice = &closeoutOffice
+		move.CloseoutOfficeID = &closeoutOffice.ID
+		testdatagen.MustSave(appCtx.DB(), &move)
+	}
 
 	return move
 }
@@ -342,6 +353,19 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 		},
 	})
 
+	// Make a transportation office to use as the closeout office
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Name: "Los Angeles AFB"},
+		},
+	}, nil)
+
+	if *smWithCombo.Affiliation == models.AffiliationARMY || *smWithCombo.Affiliation == models.AffiliationAIRFORCE {
+		move.CloseoutOffice = &closeoutOffice
+		move.CloseoutOfficeID = &closeoutOffice.ID
+		testdatagen.MustSave(appCtx.DB(), &move)
+	}
+
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(2000)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
@@ -413,7 +437,6 @@ func createGenericMoveWithPPMShipment(appCtx appcontext.AppContext, moveInfo mov
 	}
 
 	move := createGenericPPMRelatedMove(appCtx, moveInfo, assertions)
-
 	fullAssertions := testdatagen.Assertions{
 		Move: move,
 	}
@@ -464,7 +487,6 @@ func createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appconte
 		moveID:      testdatagen.ConvertUUIDStringToUUID("e89a7018-be76-449a-b99b-e30a09c485dc"),
 		moveLocator: "PPMEWH",
 	}
-
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		PPMShipment: models.PPMShipment{
@@ -1754,6 +1776,18 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		},
 	})
 
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Name: "Los Angeles AFB"},
+		},
+	}, nil)
+
+	if branch == models.AffiliationARMY || branch == models.AffiliationAIRFORCE {
+		move.CloseoutOffice = &closeoutOffice
+		move.CloseoutOfficeID = &closeoutOffice.ID
+		testdatagen.MustSave(appCtx.DB(), &move)
+	}
+
 	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -1817,6 +1851,18 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 			SubmittedAt:      &submittedAt,
 		},
 	})
+
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Name: "Los Angeles AFB"},
+		},
+	}, nil)
+
+	if branch == models.AffiliationARMY || branch == models.AffiliationAIRFORCE {
+		move.CloseoutOffice = &closeoutOffice
+		move.CloseoutOfficeID = &closeoutOffice.ID
+		testdatagen.MustSave(appCtx.DB(), &move)
+	}
 
 	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
@@ -1898,6 +1944,18 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Name: "Los Angeles AFB"},
+		},
+	}, nil)
+
+	if branch == models.AffiliationARMY || branch == models.AffiliationAIRFORCE {
+		move.CloseoutOffice = &closeoutOffice
+		move.CloseoutOfficeID = &closeoutOffice.ID
+		testdatagen.MustSave(appCtx.DB(), &move)
+	}
+
 	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -1977,6 +2035,18 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 			SubmittedAt:      &submittedAt,
 		},
 	})
+
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Name: "Los Angeles AFB"},
+		},
+	}, nil)
+
+	if branch == models.AffiliationARMY || branch == models.AffiliationAIRFORCE {
+		move.CloseoutOffice = &closeoutOffice
+		move.CloseoutOfficeID = &closeoutOffice.ID
+		testdatagen.MustSave(appCtx.DB(), &move)
+	}
 
 	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
@@ -2133,7 +2203,17 @@ func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 			SubmittedAt:      &submittedAt,
 		},
 	})
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Name: "Los Angeles AFB"},
+		},
+	}, nil)
 
+	if *smWithPPM.Affiliation == models.AffiliationARMY || *smWithPPM.Affiliation == models.AffiliationAIRFORCE {
+		move.CloseoutOffice = &closeoutOffice
+		move.CloseoutOfficeID = &closeoutOffice.ID
+		testdatagen.MustSave(appCtx.DB(), &move)
+	}
 	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ShipmentType:    models.MTOShipmentTypePPM,
@@ -2199,6 +2279,18 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 			SubmittedAt:      &submittedAt,
 		},
 	})
+
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Name: "Los Angeles AFB"},
+		},
+	}, nil)
+
+	if *smWithPPM.Affiliation == models.AffiliationARMY || *smWithPPM.Affiliation == models.AffiliationAIRFORCE {
+		move.CloseoutOffice = &closeoutOffice
+		move.CloseoutOfficeID = &closeoutOffice.ID
+		testdatagen.MustSave(appCtx.DB(), &move)
+	}
 
 	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
@@ -2334,6 +2426,18 @@ func createSubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext
 			Status:           models.MoveStatusSUBMITTED,
 		},
 	})
+
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Name: "Los Angeles AFB"},
+		},
+	}, nil)
+
+	if *smWithPPM.Affiliation == models.AffiliationARMY || *smWithPPM.Affiliation == models.AffiliationAIRFORCE {
+		move.CloseoutOffice = &closeoutOffice
+		move.CloseoutOfficeID = &closeoutOffice.ID
+		testdatagen.MustSave(appCtx.DB(), &move)
+	}
 
 	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
@@ -7244,6 +7348,18 @@ func createNeedsServicesCounselingWithoutCompletedOrders(appCtx appcontext.AppCo
 		},
 		Order: orders,
 	})
+
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Name: "Los Angeles AFB"},
+		},
+	}, nil)
+
+	if *orders.ServiceMember.Affiliation == models.AffiliationARMY || *orders.ServiceMember.Affiliation == models.AffiliationAIRFORCE {
+		move.CloseoutOffice = &closeoutOffice
+		move.CloseoutOfficeID = &closeoutOffice.ID
+		testdatagen.MustSave(appCtx.DB(), &move)
+	}
 
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
