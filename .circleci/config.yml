@@ -676,9 +676,9 @@ commands:
         type: integer
         # We tried this in an xlarge resource with 5 workers and still
         # had flaky tests because of pages being slow to load
-        # Instead, we run in a large instance with 2 workers and
+        # Instead, we run in a large instance with 1 worker and
         # increased parallelism as needed
-        default: 2
+        default: 1
     steps:
       - attach_workspace:
           at: .
