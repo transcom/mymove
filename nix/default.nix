@@ -60,15 +60,13 @@ buildEnv {
       })
       { }).postgresql_12
 
-    (import
-      (builtins.fetchGit {
-        # Descriptive name to make the store path easier to identify
-        name = "python3.10-pre-commit-2.20.0";
-        url = "https://github.com/NixOS/nixpkgs/";
-        ref = "refs/heads/nixpkgs-unstable";
-        rev = "cd8d1784506a7c7eb0796772b73437e0b82fad57";
-      })
-      { }).pre-commit
+    (import (builtins.fetchGit {
+      # Descriptive name to make the store path easier to identify
+      name = "python3.10-pre-commit-2.20.0";
+      url = "https://github.com/NixOS/nixpkgs/";
+      ref = "refs/heads/nixpkgs-unstable";
+      rev = "cfb43ad7b941d9c3606fb35d91228da7ebddbfc5";
+    }) {}).pre-commit
 
     (import
       (builtins.fetchGit {
@@ -140,15 +138,13 @@ buildEnv {
       })
       { }).watchman
 
-    (import
-      (builtins.fetchGit {
-        # Descriptive name to make the store path easier to identify
-        name = "awscli2-2.2.14";
-        url = "https://github.com/NixOS/nixpkgs/";
-        ref = "refs/heads/nixpkgs-unstable";
-        rev = "14b0f20fa1f56438b74100513c9b1f7c072cf789";
-      })
-      { }).awscli2
+    (import (builtins.fetchGit {
+      # Descriptive name to make the store path easier to identify
+      name = "awscli2-2.9.13";
+      url = "https://github.com/NixOS/nixpkgs/";
+      ref = "refs/heads/nixpkgs-unstable";
+      rev = "cfb43ad7b941d9c3606fb35d91228da7ebddbfc5";
+    }) {}).awscli2
 
     (import
       (builtins.fetchGit {

@@ -925,6 +925,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
+          # don't forget to bump this version in .pre-commit-config.yaml
           keys:
             - &pre_commit_cache_key v1-pre-commit-install-v2.20.0
       - restore_cache:
@@ -989,15 +990,11 @@ jobs:
       - run:
           name: Run pre-commit tests without go, eslint, or prettier
           command: |
-            # if the pre-commit cache directory does not have files
-            # newer than both the pre-commit binary and the
-            # pre-commit config, we need to install python3-pip so we
-            # can regenerate the cache. Go ahead and do pre-commit
-            # clean so we start fresh
-            (test -d ~/.cache/pre-commit && \
-            find ~/.cache/pre-commit \
-            -newer ~/bin/pre-commit -newer .pre-commit-config.yaml | \
-            grep -q pre-commit) ||
+            # if the pre-commit cache directory does not exist, we
+            # need to install python3-pip so we can regenerate the
+            # cache. Go ahead and do pre-commit clean so we start
+            # fresh
+            test -d ~/.cache/pre-commit ||
             (pre-commit clean && \
              sudo apt update && \
              sudo apt install python3-pip)
@@ -1047,15 +1044,11 @@ jobs:
       - run:
           name: Run go pre-commit tests without golangci-lint
           command: |
-            # if the pre-commit cache directory does not have files
-            # newer than both the pre-commit binary and the
-            # pre-commit config, we need to install python3-pip so we
-            # can regenerate the cache. Go ahead and do pre-commit
-            # clean so we start fresh
-            (test -d ~/.cache/pre-commit && \
-            find ~/.cache/pre-commit \
-            -newer ~/bin/pre-commit -newer .pre-commit-config.yaml | \
-            grep -q pre-commit) ||
+            # if the pre-commit cache directory does not exist, we
+            # need to install python3-pip so we can regenerate the
+            # cache. Go ahead and do pre-commit clean so we start
+            # fresh
+            test -d ~/.cache/pre-commit ||
             (pre-commit clean && \
              sudo apt update && \
              sudo apt install python3-pip)
