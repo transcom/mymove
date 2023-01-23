@@ -9,10 +9,11 @@ const base = require('@playwright/test');
 const { BaseTestPage } = require('./baseTest');
 
 /**
- * OfficePage
+ * office test fixture for playwright
+ * See https://playwright.dev/docs/test-fixtures
  * @extends BaseTestPage
  */
-class OfficePage extends BaseTestPage {
+export class OfficePage extends BaseTestPage {
   /**
    * Wait for the page to finish loading.
    */
@@ -20,6 +21,14 @@ class OfficePage extends BaseTestPage {
     // make sure we have signed in
     await base.expect(this.page.locator('button:has-text("Sign out")')).toHaveCount(1, { timeout: 10000 });
     await base.expect(this.page.locator('h2[data-name="loading-placeholder"]')).toHaveCount(0);
+  }
+
+  /**
+   * Wait for office user Move details page
+   */
+  async waitForMoveDetailsPage() {
+    await this.waitForLoading();
+    await base.expect(this.page.getByRole('heading', { name: 'Move details' })).toBeVisible();
   }
 
   /**
@@ -92,6 +101,64 @@ class OfficePage extends BaseTestPage {
     ]);
     await this.waitForLoading();
   }
+
+  /**
+   * Use devlocal auth to sign in as office user with qaecsr role
+   */
+  async signInAsNewQAECSRUser() {
+    await Promise.all([
+      // It is important to call waitForNavigation before click to set up waiting.
+      this.page.waitForNavigation(),
+      this.signIn.office.newQAECSRUser(),
+    ]);
+    await this.waitForLoading();
+  }
+
+  /**
+   * search for and navigate to move
+   * @param {string} moveLocator
+   */
+  async qaeCsrSearchForAndNavigateToMove(moveLocator) {
+    await this.page.locator('input[name="searchText"]').type(moveLocator);
+    await this.page.locator('input[name="searchText"]').blur();
+
+    await this.page.getByRole('button', { name: 'Search' }).click();
+    await this.waitForLoading();
+
+    await base.expect(this.page.locator('tbody >> tr')).toHaveCount(1);
+    base.expect(this.page.locator('tbody >> tr').first()).toContainText(moveLocator);
+
+    // click result to navigate to move details page
+    await this.page.locator('tbody > tr').first().click();
+    await this.waitForLoading();
+
+    base.expect(this.page.url()).toContain(`/moves/${moveLocator}/details`);
+  }
+
+  /**
+   * TIO search for and navigate to move
+   * @param {string} moveLocator
+   */
+  async tioNavigateToMove(moveLocator) {
+    await this.page.locator('#locator').type(moveLocator);
+    await this.page.locator('th[data-testid="locator"]').first().click();
+    await this.page.locator('[data-testid="locator-0"]').click();
+    await this.waitForLoading();
+  }
+
+  /**
+   * TOO search for and navigate to move
+   * @param {string} moveLocator
+   */
+  async tooNavigateToMove(moveLocator) {
+    await this.page.locator('input[name="locator"]').type(moveLocator);
+    await this.page.locator('input[name="locator"]').blur();
+
+    // click result to navigate to move details page
+    await this.page.locator('tbody > tr').first().click();
+    await this.waitForLoading();
+    base.expect(this.page.url()).toContain(`/moves/${moveLocator}/details`);
+  }
 }
 
 /**
@@ -107,6 +174,8 @@ const officeFixtures = {
   },
 };
 
-exports.test = base.test.extend(officeFixtures);
+export const test = base.test.extend(officeFixtures);
 
-exports.expect = base.expect;
+export const { expect } = base;
+
+export default test;
