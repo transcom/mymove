@@ -1474,11 +1474,17 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+	closeoutOfficeID := testdatagen.ConvertUUIDStringToUUID("59131551-efc8-4e63-bb06-9cc88bd8f8a0")
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
+		TransportationOffice: models.TransportationOffice{
+			ID:   closeoutOfficeID,
+			Name: "Awesome base",
+		},
 		Move: models.Move{
-			Status: models.MoveStatusAPPROVED,
+			Status:           models.MoveStatusAPPROVED,
+			CloseoutOfficeID: &closeoutOfficeID,
 		},
 		MTOShipment: models.MTOShipment{
 			ID:     testdatagen.ConvertUUIDStringToUUID("226b81a7-9e56-4de2-b8ec-2cb5e8f72a35"),
@@ -2173,6 +2179,11 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 	sitLocationType := models.SITLocationTypeOrigin
+	closeoutOffice := testdatagen.MakeTransportationOffice(appCtx.DB(), testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Name: "Los Angeles AFB",
+		},
+	})
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
@@ -2204,6 +2215,8 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 			SelectedMoveType: &ppmMoveType,
 			Status:           models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt:      &submittedAt,
+			CloseoutOfficeID: &closeoutOffice.ID,
+			CloseoutOffice:   &closeoutOffice,
 		},
 	})
 
@@ -3813,7 +3826,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 }
 
 // A generic method
-func createMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.Assertions) {
+func CreateMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.Assertions) models.Move {
 
 	ordersType := assertions.Order.OrdersType
 	shipmentType := assertions.MTOShipment.ShipmentType
@@ -3871,6 +3884,8 @@ func createMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 			RequestedDeliveryDate: &requestedDeliveryDate,
 		},
 	})
+
+	return move
 }
 
 func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
@@ -8082,7 +8097,7 @@ func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 	})
 }
 
-func createMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {
+func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsMoveType := models.SelectedMoveTypeNTS
@@ -8127,8 +8142,11 @@ func createMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator stri
 			UsesExternalVendor: usesExternalVendor,
 		},
 	})
+
+	return move
 }
-func createMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {
+
+func CreateMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsrMoveType := models.SelectedMoveTypeNTSR
@@ -8172,9 +8190,11 @@ func createMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator str
 			UsesExternalVendor: usesExternalVendor,
 		},
 	})
+
+	return move
 }
 
-func createMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {
+func CreateMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsMoveType := models.SelectedMoveTypeNTS
@@ -8203,6 +8223,8 @@ func createMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, use
 			UsesExternalVendor: usesExternalVendor,
 		},
 	})
+
+	return move
 }
 
 func createMoveWithNTSRShipment(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {

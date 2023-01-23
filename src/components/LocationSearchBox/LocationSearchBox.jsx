@@ -138,15 +138,19 @@ export const LocationSearchBoxComponent = ({
   }, DEBOUNCE_TIMER_MS);
 
   const selectOption = async (selectedValue) => {
-    const addressId = selectedValue.address ? selectedValue.address.id : selectedValue.address_id;
-    const address = await showAddress(addressId);
-    const newValue = {
-      ...selectedValue,
-      address,
-    };
+    if (!selectedValue.address) {
+      const address = await showAddress(selectedValue.address_id);
+      const newValue = {
+        ...selectedValue,
+        address,
+      };
 
-    onChange(newValue);
-    return newValue;
+      onChange(newValue);
+      return newValue;
+    }
+
+    onChange(selectedValue);
+    return selectedValue;
   };
 
   const changeInputText = (text) => {

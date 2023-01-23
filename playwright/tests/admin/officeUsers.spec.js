@@ -7,6 +7,16 @@
 // @ts-check
 const { test, expect } = require('../utils/adminTest');
 
+/**
+ * @param {import('@playwright/test').Page} page
+ * @param {string} email
+ */
+async function searchForOfficeUser(page, email) {
+  await page.getByLabel('Search').click();
+  await page.getByLabel('Search').fill(email);
+  await page.getByLabel('Search').press('Enter');
+}
+
 test.describe('Office Users List Page', () => {
   test('successfully navigates to Office Users page', async ({ page, adminPage }) => {
     await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
@@ -122,7 +132,7 @@ test.describe('Office Users Edit Page', () => {
     await adminPage.signInAsNewAdminUser();
 
     expect(page.url()).toContain('/system/office_users');
-
+    await searchForOfficeUser(page, email);
     await page.getByText(email).click();
     await adminPage.waitForAdminPageToLoad();
 
@@ -152,6 +162,7 @@ test.describe('Office Users Edit Page', () => {
     await page.getByRole('button', { name: 'Save' }).click();
     await adminPage.waitForAdminPageToLoad();
 
+    await searchForOfficeUser(page, email);
     await expect(page.locator(`tr:has(:text("${email}")) >> td.column-active >> svg`)).toHaveAttribute(
       'data-testid',
       newStatus,

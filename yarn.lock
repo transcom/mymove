@@ -8236,10 +8236,10 @@ core-js@^2.0.0:
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.12.tgz#d9333dfa7b065e347cc5682219d6f690859cc2ec"
   integrity sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ==
 
-core-js@^3.0.4, core-js@^3.19.2, core-js@^3.27.1, core-js@^3.6.5, core-js@^3.8.2:
-  version "3.27.1"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.27.1.tgz#23cc909b315a6bb4e418bf40a52758af2103ba46"
-  integrity sha512-GutwJLBChfGCpwwhbYoqfv03LAfmiz7e7D/BNxzeMxwQf10GRSzqiOjx7AmtEk+heiD/JWmBuyBPgFtx0Sg1ww==
+core-js@^3.0.4, core-js@^3.19.2, core-js@^3.27.2, core-js@^3.6.5, core-js@^3.8.2:
+  version "3.27.2"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.27.2.tgz#85b35453a424abdcacb97474797815f4d62ebbf7"
+  integrity sha512-9ashVQskuh5AZEZ1JdQWp1GqSoC1e1G87MzRqg2gIfVAQ7Qn9K+uFj8EcniUFA4P2NLZfV+TOlX1SzoKfo+s7w==
 
 core-util-is@1.0.2:
   version "1.0.2"
@@ -17276,10 +17276,10 @@ ra-core@^3.19.11:
     query-string "^5.1.1"
     reselect "~3.0.0"
 
-ra-core@^4.6.2:
-  version "4.6.2"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.6.2.tgz#8f12ae2d5cb72952599e86208b389969d43c3710"
-  integrity sha512-Thp9QOffve+meV9FLCmNqUwZH9za2ik/gYvwKAeMdmVJSlSYxhDtPNasAIn73WgW8pQsJhAJ5UNczWKaDQORNg==
+ra-core@^4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.7.0.tgz#2ecefdb7bfe284da0fa5339754a1b5626400d5b0"
+  integrity sha512-BqryOzTwuGd5Qn7Q5JLnipgWbhuNbIbK5Y9Kq0BQTNJTr8E8KxwgxduOyQatR4j8Gx8klrZrzZkQDGKlE4287g==
   dependencies:
     clsx "^1.1.1"
     date-fns "^2.19.0"
@@ -17292,10 +17292,10 @@ ra-core@^4.6.2:
     react-is "^17.0.2"
     react-query "^3.32.1"
 
-ra-data-simple-rest@^4.6.2:
-  version "4.6.2"
-  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.6.2.tgz#b05f83a9d4ed76774c9187d4fed8dd889f463d0f"
-  integrity sha512-8Z7W/QhuP4NxcEE6qQOYc3xge908KSKQu2J3k//ZK4uHqskPxQHBP2HQFm0Phcn3ba4GmX6CvygOSFyt9umGtw==
+ra-data-simple-rest@^4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.7.0.tgz#aef7f08d8d91f5ef1a00bd70449c3549c3c10911"
+  integrity sha512-MQtBt1yBUP3iJTPmdG8dDpSM2yCSjwDhI1dqvT5cUznwAP15bD4TgMmT3IRGHxoTa/S3oqbZsEMiba97IeYn3w==
   dependencies:
     query-string "^7.1.1"
 
@@ -17314,12 +17314,12 @@ ra-language-english@^3.19.11:
   dependencies:
     ra-core "^3.19.11"
 
-ra-language-english@^4.6.2:
-  version "4.6.2"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.6.2.tgz#365360571949b52904d8afd2dc443d37ebb76cae"
-  integrity sha512-lPmWtv/Y58ohnS4h30BzkA3N3VKNuMaFB3fDkoIQGXpB3qeyQgja8FNgxqIinn5scU5ocMJho2SUhdJObo2eIQ==
+ra-language-english@^4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.7.0.tgz#ec6b74546b7dcc20053de0dda0d71a365f925a50"
+  integrity sha512-vRu43vyULdWXzjyTBJP/lF+7WOJmZnhG/q+muY74o+bHsb4ZJZhdY1j2ZdLUtaLgtD6DKz/N4AoTTwgLK7gFGg==
   dependencies:
-    ra-core "^4.6.2"
+    ra-core "^4.7.0"
 
 ra-ui-materialui@^3.19.11:
   version "3.19.11"
