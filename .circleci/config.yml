@@ -35,6 +35,9 @@ references:
 
   redis: &redis redis:5.0.6
 
+  # Need the AWS tools from here
+  aws_tools: &aws_tools milmove/circleci-docker:milmove-app-94a41a022a48dab1c05b932734b472922260f3c0
+
   # To deploy to loadtest, demo or exp:
   # set dp3-branch to the branch you want to deploy to the env specifed
   # in dp3-env (loadtest, demo, exp), or
@@ -81,12 +84,12 @@ executors:
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-  mymove_docker_pusher:
+  mymove_docker_aws:
     # needs to be medium+ so it can checkout and restore the workspace
     resource_class: medium+
     working_directory: /mnt/ramdisk
     docker:
-      - image: *cimg_base
+      - image: *aws_tools
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -1352,7 +1355,7 @@ jobs:
   # keep track of the manual splitting of the integration_tests when
   # specifying dependencies
   integration_tests:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - run: echo "integration_tests done"
 
@@ -1674,7 +1677,7 @@ jobs:
 
   # `push_app_gov_dev` pushes the app container to the gov_dev container repository
   push_app_gov_dev:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - aws_vars_transcom_gov_dev
       - push_image:
@@ -1686,7 +1689,7 @@ jobs:
 
   # `push_app_dp3` pushes the app container to the milmove-<dp3-env> container repository
   push_app_dp3:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - aws_vars_dp3
       - push_image:
@@ -1698,7 +1701,7 @@ jobs:
 
   # `push_app_stg` pushes the app container to the milmove-stg container repository
   push_app_stg:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - aws_vars_stg
       - push_image:
@@ -1710,7 +1713,7 @@ jobs:
 
   # `push_app_prd` pushes the app container to the milmove-prd container repository
   push_app_prd:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - aws_vars_prd
       - push_image:
@@ -1759,7 +1762,7 @@ jobs:
 
   # `push_migrations_gov_dev` pushes the migrations container to the gov_dev container repository
   push_migrations_gov_dev:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - aws_vars_transcom_gov_dev
       - push_image:
@@ -1771,7 +1774,7 @@ jobs:
 
   # `push_migrations_dp3` pushes the migrations container to the milmove-dp3 container repository
   push_migrations_dp3:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - aws_vars_dp3
       - push_image:
@@ -1783,7 +1786,7 @@ jobs:
 
   # `push_migrations_stg` pushes the migrations container to the milmove-stg container repository
   push_migrations_stg:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - aws_vars_stg
       - push_image:
@@ -1795,7 +1798,7 @@ jobs:
 
   # `push_migrations_prd` pushes the migrations container to the milmove-prd container repository
   push_migrations_prd:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - aws_vars_prd
       - push_image:
@@ -1827,7 +1830,7 @@ jobs:
 
   # `push_tasks_gov_dev` pushes the tasks containers to the gov_dev container repository
   push_tasks_gov_dev:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - aws_vars_transcom_gov_dev
       - push_image:
@@ -1839,7 +1842,7 @@ jobs:
 
   # `push_tasks_dp3` pushes the tasks containers to the milmove-dp3 container repository
   push_tasks_dp3:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - aws_vars_dp3
       - push_image:
@@ -1851,7 +1854,7 @@ jobs:
 
   # `push_tasks_stg` pushes the tasks containers to the milmove-stg container repository
   push_tasks_stg:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - aws_vars_stg
       - push_image:
@@ -1863,7 +1866,7 @@ jobs:
 
   # `push_tasks_prd` pushes the tasks containers to the milmove-prd container repository
   push_tasks_prd:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - aws_vars_prd
       - push_image:
@@ -1895,7 +1898,7 @@ jobs:
 
   # `push_webhook_client_dp3` pushes the webhook client container to the dp3 container repository
   push_webhook_client_dp3:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - aws_vars_dp3
       - push_image:
@@ -1907,7 +1910,7 @@ jobs:
 
   # `push_webhook_client_stg` pushes the webhook client container to the stg container repository
   push_webhook_client_stg:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - aws_vars_stg
       - push_image:
@@ -1921,7 +1924,7 @@ jobs:
 
   # `deploy_dp3_migrations` deploys migrations to the dp3 environment
   deploy_dp3_migrations:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     environment:
       - APP_ENVIRONMENT: *dp3-env
     steps:
@@ -1932,7 +1935,7 @@ jobs:
 
   # `deploy_dp3_tasks` deploys scheduled tasks to the dp3 environment
   deploy_dp3_tasks:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     environment:
       - APP_ENVIRONMENT: *dp3-env
     steps:
@@ -1943,7 +1946,7 @@ jobs:
 
   # `deploy_dp3_app` updates the server-TLS app service in the dp3 environment
   deploy_dp3_app:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     parameters:
       dp3-env:
         type: string
@@ -1963,7 +1966,7 @@ jobs:
 
   # `deploy_dp3_app_client_tls` updates the mutual-TLS service in the dp3 environment
   deploy_dp3_app_client_tls:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     parameters:
       dp3-env:
         type: string
@@ -1983,7 +1986,7 @@ jobs:
 
   # `deploy_dp3_webhook_client` deploys the webhook client to dp3
   deploy_dp3_webhook_client:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     environment:
       APP_ENVIRONMENT: *dp3-env
       OPEN_TELEMETRY_SIDECAR: 'true'
@@ -1994,7 +1997,7 @@ jobs:
           ecr_env: *dp3-env
 
   check_circle_against_stg_sha:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - checkout
       - run:
@@ -2003,7 +2006,7 @@ jobs:
 
   # `deploy_stg_migrations` deploys migrations to the stg environment
   deploy_stg_migrations:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     environment:
       - APP_ENVIRONMENT: 'stg'
     steps:
@@ -2014,7 +2017,7 @@ jobs:
 
   # `deploy_stg_tasks` deploys scheduled tasks to the stg environment
   deploy_stg_tasks:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     environment:
       - APP_ENVIRONMENT: 'stg'
     steps:
@@ -2025,7 +2028,7 @@ jobs:
 
   # `deploy_stg_app` updates the server-TLS app service in stg environment
   deploy_stg_app:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     environment:
       - APP_ENVIRONMENT: 'stg'
     steps:
@@ -2038,7 +2041,7 @@ jobs:
 
   # `deploy_stg_app_client_tls` updates the mutual-TLS service in the stg environment
   deploy_stg_app_client_tls:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     environment:
       - APP_ENVIRONMENT: 'stg'
     steps:
@@ -2052,7 +2055,7 @@ jobs:
 
   # `deploy_stg_webhook_client` deploys the webhook client to stg
   deploy_stg_webhook_client:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     environment:
       APP_ENVIRONMENT: 'stg'
     steps:
@@ -2062,7 +2065,7 @@ jobs:
           ecr_env: stg
 
   deploy_storybook_dp3:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     steps:
       - checkout
       - aws_vars_transcom_com_dev
@@ -2071,7 +2074,7 @@ jobs:
 
   # `deploy_prd_migrations` deploys migrations to the milmove-prd environment
   deploy_prd_migrations:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     environment:
       - APP_ENVIRONMENT: 'prd'
     steps:
@@ -2082,7 +2085,7 @@ jobs:
 
   # `deploy_prd_tasks` deploys ECS tasks in the milmove-prd environment
   deploy_prd_tasks:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     environment:
       - APP_ENVIRONMENT: 'prd'
     steps:
@@ -2093,7 +2096,7 @@ jobs:
 
   # `deploy_prd_app` updates the server-TLS app service in the milmove-prd environment
   deploy_prd_app:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     environment:
       - APP_ENVIRONMENT: 'prd'
     steps:
@@ -2106,7 +2109,7 @@ jobs:
 
   # `deploy_prd_app_client_tls` updates the mutual-TLS service in the milmove-prd environment
   deploy_prd_app_client_tls:
-    executor: mymove_docker_pusher
+    executor: mymove_docker_aws
     environment:
       - APP_ENVIRONMENT: 'prd'
     steps:
