@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, waitFor, screen, fireEvent } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 
 import ReviewWeightTicket from './ReviewWeightTicket';
 
@@ -110,9 +111,34 @@ describe('ReviewWeightTicket component', () => {
         expect(screen.queryByText("Is the trailer's weight claimable?")).toBeInTheDocument();
       });
       const claimableYesButton = screen.getAllByRole('radio', { name: 'No' })[1];
-      await fireEvent.click(claimableYesButton);
+      await act(async () => {
+        await fireEvent.click(claimableYesButton);
+      });
       expect(screen.queryByText('Proof of ownership is needed to accept this item.')).not.toBeInTheDocument();
       expect(screen.getByLabelText('Accept')).not.toHaveAttribute('disabled');
+    });
+    describe('shows an error when submitting', () => {
+      it('without a status selected', async () => {
+        render(<ReviewWeightTicket {...defaultProps} {...claimableTrailerProps} />);
+        await waitFor(async () => {
+          const form = screen.getByRole('form');
+          expect(form).toBeInTheDocument();
+          await fireEvent.submit(form);
+          expect(screen.getByText('Reviewing this weight ticket is required'));
+        });
+      });
+      it('with Rejected but no reason selected', async () => {
+        render(<ReviewWeightTicket {...defaultProps} {...claimableTrailerProps} />);
+        await waitFor(async () => {
+          const form = screen.getByRole('form');
+          expect(form).toBeInTheDocument();
+          const rejectionButton = screen.getByTestId('rejectRadio');
+          expect(rejectionButton).toBeInTheDocument();
+          await fireEvent.click(rejectionButton);
+          await fireEvent.submit(form);
+          expect(screen.getByText('Add a reason why this weight ticket is rejected'));
+        });
+      });
     });
   });
 });
