@@ -30,11 +30,11 @@ import ShipmentWeightInput from 'components/Office/ShipmentWeightInput/ShipmentW
 import StorageFacilityAddress from 'components/Office/StorageFacilityAddress/StorageFacilityAddress';
 import StorageFacilityInfo from 'components/Office/StorageFacilityInfo/StorageFacilityInfo';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
-import { MTO_SHIPMENTS } from 'constants/queryKeys';
+import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
 import { shipmentDestinationTypes } from 'constants/shipments';
 import { officeRoles, roleTypes } from 'constants/userRoles';
-import { deleteShipment } from 'services/ghcApi';
+import { deleteShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AccountingCodesShape } from 'types/accountingCodes';
@@ -74,6 +74,7 @@ const ShipmentForm = (props) => {
     move,
   } = props;
 
+  const { moveCode } = match.params;
   const [errorMessage, setErrorMessage] = useState(null);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
 
@@ -95,6 +96,14 @@ const ShipmentForm = (props) => {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       setErrorMessage(errorMsg);
+    },
+  });
+
+  // const createMoveCloseoutOffice({moveCode, })
+
+  const { mutate: mutateMoveCloseoutOffice } = useMutation(updateMoveCloseoutOffice, {
+    onSuccess: () => {
+      queryClient.invalidateQueries([MOVES, moveCode]);
     },
   });
 
@@ -170,7 +179,6 @@ const ShipmentForm = (props) => {
   }
 
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
-  const { moveCode } = match.params;
 
   const moveDetailsRoute = isTOO ? tooRoutes.MOVE_VIEW_PATH : servicesCounselingRoutes.MOVE_VIEW_PATH;
   const moveDetailsPath = generatePath(moveDetailsRoute, { moveCode });
@@ -197,6 +205,13 @@ const ShipmentForm = (props) => {
                 moveCode,
                 shipmentId: newMTOShipment.id,
               });
+              if (formValues.closeoutOffice) {
+                mutateMoveCloseoutOffice({
+                  locator: moveCode,
+                  ifMatchETag: move.eTag,
+                  body: { closeoutOfficeId: move.closeoutOffice.id },
+                });
+              }
               history.replace(currentPath);
               history.push(advancePath);
             },

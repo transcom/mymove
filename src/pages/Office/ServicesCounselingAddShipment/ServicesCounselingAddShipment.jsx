@@ -8,10 +8,10 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 import 'styles/office.scss';
 import CustomerHeader from 'components/CustomerHeader';
 import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
-import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
+import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
-import { createMTOShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
+import { createMTOShipment } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { roleTypes } from 'constants/userRoles';
@@ -20,9 +20,9 @@ import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 // createMTOShipmentWrapper allows us to pass in the closeout office and include it
 // with the results from creating the shipment, which allows us to chain on the closeout office
 // update.
-function createMTOShipmentWrapper({ shipment, closeoutOffice }) {
+function createMTOShipmentWrapper({ shipment }) {
   return createMTOShipment(shipment).then((newShipment) => {
-    return { newShipment, closeoutOffice };
+    return { newShipment };
   });
 }
 const ServicesCounselingAddShipment = ({ match }) => {
@@ -45,15 +45,15 @@ const ServicesCounselingAddShipment = ({ match }) => {
       queryClient.setQueryData([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID]);
 
-      if (newMTOShipment.closeoutOffice) {
-        updateMoveCloseoutOffice({
-          locator: moveCode,
-          ifMatchETag: move.eTag,
-          body: { closeoutOfficeId: newMTOShipment.closeoutOffice.id },
-        }).then(() => {
-          queryClient.invalidateQueries([MOVES, moveCode]);
-        });
-      }
+      // if (newMTOShipment.closeoutOffice) {
+      //   updateMoveCloseoutOffice({
+      //     locator: moveCode,
+      //     ifMatchETag: move.eTag,
+      //     body: { closeoutOfficeId: newMTOShipment.closeoutOffice.id },
+      //   }).then(() => {
+      //     queryClient.invalidateQueries([MOVES, moveCode]);
+      //   });
+      // }
 
       return newMTOShipment.newShipment;
     },
