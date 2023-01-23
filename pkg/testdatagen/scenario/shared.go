@@ -2068,17 +2068,17 @@ func CreateMoveWithCloseoutOffice(appCtx appcontext.AppContext, moveInfo MoveCre
 func createMovesForEachBranch(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	// Create a move for each branch
 	branches := []models.ServiceMemberAffiliation{models.AffiliationARMY, models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationAIRFORCE, models.AffiliationCOASTGUARD}
-	moveInfo := MoveCreatorInfo{
-		UserID:    uuid.Must(uuid.NewV4()),
-		Email:     "needscloseout@ppm.closeout",
-		SmID:      uuid.Must(uuid.NewV4()),
-		FirstName: "PPMSC",
-		LastName:  "Submitted",
-		MoveID:    uuid.Must(uuid.NewV4()),
-	}
 	for _, branch := range branches {
 		branchCode := strings.ToUpper(branch.String())[:3]
-		moveInfo.MoveLocator = "CO1" + branchCode
+		moveInfo := MoveCreatorInfo{
+			UserID:      uuid.Must(uuid.NewV4()),
+			Email:       "needscloseout@ppm.closeout",
+			SmID:        uuid.Must(uuid.NewV4()),
+			FirstName:   "PPMSC",
+			LastName:    "Submitted",
+			MoveLocator: "CO1" + branchCode,
+			MoveID:      uuid.Must(uuid.NewV4()),
+		}
 		CreateMoveWithCloseOut(appCtx, userUploader, moveInfo, branch)
 		locator := "CO2" + branchCode
 		createMoveWithCloseOutandNonCloseOut(appCtx, userUploader, locator, branch)
