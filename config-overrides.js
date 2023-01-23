@@ -8,6 +8,12 @@
 // configuration files inside of Create React App.
 
 // webpack is a dependency of React-Scripts
+const crypto = require('crypto');
+
+// https://stackoverflow.com/a/69691525
+const cryptoOrigCreateHash = crypto.createHash;
+crypto.createHash = (algorithm) => cryptoOrigCreateHash(algorithm === 'md4' ? 'sha256' : algorithm);
+
 const webpack = require('webpack');
 
 module.exports = {
@@ -37,6 +43,9 @@ module.exports = {
         }
       }
     });
+
+    // https://stackoverflow.com/a/73027407
+    config.output.hashFunction = 'xxhash64';
 
     return config;
   },
