@@ -22,9 +22,11 @@ const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode }
   const history = useHistory();
   const queryClient = useQueryClient();
 
-  const { mutateAsync: createReportMutation } = useMutation(createShipmentEvaluationReport, {
-    onSuccess: () => {
+  const { mutate: createReportMutation } = useMutation(createShipmentEvaluationReport, {
+    onSuccess: (report) => {
       queryClient.invalidateQueries([SHIPMENT_EVALUATION_REPORTS, moveCode]);
+      const reportId = report?.id;
+      history.push(`/moves/${moveCode}/evaluation-reports/${reportId}`);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -32,11 +34,8 @@ const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode }
     },
   });
 
-  const handleCreateClick = async (shipmentID) => {
-    const report = await createReportMutation({ body: { shipmentID }, moveCode });
-    const reportId = report?.id;
-
-    history.push(`/moves/${moveCode}/evaluation-reports/${reportId}`);
+  const handleCreateClick = (shipmentID) => {
+    createReportMutation({ body: { shipmentID }, moveCode });
   };
 
   let heading;
