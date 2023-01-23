@@ -2106,7 +2106,7 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 	username := strings.Split(email, "@")[0]
 	firstName := strings.Split(username, "_")[0]
 	lastName := username[len(firstName)+1:]
-	moveInfo := scenario.CreateMoveCreatorInfo(scenario.MoveCreatorInfoInput{
+	moveInfo := scenario.MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
 		Email:       email,
 		SmID:        uuid.Must(uuid.NewV4()),
@@ -2114,7 +2114,7 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 		LastName:    lastName,
 		MoveID:      uuid.Must(uuid.NewV4()),
 		MoveLocator: models.GenerateLocator(),
-	})
+	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
@@ -2197,7 +2197,7 @@ func MakePPMMoveWithCloseout(appCtx appcontext.AppContext) models.Move {
 	username := strings.Split(email, "@")[0]
 	firstName := strings.Split(username, "_")[0]
 	lastName := username[len(firstName)+1:]
-	moveInfo := scenario.CreateMoveCreatorInfo(scenario.MoveCreatorInfoInput{
+	moveInfo := scenario.MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
 		Email:       email,
 		SmID:        uuid.Must(uuid.NewV4()),
@@ -2205,7 +2205,7 @@ func MakePPMMoveWithCloseout(appCtx appcontext.AppContext) models.Move {
 		LastName:    lastName,
 		MoveID:      uuid.Must(uuid.NewV4()),
 		MoveLocator: models.GenerateLocator(),
-	})
+	}
 
 	move := scenario.CreateMoveWithCloseOut(appCtx, userUploader, moveInfo, models.AffiliationARMY)
 
@@ -2234,7 +2234,7 @@ func MakePPMMoveWithCloseoutOffice(appCtx appcontext.AppContext) models.Move {
 	username := strings.Split(email, "@")[0]
 	firstName := strings.Split(username, "_")[0]
 	lastName := username[len(firstName)+1:]
-	moveInfo := scenario.CreateMoveCreatorInfo(scenario.MoveCreatorInfoInput{
+	moveInfo := scenario.MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
 		Email:       email,
 		SmID:        uuid.Must(uuid.NewV4()),
@@ -2242,7 +2242,7 @@ func MakePPMMoveWithCloseoutOffice(appCtx appcontext.AppContext) models.Move {
 		LastName:    lastName,
 		MoveID:      uuid.Must(uuid.NewV4()),
 		MoveLocator: models.GenerateLocator(),
-	})
+	}
 
 	move := scenario.CreateMoveWithCloseoutOffice(appCtx, moveInfo, userUploader)
 

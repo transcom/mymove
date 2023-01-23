@@ -1702,13 +1702,13 @@ func serviceMemberWithOrdersAndPPMMove04(appCtx appcontext.AppContext, userUploa
 
 func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("9b9ce6ed-70ba-4edf-b016-488c87fc1250"),
-		email:       "profile_full_ppm@move.draft",
-		smID:        testdatagen.ConvertUUIDStringToUUID("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
-		firstName:   "Move",
-		lastName:    "Draft",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("302f3509-562c-4f5c-81c5-b770f4af30e8"),
-		moveLocator: "PPMFUL",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("9b9ce6ed-70ba-4edf-b016-488c87fc1250"),
+		Email:       "profile_full_ppm@move.draft",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
+		FirstName:   "Move",
+		LastName:    "Draft",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("302f3509-562c-4f5c-81c5-b770f4af30e8"),
+		MoveLocator: "PPMFUL",
 	}
 
 	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
@@ -1733,13 +1733,13 @@ func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploa
 
 func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("4fd6726d-2d05-4640-96dd-983bec236a9c"),
-		email:       "full_ppm_mobile@complete.profile",
-		smID:        testdatagen.ConvertUUIDStringToUUID("08606458-cee9-4529-a2e6-9121e67dac72"),
-		firstName:   "Complete",
-		lastName:    "Profile",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("a97557cd-ec31-4f00-beed-01ac6e4c0976"),
-		moveLocator: "PPMMOB",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("4fd6726d-2d05-4640-96dd-983bec236a9c"),
+		Email:       "full_ppm_mobile@complete.profile",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("08606458-cee9-4529-a2e6-9121e67dac72"),
+		FirstName:   "Complete",
+		LastName:    "Profile",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("a97557cd-ec31-4f00-beed-01ac6e4c0976"),
+		MoveLocator: "PPMMOB",
 	}
 
 	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
@@ -4229,13 +4229,13 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createMoveWithPPMShipmentReadyForFinalCloseout(appCtx, userUploader)
 
 	CreateMoveWithCloseoutOffice(appCtx, MoveCreatorInfo{
-		userID:      uuid.Must(uuid.NewV4()),
-		email:       "closeoutoffice@ppm.closeout",
-		smID:        uuid.Must(uuid.NewV4()),
-		firstName:   "CLOSEOUT",
-		lastName:    "OFFICE",
-		moveID:      uuid.Must(uuid.NewV4()),
-		moveLocator: "CLSOFF",
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       "closeoutoffice@ppm.closeout",
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   "CLOSEOUT",
+		LastName:    "OFFICE",
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: "CLSOFF",
 	}, userUploader)
 
 	//destination type
@@ -4327,7 +4327,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createApprovedMoveWithPPMProgearWeightTicket(appCtx, userUploader)
 	createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)
 	createApprovedMoveWithPPMMovingExpense(appCtx, nil, userUploader)
-	createApprovedMoveWithPPMMovingExpense(appCtx, &MoveCreatorInfo{userID: uuid.FromStringOrNil("da65c290-6256-46db-a1a0-3779191638a2"), email: "movingExpensePPM2@ppm.approved", moveLocator: "EXPNS2"}, userUploader)
+	createApprovedMoveWithPPMMovingExpense(appCtx, &MoveCreatorInfo{UserID: uuid.FromStringOrNil("da65c290-6256-46db-a1a0-3779191638a2"), Email: "movingExpensePPM2@ppm.approved", MoveLocator: "EXPNS2"}, userUploader)
 	createMoveWithPPMShipmentReadyForFinalCloseout2(appCtx, userUploader)
 	createMoveWithPPMShipmentReadyForFinalCloseout3(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")

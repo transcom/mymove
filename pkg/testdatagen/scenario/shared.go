@@ -65,19 +65,8 @@ var tioRemarks = "New billable weight set"
 // Closeout offices populated via migrations, this is the ID of one with the name 'Base Ketchikan'
 var defaultCloseoutOfficeID = uuid.FromStringOrNil("4afd7912-5cb5-4a90-a85d-ec72b436380e")
 
+// fully public to facilitate reuse outside of this package
 type MoveCreatorInfo struct {
-	userID           uuid.UUID
-	email            string
-	smID             uuid.UUID
-	firstName        string
-	lastName         string
-	moveID           uuid.UUID
-	moveLocator      string
-	closeoutOfficeID *uuid.UUID
-}
-
-// public version of moveCreatorInfo
-type MoveCreatorInfoInput struct {
 	UserID           uuid.UUID
 	Email            string
 	SmID             uuid.UUID
@@ -88,61 +77,15 @@ type MoveCreatorInfoInput struct {
 	CloseoutOfficeID *uuid.UUID
 }
 
-// Create a MoveCreatorInfo so that functions can be reused from
-// outside this package
-func CreateMoveCreatorInfo(input MoveCreatorInfoInput) MoveCreatorInfo {
-	return MoveCreatorInfo{
-		userID:           input.UserID,
-		email:            input.Email,
-		smID:             input.SmID,
-		firstName:        input.FirstName,
-		lastName:         input.LastName,
-		moveID:           input.MoveID,
-		moveLocator:      input.MoveLocator,
-		closeoutOfficeID: input.CloseoutOfficeID,
-	}
-}
-
-// mergeModels won't work for moveCreatorInfo because the fields aren't settable, this is a temporary workaround
-func overrideMoveCreatorInfo(base *MoveCreatorInfo, overrides MoveCreatorInfo) {
-	if overrides.userID != uuid.Nil {
-		base.userID = overrides.userID
-	}
-
-	if overrides.email != "" {
-		base.email = overrides.email
-	}
-
-	if overrides.smID != uuid.Nil {
-		base.smID = overrides.smID
-	}
-
-	if overrides.firstName != "" {
-		base.firstName = overrides.firstName
-	}
-
-	if overrides.lastName != "" {
-		base.lastName = overrides.lastName
-	}
-
-	if overrides.moveID != uuid.Nil {
-		base.moveID = overrides.moveID
-	}
-
-	if overrides.moveLocator != "" {
-		base.moveLocator = overrides.moveLocator
-	}
-}
-
 func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo MoveCreatorInfo, assertions testdatagen.Assertions) models.Move {
-	if moveInfo.userID.IsNil() || moveInfo.email == "" || moveInfo.smID.IsNil() || moveInfo.firstName == "" || moveInfo.lastName == "" || moveInfo.moveID.IsNil() || moveInfo.moveLocator == "" {
+	if moveInfo.UserID.IsNil() || moveInfo.Email == "" || moveInfo.SmID.IsNil() || moveInfo.FirstName == "" || moveInfo.LastName == "" || moveInfo.MoveID.IsNil() || moveInfo.MoveLocator == "" {
 		log.Panic("All moveInfo fields must have non-zero values.")
 	}
 
 	user := models.User{
-		ID:            moveInfo.userID,
+		ID:            moveInfo.UserID,
 		LoginGovUUID:  models.UUIDPointer(uuid.Must(uuid.NewV4())),
-		LoginGovEmail: moveInfo.email,
+		LoginGovEmail: moveInfo.Email,
 		Active:        true,
 	}
 
@@ -156,12 +99,12 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo MoveCrea
 
 	smAssertions := testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID:            moveInfo.smID,
-			UserID:        moveInfo.userID,
-			FirstName:     models.StringPointer(moveInfo.firstName),
-			LastName:      models.StringPointer(moveInfo.lastName),
+			ID:            moveInfo.SmID,
+			UserID:        moveInfo.UserID,
+			FirstName:     models.StringPointer(moveInfo.FirstName),
+			LastName:      models.StringPointer(moveInfo.LastName),
 			Edipi:         models.StringPointer(testdatagen.RandomEdipi()),
-			PersonalEmail: models.StringPointer(moveInfo.email),
+			PersonalEmail: models.StringPointer(moveInfo.Email),
 		},
 	}
 
@@ -171,14 +114,14 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo MoveCrea
 
 	moveAssertions := testdatagen.Assertions{
 		Order: models.Order{
-			ServiceMemberID: moveInfo.smID,
+			ServiceMemberID: moveInfo.SmID,
 			ServiceMember:   smWithPPM,
 		},
 		Move: models.Move{
-			ID:               moveInfo.moveID,
-			Locator:          moveInfo.moveLocator,
+			ID:               moveInfo.MoveID,
+			Locator:          moveInfo.MoveLocator,
 			SelectedMoveType: &ppmMoveType,
-			CloseoutOfficeID: moveInfo.closeoutOfficeID,
+			CloseoutOfficeID: moveInfo.CloseoutOfficeID,
 		},
 	}
 
@@ -462,13 +405,13 @@ func createUnSubmittedMoveWithMinimumPPMShipment(appCtx appcontext.AppContext, u
 	 * A service member with orders and a minimal PPM Shipment. This means the PPM only has required fields.
 	 */
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("bbb469f3-f4bc-420d-9755-b9569f81715e"),
-		email:       "dates_and_locations@ppm.unsubmitted",
-		smID:        testdatagen.ConvertUUIDStringToUUID("635e4c37-63b8-4860-9239-0e743ec383b0"),
-		firstName:   "Minimal",
-		lastName:    "PPM",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("16cb4b73-cc0e-48c5-8cc7-b2a2ac52c342"),
-		moveLocator: "PPMMIN",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("bbb469f3-f4bc-420d-9755-b9569f81715e"),
+		Email:       "dates_and_locations@ppm.unsubmitted",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("635e4c37-63b8-4860-9239-0e743ec383b0"),
+		FirstName:   "Minimal",
+		LastName:    "PPM",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("16cb4b73-cc0e-48c5-8cc7-b2a2ac52c342"),
+		MoveLocator: "PPMMIN",
 	}
 
 	assertions := testdatagen.Assertions{
@@ -487,14 +430,14 @@ func createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appconte
 	 * A service member with orders and a PPM shipment updated with an estimated weight value and estimated incentive
 	 */
 	moveInfo := MoveCreatorInfo{
-		userID:           testdatagen.ConvertUUIDStringToUUID("4512dc8c-c777-444e-b6dc-7971e398f2dc"),
-		email:            "estimated_weights@ppm.unsubmitted",
-		smID:             testdatagen.ConvertUUIDStringToUUID("81b772ab-86ff-4bda-b0fa-21b14dfe14d5"),
-		firstName:        "EstimatedWeights",
-		lastName:         "PPM",
-		moveID:           testdatagen.ConvertUUIDStringToUUID("e89a7018-be76-449a-b99b-e30a09c485dc"),
-		moveLocator:      "PPMEWH",
-		closeoutOfficeID: &defaultCloseoutOfficeID,
+		UserID:           testdatagen.ConvertUUIDStringToUUID("4512dc8c-c777-444e-b6dc-7971e398f2dc"),
+		Email:            "estimated_weights@ppm.unsubmitted",
+		SmID:             testdatagen.ConvertUUIDStringToUUID("81b772ab-86ff-4bda-b0fa-21b14dfe14d5"),
+		FirstName:        "EstimatedWeights",
+		LastName:         "PPM",
+		MoveID:           testdatagen.ConvertUUIDStringToUUID("e89a7018-be76-449a-b99b-e30a09c485dc"),
+		MoveLocator:      "PPMEWH",
+		CloseoutOfficeID: &defaultCloseoutOfficeID,
 	}
 
 	assertions := testdatagen.Assertions{
@@ -515,13 +458,13 @@ func createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appconte
 	 * A service member with orders and a minimal PPM Shipment. This means the PPM only has required fields.
 	 */
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("dd1a3982-1ec4-4e34-a7bd-73cba4f3376a"),
-		email:       "advance_requested@ppm.unsubmitted",
-		smID:        testdatagen.ConvertUUIDStringToUUID("7a402a11-92a0-4334-b297-551be2bc44ef"),
-		firstName:   "HasAdvanceRequested",
-		lastName:    "PPM",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("fe322fae-c13e-4961-9956-69fb7a491ad4"),
-		moveLocator: "PPMADV",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("dd1a3982-1ec4-4e34-a7bd-73cba4f3376a"),
+		Email:       "advance_requested@ppm.unsubmitted",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("7a402a11-92a0-4334-b297-551be2bc44ef"),
+		FirstName:   "HasAdvanceRequested",
+		LastName:    "PPM",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("fe322fae-c13e-4961-9956-69fb7a491ad4"),
+		MoveLocator: "PPMADV",
 	}
 
 	assertions := testdatagen.Assertions{
@@ -544,13 +487,13 @@ func createUnSubmittedMoveWithFullPPMShipment1(appCtx appcontext.AppContext, use
 	 * A service member with orders and a full PPM Shipment.
 	 */
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("1b16773e-995b-4efe-ad1c-bef2ae1253f8"),
-		email:       "full@ppm.unsubmitted",
-		smID:        testdatagen.ConvertUUIDStringToUUID("1b400031-2b78-44ce-976c-cd2e854947f8"),
-		firstName:   "Full",
-		lastName:    "PPM",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("3e0b6cb9-3409-4089-83a0-0fbc3fb0b493"),
-		moveLocator: "FULLPP",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("1b16773e-995b-4efe-ad1c-bef2ae1253f8"),
+		Email:       "full@ppm.unsubmitted",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("1b400031-2b78-44ce-976c-cd2e854947f8"),
+		FirstName:   "Full",
+		LastName:    "PPM",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("3e0b6cb9-3409-4089-83a0-0fbc3fb0b493"),
+		MoveLocator: "FULLPP",
 	}
 
 	assertions := testdatagen.Assertions{
@@ -572,14 +515,14 @@ func createUnSubmittedMoveWithFullPPMShipment2(appCtx appcontext.AppContext, use
 	 * A service member with orders and a full PPM Shipment.
 	 */
 	moveInfo := MoveCreatorInfo{
-		userID:           testdatagen.ConvertUUIDStringToUUID("b54d5368-a633-4e3e-a8df-22133b9f8c7c"),
-		email:            "happyPathWithEdits@ppm.unsubmitted",
-		smID:             testdatagen.ConvertUUIDStringToUUID("f7bd4d55-c245-4f58-b638-e44f98ab2f32"),
-		firstName:        "Finished",
-		lastName:         "PPM",
-		moveID:           testdatagen.ConvertUUIDStringToUUID("b122621c-8577-4b3f-a392-4ade43169fe9"),
-		moveLocator:      "PPMHPE",
-		closeoutOfficeID: &defaultCloseoutOfficeID,
+		UserID:           testdatagen.ConvertUUIDStringToUUID("b54d5368-a633-4e3e-a8df-22133b9f8c7c"),
+		Email:            "happyPathWithEdits@ppm.unsubmitted",
+		SmID:             testdatagen.ConvertUUIDStringToUUID("f7bd4d55-c245-4f58-b638-e44f98ab2f32"),
+		FirstName:        "Finished",
+		LastName:         "PPM",
+		MoveID:           testdatagen.ConvertUUIDStringToUUID("b122621c-8577-4b3f-a392-4ade43169fe9"),
+		MoveLocator:      "PPMHPE",
+		CloseoutOfficeID: &defaultCloseoutOfficeID,
 	}
 
 	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
@@ -604,14 +547,14 @@ func createUnSubmittedMoveWithFullPPMShipment3(appCtx appcontext.AppContext, use
 	 * A service member with orders and a full PPM Shipment.
 	 */
 	moveInfo := MoveCreatorInfo{
-		userID:           testdatagen.ConvertUUIDStringToUUID("9365990e-5813-4031-aa42-170886150912"),
-		email:            "happyPathWithEditsMobile@ppm.unsubmitted",
-		smID:             testdatagen.ConvertUUIDStringToUUID("70d7372a-7e91-4b8f-927d-624cfe29ab6d"),
-		firstName:        "Finished",
-		lastName:         "PPM",
-		moveID:           testdatagen.ConvertUUIDStringToUUID("4d0aa509-e6ee-4757-ad14-368e334fc51f"),
-		moveLocator:      "PPMHPM",
-		closeoutOfficeID: &defaultCloseoutOfficeID,
+		UserID:           testdatagen.ConvertUUIDStringToUUID("9365990e-5813-4031-aa42-170886150912"),
+		Email:            "happyPathWithEditsMobile@ppm.unsubmitted",
+		SmID:             testdatagen.ConvertUUIDStringToUUID("70d7372a-7e91-4b8f-927d-624cfe29ab6d"),
+		FirstName:        "Finished",
+		LastName:         "PPM",
+		MoveID:           testdatagen.ConvertUUIDStringToUUID("4d0aa509-e6ee-4757-ad14-368e334fc51f"),
+		MoveLocator:      "PPMHPM",
+		CloseoutOfficeID: &defaultCloseoutOfficeID,
 	}
 
 	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
@@ -636,13 +579,13 @@ func createUnSubmittedMoveWithFullPPMShipment4(appCtx appcontext.AppContext, use
 	 * A service member with orders and a full PPM Shipment.
 	 */
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("781cf194-4eb2-4def-9da6-01abdc62333d"),
-		email:       "deleteShipmentMobile@ppm.unsubmitted",
-		smID:        testdatagen.ConvertUUIDStringToUUID("fc9264ae-4290-4445-987d-f6950b97c865"),
-		firstName:   "Delete",
-		lastName:    "PPM",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("a11cae72-56f0-45a3-a546-3af43a1d50ea"),
-		moveLocator: "PPMDEL",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("781cf194-4eb2-4def-9da6-01abdc62333d"),
+		Email:       "deleteShipmentMobile@ppm.unsubmitted",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("fc9264ae-4290-4445-987d-f6950b97c865"),
+		FirstName:   "Delete",
+		LastName:    "PPM",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("a11cae72-56f0-45a3-a546-3af43a1d50ea"),
+		MoveLocator: "PPMDEL",
 	}
 
 	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
@@ -667,13 +610,13 @@ func createUnSubmittedMoveWithFullPPMShipment5(appCtx appcontext.AppContext, use
 	 * A service member with orders and a full PPM Shipment.
 	 */
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("57d58062-93ac-4eb7-b1da-21dd137e4f65"),
-		email:       "deleteShipmentMobile@ppm.unsubmitted",
-		smID:        testdatagen.ConvertUUIDStringToUUID("d5778927-7366-44c2-8dbf-1bce14906adc"),
-		firstName:   "Delete",
-		lastName:    "PPM",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("ae5e7087-8e1e-49ae-98cc-0727a5cd11eb"),
-		moveLocator: "DELPPM",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("57d58062-93ac-4eb7-b1da-21dd137e4f65"),
+		Email:       "deleteShipmentMobile@ppm.unsubmitted",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("d5778927-7366-44c2-8dbf-1bce14906adc"),
+		FirstName:   "Delete",
+		LastName:    "PPM",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("ae5e7087-8e1e-49ae-98cc-0727a5cd11eb"),
+		MoveLocator: "DELPPM",
 	}
 
 	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
@@ -695,13 +638,13 @@ func createUnSubmittedMoveWithFullPPMShipment5(appCtx appcontext.AppContext, use
 
 func createApprovedMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("cde987a1-a717-4a61-98b5-1f05e2e0844d"),
-		email:       "readyToFinish@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("dfbba0fc-2a70-485e-9eb2-ac80f3861032"),
-		firstName:   "Ready",
-		lastName:    "Finish",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("26b960d8-a96d-4450-a441-673ccd7cc3c7"),
-		moveLocator: "PPMRF1",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("cde987a1-a717-4a61-98b5-1f05e2e0844d"),
+		Email:       "readyToFinish@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("dfbba0fc-2a70-485e-9eb2-ac80f3861032"),
+		FirstName:   "Ready",
+		LastName:    "Finish",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("26b960d8-a96d-4450-a441-673ccd7cc3c7"),
+		MoveLocator: "PPMRF1",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -733,13 +676,13 @@ func createApprovedMoveWithPPM2(appCtx appcontext.AppContext, userUploader *uplo
 	})
 
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("c28b2eb1-975f-49f7-b8a3-c7377c0da908"),
-		email:       "readyToFinish2@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("6456ffbb-d114-4ec5-a736-6cb63a65bfd7"),
-		firstName:   "Ready2",
-		lastName:    "Finish2",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("0e33adbc-20b4-4a93-9ce5-7ee4695a0307"),
-		moveLocator: "PPMRF2",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("c28b2eb1-975f-49f7-b8a3-c7377c0da908"),
+		Email:       "readyToFinish2@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("6456ffbb-d114-4ec5-a736-6cb63a65bfd7"),
+		FirstName:   "Ready2",
+		LastName:    "Finish2",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("0e33adbc-20b4-4a93-9ce5-7ee4695a0307"),
+		MoveLocator: "PPMRF2",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -767,13 +710,13 @@ func createApprovedMoveWithPPM2(appCtx appcontext.AppContext, userUploader *uplo
 
 func createApprovedMoveWithPPM3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("539af373-9474-49f3-b06b-bc4b4d4111de"),
-		email:       "readyToFinish3@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("1b543655-6e5a-4ea0-b4e0-48fe4e107ef5"),
-		firstName:   "Ready3",
-		lastName:    "Finish3",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("3cf2a0eb-08e6-404d-81ad-022e1aaf26aa"),
-		moveLocator: "PPMRF3",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("539af373-9474-49f3-b06b-bc4b4d4111de"),
+		Email:       "readyToFinish3@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("1b543655-6e5a-4ea0-b4e0-48fe4e107ef5"),
+		FirstName:   "Ready3",
+		LastName:    "Finish3",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("3cf2a0eb-08e6-404d-81ad-022e1aaf26aa"),
+		MoveLocator: "PPMRF3",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -799,13 +742,13 @@ func createApprovedMoveWithPPM3(appCtx appcontext.AppContext, userUploader *uplo
 
 func createApprovedMoveWithPPM4(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("c48998dc-8f93-437a-bd0c-2c0b187b12cb"),
-		email:       "readyToFinish4@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("16d13649-f246-456f-8093-da3a769a1247"),
-		firstName:   "Ready4",
-		lastName:    "Finish4",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("9061587a-5b31-4deb-9947-703a40857fa8"),
-		moveLocator: "PPMRF4",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("c48998dc-8f93-437a-bd0c-2c0b187b12cb"),
+		Email:       "readyToFinish4@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("16d13649-f246-456f-8093-da3a769a1247"),
+		FirstName:   "Ready4",
+		LastName:    "Finish4",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("9061587a-5b31-4deb-9947-703a40857fa8"),
+		MoveLocator: "PPMRF4",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -831,13 +774,13 @@ func createApprovedMoveWithPPM4(appCtx appcontext.AppContext, userUploader *uplo
 
 func createApprovedMoveWithPPM5(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("62e20f62-638f-4390-bbc0-c672cd7fd2e3"),
-		email:       "readyToFinish5@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("55643c43-f48b-471d-8b99-b1e2a0ce5215"),
-		firstName:   "Ready5",
-		lastName:    "Finish5",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("7dcbf7ef-9a74-4efa-b536-c334b2093bc0"),
-		moveLocator: "PPMRF5",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("62e20f62-638f-4390-bbc0-c672cd7fd2e3"),
+		Email:       "readyToFinish5@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("55643c43-f48b-471d-8b99-b1e2a0ce5215"),
+		FirstName:   "Ready5",
+		LastName:    "Finish5",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("7dcbf7ef-9a74-4efa-b536-c334b2093bc0"),
+		MoveLocator: "PPMRF5",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -863,13 +806,13 @@ func createApprovedMoveWithPPM5(appCtx appcontext.AppContext, userUploader *uplo
 
 func createApprovedMoveWithPPM6(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("1dca189a-ca7e-4e70-b98e-be3829e4b6cc"),
-		email:       "readyForCloseout@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("6b4ce016-9b76-44a8-a870-f378313aa1a8"),
-		firstName:   "Ready",
-		lastName:    "Closeout",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("5b718175-8bc5-4ca9-a1f0-8b70d064ee92"),
-		moveLocator: "PPMCL0",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("1dca189a-ca7e-4e70-b98e-be3829e4b6cc"),
+		Email:       "readyForCloseout@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("6b4ce016-9b76-44a8-a870-f378313aa1a8"),
+		FirstName:   "Ready",
+		LastName:    "Closeout",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("5b718175-8bc5-4ca9-a1f0-8b70d064ee92"),
+		MoveLocator: "PPMCL0",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -895,13 +838,13 @@ func createApprovedMoveWithPPM6(appCtx appcontext.AppContext, userUploader *uplo
 
 func createApprovedMoveWithPPM7(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("fe825617-a53a-49bf-bf2e-c271afee344d"),
-		email:       "readyForCloseout2@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("c1ba0a4b-4873-479a-a3d8-4158afdbe7b0"),
-		firstName:   "Ready",
-		lastName:    "Closeout",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("dabe45ab-aeab-4f83-b446-f1f70e265beb"),
-		moveLocator: "PPMRC2",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("fe825617-a53a-49bf-bf2e-c271afee344d"),
+		Email:       "readyForCloseout2@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("c1ba0a4b-4873-479a-a3d8-4158afdbe7b0"),
+		FirstName:   "Ready",
+		LastName:    "Closeout",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("dabe45ab-aeab-4f83-b446-f1f70e265beb"),
+		MoveLocator: "PPMRC2",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -927,13 +870,13 @@ func createApprovedMoveWithPPM7(appCtx appcontext.AppContext, userUploader *uplo
 
 func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("33f39cca-3908-4cf5-b7d9-839741f51911"),
-		email:       "weightTicketPPM@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("a30fd609-6dcf-4dd0-a7e6-2892a31ae641"),
-		firstName:   "ActualPPM",
-		lastName:    "WeightTicketComplete",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("2fdb02a5-dd80-4ec4-a9f0-f4eefb434568"),
-		moveLocator: "W3TT1K",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("33f39cca-3908-4cf5-b7d9-839741f51911"),
+		Email:       "weightTicketPPM@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("a30fd609-6dcf-4dd0-a7e6-2892a31ae641"),
+		FirstName:   "ActualPPM",
+		LastName:    "WeightTicketComplete",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("2fdb02a5-dd80-4ec4-a9f0-f4eefb434568"),
+		MoveLocator: "W3TT1K",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -973,13 +916,13 @@ func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUpl
 
 func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("f8af6fb0-101e-489c-9d9c-051931c52cf7"),
-		email:       "weightTicketPPM+closeout@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("cd4d7838-d8c1-441f-b7ce-af30b6257c3a"),
-		firstName:   "PPMCloseout",
-		lastName:    "WeightTicket",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("eb6f09b4-0856-466c-b5e1-854310ccf486"),
-		moveLocator: "CLOSE0",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("f8af6fb0-101e-489c-9d9c-051931c52cf7"),
+		Email:       "weightTicketPPM+closeout@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("cd4d7838-d8c1-441f-b7ce-af30b6257c3a"),
+		FirstName:   "PPMCloseout",
+		LastName:    "WeightTicket",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("eb6f09b4-0856-466c-b5e1-854310ccf486"),
+		MoveLocator: "CLOSE0",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1020,13 +963,13 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 
 func createApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("88007896-6ae7-4600-866a-873d3bc67fd3"),
-		email:       "actualPPMDateZIPAdvanceDone@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("9d9f0509-b2fb-42a2-aab7-58dd4d79c4e7"),
-		firstName:   "ActualPPM",
-		lastName:    "DateZIPAdvanceDone",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("acaa57ac-96f7-4411-aa07-c4bbe39e46bc"),
-		moveLocator: "ABTPPM",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("88007896-6ae7-4600-866a-873d3bc67fd3"),
+		Email:       "actualPPMDateZIPAdvanceDone@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("9d9f0509-b2fb-42a2-aab7-58dd4d79c4e7"),
+		FirstName:   "ActualPPM",
+		LastName:    "DateZIPAdvanceDone",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("acaa57ac-96f7-4411-aa07-c4bbe39e46bc"),
+		MoveLocator: "ABTPPM",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1059,13 +1002,13 @@ func createApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext
 
 func createApprovedMoveWithPPMWithAboutFormComplete2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("22dba194-3d9a-49c6-8328-718dd945292f"),
-		email:       "actualPPMDateZIPAdvanceDone2@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("c285f911-e432-42be-890a-965f9726b3e7"),
-		firstName:   "ActualPPM",
-		lastName:    "DateZIPAdvanceDone",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("c20a62cb-ad19-405c-b230-dfadbd9a6eba"),
-		moveLocator: "AB2PPM",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("22dba194-3d9a-49c6-8328-718dd945292f"),
+		Email:       "actualPPMDateZIPAdvanceDone2@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("c285f911-e432-42be-890a-965f9726b3e7"),
+		FirstName:   "ActualPPM",
+		LastName:    "DateZIPAdvanceDone",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("c20a62cb-ad19-405c-b230-dfadbd9a6eba"),
+		MoveLocator: "AB2PPM",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1098,13 +1041,13 @@ func createApprovedMoveWithPPMWithAboutFormComplete2(appCtx appcontext.AppContex
 
 func createApprovedMoveWithPPMWithAboutFormComplete3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("9ec731d8-f347-4d34-8b54-4ce9e6ea3282"),
-		email:       "actualPPMDateZIPAdvanceDone3@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("5329c0c2-15f9-433e-9f99-7501eb68c6c1"),
-		firstName:   "ActualPPM",
-		lastName:    "DateZIPAdvanceDone",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("a8dae89d-305a-49ae-996d-843dd7508aff"),
-		moveLocator: "AB3PPM",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("9ec731d8-f347-4d34-8b54-4ce9e6ea3282"),
+		Email:       "actualPPMDateZIPAdvanceDone3@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("5329c0c2-15f9-433e-9f99-7501eb68c6c1"),
+		FirstName:   "ActualPPM",
+		LastName:    "DateZIPAdvanceDone",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("a8dae89d-305a-49ae-996d-843dd7508aff"),
+		MoveLocator: "AB3PPM",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1137,13 +1080,13 @@ func createApprovedMoveWithPPMWithAboutFormComplete3(appCtx appcontext.AppContex
 
 func createApprovedMoveWithPPMWithAboutFormComplete4(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("2a0146c4-ec9a-4efc-a94c-6c2849c3e167"),
-		email:       "actualPPMDateZIPAdvanceDone4@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("98d28256-60e1-4792-86f1-c4e35cdef104"),
-		firstName:   "ActualPPM",
-		lastName:    "DateZIPAdvanceDone",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("3bb2341a-9133-4d8e-abdf-0c0b18827756"),
-		moveLocator: "AB4PPM",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("2a0146c4-ec9a-4efc-a94c-6c2849c3e167"),
+		Email:       "actualPPMDateZIPAdvanceDone4@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("98d28256-60e1-4792-86f1-c4e35cdef104"),
+		FirstName:   "ActualPPM",
+		LastName:    "DateZIPAdvanceDone",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("3bb2341a-9133-4d8e-abdf-0c0b18827756"),
+		MoveLocator: "AB4PPM",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1176,13 +1119,13 @@ func createApprovedMoveWithPPMWithAboutFormComplete4(appCtx appcontext.AppContex
 
 func createApprovedMoveWithPPMWithAboutFormComplete5(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("bab42ae8-fe0d-4165-87be-dc1317ae0099"),
-		email:       "actualPPMDateZIPAdvanceDone5@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("71086cbf-89ee-4ca2-b063-739f3f33dab4"),
-		firstName:   "ActualPPM",
-		lastName:    "DateZIPAdvanceDone",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("5e2916b2-dbba-4ca4-b558-d56842631757"),
-		moveLocator: "AB5PPM",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("bab42ae8-fe0d-4165-87be-dc1317ae0099"),
+		Email:       "actualPPMDateZIPAdvanceDone5@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("71086cbf-89ee-4ca2-b063-739f3f33dab4"),
+		FirstName:   "ActualPPM",
+		LastName:    "DateZIPAdvanceDone",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("5e2916b2-dbba-4ca4-b558-d56842631757"),
+		MoveLocator: "AB5PPM",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1215,13 +1158,13 @@ func createApprovedMoveWithPPMWithAboutFormComplete5(appCtx appcontext.AppContex
 
 func createApprovedMoveWithPPMWithAboutFormComplete6(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("2c4eaae3-5226-456a-94d5-177c679b0656"),
-		email:       "actualPPMDateZIPAdvanceDone6@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("119f1167-fca9-4ca3-a2e9-57a033ba9dfb"),
-		firstName:   "ActualPPM",
-		lastName:    "DateZIPAdvanceDone",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("59b67e7c-21a0-48c4-8630-c9afa206b3f2"),
-		moveLocator: "AB6PPM",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("2c4eaae3-5226-456a-94d5-177c679b0656"),
+		Email:       "actualPPMDateZIPAdvanceDone6@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("119f1167-fca9-4ca3-a2e9-57a033ba9dfb"),
+		FirstName:   "ActualPPM",
+		LastName:    "DateZIPAdvanceDone",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("59b67e7c-21a0-48c4-8630-c9afa206b3f2"),
+		MoveLocator: "AB6PPM",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1254,13 +1197,13 @@ func createApprovedMoveWithPPMWithAboutFormComplete6(appCtx appcontext.AppContex
 
 func createApprovedMoveWithPPMWithAboutFormComplete7(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("c7cd77e8-74e8-4d7f-975c-d4ca18735561"),
-		email:       "actualPPMDateZIPAdvanceDone7@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("60cb3c60-68ef-47fa-b5f4-26d0e3d80e2a"),
-		firstName:   "ActualPPM",
-		lastName:    "DateZIPAdvanceDone",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("8f451ef6-663f-49a9-b8ae-d3ecdca561d0"),
-		moveLocator: "AB7PPM",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("c7cd77e8-74e8-4d7f-975c-d4ca18735561"),
+		Email:       "actualPPMDateZIPAdvanceDone7@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("60cb3c60-68ef-47fa-b5f4-26d0e3d80e2a"),
+		FirstName:   "ActualPPM",
+		LastName:    "DateZIPAdvanceDone",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("8f451ef6-663f-49a9-b8ae-d3ecdca561d0"),
+		MoveLocator: "AB7PPM",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1293,13 +1236,13 @@ func createApprovedMoveWithPPMWithAboutFormComplete7(appCtx appcontext.AppContex
 
 func createApprovedMoveWithPPMWithAboutFormComplete8(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("e5a06330-3f5c-4f50-82a6-46f1bd7dd3a6"),
-		email:       "actualPPMDateZIPAdvanceDone8@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("3719a811-83ce-4de2-b357-eb46181f0d80"),
-		firstName:   "ActualPPM",
-		lastName:    "DateZIPAdvanceDone",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("6676c3cb-ad7a-4fa7-b6b2-c11c7754cad3"),
-		moveLocator: "AB8PPM",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("e5a06330-3f5c-4f50-82a6-46f1bd7dd3a6"),
+		Email:       "actualPPMDateZIPAdvanceDone8@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("3719a811-83ce-4de2-b357-eb46181f0d80"),
+		FirstName:   "ActualPPM",
+		LastName:    "DateZIPAdvanceDone",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("6676c3cb-ad7a-4fa7-b6b2-c11c7754cad3"),
+		MoveLocator: "AB8PPM",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1332,17 +1275,17 @@ func createApprovedMoveWithPPMWithAboutFormComplete8(appCtx appcontext.AppContex
 
 func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, info *MoveCreatorInfo, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("146c2665-5b8a-4653-8434-9a4460de30b5"),
-		email:       "movingExpensePPM@ppm.approved",
-		smID:        uuid.Must(uuid.NewV4()),
-		firstName:   "Expense",
-		lastName:    "Complete",
-		moveID:      uuid.Must(uuid.NewV4()),
-		moveLocator: "EXP3NS",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("146c2665-5b8a-4653-8434-9a4460de30b5"),
+		Email:       "movingExpensePPM@ppm.approved",
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   "Expense",
+		LastName:    "Complete",
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: "EXP3NS",
 	}
 
 	if info != nil {
-		overrideMoveCreatorInfo(&moveInfo, *info)
+		testdatagen.MergeModels(&moveInfo, *info)
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1395,13 +1338,13 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, info *
 
 func createApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("33eabbb6-416d-4d91-ba5b-bfd7d35e3037"),
-		email:       "progearWeightTicket@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("9240b1f4-352f-46b9-959a-4112ad4ae1a8"),
-		firstName:   "Progear",
-		lastName:    "Complete",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("d933b7f2-41e9-4e9f-9b22-7afed753572b"),
-		moveLocator: "PR0G3R",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("33eabbb6-416d-4d91-ba5b-bfd7d35e3037"),
+		Email:       "progearWeightTicket@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("9240b1f4-352f-46b9-959a-4112ad4ae1a8"),
+		FirstName:   "Progear",
+		LastName:    "Complete",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("d933b7f2-41e9-4e9f-9b22-7afed753572b"),
+		MoveLocator: "PR0G3R",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1442,14 +1385,14 @@ func createApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext, 
 
 func createApprovedMoveWithPPMProgearWeightTicket2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID: testdatagen.ConvertUUIDStringToUUID("7d4dbc69-2973-4c8b-bf75-6fb582d7a5f6"),
-		email:  "progearWeightTicket2@ppm.approved",
-		smID:   testdatagen.ConvertUUIDStringToUUID("818f3076-78ef-4afe-abf8-62c490a9f6c4"),
+		UserID: testdatagen.ConvertUUIDStringToUUID("7d4dbc69-2973-4c8b-bf75-6fb582d7a5f6"),
+		Email:  "progearWeightTicket2@ppm.approved",
+		SmID:   testdatagen.ConvertUUIDStringToUUID("818f3076-78ef-4afe-abf8-62c490a9f6c4"),
 
-		firstName:   "Progear",
-		lastName:    "Complete",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("d753eb23-b09f-4c53-b16d-fc71a56e5efd"),
-		moveLocator: "PR0G4R",
+		FirstName:   "Progear",
+		LastName:    "Complete",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("d753eb23-b09f-4c53-b16d-fc71a56e5efd"),
+		MoveLocator: "PR0G4R",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1490,13 +1433,13 @@ func createApprovedMoveWithPPMProgearWeightTicket2(appCtx appcontext.AppContext,
 
 func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("1c842b03-fc2d-4e92-ade8-bd3e579196e0"),
-		email:       "readyForFinalComplete@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("5a21a8ed-52f5-446c-9d3e-5d8080765820"),
-		firstName:   "ReadyFor",
-		lastName:    "PPMFinalCloseout",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("0b2e4341-583d-4793-b4a4-bd266534d17c"),
-		moveLocator: "PPMRFC",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("1c842b03-fc2d-4e92-ade8-bd3e579196e0"),
+		Email:       "readyForFinalComplete@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("5a21a8ed-52f5-446c-9d3e-5d8080765820"),
+		FirstName:   "ReadyFor",
+		LastName:    "PPMFinalCloseout",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("0b2e4341-583d-4793-b4a4-bd266534d17c"),
+		MoveLocator: "PPMRFC",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1561,13 +1504,13 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 
 func createMoveWithPPMShipmentReadyForFinalCloseout2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("6f48be45-8ee0-4792-a961-ec6856e5435d"),
-		email:       "closeoutHappyPathWithEdits@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("0b17c7fe-24ae-4feb-a37a-154aa720867e"),
-		firstName:   "ReadyFor",
-		lastName:    "PPMFinalCloseout",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("02c71fd2-a0dc-4975-bcd2-2b7edde22be1"),
-		moveLocator: "PPMCHE",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("6f48be45-8ee0-4792-a961-ec6856e5435d"),
+		Email:       "closeoutHappyPathWithEdits@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("0b17c7fe-24ae-4feb-a37a-154aa720867e"),
+		FirstName:   "ReadyFor",
+		LastName:    "PPMFinalCloseout",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("02c71fd2-a0dc-4975-bcd2-2b7edde22be1"),
+		MoveLocator: "PPMCHE",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1625,13 +1568,13 @@ func createMoveWithPPMShipmentReadyForFinalCloseout2(appCtx appcontext.AppContex
 
 func createMoveWithPPMShipmentReadyForFinalCloseout3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("917da44e-7e44-41be-b912-1486a72b69d8"),
-		email:       "closeoutHappyPathWithEditsMobile@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("15fee9c1-626a-4e0e-a3fa-5409312ff955"),
-		firstName:   "ReadyFor",
-		lastName:    "PPMFinalCloseout",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("15d39793-0ff1-4546-a48e-3de1fe157d95"),
-		moveLocator: "PPMCEM",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("917da44e-7e44-41be-b912-1486a72b69d8"),
+		Email:       "closeoutHappyPathWithEditsMobile@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("15fee9c1-626a-4e0e-a3fa-5409312ff955"),
+		FirstName:   "ReadyFor",
+		LastName:    "PPMFinalCloseout",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("15d39793-0ff1-4546-a48e-3de1fe157d95"),
+		MoveLocator: "PPMCEM",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1692,13 +1635,13 @@ func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUpload
 	 * A service member with orders and a full PPM Shipment.
 	 */
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("2d6a16ec-c031-42e2-aa55-90a1e29b961a"),
-		email:       "new@ppm.submitted",
-		smID:        testdatagen.ConvertUUIDStringToUUID("f1817ad8-dfd5-44c0-97eb-f634d22e147b"),
-		firstName:   "NewlySubmitted",
-		lastName:    "PPM",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("5f30c363-07c0-4290-899c-3418e8472b44"),
-		moveLocator: "PPMSB1",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("2d6a16ec-c031-42e2-aa55-90a1e29b961a"),
+		Email:       "new@ppm.submitted",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("f1817ad8-dfd5-44c0-97eb-f634d22e147b"),
+		FirstName:   "NewlySubmitted",
+		LastName:    "PPM",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("5f30c363-07c0-4290-899c-3418e8472b44"),
+		MoveLocator: "PPMSB1",
 	}
 
 	assertions := testdatagen.Assertions{
@@ -1737,20 +1680,20 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            moveInfo.userID,
+				ID:            moveInfo.UserID,
 				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: moveInfo.email,
+				LoginGovEmail: moveInfo.Email,
 				Active:        true,
 			}},
 	}, nil)
 
 	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID:            moveInfo.smID,
-			UserID:        moveInfo.userID,
-			FirstName:     models.StringPointer(moveInfo.firstName),
-			LastName:      models.StringPointer(moveInfo.lastName),
-			PersonalEmail: models.StringPointer(moveInfo.email),
+			ID:            moveInfo.SmID,
+			UserID:        moveInfo.UserID,
+			FirstName:     models.StringPointer(moveInfo.FirstName),
+			LastName:      models.StringPointer(moveInfo.LastName),
+			PersonalEmail: models.StringPointer(moveInfo.Email),
 			Affiliation:   &branch,
 		},
 	})
@@ -1785,8 +1728,8 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		},
 		UserUploader: userUploader,
 		Move: models.Move{
-			ID:               moveInfo.moveID,
-			Locator:          moveInfo.moveLocator,
+			ID:               moveInfo.MoveID,
+			Locator:          moveInfo.MoveLocator,
 			SelectedMoveType: &ppmMoveType,
 			Status:           models.MoveStatusAPPROVED,
 			SubmittedAt:      &submittedAt,
@@ -1814,7 +1757,7 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
 		SignedCertification: models.SignedCertification{
 			MoveID:           move.ID,
-			SubmittingUserID: moveInfo.userID,
+			SubmittingUserID: moveInfo.UserID,
 		},
 	})
 
@@ -2059,9 +2002,9 @@ func CreateMoveWithCloseoutOffice(appCtx appcontext.AppContext, moveInfo MoveCre
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            moveInfo.userID,
+				ID:            moveInfo.UserID,
 				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: moveInfo.email,
+				LoginGovEmail: moveInfo.Email,
 				Active:        true,
 			}},
 	}, nil)
@@ -2069,11 +2012,11 @@ func CreateMoveWithCloseoutOffice(appCtx appcontext.AppContext, moveInfo MoveCre
 	branch := models.AffiliationAIRFORCE
 	serviceMember := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID:            moveInfo.smID,
-			UserID:        moveInfo.userID,
-			FirstName:     models.StringPointer(moveInfo.firstName),
-			LastName:      models.StringPointer(moveInfo.lastName),
-			PersonalEmail: models.StringPointer(moveInfo.email),
+			ID:            moveInfo.SmID,
+			UserID:        moveInfo.UserID,
+			FirstName:     models.StringPointer(moveInfo.FirstName),
+			LastName:      models.StringPointer(moveInfo.LastName),
+			PersonalEmail: models.StringPointer(moveInfo.Email),
 			Affiliation:   &branch,
 		},
 	})
@@ -2093,8 +2036,8 @@ func CreateMoveWithCloseoutOffice(appCtx appcontext.AppContext, moveInfo MoveCre
 		},
 		UserUploader: userUploader,
 		Move: models.Move{
-			ID:               moveInfo.moveID,
-			Locator:          moveInfo.moveLocator,
+			ID:               moveInfo.MoveID,
+			Locator:          moveInfo.MoveLocator,
 			SelectedMoveType: &ppmMoveType,
 			CloseoutOfficeID: &closeoutOffice.ID,
 			CloseoutOffice:   &closeoutOffice,
@@ -2126,16 +2069,16 @@ func createMovesForEachBranch(appCtx appcontext.AppContext, userUploader *upload
 	// Create a move for each branch
 	branches := []models.ServiceMemberAffiliation{models.AffiliationARMY, models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationAIRFORCE, models.AffiliationCOASTGUARD}
 	moveInfo := MoveCreatorInfo{
-		userID:    uuid.Must(uuid.NewV4()),
-		email:     "needscloseout@ppm.closeout",
-		smID:      uuid.Must(uuid.NewV4()),
-		firstName: "PPMSC",
-		lastName:  "Submitted",
-		moveID:    uuid.Must(uuid.NewV4()),
+		UserID:    uuid.Must(uuid.NewV4()),
+		Email:     "needscloseout@ppm.closeout",
+		SmID:      uuid.Must(uuid.NewV4()),
+		FirstName: "PPMSC",
+		LastName:  "Submitted",
+		MoveID:    uuid.Must(uuid.NewV4()),
 	}
 	for _, branch := range branches {
 		branchCode := strings.ToUpper(branch.String())[:3]
-		moveInfo.moveLocator = "CO1" + branchCode
+		moveInfo.MoveLocator = "CO1" + branchCode
 		CreateMoveWithCloseOut(appCtx, userUploader, moveInfo, branch)
 		locator := "CO2" + branchCode
 		createMoveWithCloseOutandNonCloseOut(appCtx, userUploader, locator, branch)
@@ -2296,14 +2239,14 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx appcontext
 	 * A service member with orders and two full PPM Shipments.
 	 */
 	moveInfo := MoveCreatorInfo{
-		userID:           testdatagen.ConvertUUIDStringToUUID("afcc7029-4810-4f19-999a-2b254c659e19"),
-		email:            "multiComplete@ppm.unsubmitted",
-		smID:             testdatagen.ConvertUUIDStringToUUID("2dba3c65-1e69-429d-b797-0565014d0384"),
-		firstName:        "Multiple",
-		lastName:         "Complete",
-		moveID:           testdatagen.ConvertUUIDStringToUUID("d94789bb-f8f7-4b5f-b86e-48503af70bfc"),
-		moveLocator:      "MULTI1",
-		closeoutOfficeID: &defaultCloseoutOfficeID,
+		UserID:           testdatagen.ConvertUUIDStringToUUID("afcc7029-4810-4f19-999a-2b254c659e19"),
+		Email:            "multiComplete@ppm.unsubmitted",
+		SmID:             testdatagen.ConvertUUIDStringToUUID("2dba3c65-1e69-429d-b797-0565014d0384"),
+		FirstName:        "Multiple",
+		LastName:         "Complete",
+		MoveID:           testdatagen.ConvertUUIDStringToUUID("d94789bb-f8f7-4b5f-b86e-48503af70bfc"),
+		MoveLocator:      "MULTI1",
+		CloseoutOfficeID: &defaultCloseoutOfficeID,
 	}
 
 	assertions := testdatagen.Assertions{
@@ -2327,14 +2270,14 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete2(appCtx appcontext
 	 */
 
 	moveInfo := MoveCreatorInfo{
-		userID:           testdatagen.ConvertUUIDStringToUUID("836d8363-1a5a-45b7-aee0-996a97724c24"),
-		email:            "multiComplete2@ppm.unsubmitted",
-		smID:             testdatagen.ConvertUUIDStringToUUID("bde2125f-63cf-4a4b-aff4-162a02120d89"),
-		firstName:        "Multiple2",
-		lastName:         "Complete2",
-		moveID:           testdatagen.ConvertUUIDStringToUUID("839f893c-1c72-44e9-8544-298a19f1229a"),
-		moveLocator:      "MULTI2",
-		closeoutOfficeID: &defaultCloseoutOfficeID,
+		UserID:           testdatagen.ConvertUUIDStringToUUID("836d8363-1a5a-45b7-aee0-996a97724c24"),
+		Email:            "multiComplete2@ppm.unsubmitted",
+		SmID:             testdatagen.ConvertUUIDStringToUUID("bde2125f-63cf-4a4b-aff4-162a02120d89"),
+		FirstName:        "Multiple2",
+		LastName:         "Complete2",
+		MoveID:           testdatagen.ConvertUUIDStringToUUID("839f893c-1c72-44e9-8544-298a19f1229a"),
+		MoveLocator:      "MULTI2",
+		CloseoutOfficeID: &defaultCloseoutOfficeID,
 	}
 
 	assertions := testdatagen.Assertions{
@@ -2421,13 +2364,13 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 	 * A service member with orders and a submitted move with a ppm
 	 */
 	moveInfo := MoveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("28837508-1942-4188-a7ef-a7b544309ea6"),
-		email:       "user@ppm",
-		smID:        testdatagen.ConvertUUIDStringToUUID("c29418e5-5d69-498d-9709-b493d5bbc814"),
-		firstName:   "Submitted",
-		lastName:    "PPM",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("5174fd6c-3cab-4304-b4b3-89bd0f59b00b"),
-		moveLocator: "PPM001",
+		UserID:      testdatagen.ConvertUUIDStringToUUID("28837508-1942-4188-a7ef-a7b544309ea6"),
+		Email:       "user@ppm",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("c29418e5-5d69-498d-9709-b493d5bbc814"),
+		FirstName:   "Submitted",
+		LastName:    "PPM",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("5174fd6c-3cab-4304-b4b3-89bd0f59b00b"),
+		MoveLocator: "PPM001",
 	}
 
 	assertions := testdatagen.Assertions{

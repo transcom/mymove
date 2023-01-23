@@ -77,13 +77,13 @@ func subScenarioPPMCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		// PPM Closeout
 		createMovesForEachBranch(appCtx, userUploader)
 		CreateMoveWithCloseoutOffice(appCtx, MoveCreatorInfo{
-			userID:      uuid.Must(uuid.NewV4()),
-			email:       "closeoutoffice@ppm.closeout",
-			smID:        uuid.Must(uuid.NewV4()),
-			firstName:   "CLOSEOUT",
-			lastName:    "OFFICE",
-			moveID:      uuid.Must(uuid.NewV4()),
-			moveLocator: "CLSOFF",
+			UserID:      uuid.Must(uuid.NewV4()),
+			Email:       "closeoutoffice@ppm.closeout",
+			SmID:        uuid.Must(uuid.NewV4()),
+			FirstName:   "CLOSEOUT",
+			LastName:    "OFFICE",
+			MoveID:      uuid.Must(uuid.NewV4()),
+			MoveLocator: "CLSOFF",
 		}, userUploader)
 	}
 }
