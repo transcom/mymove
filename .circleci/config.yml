@@ -150,7 +150,7 @@ executors:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
   mymove_go_tester:
-    resource_class: large
+    resource_class: xlarge
     working_directory: ~/transcom/mymove
     docker:
       - image: *cimg_go
@@ -606,7 +606,7 @@ commands:
           command: make server_test
           environment:
             APPLICATION: '<< parameters.application >>'
-            GOFLAGS: '-p=4'
+            GOTEST_PARALLEL: 8
             DB_PASSWORD: mysecretpassword
             DB_USER_LOW_PRIV: crud
             DB_PASSWORD_LOW_PRIV: mysecretpassword

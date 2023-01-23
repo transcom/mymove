@@ -36,18 +36,26 @@ else
   exit 1
 fi
 
+if [[ -n "${CIRCLECI+x}" ]]; then
+  GOTEST_PARALLEL_DEFAULT=4
+else
+  GOTEST_PARALLEL_DEFAULT=8
+fi
+
+: "${GOTEST_PARALLEL:=$GOTEST_PARALLEL_DEFAULT}"
+
 gotest_args=("-count" "1")
 gotest_args+=("-race")
 if [ -n "${CIRCLECI+x}" ]; then
 	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
-  gotest_args+=("-parallel" "4")
+  gotest_args+=("-parallel" "${GOTEST_PARALLEL}")
 	# Add verbose (-v) so go-junit-report can parse it for CircleCI
   # results
   verbose_flag="-v"
   # Don't fail fast in Circle CI so we can see all the tests that failed
 else
   verbose_flag=""
-  gotest_args+=("-parallel" "8")
+  gotest_args+=("-parallel" "${GOTEST_PARALLEL}")
   gotest_args+=("-failfast")
 fi
 
