@@ -186,7 +186,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		// Expected Outcome:	The office user is not created and we get a 500 internal server error.
 		fakeTransportationOfficeID := "3b9c2975-4e54-40ea-a781-bab7d6e4a502"
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 
 		params := officeuserop.CreateOfficeUserParams{

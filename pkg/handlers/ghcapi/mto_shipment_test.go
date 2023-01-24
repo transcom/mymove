@@ -266,7 +266,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	suite.Run("Returns a 403 when the office user is not a service counselor", func() {
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed})
+			factory.GetTraitOfficeUserWithID})
 		uuid := uuid.Must(uuid.NewV4())
 		deleter := &mocks.ShipmentDeleter{}
 
@@ -297,7 +297,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 	suite.Run("Returns 204 when all validations pass", func() {
 		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
-		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserStubbed})
+		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
 		deleter := &mocks.ShipmentDeleter{}
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(shipment.MoveTaskOrderID, nil)
@@ -325,7 +325,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 	suite.Run("Returns 404 when deleter returns NotFoundError", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
-		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserStubbed})
+		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
 		deleter := &mocks.ShipmentDeleter{}
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.NotFoundError{})
@@ -355,7 +355,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 	suite.Run("Returns 403 when deleter returns ForbiddenError", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
-		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserStubbed})
+		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
 		deleter := &mocks.ShipmentDeleter{}
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.ForbiddenError{})
@@ -385,7 +385,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 	suite.Run("Returns 422 - Unprocessable Enitity error", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
-		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserStubbed})
+		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
 		deleter := &mocks.ShipmentDeleter{}
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.UnprocessableEntityError{})
@@ -415,7 +415,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 	suite.Run("Returns 409 - Conflict error", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
-		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserStubbed})
+		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
 		deleter := &mocks.ShipmentDeleter{}
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.ConflictError{})
@@ -537,7 +537,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		builder := query.NewQueryBuilder()
 		moveRouter := moveservices.NewMoveRouter()
@@ -581,7 +581,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
-		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserStubbed})
+		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
 		uuid := uuid.Must(uuid.NewV4())
 		approver := &mocks.ShipmentApprover{}
 
@@ -617,7 +617,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		approver := &mocks.ShipmentApprover{}
 
@@ -653,7 +653,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		approver := &mocks.ShipmentApprover{}
 
@@ -689,7 +689,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		approver := &mocks.ShipmentApprover{}
 
@@ -725,7 +725,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		approver := &mocks.ShipmentApprover{}
 
@@ -761,7 +761,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		approver := &mocks.ShipmentApprover{}
 
@@ -806,7 +806,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		requester := mtoshipment.NewShipmentDiversionRequester(
 			mtoshipment.NewShipmentRouter(),
@@ -845,7 +845,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
-		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserStubbed})
+		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
 		uuid := uuid.Must(uuid.NewV4())
 		requester := &mocks.ShipmentDiversionRequester{}
 
@@ -881,7 +881,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		requester := &mocks.ShipmentDiversionRequester{}
 
@@ -917,7 +917,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		requester := &mocks.ShipmentDiversionRequester{}
 
@@ -953,7 +953,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		requester := &mocks.ShipmentDiversionRequester{}
 
@@ -989,7 +989,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		requester := &mocks.ShipmentDiversionRequester{}
 
@@ -1025,7 +1025,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		requester := &mocks.ShipmentDiversionRequester{}
 
@@ -1071,7 +1071,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		approver := mtoshipment.NewShipmentDiversionApprover(
 			mtoshipment.NewShipmentRouter(),
@@ -1111,7 +1111,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
-		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserStubbed})
+		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
 		uuid := uuid.Must(uuid.NewV4())
 		approver := &mocks.ShipmentDiversionApprover{}
 
@@ -1147,7 +1147,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		approver := &mocks.ShipmentDiversionApprover{}
 
@@ -1183,7 +1183,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		approver := &mocks.ShipmentDiversionApprover{}
 
@@ -1219,7 +1219,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		approver := &mocks.ShipmentDiversionApprover{}
 
@@ -1255,7 +1255,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		approver := &mocks.ShipmentDiversionApprover{}
 
@@ -1291,7 +1291,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		approver := &mocks.ShipmentDiversionApprover{}
 
@@ -1335,7 +1335,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		rejecter := mtoshipment.NewShipmentRejecter(
 			mtoshipment.NewShipmentRouter(),
@@ -1417,7 +1417,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		rejecter := &mocks.ShipmentRejecter{}
 
@@ -1456,7 +1456,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		rejecter := &mocks.ShipmentRejecter{}
 
@@ -1495,7 +1495,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		rejecter := &mocks.ShipmentRejecter{}
 
@@ -1534,7 +1534,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		rejecter := &mocks.ShipmentRejecter{}
 
@@ -1573,7 +1573,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		rejecter := &mocks.ShipmentRejecter{}
 
@@ -1615,7 +1615,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		rejecter := mtoshipment.NewShipmentRejecter(
 			mtoshipment.NewShipmentRouter(),
@@ -1661,7 +1661,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		canceler := mtoshipment.NewShipmentCancellationRequester(
 			mtoshipment.NewShipmentRouter(),
@@ -1737,7 +1737,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		canceler := &mocks.ShipmentCancellationRequester{}
 
@@ -1773,7 +1773,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		canceler := &mocks.ShipmentCancellationRequester{}
 
@@ -1809,7 +1809,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		canceler := &mocks.ShipmentCancellationRequester{}
 
@@ -1845,7 +1845,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		canceler := &mocks.ShipmentCancellationRequester{}
 
@@ -1881,7 +1881,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		canceler := &mocks.ShipmentCancellationRequester{}
 
@@ -1925,7 +1925,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		reweighRequester := mtoshipment.NewShipmentReweighRequester()
 
@@ -2041,7 +2041,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		reweighRequester := &mocks.ShipmentReweighRequester{}
 
@@ -2094,7 +2094,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		reweighRequester := &mocks.ShipmentReweighRequester{}
 
@@ -2148,7 +2148,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		reweighRequester := &mocks.ShipmentReweighRequester{}
 
@@ -2201,7 +2201,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		reweighRequester := &mocks.ShipmentReweighRequester{}
 
@@ -2290,7 +2290,7 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil,
 			[]factory.Trait{
 				factory.GetTraitOfficeUserTOO,
-				factory.GetTraitOfficeUserStubbed,
+				factory.GetTraitOfficeUserWithID,
 			})
 		moveRouter := moveservices.NewMoveRouter()
 		sitExtensionApprover := mtoshipment.NewSITExtensionApprover(moveRouter)
@@ -2351,7 +2351,7 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		moveRouter := moveservices.NewMoveRouter()
 		sitExtensionDenier := mtoshipment.NewSITExtensionDenier(moveRouter)

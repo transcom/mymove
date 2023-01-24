@@ -34,7 +34,7 @@ import (
 func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 		factory.GetTraitOfficeUserTOO,
-		factory.GetTraitOfficeUserStubbed,
+		factory.GetTraitOfficeUserWithID,
 	})
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
@@ -566,7 +566,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTIO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -607,7 +607,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -648,7 +648,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -689,7 +689,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -732,7 +732,7 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 
 	requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 		factory.GetTraitOfficeUserTOO,
-		factory.GetTraitOfficeUserStubbed,
+		factory.GetTraitOfficeUserWithID,
 	})
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
@@ -863,7 +863,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserStubbed})
+		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateOrderParams{
@@ -900,7 +900,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserStubbed})
+		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateOrderParams{
@@ -937,7 +937,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserStubbed})
+		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateOrderParams{
@@ -1107,7 +1107,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1147,7 +1147,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1187,7 +1187,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1229,7 +1229,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 
 	requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 		factory.GetTraitOfficeUserTOO,
-		factory.GetTraitOfficeUserStubbed,
+		factory.GetTraitOfficeUserWithID,
 	})
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
@@ -1344,7 +1344,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserStubbed})
+		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateAllowanceParams{
@@ -1380,7 +1380,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserStubbed})
+		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateAllowanceParams{
@@ -1416,7 +1416,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserStubbed})
+		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateAllowanceParams{
@@ -1498,7 +1498,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTIO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1540,7 +1540,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTIO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1582,7 +1582,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTIO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1670,7 +1670,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1711,7 +1711,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1752,7 +1752,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1798,7 +1798,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightEventTrigger() {
 
 	requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 		factory.GetTraitOfficeUserTOO,
-		factory.GetTraitOfficeUserStubbed,
+		factory.GetTraitOfficeUserWithID,
 	})
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/update-billable-weight", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
@@ -1895,7 +1895,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1935,7 +1935,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1975,7 +1975,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -2019,7 +2019,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskEventTrigger() {
 
 	requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 		factory.GetTraitOfficeUserTOO,
-		factory.GetTraitOfficeUserStubbed,
+		factory.GetTraitOfficeUserWithID,
 	})
 	request := httptest.NewRequest("POST", "/orders/{orderID}/acknowledge-excess-weight-risk", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)

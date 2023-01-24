@@ -153,7 +153,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitOfficeUserStubbed,
+		factory.GetTraitOfficeUserWithID,
 	})
 	suite.NoError(err)
 

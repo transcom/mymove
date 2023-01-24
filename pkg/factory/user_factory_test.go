@@ -120,7 +120,7 @@ func (suite *FactorySuite) TestBuildDefaultUser() {
 		// Under test:      BuildUserAndUsersRoles
 		// Mocked:          None
 		// Set up:          Use helper function BuildUserAndUsersRoles
-		// Expected outcome:User should be created with GetTraitActiveUser
+		// Expected outcome:User with correct roles, Role, and UsersRoles should be created
 
 		precountRole, err := suite.DB().Count(&roles.Role{})
 		suite.NoError(err)

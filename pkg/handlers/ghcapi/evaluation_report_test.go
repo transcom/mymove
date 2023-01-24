@@ -415,7 +415,7 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		handlerConfig := suite.HandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 
 		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
@@ -449,7 +449,7 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		handlerConfig := suite.HandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 
 		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
@@ -485,7 +485,7 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		handlerConfig := suite.HandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 
 		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
@@ -521,7 +521,7 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		handlerConfig := suite.HandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 
 		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
@@ -557,7 +557,7 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		handlerConfig := suite.HandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 
 		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
@@ -593,7 +593,7 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		handlerConfig := suite.HandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserStubbed,
+			factory.GetTraitOfficeUserWithID,
 		})
 
 		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)

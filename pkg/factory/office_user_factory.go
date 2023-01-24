@@ -23,7 +23,9 @@ import (
 // - db can be set to nil to create a stubbed model that is not stored in DB.
 // Notes:
 //   - There's a uniqueness constraint on office user emails so use the GetTraitOfficeUserEmail trait
-//     when creating multiple office users
+//     when creating a test with multiple office users
+//   - The OfficeUser returned won't have an ID if the db is nil. If an ID is needed for a stubbed user,
+//     use trait GetTraitOfficeUserWithID
 func BuildOfficeUser(db *pop.Connection, customs []Customization, traits []Trait) models.OfficeUser {
 	customs = setupCustomizations(customs, traits)
 
@@ -91,16 +93,13 @@ func BuildOfficeUserWithRoles(db *pop.Connection, roleTypes []roles.RoleType) mo
 	traits := []Trait{GetTraitOfficeUserEmail}
 	if db == nil {
 		// UUIDs are only set when saving to a DB, but they're necessary when checking session auths
-		traits = append(traits, GetTraitOfficeUserStubbed)
+		traits = append(traits, GetTraitOfficeUserWithID)
 	}
 	return BuildOfficeUser(db, []Customization{
 		{
 			Model: models.User{
 				Roles: roles,
 			},
-		},
-		{
-			Model: models.OfficeUser{},
 		},
 	}, traits)
 
@@ -130,8 +129,8 @@ func GetTraitOfficeUserEmail() []Customization {
 	}
 }
 
-// GetTraitOfficeUserStubbed helps check session auths by creating a UUID even if db is nil
-func GetTraitOfficeUserStubbed() []Customization {
+// GetTraitOfficeUserWithID helps check session auths by creating a UUID even if db is nil
+func GetTraitOfficeUserWithID() []Customization {
 	return []Customization{
 		{
 			Model: models.OfficeUser{

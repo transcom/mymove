@@ -208,6 +208,7 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 // Test permissions middleware with a user who will be ALLOWED POST access on the endpoint: ghc/v1/shipments/:shipmentID/approve
 // role must have update.shipment permissions
 func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
+	// TIO users have the proper permissions for our test - update.shipment
 	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTIO})
 
 	identity, err := models.FetchUserIdentity(suite.DB(), tioOfficeUser.User.LoginGovUUID.String())
@@ -252,14 +253,6 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 	// QAECSR users will be denied access as they lack the proper permissions for our test - update.shipment
 	qaeCsrOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeQaeCsr})
-	role := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeQaeCsr)
-	factory.BuildUsersRoles(suite.DB(), []factory.Customization{
-		{
-			Model: models.UsersRoles{
-				UserID: qaeCsrOfficeUser.User.ID,
-				RoleID: role.ID,
-			},
-		}}, nil)
 
 	identity, err := models.FetchUserIdentity(suite.DB(), qaeCsrOfficeUser.User.LoginGovUUID.String())
 
@@ -973,6 +966,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 	}, nil)
 
 	qaeCsrRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeQaeCsr)
+	// this user doesn't have roles, so creating UsersRoles here
 	factory.BuildUsersRoles(suite.DB(), []factory.Customization{
 		{
 			Model: models.UsersRoles{
