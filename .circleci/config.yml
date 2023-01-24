@@ -1445,7 +1445,7 @@ jobs:
 
   # `client_test` runs the client side Javascript tests
   client_test:
-    executor: mymove_node_compiler
+    executor: mymove_node_ramdisk_compiler_xlarge
     steps:
       - checkout
       - restore_cache:
