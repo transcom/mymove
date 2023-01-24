@@ -160,27 +160,14 @@ describe('ReviewDocuments', () => {
     });
   });
   describe('with data loaded', () => {
-    it('renders the DocumentViewer', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
-      render(<ReviewDocuments {...requiredProps} />);
-      waitFor(() => {
-        const docs = screen.getByText(/Documents/);
-        expect(docs).toBeInTheDocument();
-      });
-      expect(screen.getAllByText('test.pdf').length).toBe(2);
-      expect(screen.getByText('test.xls')).toBeInTheDocument();
-      expect(screen.getByText('test.jpg')).toBeInTheDocument();
-      expect(screen.getByRole('heading', { level: 2, name: '1 of 1 Document Sets' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
-      expect(screen.getByTestId('closeSidebar')).toBeInTheDocument();
-    });
     it('renders and handles the Continue button with the appropriate payload', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       const { getByRole, getByLabelText, queryByText } = render(<ReviewDocuments {...requiredProps} />);
-      expect(getByLabelText('Accept')).toBeInTheDocument();
-      expect(getByLabelText('Reject')).toBeInTheDocument();
-      expect(getByRole('button', { name: 'Continue' })).toBeInTheDocument();
+      await waitFor(() => {
+        expect(getByLabelText('Accept')).toBeInTheDocument();
+        expect(getByLabelText('Reject')).toBeInTheDocument();
+        expect(getByRole('button', { name: 'Continue' })).toBeInTheDocument();
+      });
       await userEvent.type(getByRole('textbox', { name: 'Empty weight' }), '14500');
       await userEvent.type(getByRole('textbox', { name: 'Full weight' }), '18500');
       expect(queryByText(/4,000 lbs/)).toBeInTheDocument();
@@ -200,6 +187,21 @@ describe('ReviewDocuments', () => {
       expect(getByTestId('closeSidebar')).toBeInTheDocument();
       await userEvent.click(getByTestId('closeSidebar'));
       expect(mockPush).toHaveBeenCalled();
+    });
+    it('renders the DocumentViewer', async () => {
+      await waitFor(() => {
+        usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+        render(<ReviewDocuments {...requiredProps} />);
+      });
+      const docs = screen.getByText(/Documents/);
+      expect(docs).toBeInTheDocument();
+      expect(screen.getAllByText('test.pdf').length).toBe(2);
+      expect(screen.getByText('test.xls')).toBeInTheDocument();
+      expect(screen.getByText('test.jpg')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: '1 of 1 Document Sets' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
+      expect(screen.getByTestId('closeSidebar')).toBeInTheDocument();
     });
   });
   describe('with multiple document sets loaded', () => {

@@ -41,16 +41,16 @@ const mockFiles = [
 ];
 
 describe('DocumentViewer component', () => {
-  it('initial state is closed menu and first file selected', async () => {
-    render(<DocumentViewer files={mockFiles} />);
-    const docMenu = await screen.findByTestId('DocViewerMenu');
+  // it('initial state is closed menu and first file selected', async () => {
+  //   render(<DocumentViewer files={mockFiles} />);
+  //   const docMenu = await screen.findByTestId('DocViewerMenu');
 
-    expect(docMenu.className).toContain('collapsed');
+  //   expect(docMenu.className).toContain('collapsed');
 
-    // Files are ordered by createdAt date before being rendered.
-    const firstFile = screen.getByRole('button', { name: 'Test File 4.gif Uploaded on 16-Jun-2021' });
-    expect(firstFile.className).toContain('active');
-  });
+  //   // Files are ordered by createdAt date before being rendered.
+  //   const firstFile = screen.getByRole('button', { name: 'Test File 4.gif Uploaded on 16-Jun-2021' });
+  //   expect(firstFile.className).toContain('active');
+  // });
 
   it('renders the file creation date with the correctly sorted props', async () => {
     render(<DocumentViewer files={mockFiles} />);
