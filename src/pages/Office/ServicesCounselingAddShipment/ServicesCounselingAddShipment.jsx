@@ -40,22 +40,11 @@ const ServicesCounselingAddShipment = ({ match }) => {
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const queryClient = useQueryClient();
   const { mutate: mutateMTOShipments } = useMutation(createMTOShipmentWrapper, {
-    onSuccess: (newMTOShipment) => {
-      mtoShipments.push(newMTOShipment);
-      queryClient.setQueryData([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryClient.invalidateQueries([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID]);
-
-      // if (newMTOShipment.closeoutOffice) {
-      //   updateMoveCloseoutOffice({
-      //     locator: moveCode,
-      //     ifMatchETag: move.eTag,
-      //     body: { closeoutOfficeId: newMTOShipment.closeoutOffice.id },
-      //   }).then(() => {
-      //     queryClient.invalidateQueries([MOVES, moveCode]);
-      //   });
-      // }
-
-      return newMTOShipment.newShipment;
+    onSuccess: (result) => {
+      mtoShipments.push(result.newShipment);
+      queryClient.setQueryData([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID]);
+      return result.newShipment;
     },
     onError: () => {
       // TODO
