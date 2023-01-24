@@ -6273,6 +6273,50 @@ func createTXOServicesUSMCCounselor(appCtx appcontext.AppContext) {
 	})
 }
 
+func createServicesCounselorForCloseoutWithGbloc(appCtx appcontext.AppContext, userID uuid.UUID, email string, gbloc string) {
+	db := appCtx.DB()
+	officeUser := models.OfficeUser{}
+	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to query OfficeUser in the DB: %w", err))
+	}
+	// no need to create
+	if officeUserExists {
+		return
+	}
+
+	servicesCounselorRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesCounselorRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to find RoleTypeServicesCounselor in the DB: %w", err))
+	}
+
+	loginGovID := uuid.Must(uuid.NewV4())
+
+	factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:            userID,
+				LoginGovUUID:  &loginGovID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{servicesCounselorRole},
+			},
+		},
+	}, nil)
+
+	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			Email:  email,
+			Active: true,
+			UserID: &userID,
+		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: gbloc,
+		},
+	})
+}
+
 func createPrimeUser(appCtx appcontext.AppContext) models.User {
 	db := appCtx.DB()
 	/* A user with the prime role */
