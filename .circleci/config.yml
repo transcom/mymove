@@ -1123,8 +1123,9 @@ jobs:
             pre-commit run --all-files swagger
       - run:
           name: Run pre-commit tests with golangci-lint only
+          # CONCURRENCY=4 as this runs on a large instance with 4 CPUs
           command: |
-            echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
+            echo 'export GOLANGCI_LINT_CONCURRENCY=4' >> $BASH_ENV
             echo 'export GOLANGCI_LINT_VERBOSE=-v' >> $BASH_ENV
             source $BASH_ENV
             mkdir -p tmp/test-results/pretest
