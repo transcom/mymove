@@ -250,6 +250,7 @@ export function formatPpmShipmentForAPI(formValues) {
     estimatedWeight: Number(formValues.estimatedWeight || '0'),
     hasProGear: !!formValues.hasProGear,
     hasRequestedAdvance: formValues.advanceRequested,
+    advanceStatus: formValues.advanceStatus,
   };
 
   if (formValues.hasProGear) {
