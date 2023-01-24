@@ -111,12 +111,18 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(identity.OfficeUserID)
 
 	carolUser := factory.BuildDefaultUser(suite.DB())
-	carol := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-		OfficeUser: OfficeUser{
-			UserID: &carolUser.ID,
-			User:   carolUser,
+
+	carol := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+		{
+			Model: OfficeUser{
+				UserID: &carolUser.ID,
+			},
 		},
-	})
+		{
+			Model:    carolUser,
+			LinkOnly: true,
+		},
+	}, nil)
 	identity, err = FetchUserIdentity(suite.DB(), carol.User.LoginGovUUID.String())
 	suite.Nil(err, "loading carol's identity")
 	suite.NotNil(identity)
@@ -213,7 +219,7 @@ func (suite *ModelSuite) TestFetchUserIdentityDeletedRoles() {
 		Test that user identity is properly fetched
 	*/
 	// this creates a user with TOO, TIO, and Services Counselor roles
-	multiRoleUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{})
+	multiRoleUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 	identity, err := FetchUserIdentity(suite.DB(), multiRoleUser.User.LoginGovUUID.String())
 	suite.Nil(err, "failed to fetch user identity")
 	suite.Equal(*multiRoleUser.UserID, identity.ID)

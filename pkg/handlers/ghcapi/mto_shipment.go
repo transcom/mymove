@@ -905,7 +905,10 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 					return shipmentops.NewApproveSITExtensionInternalServerError(), err
 				}
 			}
-
+			help := appCtx.Session().IsOfficeUser()
+			fmt.Printf("\n\n😱😱😱😱\n%v\n", help)
+			help = appCtx.Session().Roles.HasRole(roles.RoleTypeTOO)
+			fmt.Printf("\n\n😱😱😱😱\n%v\n", help)
 			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
 				forbiddenError := apperror.NewForbiddenError("is not a TOO")
 				return handleError(forbiddenError)

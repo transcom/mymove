@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/factory"
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -151,7 +152,9 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
-	officeUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitOfficeUserStubbed,
+	})
 	suite.NoError(err)
 
 	// Move is submitted

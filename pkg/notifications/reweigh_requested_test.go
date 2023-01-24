@@ -4,13 +4,16 @@ import (
 	"strings"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *NotificationSuite) TestReweighRequestedOnSuccess() {
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
+		factory.GetTraitOfficeUserTOO,
+	})
 
 	notification := NewReweighRequested(move.ID, shipment)
 	subject := "FYI: Your HHG should be reweighed before it is delivered"
@@ -34,7 +37,9 @@ func (suite *NotificationSuite) TestReweighRequestedOnSuccess() {
 func (suite *NotificationSuite) TestReweighRequestedHTMLTemplateRender() {
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
+		factory.GetTraitOfficeUserTOO,
+	})
 	notification := NewReweighRequested(move.ID, shipment)
 	s := reweighRequestedEmailData{}
 	expectedHTMLContent := `<p><strong>Essential information</strong></p>
@@ -79,7 +84,9 @@ func (suite *NotificationSuite) TestReweighRequestedHTMLTemplateRender() {
 func (suite *NotificationSuite) TestReweighRequestedTextTemplateRender() {
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
+		factory.GetTraitOfficeUserTOO,
+	})
 	notification := NewReweighRequested(move.ID, shipment)
 	s := reweighRequestedEmailData{}
 	expectedTextContent := `Essential information

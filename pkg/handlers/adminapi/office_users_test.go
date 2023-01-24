@@ -185,7 +185,9 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		// Set up:				Add new Office User to the DB
 		// Expected Outcome:	The office user is not created and we get a 500 internal server error.
 		fakeTransportationOfficeID := "3b9c2975-4e54-40ea-a781-bab7d6e4a502"
-		officeUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
+			factory.GetTraitOfficeUserStubbed,
+		})
 
 		params := officeuserop.CreateOfficeUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/office_users"),
@@ -233,13 +235,13 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 	}
 
 	setupTestData := func() models.OfficeUser {
-		return testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-			OfficeUser: models.OfficeUser{
-				TransportationOffice: models.TransportationOffice{
+		return factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
 					Name: "Random Office",
 				},
 			},
-		})
+		}, nil)
 	}
 
 	suite.Run("Office user is successfully updated", func() {

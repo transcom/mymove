@@ -278,7 +278,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 	suite.Run("Successful move status update to Service Counseling Completed - Integration", func() {
 		handler := setupTestData()
 		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
-		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		requestUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -311,7 +311,9 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 	suite.Run("Unsuccessful move status update to Service Counseling Completed, forbidden - Integration", func() {
 		handler := setupTestData()
 		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
-		forbiddenUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		forbiddenUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
+			factory.GetTraitOfficeUserTOO,
+		})
 		forbiddenRequest := suite.AuthenticateOfficeRequest(request, forbiddenUser)
 
 		params := movetaskorderops.UpdateMTOStatusServiceCounselingCompletedParams{
@@ -332,7 +334,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 	suite.Run("Unsuccessful move status update to Service Counseling Completed, not found - Integration", func() {
 		handler := setupTestData()
 		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
-		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		requestUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 		params := movetaskorderops.UpdateMTOStatusServiceCounselingCompletedParams{
 			HTTPRequest:     request,
@@ -353,7 +355,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 	suite.Run("Unsuccessful move status update to Service Counseling Completed, eTag does not match - Integration", func() {
 		handler := setupTestData()
 		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
-		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		requestUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
@@ -380,7 +382,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 	suite.Run("Unsuccessful move status update to Service Counseling Completed, state conflict - Integration", func() {
 		handler := setupTestData()
 		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
-		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		requestUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 		draftMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -411,7 +413,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 	suite.Run("Unsuccessful move status update to Service Counseling Completed, misc mocked errors - Integration", func() {
 		handlerOrig := setupTestData()
 		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
-		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		requestUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 		testCases := []struct {
 			mockError       error

@@ -196,11 +196,11 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		// Set up: Create 2 users, search for all users with email including something.com
 		// Expected outcome: Expect to find 1 of the 2 users
 		testdatagen.MakeDefaultOfficeUser(suite.DB())
-		testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-			OfficeUser: models.OfficeUser{
+		factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{Model: models.OfficeUser{
 				Email: "email@something.com",
-			},
-		})
+			}},
+		}, nil)
 
 		search := fmt.Sprintf("%%%s%%", "something.com")
 		filters := []services.QueryFilter{

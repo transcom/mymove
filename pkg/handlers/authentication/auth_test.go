@@ -208,16 +208,7 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 // Test permissions middleware with a user who will be ALLOWED POST access on the endpoint: ghc/v1/shipments/:shipmentID/approve
 // role must have update.shipment permissions
 func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
-	// TIO users have the proper permissions for our test - update.shipment
-	tioOfficeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
-
-	testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
-		User: tioOfficeUser.User,
-		UsersRoles: models.UsersRoles{
-			UserID: tioOfficeUser.User.ID,
-			RoleID: tioOfficeUser.User.Roles[0].ID,
-		},
-	})
+	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTIO})
 
 	identity, err := models.FetchUserIdentity(suite.DB(), tioOfficeUser.User.LoginGovUUID.String())
 
@@ -260,15 +251,15 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 // role must NOT have update.shipment permissions
 func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 	// QAECSR users will be denied access as they lack the proper permissions for our test - update.shipment
-	qaeCsrOfficeUser := testdatagen.MakeQAECSROfficeUser(suite.DB(), testdatagen.Assertions{})
-
-	testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
-		User: qaeCsrOfficeUser.User,
-		UsersRoles: models.UsersRoles{
-			UserID: qaeCsrOfficeUser.User.ID,
-			RoleID: qaeCsrOfficeUser.User.Roles[0].ID,
-		},
-	})
+	qaeCsrOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{factory.GetTraitOfficeUserQAECSR})
+	role := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeQaeCsr)
+	factory.BuildUsersRoles(suite.DB(), []factory.Customization{
+		{
+			Model: models.UsersRoles{
+				UserID: qaeCsrOfficeUser.User.ID,
+				RoleID: role.ID,
+			},
+		}}, nil)
 
 	identity, err := models.FetchUserIdentity(suite.DB(), qaeCsrOfficeUser.User.LoginGovUUID.String())
 
@@ -909,13 +900,19 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	user := factory.BuildDefaultUser(suite.DB())
 	// user is in office_users but has never logged into the app
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			Active: true,
-			UserID: &user.ID,
+	officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Active: true,
+				UserID: &user.ID,
+				Email:  user.LoginGovEmail,
+			},
 		},
-		User: user,
-	})
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -961,21 +958,29 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 	user := factory.BuildDefaultUser(suite.DB())
 	// user is in office_users but has never logged into the app
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			Active: true,
-			UserID: &user.ID,
+	officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Active: true,
+				UserID: &user.ID,
+				Email:  user.LoginGovEmail,
+			},
 		},
-		User: user,
-	})
-	qaeCsrRole, _ := testdatagen.LookupOrMakeRole(suite.DB(), roles.RoleTypeQaeCsr, "Quality Assurance and Customer Service")
-	testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
-		User: user,
-		UsersRoles: models.UsersRoles{
-			UserID: user.ID,
-			RoleID: qaeCsrRole.ID,
+		{
+			Model:    user,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
+
+	qaeCsrRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeQaeCsr)
+	factory.BuildUsersRoles(suite.DB(), []factory.Customization{
+		{
+			Model: models.UsersRoles{
+				UserID: user.ID,
+				RoleID: qaeCsrRole.ID,
+			},
+		},
+	}, nil)
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
 
@@ -1194,13 +1199,18 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 func (suite *AuthSuite) TestLoginGovAuthenticatedRedirect() {
 	user := factory.BuildDefaultUser(suite.DB())
 	// user is in office_users but has never logged into the app
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			Active: true,
-			UserID: &user.ID,
+	officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Active: true,
+				UserID: &user.ID,
+			},
 		},
-		User: user,
-	})
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	fakeToken := "some_token"
 

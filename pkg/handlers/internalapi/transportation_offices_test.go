@@ -102,7 +102,7 @@ func (suite *HandlerSuite) TestGetTransportationOfficesHandlerUnauthorized() {
 }
 
 func (suite *HandlerSuite) TestGetTransportationOfficesHandlerForbidden() {
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	officeUser := factory.BuildOfficeUser(nil, nil, nil)
 	fetcher := transportationofficeservice.NewTransportationOfficesFetcher()
 
 	req := httptest.NewRequest("GET", "/transportation_offices", nil)

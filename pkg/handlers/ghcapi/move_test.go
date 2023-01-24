@@ -105,7 +105,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			},
 		})
 		moveFetcher := moveservice.NewMoveFetcher()
-		requestOfficeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		requestOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
 
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		req = suite.AuthenticateOfficeRequest(req, requestOfficeUser)
@@ -515,7 +515,7 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 
 	setupTestData := func() (*http.Request, models.Move, models.TransportationOffice) {
 		move = testdatagen.MakeDefaultMove(suite.DB())
-		requestUser = testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		requestUser = factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
 		transportationOffice = testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
 			TransportationOffice: models.TransportationOffice{
 				ProvidesCloseout: true,

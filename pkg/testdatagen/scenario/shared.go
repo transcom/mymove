@@ -6009,14 +6009,16 @@ func createTOO(appCtx appcontext.AppContext) {
 				Roles:         []roles.Role{tooRole},
 			}},
 	}, nil)
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("144503a6-485c-463e-b943-d3c3bad11b09"),
-			Email:  email,
-			Active: true,
-			UserID: &tooUUID,
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("144503a6-485c-463e-b943-d3c3bad11b09"),
+				Email:  email,
+				Active: true,
+				UserID: &tooUUID,
+			},
 		},
-	})
+	}, nil)
 }
 
 func createTIO(appCtx appcontext.AppContext) {
@@ -6051,14 +6053,16 @@ func createTIO(appCtx appcontext.AppContext) {
 				Roles:         []roles.Role{tioRole},
 			}},
 	}, nil)
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("f1828a35-43fd-42be-8b23-af4d9d51f0f3"),
-			Email:  email,
-			Active: true,
-			UserID: &tioUUID,
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("f1828a35-43fd-42be-8b23-af4d9d51f0f3"),
+				Email:  email,
+				Active: true,
+				UserID: &tioUUID,
+			},
 		},
-	})
+	}, nil)
 }
 
 func createServicesCounselor(appCtx appcontext.AppContext) {
@@ -6093,14 +6097,16 @@ func createServicesCounselor(appCtx appcontext.AppContext) {
 				Roles:         []roles.Role{servicesCounselorRole},
 			}},
 	}, nil)
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("c70d9a38-4bff-4d37-8dcc-456f317d7935"),
-			Email:  email,
-			Active: true,
-			UserID: &servicesCounselorUUID,
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("c70d9a38-4bff-4d37-8dcc-456f317d7935"),
+				Email:  email,
+				Active: true,
+				UserID: &servicesCounselorUUID,
+			},
 		},
-	})
+	}, nil)
 }
 
 func createQaeCsr(appCtx appcontext.AppContext) {
@@ -6135,14 +6141,16 @@ func createQaeCsr(appCtx appcontext.AppContext) {
 				Roles:         []roles.Role{qaeCsrRole},
 			}},
 	}, nil)
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("ef4f6d1f-4ac3-4159-a364-5403e7d958ff"),
-			Email:  email,
-			Active: true,
-			UserID: &qaeCsrUUID,
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("ef4f6d1f-4ac3-4159-a364-5403e7d958ff"),
+				Email:  email,
+				Active: true,
+				UserID: &qaeCsrUUID,
+			},
 		},
-	})
+	}, nil)
 }
 
 func createTXO(appCtx appcontext.AppContext) {
@@ -6183,14 +6191,16 @@ func createTXO(appCtx appcontext.AppContext) {
 				Roles:         []roles.Role{tooRole, tioRole},
 			}},
 	}, nil)
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
-			Email:  email,
-			Active: true,
-			UserID: &tooTioUUID,
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
+				Email:  email,
+				Active: true,
+				UserID: &tooTioUUID,
+			},
 		},
-	})
+	}, nil)
 	testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			User:   user,
@@ -6245,16 +6255,19 @@ func createTXOUSMC(appCtx appcontext.AppContext) {
 				Roles:         []roles.Role{tooRole, tioRole},
 			}},
 	}, nil)
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:                   uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-bbbbbbbbbbbb"),
-			Email:                emailUSMC,
-			Active:               true,
-			UserID:               &tooTioWithUsmcUUID,
-			TransportationOffice: transportationOfficeUSMC,
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-bbbbbbbbbbbb"),
+				Email:  emailUSMC,
+				Active: true,
+				UserID: &tooTioWithUsmcUUID,
+			},
 		},
-	})
-
+		{
+			Model: transportationOfficeUSMC,
+		},
+	}, nil)
 }
 
 func createTXOServicesCounselor(appCtx appcontext.AppContext) {
@@ -6293,15 +6306,17 @@ func createTXOServicesCounselor(appCtx appcontext.AppContext) {
 			}},
 	}, nil)
 
-	// Make and office user associated with the previously created user
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("f3503012-e17a-4136-aa3c-508ee3b1962f"),
-			Email:  email,
-			Active: true,
-			UserID: &tooTioServicesUUID,
+	// Make an office user associated with the previously created user
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("f3503012-e17a-4136-aa3c-508ee3b1962f"),
+				Email:  email,
+				Active: true,
+				UserID: &tooTioServicesUUID,
+			},
 		},
-	})
+	}, nil)
 }
 
 func createTXOServicesUSMCCounselor(appCtx appcontext.AppContext) {
@@ -6347,15 +6362,19 @@ func createTXOServicesUSMCCounselor(appCtx appcontext.AppContext) {
 	}, nil)
 
 	// Makes an office user with the previously created user
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:                   uuid.FromStringOrNil("b23005d6-60ea-469f-91ab-a7daf4c686f5"),
-			Email:                emailUSMC,
-			Active:               true,
-			UserID:               &tooTioServicesWithUsmcUUID,
-			TransportationOffice: transportationOfficeUSMC,
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("b23005d6-60ea-469f-91ab-a7daf4c686f5"),
+				Email:  emailUSMC,
+				Active: true,
+				UserID: &tooTioServicesWithUsmcUUID,
+			},
 		},
-	})
+		{
+			Model: transportationOfficeUSMC,
+		},
+	}, nil)
 }
 
 func createServicesCounselorForCloseoutWithGbloc(appCtx appcontext.AppContext, userID uuid.UUID, email string, gbloc string) {

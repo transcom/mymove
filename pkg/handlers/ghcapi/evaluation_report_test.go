@@ -207,7 +207,8 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 
 	// 404 response
 	suite.Run("404 response when service returns not found", func() {
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
+
 		uuidForReport, _ := uuid.NewV4()
 		handlerConfig := suite.HandlerConfig()
 		mockFetcher := mocks.EvaluationReportFetcher{}
@@ -241,7 +242,7 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 
 	// 403 response
 	suite.Run("403 response when service returns forbidden", func() {
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 		uuidForReport, _ := uuid.NewV4()
 		handlerConfig := suite.HandlerConfig()
 		mockFetcher := mocks.EvaluationReportFetcher{}
@@ -413,7 +414,9 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 		handlerConfig := suite.HandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
-		requestUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
+		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
+			factory.GetTraitOfficeUserStubbed,
+		})
 
 		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
@@ -445,7 +448,9 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 		handlerConfig := suite.HandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
-		requestUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
+		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
+			factory.GetTraitOfficeUserStubbed,
+		})
 
 		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
@@ -479,7 +484,9 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 		handlerConfig := suite.HandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
-		requestUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
+		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
+			factory.GetTraitOfficeUserStubbed,
+		})
 
 		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
@@ -513,7 +520,9 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 		handlerConfig := suite.HandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
-		requestUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
+		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
+			factory.GetTraitOfficeUserStubbed,
+		})
 
 		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
@@ -547,7 +556,9 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 		handlerConfig := suite.HandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
-		requestUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
+		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
+			factory.GetTraitOfficeUserStubbed,
+		})
 
 		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
@@ -581,7 +592,9 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 		handlerConfig := suite.HandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
-		requestUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
+		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
+			factory.GetTraitOfficeUserStubbed,
+		})
 
 		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
 		request = suite.AuthenticateOfficeRequest(request, requestUser)

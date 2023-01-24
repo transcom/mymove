@@ -8,7 +8,9 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -330,7 +332,20 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 			ServiceMember: models.ServiceMember{Affiliation: &army},
 		})
 
-		officeUserUSMC = testdatagen.MakeOfficeUserWithUSMCGBLOC(suite.DB())
+		tioRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTIO)
+		tooRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
+		officeUserUSMC = factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "USMC",
+				},
+			},
+			{
+				Model: models.User{
+					Roles: []roles.Role{tioRole, tooRole},
+				},
+			},
+		}, nil)
 	})
 
 	suite.Run("returns USMC payment requests", func() {
@@ -454,7 +469,9 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 	//
 	suite.PreloadData(func() {
-		officeUser = testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser = factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
+			factory.GetTraitOfficeUserTIO,
+		})
 
 		originDutyLocation1 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
 			DutyLocation: models.DutyLocation{
