@@ -45,6 +45,13 @@ const weightTicketRequiredProps = {
   },
 };
 
+const ownsTrailerProps = {
+  weightTicket: {
+    ...baseWeightTicketProps,
+    ownsTrailer: true,
+  },
+};
+
 const claimableTrailerProps = {
   weightTicket: {
     ...baseWeightTicketProps,
@@ -95,14 +102,47 @@ describe('ReviewWeightTicket component', () => {
       expect(screen.getByLabelText('Full weight', { description: 'Constructed weight' })).toBeInTheDocument();
     });
 
+    it('toggles the reason field when Reject is selected', async () => {
+      render(<ReviewWeightTicket {...defaultProps} {...weightTicketRequiredProps} />);
+      await waitFor(() => {
+        expect(screen.getByLabelText('Reject')).toBeInstanceOf(HTMLInputElement);
+      });
+      await act(async () => {
+        await fireEvent.click(screen.getByLabelText('Reject'));
+      });
+      expect(screen.getByLabelText('Reason')).toBeInstanceOf(HTMLTextAreaElement);
+      await act(async () => {
+        await fireEvent.click(screen.getByLabelText('Accept'));
+      });
+      expect(screen.queryByLabelText('Reason')).not.toBeInTheDocument();
+    });
+
     it('notifies the user when a trailer is claimable, and disables approval', async () => {
-      render(<ReviewWeightTicket {...defaultProps} {...claimableTrailerProps} />);
+      render(<ReviewWeightTicket {...defaultProps} {...ownsTrailerProps} />);
       await waitFor(() => {
         expect(screen.queryByText("Is the trailer's weight claimable?")).toBeInTheDocument();
+      });
+      const claimableYesButton = screen.getAllByRole('radio', { name: 'Yes' })[1];
+      await act(async () => {
+        await fireEvent.click(claimableYesButton);
       });
       expect(screen.queryByText('Proof of ownership is needed to accept this item.')).toBeInTheDocument();
       expect(screen.getByLabelText('Accept')).not.toBeChecked();
       expect(screen.getByLabelText('Accept')).toHaveAttribute('disabled');
+    });
+
+    it('notifies the user when a trailer is claimable after toggling ownership', async () => {
+      render(<ReviewWeightTicket {...defaultProps} {...claimableTrailerProps} />);
+      await waitFor(() => {
+        expect(screen.queryByText("Is the trailer's weight claimable?")).toBeInTheDocument();
+      });
+      const ownedNoButton = screen.getAllByRole('radio', { name: 'No' })[0];
+      const ownedYesButton = screen.getAllByRole('radio', { name: 'Yes' })[0];
+      await act(async () => {
+        await fireEvent.click(ownedNoButton);
+        await fireEvent.click(ownedYesButton);
+      });
+      expect(screen.queryByText('Proof of ownership is needed to accept this item.')).not.toBeInTheDocument();
     });
 
     it('reenables approval after disabling it and updating weight claimable field', async () => {
@@ -110,9 +150,9 @@ describe('ReviewWeightTicket component', () => {
       await waitFor(() => {
         expect(screen.queryByText("Is the trailer's weight claimable?")).toBeInTheDocument();
       });
-      const claimableYesButton = screen.getAllByRole('radio', { name: 'No' })[1];
+      const claimableNoButton = screen.getAllByRole('radio', { name: 'No' })[1];
       await act(async () => {
-        await fireEvent.click(claimableYesButton);
+        await fireEvent.click(claimableNoButton);
       });
       expect(screen.queryByText('Proof of ownership is needed to accept this item.')).not.toBeInTheDocument();
       expect(screen.getByLabelText('Accept')).not.toHaveAttribute('disabled');
