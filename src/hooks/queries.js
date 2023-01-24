@@ -608,14 +608,6 @@ export const useMoveDetailsQueries = (moveCode) => {
 
   const order = Object.values(orders || {})?.[0];
 
-  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery(
-    [MTO_SHIPMENTS, moveId, false],
-    ({ queryKey }) => getMTOShipments(...queryKey),
-    {
-      enabled: !!moveId,
-    },
-  );
-
   const customerId = order?.customerID;
   const { data: { customer } = {}, ...customerQuery } = useQuery(
     [CUSTOMER, customerId],
@@ -626,6 +618,14 @@ export const useMoveDetailsQueries = (moveCode) => {
   );
   const customerData = customer && Object.values(customer)[0];
   const closeoutOffice = move.closeoutOffice && move.closeoutOffice.name;
+
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery(
+    [MTO_SHIPMENTS, moveId, false],
+    ({ queryKey }) => getMTOShipments(...queryKey),
+    {
+      enabled: !!moveId,
+    },
+  );
 
   // Must account for basic service items here not tied to a shipment
   const { data: mtoServiceItems, ...mtoServiceItemQuery } = useQuery(
