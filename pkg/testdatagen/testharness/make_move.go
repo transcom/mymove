@@ -32,14 +32,58 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
+func newUserUploader(appCtx appcontext.AppContext) *uploader.UserUploader {
+	// initialize this directly with defaults instead of using command
+	// line options. Simple for now, we can revist if we need to
+	fsParams := storage.NewFilesystemParams("tmp", "storage")
+	storer := storage.NewFilesystem(fsParams)
+
+	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	if err != nil {
+		appCtx.Logger().Fatal("could not instantiate user uploader", zap.Error(err))
+	}
+	return userUploader
+}
+
+func newPrimeUploader(appCtx appcontext.AppContext) *uploader.PrimeUploader {
+	// initialize this directly with defaults instead of using command
+	// line options. Simple for now, we can revist if we need to
+	fsParams := storage.NewFilesystemParams("tmp", "storage")
+	storer := storage.NewFilesystem(fsParams)
+
+	primeUploader, err := uploader.NewPrimeUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	if err != nil {
+		appCtx.Logger().Fatal("could not instantiate prime uploader", zap.Error(err))
+	}
+	return primeUploader
+}
+
+type userInfo struct {
+	email     string
+	firstName string
+	lastName  string
+}
+
+func newUserInfo(emailSubstring string) userInfo {
+	email := strings.ToLower(fmt.Sprintf("%s"+emailSubstring+"_%s@example.com",
+		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
+	username := strings.Split(email, "@")[0]
+	firstName := strings.Split(username, "_")[0]
+	lastName := username[len(firstName)+1:]
+	return userInfo{
+		email:     email,
+		firstName: firstName,
+		lastName:  lastName,
+	}
+}
+
 func MakeMoveWithOrders(db *pop.Connection) models.Move {
-	email := strings.ToLower(fmt.Sprintf("joe_customer_%s@example.com",
-		testdatagen.MakeRandomString(5)))
+	userInfo := newUserInfo("customer")
 
 	u := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: email,
+				LoginGovEmail: userInfo.email,
 				Active:        true,
 			},
 		},
@@ -48,7 +92,7 @@ func MakeMoveWithOrders(db *pop.Connection) models.Move {
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			UserID:        u.ID,
-			PersonalEmail: models.StringPointer(email),
+			PersonalEmail: models.StringPointer(userInfo.email),
 		},
 		Order: models.Order{},
 	})
@@ -60,12 +104,11 @@ func MakeMoveWithOrders(db *pop.Connection) models.Move {
 }
 
 func MakeSpouseProGearMove(db *pop.Connection) models.Move {
-	email := strings.ToLower(fmt.Sprintf("joe_customer_%s@example.com",
-		testdatagen.MakeRandomString(5)))
+	userInfo := newUserInfo("customer")
 	u := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: email,
+				LoginGovEmail: userInfo.email,
 				Active:        true,
 			},
 		},
@@ -74,7 +117,7 @@ func MakeSpouseProGearMove(db *pop.Connection) models.Move {
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			UserID:        u.ID,
-			PersonalEmail: models.StringPointer(email),
+			PersonalEmail: models.StringPointer(userInfo.email),
 		},
 		Order: models.Order{
 			HasDependents:    true,
@@ -90,12 +133,11 @@ func MakeSpouseProGearMove(db *pop.Connection) models.Move {
 }
 
 func MakePPMInProgressMove(appCtx appcontext.AppContext) models.Move {
-	email := strings.ToLower(fmt.Sprintf("joe_customer_%s@example.com",
-		testdatagen.MakeRandomString(5)))
+	userInfo := newUserInfo("customer")
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: email,
+				LoginGovEmail: userInfo.email,
 				Active:        true,
 			},
 		},
@@ -107,15 +149,12 @@ func MakePPMInProgressMove(appCtx appcontext.AppContext) models.Move {
 	nextValidMoveDateMinusTen := dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
 	pastTime := nextValidMoveDateMinusTen
 
-	username := strings.Split(email, "@")[0]
-	firstName := strings.Split(username, "_")[0]
-	lastName := username[len(firstName)+1:]
 	ppm1 := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			UserID:        user.ID,
-			PersonalEmail: models.StringPointer(email),
-			FirstName:     models.StringPointer(firstName),
-			LastName:      models.StringPointer(lastName),
+			PersonalEmail: models.StringPointer(userInfo.email),
+			FirstName:     models.StringPointer(userInfo.firstName),
+			LastName:      models.StringPointer(userInfo.lastName),
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &pastTime,
@@ -152,12 +191,11 @@ func MakePPMInProgressMove(appCtx appcontext.AppContext) models.Move {
 }
 
 func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
-	email := strings.ToLower(fmt.Sprintf("joe_customer_%s@example.com",
-		testdatagen.MakeRandomString(5)))
+	userInfo := newUserInfo("customer")
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: email,
+				LoginGovEmail: userInfo.email,
 				Active:        true,
 			},
 		},
@@ -166,7 +204,7 @@ func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			UserID:        user.ID,
-			PersonalEmail: models.StringPointer(email),
+			PersonalEmail: models.StringPointer(userInfo.email),
 		},
 		Order: models.Order{
 			HasDependents:    true,
@@ -207,40 +245,24 @@ func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 
 // copied almost verbatim from e2ebasic createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles
 func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	primeUploader := newPrimeUploader(appCtx)
+	userInfo := newUserInfo("customer")
 
-	// initialize this directly with defaults instead of using command
-	// line options. Simple for now, we can revist if we need to
-	fsParams := storage.NewFilesystemParams("tmp", "storage")
-	storer := storage.NewFilesystem(fsParams)
-
-	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
-	if err != nil {
-		appCtx.Logger().Fatal("could not instantiate user uploader", zap.Error(err))
-	}
-	primeUploader, err := uploader.NewPrimeUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
-	if err != nil {
-		appCtx.Logger().Fatal("could not instantiate prime uploader", zap.Error(err))
-	}
-
-	email := strings.ToLower(fmt.Sprintf("joe_customer_%s@example.com",
-		testdatagen.MakeRandomString(5)))
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: email,
+				LoginGovEmail: userInfo.email,
 				Active:        true,
 			},
 		},
 	}, nil)
-	username := strings.Split(email, "@")[0]
-	firstName := strings.Split(username, "_")[0]
-	lastName := username[len(firstName)+1:]
 	customer := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			UserID:        user.ID,
-			PersonalEmail: &email,
-			FirstName:     &firstName,
-			LastName:      &lastName,
+			PersonalEmail: &userInfo.email,
+			FirstName:     &userInfo.firstName,
+			LastName:      &userInfo.lastName,
 		},
 	})
 	dependentsAuthorized := true
@@ -281,18 +303,14 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 		Move: mto,
 	})
 
-	agentEmail := strings.ToLower(fmt.Sprintf("agent_carter_%s@example.com",
-		testdatagen.MakeRandomString(5)))
-	agentUsername := strings.Split(agentEmail, "@")[0]
-	agentFirstName := strings.Split(agentUsername, "_")[0]
-	agentLastName := agentUsername[len(firstName)+1:]
+	agentUserInfo := newUserInfo("agent")
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			MTOShipment:   MTOShipment,
 			MTOShipmentID: MTOShipment.ID,
-			FirstName:     &agentFirstName,
-			LastName:      &agentLastName,
-			Email:         &agentEmail,
+			FirstName:     &agentUserInfo.firstName,
+			LastName:      &agentUserInfo.lastName,
+			Email:         &agentUserInfo.email,
 			MTOAgentType:  models.MTOAgentReleasing,
 		},
 	})
@@ -598,20 +616,16 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 	submittedAt := time.Now()
 	ntsMoveType := models.SelectedMoveTypeNTS
 	dodID := testdatagen.MakeRandomNumberString(10)
-	email := strings.ToLower(fmt.Sprintf("%scustomer_%s@example.com",
-		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
-	username := strings.Split(email, "@")[0]
-	firstName := strings.Split(username, "_")[0]
-	lastName := username[len(firstName)+1:]
+	userInfo := newUserInfo("customer")
 
 	orders := testdatagen.MakeOrderWithoutDefaults(appCtx.DB(), testdatagen.Assertions{
 		DutyLocation: models.DutyLocation{
 			ProvidesServicesCounseling: true,
 		},
 		ServiceMember: models.ServiceMember{
-			PersonalEmail: &email,
-			FirstName:     &firstName,
-			LastName:      &lastName,
+			PersonalEmail: &userInfo.email,
+			FirstName:     &userInfo.firstName,
+			LastName:      &userInfo.lastName,
 			Edipi:         swag.String(dodID),
 		},
 	})
@@ -650,30 +664,18 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 
 // MakeNTSRMoveWithPaymentRequest is similar to old shared.createNTSRMoveWithPaymentRequest
 func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
-	// initialize this directly with defaults instead of using command
-	// line options. Simple for now, we can revist if we need to
-	fsParams := storage.NewFilesystemParams("tmp", "storage")
-	storer := storage.NewFilesystem(fsParams)
-
-	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
-	if err != nil {
-		appCtx.Logger().Fatal("could not instantiate user uploader", zap.Error(err))
-	}
+	userUploader := newUserUploader(appCtx)
 
 	currentTime := time.Now()
 	tac := "1111"
 
 	// Create Customer
-	email := strings.ToLower(fmt.Sprintf("%scustomer_%s@example.com",
-		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
-	username := strings.Split(email, "@")[0]
-	firstName := strings.Split(username, "_")[0]
-	lastName := username[len(firstName)+1:]
+	userInfo := newUserInfo("customer")
 	customer := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			PersonalEmail: &email,
-			FirstName:     &firstName,
-			LastName:      &lastName,
+			PersonalEmail: &userInfo.email,
+			FirstName:     &userInfo.firstName,
+			LastName:      &userInfo.lastName,
 		},
 	})
 
@@ -736,19 +738,15 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 	})
 
 	// Create Releasing Agent
-	agentEmail := strings.ToLower(fmt.Sprintf("%sagent_%s@example.com",
-		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
-	agentUsername := strings.Split(agentEmail, "@")[0]
-	agentFirstName := strings.Split(agentUsername, "_")[0]
-	agentLastName := username[len(agentFirstName)+1:]
+	agentUserInfo := newUserInfo("agent")
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			ID:            uuid.Must(uuid.NewV4()),
 			MTOShipment:   ntsrShipment,
 			MTOShipmentID: ntsrShipment.ID,
-			FirstName:     &agentFirstName,
-			LastName:      &agentLastName,
-			Email:         &agentEmail,
+			FirstName:     &agentUserInfo.firstName,
+			LastName:      &agentUserInfo.lastName,
+			Email:         &agentUserInfo.email,
 			MTOAgentType:  models.MTOAgentReleasing,
 		},
 	})
@@ -808,15 +806,7 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 	/*
 		Creates a move for the TIO flow
 	*/
-	// initialize this directly with defaults instead of using command
-	// line options. Simple for now, we can revist if we need to
-	fsParams := storage.NewFilesystemParams("tmp", "storage")
-	storer := storage.NewFilesystem(fsParams)
-
-	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
-	if err != nil {
-		appCtx.Logger().Fatal("could not instantiate user uploader", zap.Error(err))
-	}
+	userUploader := newUserUploader(appCtx)
 
 	msCost := unit.Cents(10000)
 	dlhCost := unit.Cents(99999)
@@ -824,16 +814,12 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 	fscCost := unit.Cents(55555)
 
 	// Create Customer
-	email := strings.ToLower(fmt.Sprintf("%scustomer_%s@example.com",
-		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
-	username := strings.Split(email, "@")[0]
-	firstName := strings.Split(username, "_")[0]
-	lastName := username[len(firstName)+1:]
+	userInfo := newUserInfo("customer")
 	customer := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			PersonalEmail: &email,
-			FirstName:     &firstName,
-			LastName:      &lastName,
+			PersonalEmail: &userInfo.email,
+			FirstName:     &userInfo.firstName,
+			LastName:      &userInfo.lastName,
 		},
 	})
 
@@ -874,19 +860,15 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 	})
 
 	// Create Releasing Agent
-	agentEmail := strings.ToLower(fmt.Sprintf("%sagent_%s@example.com",
-		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
-	agentUsername := strings.Split(agentEmail, "@")[0]
-	agentFirstName := strings.Split(agentUsername, "_")[0]
-	agentLastName := username[len(agentFirstName)+1:]
+	agentUserInfo := newUserInfo("agent")
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			ID:            uuid.Must(uuid.NewV4()),
 			MTOShipment:   mtoShipmentHHG,
 			MTOShipmentID: mtoShipmentHHG.ID,
-			FirstName:     &agentFirstName,
-			LastName:      &agentLastName,
-			Email:         &agentEmail,
+			FirstName:     &agentUserInfo.firstName,
+			LastName:      &agentUserInfo.lastName,
+			Email:         &agentUserInfo.email,
 			MTOAgentType:  models.MTOAgentReleasing,
 		},
 	})
@@ -1209,15 +1191,7 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 
 // like scenario.createNTSRMoveWithServiceItemsAndPaymentRequest
 func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext) models.Move {
-	// initialize this directly with defaults instead of using command
-	// line options. Simple for now, we can revist if we need to
-	fsParams := storage.NewFilesystemParams("tmp", "storage")
-	storer := storage.NewFilesystem(fsParams)
-
-	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
-	if err != nil {
-		appCtx.Logger().Fatal("could not instantiate user uploader", zap.Error(err))
-	}
+	userUploader := newUserUploader(appCtx)
 
 	currentTime := time.Now()
 	tac := "1111"
@@ -1226,16 +1200,12 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 	sac2 := "4444"
 
 	// Create Customer
-	email := strings.ToLower(fmt.Sprintf("%scustomer_%s@example.com",
-		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
-	username := strings.Split(email, "@")[0]
-	firstName := strings.Split(username, "_")[0]
-	lastName := username[len(firstName)+1:]
+	userInfo := newUserInfo("customer")
 	customer := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			PersonalEmail: &email,
-			FirstName:     &firstName,
-			LastName:      &lastName,
+			PersonalEmail: &userInfo.email,
+			FirstName:     &userInfo.firstName,
+			LastName:      &userInfo.lastName,
 		},
 	})
 
@@ -1302,19 +1272,15 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 	})
 
 	// Create Releasing Agent
-	agentEmail := strings.ToLower(fmt.Sprintf("%sagent_%s@example.com",
-		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
-	agentUsername := strings.Split(agentEmail, "@")[0]
-	agentFirstName := strings.Split(agentUsername, "_")[0]
-	agentLastName := username[len(agentFirstName)+1:]
+	agentUserInfo := newUserInfo("agent")
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			ID:            uuid.Must(uuid.NewV4()),
 			MTOShipment:   ntsrShipment,
 			MTOShipmentID: ntsrShipment.ID,
-			FirstName:     &agentFirstName,
-			LastName:      &agentLastName,
-			Email:         &agentEmail,
+			FirstName:     &agentUserInfo.firstName,
+			LastName:      &agentUserInfo.lastName,
+			Email:         &agentUserInfo.email,
 			MTOAgentType:  models.MTOAgentReleasing,
 		},
 	})
@@ -2091,27 +2057,15 @@ func MakeHHGMoveForRetireeNeedsSC(appCtx appcontext.AppContext) models.Move {
 }
 
 func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) models.Move {
-	// initialize this directly with defaults instead of using command
-	// line options. Simple for now, we can revist if we need to
-	fsParams := storage.NewFilesystemParams("tmp", "storage")
-	storer := storage.NewFilesystem(fsParams)
+	userUploader := newUserUploader(appCtx)
 
-	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
-	if err != nil {
-		appCtx.Logger().Fatal("could not instantiate user uploader", zap.Error(err))
-	}
-
-	email := strings.ToLower(fmt.Sprintf("%scustomer_%s@example.com",
-		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
-	username := strings.Split(email, "@")[0]
-	firstName := strings.Split(username, "_")[0]
-	lastName := username[len(firstName)+1:]
+	userInfo := newUserInfo("customer")
 	moveInfo := scenario.MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
-		Email:       email,
+		Email:       userInfo.email,
 		SmID:        uuid.Must(uuid.NewV4()),
-		FirstName:   firstName,
-		LastName:    lastName,
+		FirstName:   userInfo.firstName,
+		LastName:    userInfo.lastName,
 		MoveID:      uuid.Must(uuid.NewV4()),
 		MoveLocator: models.GenerateLocator(),
 	}
@@ -2182,27 +2136,15 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 }
 
 func MakePPMMoveWithCloseout(appCtx appcontext.AppContext) models.Move {
-	// initialize this directly with defaults instead of using command
-	// line options. Simple for now, we can revist if we need to
-	fsParams := storage.NewFilesystemParams("tmp", "storage")
-	storer := storage.NewFilesystem(fsParams)
+	userUploader := newUserUploader(appCtx)
 
-	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
-	if err != nil {
-		appCtx.Logger().Fatal("could not instantiate user uploader", zap.Error(err))
-	}
-
-	email := strings.ToLower(fmt.Sprintf("%scustomer_%s@example.com",
-		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
-	username := strings.Split(email, "@")[0]
-	firstName := strings.Split(username, "_")[0]
-	lastName := username[len(firstName)+1:]
+	userInfo := newUserInfo("customer")
 	moveInfo := scenario.MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
-		Email:       email,
+		Email:       userInfo.email,
 		SmID:        uuid.Must(uuid.NewV4()),
-		FirstName:   firstName,
-		LastName:    lastName,
+		FirstName:   userInfo.firstName,
+		LastName:    userInfo.lastName,
 		MoveID:      uuid.Must(uuid.NewV4()),
 		MoveLocator: models.GenerateLocator(),
 	}
@@ -2219,27 +2161,15 @@ func MakePPMMoveWithCloseout(appCtx appcontext.AppContext) models.Move {
 }
 
 func MakePPMMoveWithCloseoutOffice(appCtx appcontext.AppContext) models.Move {
-	// initialize this directly with defaults instead of using command
-	// line options. Simple for now, we can revist if we need to
-	fsParams := storage.NewFilesystemParams("tmp", "storage")
-	storer := storage.NewFilesystem(fsParams)
+	userUploader := newUserUploader(appCtx)
 
-	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
-	if err != nil {
-		appCtx.Logger().Fatal("could not instantiate user uploader", zap.Error(err))
-	}
-
-	email := strings.ToLower(fmt.Sprintf("%scustomer_%s@example.com",
-		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
-	username := strings.Split(email, "@")[0]
-	firstName := strings.Split(username, "_")[0]
-	lastName := username[len(firstName)+1:]
+	userInfo := newUserInfo("customer")
 	moveInfo := scenario.MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
-		Email:       email,
+		Email:       userInfo.email,
 		SmID:        uuid.Must(uuid.NewV4()),
-		FirstName:   firstName,
-		LastName:    lastName,
+		FirstName:   userInfo.firstName,
+		LastName:    userInfo.lastName,
 		MoveID:      uuid.Must(uuid.NewV4()),
 		MoveLocator: models.GenerateLocator(),
 	}
@@ -2264,27 +2194,15 @@ func MakePPMMoveWithCloseoutOffice(appCtx appcontext.AppContext) models.Move {
 }
 
 func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.Move {
-	// initialize this directly with defaults instead of using command
-	// line options. Simple for now, we can revist if we need to
-	fsParams := storage.NewFilesystemParams("tmp", "storage")
-	storer := storage.NewFilesystem(fsParams)
+	userUploader := newUserUploader(appCtx)
 
-	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
-	if err != nil {
-		appCtx.Logger().Fatal("could not instantiate user uploader", zap.Error(err))
-	}
-
-	email := strings.ToLower(fmt.Sprintf("%sppmcustomer_%s@example.com",
-		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
-	username := strings.Split(email, "@")[0]
-	firstName := strings.Split(username, "_")[0]
-	lastName := username[len(firstName)+1:]
+	userInfo := newUserInfo("customer")
 	moveInfo := scenario.MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
-		Email:       email,
+		Email:       userInfo.email,
 		SmID:        uuid.Must(uuid.NewV4()),
-		FirstName:   firstName,
-		LastName:    lastName,
+		FirstName:   userInfo.firstName,
+		LastName:    userInfo.lastName,
 		MoveID:      uuid.Must(uuid.NewV4()),
 		MoveLocator: models.GenerateLocator(),
 	}
@@ -2292,6 +2210,49 @@ func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.
 	moveRouter := moverouter.NewMoveRouter()
 
 	move := scenario.CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, moveInfo)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeApprovedMoveWithPPM(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       userInfo.email,
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   userInfo.firstName,
+		LastName:    userInfo.lastName,
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: models.GenerateLocator(),
+	}
+
+	approvedAt := time.Now()
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:         uuid.Must(uuid.NewV4()),
+			ApprovedAt: &approvedAt,
+			Status:     models.PPMShipmentStatusWaitingOnCustomer,
+		},
+	}
+
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db

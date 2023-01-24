@@ -99,6 +99,9 @@ var actionDispatcher = map[string]actionFunc{
 	"PPMMoveWithCloseoutOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakePPMMoveWithCloseoutOffice(appCtx)
 	},
+	"ApprovedMoveWithPPM": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPM(appCtx)
+	},
 	"SubmittedMoveWithPPMShipmentForSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeSubmittedMoveWithPPMShipmentForSC(appCtx)
 	},

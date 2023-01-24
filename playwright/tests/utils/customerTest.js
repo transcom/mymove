@@ -17,7 +17,7 @@ export const milmoveUserType = 'milmove';
  * CustomerPage
  * @extends BaseTestPage
  */
-class CustomerPage extends BaseTestPage {
+export class CustomerPage extends BaseTestPage {
   waitForPage = {
     localLogin: async () => {
       await base.expect(this.page.getByRole('heading', { name: 'Select an Existing User' })).toBeVisible();

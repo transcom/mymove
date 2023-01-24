@@ -102,6 +102,13 @@ export class TestHarness {
   /**
    * @returns {Promise<Object>}
    */
+  async buildApprovedMoveWithPPM() {
+    return this.buildDefault('ApprovedMoveWithPPM');
+  }
+
+  /**
+   * @returns {Promise<Object>}
+   */
   async buildWithShipmentMove() {
     return this.buildDefault('WithShipmentMove');
   }
