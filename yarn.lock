@@ -17614,10 +17614,10 @@ react-final-form@^6.5.7:
   dependencies:
     "@babel/runtime" "^7.15.4"
 
-react-idle-timer@^5.4.2:
-  version "5.4.2"
-  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-5.4.2.tgz#69e20044cf2ecc421aef99cd82298c526d8acf37"
-  integrity sha512-ofCS/qpFjm6ZguEyePvtf9YMDnLj7zZfeLXRWGRpsC6Ga47H4dm7EvoUW8MsozGEGy8zCvPK0Sk6YuAnwLEzRQ==
+react-idle-timer@^5.5.0:
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-5.5.0.tgz#f949f0aaf86e190690bf0d38d005732e5c3aefac"
+  integrity sha512-6A7S32szpN1ohjQkDZ+0dmeTmVhBNoPHAU8B/zV4TpYucfRFH6cCrMryuYhM49ZdXY1EndSWct57fzfKygrhzg==
 
 react-imask@^6.4.3:
   version "6.4.3"
