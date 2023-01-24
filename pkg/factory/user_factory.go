@@ -9,7 +9,7 @@ import (
 )
 
 // BuildUser creates a User
-// It does not create Roles or UsersRoles. To create a User associated certain roles, use BuildOfficeUserWithRoles
+// It does not create Roles or UsersRoles. To create a User associated with certain roles, use BuildOfficeUserWithRoles
 // Params:
 // - customs is a slice that will be modified by the factory
 // - db can be set to nil to create a stubbed model that is not stored in DB.

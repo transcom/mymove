@@ -251,7 +251,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 // role must NOT have update.shipment permissions
 func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 	// QAECSR users will be denied access as they lack the proper permissions for our test - update.shipment
-	qaeCsrOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{factory.GetTraitOfficeUserQAECSR})
+	qaeCsrOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeQaeCsr})
 	role := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeQaeCsr)
 	factory.BuildUsersRoles(suite.DB(), []factory.Customization{
 		{

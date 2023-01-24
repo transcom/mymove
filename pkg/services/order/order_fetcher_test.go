@@ -1302,7 +1302,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 		//             We expect only the move that matches the counselors GBLOC - aka the LKNQ move.
 
 		// Create a services counselor (default GBLOC is KKFA)
-		officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 		// Create a move with Origin LKNQ, needs service couseling
 		hhgMoveType := models.SelectedMoveTypeHHG
@@ -1365,9 +1365,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 	move := testdatagen.MakeNTSRMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
 	// Make a TOO user and the postal code to GBLOC link.
-	tooOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitOfficeUserTOO,
-	})
+	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode, tooOfficeUser.TransportationOffice.Gbloc)
 
 	orderFetcher := NewOrderFetcher()
@@ -1393,9 +1391,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 	})
 
 	// Make a TOO user and the postal code to GBLOC link.
-	tooOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitOfficeUserTOO,
-	})
+	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 	// GBLOC for the below doesn't really matter, it just means the query for the moves passes the inner join in ListOrders
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode, "FOO")
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), ppmShipment.PickupPostalCode, tooOfficeUser.TransportationOffice.Gbloc)
@@ -1430,9 +1426,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 	})
 
 	// Make a TOO user and the postal code to GBLOC link.
-	tooOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitOfficeUserTOO,
-	})
+	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 	// GBLOC for the below doesn't really matter, it just means the query for the moves passes the inner join in ListOrders
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode, "FOO")
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), ppmShipment.PickupPostalCode, tooOfficeUser.TransportationOffice.Gbloc)
@@ -1478,9 +1472,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 	})
 
 	// Make a TOO user and the postal code to GBLOC link.
-	tooOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitOfficeUserTOO,
-	})
+	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 	// GBLOC for the below doesn't really matter, it just means the query for the moves passes the inner join in ListOrders
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode, "FOO")
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), ppmShipment1.PickupPostalCode, tooOfficeUser.TransportationOffice.Gbloc)

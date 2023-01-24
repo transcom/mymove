@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -121,7 +122,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 	})
 
 	suite.Run("checkUpdateAllowed", func() {
-		servicesCounselor := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
+		servicesCounselor := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeServicesCounselor})
 		servicesCounselorSession := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *servicesCounselor.UserID,
@@ -129,9 +130,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		}
 		servicesCounselorSession.Roles = append(servicesCounselorSession.Roles, servicesCounselor.User.Roles...)
 
-		too := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
-			factory.GetTraitOfficeUserTOO,
-		})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		tooSession := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,

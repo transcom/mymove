@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movingexpenseservice "github.com/transcom/mymove/pkg/services/moving_expense"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -98,7 +99,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 
 		subtestData := makeCreateSubtestData(appCtx, false)
 		// Create non-service member user
-		serviceCounselorOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
+		serviceCounselorOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 		req := subtestData.params.HTTPRequest
 		unauthorizedReq := suite.AuthenticateOfficeRequest(req, serviceCounselorOfficeUser)

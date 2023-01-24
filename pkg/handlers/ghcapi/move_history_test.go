@@ -14,6 +14,7 @@ import (
 	moveops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movehistory "github.com/transcom/mymove/pkg/services/move_history"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -216,9 +217,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		})
 
 		// Build history request for a TIO user
-		officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
-			factory.GetTraitOfficeUserTIO,
-		})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTIO})
 		request := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 

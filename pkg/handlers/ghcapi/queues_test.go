@@ -120,9 +120,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 		var expectedMoves []models.Move
 		expectedMoves = append(expectedMoves, hhgMove, hhgPPMMove, ntsMove, ntsrMove)
 
-		officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
-			factory.GetTraitOfficeUserTOO,
-		})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 
 		orderFetcher := mocks.OrderFetcher{}
 		orderFetcher.On("ListOrders", mock.AnythingOfType("*appcontext.appContext"),
@@ -574,9 +572,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 
 	dutyLocation2 := testdatagen.MakeDefaultDutyLocation(suite.DB())
 
-	officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitOfficeUserTOO,
-	})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
@@ -886,9 +882,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
-	officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitOfficeUserTIO,
-	})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTIO})
 
 	// Default Origin Duty Location GBLOC is LKNQ
 	hhgMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
@@ -954,9 +948,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
-	officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitOfficeUserTIO,
-	})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTIO})
 
 	outOfRangeDate, _ := time.Parse("2006-01-02", "2020-10-10")
 
@@ -1170,7 +1162,7 @@ type servicesCounselingSubtestData struct {
 
 func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *servicesCounselingSubtestData) {
 	subtestData = &servicesCounselingSubtestData{}
-	subtestData.officeUser = factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
+	subtestData.officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
