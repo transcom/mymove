@@ -448,105 +448,6 @@ func userWithPrimeSimulatorRole(appCtx appcontext.AppContext) {
 	})
 }
 
-func userWithCloseoutNavy(appCtx appcontext.AppContext, userID uuid.UUID, email string) {
-	closeoutNavyRole := roles.Role{}
-	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeQaeCsr).First(&closeoutNavyRole)
-	if err != nil {
-		log.Panic(fmt.Errorf("failed to find RoleTypeQAECSR in the DB: %w", err))
-	}
-
-	loginGovID := uuid.Must(uuid.NewV4())
-
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.User{
-				ID:            userID,
-				LoginGovUUID:  &loginGovID,
-				LoginGovEmail: email,
-				Active:        true,
-				Roles:         []roles.Role{closeoutNavyRole},
-			},
-		},
-	}, nil)
-
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			Email:  email,
-			Active: true,
-			UserID: &userID,
-		},
-		TransportationOffice: models.TransportationOffice{
-			Gbloc: "NAVY",
-		},
-	})
-}
-
-func userWithCloseoutCoastGuard(appCtx appcontext.AppContext, userID uuid.UUID, email string) {
-	closeoutCoastGuardRole := roles.Role{}
-	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeQaeCsr).First(&closeoutCoastGuardRole)
-	if err != nil {
-		log.Panic(fmt.Errorf("failed to find RoleTypeQAECSR in the DB: %w", err))
-	}
-
-	loginGovID := uuid.Must(uuid.NewV4())
-
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.User{
-				ID:            userID,
-				LoginGovUUID:  &loginGovID,
-				LoginGovEmail: email,
-				Active:        true,
-				Roles:         []roles.Role{closeoutCoastGuardRole},
-			},
-		},
-	}, nil)
-
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			Email:  email,
-			Active: true,
-			UserID: &userID,
-		},
-		TransportationOffice: models.TransportationOffice{
-			Gbloc: "USCG",
-		},
-	})
-}
-
-func userWithCloseoutMarineCorps(appCtx appcontext.AppContext, userID uuid.UUID, email string) {
-	closeoutMarineCorpsRole := roles.Role{}
-	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeQaeCsr).First(&closeoutMarineCorpsRole)
-	if err != nil {
-		log.Panic(fmt.Errorf("failed to find RoleTypeQAECSR in the DB: %w", err))
-	}
-
-	loginGovID := uuid.Must(uuid.NewV4())
-
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.User{
-				ID:            userID,
-				LoginGovUUID:  &loginGovID,
-				LoginGovEmail: email,
-				Active:        true,
-				Roles:         []roles.Role{closeoutMarineCorpsRole},
-			},
-		},
-	}, nil)
-
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			Email:  email,
-			Active: true,
-			UserID: &userID,
-		},
-		TransportationOffice: models.TransportationOffice{
-			Gbloc: "TVCB",
-		},
-	})
-}
-
 /*
  * Moves
  */
@@ -4297,9 +4198,6 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	userWithTOOandTIOandQAECSRRole(appCtx)
 	userWithTOOandTIOandServicesCounselorRole(appCtx)
 	userWithPrimeSimulatorRole(appCtx)
-	userWithCloseoutNavy(appCtx, uuid.Must(uuid.FromString("8bed04b0-9c64-4fb2-bc1a-65223319f109")), "ppm.processing.navy@office.mil")
-	userWithCloseoutCoastGuard(appCtx, uuid.Must(uuid.FromString("96b45e64-a501-49ce-9f8d-975bcb7b417c")), "ppm.processing.coastguard@office.mil")
-	userWithCloseoutMarineCorps(appCtx, uuid.Must(uuid.FromString("f38cb4ed-fa1f-4f92-a52d-9695ba8cc85c")), "ppm.processing.marinecorps@office.mil")
 
 	// Moves
 	serviceMemberWithUploadedOrdersAndNewPPM(appCtx, userUploader, moveRouter)
