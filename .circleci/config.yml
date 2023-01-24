@@ -1316,7 +1316,7 @@ jobs:
 
   # `client_test` runs the client side Javascript tests
   client_test:
-    executor: mymove_compiler
+    executor: mymove_compiler_xlarge
     steps:
       - checkout
       - restore_cache:
