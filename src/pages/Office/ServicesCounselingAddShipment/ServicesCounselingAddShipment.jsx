@@ -17,14 +17,6 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { roleTypes } from 'constants/userRoles';
 import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 
-// createMTOShipmentWrapper allows us to pass in the closeout office and include it
-// with the results from creating the shipment, which allows us to chain on the closeout office
-// update.
-function createMTOShipmentWrapper({ shipment }) {
-  return createMTOShipment(shipment).then((newShipment) => {
-    return { newShipment };
-  });
-}
 const ServicesCounselingAddShipment = ({ match }) => {
   const params = useParams();
   let { shipmentType } = params;
@@ -39,15 +31,12 @@ const ServicesCounselingAddShipment = ({ match }) => {
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const queryClient = useQueryClient();
-  const { mutate: mutateMTOShipments } = useMutation(createMTOShipmentWrapper, {
-    onSuccess: (result) => {
-      mtoShipments.push(result.newShipment);
-      queryClient.setQueryData([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID, false], mtoShipments);
-      queryClient.invalidateQueries([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID]);
-      return result.newShipment;
-    },
-    onError: () => {
-      // TODO
+  const { mutate: mutateMTOShipments } = useMutation(createMTOShipment, {
+    onSuccess: (newMTOShipment) => {
+      mtoShipments.push(newMTOShipment);
+      queryClient.setQueryData([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID]);
+      return newMTOShipment;
     },
   });
 

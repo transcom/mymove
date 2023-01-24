@@ -194,7 +194,7 @@ const ShipmentForm = (props) => {
       if (isCreatePage) {
         const body = { ...ppmShipmentBody, moveTaskOrderID };
         submitHandler(
-          { shipment: { body, normalize: false }, closeoutOffice: formValues.closeoutOffice },
+          { body, normalize: false },
           {
             onSuccess: (newMTOShipment) => {
               const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
@@ -249,10 +249,10 @@ const ShipmentForm = (props) => {
               moveCode,
               shipmentId: mtoShipment.id,
             });
+            actions.setSubmitting(false);
             history.push(advancePath);
             return;
           }
-          actions.setSubmitting(false);
           history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
         },
       });
@@ -316,7 +316,7 @@ const ShipmentForm = (props) => {
     if (isCreatePage) {
       const body = { ...pendingMtoShipment, moveTaskOrderID };
       submitHandler(
-        { shipment: { body, normalize: false } },
+        { body, normalize: false },
         {
           onSuccess: () => {
             history.push(moveDetailsPath);
@@ -330,28 +330,22 @@ const ShipmentForm = (props) => {
     // Edit MTO as Service Counselor
     else if (isForServicesCounseling) {
       // error handling handled in parent components
-      submitHandler(
-        { shipment: updateMTOShipmentPayload },
-        {
-          onSuccess: () => {
-            history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
-          },
+      submitHandler(updateMTOShipmentPayload, {
+        onSuccess: () => {
+          history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
         },
-      );
+      });
     }
     // Edit a MTO Shipment as TOO
     else {
-      submitHandler(
-        { shipment: updateMTOShipmentPayload },
-        {
-          onSuccess: () => {
-            history.push(moveDetailsPath);
-          },
-          onError: () => {
-            setErrorMessage('A server error occurred editing the shipment details');
-          },
+      submitHandler(updateMTOShipmentPayload, {
+        onSuccess: () => {
+          history.push(moveDetailsPath);
         },
-      );
+        onError: () => {
+          setErrorMessage('A server error occurred editing the shipment details');
+        },
+      });
     }
   };
 
