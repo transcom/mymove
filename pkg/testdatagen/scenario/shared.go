@@ -2300,7 +2300,7 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 		},
 	})
 
-	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+	closeoutOffice = factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.TransportationOffice{Name: "Los Angeles AFB"},
 		},
