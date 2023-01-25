@@ -52,7 +52,7 @@ func ClientCertMiddleware(appCtx appcontext.AppContext) func(next http.Handler) 
 			hashString := hex.EncodeToString(hash[:])
 
 			newAppCtx.Logger().Info(
-				"Logging hash from the request",
+				"authentication.ClientCertMiddleware: Logging hash from the request",
 				zap.String("requestHash", hashString),
 			)
 
