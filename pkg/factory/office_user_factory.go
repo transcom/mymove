@@ -84,10 +84,12 @@ func BuildOfficeUser(db *pop.Connection, customs []Customization, traits []Trait
 //   - Role
 //   - UsersRoles
 func BuildOfficeUserWithRoles(db *pop.Connection, roleTypes []roles.RoleType) models.OfficeUser {
-	var roles []roles.Role
+	var rolesList []roles.Role
 	for _, roleType := range roleTypes {
-		role := FetchOrBuildRoleByRoleType(db, roleType)
-		roles = append(roles, role)
+		role := roles.Role{
+			RoleType: roleType,
+		}
+		rolesList = append(rolesList, role)
 	}
 
 	traits := []Trait{GetTraitOfficeUserEmail}
@@ -98,11 +100,10 @@ func BuildOfficeUserWithRoles(db *pop.Connection, roleTypes []roles.RoleType) mo
 	return BuildOfficeUser(db, []Customization{
 		{
 			Model: models.User{
-				Roles: roles,
+				Roles: rolesList,
 			},
 		},
 	}, traits)
-
 }
 
 // ------------------------
