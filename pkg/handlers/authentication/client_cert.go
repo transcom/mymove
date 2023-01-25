@@ -51,11 +51,6 @@ func ClientCertMiddleware(appCtx appcontext.AppContext) func(next http.Handler) 
 			hash := sha256.Sum256(r.TLS.PeerCertificates[0].Raw)
 			hashString := hex.EncodeToString(hash[:])
 
-			newAppCtx.Logger().Info(
-				"authentication.ClientCertMiddleware: Logging SHA256 hash from the request TLS PeerCertificates",
-				zap.String("SHA256_hash_string", hashString),
-			)
-
 			clientCert, err := models.FetchClientCert(newAppCtx.DB(), hashString)
 			if err != nil {
 				// This is not a known client certificate at all
@@ -63,6 +58,14 @@ func ClientCertMiddleware(appCtx appcontext.AppContext) func(next http.Handler) 
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
+
+			// If we get here, we know the client certificate is valid so we're
+			// logging the SHA256_hash_string
+			newAppCtx.Logger().Info(
+				"Known / registered client certificate",
+				zap.String("SHA256_hash_string", hashString),
+			)
+
 			ctx := SetClientCertInRequestContext(r, clientCert)
 			ctx = audit.WithAuditUserID(ctx, clientCert.UserID)
 
