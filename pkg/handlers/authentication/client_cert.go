@@ -6,6 +6,8 @@ import (
 	"encoding/hex"
 	"net/http"
 
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/audit"
 	"github.com/transcom/mymove/pkg/models"
@@ -48,6 +50,11 @@ func ClientCertMiddleware(appCtx appcontext.AppContext) func(next http.Handler) 
 			// get DER hash
 			hash := sha256.Sum256(r.TLS.PeerCertificates[0].Raw)
 			hashString := hex.EncodeToString(hash[:])
+
+			newAppCtx.Logger().Info(
+				"Logging hash from the request",
+				zap.String("requestHash", hashString),
+			)
 
 			clientCert, err := models.FetchClientCert(newAppCtx.DB(), hashString)
 			if err != nil {
