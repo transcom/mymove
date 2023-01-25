@@ -2287,7 +2287,7 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 			MTOShipment: mtoShipment,
 		})
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
-		officeUser := factory.BuildOfficeUser(suite.DB(), nil,
+		officeUser := factory.BuildOfficeUser(nil, nil,
 			[]factory.Trait{
 				factory.GetTraitOfficeUserTOO,
 				factory.GetTraitOfficeUserWithID,

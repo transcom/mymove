@@ -434,8 +434,8 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 		// Create move where service member has the default ARMY affiliation
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
-		tioRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTIO)
-		tooRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
+		tioRole := roles.Role{RoleType: roles.RoleTypeTIO}
+		tooRole := roles.Role{RoleType: roles.RoleTypeTOO}
 		officeUserOooRah := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{

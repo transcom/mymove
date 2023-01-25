@@ -26,6 +26,8 @@ import (
 //     when creating a test with multiple office users
 //   - The OfficeUser returned won't have an ID if the db is nil. If an ID is needed for a stubbed user,
 //     use trait GetTraitOfficeUserWithID
+//   - Don't use traits to build an office user with multiple roles. Either use BuildOfficeUserWithRoles
+//     or pass in a list of roles into the User customization []roles.Role{roles.Role{RoleType: roles.RoleTypeTOO}}
 func BuildOfficeUser(db *pop.Connection, customs []Customization, traits []Trait) models.OfficeUser {
 	customs = setupCustomizations(customs, traits)
 
@@ -78,7 +80,7 @@ func BuildOfficeUser(db *pop.Connection, customs []Customization, traits []Trait
 	return officeUser
 }
 
-// BuildOfficeUserWithRoles returns an office user with roles
+// BuildOfficeUserWithRoles returns an office user with an ID, unique email, and roles
 // Also creates
 //   - User
 //   - Role
