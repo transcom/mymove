@@ -31,7 +31,7 @@ const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSe
         const fileDate = formatDate(moment(file.createdAt), 'DD-MMM-YYYY');
 
         return (
-          <li key={file.id + i}>
+          <li key={fileName + i}>
             <div title={fileName}>
               <Button unstyled className={itemClasses} type="button" onClick={() => handleSelectFile(i)}>
                 <p>
