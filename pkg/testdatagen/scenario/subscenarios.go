@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -73,6 +74,9 @@ func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *upload
 func subScenarioPPMCloseOut(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
 	return func() {
 		createServicesCounselor(appCtx)
+		createServicesCounselorForCloseoutWithGbloc(appCtx, uuid.Must(uuid.FromString("8bed04b0-9c64-4fb2-bc1a-65223319f109")), "ppm.processing.navy@office.mil", "NAVY")
+		createServicesCounselorForCloseoutWithGbloc(appCtx, uuid.Must(uuid.FromString("96b45e64-a501-49ce-9f8d-975bcb7b417c")), "ppm.processing.coastguard@office.mil", "USCG")
+		createServicesCounselorForCloseoutWithGbloc(appCtx, uuid.Must(uuid.FromString("f38cb4ed-fa1f-4f92-a52d-9695ba8cc85c")), "ppm.processing.marinecorps@office.mil", "TVCB")
 
 		// PPM Closeout
 		createMovesForEachBranch(appCtx, userUploader)
@@ -236,6 +240,19 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 				},
 			},
 		)
+		// Make a transportation office to use as the closeout office
+		closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{Name: "Los Angeles AFB"},
+			},
+		}, nil)
+
+		if *move.Orders.ServiceMember.Affiliation == models.AffiliationARMY || *move.Orders.ServiceMember.Affiliation == models.AffiliationAIRFORCE {
+			move.CloseoutOffice = &closeoutOffice
+			move.CloseoutOfficeID = &closeoutOffice.ID
+			testdatagen.MustSave(appCtx.DB(), &move)
+		}
+
 		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{MTOShipment: models.MTOShipment{
 			MoveTaskOrderID:       move.ID,
 			Status:                models.MTOShipmentStatusSubmitted,
