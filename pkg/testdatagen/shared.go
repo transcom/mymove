@@ -199,6 +199,23 @@ func MakeRandomString(n int) string {
 	return string(b)
 }
 
+const numberBytes = "0123456789"
+
+// MakeRandomNumberString makes a random numeric string of specified length
+func MakeRandomNumberString(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		randInt, err := random.GetRandomInt(len(numberBytes))
+		if err != nil {
+			log.Panicf("failed to create random string %v", err)
+			return ""
+		}
+		b[i] = numberBytes[randInt]
+
+	}
+	return string(b)
+}
+
 // Fixture opens a file from the testdata dir
 func Fixture(name string) afero.File {
 	fixtureDir := "testdata"
