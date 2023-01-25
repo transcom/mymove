@@ -72,6 +72,8 @@ type addressGroup struct {
 	DeliveryAddress          CustomType
 	SecondaryDeliveryAddress CustomType
 	ResidentialAddress       CustomType
+	DutyLocationAddress      CustomType
+	DutyLocationTOAddress    CustomType
 }
 
 // Addresses is the struct to access the various fields externally
@@ -80,6 +82,8 @@ var Addresses = addressGroup{
 	DeliveryAddress:          "DeliveryAddress",
 	SecondaryDeliveryAddress: "SecondaryDeliveryAddress",
 	ResidentialAddress:       "ResidentialAddress",
+	DutyLocationAddress:      "DutyLocationAddress",
+	DutyLocationTOAddress:    "DutyLocationTOAddress",
 }
 
 // dimensionGroup is a grouping of all the Dimension related fields

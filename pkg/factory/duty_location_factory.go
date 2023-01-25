@@ -31,9 +31,10 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 
 	// Find/create the address Model
 	var address models.Address
-	addressResult := findValidCustomization(customs, Address)
+	addressResult := findValidCustomization(customs, Addresses.DutyLocationAddress)
 	if addressResult != nil {
 		address = addressResult.Model.(models.Address)
+		customs = convertCustomizationInList(customs, Addresses.DutyLocationAddress, Address)
 	}
 	address = BuildAddress(db, customs, []Trait{GetTraitAddress3})
 

@@ -94,6 +94,38 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		suite.Equal(customAddress.StreetAddress1, dutyLocation.Address.StreetAddress1)
 	})
 
+	suite.Run("Successful creation of duty location with custom address attached only attached to duty location", func() {
+		// Under test:      BuiltDutyLocation
+		// Set up:          Create a Duty Location and pass custom fields
+		// Expected outcome:dutyLocation should be created with custom fields
+
+		// SETUP
+		customAddress := models.Address{
+			StreetAddress1: "123 Any Street",
+		}
+
+		customAffiliation := internalmessages.AffiliationNAVY
+
+		customDutyLocation := models.DutyLocation{
+			ID:          uuid.Must(uuid.NewV4()),
+			Affiliation: &customAffiliation,
+		}
+
+		// CALL FUNCTION UNDER TEST
+		dutyLocation := BuildDutyLocation(suite.DB(), []Customization{
+			{Model: customDutyLocation},
+			{Model: customAddress, Type: &Addresses.DutyLocationAddress},
+		}, nil)
+
+		// VALIDATE RESULTS
+		suite.Equal(customDutyLocation.ID, dutyLocation.ID)
+		suite.Equal(customAffiliation, *dutyLocation.Affiliation)
+		// Check that the address was customized
+		suite.Equal(customAddress.StreetAddress1, dutyLocation.Address.StreetAddress1)
+		// Check that Transportation Office Address is different
+		suite.NotEqual(dutyLocation.Address.StreetAddress1, dutyLocation.TransportationOffice.Address.StreetAddress1)
+	})
+
 	suite.Run("Successful return of linkOnly DutyLocation", func() {
 		// Under test:       BuildDutyLocation
 		// Set up:           Pass in a linkOnly dutyLocation
