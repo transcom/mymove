@@ -2021,3 +2021,244 @@ func MakeHHGMoveWithExternalNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	}
 	return *newmove
 }
+
+// MakeMoveWithMinimalNTSRNeedsSC creates an Move with
+// NTS-R Shipment
+func MakeMoveWithMinimalNTSRNeedsSC(appCtx appcontext.AppContext) models.Move {
+	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	locator := models.GenerateLocator()
+	move := scenario.CreateNeedsServicesCounselingMinimalNTSR(appCtx, pcos, locator)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeHHGMoveNeedsSC creates an fully ready move needing SC approval
+func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
+	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	hhg := models.MTOShipmentTypeHHG
+	locator := models.GenerateLocator()
+	move := scenario.CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, locator)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeHHGMoveForSeparationNeedsSC creates an fully ready move for
+// separation needing SC approval
+func MakeHHGMoveForSeparationNeedsSC(appCtx appcontext.AppContext) models.Move {
+	separation := internalmessages.OrdersTypeSEPARATION
+	hhg := models.MTOShipmentTypeHHG
+	hor := models.DestinationTypeHomeOfRecord
+	locator := models.GenerateLocator()
+	move := scenario.CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, locator)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeHHGMoveForRetireeNeedsSC creates an fully ready move for
+// separation needing SC approval
+func MakeHHGMoveForRetireeNeedsSC(appCtx appcontext.AppContext) models.Move {
+	retirement := internalmessages.OrdersTypeRETIREMENT
+	hhg := models.MTOShipmentTypeHHG
+	hos := models.DestinationTypeHomeOfSelection
+	locator := models.GenerateLocator()
+	move := scenario.CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hos, locator)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) models.Move {
+	// initialize this directly with defaults instead of using command
+	// line options. Simple for now, we can revist if we need to
+	fsParams := storage.NewFilesystemParams("tmp", "storage")
+	storer := storage.NewFilesystem(fsParams)
+
+	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	if err != nil {
+		appCtx.Logger().Fatal("could not instantiate user uploader", zap.Error(err))
+	}
+
+	email := strings.ToLower(fmt.Sprintf("%scustomer_%s@example.com",
+		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
+	username := strings.Split(email, "@")[0]
+	firstName := strings.Split(username, "_")[0]
+	lastName := username[len(firstName)+1:]
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       email,
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   firstName,
+		LastName:    lastName,
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: models.GenerateLocator(),
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          uuid.Must(uuid.NewV4()),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	testdatagen.MakeWeightTicket(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		WeightTicket: models.WeightTicket{
+			EmptyWeight: models.PoundPointer(14000),
+			FullWeight:  models.PoundPointer(18000),
+		},
+	})
+
+	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		MovingExpense: models.MovingExpense{
+			Amount: models.CentPointer(45000),
+		},
+	})
+
+	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		ProgearWeightTicket: models.ProgearWeightTicket{
+			Weight: models.PoundPointer(1500),
+		},
+	})
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	newmove.Orders.NewDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), newmove.Orders.NewDutyLocationID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch duty location: %w", err))
+	}
+	return *newmove
+}
+
+func MakePPMMoveWithCloseout(appCtx appcontext.AppContext) models.Move {
+	// initialize this directly with defaults instead of using command
+	// line options. Simple for now, we can revist if we need to
+	fsParams := storage.NewFilesystemParams("tmp", "storage")
+	storer := storage.NewFilesystem(fsParams)
+
+	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	if err != nil {
+		appCtx.Logger().Fatal("could not instantiate user uploader", zap.Error(err))
+	}
+
+	email := strings.ToLower(fmt.Sprintf("%scustomer_%s@example.com",
+		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
+	username := strings.Split(email, "@")[0]
+	firstName := strings.Split(username, "_")[0]
+	lastName := username[len(firstName)+1:]
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       email,
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   firstName,
+		LastName:    lastName,
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: models.GenerateLocator(),
+	}
+
+	move := scenario.CreateMoveWithCloseOut(appCtx, userUploader, moveInfo, models.AffiliationARMY)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+func MakePPMMoveWithCloseoutOffice(appCtx appcontext.AppContext) models.Move {
+	// initialize this directly with defaults instead of using command
+	// line options. Simple for now, we can revist if we need to
+	fsParams := storage.NewFilesystemParams("tmp", "storage")
+	storer := storage.NewFilesystem(fsParams)
+
+	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	if err != nil {
+		appCtx.Logger().Fatal("could not instantiate user uploader", zap.Error(err))
+	}
+
+	email := strings.ToLower(fmt.Sprintf("%scustomer_%s@example.com",
+		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
+	username := strings.Split(email, "@")[0]
+	firstName := strings.Split(username, "_")[0]
+	lastName := username[len(firstName)+1:]
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       email,
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   firstName,
+		LastName:    lastName,
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: models.GenerateLocator(),
+	}
+
+	move := scenario.CreateMoveWithCloseoutOffice(appCtx, moveInfo, userUploader)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	var closeoutOffice models.TransportationOffice
+	err = appCtx.DB().Find(&closeoutOffice, newmove.CloseoutOfficeID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch closeout office: %w", err))
+	}
+
+	newmove.CloseoutOffice = &closeoutOffice
+	return *newmove
+}

@@ -80,7 +80,15 @@ func subScenarioPPMCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 
 		// PPM Closeout
 		createMovesForEachBranch(appCtx, userUploader)
-		createMoveWithCloseoutOffice(appCtx, userUploader)
+		CreateMoveWithCloseoutOffice(appCtx, MoveCreatorInfo{
+			UserID:      uuid.Must(uuid.NewV4()),
+			Email:       "closeoutoffice@ppm.closeout",
+			SmID:        uuid.Must(uuid.NewV4()),
+			FirstName:   "CLOSEOUT",
+			LastName:    "OFFICE",
+			MoveID:      uuid.Must(uuid.NewV4()),
+			MoveLocator: "CLSOFF",
+		}, userUploader)
 	}
 }
 
@@ -149,21 +157,21 @@ func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader
 		other := models.DestinationTypeOtherThanAuthorized
 
 		//PCOS - one with nil dest type, 2 others with PLEAD status
-		createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "NODEST")
-		createNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD1")
-		createNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD2")
+		CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "NODEST")
+		CreateNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD1")
+		CreateNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD2")
 
 		//Retirees
-		createNeedsServicesCounseling(appCtx, retirement, hhg, &hor, "RETIR3")
-		createNeedsServicesCounseling(appCtx, retirement, nts, &hos, "RETIR4")
-		createNeedsServicesCounseling(appCtx, retirement, ntsR, &other, "RETIR5")
-		createNeedsServicesCounseling(appCtx, retirement, hhg, &plead, "RETIR6")
+		CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hor, "RETIR3")
+		CreateNeedsServicesCounseling(appCtx, retirement, nts, &hos, "RETIR4")
+		CreateNeedsServicesCounseling(appCtx, retirement, ntsR, &other, "RETIR5")
+		CreateNeedsServicesCounseling(appCtx, retirement, hhg, &plead, "RETIR6")
 
 		//Separatees
-		createNeedsServicesCounseling(appCtx, separation, hhg, &hor, "SEPAR3")
-		createNeedsServicesCounseling(appCtx, separation, nts, &hos, "SEPAR4")
-		createNeedsServicesCounseling(appCtx, separation, ntsR, &other, "SEPAR5")
-		createNeedsServicesCounseling(appCtx, separation, ntsR, &plead, "SEPAR6")
+		CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, "SEPAR3")
+		CreateNeedsServicesCounseling(appCtx, separation, nts, &hos, "SEPAR4")
+		CreateNeedsServicesCounseling(appCtx, separation, ntsR, &other, "SEPAR5")
+		CreateNeedsServicesCounseling(appCtx, separation, ntsR, &plead, "SEPAR6")
 
 		//USMC
 		createHHGNeedsServicesCounselingUSMC(appCtx, userUploader)
@@ -591,7 +599,7 @@ func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.
 
 		createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSHHG")
 		createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSRHG")
-		createNeedsServicesCounselingMinimalNTSR(appCtx, pcos, "NTSRMN")
+		CreateNeedsServicesCounselingMinimalNTSR(appCtx, pcos, "NTSRMN")
 
 		// Create a move with an HHG and NTS prime-handled shipment
 		CreateMoveWithHHGAndNTSShipments(appCtx, "PRINTS", false)
