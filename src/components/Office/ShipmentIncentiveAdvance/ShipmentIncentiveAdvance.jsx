@@ -14,7 +14,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceStatus }) => {
   const [advanceInput, , advanceHelper] = useField('advanceRequested');
   const [statusInput, , statusHelper] = useField('advanceStatus');
   // eslint-disable-next-line no-console
-  console.log('advanceInput:', advanceInput);
+  // console.log('advanceInput:', advanceInput);
   const advanceRequested = String(advanceInput.value) === 'true';
   const advanceRequestStatus = statusInput.value === advanceStatus;
 
