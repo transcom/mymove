@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -247,6 +248,19 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 				},
 			},
 		)
+		// Make a transportation office to use as the closeout office
+		closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{Name: "Los Angeles AFB"},
+			},
+		}, nil)
+
+		if *move.Orders.ServiceMember.Affiliation == models.AffiliationARMY || *move.Orders.ServiceMember.Affiliation == models.AffiliationAIRFORCE {
+			move.CloseoutOffice = &closeoutOffice
+			move.CloseoutOfficeID = &closeoutOffice.ID
+			testdatagen.MustSave(appCtx.DB(), &move)
+		}
+
 		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{MTOShipment: models.MTOShipment{
 			MoveTaskOrderID:       move.ID,
 			Status:                models.MTOShipmentStatusSubmitted,
