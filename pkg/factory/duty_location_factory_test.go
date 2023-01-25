@@ -97,11 +97,15 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 	suite.Run("Successful creation of duty location with custom address attached only attached to duty location", func() {
 		// Under test:      BuiltDutyLocation
 		// Set up:          Create a Duty Location and pass custom fields
-		// Expected outcome:dutyLocation should be created with custom fields
+		// Expected outcome:dutyLocation should be created with custom address different from address attached for TO
 
 		// SETUP
-		customAddress := models.Address{
+		customDutyLocationAddress := models.Address{
 			StreetAddress1: "123 Any Street",
+		}
+
+		customTransportationOfficeAddress := models.Address{
+			StreetAddress1: "456 Something Street",
 		}
 
 		customAffiliation := internalmessages.AffiliationNAVY
@@ -114,14 +118,15 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		// CALL FUNCTION UNDER TEST
 		dutyLocation := BuildDutyLocation(suite.DB(), []Customization{
 			{Model: customDutyLocation},
-			{Model: customAddress, Type: &Addresses.DutyLocationAddress},
+			{Model: customDutyLocationAddress, Type: &Addresses.DutyLocationAddress},
+			{Model: customTransportationOfficeAddress, Type: &Addresses.DutyLocationTOAddress},
 		}, nil)
 
 		// VALIDATE RESULTS
 		suite.Equal(customDutyLocation.ID, dutyLocation.ID)
 		suite.Equal(customAffiliation, *dutyLocation.Affiliation)
 		// Check that the address was customized
-		suite.Equal(customAddress.StreetAddress1, dutyLocation.Address.StreetAddress1)
+		suite.Equal(customDutyLocationAddress.StreetAddress1, dutyLocation.Address.StreetAddress1)
 		// Check that Transportation Office Address is different
 		suite.NotEqual(dutyLocation.Address.StreetAddress1, dutyLocation.TransportationOffice.Address.StreetAddress1)
 	})

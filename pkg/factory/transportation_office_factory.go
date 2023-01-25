@@ -27,10 +27,9 @@ func BuildTransportationOffice(db *pop.Connection, customs []Customization, trai
 
 	// Find/create the address model
 	var address models.Address
-	result := findValidCustomization(customs, Addresses.DutyLocationTOAddress)
+	result := findValidCustomization(customs, Address)
 	if result != nil {
 		address = result.Model.(models.Address)
-		customs = convertCustomizationInList(customs, Addresses.DutyLocationTOAddress, Address)
 	}
 	address = BuildAddress(db, customs, traits)
 	// At this point, address exists. It's either the provided or created address
