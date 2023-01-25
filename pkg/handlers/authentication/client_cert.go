@@ -52,8 +52,8 @@ func ClientCertMiddleware(appCtx appcontext.AppContext) func(next http.Handler) 
 			hashString := hex.EncodeToString(hash[:])
 
 			newAppCtx.Logger().Info(
-				"authentication.ClientCertMiddleware: Logging hash from the request",
-				zap.String("requestHash", hashString),
+				"authentication.ClientCertMiddleware: Logging SHA256 hash from the request TLS PeerCertificates",
+				zap.String("SHA256_hash_string", hashString),
 			)
 
 			clientCert, err := models.FetchClientCert(newAppCtx.DB(), hashString)
