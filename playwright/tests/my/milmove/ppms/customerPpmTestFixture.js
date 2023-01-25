@@ -22,6 +22,7 @@ export class CustomerPpmPage extends CustomerPage {
     super(customerPage.page, customerPage.request);
     this.move = move;
     this.userId = move.Orders.ServiceMember.user_id;
+    this.firstShipmentId = this.move.MTOShipments[0].ID;
   }
 
   /**
@@ -31,7 +32,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.signInAsExistingCustomer(this.userId);
     await expect(this.page.getByRole('heading', { name: 'Your move is in progress.' })).toBeVisible();
 
-    await this.page.locator('button[data-testid="button"]').getByText('Upload PPM Documents').click();
+    await this.page.getByRole('button', { name: 'Upload PPM Documents' }).click();
   }
 
   /**
@@ -48,11 +49,11 @@ export class CustomerPpmPage extends CustomerPage {
    * @param {string} userId
    * @param {boolean} isMoveSubmitted
    */
-  async signInAndNavigateFromHomePageToReviewPage(userId, isMoveSubmitted = false) {
-    await this.signInAsExistingCustomer(userId);
+  // async signInAndNavigateFromHomePageToReviewPage(userId, isMoveSubmitted = false) {
+  //   await this.signInAsExistingCustomer(userId);
 
-    await this.navigateFromHomePageToReviewPage(isMoveSubmitted);
-  }
+  //   await this.navigateFromHomePageToReviewPage(isMoveSubmitted);
+  // }
 
   /**
    * @param {boolean} selectAdvance
@@ -60,8 +61,7 @@ export class CustomerPpmPage extends CustomerPage {
   async signInAndNavigateToAboutPage(selectAdvance) {
     await this.signInAndClickOnUploadPPMDocumentsButton();
 
-    const shipmentId = this.move.MTOShipments[0].ID;
-    const url = `/moves/${this.move.id}/shipments/${shipmentId}/about`;
+    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/about`;
 
     expect(this.page.url()).toContain(url);
 
@@ -90,10 +90,9 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
-   * @param {string} userId
    */
-  async signInAndNavigateToFinalCloseoutPage(userId) {
-    await this.signInAndNavigateToPPMReviewPage(userId);
+  async signInAndNavigateToFinalCloseoutPage() {
+    await this.signInAndNavigateToPPMReviewPage();
 
     await this.navigateFromPPMReviewPageToFinalCloseoutPage();
   }
@@ -103,13 +102,13 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
     if (isMoveSubmitted) {
-      await expect(this.page.locator('h3')).toContainText('Next step: Your move gets approved');
+      await expect(this.page.getByRole('heading', { name: 'Next step: Your move gets approved' })).toBeVisible();
 
-      await this.page.locator('button').getByText('Review your request').click();
+      await this.page.getByRole('button', { name: 'Review your request' }).click();
     } else {
-      await expect(this.page.locator('h3')).toContainText('Time to submit your move');
+      await expect(this.page.getByRole('heading', { name: 'Time to submit your move' })).toBeVisible();
 
-      await this.page.locator('button').getByText('Review and submit').click();
+      await this.page.getByRole('button', { name: 'Review and submit' }).click();
     }
   }
 
@@ -145,26 +144,25 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.locator('input[name="w2Address.postalCode"]').type('85369');
     await this.page.locator('input[name="w2Address.postalCode"]').blur();
 
-    await this.page.locator('button').getByText('Save & Continue').click();
+    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
   }
 
   /**
    */
   async navigateFromAboutPageToWeightTicketPage() {
-    await this.page.locator('button').getByText('Save & Continue').click();
+    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
 
     expect(this.page.url()).toContain('/moves/[^/]+/shipments/[^/]+/weight-tickets/');
   }
 
   /**
-   * @param {string} userId
    */
-  async signInAndNavigateToWeightTicketPage(userId) {
-    await this.signInAndClickOnUploadPPMDocumentsButton(userId);
-
-    expect(this.page.url()).toContain('/moves/[^/]+/shipments/[^/]+/weight-tickets/');
+  async signInAndNavigateToWeightTicketPage() {
+    await this.signInAndClickOnUploadPPMDocumentsButton();
 
     await expect(this.page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
+    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/weight-tickets`;
+    expect(this.page.url()).toContain(url);
   }
 
   /**
@@ -222,28 +220,28 @@ export class CustomerPpmPage extends CustomerPage {
   //   }
   // }
 
-  //   /**
-  //      */
-  //  navigateFromWeightTicketPage() {
-  //    await this.page.locator('button').getByText('Save & Continue').click();
+  /**
+   */
+  async navigateFromWeightTicketPage() {
+    await this.page.locator('button').getByText('Save & Continue').click();
 
-  //     expect(this.page.url()).toContain('/moves\/[^/]+\/shipments\/[^/]+\/review/');
-  // }
+    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/review`;
+    expect(this.page.url()).toContain(url);
+  }
 
-  //   /**
-  //    * @param {string} userId
-  //    */
-  //  signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId) {
-  //    this.signInAsExistingCustomer(userId)
+  /**
+   */
+  async signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage() {
+    await this.signInAsExistingCustomer(this.userId);
 
-  //    await expect(this.page.locator('h3')).toContainText('Time to submit your move');
+    await expect(this.page.getByRole('heading', { name: 'Time to submit your move' })).toBeVisible();
 
-  //   await this.page.locator('[data-testid="shipment-list-item-container"] button').getByText('Edit').click();
+    await this.page.locator('[data-testid="shipment-list-item-container"] button').getByText('Edit').click();
 
-  //     expect(this.page.url()).toContain('/moves\/[^/]+\/shipments\/[^/]+\/edit/');
-
-  //    await expect(this.page.locator('h1')).toContainText('PPM date & location');
-  // }
+    await expect(this.page.getByRole('heading', { name: 'PPM date & location' })).toBeVisible();
+    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/edit`;
+    expect(this.page.url()).toContain(url);
+  }
 
   // // used for creating a new shipment
   // submitsDateAndLocation() {
@@ -258,17 +256,16 @@ export class CustomerPpmPage extends CustomerPage {
   //   this.navigateFromDateAndLocationPageToEstimatedWeightsPage();
   // }
 
-  //   /**
-  //    */
-  //  navigateFromDateAndLocationPageToEstimatedWeightsPage() {
-  //   await this.page.locator('button').getByText('Save & Continue').click();
+  /**
+   */
+  async navigateFromDateAndLocationPageToEstimatedWeightsPage() {
+    await this.page.locator('button').getByText('Save & Continue').click();
 
-  // //  if (actionsToWaitOn) cy.wait(actionsToWaitOn);
+    await expect(this.page.getByRole('heading', { name: 'Estimated weight', exact: true })).toBeVisible();
 
-  //     expect(this.page.url()).toContain('/moves\/[^/]+\/shipments\/[^/]+\/estimated-weight/');
-
-  //    await expect(this.page.locator('h1')).toContainText('Estimated weight');
-  // }
+    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/estimated-weight`;
+    expect(this.page.url()).toContain(url);
+  }
 
   //  submitsEstimatedWeightsAndProGear() {
   //   await this.page.locator('input[name="estimatedWeight"]').type(4000); await this.page.locator('input[name="estimatedWeight"]').blur();
@@ -287,17 +284,13 @@ export class CustomerPpmPage extends CustomerPage {
   //   navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
   // }
 
-  // export function navigateFromEstimatedWeightsPageToEstimatedIncentivePage() {
-  //   await expect(this.page.locator('button').contains('Save & Continue')).toBeEnabled().click();
+  async navigateFromEstimatedWeightsPageToEstimatedIncentivePage() {
+    await this.page.locator('button').getByText('Save & Continue').click();
 
-  //   cy.wait('@patchShipment');
-
-  //   cy.location().should((loc) => {
-  //     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-incentive/);
-  //   });
-
-  //   await this.page.locator('h1').should('contain', 'Estimated incentive');
-  // }
+    await expect(this.page.getByRole('heading', { name: 'Estimated incentive', exact: true })).toBeVisible();
+    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/estimated-incentive`;
+    expect(this.page.url()).toContain(url);
+  }
 
   // export function generalVerifyEstimatedIncentivePage(isMobile = false) {
   //   await this.page.locator('h1').should('contain', 'Estimated incentive');
@@ -314,60 +307,67 @@ export class CustomerPpmPage extends CustomerPage {
   //   navigateFromEstimatedIncentivePageToAdvancesPage();
   // }
 
-  // export function navigateFromEstimatedIncentivePageToAdvancesPage() {
-  //   await expect(this.page.locator('button').contains('Next')).toBeEnabled().click();
+  /**
+   */
+  async navigateFromEstimatedIncentivePageToAdvancesPage() {
+    await this.page.getByRole('button', { name: 'Next', exact: true }).click();
 
-  //   cy.location().should((loc) => {
-  //     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/advances/);
-  //   });
+    await expect(this.page.getByRole('heading', { name: 'Advances', exact: true })).toBeVisible();
+    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/advances`;
+    expect(this.page.url()).toContain(url);
+  }
 
-  //   await this.page.locator('h1').should('contain', 'Advances');
-  // }
+  /**
+   * submit ppm advance page
+   * @param {Object} options
+   * @param {boolean} [options.addAdvance=false]
+   * @param {boolean} [options.isMobile=false]
+   */
+  async submitsAdvancePage(options = {}) {
+    const { addAdvance = false, isMobile = false } = options;
+    if (addAdvance) {
+      await this.page.locator('label[for="yes-has-received-advance"]').click();
+      await this.page.locator('input[name="advanceAmountRequested"]').type('4000');
+      await this.page.locator('input[name="advanceAmountRequested"]').blur();
 
-  // export function submitsAdvancePage(addAdvance = false, isMobile = false) {
-  //   if (addAdvance) {
-  //     await this.page.locator('input[name="hasRequestedAdvance"][value="true"]').check({ force: true });
+      await this.page.locator('input[name="agreeToTerms"]').check();
+    } else {
+      await this.page.locator('label[for="no-has-received-advance"]').click();
+    }
 
-  //     await this.page.locator('input[name="advanceAmountRequested"]').type(4000); await this.page.locator('input[name="advanceAmountRequested"]').blur();
+    await this.navigateFromAdvancesPageToReviewPage({ addAdvance, isMobile });
+  }
 
-  //     await this.page.locator('input[name="agreeToTerms"]').check({ force: true });
-  //   } else {
-  //     await this.page.locator('input[name="hasRequestedAdvance"][value="false"]').check({ force: true });
-  //   }
+  /**
+   * navigate from advances to review
+   * @param {Object} options
+   * @param {boolean} [options.addAdvance=false]
+   * @param {boolean} [options.isMobile=false]
+   */
+  async navigateFromAdvancesPageToReviewPage(options = {}) {
+    const { addAdvance = false, isMobile = false } = options;
+    if (addAdvance) {
+      await this.page.locator('input[name="agreeToTerms"]').check();
+    }
 
-  //   navigateFromAdvancesPageToReviewPage(isMobile);
-  // }
+    const saveButton = this.page.getByRole('button', { name: 'Save & Continue' });
+    await expect(saveButton).toBeVisible();
 
-  // export function navigateFromAdvancesPageToReviewPage(isMobile = false) {
-  //   // when navigating through an existing PPM that requested an advance, we must agree to the terms again to proceed
-  //   // using cypress get or contains would result in an assertion failure for the case where advance requested is No
-  //   await this.page.locator('body').then(($body) => {
-  //     if ($body.find('input[name="hasRequestedAdvance"][value="true"]:checked').length) {
-  //       await this.page.locator('input[name="agreeToTerms"]').check({ force: true });
-  //     }
-  //   });
+    if (isMobile) {
+      await expect(saveButton).toHaveCSS('order', '1');
+    }
 
-  //   await expect(this.page.locator('button')).toContainText('Save & Continue').as('saveButton');
+    await saveButton.click();
 
-  //   if (isMobile) {
-  //     await this.page.locator('@saveButton').should('have.css', 'order', '1');
-  //   }
+    await expect(this.page.getByRole('heading', { name: 'Review your details', exact: true })).toBeVisible();
+    const url = `/moves/${this.move.id}/review/`;
+    expect(this.page.url()).toContain(url);
 
-  //   await expect(this.page.locator('@saveButton')).toBeEnabled().click();
-
-  //   cy.wait('@patchShipment');
-
-  //   cy.location().should((loc) => {
-  //     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
-  //   });
-
-  //   await this.page.locator('h1').should('contain', 'Review your details');
-
-  //   await this.page.locator('.usa-alert__heading')
-  //     .contains('Details saved')
-  //     .next()
-  //     .contains('Review your info and submit your move request now, or come back and finish later.');
-  // }
+    await expect(this.page.locator('.usa-alert__heading')).toContainText('Details saved');
+    await expect(this.page.locator('.usa-alert__heading + span')).toContainText(
+      'Review your info and submit your move request now, or come back and finish later.',
+    );
+  }
 
   // export function navigateFromReviewPageToHomePage() {
   //   await expect(this.page.locator('button')).toContainText('Return home').click();

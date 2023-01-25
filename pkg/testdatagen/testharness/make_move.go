@@ -2263,3 +2263,42 @@ func MakeApprovedMoveWithPPM(appCtx appcontext.AppContext) models.Move {
 
 	return *newmove
 }
+
+func MakeUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext.AppContext) models.Move {
+	/*
+	 * A service member with orders and a PPM shipment updated with an estimated weight value and estimated incentive
+	 */
+	userUploader := newUserUploader(appCtx)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &scenario.DefaultCloseoutOfficeID,
+	}
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		PPMShipment: models.PPMShipment{
+			ID:                 uuid.Must(uuid.NewV4()),
+			EstimatedWeight:    models.PoundPointer(unit.Pound(4000)),
+			HasProGear:         models.BoolPointer(false),
+			EstimatedIncentive: models.CentPointer(unit.Cents(1000000)),
+		},
+	}
+
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
