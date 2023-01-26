@@ -26,6 +26,12 @@ jest.mock('services/ghcApi', () => ({
   patchWeightTicket: (options) => mockPatchWeightTicket(options),
 }));
 
+// prevents react-fileviewer from throwing errors without mocking relevant DOM elements
+jest.mock('components/DocumentViewer/Content/Content', () => {
+  const MockContent = () => <div>Content</div>;
+  return MockContent;
+});
+
 const mockPDFUpload = {
   bytes: 0,
   contentType: 'application/pdf',
@@ -160,6 +166,21 @@ describe('ReviewDocuments', () => {
     });
   });
   describe('with data loaded', () => {
+    it('renders the DocumentViewer', async () => {
+      await waitFor(() => {
+        usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+        render(<ReviewDocuments {...requiredProps} />);
+      });
+      const docs = screen.getByText(/Documents/);
+      expect(docs).toBeInTheDocument();
+      expect(screen.getAllByText('test.pdf').length).toBe(2);
+      expect(screen.getByText('test.xls')).toBeInTheDocument();
+      expect(screen.getByText('test.jpg')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: '1 of 1 Document Sets' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
+      expect(screen.getByTestId('closeSidebar')).toBeInTheDocument();
+    });
     it('renders and handles the Continue button with the appropriate payload', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       const { getByRole, getByLabelText, queryByText } = render(<ReviewDocuments {...requiredProps} />);
@@ -187,21 +208,6 @@ describe('ReviewDocuments', () => {
       expect(getByTestId('closeSidebar')).toBeInTheDocument();
       await userEvent.click(getByTestId('closeSidebar'));
       expect(mockPush).toHaveBeenCalled();
-    });
-    it('renders the DocumentViewer', async () => {
-      await waitFor(() => {
-        usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
-        render(<ReviewDocuments {...requiredProps} />);
-      });
-      const docs = screen.getByText(/Documents/);
-      expect(docs).toBeInTheDocument();
-      expect(screen.getAllByText('test.pdf').length).toBe(2);
-      expect(screen.getByText('test.xls')).toBeInTheDocument();
-      expect(screen.getByText('test.jpg')).toBeInTheDocument();
-      expect(screen.getByRole('heading', { level: 2, name: '1 of 1 Document Sets' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
-      expect(screen.getByTestId('closeSidebar')).toBeInTheDocument();
     });
   });
   describe('with multiple document sets loaded', () => {
