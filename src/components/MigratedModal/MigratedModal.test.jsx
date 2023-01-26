@@ -1,6 +1,6 @@
 import React from 'react';
-import { render } from '@testing-library/react';
-import { renderHook, act } from '@testing-library/react-hooks';
+import { act } from 'react-dom/test-utils';
+import { render, renderHook, waitFor } from '@testing-library/react';
 
 import { Modal, connectModal, useModal } from './MigratedModal';
 
@@ -44,22 +44,17 @@ describe('useModal', () => {
     jest.clearAllMocks();
   });
 
-  it('provides state and functions for opening/closing a modal', () => {
-    const { result } = renderHook(() => useModal());
+  it('provides state and functions for opening/closing a modal', async () => {
+    const { result } = renderHook(useModal);
     expect(result.current.isOpen).toEqual(false);
     expect(typeof result.current.openModal).toBe('function');
     expect(typeof result.current.closeModal).toBe('function');
 
-    act(() => {
-      result.current.openModal();
-    });
+    // We have to use `act` here, in addition to a standard `waitFor`, since we're testing a hook
+    act(result.current.openModal);
+    await waitFor(() => expect(result.current.isOpen).toEqual(true));
 
-    expect(result.current.isOpen).toEqual(true);
-
-    act(() => {
-      result.current.closeModal();
-    });
-
-    expect(result.current.isOpen).toEqual(false);
+    act(result.current.closeModal);
+    await waitFor(() => expect(result.current.isOpen).toEqual(false));
   });
 });
