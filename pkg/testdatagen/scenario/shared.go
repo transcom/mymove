@@ -964,14 +964,14 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 }
 
 func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	moveInfo := moveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("385bb8f6-ee86-4948-b69d-615417bf71f9"),
-		email:       "weightTicketsPPM+closeout@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("7ad9b8d5-db20-4d00-946b-53531a24a9e1"),
-		firstName:   "PPMCloseout",
-		lastName:    "WeightTickets",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("6c121a40-7037-46ba-9e94-1b63c598bcd9"),
-		moveLocator: "CLOSE1",
+	moveInfo := MoveCreatorInfo{
+		UserID:      testdatagen.ConvertUUIDStringToUUID("385bb8f6-ee86-4948-b69d-615417bf71f9"),
+		Email:       "weightTicketsPPM+closeout@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("7ad9b8d5-db20-4d00-946b-53531a24a9e1"),
+		FirstName:   "PPMCloseout",
+		LastName:    "WeightTickets",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("6c121a40-7037-46ba-9e94-1b63c598bcd9"),
+		MoveLocator: "CLOSE1",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1000,7 +1000,7 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 		},
 	}
 
-	move, shipment := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 
 	weightTicketAssertions := testdatagen.Assertions{
 		PPMShipment:   shipment,
