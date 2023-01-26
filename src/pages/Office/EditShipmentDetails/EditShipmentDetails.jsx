@@ -16,17 +16,12 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
 import { roleTypes } from 'constants/userRoles';
 
-function updateMTOShipmentWrapper({ shipment }) {
-  return updateMTOShipment(shipment).then((newShipment) => {
-    return newShipment;
-  });
-}
 const EditShipmentDetails = ({ match }) => {
   const { moveCode, shipmentId } = useParams();
   const history = useHistory();
   const queryClient = useQueryClient();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
-  const { mutate: mutateMTOShipment } = useMutation(updateMTOShipmentWrapper, {
+  const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);

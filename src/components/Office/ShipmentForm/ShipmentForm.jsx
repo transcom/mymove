@@ -99,8 +99,6 @@ const ShipmentForm = (props) => {
     },
   });
 
-  // const createMoveCloseoutOffice({moveCode, })
-
   const { mutate: mutateMoveCloseoutOffice } = useMutation(updateMoveCloseoutOffice, {
     onSuccess: () => {
       queryClient.invalidateQueries([MOVES, moveCode]);
@@ -209,7 +207,7 @@ const ShipmentForm = (props) => {
                 mutateMoveCloseoutOffice({
                   locator: moveCode,
                   ifMatchETag: move.eTag,
-                  body: { closeoutOfficeId: move.closeoutOffice.id },
+                  body: { closeoutOfficeId: formValues.closeoutOffice.id },
                 });
               }
               history.replace(currentPath);
@@ -234,26 +232,37 @@ const ShipmentForm = (props) => {
         moveETag: move.eTag,
       };
 
-      const payload = {
-        shipment: updatePPMPayload,
-      };
-      // don't send closeout office if we're on the advance page
-      if (!isAdvancePage) {
-        payload.closeoutOffice = formValues.closeoutOffice;
-      }
-
-      submitHandler(payload, {
+      submitHandler(updatePPMPayload, {
         onSuccess: () => {
-          if (!isAdvancePage) {
-            const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
-              moveCode,
-              shipmentId: mtoShipment.id,
-            });
-            actions.setSubmitting(false);
-            history.push(advancePath);
-            return;
+          if (!isAdvancePage && formValues.closeoutOffice) {
+            // if we have a closeout office, we must be on the first page of creating a PPM shipment,
+            // as a SC so we should update the closeout office and redirect to the advance page
+            mutateMoveCloseoutOffice(
+              {
+                locator: moveCode,
+                ifMatchETag: move.eTag,
+                body: { closeoutOfficeId: formValues.closeoutOffice.id },
+              },
+              {
+                onSuccess: () => {
+                  const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
+                    moveCode,
+                    shipmentId: mtoShipment.id,
+                  });
+                  actions.setSubmitting(false);
+                  history.push(advancePath);
+                },
+                onError: () => {
+                  history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+                },
+              },
+            );
+          } else {
+            // if we don't have a closeout office, we're either on the advance page for a PPM, the first
+            // page for another type of shipment, or the first page of a PPM as a TOO. In any case, we're
+            // done now and can head back to the move view
+            history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
           }
-          history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
         },
       });
       return;
