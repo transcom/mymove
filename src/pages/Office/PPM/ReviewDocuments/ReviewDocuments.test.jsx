@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
+import { useLocation } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
 import { ReviewDocuments } from './ReviewDocuments';
@@ -18,6 +19,7 @@ jest.mock('react-router-dom', () => ({
   useHistory: () => ({
     push: mockPush,
   }),
+  useLocation: jest.fn(),
 }));
 
 const mockPatchWeightTicket = jest.fn();
@@ -69,7 +71,8 @@ jest.mock('hooks/queries', () => ({
   usePPMShipmentDocsQueries: jest.fn(),
 }));
 
-const testShipmentId = '4321';
+const mockShipmentId = '4321';
+const mockMoveId = '1234';
 const ticketDocuments = {
   emptyDocument: {
     uploads: [mockPDFUpload],
@@ -135,7 +138,7 @@ const usePPMShipmentDocsQueriesReturnValueMultiple = {
 };
 
 const requiredProps = {
-  match: { params: { shipmentId: testShipmentId, moveCode: 'READY' } },
+  match: { params: { shipmentId: mockShipmentId, moveCode: 'READY' } },
 };
 
 const loadingReturnValue = {
@@ -167,6 +170,9 @@ describe('ReviewDocuments', () => {
   });
   describe('with data loaded', () => {
     it('renders the DocumentViewer', async () => {
+      useLocation.mockReturnValue({
+        pathname: `/counseling/moves/${mockMoveId}/shipment/${mockShipmentId}/document-review`,
+      });
       await waitFor(() => {
         usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
         render(<ReviewDocuments {...requiredProps} />);
