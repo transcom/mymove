@@ -39,7 +39,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 			},
 		})
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 			RoleType: roles.RoleTypeTIO,
 		})
@@ -126,7 +126,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 	var moveLocator string
 
 	setupTestData := func() (models.PaymentServiceItemParam, models.OfficeUser) {
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 
 		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 		moveLocator = move.Locator

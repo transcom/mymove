@@ -22,7 +22,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
@@ -157,7 +157,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
@@ -220,7 +220,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
@@ -336,7 +336,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
@@ -834,7 +834,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})

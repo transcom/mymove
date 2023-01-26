@@ -71,7 +71,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 	agfmPostalCode := "06001"
 	setupTestData := func() (models.OfficeUser, models.Move) {
 		// Make an office user → GBLOC X
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 		// Create a move with a shipment → GBLOC X
@@ -449,7 +449,7 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 			},
 		}, nil)
 		// Create office user tied to the default KKFA GBLOC
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 
 		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserOooRah.ID, &params)
@@ -860,7 +860,7 @@ func (suite *OrderServiceSuite) TestListOrdersMarines() {
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			ServiceMember: models.ServiceMember{Affiliation: &marines},
 		})
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		// Map default shipment ZIP code to default office user GBLOC
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
@@ -913,7 +913,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersWithPagination() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 
 	// Map default shipment postal code to office user's GBLOC
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
@@ -978,7 +978,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 				RequestedPickupDate: &requestedMoveDate3,
 			},
 		})
-		officeUser = testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
@@ -1092,7 +1092,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 	defaultShipmentPickupPostalCode := "90210"
 	setupTestData := func() models.OfficeUser {
 		// Make an office user → GBLOC X
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 		// Ensure there's an entry connecting the default shipment pickup postal code with the office user's gbloc

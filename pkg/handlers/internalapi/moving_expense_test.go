@@ -225,7 +225,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 
 		subtestData := makeUpdateSubtestData(appCtx, false)
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 
 		req := subtestData.params.HTTPRequest
 		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)

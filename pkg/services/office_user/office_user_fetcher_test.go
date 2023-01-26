@@ -9,10 +9,11 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 type testOfficeUserQueryBuilder struct {
@@ -84,7 +85,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 
 func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
 	suite.Run("returns office user on success", func() {
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		fetcher := NewOfficeUserFetcherPop()
 
 		fetchedUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), officeUser.ID)

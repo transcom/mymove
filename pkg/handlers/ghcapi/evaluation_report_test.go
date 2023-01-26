@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	evaluationreportservice "github.com/transcom/mymove/pkg/services/evaluation_report"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -25,7 +26,7 @@ import (
 func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
 	setupTestData := func() (models.OfficeUser, models.Move, handlers.HandlerConfig) {
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		handlerConfig := suite.createS3HandlerConfig()
 		return officeUser, move, handlerConfig
 	}
@@ -100,7 +101,7 @@ func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
 func (suite *HandlerSuite) TestGetCounselingEvaluationReportsHandler() {
 	setupTestData := func() (models.OfficeUser, models.Move, handlers.HandlerConfig) {
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		handlerConfig := suite.HandlerConfig()
 		return officeUser, move, handlerConfig
 	}
@@ -173,7 +174,7 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 	suite.Run("Successful fetch (integration) test", func() {
 		handlerConfig := suite.HandlerConfig()
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		fetcher := evaluationreportservice.NewEvaluationReportFetcher()
 
 		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{

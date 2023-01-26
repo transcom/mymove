@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *CustomerSupportRemarksSuite) setupTestData() (models.CustomerSupportRemarks, models.Move) {
 
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
 	var customerSupportRemarks models.CustomerSupportRemarks
@@ -33,7 +35,7 @@ func (suite *CustomerSupportRemarksSuite) setupTestDataMultipleUsers() (models.C
 	var officeUsers models.OfficeUsers
 	var customerSupportRemarks models.CustomerSupportRemarks
 	for i := 0; i < 3; i++ {
-		officeUsers = append(officeUsers, testdatagen.MakeDefaultOfficeUser(suite.DB()))
+		officeUsers = append(officeUsers, factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO}))
 		for x := 0; x < 2; x++ {
 			remark := testdatagen.MakeCustomerSupportRemark(suite.DB(),
 				testdatagen.Assertions{
@@ -79,7 +81,7 @@ func (suite *CustomerSupportRemarksSuite) TestCustomerSupportRemarksListFetcher(
 	})
 
 	suite.Run("Soft deleted remarks should not be returned", func() {
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		remark := testdatagen.MakeCustomerSupportRemark(suite.DB(),
 			testdatagen.Assertions{

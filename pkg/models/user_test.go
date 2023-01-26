@@ -293,7 +293,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 	// limited by the app it expects to be run in.
 
 	suite.Run("office user", func() {
-		testdatagen.MakeDefaultOfficeUser(suite.DB())
+		factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		identities, err := FetchAppUserIdentities(suite.DB(), auth.OfficeApp, 5)
 		suite.NoError(err)
 		suite.NotEmpty(identities)

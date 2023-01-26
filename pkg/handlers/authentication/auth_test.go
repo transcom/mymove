@@ -820,11 +820,21 @@ func (suite *AuthSuite) TestAuthorizeDeactivateAdmin() {
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDeactivated() {
 	// deactivated office user exists, but user has never logged it (and therefore first need to create a new user).
-	officeUser := testdatagen.MakeOfficeUserWithNoUser(suite.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			Active: false,
-		},
-	})
+
+	// Create office user with no user
+	office := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+	officeUser := models.OfficeUser{
+		TransportationOffice:   office,
+		TransportationOfficeID: office.ID,
+		FirstName:              "Leo",
+		LastName:               "Spaceman",
+		Email:                  "leospaceman12345@example.com",
+		Telephone:              "415-555-1212",
+		Active:                 false,
+	}
+	verrs, err := suite.DB().ValidateAndCreate(&officeUser)
+	suite.NoError(err)
+	suite.False(verrs.HasAny())
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()

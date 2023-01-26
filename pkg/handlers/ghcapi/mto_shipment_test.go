@@ -2998,7 +2998,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 }
 
 func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOShipment) mtoshipmentops.UpdateMTOShipmentParams {
-	servicesCounselor := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	servicesCounselor := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 	servicesCounselor.User.Roles = append(servicesCounselor.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeServicesCounselor,
 	})

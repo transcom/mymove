@@ -9,10 +9,12 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/factory"
 	customersupportremarksop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	remarksservice "github.com/transcom/mymove/pkg/services/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -25,7 +27,7 @@ func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
 
 		fetcher := remarksservice.NewCustomerSupportRemarks()
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		expectedCustomerSupportRemark := testdatagen.MakeCustomerSupportRemark(suite.DB(), testdatagen.Assertions{
 			CustomerSupportRemark: models.CustomerSupportRemark{
 				Content:      "This is a customer support remark.",
@@ -91,7 +93,7 @@ func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
 func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 	suite.Run("Successful POST", func() {
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		handlerConfig := suite.HandlerConfig()
 
 		creator := &mocks.CustomerSupportRemarksCreator{}
@@ -191,7 +193,7 @@ func (suite *HandlerSuite) TestUpdateCustomerSupportRemarksHandler() {
 
 		updater := mocks.CustomerSupportRemarkUpdater{}
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		originalRemark := testdatagen.MakeCustomerSupportRemark(suite.DB(), testdatagen.Assertions{
 			CustomerSupportRemark: models.CustomerSupportRemark{
 				Content:      "This is a customer support remark.",

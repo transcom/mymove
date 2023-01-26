@@ -3,7 +3,9 @@ package evaluationreport
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -15,7 +17,7 @@ func (suite *EvaluationReportSuite) TestEvaluationReportCreator() {
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		report := &models.EvaluationReport{ShipmentID: &shipment.ID, Type: models.EvaluationReportTypeShipment, OfficeUserID: officeUser.ID}
 		createdEvaluationReport, err := creator.CreateEvaluationReport(suite.AppContextForTest(), report, move.Locator)
 
@@ -34,7 +36,7 @@ func (suite *EvaluationReportSuite) TestEvaluationReportCreator() {
 
 	suite.Run("Shipment evaluation report requires valid shipmnet", func() {
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		badID := uuid.Must(uuid.NewV4())
 		report := &models.EvaluationReport{ShipmentID: &badID, Type: models.EvaluationReportTypeShipment, OfficeUserID: officeUser.ID}
