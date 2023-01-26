@@ -2805,6 +2805,47 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/ppm-documents-fetcher": {
+      "get": {
+        "description": "Retrieves all of the documents and associated uploads for each ppm document type connected to a PPM shipment. This\nexcludes any deleted PPM documents.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Gets all the PPM documents for a PPM shipment",
+        "operationId": "getPPMDocuments",
+        "responses": {
+          "200": {
+            "description": "All PPM documents and associated uploads for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMDocumentsFetcher"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
@@ -6888,6 +6929,23 @@ func init() {
       "x-nullable": true,
       "x-omitempty": false
     },
+    "PPMDocumentsFetcher": {
+      "description": "A personally procured move documents associated with a ppm and includes weight ticket, progear weight ticket, and moving expenses documents.",
+      "type": "object",
+      "properties": {
+        "MovingExpenses": {
+          "$ref": "#/definitions/ProGearWeightTickets"
+        },
+        "ProGearWeightTickets": {
+          "$ref": "#/definitions/ProGearWeightTickets"
+        },
+        "WeightTickets": {
+          "$ref": "#/definitions/WeightTickets"
+        }
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service member moves themselves.",
       "required": [
@@ -7550,6 +7608,14 @@ func init() {
           "x-omitempty": false
         }
       }
+    },
+    "ProGearWeightTickets": {
+      "description": "All progear weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProGearWeightTicket"
+      },
+      "x-omitempty": false
     },
     "ProofOfServiceDoc": {
       "properties": {
@@ -12817,6 +12883,64 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/ppm-documents-fetcher": {
+      "get": {
+        "description": "Retrieves all of the documents and associated uploads for each ppm document type connected to a PPM shipment. This\nexcludes any deleted PPM documents.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Gets all the PPM documents for a PPM shipment",
+        "operationId": "getPPMDocuments",
+        "responses": {
+          "200": {
+            "description": "All PPM documents and associated uploads for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMDocumentsFetcher"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
@@ -17273,6 +17397,23 @@ func init() {
       "x-nullable": true,
       "x-omitempty": false
     },
+    "PPMDocumentsFetcher": {
+      "description": "A personally procured move documents associated with a ppm and includes weight ticket, progear weight ticket, and moving expenses documents.",
+      "type": "object",
+      "properties": {
+        "MovingExpenses": {
+          "$ref": "#/definitions/ProGearWeightTickets"
+        },
+        "ProGearWeightTickets": {
+          "$ref": "#/definitions/ProGearWeightTickets"
+        },
+        "WeightTickets": {
+          "$ref": "#/definitions/WeightTickets"
+        }
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service member moves themselves.",
       "required": [
@@ -17936,6 +18077,14 @@ func init() {
           "x-omitempty": false
         }
       }
+    },
+    "ProGearWeightTickets": {
+      "description": "All progear weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProGearWeightTicket"
+      },
+      "x-omitempty": false
     },
     "ProofOfServiceDoc": {
       "properties": {

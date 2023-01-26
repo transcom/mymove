@@ -153,6 +153,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderGetOrderHandler: order.GetOrderHandlerFunc(func(params order.GetOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.GetOrder has not yet been implemented")
 		}),
+		PpmGetPPMDocumentsHandler: ppm.GetPPMDocumentsHandlerFunc(func(params ppm.GetPPMDocumentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.GetPPMDocuments has not yet been implemented")
+		}),
 		PwsViolationsGetPWSViolationsHandler: pws_violations.GetPWSViolationsHandlerFunc(func(params pws_violations.GetPWSViolationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation pws_violations.GetPWSViolations has not yet been implemented")
 		}),
@@ -376,6 +379,8 @@ type MymoveAPI struct {
 	QueuesGetMovesQueueHandler queues.GetMovesQueueHandler
 	// OrderGetOrderHandler sets the operation handler for the get order operation
 	OrderGetOrderHandler order.GetOrderHandler
+	// PpmGetPPMDocumentsHandler sets the operation handler for the get p p m documents operation
+	PpmGetPPMDocumentsHandler ppm.GetPPMDocumentsHandler
 	// PwsViolationsGetPWSViolationsHandler sets the operation handler for the get p w s violations operation
 	PwsViolationsGetPWSViolationsHandler pws_violations.GetPWSViolationsHandler
 	// PaymentRequestsGetPaymentRequestHandler sets the operation handler for the get payment request operation
@@ -625,6 +630,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrderGetOrderHandler == nil {
 		unregistered = append(unregistered, "order.GetOrderHandler")
+	}
+	if o.PpmGetPPMDocumentsHandler == nil {
+		unregistered = append(unregistered, "ppm.GetPPMDocumentsHandler")
 	}
 	if o.PwsViolationsGetPWSViolationsHandler == nil {
 		unregistered = append(unregistered, "pws_violations.GetPWSViolationsHandler")
@@ -956,6 +964,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/orders/{orderID}"] = order.NewGetOrder(o.context, o.OrderGetOrderHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/ppm-documents-fetcher"] = ppm.NewGetPPMDocuments(o.context, o.PpmGetPPMDocumentsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

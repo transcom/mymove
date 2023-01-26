@@ -1,0 +1,11 @@
+description: A personally procured move documents associated with a ppm and includes weight ticket, progear weight ticket, and moving expenses documents.
+x-nullable: true
+x-omitempty: false
+type: object
+properties:
+  WeightTickets:
+    $ref: 'WeightTickets.yaml'
+  ProGearWeightTickets:
+    $ref: 'ProGearWeightTickets.yaml'
+  MovingExpenses:
+    $ref: 'ProGearWeightTickets.yaml'
