@@ -29,7 +29,6 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
           id: 'departureDate',
           label: 'Departure date:',
           value: formatCustomerDate(ppmShipment.actualMoveDate),
-          hideLabel: true,
         },
         { id: 'startingZIP', label: 'Starting ZIP:', value: ppmShipment.actualPickupPostalCode },
         { id: 'endingZIP', label: 'Ending ZIP:', value: ppmShipment.actualDestinationPostalCode },
