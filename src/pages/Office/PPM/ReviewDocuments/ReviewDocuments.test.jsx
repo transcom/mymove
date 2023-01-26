@@ -209,6 +209,20 @@ describe('ReviewDocuments', () => {
       await userEvent.click(getByTestId('closeSidebar'));
       expect(mockPush).toHaveBeenCalled();
     });
+    it('shows an error if submissions fails', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+      mockPatchWeightTicket.mockRejectedValueOnce('fatal error');
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+      const { getByRole, getByLabelText, queryByText } = render(<ReviewDocuments {...requiredProps} />);
+      await waitFor(() => {
+        expect(getByRole('button', { name: 'Continue' })).toBeInTheDocument();
+      });
+      await userEvent.type(getByRole('textbox', { name: 'Empty weight' }), '14500');
+      await userEvent.type(getByRole('textbox', { name: 'Full weight' }), '18500');
+      await userEvent.click(getByLabelText('Accept'));
+      await userEvent.click(getByRole('button', { name: 'Continue' }));
+      expect(queryByText('There was an error submitting the form. Please try again later.')).toBeInTheDocument();
+    });
   });
   describe('with multiple document sets loaded', () => {
     it('renders and handles the Accept button', async () => {
