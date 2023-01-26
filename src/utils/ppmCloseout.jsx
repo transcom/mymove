@@ -68,6 +68,11 @@ export const formatWeightTicketItems = (weightTickets, editPath, editParams, han
         label: 'Trip weight:',
         value: formatWeight(weightTicket.fullWeight - weightTicket.emptyWeight),
       },
+      {
+        id: `trailer-${i}`,
+        label: 'Trailer:',
+        value: weightTicket.ownsTrailer ? 'Yes' : 'No',
+      },
     ],
     onDelete: () => handleDelete('weightTicket', weightTicket.id, weightTicket.eTag),
     renderEditLink: () => (
