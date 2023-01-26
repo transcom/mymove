@@ -9,6 +9,15 @@ const base = require('@playwright/test');
 const { BaseTestPage } = require('./baseTest');
 
 /**
+ * devlocal auth user types
+ */
+export const TOOOfficeUserType = 'TOO office';
+export const TIOOfficeUserType = 'TIO office';
+export const QAECSROfficeUserType = 'QAE/CSR office';
+export const ServicesCounselorOfficeUserType = 'Services Counselor office';
+export const PrimeSimulatorUserType = 'Prime Simulator';
+
+/**
  * office test fixture for playwright
  * See https://playwright.dev/docs/test-fixtures
  * @extends BaseTestPage
@@ -42,13 +51,24 @@ export class OfficePage extends BaseTestPage {
   }
 
   /**
+   * Sign in as existing office user with devlocal
+   *
+   * @param {string} email
+   */
+  async signInAsExistingOfficeUser(email) {
+    await this.page.goto('/devlocal-auth/login');
+    await this.page.locator('input[name=email]').fill(email);
+    await this.page.locator('p', { hasText: 'User Email' }).locator('button').click();
+  }
+
+  /**
    * Use devlocal auth to sign in as new Service Counselor
    */
   async signInAsNewServicesCounselorUser() {
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       this.page.waitForNavigation(),
-      this.signIn.office.newServicesCounselorUser(),
+      await this.signInAsNewUser(ServicesCounselorOfficeUserType),
     ]);
     await this.waitForLoading();
   }
@@ -60,7 +80,7 @@ export class OfficePage extends BaseTestPage {
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       this.page.waitForNavigation(),
-      this.signIn.office.newTIOUser(),
+      await this.signInAsNewUser(TIOOfficeUserType),
     ]);
     await this.waitForLoading();
   }
@@ -72,7 +92,7 @@ export class OfficePage extends BaseTestPage {
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       this.page.waitForNavigation(),
-      this.signIn.office.newTOOUser(),
+      await this.signInAsNewUser(TOOOfficeUserType),
     ]);
     await this.waitForLoading();
   }
@@ -85,7 +105,7 @@ export class OfficePage extends BaseTestPage {
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       this.page.waitForNavigation(),
-      this.signIn.office.existingOfficeUser(user.login_gov_email),
+      this.signInAsExistingOfficeUser(user.login_gov_email),
     ]);
     await this.waitForLoading();
   }
@@ -97,7 +117,7 @@ export class OfficePage extends BaseTestPage {
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       this.page.waitForNavigation(),
-      this.signIn.office.newPrimeSimulatorUser(),
+      await this.signInAsNewUser(PrimeSimulatorUserType),
     ]);
     await this.waitForLoading();
   }
@@ -109,7 +129,7 @@ export class OfficePage extends BaseTestPage {
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       this.page.waitForNavigation(),
-      this.signIn.office.newQAECSRUser(),
+      await this.signInAsNewUser(QAECSROfficeUserType),
     ]);
     await this.waitForLoading();
   }

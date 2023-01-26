@@ -18,7 +18,7 @@ async function setFeatureFlag(page, flagVal, url = '/queues/new') {
 test('orders entry will accept orders information', async ({ page, customerPage }) => {
   const user = await customerPage.testHarness.buildNeedsOrdersUser();
   const userId = user.id;
-  await customerPage.signIn.customer.existingCustomer(userId);
+  await customerPage.signInAsExistingCustomer(userId);
 
   await expect(page.getByText('Next step: Add your orders')).toBeVisible();
   await expect(page.getByText('Profile complete')).toBeVisible();

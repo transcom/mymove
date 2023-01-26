@@ -9,6 +9,11 @@ const base = require('@playwright/test');
 const { BaseTestPage } = require('./baseTest');
 
 /**
+ * devlocal auth user types
+ */
+export const AdminUserType = 'admin';
+
+/**
  * AdminPage
  * @extends BaseTestPage
  */
@@ -36,7 +41,7 @@ class AdminPage extends BaseTestPage {
    * Create a new admin user and sign in as them
    */
   async signInAsNewAdminUser() {
-    await this.signIn.admin.newAdminUser();
+    await this.signInAsNewUser(AdminUserType);
     await this.waitForAdminPageToLoad();
   }
 
@@ -70,5 +75,8 @@ const adminFixtures = {
   },
 };
 
-exports.test = base.test.extend(adminFixtures);
-exports.expect = base.expect;
+export const test = base.test.extend(adminFixtures);
+
+export const { expect } = base;
+
+export default test;

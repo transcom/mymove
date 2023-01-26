@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
+import { v4 as uuidv4 } from 'uuid';
 import { useField } from 'formik';
 import { IMaskInput } from 'react-imask';
 import { FormGroup, Label } from '@trussworks/react-uswds';
@@ -31,6 +32,7 @@ const MaskedTextField = ({
   children,
   type,
   inputTestId,
+  description,
   optional,
   errorMessage,
   error,
@@ -43,12 +45,23 @@ const MaskedTextField = ({
   const showError = (metaProps.touched && !!metaProps.error) || error;
   const showWarning = !showError && warning;
   const { value } = field;
+  const descriptionRef = useRef(uuidv4());
   return (
     <FormGroup className={classnames(!!warning && !showError && `warning`, formGroupClassName)} error={showError}>
-      <div className="labelWrapper">
+      <div
+        className={classnames({
+          labelWrapper: true,
+          [styles.hasDescription]: description,
+        })}
+      >
         <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
           {label}
         </Label>
+        {description && (
+          <div className={styles.description} id={`description_${descriptionRef.current}`}>
+            {description}
+          </div>
+        )}
         {optional && <OptionalTag />}
       </div>
       {showError && (
@@ -86,6 +99,7 @@ const MaskedTextField = ({
             }}
             onBlur={field.onBlur}
             disabled={isDisabled}
+            aria-describedby={description && `description_${descriptionRef.current}`}
             {...props}
           />
           {suffix && <div className="suffix">{suffix}</div>}
@@ -139,6 +153,7 @@ MaskedTextField.propTypes = {
   validate: PropTypes.func,
   warning: PropTypes.string,
   inputTestId: PropTypes.string,
+  description: PropTypes.string,
   optional: PropTypes.bool,
   error: PropTypes.bool,
   errorMessage: PropTypes.string,
@@ -165,6 +180,7 @@ MaskedTextField.defaultProps = {
   validate: undefined,
   warning: '',
   inputTestId: '',
+  description: '',
   optional: false,
   error: false,
   errorMessage: '',
