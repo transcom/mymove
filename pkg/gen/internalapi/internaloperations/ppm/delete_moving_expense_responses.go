@@ -83,6 +83,51 @@ func (o *DeleteMovingExpenseBadRequest) WriteResponse(rw http.ResponseWriter, pr
 	}
 }
 
+// DeleteMovingExpenseUnauthorizedCode is the HTTP code returned for type DeleteMovingExpenseUnauthorized
+const DeleteMovingExpenseUnauthorizedCode int = 401
+
+/*
+DeleteMovingExpenseUnauthorized The request was denied.
+
+swagger:response deleteMovingExpenseUnauthorized
+*/
+type DeleteMovingExpenseUnauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ClientError `json:"body,omitempty"`
+}
+
+// NewDeleteMovingExpenseUnauthorized creates DeleteMovingExpenseUnauthorized with default headers values
+func NewDeleteMovingExpenseUnauthorized() *DeleteMovingExpenseUnauthorized {
+
+	return &DeleteMovingExpenseUnauthorized{}
+}
+
+// WithPayload adds the payload to the delete moving expense unauthorized response
+func (o *DeleteMovingExpenseUnauthorized) WithPayload(payload *internalmessages.ClientError) *DeleteMovingExpenseUnauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the delete moving expense unauthorized response
+func (o *DeleteMovingExpenseUnauthorized) SetPayload(payload *internalmessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *DeleteMovingExpenseUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(401)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // DeleteMovingExpenseForbiddenCode is the HTTP code returned for type DeleteMovingExpenseForbidden
 const DeleteMovingExpenseForbiddenCode int = 403
 

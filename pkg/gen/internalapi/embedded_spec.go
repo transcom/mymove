@@ -2341,6 +2341,9 @@ func init() {
           "400": {
             "$ref": "#/responses/InvalidRequest"
           },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
           "403": {
             "$ref": "#/responses/PermissionDenied"
           },
@@ -10618,6 +10621,12 @@ func init() {
           },
           "400": {
             "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }

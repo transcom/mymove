@@ -86,6 +86,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 				weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightTicket.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
 			}
 
+			shipments[i].PPMShipment.MovingExpenses = shipments[i].PPMShipment.MovingExpenses.FilterDeleted()
 			for j := range shipments[i].PPMShipment.MovingExpenses {
 				movingExpense := &shipments[i].PPMShipment.MovingExpenses[j]
 
