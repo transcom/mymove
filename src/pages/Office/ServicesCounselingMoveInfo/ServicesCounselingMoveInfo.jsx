@@ -88,6 +88,10 @@ const ServicesCounselingMoveInfo = () => {
     matchPath(pathname, {
       path: servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH,
       exact: true,
+    }) ||
+    matchPath(pathname, {
+      path: servicesCounselingRoutes.SHIPMENT_REVIEW_PATH,
+      exact: true,
     });
 
   if (isLoading) return <LoadingPlaceholder />;
