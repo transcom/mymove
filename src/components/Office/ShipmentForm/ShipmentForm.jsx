@@ -203,7 +203,7 @@ const ShipmentForm = (props) => {
                 moveCode,
                 shipmentId: newMTOShipment.id,
               });
-              if (formValues.closeoutOffice) {
+              if (formValues.closeoutOffice.id) {
                 mutateMoveCloseoutOffice({
                   locator: moveCode,
                   ifMatchETag: move.eTag,
@@ -234,7 +234,7 @@ const ShipmentForm = (props) => {
 
       submitHandler(updatePPMPayload, {
         onSuccess: () => {
-          if (!isAdvancePage && formValues.closeoutOffice) {
+          if (!isAdvancePage && formValues.closeoutOffice.id) {
             // if we have a closeout office, we must be on the first page of creating a PPM shipment,
             // as a SC so we should update the closeout office and redirect to the advance page
             mutateMoveCloseoutOffice(
