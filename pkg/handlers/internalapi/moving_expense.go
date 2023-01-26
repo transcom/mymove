@@ -163,3 +163,37 @@ func (h UpdateMovingExpenseHandler) Handle(params movingexpenseops.UpdateMovingE
 			return movingexpenseops.NewUpdateMovingExpenseOK().WithPayload(returnPayload), nil
 		})
 }
+
+// DeleteMovingExpenseHandler
+type DeleteMovingExpenseHandler struct {
+	handlers.HandlerConfig
+	movingExpenseDeleter services.MovingExpenseDeleter
+}
+
+// Handle deletes a moving expense
+func (h DeleteMovingExpenseHandler) Handle(params movingexpenseops.DeleteMovingExpenseParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			movingExpenseID := uuid.FromStringOrNil(params.MovingExpenseID.String())
+
+			err := h.movingExpenseDeleter.DeleteMovingExpense(appCtx, movingExpenseID)
+			if err != nil {
+				appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(err))
+
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return movingexpenseops.NewDeleteMovingExpenseNotFound(), err
+				case apperror.ConflictError:
+					return movingexpenseops.NewDeleteMovingExpenseConflict(), err
+				case apperror.ForbiddenError:
+					return movingexpenseops.NewDeleteMovingExpenseForbidden(), err
+				case apperror.UnprocessableEntityError:
+					return movingexpenseops.NewDeleteMovingExpenseUnprocessableEntity(), err
+				default:
+					return movingexpenseops.NewDeleteMovingExpenseInternalServerError(), err
+				}
+			}
+
+			return movingexpenseops.NewDeleteMovingExpenseNoContent(), nil
+		})
+}

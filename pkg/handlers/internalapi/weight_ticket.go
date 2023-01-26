@@ -141,3 +141,37 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 			return weightticketops.NewUpdateWeightTicketOK().WithPayload(returnPayload), nil
 		})
 }
+
+// DeleteWeightTicketHandler
+type DeleteWeightTicketHandler struct {
+	handlers.HandlerConfig
+	weightTicketDeleter services.WeightTicketDeleter
+}
+
+// Handle deletes a weight ticket
+func (h DeleteWeightTicketHandler) Handle(params weightticketops.DeleteWeightTicketParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			weightTicketID := uuid.FromStringOrNil(params.WeightTicketID.String())
+
+			err := h.weightTicketDeleter.DeleteWeightTicket(appCtx, weightTicketID)
+			if err != nil {
+				appCtx.Logger().Error("internalapi.DeleteWeightTicketHandler", zap.Error(err))
+
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return weightticketops.NewDeleteWeightTicketNotFound(), err
+				case apperror.ConflictError:
+					return weightticketops.NewDeleteWeightTicketConflict(), err
+				case apperror.ForbiddenError:
+					return weightticketops.NewDeleteWeightTicketForbidden(), err
+				case apperror.UnprocessableEntityError:
+					return weightticketops.NewDeleteWeightTicketUnprocessableEntity(), err
+				default:
+					return weightticketops.NewDeleteWeightTicketInternalServerError(), err
+				}
+			}
+
+			return weightticketops.NewDeleteWeightTicketNoContent(), nil
+		})
+}

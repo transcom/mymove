@@ -135,3 +135,37 @@ func (h UpdateProGearWeightTicketHandler) Handle(params progearops.UpdateProGear
 			return progearops.NewUpdateProGearWeightTicketCreated().WithPayload(returnPayload), nil
 		})
 }
+
+// DeleteProGearWeightTicketHandler
+type DeleteProGearWeightTicketHandler struct {
+	handlers.HandlerConfig
+	progearDeleter services.ProgearWeightTicketDeleter
+}
+
+// Handle deletes a pro-gear weight ticket
+func (h DeleteProGearWeightTicketHandler) Handle(params progearops.DeleteProGearWeightTicketParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			progearWeightTicketID := uuid.FromStringOrNil(params.ProGearWeightTicketID.String())
+
+			err := h.progearDeleter.DeleteProgearWeightTicket(appCtx, progearWeightTicketID)
+			if err != nil {
+				appCtx.Logger().Error("internalapi.DeleteProgearWeightTicketHandler", zap.Error(err))
+
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return progearops.NewDeleteProGearWeightTicketNotFound(), err
+				case apperror.ConflictError:
+					return progearops.NewDeleteProGearWeightTicketConflict(), err
+				case apperror.ForbiddenError:
+					return progearops.NewDeleteProGearWeightTicketForbidden(), err
+				case apperror.UnprocessableEntityError:
+					return progearops.NewDeleteProGearWeightTicketUnprocessableEntity(), err
+				default:
+					return progearops.NewDeleteProGearWeightTicketInternalServerError(), err
+				}
+			}
+
+			return progearops.NewDeleteProGearWeightTicketNoContent(), nil
+		})
+}
