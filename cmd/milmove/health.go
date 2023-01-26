@@ -5,49 +5,18 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/logging"
 )
-
-var logURL string
-
-var logMessages []string
 
 // a shared httpClient
 var httpClient = &http.Client{
 	Timeout: time.Duration(5 * time.Second),
-}
-
-// sendLog POSTs the `msg` to the the logURL endpoint, which is only
-// available in the healthServer configured in cmd/milmove/serve.go
-//
-// The stdout/stderr logs from the health check run in AWS are not
-// captured or available anywhere, so for debugging why the health
-// check failed, having a logs endpoint is super helpful
-func sendLog(msg string) {
-	if logURL != "" {
-		rdr := strings.NewReader(msg)
-		// it doesn't matter if this succeeds or fails, we are doing
-		// best effort delivery of the log
-		_, _ = httpClient.Post(logURL, "text/plain", rdr)
-	}
-}
-
-// reportError sends the `msg` to the logURL and writes to stderr so
-// that the health check fails
-func reportError(msg string) {
-	sendLog(msg)
-	// The docs for the AWS health check says
-	//
-	// An exit code of 0, with no stderr output, indicates
-	// success, and a non-zero exit code indicates failure
-	//
-	// thus, print to stderr when the health check fails
-	fmt.Fprintln(os.Stderr, msg)
 }
 
 // healthCheck does an HTTP GET on the provided `url`. Any response
@@ -100,13 +69,6 @@ func healthCheck(url string) error {
 //
 // We could have the health check client ignore the ssl certificate,
 // connecting insecurely, but then we would need to get RA approval.
-//
-// Finally, when the health check runs, its logs are not captured
-// anywhere. If the health check fails, it's very difficult to
-// troubleshoot. Having a separate health server means we can easily
-// have an unauthenticated logs endpoint that the health check client
-// can send logs to. It is not ideal or guaranteed to work, but it is
-// better than nothing.
 func healthFunction(cmd *cobra.Command, args []string) error {
 	// Prepare to parse command line options / environment variables
 	// using the viper library
@@ -114,10 +76,30 @@ func healthFunction(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	zapConfig := logging.BuildZapConfig(logging.WithEnvironment(v.GetString(cli.LoggingEnvFlag)),
+		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
+		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),
+	)
+	// write to stdout of the server process so log is captured
+	// https://github.com/aws/containers-roadmap/issues/1114#issuecomment-1260905963
+	zapConfig.OutputPaths = []string{"/proc/1/fd/1"}
+	logger, err := zapConfig.Build()
+	if err != nil {
+		lout, lerr := os.OpenFile("/proc/1/fd/1", os.O_WRONLY|os.O_APPEND, 0644)
+		if lerr == nil {
+			// try to write something
+			_, _ = fmt.Fprintln(lout, "{\"level\":\"error\",\"msg\":\"Health Check logger failed to initialize\"}")
+			// this might produce bogus JSON
+			// again ignore errors
+			_, _ = fmt.Fprintln(lout, "{\"level\":\"error\",\"msg\":\"Health Check: "+lerr.Error()+"\"}")
+		}
+		return err
+	}
 
 	healthEnabled := v.GetBool(cli.HealthListenerFlag)
 	if !healthEnabled {
 		err = errors.New("Health Check Listener Not Enabled")
+		logger.Error("Health Check failed, listener not enabled", zap.Any(cli.HealthListenerFlag, healthEnabled))
 		fmt.Fprintln(os.Stderr, err)
 		return err
 	}
@@ -127,28 +109,21 @@ func healthFunction(cmd *cobra.Command, args []string) error {
 		// if this function panics, try to log why before reporting
 		// the error
 		if r := recover(); r != nil {
-			msg := fmt.Sprintf("health recovered from panic: %v\n", r)
-			reportError(msg)
+			msg := fmt.Sprintf("Health Check recovered from panic: %v\n", r)
+			logger.Error(msg)
 		}
-
-		// send all log messages before exit if possible
-		if len(logMessages) > 0 {
-			for i := range logMessages {
-				reportError(logMessages[i])
-			}
-		}
+		// try to sync any logs to the output file, ignore errors
+		_ = logger.Sync()
 	}()
 
 	// configure the logURL based on the configured HealthPort
 	port := v.GetInt(cli.HealthPortFlag)
-	logURL = fmt.Sprintf("http://localhost:%d/logs", port)
-
 	// configure the health check endpoint URL based on the configured HealthPort
 	url := fmt.Sprintf("http://localhost:%d/health", port)
 
 	err = healthCheck(url)
 	if err != nil {
-		logMessages = append(logMessages, err.Error())
+		logger.Error("Health Check failed", zap.Any("url", url), zap.Error(err))
 		return err
 	}
 
