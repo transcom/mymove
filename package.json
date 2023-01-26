@@ -81,7 +81,6 @@
   },
   "resolutions": {
     "loader-utils": "^2.0.3",
-    "babel-loader": "~8.1.0",
     "dns-packet": "^5.2.2",
     "kind-of": "^6.0.2",
     "selfsigned": "^1.10.8",
@@ -89,7 +88,6 @@
     "url-parse": "^1.5.1",
     "y18n": "^5.0.5",
     "eslint-plugin-react": "^7.28",
-    "**/ua-parser-js": "0.7.28",
     "node-fetch": "^2.6.7",
     "minimist": "^1.2.6",
     "json5": "^2.2.2"
