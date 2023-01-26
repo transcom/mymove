@@ -6265,7 +6265,8 @@ func createTXOUSMC(appCtx appcontext.AppContext) {
 			},
 		},
 		{
-			Model: transportationOfficeUSMC,
+			Model:    transportationOfficeUSMC,
+			LinkOnly: true,
 		},
 	}, nil)
 }
@@ -6372,7 +6373,8 @@ func createTXOServicesUSMCCounselor(appCtx appcontext.AppContext) {
 			},
 		},
 		{
-			Model: transportationOfficeUSMC,
+			Model:    transportationOfficeUSMC,
+			LinkOnly: true,
 		},
 	}, nil)
 }
