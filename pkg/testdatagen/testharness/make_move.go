@@ -118,6 +118,8 @@ func MakeSpouseProGearMove(db *pop.Connection) models.Move {
 		ServiceMember: models.ServiceMember{
 			UserID:        u.ID,
 			PersonalEmail: models.StringPointer(userInfo.email),
+			FirstName:     &userInfo.firstName,
+			LastName:      &userInfo.lastName,
 		},
 		Order: models.Order{
 			HasDependents:    true,
