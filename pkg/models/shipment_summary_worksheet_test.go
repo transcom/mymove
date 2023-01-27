@@ -26,7 +26,7 @@ import (
 func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	//advanceID, _ := uuid.NewV4()
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	yuma := factory.FetchOrBuildDutyLocation(suite.DB())
+	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
 	moveType := models.SelectedMoveTypeHHGPPM
@@ -125,7 +125,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetWithErrorNoMove() {
 	//advanceID, _ := uuid.NewV4()
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	yuma := factory.FetchOrBuildDutyLocation(suite.DB())
+	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
 	moveType := models.SelectedMoveTypeHHGPPM
@@ -184,7 +184,7 @@ func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() 
 
 func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	yuma := factory.FetchOrBuildDutyLocation(suite.DB())
+	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
 	moveType := models.SelectedMoveTypePPM
@@ -281,7 +281,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 }
 
 func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
-	yuma := factory.FetchOrBuildDutyLocation(suite.DB())
+	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	wtgEntitlements := models.SSWMaxWeightEntitlement{
 		Entitlement:   15000,

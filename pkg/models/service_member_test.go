@@ -169,7 +169,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 
 		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-		dutyLocation := factory.FetchOrBuildDutyLocation(suite.DB())
+		dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 		dutyLocation2 := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 		issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 		reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)

@@ -234,10 +234,13 @@ func isUnique(customs []Customization) error {
 }
 
 // findCustomWithIdx is a helper function to find a customization of a specific type and its index
+// Returns:
+//   - index of the found customization
+//   - pointer to the customization
 func findCustomWithIdx(customs []Customization, customType CustomType) (int, *Customization) {
-	for i, custom := range customs {
-		if custom.Type != nil && *custom.Type == customType {
-			return i, &custom
+	for i := 0; i < len(customs); i++ {
+		if customs[i].Type != nil && *customs[i].Type == customType {
+			return i, &customs[i]
 		}
 	}
 	return -1, nil

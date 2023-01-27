@@ -95,7 +95,8 @@ func FetchDutyLocation(tx *pop.Connection, id uuid.UUID) (DutyLocation, error) {
 // FetchDutyLocationByName returns a DutyLocation for a given unique name
 func FetchDutyLocationByName(tx *pop.Connection, name string) (DutyLocation, error) {
 	var dutyLocation DutyLocation
-	err := tx.Where("name = ?", name).Eager("Address").First(&dutyLocation)
+	err := tx.Where("name = ?", name).Eager("Address", "TransportationOffice",
+		"TransportationOffice.Address", "TransportationOffice.PhoneLines").First(&dutyLocation)
 	return dutyLocation, err
 }
 

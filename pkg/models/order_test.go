@@ -241,7 +241,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 func (suite *ModelSuite) TestFetchOrderNotForUser() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyLocation := factory.FetchOrBuildDutyLocation(suite.DB())
+	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -286,7 +286,7 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 func (suite *ModelSuite) TestOrderStateMachine() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyLocation := factory.FetchOrBuildDutyLocation(suite.DB())
+	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION

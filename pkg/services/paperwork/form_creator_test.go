@@ -30,7 +30,7 @@ import (
 
 func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.ShipmentSummaryWorksheetPage1Values {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	yuma := factory.FetchOrBuildDutyLocation(suite.DB())
+	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
 	moveType := models.SelectedMoveTypeHHGPPM

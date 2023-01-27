@@ -111,7 +111,7 @@ func (suite *ModelSuite) Test_DutyLocationValidations() {
 }
 func (suite *ModelSuite) Test_FetchDutyLocationTransportationOffice() {
 	t := suite.T()
-	dutyLocation := factory.FetchOrBuildDutyLocation(suite.DB())
+	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 
 	office, err := models.FetchDutyLocationTransportationOffice(suite.DB(), dutyLocation.ID)
 	if err != nil {

@@ -135,7 +135,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 			},
 		})
 
-		currentDutyLocation := factory.FetchOrBuildDutyLocation(suite.DB())
+		currentDutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 		return ppm, order, currentDutyLocation
 	}
 
@@ -246,7 +246,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 				DestinationPostalCode: &destinationPostalCode,
 			},
 		})
-		currentDutyLocation := factory.FetchOrBuildDutyLocation(suite.DB())
+		currentDutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 		shipmentSummaryFormParams := models.ShipmentSummaryFormData{
 			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
 			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},

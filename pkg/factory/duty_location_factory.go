@@ -9,6 +9,22 @@ import (
 )
 
 // BuildDutyLocation creates a single DutyLocation
+// Also creates:
+//   - Address of the DL (use Addresses.DutyLocationAddress)
+//   - TransportationOffice
+//   - Address of the TO (use Addresses.DutyLocationTOAddress)
+//
+// Params:
+//   - customs is a slice that will be modified by the factory
+//   - db can be set to nil to create a stubbed model that is not stored in DB.
+//
+// Example:
+//
+//	dutyLocation := BuildDutyLocation(suite.DB(), []Customization{
+//	       {Model: customDutyLocation},
+//	       {Model: customDutyLocationAddress, Type: &Addresses.DutyLocationAddress},
+//	       {Model: customTransportationOfficeAddress, Type: &Addresses.DutyLocationTOAddress},
+//	       }, nil)
 func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Trait) models.DutyLocation {
 	customs = setupCustomizations(customs, traits)
 
@@ -21,26 +37,26 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 		}
 	}
 
-	// Find/create the address Model
-	var address models.Address
+	// Find/create the DutyLocationAddress
+	var dlAddress models.Address
 	var tempAddressCustoms = customs
 	result := findValidCustomization(customs, Addresses.DutyLocationAddress)
 	if result != nil {
-		address = result.Model.(models.Address)
+		dlAddress = result.Model.(models.Address)
 		tempAddressCustoms = convertCustomizationInList(tempAddressCustoms, Addresses.DutyLocationAddress, Address)
 	}
-	address = BuildAddress(db, tempAddressCustoms, []Trait{GetTraitAddress3})
+	dlAddress = BuildAddress(db, tempAddressCustoms, []Trait{GetTraitAddress3})
 
 	// Find/create the transportationOffice Model
 	var transportationOffice models.TransportationOffice
 	var tempTOAddressCustoms = customs
 	result = findValidCustomization(customs, TransportationOffice)
-	addressToResult := findValidCustomization(customs, Addresses.DutyLocationTOAddress)
+	dltoAddress := findValidCustomization(customs, Addresses.DutyLocationTOAddress)
 	if result != nil {
 		transportationOffice = result.Model.(models.TransportationOffice)
 	}
 
-	if addressToResult != nil {
+	if dltoAddress != nil {
 		tempTOAddressCustoms = convertCustomizationInList(tempTOAddressCustoms, Addresses.DutyLocationTOAddress, Address)
 	}
 
@@ -65,8 +81,8 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 	location := models.DutyLocation{
 		Name:                   makeRandomString(10),
 		Affiliation:            &affiliation,
-		AddressID:              address.ID,
-		Address:                address,
+		AddressID:              dlAddress.ID,
+		Address:                dlAddress,
 		TransportationOfficeID: &transportationOffice.ID,
 		TransportationOffice:   transportationOffice,
 	}
@@ -83,8 +99,9 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 
 }
 
-// FetchOrBuildDutyLocation returns a default duty location - Yuma AFB
-func FetchOrBuildDutyLocation(db *pop.Connection) models.DutyLocation {
+// FetchOrBuildCurrentDutyLocation returns a default duty location
+// It always fetches or builds a Yuma AFB Duty Location
+func FetchOrBuildCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
 	// Check if Yuma Duty Location exists, if not, create it.
 	defaultLocation, err := models.FetchDutyLocationByName(db, "Yuma AFB")
 	if err != nil {
@@ -100,16 +117,18 @@ func FetchOrBuildDutyLocation(db *pop.Connection) models.DutyLocation {
 	return defaultLocation
 }
 
-// FetchOrBuildOrdersDutyLocation returns a default duty location - Fort Gordon
+// FetchOrBuildOrdersDutyLocation returns a default orders duty location
+// It always fetches or builds a Fort Gordon duty location
+// It also creates a GA 208 tariff
 func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
+	// Check if we already have a Fort Gordon Duty Location, return it if so
 	fortGordon, err := models.FetchDutyLocationByName(db, "Fort Gordon")
 	if err == nil {
-		fortGordon.TransportationOffice, err = models.FetchDutyLocationTransportationOffice(db, fortGordon.ID)
-		if err == nil {
-			return fortGordon
-		}
+		return fortGordon
 	}
 
+	// If not, build the Fort Gordon Duty location with the associated
+	// address and tariff
 	FetchOrBuildTariff400ngZip3(db, []Customization{
 		{
 			Model: models.Tariff400ngZip3{
@@ -130,6 +149,8 @@ func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
 			},
 		},
 		{
+			// Update the DutyLocationAddress (but not TO address) to Augusta, Georgia
+			Type: &Addresses.DutyLocationAddress,
 			Model: models.Address{
 				City:       "Augusta",
 				State:      "GA",
