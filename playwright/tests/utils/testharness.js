@@ -242,11 +242,19 @@ export class TestHarness {
   }
 
   /**
-   * Use testharness to build submitted move with ppm shipment for SC
+   * Use testharness to build unsubmitted ppm move
    * @returns {Promise<Object>}
    */
   async buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights() {
     return this.buildDefault('UnSubmittedMoveWithPPMShipmentThroughEstimatedWeights');
+  }
+
+  /**
+   * Use testharness to build unsubmitted ppm move
+   * @returns {Promise<Object>}
+   */
+  async buildApprovedMoveWithPPMWithAboutFormComplete() {
+    return this.buildDefault('ApprovedMoveWithPPMWithAboutFormComplete');
   }
 
   /**

@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { expect, test, setMobileViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { expect, test, useMobileViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
 
 test.describe('About Your PPM', () => {
   /** @type {CustomerPpmPage} */
@@ -76,19 +76,22 @@ test.describe('About Your PPM', () => {
     await expect(errorMessage).not.toBeVisible();
   });
 
-  const viewports = ['desktop', 'mobile'];
-
-  viewports.forEach((viewport) => {
-    test.describe(`with viewport ${viewport}`, async () => {
-      if (viewport === 'mobile') {
-        setMobileViewport();
-      }
-      test(`can opt to not receive an advance`, async () => {
-        await customerPpmPage.submitsAdvancePage({ addAdvance: false, isMobile: viewport === 'mobile' });
-      });
-
-      test(`can request an advance`, async () => {
-        await customerPpmPage.submitsAdvancePage({ addAdvance: true, isMobile: viewport === 'mobile' });
+  //
+  // https://playwright.dev/docs/test-parameterize
+  //
+  // use forEach to avoid
+  // https://eslint.org/docs/latest/rules/no-loop-func
+  [true, false].forEach((isMobile) => {
+    const viewportName = isMobile ? 'mobile' : 'desktop';
+    [true, false].forEach((addAdvance) => {
+      const advanceText = addAdvance ? 'request' : 'opt to not receive';
+      test.describe(`with ${viewportName} viewport`, async () => {
+        if (isMobile) {
+          useMobileViewport();
+        }
+        test(`can ${advanceText} an advance`, async () => {
+          await customerPpmPage.submitsAdvancePage({ addAdvance, isMobile });
+        });
       });
     });
   });
