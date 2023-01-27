@@ -192,14 +192,14 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 func SumWeightTickets(ppmShipment, newPPMShipment models.PPMShipment) (originalTotalWeight, newTotalWeight unit.Pound) {
 	if len(ppmShipment.WeightTickets) >= 1 {
 		for _, weightTicket := range ppmShipment.WeightTickets {
-			if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+			if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil && *weightTicket.Status != models.PPMDocumentStatusRejected {
 				originalTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
 			}
 		}
 	}
 	if len(newPPMShipment.WeightTickets) >= 1 {
 		for _, weightTicket := range newPPMShipment.WeightTickets {
-			if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+			if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil && *weightTicket.Status != models.PPMDocumentStatusRejected {
 				newTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
 			}
 		}
