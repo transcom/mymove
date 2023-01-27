@@ -35,7 +35,7 @@ COPY config/tls/dod-sw-ca-54.pem /config/tls/dod-sw-ca-54.pem
 
 # After cert is downloaded it can be converted to a PEM with:
 # `openssl x509 -in DoD-ECA-Root-CA-S23C.cer -outform pem -out DoD-ECA-Root-CA-S23C.pem`
-COPY config/tls/DoD-ECA-Root-CA-S23C.cer /config/tls/DoD-ECA-Root-CA-S23C.cer
+COPY config/tls/DoD-ECA-Root-CA-S23C.pem /config/tls/DoD-ECA-Root-CA-S23C.pem
 
 COPY swagger/* /swagger/
 COPY build /build
