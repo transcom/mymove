@@ -20,6 +20,9 @@ const (
 	MoveMilDoDTLSCertFlag string = "move-mil-dod-tls-cert"
 	// MoveMilDoDTLSKeyFlag is the Move.mil DoD TLS Key Flag
 	MoveMilDoDTLSKeyFlag string = "move-mil-dod-tls-key"
+	// MutualTLSAdditionalCAPackage optionally adds more CAs to the pool of
+	// allowed client cert CAs
+	MutualTLSAdditionalCAPackage string = "mutual-tls-additional-ca-package"
 )
 
 // ErrInvalidPKCS7 is an Invalid PKCS7 error
@@ -39,6 +42,7 @@ func InitCertFlags(flag *pflag.FlagSet) {
 	flag.String(MoveMilDoDCACertFlag, "", "The DoD CA certificate used to sign the move.mil TLS certificate.")
 	flag.String(MoveMilDoDTLSCertFlag, "", "The DoD-signed TLS certificate for various move.mil services.")
 	flag.String(MoveMilDoDTLSKeyFlag, "", "The private key for the DoD-signed TLS certificate for various move.mil services.")
+	flag.StringSlice(MutualTLSAdditionalCAPackage, []string{}, "Additional paths to PKCS#7 CAs to allow for mutual TLS certificates.")
 }
 
 // CheckCert validates Cert command line flags

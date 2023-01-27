@@ -10,11 +10,24 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
+	"go.mozilla.org/pkcs7"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/cli"
-	"github.com/transcom/mymove/pkg/server"
 )
+
+// addToCertPoolFromPkcs7Package reads the certificates in a DER-encoded PKCS7
+// package and adds those Certificates to the x509.CertPool
+func addToCertPoolFromPkcs7Package(certPool *x509.CertPool, pkcs7Package []byte) error {
+	p7, err := pkcs7.Parse(pkcs7Package)
+	if err != nil {
+		return err
+	}
+	for _, cert := range p7.Certificates {
+		certPool.AddCert(cert)
+	}
+	return nil
+}
 
 // InitDoDCertificates initializes the DoD Certificates
 func InitDoDCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate, *x509.CertPool, error) {
@@ -59,11 +72,48 @@ func InitDoDCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate,
 		return make([]tls.Certificate, 0), nil, errors.Wrap(&cli.ErrInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is an empty file", cli.DoDCAPackageFlag))
 	}
 
-	dodCACertPool, err := server.LoadCertPoolFromPkcs7Package(pkcs7Package)
+	dodCACertPool := x509.NewCertPool()
+	err = addToCertPoolFromPkcs7Package(dodCACertPool, pkcs7Package)
 	if err != nil {
 		return make([]tls.Certificate, 0), dodCACertPool, errors.Wrap(err, "Failed to parse DoD CA certificate package")
 	}
 
 	return []tls.Certificate{keyPair}, dodCACertPool, nil
 
+}
+
+func InitMutualTLSClientCAPool(v *viper.Viper, logger *zap.Logger) (*x509.CertPool, error) {
+	pathToPackage := v.GetString(cli.DoDCAPackageFlag)
+	pkcs7Package, err := os.ReadFile(filepath.Clean(pathToPackage))
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf("%s is invalid", cli.DoDCAPackageFlag))
+	}
+
+	if len(pkcs7Package) == 0 {
+		return nil, errors.Wrap(&cli.ErrInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is an empty file", cli.DoDCAPackageFlag))
+	}
+
+	mtlsClientCAPool := x509.NewCertPool()
+	err = addToCertPoolFromPkcs7Package(mtlsClientCAPool, pkcs7Package)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to parse DoD CA certificate package")
+	}
+
+	additionalPackages := v.GetStringSlice(cli.MutualTLSAdditionalCAPackage)
+	for i := range additionalPackages {
+		pathToPackage := additionalPackages[i]
+		pkcs7Package, err := os.ReadFile(filepath.Clean(pathToPackage))
+		if err != nil {
+			return nil, errors.Wrap(err, fmt.Sprintf("%s has invalid file: %s", cli.MutualTLSAdditionalCAPackage, pathToPackage))
+		}
+
+		if len(pkcs7Package) == 0 {
+			return nil, errors.Wrap(&cli.ErrInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s has an empty file: %s", cli.MutualTLSAdditionalCAPackage, pathToPackage))
+		}
+		err = addToCertPoolFromPkcs7Package(mtlsClientCAPool, pkcs7Package)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return mtlsClientCAPool, nil
 }

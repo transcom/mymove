@@ -796,6 +796,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	mutualTLSEnabled := v.GetBool(cli.MutualTLSListenerFlag)
 	var mutualTLSServer *server.NamedServer
 	if mutualTLSEnabled {
+		mtlsClientCAPool, err := certs.InitMutualTLSClientCAPool(v, logger)
+		if err != nil {
+			logger.Fatal("error loading mutual-tls additional CA", zap.Error(err))
+		}
 		mutualTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
 			Name:         "mutual-tls",
 			Host:         listenInterface,
@@ -804,7 +808,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			HTTPHandler:  otelhttp.NewHandler(site, "server-mtls", otelHTTPOptions...),
 			ClientAuth:   tls.RequireAndVerifyClientCert,
 			Certificates: tlsConfig.Certificates,
-			ClientCAs:    tlsConfig.RootCAs,
+			ClientCAs:    mtlsClientCAPool,
 		})
 		if err != nil {
 			logger.Fatal("error creating mutual-tls server", zap.Error(err))
