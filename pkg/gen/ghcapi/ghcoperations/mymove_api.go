@@ -967,7 +967,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/ppm-documents-fetcher"] = ppm.NewGetPPMDocuments(o.context, o.PpmGetPPMDocumentsHandler)
+	o.handlers["GET"]["/ppm-shipments/{shipmentID}/ppm-documents"] = ppm.NewGetPPMDocuments(o.context, o.PpmGetPPMDocumentsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

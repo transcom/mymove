@@ -1,4 +1,4 @@
-description: A personally procured move documents associated with a ppm and includes weight ticket, progear weight ticket, and moving expenses documents.
+description: All documents associated with a PPM shipment, including weight tickets, progear weight tickets, and moving expenses.
 x-nullable: true
 x-omitempty: false
 type: object

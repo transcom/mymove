@@ -1264,9 +1264,14 @@ paths:
       summary: Denies a SIT extension
       x-permissions:
         - update.SITExtension
-  /ppm-shipments/{ppmShipmentId}/ppm-documents-fetcher:
+  /ppm-shipments/{shipmentID}/ppm-documents:
     parameters:
-      - $ref: '#/parameters/ppmShipmentId'
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
     get:
       summary: Gets all the PPM documents for a PPM shipment
       description: >
@@ -1287,7 +1292,7 @@ paths:
             All PPM documents and associated uploads for the specified PPM
             shipment.
           schema:
-            $ref: '#/definitions/PPMDocumentsFetcher'
+            $ref: '#/definitions/PPMDocuments'
         '401':
           $ref: '#/responses/PermissionDenied'
         '403':
@@ -6877,10 +6882,10 @@ definitions:
     items:
       $ref: '#/definitions/ProGearWeightTicket'
     x-omitempty: false
-  PPMDocumentsFetcher:
+  PPMDocuments:
     description: >-
-      A personally procured move documents associated with a ppm and includes
-      weight ticket, progear weight ticket, and moving expenses documents.
+      All documents associated with a PPM shipment, including weight tickets,
+      progear weight tickets, and moving expenses.
     x-nullable: true
     x-omitempty: false
     type: object

@@ -16,7 +16,7 @@ import (
 
 // GetPPMDocumentsURL generates an URL for the get p p m documents operation
 type GetPPMDocumentsURL struct {
-	PpmShipmentID strfmt.UUID
+	ShipmentID strfmt.UUID
 
 	_basePath string
 	// avoid unkeyed usage
@@ -42,13 +42,13 @@ func (o *GetPPMDocumentsURL) SetBasePath(bp string) {
 func (o *GetPPMDocumentsURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/ppm-shipments/{ppmShipmentId}/ppm-documents-fetcher"
+	var _path = "/ppm-shipments/{shipmentID}/ppm-documents"
 
-	ppmShipmentID := o.PpmShipmentID.String()
-	if ppmShipmentID != "" {
-		_path = strings.Replace(_path, "{ppmShipmentId}", ppmShipmentID, -1)
+	shipmentID := o.ShipmentID.String()
+	if shipmentID != "" {
+		_path = strings.Replace(_path, "{shipmentID}", shipmentID, -1)
 	} else {
-		return nil, errors.New("ppmShipmentId is required on GetPPMDocumentsURL")
+		return nil, errors.New("shipmentId is required on GetPPMDocumentsURL")
 	}
 
 	_basePath := o._basePath

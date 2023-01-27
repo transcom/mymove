@@ -2805,47 +2805,6 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/ppm-documents-fetcher": {
-      "get": {
-        "description": "Retrieves all of the documents and associated uploads for each ppm document type connected to a PPM shipment. This\nexcludes any deleted PPM documents.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Gets all the PPM documents for a PPM shipment",
-        "operationId": "getPPMDocuments",
-        "responses": {
-          "200": {
-            "description": "All PPM documents and associated uploads for the specified PPM shipment.",
-            "schema": {
-              "$ref": "#/definitions/PPMDocumentsFetcher"
-            }
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "$ref": "#/parameters/ppmShipmentId"
-        }
-      ]
-    },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
@@ -3016,6 +2975,52 @@ func init() {
       "parameters": [
         {
           "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
+    "/ppm-shipments/{shipmentID}/ppm-documents": {
+      "get": {
+        "description": "Retrieves all of the documents and associated uploads for each ppm document type connected to a PPM shipment. This\nexcludes any deleted PPM documents.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Gets all the PPM documents for a PPM shipment",
+        "operationId": "getPPMDocuments",
+        "responses": {
+          "200": {
+            "description": "All PPM documents and associated uploads for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMDocuments"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
         }
       ]
     },
@@ -6929,8 +6934,8 @@ func init() {
       "x-nullable": true,
       "x-omitempty": false
     },
-    "PPMDocumentsFetcher": {
-      "description": "A personally procured move documents associated with a ppm and includes weight ticket, progear weight ticket, and moving expenses documents.",
+    "PPMDocuments": {
+      "description": "All documents associated with a PPM shipment, including weight tickets, progear weight tickets, and moving expenses.",
       "type": "object",
       "properties": {
         "MovingExpenses": {
@@ -12883,64 +12888,6 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/ppm-documents-fetcher": {
-      "get": {
-        "description": "Retrieves all of the documents and associated uploads for each ppm document type connected to a PPM shipment. This\nexcludes any deleted PPM documents.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Gets all the PPM documents for a PPM shipment",
-        "operationId": "getPPMDocuments",
-        "responses": {
-          "200": {
-            "description": "All PPM documents and associated uploads for the specified PPM shipment.",
-            "schema": {
-              "$ref": "#/definitions/PPMDocumentsFetcher"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "UUID of the PPM shipment",
-          "name": "ppmShipmentId",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
@@ -13196,6 +13143,64 @@ func init() {
           "format": "uuid",
           "description": "UUID of the PPM shipment",
           "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/ppm-shipments/{shipmentID}/ppm-documents": {
+      "get": {
+        "description": "Retrieves all of the documents and associated uploads for each ppm document type connected to a PPM shipment. This\nexcludes any deleted PPM documents.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Gets all the PPM documents for a PPM shipment",
+        "operationId": "getPPMDocuments",
+        "responses": {
+          "200": {
+            "description": "All PPM documents and associated uploads for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMDocuments"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
           "in": "path",
           "required": true
         }
@@ -17397,8 +17402,8 @@ func init() {
       "x-nullable": true,
       "x-omitempty": false
     },
-    "PPMDocumentsFetcher": {
-      "description": "A personally procured move documents associated with a ppm and includes weight ticket, progear weight ticket, and moving expenses documents.",
+    "PPMDocuments": {
+      "description": "All documents associated with a PPM shipment, including weight tickets, progear weight tickets, and moving expenses.",
       "type": "object",
       "properties": {
         "MovingExpenses": {

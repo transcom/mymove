@@ -1228,9 +1228,14 @@ paths:
       summary: Denies a SIT extension
       x-permissions:
         - update.SITExtension
-  /ppm-shipments/{ppmShipmentId}/ppm-documents-fetcher:
+  /ppm-shipments/{shipmentID}/ppm-documents:
     parameters:
-      - $ref: 'parameters/ppmShipmentId.yaml'
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
     get:
       summary: Gets all the PPM documents for a PPM shipment
       description: |
@@ -1247,7 +1252,7 @@ paths:
         '200':
           description: All PPM documents and associated uploads for the specified PPM shipment.
           schema:
-            $ref: 'definitions/PPMDocumentsFetcher.yaml'
+            $ref: 'definitions/PPMDocuments.yaml'
         '401':
           $ref: '#/responses/PermissionDenied'
         '403':

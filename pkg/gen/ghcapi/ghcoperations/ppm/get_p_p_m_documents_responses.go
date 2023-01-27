@@ -26,7 +26,7 @@ type GetPPMDocumentsOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.PPMDocumentsFetcher `json:"body,omitempty"`
+	Payload *ghcmessages.PPMDocuments `json:"body,omitempty"`
 }
 
 // NewGetPPMDocumentsOK creates GetPPMDocumentsOK with default headers values
@@ -36,13 +36,13 @@ func NewGetPPMDocumentsOK() *GetPPMDocumentsOK {
 }
 
 // WithPayload adds the payload to the get p p m documents o k response
-func (o *GetPPMDocumentsOK) WithPayload(payload *ghcmessages.PPMDocumentsFetcher) *GetPPMDocumentsOK {
+func (o *GetPPMDocumentsOK) WithPayload(payload *ghcmessages.PPMDocuments) *GetPPMDocumentsOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get p p m documents o k response
-func (o *GetPPMDocumentsOK) SetPayload(payload *ghcmessages.PPMDocumentsFetcher) {
+func (o *GetPPMDocumentsOK) SetPayload(payload *ghcmessages.PPMDocuments) {
 	o.Payload = payload
 }
 

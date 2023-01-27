@@ -31,11 +31,11 @@ type GetPPMDocumentsParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*UUID of the PPM shipment
+	/*ID of the shipment
 	  Required: true
 	  In: path
 	*/
-	PpmShipmentID strfmt.UUID
+	ShipmentID strfmt.UUID
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -47,8 +47,8 @@ func (o *GetPPMDocumentsParams) BindRequest(r *http.Request, route *middleware.M
 
 	o.HTTPRequest = r
 
-	rPpmShipmentID, rhkPpmShipmentID, _ := route.Params.GetOK("ppmShipmentId")
-	if err := o.bindPpmShipmentID(rPpmShipmentID, rhkPpmShipmentID, route.Formats); err != nil {
+	rShipmentID, rhkShipmentID, _ := route.Params.GetOK("shipmentID")
+	if err := o.bindShipmentID(rShipmentID, rhkShipmentID, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -57,8 +57,8 @@ func (o *GetPPMDocumentsParams) BindRequest(r *http.Request, route *middleware.M
 	return nil
 }
 
-// bindPpmShipmentID binds and validates parameter PpmShipmentID from path.
-func (o *GetPPMDocumentsParams) bindPpmShipmentID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindShipmentID binds and validates parameter ShipmentID from path.
+func (o *GetPPMDocumentsParams) bindShipmentID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -70,21 +70,21 @@ func (o *GetPPMDocumentsParams) bindPpmShipmentID(rawData []string, hasKey bool,
 	// Format: uuid
 	value, err := formats.Parse("uuid", raw)
 	if err != nil {
-		return errors.InvalidType("ppmShipmentId", "path", "strfmt.UUID", raw)
+		return errors.InvalidType("shipmentID", "path", "strfmt.UUID", raw)
 	}
-	o.PpmShipmentID = *(value.(*strfmt.UUID))
+	o.ShipmentID = *(value.(*strfmt.UUID))
 
-	if err := o.validatePpmShipmentID(formats); err != nil {
+	if err := o.validateShipmentID(formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// validatePpmShipmentID carries on validations for parameter PpmShipmentID
-func (o *GetPPMDocumentsParams) validatePpmShipmentID(formats strfmt.Registry) error {
+// validateShipmentID carries on validations for parameter ShipmentID
+func (o *GetPPMDocumentsParams) validateShipmentID(formats strfmt.Registry) error {
 
-	if err := validate.FormatOf("ppmShipmentId", "path", "uuid", o.PpmShipmentID.String(), formats); err != nil {
+	if err := validate.FormatOf("shipmentID", "path", "uuid", o.ShipmentID.String(), formats); err != nil {
 		return err
 	}
 	return nil
