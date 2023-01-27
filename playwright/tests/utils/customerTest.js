@@ -91,6 +91,14 @@ export class CustomerPage extends BaseTestPage {
 }
 
 /**
+ * set the viewport for mobile dimensions
+ */
+export function setMobileViewport() {
+  // https://playwright.dev/docs/emulation#viewport
+  base.test.use({ viewport: { width: 479, height: 875 } });
+}
+
+/**
  * @typedef {object} CustomerPageTestArgs - customer page test args
  * @property {CustomerPage} customerPage  - customer page
  */

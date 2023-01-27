@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { expect, test, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { expect, test, setMobileViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
 
 test.describe('About Your PPM', () => {
   /** @type {CustomerPpmPage} */
@@ -76,30 +76,20 @@ test.describe('About Your PPM', () => {
     await expect(errorMessage).not.toBeVisible();
   });
 
-  // const viewportType = [
-  //   { viewport: 'desktop', isMobile: false },
-  //   { viewport: 'mobile', isMobile: true },
-  // ];
+  const viewports = ['desktop', 'mobile'];
 
-  // viewportType.forEach(({ viewport, isMobile }) => {
-  //   test(`can opt to not receive an advance - ${viewport}`, async ({ page }) => {
-  //     if (isMobile) {
-  //       setMobileViewport();
-  //     }
+  viewports.forEach((viewport) => {
+    test.describe(`with viewport ${viewport}`, async () => {
+      if (viewport === 'mobile') {
+        setMobileViewport();
+      }
+      test(`can opt to not receive an advance`, async () => {
+        await customerPpmPage.submitsAdvancePage({ addAdvance: false, isMobile: viewport === 'mobile' });
+      });
 
-  //     getToAdvancesPage();
-
-  //     submitsAdvancePage(false, isMobile);
-  //   });
-
-  //   test(`can request an advance - ${viewport}`, async ({ page }) => {
-  //     if (isMobile) {
-  //       setMobileViewport();
-  //     }
-
-  //     getToAdvancesPage();
-
-  //     submitsAdvancePage(true, isMobile);
-  //   });
-  // });
+      test(`can request an advance`, async () => {
+        await customerPpmPage.submitsAdvancePage({ addAdvance: true, isMobile: viewport === 'mobile' });
+      });
+    });
+  });
 });
