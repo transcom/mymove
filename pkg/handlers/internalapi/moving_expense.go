@@ -9,9 +9,11 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	movingexpenseops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -187,9 +189,26 @@ func (h DeleteMovingExpenseHandler) Handle(params movingexpenseops.DeleteMovingE
 				return movingexpenseops.NewDeleteMovingExpenseForbidden(), noServiceMemberIDErr
 			}
 
-			movingExpenseID := uuid.FromStringOrNil(params.MovingExpenseID.String())
+			// Make sure the service member is not modifying another service member's PPM
+			ppmID := uuid.FromStringOrNil(params.PpmShipmentID.String())
+			var ppmShipment models.PPMShipment
+			err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
+				EagerPreload(
+					"Shipment.MoveTaskOrder.Orders",
+				).
+				Find(&ppmShipment, ppmID)
+			if err != nil {
+				// TODO handle error a little better. like what if we get a not found?
+				return movingexpenseops.NewDeleteMovingExpenseInternalServerError(), err
+			}
+			if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
+				noServiceMemberIDErr := apperror.NewSessionError("Attempted delete by wrong service member")
+				appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(noServiceMemberIDErr))
+				return movingexpenseops.NewDeleteMovingExpenseForbidden(), noServiceMemberIDErr
+			}
 
-			err := h.movingExpenseDeleter.DeleteMovingExpense(appCtx, movingExpenseID)
+			movingExpenseID := uuid.FromStringOrNil(params.MovingExpenseID.String())
+			err = h.movingExpenseDeleter.DeleteMovingExpense(appCtx, movingExpenseID)
 			if err != nil {
 				appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(err))
 

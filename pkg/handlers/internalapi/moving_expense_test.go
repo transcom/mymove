@@ -365,18 +365,8 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 
 		suite.IsType(&movingexpenseops.DeleteMovingExpenseNoContent{}, response)
 	})
-	// TODO can we ever get a 400? i dont know how
-	//suite.Run("PATCH failure -400 - nil body", func() {
-	//	appCtx := suite.AppContextForTest()
-	//
-	//	subtestData := makeDeleteSubtestData(appCtx, true)
-	//	subtestData.params.DeleteMovingExpense = nil
-	//	response := subtestData.handler.Handle(subtestData.params)
-	//
-	//	suite.IsType(&movingexpenseops.DeleteMovingExpenseBadRequest{}, response)
-	//})
 
-	suite.Run("PATCH failure - 401 - permission denied - not authenticated", func() {
+	suite.Run("DELETE failure - 401 - permission denied - not authenticated", func() {
 		appCtx := suite.AppContextForTest()
 		subtestData := makeDeleteSubtestData(appCtx, false)
 		response := subtestData.handler.Handle(subtestData.params)
@@ -384,7 +374,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 		suite.IsType(&movingexpenseops.DeleteMovingExpenseUnauthorized{}, response)
 	})
 
-	suite.Run("PATCH failure - 403 - permission denied - wrong application / user", func() {
+	suite.Run("DELETE failure - 403 - permission denied - wrong application / user", func() {
 		appCtx := suite.AppContextForTest()
 
 		subtestData := makeDeleteSubtestData(appCtx, false)
@@ -401,7 +391,24 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 		suite.IsType(&movingexpenseops.DeleteMovingExpenseForbidden{}, response)
 	})
 
-	suite.Run("PATCH failure - 404- not found", func() {
+	suite.Run("DELETE failure - 403 - permission denied - wrong service member user", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, false)
+
+		otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateRequest(req, otherServiceMember)
+		unauthorizedParams := subtestData.params
+		unauthorizedParams.HTTPRequest = unauthorizedReq
+
+		response := subtestData.handler.Handle(unauthorizedParams)
+
+		suite.IsType(&movingexpenseops.DeleteMovingExpenseForbidden{}, response)
+	})
+
+	suite.Run("DELETE failure - 404- not found", func() {
 		appCtx := suite.AppContextForTest()
 
 		subtestData := makeDeleteSubtestData(appCtx, true)
@@ -415,23 +422,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 		suite.IsType(&movingexpenseops.DeleteMovingExpenseNotFound{}, response)
 	})
 
-	// TODO not sure i need this one. maybe a malformed UUID in the request? would that be a 400?
-	//suite.Run("DELETE failure - 422 - Invalid Input", func() {
-	//	appCtx := suite.AppContextForTest()
-	//
-	//	subtestData := makeDeleteSubtestData(appCtx, true)
-	//	params := subtestData.params
-	//	//params.MovingExpenseID = uuid.
-	//	params.DeleteMovingExpense = &internalmessages.DeleteMovingExpense{
-	//		Amount: handlers.FmtInt64(0),
-	//	}
-	//
-	//	response := subtestData.handler.Handle(params)
-	//
-	//	suite.IsType(&movingexpenseops.DeleteMovingExpenseUnprocessableEntity{}, response)
-	//})
-
-	suite.Run("PATCH failure - 500 - server error", func() {
+	suite.Run("DELETE failure - 500 - server error", func() {
 		mockDeleter := mocks.MovingExpenseDeleter{}
 		appCtx := suite.AppContextForTest()
 
