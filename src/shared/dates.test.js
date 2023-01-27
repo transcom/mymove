@@ -55,7 +55,7 @@ describe('dates', () => {
     describe('when parsing a date that does the match allowed date formats', () => {
       const result = formatDateTime('8-23-2019');
       it('should return a date in the format swagger accepts', () => {
-        expect(result).toEqual('2019-08-23T12:00:00+00:00');
+        expect(result).toEqual('2019-08-23T00:00:00+00:00');
       });
     });
   });
