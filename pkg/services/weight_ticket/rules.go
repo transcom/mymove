@@ -84,6 +84,18 @@ func checkRequiredFields() weightTicketValidator {
 			verrs.Add("TrailerMeetsCriteria", "Trailer Meets Criteria is required")
 		}
 
+		return verrs
+	})
+}
+
+func verifyProofOfTrailerOwnershipDocument() weightTicketValidator {
+	return weightTicketValidatorFunc(func(_ appcontext.AppContext, newWeightTicket *models.WeightTicket, originalWeightTicket *models.WeightTicket) error {
+		verrs := validate.NewErrors()
+
+		if newWeightTicket == nil || originalWeightTicket == nil {
+			return verrs
+		}
+
 		if newWeightTicket.OwnsTrailer != nil && newWeightTicket.TrailerMeetsCriteria != nil {
 			if *newWeightTicket.OwnsTrailer && *newWeightTicket.TrailerMeetsCriteria &&
 				len(originalWeightTicket.ProofOfTrailerOwnershipDocument.UserUploads) < 1 {
@@ -146,6 +158,7 @@ func basicChecksForCustomer() []weightTicketValidator {
 	return []weightTicketValidator{
 		checkID(),
 		checkRequiredFields(),
+		verifyProofOfTrailerOwnershipDocument(),
 		verifyReasonAndStatusAreConstant(),
 	}
 }

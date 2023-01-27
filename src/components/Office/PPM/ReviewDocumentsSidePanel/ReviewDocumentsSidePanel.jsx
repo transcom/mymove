@@ -70,9 +70,9 @@ export default function ReviewDocumentsSidePanel({ ppmShipment, ppmNumber, expen
         <h3 className={styles.send}>Send to customer?</h3>
         <DocumentViewerSidebar.Content className={styles.sideBar}>
           {weightTickets.length > 0
-            ? weightTickets.map((weight) => {
+            ? weightTickets.map((weight, index) => {
                 return (
-                  <div className={styles.rowContainer}>
+                  <div className={styles.rowContainer} key={index}>
                     <div className={styles.row}>
                       <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
                       {statusWithIcon(weight)}
@@ -85,7 +85,7 @@ export default function ReviewDocumentsSidePanel({ ppmShipment, ppmNumber, expen
           {proGearTickets.length > 0
             ? proGearTickets.map((gear, index) => {
                 return (
-                  <div className={styles.rowContainer}>
+                  <div className={styles.rowContainer} key={index}>
                     <div className={styles.row}>
                       <h3 className={styles.tripNumber}>Pro-gear {index + 1}</h3>
                       {statusWithIcon(gear)}
@@ -96,9 +96,9 @@ export default function ReviewDocumentsSidePanel({ ppmShipment, ppmNumber, expen
               })
             : null}
           {expenseTickets.length > 0
-            ? expenseTickets.map((exp) => {
+            ? expenseTickets.map((exp, index) => {
                 return (
-                  <div className={styles.rowContainer}>
+                  <div className={styles.rowContainer} key={index}>
                     <div className={styles.row}>
                       <h3 className={styles.tripNumber}>
                         {exp.movingExpenseType === expenseTypes.STORAGE ? 'Storage' : 'Receipt'}
