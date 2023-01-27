@@ -59,7 +59,6 @@ export const formatWeightTicketItems = (weightTickets, editPath, editParams, han
         id: `vehicleDescription-${i}`,
         label: 'Vehicle description:',
         value: weightTicket.vehicleDescription,
-        hideLabel: true,
       },
       { id: `emptyWeight-${i}`, label: 'Empty:', value: formatWeight(weightTicket.emptyWeight) },
       { id: `fullWeight-${i}`, label: 'Full:', value: formatWeight(weightTicket.fullWeight) },
