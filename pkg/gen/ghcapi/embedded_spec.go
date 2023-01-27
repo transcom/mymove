@@ -2978,52 +2978,6 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{shipmentID}/ppm-documents": {
-      "get": {
-        "description": "Retrieves all of the documents and associated uploads for each ppm document type connected to a PPM shipment. This\nexcludes any deleted PPM documents.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Gets all the PPM documents for a PPM shipment",
-        "operationId": "getPPMDocuments",
-        "responses": {
-          "200": {
-            "description": "All PPM documents and associated uploads for the specified PPM shipment.",
-            "schema": {
-              "$ref": "#/definitions/PPMDocuments"
-            }
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of the shipment",
-          "name": "shipmentID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/pws-violations": {
       "get": {
         "description": "Fetch the possible PWS violations for an evaluation report",
@@ -3758,6 +3712,52 @@ func init() {
         "x-permissions": [
           "update.shipment"
         ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/shipments/{shipmentID}/ppm-documents": {
+      "get": {
+        "description": "Retrieves all of the documents and associated uploads for each ppm document type connected to a PPM shipment. This\nexcludes any deleted PPM documents.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Gets all the PPM documents for a PPM shipment",
+        "operationId": "getPPMDocuments",
+        "responses": {
+          "200": {
+            "description": "All PPM documents and associated uploads for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMDocuments"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
       },
       "parameters": [
         {
@@ -13148,64 +13148,6 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{shipmentID}/ppm-documents": {
-      "get": {
-        "description": "Retrieves all of the documents and associated uploads for each ppm document type connected to a PPM shipment. This\nexcludes any deleted PPM documents.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Gets all the PPM documents for a PPM shipment",
-        "operationId": "getPPMDocuments",
-        "responses": {
-          "200": {
-            "description": "All PPM documents and associated uploads for the specified PPM shipment.",
-            "schema": {
-              "$ref": "#/definitions/PPMDocuments"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of the shipment",
-          "name": "shipmentID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/pws-violations": {
       "get": {
         "description": "Fetch the possible PWS violations for an evaluation report",
@@ -14069,6 +14011,64 @@ func init() {
         "x-permissions": [
           "update.shipment"
         ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/shipments/{shipmentID}/ppm-documents": {
+      "get": {
+        "description": "Retrieves all of the documents and associated uploads for each ppm document type connected to a PPM shipment. This\nexcludes any deleted PPM documents.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Gets all the PPM documents for a PPM shipment",
+        "operationId": "getPPMDocuments",
+        "responses": {
+          "200": {
+            "description": "All PPM documents and associated uploads for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMDocuments"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
       },
       "parameters": [
         {

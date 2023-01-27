@@ -1264,7 +1264,7 @@ paths:
       summary: Denies a SIT extension
       x-permissions:
         - update.SITExtension
-  /ppm-shipments/{shipmentID}/ppm-documents:
+  /shipments/{shipmentID}/ppm-documents:
     parameters:
       - description: ID of the shipment
         in: path
