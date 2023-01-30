@@ -1,6 +1,7 @@
 import React from 'react';
 import { string, element, func, arrayOf, bool, shape, oneOfType, number, node } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
+import { Button, Tag } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
 import styles from './ReviewItems.module.scss';
@@ -18,33 +19,45 @@ const ReviewItems = ({ className, heading, renderAddButton, contents, emptyMessa
             <span className={styles.emptyMessage}>{emptyMessage}</span>
           </div>
         )}
-        {contents?.map(({ id, subheading, rows, onDelete, renderEditLink }) => {
+        {contents?.map(({ id, isComplete, draftMessage, subheading, rows, onDelete, renderEditLink }) => {
           return (
-            <div
-              className={classnames({ [styles.subheadingWrapper]: !!renderAddButton }, 'display-flex', 'width-full')}
-              key={id}
-            >
-              {subheading && <div className={styles.subheading}>{subheading}</div>}
-              <dl>
-                {rows.map(({ id: rowId, hideLabel, label, value }) => (
-                  <div key={`${rowId}-${id}`} className={styles[rowId]}>
-                    <dt className={classnames({ [styles.hiddenTerm]: hideLabel })} aria-hidden={hideLabel}>
-                      {label}
-                    </dt>
-                    <dd>{value}</dd>
-                  </div>
-                ))}
-              </dl>
-              <div className={styles.actionContainer}>
-                {onDelete && (
-                  <>
-                    <Button type="button" unstyled onClick={onDelete}>
-                      Delete
-                    </Button>
-                    <span className={styles.actionSeparator}>|</span>
-                  </>
-                )}
-                {renderEditLink()}
+            <div className={styles.headingWrapper}>
+              {!isComplete && (
+                <div className={styles.missingAlert}>
+                  <Tag className="usa-tag--alert">
+                    <FontAwesomeIcon icon="exclamation" />
+                  </Tag>
+                  <span>{draftMessage}</span>
+                </div>
+              )}
+              <div
+                className={classnames({ [styles.subheadingWrapper]: !!renderAddButton }, 'display-flex', 'width-full')}
+                key={id}
+              >
+                {subheading && <div className={styles.subheading}>{subheading}</div>}
+
+                <dl>
+                  {rows.map(({ id: rowId, hideLabel, label, value }) => (
+                    <div key={`${rowId}-${id}`} className={styles[rowId]}>
+                      <dt className={classnames({ [styles.hiddenTerm]: hideLabel })} aria-hidden={hideLabel}>
+                        {label}
+                      </dt>
+                      <dd>{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+
+                <div className={styles.actionContainer}>
+                  {onDelete && (
+                    <>
+                      <Button type="button" unstyled onClick={onDelete}>
+                        Delete
+                      </Button>
+                      <span className={styles.actionSeparator}>|</span>
+                    </>
+                  )}
+                  {renderEditLink()}
+                </div>
               </div>
             </div>
           );
