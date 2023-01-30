@@ -169,7 +169,7 @@ const Review = () => {
                     Add More Weight
                   </Link>
                 )}
-                emptyMessage="No weight tickets uploaded. Add at least one set of weight tickets to request payment."
+                emptyMessage="No weight moved documented. At least one trip is required to continue."
               />
               <ReviewItems
                 className={classnames(styles.reviewItems, 'progearSection')}
