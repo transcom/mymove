@@ -62,6 +62,7 @@ const ShipmentForm = (props) => {
     isForServicesCounseling,
     mtoShipment,
     submitHandler,
+    onUpdate,
     mtoShipments,
     serviceMember,
     currentResidence,
@@ -254,14 +255,15 @@ const ShipmentForm = (props) => {
                 },
                 onError: () => {
                   history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+                  onUpdate('error');
                 },
               },
             );
           } else {
-            // if we don't have a closeout office, we're either on the advance page for a PPM, the first
-            // page for another type of shipment, or the first page of a PPM as a TOO. In any case, we're
-            // done now and can head back to the move view
+            // if we don't have a closeout office, we're either on the advance page for a PPM as a SC or the first page of a PPM as a TOO.
+            // In any case, we're done now and can head back to the move viewÎ
             history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+            onUpdate('success');
           }
         },
       });
@@ -321,7 +323,7 @@ const ShipmentForm = (props) => {
       body: pendingMtoShipment,
     };
 
-    // Add a MTO Shipment (Service counselor)
+    // Add a MTO Shipment (only a Service Counselor can add a shipment)
     if (isCreatePage) {
       const body = { ...pendingMtoShipment, moveTaskOrderID };
       submitHandler(
@@ -342,6 +344,11 @@ const ShipmentForm = (props) => {
       submitHandler(updateMTOShipmentPayload, {
         onSuccess: () => {
           history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+          onUpdate('success');
+        },
+        onError: () => {
+          history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+          onUpdate('error');
         },
       });
     }
@@ -714,6 +721,7 @@ ShipmentForm.propTypes = {
     push: func.isRequired,
   }),
   submitHandler: func.isRequired,
+  onUpdate: func,
   isCreatePage: bool,
   isForServicesCounseling: bool,
   currentResidence: AddressShape.isRequired,
@@ -746,6 +754,7 @@ ShipmentForm.defaultProps = {
   isForServicesCounseling: false,
   match: { isExact: false, params: { moveCode: '', shipmentId: '' } },
   history: { push: () => {} },
+  onUpdate: () => {},
   originDutyLocationAddress: {
     city: '',
     state: '',

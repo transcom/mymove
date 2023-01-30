@@ -26,10 +26,6 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
-      onUpdate('success');
-    },
-    onError: () => {
-      onUpdate('error');
     },
   });
 
@@ -61,6 +57,7 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
                 match={match}
                 history={history}
                 submitHandler={mutateMTOShipment}
+                onUpdate={onUpdate}
                 isCreatePage={false}
                 isForServicesCounseling
                 currentResidence={customer.current_address}
