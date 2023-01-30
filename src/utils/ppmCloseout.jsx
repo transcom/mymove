@@ -85,6 +85,12 @@ export const formatProGearItems = (proGears, editPath, editParams, handleDelete)
     const weightValues = proGear.hasWeightTickets
       ? { id: 'weight', label: 'Weight:', value: formatWeight(proGear.weight) }
       : { id: 'constructedWeight', label: 'Constructed weight:', value: formatWeight(proGear.weight) };
+
+    let proGearBelongsTo = false;
+    if (proGear.belongsToSelf === true || proGear.belongsToSelf === null) {
+      proGearBelongsTo = true;
+    }
+
     return {
       id: proGear.id,
       subheading: <h4 className="text-bold">Set {i + 1}</h4>,
@@ -92,7 +98,7 @@ export const formatProGearItems = (proGears, editPath, editParams, handleDelete)
         {
           id: 'proGearType',
           label: 'Pro-gear Type:',
-          value: proGear.belongsToSelf ? 'Pro-gear' : 'Spouse pro-gear',
+          value: proGearBelongsTo ? 'Pro-gear' : 'Spouse pro-gear',
           hideLabel: true,
         },
         { id: 'description', label: 'Description:', value: proGear.description, hideLabel: true },
