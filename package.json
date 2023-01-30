@@ -51,6 +51,7 @@
     "react-idle-timer": "^5.4.2",
     "react-imask": "^6.4.3",
     "react-markdown": "^8.0.5",
+    "react-query": "^3.39.2",
     "react-rangeslider": "^2.2.0",
     "react-redux": "^7.2.9",
     "react-router": "^5.1.2",
