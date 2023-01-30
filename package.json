@@ -147,7 +147,7 @@
     "cypress": "8.5.0",
     "cypress-audit": "^1.1.0",
     "cypress-wait-until": "^1.7.2",
-    "danger": "^11.2.2",
+    "danger": "^11.2.3",
     "danger-plugin-jira-issue": "^1.4.1",
     "dotenv": "^16.0.3",
     "enzyme": "^3.11.0",
