@@ -7,6 +7,113 @@
 #
 # Please do not use docker_layer_caching! It costs too much money to run. Please set to `false`.
 #
+#
+# Table of Contents
+#
+# refrences:
+#
+# executors:
+#  av_medium:
+#  mymove_pusher:
+#  mymove_builder:
+#  mymove_compiler:
+#  mymove_compiler_xlarge:
+#  mymove_ramdisk_compiler:
+#  mymove_ramdisk_compiler_xlarge:
+#  mymove_tester:
+#  milmove_integration_tester:
+#  milmove_playwright_tester:
+#
+# commands:
+#  aws_vars_stg:
+#  tls_vars_stg:
+#  aws_vars_prd:
+#  tls_vars_prd:
+#  aws_vars_transcom_gov_dev:
+#  tls_vars_gov_dev:
+#  aws_vars_transcom_com_dev:
+#  aws_vars_dp3:
+#  tls_vars_dp3:
+#  announce_failure:
+#  deploy_migrations_steps:
+#  deploy_tasks_steps:
+#  deploy_dp3_tasks_steps:
+#  deploy_app_steps:
+#  deploy_app_client_tls_steps:
+#  deploy_webhook_client_steps:
+#  deploy_app_storybook:
+#  build_image:
+#  push_image:
+#  server_tests_step:
+#  e2e_tests_cypress:
+#  e2e_tests_playwright:
+#  e2e_tests_mtls:
+#
+# jobs:
+#  pre_deps_golang:
+#  pre_deps_yarn:
+#  check_generated_code:
+#  check_tls_certificate_prd:
+#  check_tls_certificate_stg:
+#  check_tls_certificate_dp3:
+#  anti_virus:
+#  pre_test:
+#  integration_tests_admin:
+#  integration_tests_office:
+#  integration_tests_prime:
+#  integration_tests_mymove:
+#  integration_tests_milmove:
+#  integration_tests_playwright:
+#  integration_tests_devseed:
+#  integration_tests:
+#  integration_tests_mtls:
+#  server_test:
+#  client_test:
+#  webhook_client_test:
+#  compile_app_server:
+#  compile_app_client:
+#  build_app:
+#  build_dp3_app:
+#  push_app_gov_dev:
+#  push_app_dp3:
+#  push_app_stg:
+#  push_app_prd:
+#  build_storybook:
+#  build_migrations:
+#  push_migrations_gov_dev:
+#  push_migrations_dp3:
+#  push_migrations_stg:
+#  push_migrations_prd:
+#  build_tasks:
+#  build_dp3_tasks:
+#  push_tasks_gov_dev:
+#  push_tasks_dp3:
+#  push_tasks_stg:
+#  push_tasks_prd:
+#  build_webhook_client:
+#  build_dp3_webhook_client:
+#  push_webhook_client_dp3:
+#  push_webhook_client_stg:
+#  deploy_dp3_migrations:
+#  deploy_dp3_tasks:
+#  deploy_dp3_app:
+#  deploy_dp3_app_client_tls:
+#  deploy_dp3_webhook_client:
+#  check_circle_against_stg_sha:
+#  deploy_stg_migrations:
+#  deploy_stg_tasks:
+#  deploy_stg_app:
+#  deploy_stg_app_client_tls:
+#  deploy_stg_webhook_client:
+#  deploy_storybook_dp3:
+#  deploy_prd_migrations:
+#  deploy_prd_tasks:
+#  deploy_prd_app:
+#  deploy_prd_app_client_tls:
+#
+# workflows:
+#
+# exeperimental
 ############
 
 version: '2.1'
@@ -1090,7 +1197,6 @@ jobs:
       # at some point
       # - announce_failure
 
-
   # `integration_tests_devseed` runs the devseed data generation
   integration_tests_devseed:
     executor: mymove_tester
@@ -1155,22 +1261,22 @@ jobs:
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - restore_cache:
           keys:
-          #
-          # https://circleci.com/docs/caching/#restoring-cache
-          #
-          # restore the latest version of the test coverage in the
-          # cache
-          #
-          # To manually reset test coverage (e.g. a refactor or
-          # deleting code means coverage has gone down and we are ok
-          # with it), increment the version number of the cache
-          # e.g. go from v1-server-tests-coverage- to
-          # v2-server-tests-coverage-
-          #
-          # Make sure you also update the key in the save_cache below
-          #
-          # The trailing hyphen in restore_cache seems important
-          # according to the page linked above
+            #
+            # https://circleci.com/docs/caching/#restoring-cache
+            #
+            # restore the latest version of the test coverage in the
+            # cache
+            #
+            # To manually reset test coverage (e.g. a refactor or
+            # deleting code means coverage has gone down and we are ok
+            # with it), increment the version number of the cache
+            # e.g. go from v1-server-tests-coverage- to
+            # v2-server-tests-coverage-
+            #
+            # Make sure you also update the key in the save_cache below
+            #
+            # The trailing hyphen in restore_cache seems important
+            # according to the page linked above
             - v2-server-tests-coverage-
       - run:
           name: Save Baseline Test Coverage
