@@ -1,0 +1,5 @@
+description: All moving expenses associated with a PPM shipment.
+type: array
+items:
+  $ref: 'MovingExpense.yaml'
+x-omitempty: false
