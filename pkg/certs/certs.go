@@ -61,6 +61,10 @@ func InitDoDCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate,
 
 	dodCACertPool, err := server.LoadCertPoolFromPkcs7Package(pkcs7Package)
 	if err != nil {
+		logger.Error(
+			"DoD CA p7b was not able to be parsed. Check the path, contents, and the errors related to DoD CA certificate package (p7b file)",
+			zap.String("pkcs7PackagePath", pathToPackage),
+		)
 		return make([]tls.Certificate, 0), dodCACertPool, errors.Wrap(err, "Failed to parse DoD CA certificate package")
 	}
 
