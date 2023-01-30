@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/audit"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -29,9 +30,16 @@ func ClientCertFromRequestContext(r *http.Request) *models.ClientCert {
 
 // ClientCertFromContext gets the reference to the ClientCert stored in the request.Context()
 func ClientCertFromContext(ctx context.Context) *models.ClientCert {
+
+	logger := logging.FromContext(ctx)
+
 	if clientCert, ok := ctx.Value(clientCertContextKey).(*models.ClientCert); ok {
+		logger.Info("The client cert key was found in the context")
 		return clientCert
 	}
+
+	logger.Error("The client cert key was not in the context")
+
 	return nil
 }
 
