@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Grid } from '@trussworks/react-uswds';
-import { generatePath, useHistory, withRouter } from 'react-router-dom';
+import { generatePath, useHistory, withRouter } from 'react-router-dom-old';
 
 import { calculateWeightRequested } from '../../../../hooks/custom';
 
