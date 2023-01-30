@@ -1,34 +1,45 @@
 @import 'shared/styles/colors';
 
 .hasSuffix {
-    display: inline-block;
-    position: relative;
-    margin-top: 0.53rem;
+  display: inline-block;
+  position: relative;
+  margin-top: 0.53rem;
 
-    div {
-        position: absolute;
-        right: 10px;
-        bottom: 11px;
-        font-size: .8rem;
-        color: $base;
-    }
+  div {
+    position: absolute;
+    right: 10px;
+    bottom: 11px;
+    font-size: 0.8rem;
+    color: $base;
+  }
 }
 
 .hasPrefix {
-    display: inline-block;
-    position: relative;
+  display: inline-block;
+  position: relative;
 
-    div {
-        position: absolute;
-        left: 10px;
-        bottom: 9px;
-        color: $base-darkest;
-    }
-    input {
-        padding-left: 25px;
-    }
+  div {
+    position: absolute;
+    left: 10px;
+    bottom: 9px;
+    color: $base-darkest;
+  }
+  input {
+    padding-left: 25px;
+  }
 }
 
 input:disabled {
   background-color: $border-color;
+}
+
+.description {
+  font-size: 13px;
+  color: $base;
+  font-weight: normal;
+  margin-top: 0.53rem;
+}
+
+:global(.usa-form-group) :global(.labelWrapper).hasDescription {
+  display: block;
 }

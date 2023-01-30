@@ -81,7 +81,6 @@
   },
   "resolutions": {
     "loader-utils": "^2.0.3",
-    "babel-loader": "~8.1.0",
     "dns-packet": "^5.2.2",
     "kind-of": "^6.0.2",
     "selfsigned": "^1.10.8",
@@ -89,7 +88,6 @@
     "url-parse": "^1.5.1",
     "y18n": "^5.0.5",
     "eslint-plugin-react": "^7.28",
-    "**/ua-parser-js": "0.7.28",
     "node-fetch": "^2.6.7",
     "minimist": "^1.2.6",
     "json5": "^2.2.2"
@@ -149,7 +147,7 @@
     "cypress": "8.5.0",
     "cypress-audit": "^1.1.0",
     "cypress-wait-until": "^1.7.2",
-    "danger": "^11.2.2",
+    "danger": "^11.2.3",
     "danger-plugin-jira-issue": "^1.4.1",
     "dotenv": "^16.0.3",
     "enzyme": "^3.11.0",
