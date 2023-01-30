@@ -85,9 +85,13 @@ const ShipmentDisplay = ({
               <Tag>cancellation requested</Tag>
             )}
             {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
-            {displayInfo.ppmDocumentStatus === ppmDocumentStatus.REJECTED && <Tag>sent to customer</Tag>}
+            {displayInfo.ppmDocumentStatus === ppmDocumentStatus.REJECTED && (
+              <Tag className={styles.ppmStatus}>sent to customer</Tag>
+            )}
             {(displayInfo.ppmDocumentStatus === ppmDocumentStatus.APPROVED ||
-              displayInfo.ppmDocumentStatus === ppmDocumentStatus.EXCLUDED) && <Tag>packet ready for download</Tag>}
+              displayInfo.ppmDocumentStatus === ppmDocumentStatus.EXCLUDED) && (
+              <Tag className={styles.ppmStatus}>packet ready for download</Tag>
+            )}
           </div>
 
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
