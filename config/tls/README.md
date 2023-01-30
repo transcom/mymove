@@ -22,6 +22,9 @@ A description of the certificates in this directory will helpful:
 | `dod-sw-ca-54.pem` | DoD SW CA-54 package |
 | `dod-wcf-intermediate-ca-1-.pem` | DoD WCF Intermediate CA 1 for allowing TLS connectivity to AWS services in the BCAP |
 | `dod-wcf-root-ca-1-.pem` | DoD WCF Root CA 1 for allowing TLS connectivity to AWS services in the BCAP |
+| `DoD-ECA-Root-CA-S23C.cer` | IdenTrust ECA Component S23 |
+| `ECA_Root_CA_4.cer` | ECA Root CA4. Issuer of IdenTrust ECA Component S23 |
+| `milmove-cert-bundle.p7b` | CUSTOM p7b file. See documentation LINK |
 
 ## DoD certificate authority package
 
