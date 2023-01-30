@@ -258,6 +258,22 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build unsubmitted move with multiple ppm shipments
+   * @returns {Promise<Object>}
+   */
+  async buildUnsubmittedMoveWithMultipleFullPPMShipmentComplete() {
+    return this.buildDefault('UnsubmittedMoveWithMultipleFullPPMShipmentComplete');
+  }
+
+  /**
+   * Use testharness to build approved move with ppm progear
+   * @returns {Promise<Object>}
+   */
+  async buildApprovedMoveWithPPMProgearWeightTicket() {
+    return this.buildDefault('ApprovedMoveWithPPMProgearWeightTicket');
+  }
+
+  /**
    * Use testharness to build NTS-R move with payment request
    * @returns {Promise<Object>}
    */

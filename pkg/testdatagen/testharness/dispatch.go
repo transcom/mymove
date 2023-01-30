@@ -111,6 +111,12 @@ var actionDispatcher = map[string]actionFunc{
 	"ApprovedMoveWithPPMWithAboutFormComplete": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMWithAboutFormComplete(appCtx)
 	},
+	"UnsubmittedMoveWithMultipleFullPPMShipmentComplete": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeUnsubmittedMoveWithMultipleFullPPMShipmentComplete(appCtx)
+	},
+	"ApprovedMoveWithPPMProgearWeightTicket": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMProgearWeightTicket(appCtx)
+	},
 	"OfficeUserWithTOOAndTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeOfficeUserWithTOOAndTIO(appCtx)
 	},

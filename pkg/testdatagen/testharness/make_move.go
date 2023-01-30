@@ -2293,7 +2293,7 @@ func MakeUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, true, assertions)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2345,6 +2345,103 @@ func MakeApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext) 
 	}
 
 	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeUnsubmittedMoveWithMultipleFullPPMShipmentComplete(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &scenario.DefaultCloseoutOfficeID,
+	}
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		PPMShipment: models.PPMShipment{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.PPMShipmentStatusDraft,
+		},
+	}
+
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       userInfo.email,
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   userInfo.firstName,
+		LastName:    userInfo.lastName,
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: models.GenerateLocator(),
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          uuid.Must(uuid.NewV4()),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	ppmCloseoutAssertions := testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+	}
+	testdatagen.MakeWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
+	testdatagen.MakeMovingExpense(appCtx.DB(), ppmCloseoutAssertions)
+	testdatagen.MakeProgearWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db

@@ -84,7 +84,7 @@ export class CustomerPpmPage extends CustomerPage {
   async signInAndNavigateToPPMReviewPage() {
     await this.signInAndClickOnUploadPPMDocumentsButton();
 
-    expect(this.page.url()).toContain('/moves/[^/]+/shipments/[^/]+/review/');
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
 
     await expect(this.page.getByRole('heading', { name: 'Review' })).toBeVisible();
   }
@@ -93,7 +93,7 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateFromPPMReviewPageToFinalCloseoutPage() {
     await this.page.locator('a').getByText('Save & Continue').click();
-    expect(this.page.url()).toContain('/moves/[^/]+/shipments/[^/]+/complete/');
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/complete/);
 
     await expect(this.page.getByRole('heading', { name: 'Complete PPM' })).toBeVisible();
   }
@@ -350,19 +350,25 @@ export class CustomerPpmPage extends CustomerPage {
 
     await expect(this.page.getByRole('heading', { name: 'Estimated weight', exact: true })).toBeVisible();
 
-    expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/estimated-weight/);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/estimated-weight/);
   }
 
   /**
    */
   async submitsEstimatedWeightsAndProGear() {
+    await this.page.locator('input[name="estimatedWeight"]').clear();
     await this.page.locator('input[name="estimatedWeight"]').type('4000');
-    await this.page.locator('input[name="estimatedWeight"]').blur();
-    await this.page.locator('input[name="hasProGear"][value="true"]').check({ force: true });
+
+    await this.page.locator('label[for="hasProGearYes"]').click();
+
+    // seems to need to click then clear
+    await this.page.locator('input[name="proGearWeight"]').click();
+    await this.page.locator('input[name="proGearWeight"]').clear();
     await this.page.locator('input[name="proGearWeight"]').type('500');
-    await this.page.locator('input[name="proGearWeight"]').blur();
+
+    await this.page.locator('input[name="spouseProGearWeight"]').clear();
     await this.page.locator('input[name="spouseProGearWeight"]').type('400');
-    await this.page.locator('input[name="spouseProGearWeight"]').blur();
+
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
 
     await this.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
@@ -371,8 +377,8 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    */
   async submitsEstimatedWeights() {
+    await this.page.locator('input[name="estimatedWeight"]').clear();
     await this.page.locator('input[name="estimatedWeight"]').type('4000');
-    await this.page.locator('input[name="estimatedWeight"]').blur();
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
 
     await this.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
@@ -458,6 +464,16 @@ export class CustomerPpmPage extends CustomerPage {
       await expect(saveButton).toHaveCSS('order', '1');
     }
 
+    // when navigating through an existing PPM that requested an
+    // advance, we must agree to the terms again to proceed
+    const hasAdvance = await this.page.locator('label[for="hasRequestedAdvanceYes"]').isChecked();
+    if (hasAdvance) {
+      // only look for this if hasAdvance
+      const agreedToTerms = await this.page.locator('label[for="agreeToTerms"]').isChecked();
+      if (!agreedToTerms) {
+        await this.page.locator('label[for="agreeToTerms"]').click();
+      }
+    }
     await saveButton.click();
 
     await expect(this.page.getByRole('heading', { name: 'Review your details', exact: true })).toBeVisible();
@@ -485,31 +501,78 @@ export class CustomerPpmPage extends CustomerPage {
       this.page.getByRole('button', { name: 'Upload PPM Documents' }).click(),
     ]);
 
-    expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
   }
 
   /**
    */
   async navigateToAgreementAndSign() {
     await this.navigateForward();
-    // TODO: DREW DEBUG FIXME!!!
-    // await this.signAgreement();
+    await this.signAgreement();
   }
 
-  // export function deleteShipment(selector, expectedLength) {
-  //   await expect(this.page.locator(selector)).toContainText('Delete').click();
-  //   await this.page.locator('[data-testid="modal"]').within(($modal) => {
-  //     expect($modal).to.be.visible;
-  //     await expect(this.page.locator('button')).toContainText('Yes, Delete').click();
-  //   });
-  //   cy.watest(['@deleteShipment', async ({page}) => {
-  //   if (expectedLength > 0) {
-  //     await this.page.locator(selector).should('have.length', expectedLength);
-  //   } else {
-  //     await this.page.locator(selector).should('not.exist');
-  //   }
-  //   await this.page.locator('[data-testid="alert"]').should('contain', 'The shipment was deleted.');
-  // }
+  /**
+   */
+  async signAgreement() {
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/agreement/);
+    await expect(this.page.getByRole('heading', { name: 'Now for the official part…' })).toBeVisible();
+
+    await this.page.locator('input[name="signature"]').type('Sofía Clark-Nuñez');
+    await expect(this.page.getByRole('button', { name: 'Complete' })).toBeEnabled();
+  }
+
+  /**
+   */
+  async submitMove() {
+    await this.page.getByRole('button', { name: 'Complete' }).click();
+
+    await expect(this.page.locator('.usa-alert--success')).toContainText('You’ve submitted your move request.');
+
+    await expect(this.page.getByRole('heading', { name: 'Next step: Your move gets approved' })).toBeVisible();
+
+    // ensure that shipment list doesn't have a button to edit or delete
+    await expect(this.page.locator('[data-testid="shipment-list-item-container"] button')).not.toBeVisible();
+  }
+
+  /**
+   * @param {import('@playwright/test').Locator} locator
+   * @param {number} expectedLength
+   */
+  async deleteShipment(locator, expectedLength) {
+    await locator.getByText('Delete').click();
+    const modal = this.page.locator('[data-testid="modal"]');
+    await expect(modal).toBeVisible();
+    await modal.getByRole('button', { name: 'Yes, Delete' }).click();
+    await expect(locator).toHaveCount(expectedLength);
+    await expect(this.page.locator('[data-testid="alert"]')).toContainText('The shipment was deleted.');
+  }
+
+  /**
+   * @param {string[][]} shipmentCardFields
+   * @param {Object} options
+   * @param {boolean} options.isEditable=false
+   */
+  async verifyPPMShipmentCard(shipmentCardFields, options = { isEditable: false }) {
+    const { isEditable = false } = options;
+    // get first div after the move setup heading
+    const ppm1 = this.page.locator(':text("Move setup") + div');
+    await expect(ppm1).toBeVisible();
+
+    if (isEditable) {
+      await expect(ppm1.getByRole('button', { name: 'Edit' })).toBeVisible();
+      await expect(ppm1.getByRole('button', { name: 'Delete' })).toBeVisible();
+    } else {
+      await expect(ppm1.locator('[data-testid="ShipmentContainer"]').locator('button')).not.toBeVisible();
+    }
+
+    await expect(ppm1.locator('dt')).toHaveCount(shipmentCardFields.length);
+    await expect(ppm1.locator('dd')).toHaveCount(shipmentCardFields.length);
+
+    shipmentCardFields.forEach(async (shipmentField, index) => {
+      await expect(ppm1.locator('dt').nth(index)).toContainText(shipmentField[0]);
+      await expect(ppm1.locator('dd').nth(index)).toContainText(shipmentField[1]);
+    });
+  }
 
   /**
    */
@@ -523,9 +586,9 @@ export class CustomerPpmPage extends CustomerPage {
   async navigateFromCloseoutReviewPageToProGearPage() {
     await Promise.all([
       this.page.waitForNavigation(),
-      await this.page.getByRole('button', { name: 'Add Pro-gear Weight' }).click(),
+      this.page.getByRole('link', { name: 'Add Pro-gear Weight' }).click(),
     ]);
-    expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
   }
 
   /**
@@ -533,9 +596,9 @@ export class CustomerPpmPage extends CustomerPage {
   async navigateFromCloseoutReviewPageToEditProGearPage() {
     await Promise.all([
       this.page.waitForNavigation(),
-      await this.page.locator('.progearSection a').getByText('Edit').click(),
+      this.page.locator('.progearSection a').getByText('Edit').click(),
     ]);
-    expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
   }
 
   /**
@@ -543,9 +606,9 @@ export class CustomerPpmPage extends CustomerPage {
   async navigateFromCloseoutReviewPageToEditWeightTicketPage() {
     await Promise.all([
       this.page.waitForNavigation(),
-      await this.page.locator('.reviewWeightTickets a').getByText('Edit').click(),
+      this.page.locator('.reviewWeightTickets a').getByText('Edit').click(),
     ]);
-    expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
   }
 
   /**
@@ -555,7 +618,7 @@ export class CustomerPpmPage extends CustomerPage {
       this.page.waitForNavigation(),
       this.page.locator('.reviewExpenses a').getByText('Edit').click(),
     ]);
-    expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
   }
 
   /**
@@ -576,38 +639,57 @@ export class CustomerPpmPage extends CustomerPage {
     expect(this.page.url()).toContain(url);
   }
 
-  // export function submitProgearPage(options) {
-  //   fillOutProgearPage(options);
-  //   navigateFromProgearPage();
-  // }
+  /**
+   * @param {Object} options
+   * @param {boolean} [options.belongsToSelf]
+   * @param {string} [options.weight]
+   * @param {boolean} [options.missingWeightTicket]
+   */
+  async submitProgearPage(options) {
+    await this.fillOutProgearPage(options);
+    await this.navigateFromProgearPage();
+  }
 
-  // export function fillOutProgearPage(options = { belongsToSelf: true }) {
-  //   const progearTypeSelector = options?.belongsToSelf
-  //     ? `[name="belongsToSelf"][value="true"]`
-  //     : `[name="belongsToSelf"][value="false"]`;
+  /**
+   * @param {Object} options
+   * @param {boolean} [options.belongsToSelf=true]
+   * @param {string} [options.weight]
+   * @param {boolean} [options.missingWeightTicket]
+   */
+  async fillOutProgearPage(options = { belongsToSelf: true }) {
+    const belongs = options?.belongsToSelf ? 'Self' : 'Spouse';
+    const progearTypeSelector = `label[for="ownerOfProGear${belongs}"]`;
 
-  //   await this.page.locator(progearTypeSelector).click({ force: true });
-  //   await this.page.locator('[name="description"]').type('Radio equipment');
+    await this.page.locator(progearTypeSelector).click();
+    await this.page.locator('[name="description"]').type('Radio equipment');
 
-  //   if (options?.belongsToSelf) {
-  //     await this.page.locator('[name="weight"]')
-  //       .clear()
-  //       .type(options?.weight || '2000');
-  //   } else {
-  //     await this.page.locator('[name="weight"]')
-  //       .clear()
-  //       .type(options?.weight || '500');
-  //   }
+    if (options?.belongsToSelf) {
+      await this.page.locator('[name="weight"]').clear();
+      await this.page.locator('[name="weight"]').type(options?.weight || '2000');
+    } else {
+      await this.page.locator('[name="weight"]').clear();
+      await this.page.locator('[name="weight"]').type(options?.weight || '500');
+    }
 
-  //   if (options?.missingWeightTicket) {
-  //     await this.page.locator('[name="missingWeightTicket"]').click();
-  //     cy.upload_file('.filepond--root', 'constructedWeight.xls');
-  //   } else {
-  //     cy.upload_file('.filepond--root', 'sampleWeightTicket.jpg');
-  //   }
+    let uploadFilename = 'sampleWeightTicket.jpg';
+    let upload;
 
-  //   cy.wait('@uploadFile');
-  // }
+    if (options?.missingWeightTicket) {
+      await this.page.locator('label').getByText("I don't have this weight ticket").click();
+      uploadFilename = 'constructedWeight.xls';
+      upload = this.page.locator('label').getByText('Upload constructed weight spreadsheet');
+    } else {
+      upload = this.page.locator('label').getByText("Upload your pro-gear's weight tickets");
+    }
+
+    await expect(upload).toBeVisible();
+    const filepond = upload.locator('../..').locator('.filepond--wrapper');
+    await expect(filepond).toBeVisible();
+    await this.uploadFileViaFilepond(filepond, uploadFilename);
+
+    // wait for the file to be visible in the uploads
+    await expect(filepond.locator('../..').locator('p').getByText(uploadFilename, { exact: true })).toBeVisible();
+  }
 
   /**
    */
@@ -702,10 +784,17 @@ export class CustomerPpmPage extends CustomerPage {
     await expect(stepContainer.getByText(/PPM documentation submitted: \d{2} \w{3} \d{4}/)).toBeVisible();
   }
 
-  // export function submitFinalCloseout(options) {
-  //   verifyFinalIncentiveAndTotals(options);
-  //   signCloseoutAgreement();
-  // }
+  /**
+   * @param {Object} options
+   * @param {string} [options.totalNetWeight='4,000 lbs']
+   * @param {string} [options.proGearWeight='1,500 lbs']
+   * @param {string} [options.expensesClaimed='450.00']
+   * @param {string} [options.finalIncentiveAmount='$500,000.00']
+   */
+  async submitFinalCloseout(options) {
+    this.verifyFinalIncentiveAndTotals(options);
+    this.signCloseoutAgreement();
+  }
 }
 export { expect, test, useMobileViewport };
 
