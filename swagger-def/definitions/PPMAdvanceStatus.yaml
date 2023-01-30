@@ -1,5 +1,6 @@
 type: string
 title: PPM Advance Status
+description: Indicates whether an advance status has been accepted, rejected, or edited.
 enum:
   - APPROVED
   - REJECTED
