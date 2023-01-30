@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@trussworks/react-uswds';
-import { generatePath, useHistory, withRouter } from 'react-router-dom';
+import { generatePath, useHistory, withRouter } from 'react-router-dom-old';
 
 import styles from './ReviewDocuments.module.scss';
 
