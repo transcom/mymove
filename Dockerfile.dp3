@@ -1,17 +1,5 @@
-FROM debian:stable AS build-env
-
-COPY config/tls/dod-wcf-root-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-root-ca-1.pem.crt
-COPY config/tls/dod-wcf-intermediate-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-intermediate-ca-1.pem.crt
-RUN apt-get update
-# hadolint ignore=DL3008
-RUN apt-get install -y ca-certificates --no-install-recommends
-RUN update-ca-certificates
-
-
 # hadolint ignore=DL3007
 FROM gcr.io/distroless/base:latest
-
-COPY --from=build-env /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 #AWS GovCloud RDS cert
 COPY bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
@@ -27,7 +15,7 @@ COPY config/tls/api.loadtest.dp3.us.chain.der.p7b /config/tls/api.loadtest.dp3.u
 COPY config/tls/api.loadtest.dp3.us.crt /config/tls/api.loadtest.dp3.us.crt
 
 # Exp Environment Certs
-COPY config/tls/test-api.exp.dp3.us.chain.der.p7b /config/tls/api.exp.dp3.us.chain.der.p7b
+COPY config/tls/api.exp.dp3.us.chain.der.p7b /config/tls/api.exp.dp3.us.chain.der.p7b
 COPY config/tls/api.exp.dp3.us.crt /config/tls/api.exp.dp3.us.crt
 
 COPY swagger/* /swagger/
