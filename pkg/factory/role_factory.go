@@ -1,7 +1,8 @@
 package factory
 
 import (
-	"strings"
+	"database/sql"
+	"log"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
@@ -134,22 +135,19 @@ func FetchOrBuildRoleByRoleType(db *pop.Connection, roleType roles.RoleType) rol
 	}
 
 	var role roles.Role
-	err := db.RawQuery(`SELECT * FROM roles WHERE role_type = ?`, roleType).First(&role)
-
-	if err != nil {
-		// if no role found we need to create one - there may be a better way to do this
-		if strings.Contains(err.Error(), "no rows in result set") {
-			role = BuildRole(db, []Customization{
-				{
-					Model: roles.Role{
-						RoleType: roleType,
-						RoleName: roleName,
-					},
-				},
-			}, nil)
-			return role
-		}
+	err := db.Where("role_type=$1", roleType).First(&role)
+	if err != nil && err != sql.ErrNoRows {
+		log.Panic(err)
+	} else if err == nil {
+		return role
 	}
 
-	return role
+	return BuildRole(db, []Customization{
+		{
+			Model: roles.Role{
+				RoleType: roleType,
+				RoleName: roleName,
+			},
+		},
+	}, nil)
 }
