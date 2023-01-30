@@ -87,7 +87,7 @@ export const formatProGearItems = (proGears, editPath, editParams, handleDelete)
       proGearBelongsTo = true;
     }
 
-    return {
+    const contents = {
       id: proGear.id,
       subheading: <h4 className="text-bold">Set {i + 1}</h4>,
       rows: [
@@ -97,12 +97,17 @@ export const formatProGearItems = (proGears, editPath, editParams, handleDelete)
           value: proGearBelongsTo ? 'Pro-gear' : 'Spouse pro-gear',
           hideLabel: true,
         },
-        { id: 'description', label: 'Description:', value: proGear.description, hideLabel: true },
+        { id: 'description', label: 'Description:', value: proGear.description ? proGear.description : null },
         { id: 'weight', label: 'Weight:', value: formatWeight(proGear.weight) },
       ],
       renderEditLink: () => <Link to={generatePath(editPath, { ...editParams, proGearId: proGear.id })}>Edit</Link>,
       onDelete: () => handleDelete('proGear', proGear.id, proGear.eTag),
     };
+
+    if (proGear.description === null) {
+      contents.rows.splice(1, 1);
+    }
+    return contents;
   });
 };
 
