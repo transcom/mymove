@@ -584,11 +584,11 @@ commands:
       application:
         type: string
     steps:
-      - run: echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-          source $BASH_ENV
       - run:
           name: make server_test_build for <<parameters.application>>
-          command: make server_test
+          command: |
+            export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+            make server_test
           environment:
             APPLICATION: '<< parameters.application >>'
             GOFLAGS: '-p=4'
