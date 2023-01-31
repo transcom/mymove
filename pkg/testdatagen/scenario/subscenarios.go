@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -73,10 +74,21 @@ func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *upload
 func subScenarioPPMCloseOut(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
 	return func() {
 		createServicesCounselor(appCtx)
+		createServicesCounselorForCloseoutWithGbloc(appCtx, uuid.Must(uuid.FromString("8bed04b0-9c64-4fb2-bc1a-65223319f109")), "ppm.processing.navy@office.mil", "NAVY")
+		createServicesCounselorForCloseoutWithGbloc(appCtx, uuid.Must(uuid.FromString("96b45e64-a501-49ce-9f8d-975bcb7b417c")), "ppm.processing.coastguard@office.mil", "USCG")
+		createServicesCounselorForCloseoutWithGbloc(appCtx, uuid.Must(uuid.FromString("f38cb4ed-fa1f-4f92-a52d-9695ba8cc85c")), "ppm.processing.marinecorps@office.mil", "TVCB")
 
 		// PPM Closeout
 		createMovesForEachBranch(appCtx, userUploader)
-		createMoveWithCloseoutOffice(appCtx, userUploader)
+		CreateMoveWithCloseoutOffice(appCtx, MoveCreatorInfo{
+			UserID:      uuid.Must(uuid.NewV4()),
+			Email:       "closeoutoffice@ppm.closeout",
+			SmID:        uuid.Must(uuid.NewV4()),
+			FirstName:   "CLOSEOUT",
+			LastName:    "OFFICE",
+			MoveID:      uuid.Must(uuid.NewV4()),
+			MoveLocator: "CLSOFF",
+		}, userUploader)
 	}
 }
 
@@ -118,6 +130,7 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)
 		createMoveWithPPMShipmentReadyForFinalCloseout(appCtx, userUploader)
 		createApprovedMoveWithPPMCloseoutComplete(appCtx, userUploader)
+		createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx, userUploader)
 	}
 }
 
@@ -145,21 +158,21 @@ func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader
 		other := models.DestinationTypeOtherThanAuthorized
 
 		//PCOS - one with nil dest type, 2 others with PLEAD status
-		createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "NODEST")
-		createNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD1")
-		createNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD2")
+		CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "NODEST")
+		CreateNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD1")
+		CreateNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD2")
 
 		//Retirees
-		createNeedsServicesCounseling(appCtx, retirement, hhg, &hor, "RETIR3")
-		createNeedsServicesCounseling(appCtx, retirement, nts, &hos, "RETIR4")
-		createNeedsServicesCounseling(appCtx, retirement, ntsR, &other, "RETIR5")
-		createNeedsServicesCounseling(appCtx, retirement, hhg, &plead, "RETIR6")
+		CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hor, "RETIR3")
+		CreateNeedsServicesCounseling(appCtx, retirement, nts, &hos, "RETIR4")
+		CreateNeedsServicesCounseling(appCtx, retirement, ntsR, &other, "RETIR5")
+		CreateNeedsServicesCounseling(appCtx, retirement, hhg, &plead, "RETIR6")
 
 		//Separatees
-		createNeedsServicesCounseling(appCtx, separation, hhg, &hor, "SEPAR3")
-		createNeedsServicesCounseling(appCtx, separation, nts, &hos, "SEPAR4")
-		createNeedsServicesCounseling(appCtx, separation, ntsR, &other, "SEPAR5")
-		createNeedsServicesCounseling(appCtx, separation, ntsR, &plead, "SEPAR6")
+		CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, "SEPAR3")
+		CreateNeedsServicesCounseling(appCtx, separation, nts, &hos, "SEPAR4")
+		CreateNeedsServicesCounseling(appCtx, separation, ntsR, &other, "SEPAR5")
+		CreateNeedsServicesCounseling(appCtx, separation, ntsR, &plead, "SEPAR6")
 
 		//USMC
 		createHHGNeedsServicesCounselingUSMC(appCtx, userUploader)
@@ -236,6 +249,19 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 				},
 			},
 		)
+		// Make a transportation office to use as the closeout office
+		closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{Name: "Los Angeles AFB"},
+			},
+		}, nil)
+
+		if *move.Orders.ServiceMember.Affiliation == models.AffiliationARMY || *move.Orders.ServiceMember.Affiliation == models.AffiliationAIRFORCE {
+			move.CloseoutOffice = &closeoutOffice
+			move.CloseoutOfficeID = &closeoutOffice.ID
+			testdatagen.MustSave(appCtx.DB(), &move)
+		}
+
 		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{MTOShipment: models.MTOShipment{
 			MoveTaskOrderID:       move.ID,
 			Status:                models.MTOShipmentStatusSubmitted,
@@ -401,7 +427,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		separation := internalmessages.OrdersTypeSEPARATION
 
 		//Retiree, HOR, HHG
-		createMoveWithOptions(appCtx, testdatagen.Assertions{
+		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
 			},
@@ -420,7 +446,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 
 		//Retiree, HOS, NTS
 		ntsMoveType := models.SelectedMoveTypeNTS
-		createMoveWithOptions(appCtx, testdatagen.Assertions{
+		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
 			},
@@ -441,7 +467,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 
 		//Retiree, HOS, NTSR
 		ntsrMoveType := models.SelectedMoveTypeNTSR
-		createMoveWithOptions(appCtx, testdatagen.Assertions{
+		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
 			},
@@ -461,7 +487,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		})
 
 		//Separatee, HOS, hhg
-		createMoveWithOptions(appCtx, testdatagen.Assertions{
+		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: separation,
 			},
@@ -574,25 +600,25 @@ func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.
 
 		createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSHHG")
 		createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSRHG")
-		createNeedsServicesCounselingMinimalNTSR(appCtx, pcos, "NTSRMN")
+		CreateNeedsServicesCounselingMinimalNTSR(appCtx, pcos, "NTSRMN")
 
 		// Create a move with an HHG and NTS prime-handled shipment
-		createMoveWithHHGAndNTSShipments(appCtx, "PRINTS", false)
+		CreateMoveWithHHGAndNTSShipments(appCtx, "PRINTS", false)
 
 		// Create a move with an HHG and NTS external vendor-handled shipment
-		createMoveWithHHGAndNTSShipments(appCtx, "PRXNTS", true)
+		CreateMoveWithHHGAndNTSShipments(appCtx, "PRXNTS", true)
 
 		// Create a move with only NTS external vendor-handled shipment
-		createMoveWithNTSShipment(appCtx, "EXTNTS", true)
+		CreateMoveWithNTSShipment(appCtx, "EXTNTS", true)
 
 		// Create a move with only an NTS external vendor-handled shipment
-		createMoveWithNTSShipment(appCtx, "NTSNTS", true)
+		CreateMoveWithNTSShipment(appCtx, "NTSNTS", true)
 
 		// Create a move with an HHG and NTS-release prime-handled shipment
-		createMoveWithHHGAndNTSRShipments(appCtx, "PRINTR", false)
+		CreateMoveWithHHGAndNTSRShipments(appCtx, "PRINTR", false)
 
 		// Create a move with an HHG and NTS-release external vendor-handled shipment
-		createMoveWithHHGAndNTSRShipments(appCtx, "PRXNTR", true)
+		CreateMoveWithHHGAndNTSRShipments(appCtx, "PRXNTR", true)
 
 		// Create a move with only an NTS-release external vendor-handled shipment
 		createMoveWithNTSRShipment(appCtx, "EXTNTR", true)

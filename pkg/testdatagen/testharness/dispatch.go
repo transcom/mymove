@@ -3,6 +3,8 @@ package testharness
 import (
 	"errors"
 
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -28,8 +30,56 @@ var actionDispatcher = map[string]actionFunc{
 	"WithShipmentMove": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeWithShipmentMove(appCtx)
 	},
-	"HHGMoveWithServiceItemsAndPaymentRequestsAndFiles": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx)
+	"HHGMoveWithNTSAndNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithNTSAndNeedsSC(appCtx)
+	},
+	"MoveWithMinimalNTSRNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeMoveWithMinimalNTSRNeedsSC(appCtx)
+	},
+	"HHGMoveNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveNeedsSC(appCtx)
+	},
+	"HHGMoveForSeparationNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveForSeparationNeedsSC(appCtx)
+	},
+	"HHGMoveForRetireeNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveForRetireeNeedsSC(appCtx)
+	},
+	"HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx)
+	},
+	"HHGMoveWithRetireeForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithRetireeForTOO(appCtx)
+	},
+	"HHGMoveWithNTSShipmentsForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithNTSShipmentsForTOO(appCtx)
+	},
+	"MoveWithNTSShipmentsForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeMoveWithNTSShipmentsForTOO(appCtx)
+	},
+	"HHGMoveWithExternalNTSShipmentsForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithExternalNTSShipmentsForTOO(appCtx)
+	},
+	"HHGMoveWithApprovedNTSShipmentsForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx)
+	},
+	"HHGMoveWithNTSRShipmentsForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithNTSRShipmentsForTOO(appCtx)
+	},
+	"HHGMoveWithApprovedNTSRShipmentsForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx)
+	},
+	"HHGMoveWithExternalNTSRShipmentsForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithExternalNTSRShipmentsForTOO(appCtx)
+	},
+	"HHGMoveWithServiceItemsandPaymentRequestsForTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx)
+	},
+	"NTSRMoveWithPaymentRequest": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeNTSRMoveWithPaymentRequest(appCtx)
+	},
+	"NTSRMoveWithServiceItemsAndPaymentRequest": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx)
 	},
 	"PrimeSimulatorMoveNeedsShipmentUpdate": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx)
@@ -39,6 +89,15 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"PPMInProgressMove": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakePPMInProgressMove(appCtx)
+	},
+	"MoveWithPPMShipmentReadyForFinalCloseout": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx)
+	},
+	"PPMMoveWithCloseout": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakePPMMoveWithCloseout(appCtx)
+	},
+	"PPMMoveWithCloseoutOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakePPMMoveWithCloseoutOffice(appCtx)
 	},
 	"OfficeUserWithTOOAndTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeOfficeUserWithTOOAndTIO(appCtx)
@@ -51,9 +110,11 @@ var actionDispatcher = map[string]actionFunc{
 func Dispatch(appCtx appcontext.AppContext, action string) (testHarnessResponse, error) {
 	dispatcher, ok := actionDispatcher[action]
 	if !ok {
-		return nil, errors.New("Cannot find builder for action: `" + action + "`")
+		appCtx.Logger().Error("Cannot find testharness dispatcher", zap.Any("action", action))
+		return nil, errors.New("Cannot find testharness dispatcher for action: `" + action + "`")
 	}
 
+	appCtx.Logger().Info("Found testharness dispatcher", zap.Any("action", action))
 	return dispatcher(appCtx), nil
 
 }

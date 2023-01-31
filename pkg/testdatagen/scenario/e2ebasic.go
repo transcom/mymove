@@ -1701,14 +1701,14 @@ func serviceMemberWithOrdersAndPPMMove04(appCtx appcontext.AppContext, userUploa
 }
 
 func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	moveInfo := moveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("9b9ce6ed-70ba-4edf-b016-488c87fc1250"),
-		email:       "profile_full_ppm@move.draft",
-		smID:        testdatagen.ConvertUUIDStringToUUID("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
-		firstName:   "Move",
-		lastName:    "Draft",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("302f3509-562c-4f5c-81c5-b770f4af30e8"),
-		moveLocator: "PPMFUL",
+	moveInfo := MoveCreatorInfo{
+		UserID:      testdatagen.ConvertUUIDStringToUUID("9b9ce6ed-70ba-4edf-b016-488c87fc1250"),
+		Email:       "profile_full_ppm@move.draft",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
+		FirstName:   "Move",
+		LastName:    "Draft",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("302f3509-562c-4f5c-81c5-b770f4af30e8"),
+		MoveLocator: "PPMFUL",
 	}
 
 	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
@@ -1728,18 +1728,18 @@ func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploa
 		},
 	}
 
-	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
 func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	moveInfo := moveCreatorInfo{
-		userID:      testdatagen.ConvertUUIDStringToUUID("4fd6726d-2d05-4640-96dd-983bec236a9c"),
-		email:       "full_ppm_mobile@complete.profile",
-		smID:        testdatagen.ConvertUUIDStringToUUID("08606458-cee9-4529-a2e6-9121e67dac72"),
-		firstName:   "Complete",
-		lastName:    "Profile",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("a97557cd-ec31-4f00-beed-01ac6e4c0976"),
-		moveLocator: "PPMMOB",
+	moveInfo := MoveCreatorInfo{
+		UserID:      testdatagen.ConvertUUIDStringToUUID("4fd6726d-2d05-4640-96dd-983bec236a9c"),
+		Email:       "full_ppm_mobile@complete.profile",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("08606458-cee9-4529-a2e6-9121e67dac72"),
+		FirstName:   "Complete",
+		LastName:    "Profile",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("a97557cd-ec31-4f00-beed-01ac6e4c0976"),
+		MoveLocator: "PPMMOB",
 	}
 
 	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
@@ -1759,7 +1759,7 @@ func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploa
 		},
 	}
 
-	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
 func serviceMemberWithOrdersAndPPMMove07(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -4227,7 +4227,16 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	serviceMemberWithOrdersAndPPMMove07(appCtx, userUploader)
 	serviceMemberWithOrdersAndPPMMove08(appCtx, userUploader)
 	createMoveWithPPMShipmentReadyForFinalCloseout(appCtx, userUploader)
-	createMoveWithCloseoutOffice(appCtx, userUploader)
+
+	CreateMoveWithCloseoutOffice(appCtx, MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       "closeoutoffice@ppm.closeout",
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   "CLOSEOUT",
+		LastName:    "OFFICE",
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: "CLSOFF",
+	}, userUploader)
 
 	//destination type
 	hos := models.DestinationTypeHomeOfSelection
@@ -4241,37 +4250,37 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	retirement := internalmessages.OrdersTypeRETIREMENT
 	separation := internalmessages.OrdersTypeSEPARATION
 
-	createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE1ET")
-	createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE2ET")
-	createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE3ET")
-	createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE4ET")
+	CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE1ET")
+	CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE2ET")
+	CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE3ET")
+	CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE4ET")
 
 	// Creates moves and shipments for NTS and NTS-release tests
 	createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSHHG")
 	createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSRHG")
-	createNeedsServicesCounselingMinimalNTSR(appCtx, pcos, "NTSRMN")
+	CreateNeedsServicesCounselingMinimalNTSR(appCtx, pcos, "NTSRMN")
 
-	createNeedsServicesCounseling(appCtx, retirement, hhg, &hos, "RET1RE")
-	createNeedsServicesCounseling(appCtx, separation, hhg, &hor, "S3PAR3")
+	CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hos, "RET1RE")
+	CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, "S3PAR3")
 
 	createBasicNTSMove(appCtx, userUploader)
 
 	createUserWithLocatorAndDODID(appCtx, "QAEHLP", "1000000000")
 
 	// Create a move with an HHG and NTS prime-handled shipment
-	createMoveWithHHGAndNTSShipments(appCtx, "PRINTS", false)
+	CreateMoveWithHHGAndNTSShipments(appCtx, "PRINTS", false)
 
 	// Create a move with an HHG and NTS external vendor-handled shipment
-	createMoveWithHHGAndNTSShipments(appCtx, "PRXNTS", true)
+	CreateMoveWithHHGAndNTSShipments(appCtx, "PRXNTS", true)
 
 	// Create a move with only an NTS external vendor-handled shipment
-	createMoveWithNTSShipment(appCtx, "EXTNTS", true)
+	CreateMoveWithNTSShipment(appCtx, "EXTNTS", true)
 
 	// Create a move with an HHG and NTS-release prime-handled shipment
-	createMoveWithHHGAndNTSRShipments(appCtx, "PRINTR", false)
+	CreateMoveWithHHGAndNTSRShipments(appCtx, "PRINTR", false)
 
 	// Create a move with an HHG and NTS-release external vendor-handled shipment
-	createMoveWithHHGAndNTSRShipments(appCtx, "PRXNTR", true)
+	CreateMoveWithHHGAndNTSRShipments(appCtx, "PRXNTR", true)
 
 	// Create a move with only an NTS-release external vendor-handled shipment
 	createMoveWithNTSRShipment(appCtx, "EXTNTR", true)
@@ -4318,7 +4327,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createApprovedMoveWithPPMProgearWeightTicket(appCtx, userUploader)
 	createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)
 	createApprovedMoveWithPPMMovingExpense(appCtx, nil, userUploader)
-	createApprovedMoveWithPPMMovingExpense(appCtx, &moveCreatorInfo{userID: uuid.FromStringOrNil("da65c290-6256-46db-a1a0-3779191638a2"), email: "movingExpensePPM2@ppm.approved", moveLocator: "EXPNS2"}, userUploader)
+	createApprovedMoveWithPPMMovingExpense(appCtx, &MoveCreatorInfo{UserID: uuid.FromStringOrNil("da65c290-6256-46db-a1a0-3779191638a2"), Email: "movingExpensePPM2@ppm.approved", MoveLocator: "EXPNS2"}, userUploader)
 	createMoveWithPPMShipmentReadyForFinalCloseout2(appCtx, userUploader)
 	createMoveWithPPMShipmentReadyForFinalCloseout3(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
@@ -4332,7 +4341,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createNTSRMoveWithPaymentRequest(appCtx, userUploader, "NTSRT3")
 
 	//Retiree, HOR, HHG
-	createMoveWithOptions(appCtx, testdatagen.Assertions{
+	CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 		Order: models.Order{
 			OrdersType: retirement,
 		},

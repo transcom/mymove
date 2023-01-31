@@ -7,11 +7,11 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PayloadsSuite) TestMoveTaskOrder() {
@@ -135,7 +135,13 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 	fakeFileStorer := test.NewFakeS3Storage(true)
 
 	suite.Run("Success - all data populated", func() {
-		upload := testdatagen.MakeStubbedUpload(suite.DB(), testdatagen.Assertions{})
+		// Get stubbed upload with ID and timestamps
+		upload := factory.BuildUpload(nil, []factory.Customization{
+			{
+				Model: models.Upload{ID: uuid.Must(uuid.NewV4())},
+			},
+		}, []factory.Trait{factory.GetTraitTimestampedUpload})
+
 		move := models.Move{
 			ID:                         id,
 			ExcessWeightQualifiedAt:    &now,
@@ -165,7 +171,12 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 
 func (suite *PayloadsSuite) TestUpload() {
 	fakeFileStorer := test.NewFakeS3Storage(true)
-	upload := testdatagen.MakeStubbedUpload(suite.DB(), testdatagen.Assertions{})
+	// Get stubbed upload with ID and timestamps
+	upload := factory.BuildUpload(nil, []factory.Customization{
+		{
+			Model: models.Upload{ID: uuid.Must(uuid.NewV4())},
+		},
+	}, []factory.Trait{factory.GetTraitTimestampedUpload})
 
 	uploadPayload := Upload(suite.AppContextForTest(), fakeFileStorer, &upload)
 	suite.Equal(upload.ID.String(), uploadPayload.ID.String())

@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -32,7 +33,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 				PaymentRequestID: pr.ID,
 			},
 		})
-		u := testdatagen.MakeDefaultUpload(suite.DB())
+		u := factory.BuildUpload(suite.DB(), nil, nil)
 		pu := testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
 			PrimeUpload: models.PrimeUpload{
 				ProofOfServiceDocID: posd.ID,
@@ -65,9 +66,10 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 			},
 		})
 		deletedAt := time.Now()
-		u := testdatagen.MakeUpload(suite.DB(), testdatagen.Assertions{
-			Upload: models.Upload{DeletedAt: &deletedAt},
-		})
+
+		u := factory.BuildUpload(suite.DB(), []factory.Customization{
+			{Model: models.Upload{DeletedAt: &deletedAt}},
+		}, nil)
 		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
 			PrimeUpload: models.PrimeUpload{
 				ProofOfServiceDocID: posd.ID,

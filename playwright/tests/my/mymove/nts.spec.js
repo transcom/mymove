@@ -10,7 +10,7 @@ const { test, expect } = require('../../utils/customerTest');
 test('A customer can create, edit, and delete an NTS shipment', async ({ page, customerPage }) => {
   const move = await customerPage.testHarness.buildMoveWithOrders();
   const userId = move.Orders.ServiceMember.user_id;
-  await customerPage.signIn.customer.existingCustomer(userId);
+  await customerPage.signInAsExistingCustomer(userId);
 
   // Navigate to create a new shipment
   await page.getByTestId('shipment-selection-btn').click();
