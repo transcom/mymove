@@ -32,6 +32,7 @@
       background-color: $info-light;
       &.ppmStatus {
         @include u-font-size('body', 'sm');
+        @include u-margin-left(1);
         background-color: $base-lightest;
       }
     }
