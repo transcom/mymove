@@ -21,8 +21,7 @@ references:
   # the playwright image to use
   playwright: &playwright cimg/node:16.19.0-browsers
 
-  # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
-  postgres: &postgres cimg/postgres:12.7
+  postgres: &postgres cimg/postgres:12.11
 
   redis: &redis redis:5.0.6
 
@@ -154,6 +153,16 @@ executors:
         environment:
           POSTGRES_PASSWORD: mysecretpassword
           POSTGRES_DB: test_db
+          # use ramdisk for better performance
+          # https://circleci.com/docs/databases/#optimizing-postgresql-images
+          PGDATA: /dev/shm/pgdata/data
+        # override entrypoint/command for ramdisk
+        # this has been fixed in versions of postgres newer than 13.9
+        # https://github.com/CircleCI-Public/cimg-postgres/commit/3b320e26e4f187d0cd144efea1bc26cf5a2b68b0
+        # milmove is still on 12.11
+        entrypoint: /bin/bash
+        command: -c 'ln -s /dev/shm/pgdata/data /var/lib/postgresql/ && exec /usr/local/bin/docker-entrypoint.sh postgres'
+
       - image: *redis
         auth:
           username: $DOCKERHUB_USERNAME
@@ -188,6 +197,15 @@ executors:
         environment:
           POSTGRES_PASSWORD: mysecretpassword
           POSTGRES_DB: test_db
+          # use ramdisk for better performance
+          # https://circleci.com/docs/databases/#optimizing-postgresql-images
+          PGDATA: /dev/shm/pgdata/data
+        # override entrypoint/command for ramdisk
+        # this has been fixed in versions of postgres newer than 13.9
+        # https://github.com/CircleCI-Public/cimg-postgres/commit/3b320e26e4f187d0cd144efea1bc26cf5a2b68b0
+        # milmove is still on 12.11
+        entrypoint: /bin/bash
+        command: -c 'ln -s /dev/shm/pgdata/data /var/lib/postgresql/ && exec /usr/local/bin/docker-entrypoint.sh postgres'
       - image: *redis
         auth:
           username: $DOCKERHUB_USERNAME
