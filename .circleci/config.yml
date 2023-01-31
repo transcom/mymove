@@ -1189,7 +1189,8 @@ jobs:
           # e.g. go from v1-server-tests-coverage- to
           # v2-server-tests-coverage-
           #
-          # Make sure you also update the key in the save_cache below
+          # ##### NOTE: Make sure you also update the key in the
+          # ##### save_cache below
           #
           # The trailing hyphen in restore_cache seems important
           # according to the page linked above
@@ -1227,13 +1228,13 @@ jobs:
           condition:
             equal: [main, << pipeline.git.branch >>]
           steps:
-            # Make sure this key prefix matches the one above in
-            # restore_cache
+            # ##### NOTE: Make sure this key prefix matches the one
+            # ##### above in restore_cache
             #
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             save_cache:
-              key: v1-server-tests-coverage-{{ .BuildNum }}
+              key: v2-server-tests-coverage-{{ .BuildNum }}
               paths:
                 - ~/transcom/mymove/tmp/test-results
       - announce_failure
@@ -1259,7 +1260,8 @@ jobs:
           # e.g. go from v1-client-tests-coverage- to
           # v2-client-tests-coverage-
           #
-          # Make sure you also update the key in the save_cache below
+          # ##### NOTE: Make sure you also update the key in the
+          # ##### save_cache below
           #
           # The trailing hyphen in restore_cache seems important
           # according to the page linked above
@@ -1289,7 +1291,8 @@ jobs:
           condition:
             equal: [main, << pipeline.git.branch >>]
           steps:
-            # Make sure this key prefix matches the one above in restore_cache
+            # ##### NOTE: Make sure this key prefix matches the one
+            # ##### above in restore_cache
             #
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
