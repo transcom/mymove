@@ -63,6 +63,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 	// EagerPreload causes duplicate records because there are multiple relationships to the same table
 	for i := range shipments {
 		if shipments[i].ShipmentType == models.MTOShipmentTypePPM {
+			shipments[i].PPMShipment.WeightTickets = shipments[i].PPMShipment.WeightTickets.FilterDeleted()
 			for j := range shipments[i].PPMShipment.WeightTickets {
 				// variable for convenience still modifies original shipments object
 				weightTicket := &shipments[i].PPMShipment.WeightTickets[j]

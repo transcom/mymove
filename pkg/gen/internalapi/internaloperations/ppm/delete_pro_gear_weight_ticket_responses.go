@@ -83,6 +83,51 @@ func (o *DeleteProGearWeightTicketBadRequest) WriteResponse(rw http.ResponseWrit
 	}
 }
 
+// DeleteProGearWeightTicketUnauthorizedCode is the HTTP code returned for type DeleteProGearWeightTicketUnauthorized
+const DeleteProGearWeightTicketUnauthorizedCode int = 401
+
+/*
+DeleteProGearWeightTicketUnauthorized The request was denied.
+
+swagger:response deleteProGearWeightTicketUnauthorized
+*/
+type DeleteProGearWeightTicketUnauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ClientError `json:"body,omitempty"`
+}
+
+// NewDeleteProGearWeightTicketUnauthorized creates DeleteProGearWeightTicketUnauthorized with default headers values
+func NewDeleteProGearWeightTicketUnauthorized() *DeleteProGearWeightTicketUnauthorized {
+
+	return &DeleteProGearWeightTicketUnauthorized{}
+}
+
+// WithPayload adds the payload to the delete pro gear weight ticket unauthorized response
+func (o *DeleteProGearWeightTicketUnauthorized) WithPayload(payload *internalmessages.ClientError) *DeleteProGearWeightTicketUnauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the delete pro gear weight ticket unauthorized response
+func (o *DeleteProGearWeightTicketUnauthorized) SetPayload(payload *internalmessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *DeleteProGearWeightTicketUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(401)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // DeleteProGearWeightTicketForbiddenCode is the HTTP code returned for type DeleteProGearWeightTicketForbidden
 const DeleteProGearWeightTicketForbiddenCode int = 403
 

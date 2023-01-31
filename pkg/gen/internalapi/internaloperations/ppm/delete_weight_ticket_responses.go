@@ -83,6 +83,51 @@ func (o *DeleteWeightTicketBadRequest) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
+// DeleteWeightTicketUnauthorizedCode is the HTTP code returned for type DeleteWeightTicketUnauthorized
+const DeleteWeightTicketUnauthorizedCode int = 401
+
+/*
+DeleteWeightTicketUnauthorized The request was denied.
+
+swagger:response deleteWeightTicketUnauthorized
+*/
+type DeleteWeightTicketUnauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ClientError `json:"body,omitempty"`
+}
+
+// NewDeleteWeightTicketUnauthorized creates DeleteWeightTicketUnauthorized with default headers values
+func NewDeleteWeightTicketUnauthorized() *DeleteWeightTicketUnauthorized {
+
+	return &DeleteWeightTicketUnauthorized{}
+}
+
+// WithPayload adds the payload to the delete weight ticket unauthorized response
+func (o *DeleteWeightTicketUnauthorized) WithPayload(payload *internalmessages.ClientError) *DeleteWeightTicketUnauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the delete weight ticket unauthorized response
+func (o *DeleteWeightTicketUnauthorized) SetPayload(payload *internalmessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *DeleteWeightTicketUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(401)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // DeleteWeightTicketForbiddenCode is the HTTP code returned for type DeleteWeightTicketForbidden
 const DeleteWeightTicketForbiddenCode int = 403
 
