@@ -123,7 +123,7 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
           value: expenseTypeLabels[expense.movingExpenseType],
           hideLabel: true,
         },
-        { id: 'description', label: 'Description:', value: expense.description, hideLabel: true },
+        { id: 'description', label: 'Description:', value: expense.description },
         { id: 'amount', label: 'Amount:', value: `$${formatCents(expense.amount)}` },
       ],
       renderEditLink: () => <Link to={generatePath(editPath, { ...editParams, expenseId: expense.id })}>Edit</Link>,
