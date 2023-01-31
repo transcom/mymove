@@ -10,12 +10,12 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { calculateMaxAdvanceAndFormatAdvanceAndIncentive } from 'utils/incentives';
 import ppmAdvanceStatus from 'constants/ppms';
 
-const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceStatus }) => {
+const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
   const [advanceInput, , advanceHelper] = useField('advanceRequested');
   const [statusInput, , statusHelper] = useField('advanceStatus');
 
   const advanceRequested = String(advanceInput.value) === 'true';
-  const advanceRequestStatus = statusInput.value === advanceStatus;
+  const advanceRequestStatus = statusInput.value === 'APPROVED';
 
   const { formattedMaxAdvance, formattedIncentive } =
     calculateMaxAdvanceAndFormatAdvanceAndIncentive(estimatedIncentive);

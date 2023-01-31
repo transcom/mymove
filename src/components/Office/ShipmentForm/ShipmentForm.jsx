@@ -180,7 +180,8 @@ const ShipmentForm = (props) => {
   const submitMTOShipment = (formValues, actions) => {
     if (isPPM) {
       const ppmShipmentBody = formatPpmShipmentForAPI(formValues);
-
+      // eslint-disable-next-line no-console
+      console.log('ppmShipmentBody: ', ppmShipmentBody);
       if (isCreatePage) {
         const body = { ...ppmShipmentBody, moveTaskOrderID };
         submitHandler({ shipment: { body, normalize: false }, closeoutOffice: formValues.closeoutOffice })
@@ -593,7 +594,6 @@ const ShipmentForm = (props) => {
                   <ShipmentIncentiveAdvance
                     values={values}
                     estimatedIncentive={mtoShipment.ppmShipment?.estimatedIncentive}
-                    advanceStatus={mtoShipment.ppmShipment?.advanceStatus}
                   />
                 )}
 
