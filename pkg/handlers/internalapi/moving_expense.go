@@ -174,7 +174,6 @@ type DeleteMovingExpenseHandler struct {
 
 // Handle deletes a moving expense
 func (h DeleteMovingExpenseHandler) Handle(params movingexpenseops.DeleteMovingExpenseParams) middleware.Responder {
-	h.AppContextFromRequest(params.HTTPRequest).Logger().Debug("HELLO")
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if appCtx.Session() == nil {
