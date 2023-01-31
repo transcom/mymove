@@ -197,7 +197,9 @@ func (h DeleteMovingExpenseHandler) Handle(params movingexpenseops.DeleteMovingE
 				).
 				Find(&ppmShipment, ppmID)
 			if err != nil {
-				// TODO handle error a little better. like what if we get a not found?
+				if err == sql.ErrNoRows {
+					return movingexpenseops.NewDeleteMovingExpenseNotFound(), err
+				}
 				return movingexpenseops.NewDeleteMovingExpenseInternalServerError(), err
 			}
 			if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
