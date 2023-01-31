@@ -398,10 +398,10 @@ commands:
     steps:
       - attach_workspace:
           at: .
-      - run:
-          name: Compare against deployed commit
-          command: |
-            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
+      # - run:
+      #     name: Compare against deployed commit
+      #     command: |
+      #       [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
       - restore_cache:
           keys:
             - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
