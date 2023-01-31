@@ -54,15 +54,29 @@
     }
   }
 
+  .missingAlert {
+     @include u-margin-top(2);
+     @include u-margin-bottom(0);
+     @include u-margin-left(3);
+     @include u-font-weight(700);
+     color: #B50909;
+  }
+
+  .alertTag {
+    //@include u-margin-right(10px);
+    @include u-margin-right(1.5);
+  }
+
   .contentsContainer {
     .headingWrapper {
       @include u-border(1px, solid);
       @include u-radius(3px);
       border-color: $border-color;
+      @include u-margin-top(2);
     }
 
     .subheadingWrapper {
-      @include u-margin-top(2);
+      @include u-margin-top(0);
       @include u-padding(3);
 
 

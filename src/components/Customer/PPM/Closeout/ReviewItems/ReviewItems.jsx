@@ -24,10 +24,10 @@ const ReviewItems = ({ className, heading, renderAddButton, contents, emptyMessa
             <div className={styles.headingWrapper}>
               {!isComplete && (
                 <div className={styles.missingAlert}>
-                  <Tag className="usa-tag--alert">
+                  <Tag className={classnames(styles.alertTag, 'usa-tag--alert')}>
                     <FontAwesomeIcon icon="exclamation" />
                   </Tag>
-                  <span>{draftMessage}</span>
+                  <span className="missingMessage">{draftMessage}</span>
                 </div>
               )}
               <div
