@@ -1,8 +1,8 @@
 package ppmshipment
 
 import (
-	"github.com/getlantern/deepcopy"
 	"github.com/gofrs/uuid"
+	"github.com/jinzhu/copier"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -41,7 +41,7 @@ func (p *ppmShipmentUpdatedSubmitter) SubmitUpdatedCustomerCloseOut(appCtx appco
 
 	var updatedPPMShipment models.PPMShipment
 
-	err = deepcopy.Copy(&updatedPPMShipment, ppmShipment)
+	err = copier.CopyWithOption(&updatedPPMShipment, ppmShipment, copier.Option{IgnoreEmpty: true, DeepCopy: true})
 	if err != nil {
 		return nil, err
 	}

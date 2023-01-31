@@ -1264,6 +1264,43 @@ paths:
       summary: Denies a SIT extension
       x-permissions:
         - update.SITExtension
+  /shipments/{shipmentID}/ppm-documents:
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    get:
+      summary: Gets all the PPM documents for a PPM shipment
+      description: >
+        Retrieves all of the documents and associated uploads for each ppm
+        document type connected to a PPM shipment. This
+
+        excludes any deleted PPM documents.
+      operationId: getPPMDocuments
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: >-
+            All PPM documents and associated uploads for the specified PPM
+            shipment.
+          schema:
+            $ref: '#/definitions/PPMDocuments'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/weight-tickets:
     parameters:
       - $ref: '#/parameters/ppmShipmentId'
@@ -6839,6 +6876,26 @@ definitions:
     enum:
       - HHG
       - NTS
+  ProGearWeightTickets:
+    description: All progear weight tickets associated with a PPM shipment.
+    type: array
+    items:
+      $ref: '#/definitions/ProGearWeightTicket'
+    x-omitempty: false
+  PPMDocuments:
+    description: >-
+      All documents associated with a PPM shipment, including weight tickets,
+      progear weight tickets, and moving expenses.
+    x-nullable: true
+    x-omitempty: false
+    type: object
+    properties:
+      WeightTickets:
+        $ref: '#/definitions/WeightTickets'
+      ProGearWeightTickets:
+        $ref: '#/definitions/ProGearWeightTickets'
+      MovingExpenses:
+        $ref: '#/definitions/ProGearWeightTickets'
   PPMDocumentStatus:
     description: Status of the PPM document.
     type: string
