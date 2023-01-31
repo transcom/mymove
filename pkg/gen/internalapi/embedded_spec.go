@@ -5633,6 +5633,7 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
@@ -14022,6 +14023,7 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [

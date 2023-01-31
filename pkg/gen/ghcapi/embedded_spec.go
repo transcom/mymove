@@ -6906,6 +6906,7 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
@@ -8685,6 +8686,9 @@ func init() {
           "type": "integer",
           "format": "cents",
           "x-nullable": true
+        },
+        "advanceStatus": {
+          "$ref": "#/definitions/PPMAdvanceStatus"
         },
         "destinationPostalCode": {
           "type": "string",
@@ -17374,6 +17378,7 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
@@ -19161,6 +19166,9 @@ func init() {
           "type": "integer",
           "format": "cents",
           "x-nullable": true
+        },
+        "advanceStatus": {
+          "$ref": "#/definitions/PPMAdvanceStatus"
         },
         "destinationPostalCode": {
           "type": "string",

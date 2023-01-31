@@ -4402,6 +4402,8 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+      advanceStatus:
+        $ref: '#/definitions/PPMAdvanceStatus'
   UpdateWeightTicket:
     type: object
     properties:
@@ -5911,6 +5913,9 @@ definitions:
   PPMAdvanceStatus:
     type: string
     title: PPM Advance Status
+    description: >-
+      Indicates whether an advance status has been accepted, rejected, or
+      edited.
     enum:
       - APPROVED
       - REJECTED

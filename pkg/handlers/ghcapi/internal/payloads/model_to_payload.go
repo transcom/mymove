@@ -722,6 +722,7 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
 		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
+		AdvanceStatus: 					ghcmessages.PPMAdvanceStatus(*ppmShipment.AdvanceStatus),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
 		SitEstimatedWeight:             handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),

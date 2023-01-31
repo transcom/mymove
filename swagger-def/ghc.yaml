@@ -4257,6 +4257,8 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+      advanceStatus:
+        $ref: 'definitions/PPMAdvanceStatus.yaml'
   UpdateWeightTicket:
     type: object
     properties:
