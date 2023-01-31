@@ -46,7 +46,7 @@
     "react-day-picker": "=7.4.10",
     "react-dom": "^17.0.1",
     "react-filepond": "^7.1.2",
-    "react-idle-timer": "^5.4.2",
+    "react-idle-timer": "^5.5.2",
     "react-imask": "^6.4.3",
     "react-markdown": "^8.0.5",
     "react-query": "^2.26.4",
