@@ -98,6 +98,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 				movingExpense.Document.UserUploads = movingExpense.Document.UserUploads.FilterDeleted()
 			}
 
+			shipments[i].PPMShipment.ProgearExpenses = shipments[i].PPMShipment.ProgearExpenses.FilterDeleted()
 			for j := range shipments[i].PPMShipment.ProgearExpenses {
 				progearWeightTicket := &shipments[i].PPMShipment.ProgearExpenses[j]
 
