@@ -73,8 +73,7 @@ const ShipmentForm = (props) => {
     isAdvancePage,
     move,
   } = props;
-  // eslint-disable-next-line no-console
-  // console.log('props', props);
+
   const [errorMessage, setErrorMessage] = useState(null);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
 
@@ -151,8 +150,7 @@ const ShipmentForm = (props) => {
   let showDeliveryFields;
   let showPickupFields;
   let schema;
-  // eslint-disable-next-line no-console
-  console.log('MTOSHIPMENT.PPMSHIPMENT:', mtoShipment.ppmShipment);
+
   if (isPPM) {
     schema = ppmShipmentSchema({
       estimatedIncentive: initialValues.estimatedIncentive || 0,
