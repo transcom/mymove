@@ -2566,6 +2566,8 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+      advanceStatus:
+        $ref: '#/definitions/PPMAdvanceStatus'
   UpdateShipment:
     type: object
     properties:

@@ -2533,6 +2533,8 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+      advanceStatus:
+        $ref: 'definitions/PPMAdvanceStatus.yaml'
   UpdateShipment:
     type: object
     properties:

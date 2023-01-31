@@ -7297,6 +7297,9 @@ func init() {
           "format": "cents",
           "x-nullable": true
         },
+        "advanceStatus": {
+          "$ref": "#/definitions/PPMAdvanceStatus"
+        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -15691,6 +15694,9 @@ func init() {
           "type": "integer",
           "format": "cents",
           "x-nullable": true
+        },
+        "advanceStatus": {
+          "$ref": "#/definitions/PPMAdvanceStatus"
         },
         "destinationPostalCode": {
           "type": "string",
