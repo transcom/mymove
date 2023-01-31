@@ -274,6 +274,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build approved move with ppm moving expenses
+   * @returns {Promise<Object>}
+   */
+  async buildApprovedMoveWithPPMMovingExpense() {
+    return this.buildDefault('ApprovedMoveWithPPMMovingExpense');
+  }
+
+  /**
    * Use testharness to build NTS-R move with payment request
    * @returns {Promise<Object>}
    */

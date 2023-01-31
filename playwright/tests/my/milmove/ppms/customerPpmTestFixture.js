@@ -694,8 +694,8 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    */
   async navigateFromCloseoutReviewPageToExpensesPage() {
-    await Promise.all([this.page.waitForNavigation(), this.page.getByRole('button', { name: 'Add Expense' }).click()]);
-    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/expenses/`;
+    await Promise.all([this.page.waitForNavigation(), this.page.getByRole('link', { name: 'Add Expense' }).click()]);
+    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/expenses`;
     expect(this.page.url()).toContain(url);
   }
 
@@ -712,14 +712,22 @@ export class CustomerPpmPage extends CustomerPage {
     await expenseType.selectOption({ label: 'Storage' });
 
     await this.page.locator('input[name="description"]').type('Cloud storage');
-    await this.page.locator('input[name="paidWithGTCC"][value="true"]').click();
+    await this.page.locator('label[for="yes-used-gtcc"]').click();
     await this.page.locator('input[name="amount"]').clear();
     await this.page.locator('input[name="amount"]').type(options?.amount || '675.99');
 
-    // TODO: really should be using a better locator
-    await this.page
-      .locator('.receiptDocument.filepond--root')
-      .setInputFiles('playwright/fixtures/sampleWeightTicket.jpg');
+    // find the label, then find the filepond wrapper. Not sure why
+    // getByLabel doesn't work
+    const fullWeightLabel = this.page.locator('label').getByText('Upload receipt', { exact: true });
+    await expect(fullWeightLabel).toBeVisible();
+    const fullFilepond = fullWeightLabel.locator('../..').locator('.filepond--wrapper');
+    await expect(fullFilepond).toBeVisible();
+
+    await this.uploadFileViaFilepond(fullFilepond, 'sampleWeightTicket.jpg');
+    // wait for the file to be visible in the uploads
+    await expect(
+      fullFilepond.locator('../..').locator('p').getByText('sampleWeightTicket.jpg', { exact: true }),
+    ).toBeVisible();
 
     await this.page.locator('input[name="sitStartDate"]').type('14 Aug 2022');
     await this.page.locator('input[name="sitStartDate"]').blur();
@@ -734,9 +742,11 @@ export class CustomerPpmPage extends CustomerPage {
     const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/review`;
     expect(this.page.url()).toContain(url);
 
-    await expect(this.page.getByText('Cloud storage')).toBeVisible();
-    await expect(this.page.locator('dt').getByText('Days in storage:')).toBeVisible();
-    await expect(this.page.locator('dd').getByText('7')).toBeVisible();
+    const cloudStorage = this.page.getByText('Cloud storage');
+    await expect(cloudStorage).toBeVisible();
+    const receiptContainer = cloudStorage.locator('../..');
+    await expect(receiptContainer.locator('dt').getByText('Days in storage:')).toBeVisible();
+    await expect(receiptContainer.locator('dd').getByText('7', { exact: true })).toBeVisible();
   }
 
   /**
