@@ -146,7 +146,7 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		AdvanceAmountRequested:         handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
-		AdvanceStatus: 					(*models.PPMAdvanceStatus)(&ppmShipment.AdvanceStatus),
+		AdvanceStatus:                  (*models.PPMAdvanceStatus)(&ppmShipment.AdvanceStatus),
 		FinalIncentive:                 handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive),
 	}
 
