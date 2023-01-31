@@ -119,9 +119,8 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
       rows: [
         {
           id: 'expenseType',
-          label: 'Expense Type:',
+          label: 'Type:',
           value: expenseTypeLabels[expense.movingExpenseType],
-          hideLabel: true,
         },
         { id: 'description', label: 'Description:', value: expense.description },
         { id: 'amount', label: 'Amount:', value: `$${formatCents(expense.amount)}` },
