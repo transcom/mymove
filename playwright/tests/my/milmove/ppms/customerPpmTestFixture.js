@@ -337,10 +337,14 @@ export class CustomerPpmPage extends CustomerPage {
    * used for creating a new shipment
    */
   async submitsDateAndLocation() {
+    await this.page.locator('input[name="pickupPostalCode"]').clear();
     await this.page.locator('input[name="pickupPostalCode"]').type('90210');
     await this.page.locator('input[name="pickupPostalCode"]').blur();
 
+    await this.page.locator('input[name="destinationPostalCode"]').clear();
     await this.page.locator('input[name="destinationPostalCode"]').type('76127');
+
+    await this.page.locator('input[name="expectedDepartureDate"]').clear();
     await this.page.locator('input[name="expectedDepartureDate"]').type('01 Feb 2022');
     await this.page.locator('input[name="expectedDepartureDate"]').blur();
 

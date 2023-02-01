@@ -120,6 +120,9 @@ var actionDispatcher = map[string]actionFunc{
 	"ApprovedMoveWithPPMMovingExpense": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMMovingExpense(appCtx)
 	},
+	"DraftMoveWithPPMWithDepartureDate": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeDraftMoveWithPPMWithDepartureDate(appCtx)
+	},
 	"OfficeUserWithTOOAndTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeOfficeUserWithTOOAndTIO(appCtx)
 	},

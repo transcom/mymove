@@ -282,6 +282,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build draft move with ppm departure date
+   * @returns {Promise<Object>}
+   */
+  async buildDraftMoveWithPPMWithDepartureDate() {
+    return this.buildDefault('DraftMoveWithPPMWithDepartureDate');
+  }
+
+  /**
    * Use testharness to build NTS-R move with payment request
    * @returns {Promise<Object>}
    */

@@ -2523,3 +2523,45 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 
 	return *newmove
 }
+
+// the old serviceMemberWithOrdersAndPPMMove
+func MakeDraftMoveWithPPMWithDepartureDate(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       userInfo.email,
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   userInfo.firstName,
+		LastName:    userInfo.lastName,
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: models.GenerateLocator(),
+	}
+
+	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		PPMShipment: models.PPMShipment{
+			ID:                    uuid.Must(uuid.NewV4()),
+			Status:                models.PPMShipmentStatusDraft,
+			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
+			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
+			PickupPostalCode:      "90210",
+			DestinationPostalCode: "76127",
+			ExpectedDepartureDate: departureDate,
+		},
+	}
+
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
