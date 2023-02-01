@@ -21,7 +21,7 @@ const ReviewItems = ({ className, heading, renderAddButton, contents, emptyMessa
         )}
         {contents?.map(({ id, isComplete, draftMessage, subheading, rows, onDelete, renderEditLink }) => {
           return (
-            <div className={styles.headingWrapper}>
+            <div className={classnames({ [styles.headingWrapper]: !!renderAddButton })}>
               {isComplete === false && (
                 <div className={styles.missingAlert}>
                   <Tag className={classnames(styles.alertTag, 'usa-tag--alert')}>
