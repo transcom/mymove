@@ -542,9 +542,12 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			},
 		})
 
+		approved := models.PPMAdvanceStatusApproved
+
 		newPPM := models.PPMShipment{
 			HasRequestedAdvance:    models.BoolPointer(true),
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+			AdvanceStatus:          &approved,
 		}
 
 		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
@@ -565,7 +568,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
 
 		// Fields that should now be updated
-		approved := models.PPMAdvanceStatusApproved
+		// approved := models.PPMAdvanceStatusApproved
 		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
 		suite.Equal(*newPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
 		suite.Equal(&approved, updatedPPM.AdvanceStatus)
