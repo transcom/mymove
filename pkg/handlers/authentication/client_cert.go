@@ -62,7 +62,7 @@ func ClientCertMiddleware(appCtx appcontext.AppContext) func(next http.Handler) 
 			clientCert, err := models.FetchClientCert(newAppCtx.DB(), hashString)
 			if err != nil {
 				// This is not a known client certificate at all
-				newAppCtx.Logger().Error(
+				newAppCtx.Logger().Info(
 					"Unknown / unregistered client certificate",
 					zap.String("SHA256_hash_string", hashString),
 				)
