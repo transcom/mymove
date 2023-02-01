@@ -1,6 +1,5 @@
 import { combineReducers } from 'redux';
 import { reducer as formReducer } from 'redux-form';
-import { connectRouter } from 'connected-react-router';
 import defaultMessages from 'ra-language-english';
 import storage from 'redux-persist/lib/storage';
 import { persistReducer } from 'redux-persist';
@@ -33,23 +32,21 @@ const defaultReducers = {
   entities: entitiesReducer,
 };
 
-export const appReducer = (history) =>
+export const appReducer = () =>
   combineReducers({
     ...defaultReducers,
     onboarding: onboardingReducer,
-    router: connectRouter(history),
     swaggerInternal: swaggerReducerInternal,
     flashMessages: officeFlashMessagesReducer,
     interceptor: interceptorReducer,
     ppmIncentive: officePpmReducer,
   });
 
-export const adminAppReducer = (history) =>
+export const adminAppReducer = () =>
   combineReducers({
     ...defaultReducers,
     i18n: i18nProvider(locale),
     form: formReducer,
-    router: connectRouter(history),
   });
 
 export default appReducer;
