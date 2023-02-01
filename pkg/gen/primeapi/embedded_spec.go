@@ -3383,6 +3383,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "params": {
+          "description": "This should be populated for the service items DOASIT(Domestic destination Additional day SIT) and DDASIT(Domestic destination Additional day SIT).\n\nThey both take in the param keys of \"SITPaymentRequestStart\" and \"SITPaymentRequestEnd\" where the value is a string form of a date in the format \"YYYY-MM-DD\" (eg. \"2023-01-15\").\n",
           "type": "array",
           "items": {
             "type": "object",
@@ -7749,6 +7750,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "params": {
+          "description": "This should be populated for the service items DOASIT(Domestic destination Additional day SIT) and DDASIT(Domestic destination Additional day SIT).\n\nThey both take in the param keys of \"SITPaymentRequestStart\" and \"SITPaymentRequestEnd\" where the value is a string form of a date in the format \"YYYY-MM-DD\" (eg. \"2023-01-15\").\n",
           "type": "array",
           "items": {
             "$ref": "#/definitions/ServiceItemParamsItems0"
