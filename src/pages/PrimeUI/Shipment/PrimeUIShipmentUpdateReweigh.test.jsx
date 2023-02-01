@@ -1,5 +1,4 @@
 import React from 'react';
-import { useParams } from 'react-router-dom-old';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -8,15 +7,14 @@ import PrimeUIShipmentUpdateReweigh from './PrimeUIShipmentUpdateReweigh';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { updatePrimeMTOShipmentReweigh } from 'services/primeApi';
 import { MockProviders } from 'testUtils';
+import { primeSimulatorRoutes } from 'constants/routes';
 
-const mockUseHistoryPush = jest.fn();
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn().mockReturnValue({ moveCodeOrID: 'LN4T89', shipmentId: '4', reweighId: '1' }),
-  useHistory: () => ({
-    push: mockUseHistoryPush,
-  }),
+  useNavigate: () => mockNavigate,
 }));
+const routingParams = { moveCodeOrID: 'LN4T89', shipmentId: '4', reweighId: '1' };
 
 jest.mock('hooks/queries', () => ({
   usePrimeSimulatorGetMove: jest.fn(),
@@ -82,6 +80,14 @@ const noVerificationReason = {
   isError: false,
 };
 
+const renderWithProviders = (component) => {
+  render(
+    <MockProviders path={primeSimulatorRoutes.SHIPMENT_UPDATE_REWEIGH_PATH} params={routingParams}>
+      {component}
+    </MockProviders>,
+  );
+};
+
 describe('PrimeUIShipmentUpdateReweigh page', () => {
   describe('check loading and error component states', () => {
     const loadingReturnValue = {
@@ -99,11 +105,7 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
     it('renders the loading placeholder when the query is still loading', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(loadingReturnValue);
 
-      render(
-        <MockProviders>
-          <PrimeUIShipmentUpdateReweigh />
-        </MockProviders>,
-      );
+      renderWithProviders(<PrimeUIShipmentUpdateReweigh />);
 
       expect(await screen.findByRole('heading', { name: 'Loading, please wait...', level: 2 }));
     });
@@ -111,11 +113,7 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
     it('renders the Something Went Wrong component when the query has an error', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(errorReturnValue);
 
-      render(
-        <MockProviders>
-          <PrimeUIShipmentUpdateReweigh />
-        </MockProviders>,
-      );
+      renderWithProviders(<PrimeUIShipmentUpdateReweigh />);
 
       expect(await screen.findByText(/Something went wrong./));
     });
@@ -125,11 +123,7 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
     it('displays the reweigh weight and verification reason', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
 
-      render(
-        <MockProviders>
-          <PrimeUIShipmentUpdateReweigh />
-        </MockProviders>,
-      );
+      renderWithProviders(<PrimeUIShipmentUpdateReweigh />);
 
       const pageHeading = await screen.findByRole('heading', {
         name: 'Edit Reweigh',
@@ -137,8 +131,9 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
       });
       expect(pageHeading).toBeInTheDocument();
 
-      const { shipmentId } = useParams();
-      const shipmentIndex = moveTaskOrder.mtoShipments.findIndex((mtoShipment) => mtoShipment.id === shipmentId);
+      const shipmentIndex = moveTaskOrder.mtoShipments.findIndex(
+        (mtoShipment) => mtoShipment.id === routingParams.shipmentId,
+      );
       const shipment = moveTaskOrder.mtoShipments[shipmentIndex];
 
       expect(await screen.findByLabelText('Reweigh Weight (lbs)')).toHaveValue(String(shipment.reweigh.weight));
@@ -149,11 +144,7 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
     it('displays only the reweigh weight', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(noVerificationReason);
 
-      render(
-        <MockProviders>
-          <PrimeUIShipmentUpdateReweigh />
-        </MockProviders>,
-      );
+      renderWithProviders(<PrimeUIShipmentUpdateReweigh />);
 
       const pageHeading = await screen.findByRole('heading', {
         name: 'Edit Reweigh',
@@ -161,9 +152,8 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
       });
       expect(pageHeading).toBeInTheDocument();
 
-      const { shipmentId } = useParams();
       const shipmentIndex = noVerificationReason.moveTaskOrder.mtoShipments.findIndex(
-        (mtoShipment) => mtoShipment.id === shipmentId,
+        (mtoShipment) => mtoShipment.id === routingParams.shipmentId,
       );
       const shipment = noVerificationReason.moveTaskOrder.mtoShipments[shipmentIndex];
 
@@ -174,11 +164,7 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
     it('uses the default values when there is no reweigh', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(noReweigh);
 
-      render(
-        <MockProviders>
-          <PrimeUIShipmentUpdateReweigh />
-        </MockProviders>,
-      );
+      renderWithProviders(<PrimeUIShipmentUpdateReweigh />);
 
       const pageHeading = await screen.findByRole('heading', {
         name: 'Edit Reweigh',
@@ -199,11 +185,7 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
         response: { body: { title: 'Error title', detail: 'Error detail' } },
       });
 
-      render(
-        <MockProviders>
-          <PrimeUIShipmentUpdateReweigh />
-        </MockProviders>,
-      );
+      renderWithProviders(<PrimeUIShipmentUpdateReweigh />);
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
       await userEvent.click(saveButton);
@@ -217,11 +199,7 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       updatePrimeMTOShipmentReweigh.mockRejectedValue('malformed api error response');
 
-      render(
-        <MockProviders>
-          <PrimeUIShipmentUpdateReweigh />
-        </MockProviders>,
-      );
+      renderWithProviders(<PrimeUIShipmentUpdateReweigh />);
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
       await userEvent.click(saveButton);
@@ -243,17 +221,13 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
         eTag: '1234567890',
       });
 
-      render(
-        <MockProviders>
-          <PrimeUIShipmentUpdateReweigh />
-        </MockProviders>,
-      );
+      renderWithProviders(<PrimeUIShipmentUpdateReweigh />);
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
       await userEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockUseHistoryPush).toHaveBeenCalledWith('/simulator/moves/LN4T89/details');
+        expect(mockNavigate).toHaveBeenCalledWith('/simulator/moves/LN4T89/details');
       });
     });
   });

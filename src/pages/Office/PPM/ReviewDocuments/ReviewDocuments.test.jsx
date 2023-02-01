@@ -21,13 +21,10 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const mockPush = jest.fn();
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockPush,
-  }),
-  useLocation: jest.fn(),
+  useNavigate: () => mockNavigate,
 }));
 
 const mockPatchWeightTicket = jest.fn();
@@ -247,7 +244,7 @@ describe('ReviewDocuments', () => {
       expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
 
       await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
-      expect(mockPush).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalled();
     });
 
     it('renders and handles the Close button', async () => {
@@ -260,7 +257,7 @@ describe('ReviewDocuments', () => {
       expect(closeSidebarButton).toBeInTheDocument();
 
       await userEvent.click(closeSidebarButton);
-      expect(mockPush).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalled();
     });
 
     it('shows an error if submissions fails', async () => {

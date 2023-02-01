@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { HashRouter as Router } from 'react-router-dom-old';
+// import { HashRouter as Router } from 'react-router-dom-old';
 
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
@@ -10,8 +10,13 @@ import ReactTable from 'react-table-6';
 import store from 'shared/store';
 import { mount } from 'enzyme/build';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { MockRouting } from 'testUtils';
 
-const push = jest.fn();
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 describe('Shipments column', () => {
   let wrapper;
@@ -116,9 +121,9 @@ function retrieveMovesStub(params, throwError) {
 function mountComponents(getMoves, queueType = 'new', mockStore = store) {
   return mount(
     <Provider store={mockStore}>
-      <Router push={push}>
+      <MockRouting>
         <QueueTable queueType={queueType} retrieveMoves={getMoves} />
-      </Router>
+      </MockRouting>
     </Provider>,
   );
 }
