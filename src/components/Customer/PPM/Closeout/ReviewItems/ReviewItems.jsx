@@ -22,7 +22,7 @@ const ReviewItems = ({ className, heading, renderAddButton, contents, emptyMessa
         {contents?.map(({ id, isComplete, draftMessage, subheading, rows, onDelete, renderEditLink }) => {
           return (
             <div className={styles.headingWrapper}>
-              {!isComplete && (
+              {isComplete === false && (
                 <div className={styles.missingAlert}>
                   <Tag className={classnames(styles.alertTag, 'usa-tag--alert')}>
                     <FontAwesomeIcon icon="exclamation" />
@@ -35,7 +35,6 @@ const ReviewItems = ({ className, heading, renderAddButton, contents, emptyMessa
                 key={id}
               >
                 {subheading && <div className={styles.subheading}>{subheading}</div>}
-
                 <dl>
                   {rows.map(({ id: rowId, hideLabel, label, value }) => (
                     <div key={`${rowId}-${id}`} className={styles[rowId]}>
@@ -46,7 +45,6 @@ const ReviewItems = ({ className, heading, renderAddButton, contents, emptyMessa
                     </div>
                   ))}
                 </dl>
-
                 <div className={styles.actionContainer}>
                   {onDelete && (
                     <>
