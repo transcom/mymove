@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom-old';
+import { useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
@@ -9,17 +9,16 @@ import 'styles/office.scss';
 import CustomerHeader from 'components/CustomerHeader';
 import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
-import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
 import { roleTypes } from 'constants/userRoles';
 
-const EditShipmentDetails = ({ match }) => {
+const EditShipmentDetails = () => {
   const { moveCode, shipmentId } = useParams();
-  const history = useHistory();
   const queryClient = useQueryClient();
+
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
@@ -56,8 +55,6 @@ const EditShipmentDetails = ({ match }) => {
             <Grid row>
               <Grid col desktop={{ col: 8, offset: 2 }}>
                 <ShipmentForm
-                  match={match}
-                  history={history}
                   submitHandler={mutateMTOShipment}
                   isCreatePage={false}
                   currentResidence={customer.current_address}
@@ -79,10 +76,6 @@ const EditShipmentDetails = ({ match }) => {
       </div>
     </>
   );
-};
-
-EditShipmentDetails.propTypes = {
-  match: MatchShape.isRequired,
 };
 
 export default EditShipmentDetails;

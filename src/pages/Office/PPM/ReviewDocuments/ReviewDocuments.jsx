@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@trussworks/react-uswds';
-import { generatePath, useHistory, withRouter } from 'react-router-dom-old';
+import { generatePath, useNavigate } from 'react-router-dom';
 
 import styles from './ReviewDocuments.module.scss';
 
@@ -11,7 +11,6 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import { MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import { usePPMShipmentDocsQueries } from 'hooks/queries';
@@ -87,7 +86,7 @@ export const ReviewDocuments = ({ match }) => {
     );
   }
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const formRef = useRef();
 
@@ -102,7 +101,7 @@ export const ReviewDocuments = ({ match }) => {
   if (isError) return <SomethingWentWrong />;
 
   const onClose = () => {
-    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+    navigate(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
 
   const onBack = () => {
@@ -132,7 +131,7 @@ export const ReviewDocuments = ({ match }) => {
   };
 
   const onConfirmSuccess = () => {
-    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+    navigate(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
 
   const onError = () => {
@@ -202,8 +201,4 @@ export const ReviewDocuments = ({ match }) => {
   );
 };
 
-ReviewDocuments.propTypes = {
-  match: MatchShape.isRequired,
-};
-
-export default withRouter(ReviewDocuments);
+export default ReviewDocuments;

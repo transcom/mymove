@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { useHistory } from 'react-router-dom-old';
+import { useNavigate } from 'react-router-dom';
 
 import MilMoveHeader from 'components/MilMoveHeader/index';
 import CustomerUserInfo from 'components/MilMoveHeader/CustomerUserInfo';
@@ -10,7 +10,7 @@ import { logOut as logOutAction } from 'store/auth/actions';
 import { selectIsProfileComplete } from 'store/entities/selectors';
 
 const CustomerLoggedInHeader = ({ isProfileComplete, logOut }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const handleLogout = () => {
     logOut();
     LogoutUser().then((r) => {
@@ -18,10 +18,7 @@ const CustomerLoggedInHeader = ({ isProfileComplete, logOut }) => {
       if (redirectURL) {
         window.location.href = redirectURL;
       } else {
-        history.push({
-          pathname: '/sign-in',
-          state: { hasLoggedOut: true },
-        });
+        navigate('/sign-in', { state: { hasLoggedOut: true } });
       }
     });
   };

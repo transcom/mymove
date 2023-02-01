@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { generatePath, useHistory, useParams } from 'react-router-dom-old';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
@@ -20,7 +20,7 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 
 const EstimatedWeightsProGear = () => {
   const [errorMessage, setErrorMessage] = useState(null);
-  const history = useHistory();
+  const navigate = useNavigate();
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
   const dispatch = useDispatch();
 
@@ -29,7 +29,7 @@ const EstimatedWeightsProGear = () => {
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
   const handleBack = () => {
-    history.push(generatePath(customerRoutes.SHIPMENT_EDIT_PATH, { moveId, mtoShipmentId }));
+    navigate(generatePath(customerRoutes.SHIPMENT_EDIT_PATH, { moveId, mtoShipmentId }));
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -52,7 +52,7 @@ const EstimatedWeightsProGear = () => {
       .then((response) => {
         setSubmitting(false);
         dispatch(updateMTOShipment(response));
-        history.push(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, { moveId, mtoShipmentId }));
+        navigate(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, { moveId, mtoShipmentId }));
       })
       .catch((err) => {
         setSubmitting(false);

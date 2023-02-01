@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { useHistory } from 'react-router-dom-old';
+import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Button, GridContainer } from '@trussworks/react-uswds';
 
@@ -11,11 +11,11 @@ import { UserRolesShape } from 'types';
 import getRoleTypesFromRoles from 'utils/user';
 
 const SelectApplication = ({ userRoles, setActiveRole, activeRole }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleSelectRole = (roleType) => {
     setActiveRole(roleType);
-    history.push('/');
+    navigate('/');
   };
 
   const userRoleTypes = getRoleTypesFromRoles(userRoles);

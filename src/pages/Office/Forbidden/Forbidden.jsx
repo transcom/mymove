@@ -1,14 +1,14 @@
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom-old';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from './Forbidden.module.scss';
 
 const Forbidden = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { moveCode } = useParams();
   const onClick = () => {
-    history.push(`/moves/${moveCode}/details`);
+    navigate(`/moves/${moveCode}/details`);
   };
   return (
     <div className={styles.forbidden}>

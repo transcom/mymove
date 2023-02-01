@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom-old';
+import { useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
@@ -9,7 +9,6 @@ import 'styles/office.scss';
 import CustomerHeader from 'components/CustomerHeader';
 import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
-import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { createMTOShipment } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -17,7 +16,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { roleTypes } from 'constants/userRoles';
 import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 
-const ServicesCounselingAddShipment = ({ match }) => {
+const ServicesCounselingAddShipment = () => {
   const params = useParams();
   let { shipmentType } = params;
   const { moveCode } = params;
@@ -28,7 +27,6 @@ const ServicesCounselingAddShipment = ({ match }) => {
     shipmentType = SHIPMENT_OPTIONS[shipmentType];
   }
 
-  const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const queryClient = useQueryClient();
   const { mutate: mutateMTOShipments } = useMutation(createMTOShipment, {
@@ -65,8 +63,6 @@ const ServicesCounselingAddShipment = ({ match }) => {
             <Grid row>
               <Grid col desktop={{ col: 8, offset: 2 }}>
                 <ShipmentForm
-                  match={match}
-                  history={history}
                   submitHandler={mutateMTOShipments}
                   isCreatePage
                   ServicesCounselingShipmentForm
@@ -90,10 +86,6 @@ const ServicesCounselingAddShipment = ({ match }) => {
       </div>
     </>
   );
-};
-
-ServicesCounselingAddShipment.propTypes = {
-  match: MatchShape.isRequired,
 };
 
 export default ServicesCounselingAddShipment;
