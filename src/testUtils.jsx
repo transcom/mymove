@@ -1,10 +1,7 @@
 import React, { Suspense } from 'react';
-import { node, shape, arrayOf, func, string } from 'prop-types';
+import { node, shape, arrayOf, string, bool } from 'prop-types';
 import { Provider } from 'react-redux';
-import { createMemoryHistory } from 'history';
-import { ConnectedRouter } from 'connected-react-router';
-import { Router } from 'react-router-dom-old';
-/* eslint-disable-next-line import/no-extraneous-dependencies */
+import { RouterProvider, createMemoryRouter, generatePath } from 'react-router-dom';
 import { render } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -12,8 +9,22 @@ import { configureStore } from 'shared/store';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
 
-export const createMockHistory = (initialEntries) => {
-  return createMemoryHistory({ initialEntries });
+// Helper function to create a react-router memory router with the provided options
+const createMockRouter = ({ path, params, routes, initialEntries, children }) => {
+  const mockRoutes = [
+    {
+      path: path || '/',
+      element: <Suspense fallback={<LoadingPlaceholder />}>{children}</Suspense>,
+    },
+  ];
+
+  if (routes && routes.length > 0) mockRoutes.push(...routes);
+
+  const router = createMemoryRouter(mockRoutes, {
+    initialEntries: [initialEntries || generatePath(path, params)] || ['/'],
+  });
+
+  return router;
 };
 
 export const ReactQueryWrapper = ({ children, client }) => {
@@ -21,36 +32,80 @@ export const ReactQueryWrapper = ({ children, client }) => {
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
 
-export const renderWithRouter = (ui, { route = '/', history = createMockHistory([route]) } = {}) => {
-  return {
-    ...render(
-      <ReactQueryWrapper>
-        <Router history={history}>{ui}</Router>
-      </ReactQueryWrapper>,
-    ),
-    history,
-  };
+/**
+ * Render the `ui` with mock routing in place, setup using the `options`. Most common options are `path` and `params`.
+ * Enables rendered components to use routing hooks like `useParams` and `useLocation`.
+ *
+ * @param {*} ui - The component to be rendered using react-testing-library
+ * @param {*} options - Routing options used to create a mock router. Prefered options are `path` and `params`. Other options are for extended use cases and supporting existiong patterns.
+ * @returns {*} - The result of the render call from react-testing-library
+ */
+export const renderWithRouter = (ui, options) => {
+  return render(<MockRouting {...options}>{ui}</MockRouting>);
 };
 
+/**
+ * Renders class components with a `routing` prop. For use with components that use the `withRouter` HOC.
+ * Adds a mock router prop to the component using the provided path and params in options to mock behavior of `withRouter`.
+ *
+ * @param {*} ui - The component to be rendered using react-testing-library
+ * @param {*} options - Routing options used to create a mock router. Prefered options are `path` and `params`. Other options are for extended use cases and supporting existiong patterns.
+ * @returns {*} - The result of the render call from react-testing-library
+ */
+export const renderWithRouterProp = (ui, path = '/', params = {}) => {
+  const pathname = generatePath(path, params);
+  const router = { location: { pathname }, params };
+
+  return renderWithRouter(React.cloneElement(ui, { router: { ...router } }));
+};
+
+/** Wrap the provided children with a mock router using the provided options. */
+export const MockRouting = ({ children, path, params, initialEntries, routes }) => {
+  const mockRouter = createMockRouter({ path, params, routes, initialEntries, children });
+
+  return <RouterProvider router={mockRouter} />;
+};
+
+MockRouting.propTypes = {
+  children: node.isRequired,
+  params: shape({}),
+  path: string,
+  routes: arrayOf(
+    shape({
+      path: string,
+      element: node,
+      children: arrayOf(shape({})),
+      caseSensitive: bool,
+    }),
+  ),
+};
+
+MockRouting.defaultProps = {
+  params: {},
+  path: '/',
+  routes: null,
+};
+
+/** Wrap the three most common mock providers (permission, redux, and router) around the provided children */
 export const MockProviders = ({
   children,
   initialState,
   initialEntries,
+  path,
+  params,
+  routes,
   permissions,
-  history,
   currentUserId,
   client,
 }) => {
-  const mockHistory = history || createMockHistory(initialEntries);
-  const mockStore = configureStore(mockHistory, initialState);
+  const mockRouter = createMockRouter({ path, params, routes, initialEntries, children });
+  const mockStore = configureStore(initialState);
 
   return (
     <ReactQueryWrapper client={client}>
       <PermissionProvider permissions={permissions} currentUserId={currentUserId}>
         <Provider store={mockStore.store}>
-          <ConnectedRouter history={mockHistory}>
-            <Suspense fallback={<LoadingPlaceholder />}>{children}</Suspense>
-          </ConnectedRouter>
+          <RouterProvider router={mockRouter} />
         </Provider>
       </PermissionProvider>
     </ReactQueryWrapper>
@@ -60,32 +115,16 @@ export const MockProviders = ({
 MockProviders.propTypes = {
   children: node.isRequired,
   initialState: shape({}),
-  initialEntries: arrayOf(string),
-  history: shape({
-    push: func.isRequired,
-    goBack: func.isRequired,
-  }),
+  params: shape({}),
+  path: string,
   permissions: arrayOf(string),
   currentUserId: string,
 };
 
-const DEFAULT_INITIAL_ENTRIES = ['/'];
-
 MockProviders.defaultProps = {
   initialState: {},
-  initialEntries: DEFAULT_INITIAL_ENTRIES,
-  history: null,
+  params: {},
+  path: '/',
   permissions: [],
   currentUserId: null,
-};
-
-export const setUpProvidersWithHistory = (initialEntries = DEFAULT_INITIAL_ENTRIES) => {
-  const memoryHistory = createMockHistory(initialEntries);
-
-  const mockProviderWithHistory = (props) => <MockProviders history={memoryHistory} {...props} />;
-
-  return {
-    memoryHistory,
-    mockProviderWithHistory,
-  };
 };
