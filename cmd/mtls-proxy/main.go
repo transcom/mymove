@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -15,6 +17,7 @@ import (
 	"go.uber.org/zap"
 	"pault.ag/go/pksigner"
 
+	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 )
 
@@ -122,12 +125,26 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		// must explicitly state what signature algorithms we allow as of Go 1.14 to disable RSA-PSS signatures
 		cert.SupportedSignatureAlgorithms = []tls.SignatureScheme{tls.PKCS1WithSHA256}
 
+		_, rootCAs, err := certs.InitDoDCertificates(v, logger)
+		useDevlocalAuthCA := v.GetBool(cli.DevlocalAuthFlag)
+		if useDevlocalAuthCA {
+			logger.Info("Adding devlocal CA to root CAs")
+			devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
+			devlocalCa, err := os.ReadFile(filepath.Clean(devlocalCAPath))
+			if err != nil {
+				logger.Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(err))
+			} else {
+				rootCAs.AppendCertsFromPEM(devlocalCa)
+			}
+		}
+
 		// #nosec b/c gosec triggers on InsecureSkipVerify
 		tlsConfig := tls.Config{
 			Certificates:       []tls.Certificate{*cert},
 			InsecureSkipVerify: insecure,
 			MinVersion:         tls.VersionTLS12,
 			MaxVersion:         tls.VersionTLS12,
+			RootCAs:            rootCAs,
 		}
 		tlsConfig.BuildNameToCertificate()
 		httpTransport = &http.Transport{
