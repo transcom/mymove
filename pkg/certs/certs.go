@@ -28,7 +28,7 @@ func InitDoDCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate,
 		return make([]tls.Certificate, 0), nil, errors.Errorf("%s has too many certificate PEM blocks", cli.MoveMilDoDTLSCertFlag)
 	}
 
-	logger.Info(fmt.Sprintf("certificate chain from %s parsed", cli.MoveMilDoDTLSCertFlag), zap.Any("count", len(tlsCerts)))
+	logger.Info(fmt.Sprintf("TLS certificate from %s parsed", cli.MoveMilDoDTLSCertFlag), zap.Any("count", len(tlsCerts)))
 
 	caCertString := v.GetString(cli.MoveMilDoDCACertFlag)
 	caCerts := cli.ParseCertificates(caCertString)
@@ -36,7 +36,7 @@ func InitDoDCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate,
 		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", cli.MoveMilDoDTLSCertFlag)
 	}
 
-	logger.Info(fmt.Sprintf("certificate chain from %s parsed", cli.MoveMilDoDCACertFlag), zap.Any("count", len(caCerts)))
+	logger.Info(fmt.Sprintf("CA certificate chain from %s parsed", cli.MoveMilDoDCACertFlag), zap.Any("count", len(caCerts)))
 
 	//Append move.mil cert with intermediate CA to create a validate certificate chain
 	cert := strings.Join(append(append(make([]string, 0), tlsCerts...), caCerts...), "\n")
@@ -47,7 +47,7 @@ func InitDoDCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate,
 		return make([]tls.Certificate, 0), nil, errors.Wrap(err, "failed to parse DOD x509 keypair for server")
 	}
 
-	logger.Info("DOD keypair", zap.Any("certificates", len(keyPair.Certificate)))
+	logger.Info("DOD keypair created", zap.Any("certificates", len(keyPair.Certificate)))
 
 	pathToPackage := v.GetString(cli.DoDCAPackageFlag)
 	pkcs7Package, err := os.ReadFile(filepath.Clean(pathToPackage))
@@ -63,6 +63,8 @@ func InitDoDCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate,
 	if err != nil {
 		return make([]tls.Certificate, 0), dodCACertPool, errors.Wrap(err, "Failed to parse DoD CA certificate package")
 	}
+
+	logger.Info("Cert Pool loaded", zap.Any("env", cli.DoDCAPackageFlag))
 
 	return []tls.Certificate{keyPair}, dodCACertPool, nil
 
