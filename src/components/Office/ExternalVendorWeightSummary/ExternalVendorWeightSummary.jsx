@@ -1,6 +1,6 @@
 import React from 'react';
 import { arrayOf, shape, number, string } from 'prop-types';
-import { Link } from 'react-router-dom-old';
+import { Link } from 'react-router-dom';
 
 import styles from './ExternalVendorWeightSummary.module.scss';
 

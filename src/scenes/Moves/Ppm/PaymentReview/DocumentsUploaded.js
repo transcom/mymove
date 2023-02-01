@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { bool } from 'prop-types';
-import { Link } from 'react-router-dom-old';
+import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
