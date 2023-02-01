@@ -23,8 +23,9 @@ import { formatYesNoInputValue, formatYesNoAPIValue, dropdownInputOptions } from
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
-import { DutyLocationShape } from 'types';
+import { DutyLocationShape, RouterShape } from 'types';
 import { customerRoutes, generalRoutes } from 'constants/routes';
+import withRouter from 'utils/routing';
 
 export class Orders extends Component {
   constructor(props) {
@@ -50,19 +51,26 @@ export class Orders extends Component {
   }
 
   render() {
-    const { context, currentDutyLocation, push, serviceMemberId, currentOrders, updateOrders, updateServiceMember } =
-      this.props;
+    const {
+      context,
+      currentDutyLocation,
+      router: { navigate },
+      serviceMemberId,
+      currentOrders,
+      updateOrders,
+      updateServiceMember,
+    } = this.props;
 
     const { isLoading, serverError } = this.state;
 
     if (isLoading) return <LoadingPlaceholder />;
 
     const handleBack = () => {
-      push(generalRoutes.HOME_PATH);
+      navigate(generalRoutes.HOME_PATH);
     };
 
     const handleNext = () => {
-      push(customerRoutes.ORDERS_UPLOAD_PATH);
+      navigate(customerRoutes.ORDERS_UPLOAD_PATH);
     };
 
     const submitOrders = (values) => {
@@ -156,12 +164,12 @@ Orders.propTypes = {
       allOrdersTypes: PropTypes.bool,
     }).isRequired,
   }).isRequired,
-  push: PropTypes.func.isRequired,
   serviceMemberId: PropTypes.string.isRequired,
   currentOrders: OrdersShape,
   updateOrders: PropTypes.func.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
   currentDutyLocation: DutyLocationShape,
+  router: RouterShape.isRequired,
 };
 
 Orders.defaultProps = {
@@ -184,4 +192,4 @@ const mapDispatchToProps = {
   updateServiceMember: updateServiceMemberAction,
 };
 
-export default withContext(connect(mapStateToProps, mapDispatchToProps)(Orders));
+export default withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(Orders)));

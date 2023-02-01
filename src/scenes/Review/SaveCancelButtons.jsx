@@ -1,11 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
-import { withRouter } from 'react-router-dom-old';
+import withRouter from 'utils/routing';
 
 const SaveCancelButtons = (props) => {
-  const { submitting, valid } = props;
-  const goBack = props.history.goBack;
+  const {
+    submitting,
+    valid,
+    router: { navigate },
+  } = props;
   return (
     <div className="margin-top-2">
       <button className="usa-button margin-bottom-1" type="submit" disabled={submitting || !valid}>
@@ -15,7 +17,7 @@ const SaveCancelButtons = (props) => {
         type="button"
         className="usa-button usa-button--secondary margin-bottom-1"
         disabled={submitting}
-        onClick={goBack}
+        onClick={() => navigate(-1)}
       >
         Cancel
       </button>
@@ -26,7 +28,7 @@ const SaveCancelButtons = (props) => {
 SaveCancelButtons.propTypes = {
   submitting: PropTypes.bool,
   valid: PropTypes.bool,
-  history: PropTypes.shape({ goBack: PropTypes.func.isRequired }),
+  router: PropTypes.object,
 };
 
 export default withRouter(SaveCancelButtons);
