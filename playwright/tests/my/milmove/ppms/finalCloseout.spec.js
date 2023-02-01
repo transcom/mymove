@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, useMobileViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { test, forEachViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
 
 test.describe('Final Closeout', () => {
   /** @type {CustomerPpmPage} */
@@ -16,22 +16,11 @@ test.describe('Final Closeout', () => {
     customerPpmPage = new CustomerPpmPage(customerPage, move);
   });
 
-  //
-  // https://playwright.dev/docs/test-parameterize
-  //
-  // use forEach to avoid
-  // https://eslint.org/docs/latest/rules/no-loop-func
-  [true, false].forEach((isMobile) => {
-    const viewportName = isMobile ? 'mobile' : 'desktop';
-    test.describe(`with ${viewportName} viewport`, async () => {
-      if (isMobile) {
-        useMobileViewport();
-      }
-      test('can see final closeout page with final estimated incentive and shipment totals', async () => {
-        await customerPpmPage.signInAndNavigateToFinalCloseoutPage();
+  forEachViewport(async () => {
+    test('can see final closeout page with final estimated incentive and shipment totals', async () => {
+      await customerPpmPage.signInAndNavigateToFinalCloseoutPage();
 
-        await customerPpmPage.verifyFinalIncentiveAndTotals();
-      });
+      await customerPpmPage.verifyFinalIncentiveAndTotals();
     });
   });
 });

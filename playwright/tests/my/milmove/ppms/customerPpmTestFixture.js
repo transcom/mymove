@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { expect, test, useMobileViewport, CustomerPage } = require('../../../utils/customerTest');
+const { expect, test, forEachViewport, useMobileViewport, CustomerPage } = require('../../../utils/customerTest');
 
 /**
  * CustomerPpmPage test fixture
@@ -819,6 +819,6 @@ export class CustomerPpmPage extends CustomerPage {
     await this.signCloseoutAgreement();
   }
 }
-export { expect, test, useMobileViewport };
+export { expect, test, forEachViewport, useMobileViewport };
 
 export default CustomerPpmPage;

@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, useMobileViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { test, forEachViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
 
 test.describe('About Your PPM', () => {
   /** @type {CustomerPpmPage} */
@@ -16,22 +16,11 @@ test.describe('About Your PPM', () => {
     customerPpmPage = new CustomerPpmPage(customerPage, move);
   });
 
-  //
-  // https://playwright.dev/docs/test-parameterize
-  //
-  // use forEach to avoid
-  // https://eslint.org/docs/latest/rules/no-loop-func
-  [true, false].forEach((isMobile) => {
-    const viewportName = isMobile ? 'mobile' : 'desktop';
+  forEachViewport(async () => {
     [true, false].forEach((selectAdvance) => {
       const advanceText = selectAdvance ? 'with' : 'without';
-      test.describe(`with ${viewportName} viewport`, async () => {
-        if (isMobile) {
-          useMobileViewport();
-        }
-        test(`can submit actual PPM shipment info ${advanceText} an advance`, async () => {
-          await customerPpmPage.signInAndNavigateToAboutPage({ selectAdvance });
-        });
+      test(`can submit actual PPM shipment info ${advanceText} an advance`, async () => {
+        await customerPpmPage.signInAndNavigateToAboutPage({ selectAdvance });
       });
     });
   });

@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { expect, test, useMobileViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { expect, test, forEachViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
 
 test.describe('PPM Onboarding - Estimated Incentive', () => {
   /** @type {CustomerPpmPage} */
@@ -20,20 +20,9 @@ test.describe('PPM Onboarding - Estimated Incentive', () => {
     await expect(customerPage.page.locator('.container h2')).toContainText('$10,000');
   });
 
-  //
-  // https://playwright.dev/docs/test-parameterize
-  //
-  // use forEach to avoid
-  // https://eslint.org/docs/latest/rules/no-loop-func
-  [true, false].forEach((isMobile) => {
-    const viewportName = isMobile ? 'mobile' : 'desktop';
-    test.describe(`with ${viewportName} viewport`, async () => {
-      if (isMobile) {
-        useMobileViewport();
-      }
-      test('go to estimated incentives page', async () => {
-        customerPpmPage.generalVerifyEstimatedIncentivePage({ isMobile });
-      });
+  forEachViewport(async ({ isMobile }) => {
+    test('go to estimated incentives page', async () => {
+      customerPpmPage.generalVerifyEstimatedIncentivePage({ isMobile });
     });
   });
 });

@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, useMobileViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { test, forEachViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
 
 const fullPPMShipmentFields = [
   ['Expected departure', '15 Mar 2020'],
@@ -32,42 +32,30 @@ test.describe('PPM Onboarding - Review', () => {
     await customerPpmPage.signInAndNavigateFromHomePageToReviewPage();
   });
 
-  //
-  // https://playwright.dev/docs/test-parameterize
-  //
-  // use forEach to avoid
-  // https://eslint.org/docs/latest/rules/no-loop-func
-  [true, false].forEach((isMobile) => {
-    const viewportName = isMobile ? 'mobile' : 'desktop';
-    test.describe(`with ${viewportName} viewport`, async () => {
-      if (isMobile) {
-        useMobileViewport();
-      }
+  forEachViewport(async ({ isMobile }) => {
+    test(`navigates to the review page, deletes and edit shipment`, async () => {
+      const shipmentContainer = customerPpmPage.page.locator('[data-testid="ShipmentContainer"]').last();
+      await customerPpmPage.deleteShipment(shipmentContainer, 1);
 
-      test(`navigates to the review page, deletes and edit shipment`, async () => {
-        const shipmentContainer = customerPpmPage.page.locator('[data-testid="ShipmentContainer"]').last();
-        await customerPpmPage.deleteShipment(shipmentContainer, 1);
+      // combining test for
+      // navigates to the review page after finishing editing the PPM shipment
+      await customerPpmPage.signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage();
+      await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
+      await customerPpmPage.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
+      await customerPpmPage.navigateFromEstimatedIncentivePageToAdvancesPage();
+      await customerPpmPage.navigateFromAdvancesPageToReviewPage({ isMobile });
+      await customerPpmPage.verifyPPMShipmentCard(fullPPMShipmentFields, { isEditable: true });
+      // other tests submit the move otherwise we'd have an excessive number of moves
+      await customerPpmPage.navigateToAgreementAndSign();
+    });
 
-        // combining test for
-        // navigates to the review page after finishing editing the PPM shipment
-        await customerPpmPage.signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage();
-        await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
-        await customerPpmPage.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
-        await customerPpmPage.navigateFromEstimatedIncentivePageToAdvancesPage();
-        await customerPpmPage.navigateFromAdvancesPageToReviewPage({ isMobile });
-        await customerPpmPage.verifyPPMShipmentCard(fullPPMShipmentFields, { isEditable: true });
-        // other tests submit the move otherwise we'd have an excessive number of moves
-        await customerPpmPage.navigateToAgreementAndSign();
-      });
-
-      test('navigates to review page from home page and submits the move', async () => {
-        await customerPpmPage.verifyPPMShipmentCard(fullPPMShipmentFields, { isEditable: true });
-        await customerPpmPage.navigateToAgreementAndSign();
-        await customerPpmPage.submitMove();
-        await customerPpmPage.navigateFromHomePageToReviewPage({ isMoveSubmitted: true });
-        await customerPpmPage.verifyPPMShipmentCard(fullPPMShipmentFields, { isEditable: false });
-        await customerPpmPage.navigateFromReviewPageToHomePage();
-      });
+    test('navigates to review page from home page and submits the move', async () => {
+      await customerPpmPage.verifyPPMShipmentCard(fullPPMShipmentFields, { isEditable: true });
+      await customerPpmPage.navigateToAgreementAndSign();
+      await customerPpmPage.submitMove();
+      await customerPpmPage.navigateFromHomePageToReviewPage({ isMoveSubmitted: true });
+      await customerPpmPage.verifyPPMShipmentCard(fullPPMShipmentFields, { isEditable: false });
+      await customerPpmPage.navigateFromReviewPageToHomePage();
     });
   });
 });

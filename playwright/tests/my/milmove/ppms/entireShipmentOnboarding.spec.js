@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { expect, test, useMobileViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { expect, test, forEachViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
 
 /**
  * CustomerPpmOnboardingPage test fixture. Our linting rules (like
@@ -107,47 +107,35 @@ test.describe('Entire PPM onboarding flow', () => {
     customerPpmOnboardingPage = new CustomerPpmOnboardingPage(customerPage, move);
   });
 
-  //
-  // https://playwright.dev/docs/test-parameterize
-  //
-  // use forEach to avoid
-  // https://eslint.org/docs/latest/rules/no-loop-func
+  forEachViewport(async ({ isMobile }) => {
+    test('flows through happy path for existing shipment', async () => {
+      await customerPpmOnboardingPage.signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage();
+      await customerPpmOnboardingPage.submitsDateAndLocation();
+      await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();
+      await customerPpmOnboardingPage.generalVerifyEstimatedIncentivePage({ isMobile });
+      await customerPpmOnboardingPage.submitsAdvancePage({ addAdvance: true, isMobile });
+      await customerPpmOnboardingPage.navigateToAgreementAndSign();
+      await customerPpmOnboardingPage.submitMove();
+      await customerPpmOnboardingPage.verifyStep5ExistsAndBtnIsDisabled();
+    });
 
-  [true, false].forEach((isMobile) => {
-    const viewportName = isMobile ? 'mobile' : 'desktop';
-    test.describe(`with ${viewportName} viewport`, async () => {
-      if (isMobile) {
-        useMobileViewport();
-      }
-      test('flows through happy path for existing shipment', async () => {
-        await customerPpmOnboardingPage.signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage();
-        await customerPpmOnboardingPage.submitsDateAndLocation();
-        await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();
-        await customerPpmOnboardingPage.generalVerifyEstimatedIncentivePage({ isMobile });
-        await customerPpmOnboardingPage.submitsAdvancePage({ addAdvance: true, isMobile });
-        await customerPpmOnboardingPage.navigateToAgreementAndSign();
-        await customerPpmOnboardingPage.submitMove();
-        await customerPpmOnboardingPage.verifyStep5ExistsAndBtnIsDisabled();
-      });
+    test('happy path with edits and backs', async () => {
+      await customerPpmOnboardingPage.signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage();
 
-      test('happy path with edits and backs', async () => {
-        await customerPpmOnboardingPage.signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage();
+      await customerPpmOnboardingPage.submitAndVerifyUpdateDateAndLocation();
 
-        await customerPpmOnboardingPage.submitAndVerifyUpdateDateAndLocation();
+      await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();
+      await customerPpmOnboardingPage.verifyEstimatedWeightsAndProGear();
 
-        await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();
-        await customerPpmOnboardingPage.verifyEstimatedWeightsAndProGear();
+      await customerPpmOnboardingPage.verifyShipmentSpecificInfoOnEstimatedIncentivePage();
+      await customerPpmOnboardingPage.generalVerifyEstimatedIncentivePage({ isMobile });
 
-        await customerPpmOnboardingPage.verifyShipmentSpecificInfoOnEstimatedIncentivePage();
-        await customerPpmOnboardingPage.generalVerifyEstimatedIncentivePage({ isMobile });
+      await customerPpmOnboardingPage.submitsAdvancePage({ addAdvance: true, isMobile });
 
-        await customerPpmOnboardingPage.submitsAdvancePage({ addAdvance: true, isMobile });
+      await customerPpmOnboardingPage.navigateToAgreementAndSign();
 
-        await customerPpmOnboardingPage.navigateToAgreementAndSign();
-
-        await customerPpmOnboardingPage.submitMove();
-        await customerPpmOnboardingPage.verifyStep5ExistsAndBtnIsDisabled();
-      });
+      await customerPpmOnboardingPage.submitMove();
+      await customerPpmOnboardingPage.verifyStep5ExistsAndBtnIsDisabled();
     });
   });
 });

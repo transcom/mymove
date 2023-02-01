@@ -99,6 +99,39 @@ export function useMobileViewport() {
 }
 
 /**
+ * @typedef {Object} ViewportCallbackProps
+ * @property {string} viewportName
+ * @property {boolean} isMobile
+ */
+
+/**
+ * @callback forEachViewportCallback
+ * @param {ViewportCallbackProps} props
+ */
+
+/**
+ * @param {forEachViewportCallback} callbackfn
+ */
+export async function forEachViewport(callbackfn) {
+  const viewportsString = process.env.PLAYWRIGHT_VIEWPORTS || 'desktop mobile';
+  const viewports = viewportsString.split(/\s+/);
+  // use forEach to avoid
+  // https://eslint.org/docs/latest/rules/no-loop-func
+  viewports.forEach(async (viewportName) => {
+    const isMobile = viewportName === 'mobile';
+    //
+    // https://playwright.dev/docs/test-parameterize
+    //
+    base.test.describe(`with ${viewportName} viewport`, async () => {
+      if (isMobile) {
+        useMobileViewport();
+      }
+      await callbackfn({ viewportName, isMobile });
+    });
+  });
+}
+
+/**
  * @typedef {object} CustomerPageTestArgs - customer page test args
  * @property {CustomerPage} customerPage  - customer page
  */
