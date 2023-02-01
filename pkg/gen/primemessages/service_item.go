@@ -29,9 +29,15 @@ type ServiceItem struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// This should be populated for the service items DOASIT(Domestic destination Additional day SIT) and DDASIT(Domestic destination Additional day SIT).
+	// This should be populated for the following service items:
+	//   * DOASIT(Domestic destination Additional day SIT)
+	//   * DDASIT(Domestic destination Additional day SIT)
 	//
-	// They both take in the param keys of "SITPaymentRequestStart" and "SITPaymentRequestEnd" where the value is a string form of a date in the format "YYYY-MM-DD" (eg. "2023-01-15").
+	// Both take in the following param keys:
+	//   * `SITPaymentRequestStart`
+	//   * `SITPaymentRequestEnd`
+	//
+	// The value of each is a date string in the format "YYYY-MM-DD" (e.g. "2023-01-15")
 	//
 	Params []*ServiceItemParamsItems0 `json:"params"`
 }
