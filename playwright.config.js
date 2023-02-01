@@ -50,7 +50,7 @@ const config = {
       name: 'admin',
       testMatch: 'admin/**/*',
       use: {
-        baseURL: process.env.PLAYWRIGHT_ADMIN_URL || 'http://adminlocal:4000',
+        baseURL: process.env.PLAYWRIGHT_ADMIN_URL || 'http://adminlocal:3000',
         ...devices['Desktop Chrome'],
       },
     },
@@ -60,7 +60,7 @@ const config = {
       name: 'my',
       testMatch: 'my/**/*',
       use: {
-        baseURL: process.env.PLAYWRIGHT_MY_URL || 'http://milmovelocal:4000',
+        baseURL: process.env.PLAYWRIGHT_MY_URL || 'http://milmovelocal:3000',
         ...devices['Desktop Chrome'],
       },
     },
@@ -69,7 +69,7 @@ const config = {
       name: 'office',
       testMatch: 'office/**/*',
       use: {
-        baseURL: process.env.PLAYWRIGHT_OFFICE_URL || 'http://officelocal:4000',
+        baseURL: process.env.PLAYWRIGHT_OFFICE_URL || 'http://officelocal:3000',
         ...devices['Desktop Chrome'],
       },
     },

@@ -744,6 +744,10 @@ commands:
             dockerize -wait http://milmovelocal:4000 -timeout 5m
       - run:
           name: run e2e_test playwright
+          environment:
+            PLAYWRIGHT_MY_URL: http://milmovelocal:4000
+            PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
+            PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
           # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
