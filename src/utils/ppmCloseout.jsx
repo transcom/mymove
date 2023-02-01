@@ -70,7 +70,7 @@ export const formatWeightTicketItems = (weightTickets, editPath, editParams, han
         value: formatWeight(weightTicket.fullWeight - weightTicket.emptyWeight),
       },
     ],
-    onDelete: () => handleDelete('weightTicket', weightTicket.id, weightTicket.eTag),
+    onDelete: () => handleDelete('weightTicket', weightTicket.id, weightTicket.eTag, `Trip ${i + 1}`),
     renderEditLink: () => (
       <Link to={generatePath(editPath, { ...editParams, weightTicketId: weightTicket.id })}>Edit</Link>
     ),

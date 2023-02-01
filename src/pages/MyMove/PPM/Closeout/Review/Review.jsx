@@ -39,7 +39,7 @@ const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => (
         <ModalTitle>
           <h3>Delete this?</h3>
         </ModalTitle>
-        <p>Your information will be gone. You’ll need to start over if you want it back.</p>
+        <p>You are about to delete {itemToDelete.itemNumber}. This cannot be undone.</p>
         <ModalActions>
           <Button
             className="usa-button--destructive"
@@ -79,23 +79,22 @@ const Review = () => {
   const expensesCreatePath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_PATH, { moveId, mtoShipmentId });
   const completePath = generatePath(customerRoutes.SHIPMENT_PPM_COMPLETE_PATH, { moveId, mtoShipmentId });
 
-  const handleDelete = (itemType, itemId, itemETag) => {
+  const handleDelete = (itemType, itemId, itemETag, itemNumber) => {
     setItemToDelete(() => ({
       itemType,
       itemId,
       itemETag,
+      itemNumber,
     }));
     setIsDeleteModalVisible(true);
   };
 
   const onDeleteSubmit = (itemType, itemId, itemETag) => {
-    if (itemType === 'weightTicket') {
-      deleteWeightTicket(itemId, itemETag)
-        .then(() => {
-          setIsDeleteModalVisible(false);
-        })
-        .catch(() => {});
-    }
+    deleteWeightTicket(itemId, itemETag)
+      .then(() => {
+        setIsDeleteModalVisible(false);
+      })
+      .catch(() => {});
   };
 
   const aboutYourPPM = formatAboutYourPPMItem(mtoShipment?.ppmShipment, customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
