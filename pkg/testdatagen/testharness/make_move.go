@@ -2243,7 +2243,7 @@ func MakeApprovedMoveWithPPM(appCtx appcontext.AppContext) models.Move {
 		MoveLocator: models.GenerateLocator(),
 	}
 
-	approvedAt := time.Now()
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
