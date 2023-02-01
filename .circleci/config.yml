@@ -433,10 +433,10 @@ commands:
     steps:
       - attach_workspace:
           at: .
-      # - run:
-      #     name: Compare against deployed commit
-      #     command: |
-      #       [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+      - run:
+          name: Compare against deployed commit
+          command: |
+            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
