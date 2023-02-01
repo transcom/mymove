@@ -15,7 +15,7 @@ const ReviewItems = ({ className, heading, renderAddButton, contents, emptyMessa
       </div>
       <div className={styles.contentsContainer}>
         {(!contents || contents.length === 0) && (
-          <div className={classnames({ [styles.subheadingWrapper]: !!renderAddButton }, 'display-flex', 'width-full')}>
+          <div className={classnames({ [styles.emptyWrapper]: !!renderAddButton }, 'display-flex', 'width-full')}>
             <span className={styles.emptyMessage}>{emptyMessage}</span>
           </div>
         )}

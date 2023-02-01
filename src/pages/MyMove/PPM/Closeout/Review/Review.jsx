@@ -158,7 +158,6 @@ const Review = () => {
                 <br />
               </>
             )}
-
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
             <h1>Review</h1>
             <SectionWrapper className={styles.aboutSection} data-testid="aboutYourPPM">
