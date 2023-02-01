@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
-import { number } from 'prop-types';
+import React, { useEffect, useState } from 'react';
+import { useMutation } from 'react-query';
+import { func, number, object } from 'prop-types';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
-import { Form, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
+import { Alert, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
 
 import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewWeightTicket.module.scss';
 
-import { PPMShipmentShape, WeightTicketShape } from 'types/shipment';
+import { ErrorMessage, Form } from 'components/form';
+import { patchWeightTicket } from 'services/ghcApi';
+import { ShipmentShape, WeightTicketShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
@@ -26,6 +29,10 @@ const validationSchema = Yup.object().shape({
         ? schema.min(emptyWeight + 1, 'The full weight must be greater than the empty weight')
         : schema;
     }),
+  trailerMeetsCriteria: Yup.string().when('ownsTrailer', {
+    is: 'true',
+    then: (schema) => schema.required('Required'),
+  }),
   rejectionReason: Yup.string().when('status', {
     is: ppmDocumentStatus.REJECTED,
     then: (schema) => schema.required('Add a reason why this weight ticket is rejected'),
@@ -33,8 +40,46 @@ const validationSchema = Yup.object().shape({
   status: Yup.string().required('Reviewing this weight ticket is required'),
 });
 
-export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumber, ppmNumber }) {
+export default function ReviewWeightTicket({
+  mtoShipment,
+  weightTicket,
+  tripNumber,
+  ppmNumber,
+  onError,
+  onSuccess,
+  formRef,
+}) {
   const [canEditRejection, setCanEditRejection] = useState(true);
+
+  const [patchWeightTicketMutation] = useMutation(patchWeightTicket, {
+    onSuccess,
+    onError,
+  });
+
+  const ppmShipment = mtoShipment?.ppmShipment;
+
+  const handleSubmit = (values) => {
+    const ownsTrailer = values.ownsTrailer === 'true';
+    const trailerMeetsCriteria = ownsTrailer ? values.trailerMeetsCriteria === 'true' : false;
+    const payload = {
+      ppmShipmentId: weightTicket.ppmShipmentId,
+      vehicleDescription: weightTicket.vehicleDescription,
+      emptyWeight: parseInt(values.emptyWeight, 10),
+      missingEmptyWeightTicket: weightTicket.missingEmptyWeightTicket,
+      fullWeight: parseInt(values.fullWeight, 10),
+      missingFullWeightTicket: weightTicket.missingFullWeightTicket,
+      ownsTrailer,
+      trailerMeetsCriteria,
+      reason: values.status === 'APPROVED' ? null : values.rejectionReason,
+      status: values.status,
+    };
+    patchWeightTicketMutation({
+      ppmShipmentId: weightTicket.ppmShipmentId,
+      weightTicketId: weightTicket.id,
+      payload,
+      eTag: weightTicket.eTag,
+    });
+  };
 
   const {
     vehicleDescription,
@@ -43,27 +88,65 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
     emptyWeight,
     fullWeight,
     ownsTrailer,
+    proofOfTrailerOwnershipDocument,
     trailerMeetsCriteria,
     status,
     reason,
   } = weightTicket || {};
 
+  const hasProofOfTrailerOwnershipDocument = proofOfTrailerOwnershipDocument?.uploads.length > 0;
+
+  let isTrailerClaimable;
+  if (ownsTrailer) {
+    isTrailerClaimable = trailerMeetsCriteria ? 'true' : 'false';
+  } else {
+    isTrailerClaimable = '';
+  }
+
   const initialValues = {
-    weightType: missingEmptyWeightTicket || missingFullWeightTicket ? 'constructedWeight' : 'weightTicket',
     emptyWeight: emptyWeight ? `${emptyWeight}` : '',
     fullWeight: fullWeight ? `${fullWeight}` : '',
     ownsTrailer: ownsTrailer ? 'true' : 'false',
-    trailerMeetsCriteria: trailerMeetsCriteria ? 'true' : 'false',
+    trailerMeetsCriteria: isTrailerClaimable,
     status: status || '',
     rejectionReason: reason || '',
   };
+
+  useEffect(() => {
+    if (formRef?.current) {
+      formRef.current.resetForm();
+      formRef.current.validateForm();
+    }
+  }, [formRef, weightTicket]);
+
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
-      <Formik initialValues={initialValues} validationSchema={validationSchema}>
-        {({ handleChange, values }) => {
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        innerRef={formRef}
+        onSubmit={handleSubmit}
+        enableReinitialize
+        validateOnMount
+      >
+        {({ handleChange, errors, setFieldError, setFieldTouched, setFieldValue, touched, values }) => {
           const handleApprovalChange = (event) => {
             handleChange(event);
             setCanEditRejection(true);
+          };
+
+          const handleTrailerOwnedChange = (event) => {
+            handleChange(event);
+            setFieldValue('trailerMeetsCriteria', '');
+            setFieldTouched('trailerMeetsCriteria', false, false);
+            setFieldError('trailerMeetsCriteria', null);
+          };
+
+          const handleTrailerClaimableChange = (event) => {
+            if (event.target.value === 'true') {
+              setFieldValue('status', '');
+            }
+            handleChange(event);
           };
 
           return (
@@ -73,45 +156,28 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
               <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
               <legend className={classnames('usa-label', styles.label)}>Vehicle description</legend>
               <div className={styles.displayValue}>{vehicleDescription}</div>
-              <FormGroup>
-                <Fieldset>
-                  <legend className="usa-label">Weight type</legend>
-                  <Field
-                    as={Radio}
-                    id="weight-tickets"
-                    label="Weight tickets"
-                    name="weightType"
-                    value="weightTicket"
-                    checked={values.weightType === 'weightTicket'}
-                  />
-                  <Field
-                    as={Radio}
-                    id="constructed-weight"
-                    label="Constructed weight"
-                    name="weightType"
-                    value="constructedWeight"
-                    checked={values.weightType === 'constructedWeight'}
-                  />
-                </Fieldset>
-              </FormGroup>
+
               <MaskedTextField
                 defaultValue="0"
                 name="emptyWeight"
-                label={values.weightType === 'weightTicket' ? 'Empty weight' : 'Empty constructed weight'}
+                label="Empty weight"
                 id="emptyWeight"
                 mask={Number}
+                description={missingEmptyWeightTicket ? 'Constructed weight' : 'Weight tickets'}
                 scale={0} // digits after point, 0 for integers
                 signed={false} // disallow negative
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
               />
+
               <MaskedTextField
                 defaultValue="0"
                 name="fullWeight"
-                label={values.weightType === 'weightTicket' ? 'Full weight' : 'Full constructed weight'}
+                label="Full weight"
                 id="fullWeight"
                 mask={Number}
+                description={missingFullWeightTicket ? 'Constructed weight' : 'Weight tickets'}
                 scale={0} // digits after point, 0 for integers
                 signed={false} // disallow negative
                 thousandsSeparator=","
@@ -130,6 +196,7 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
                     name="ownsTrailer"
                     value="true"
                     checked={values.ownsTrailer === 'true'}
+                    onChange={handleTrailerOwnedChange}
                   />
                   <Field
                     as={Radio}
@@ -138,6 +205,7 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
                     name="ownsTrailer"
                     value="false"
                     checked={values.ownsTrailer === 'false'}
+                    onChange={handleTrailerOwnedChange}
                   />
                 </Fieldset>
               </FormGroup>
@@ -145,6 +213,9 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
                 <FormGroup>
                   <Fieldset>
                     <legend className="usa-label">{`Is the trailer's weight claimable?`}</legend>
+                    <ErrorMessage display={!!errors?.trailerMeetsCriteria && !!touched?.trailerMeetsCriteria}>
+                      {errors.trailerMeetsCriteria}
+                    </ErrorMessage>
                     <Field
                       as={Radio}
                       id="trailerCriteriaYes"
@@ -152,6 +223,7 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
                       name="trailerMeetsCriteria"
                       value="true"
                       checked={values.trailerMeetsCriteria === 'true'}
+                      onChange={handleTrailerClaimableChange}
                     />
                     <Field
                       as={Radio}
@@ -160,12 +232,17 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
                       name="trailerMeetsCriteria"
                       value="false"
                       checked={values.trailerMeetsCriteria === 'false'}
+                      onChange={handleTrailerClaimableChange}
                     />
+                    {values.trailerMeetsCriteria === 'true' && !hasProofOfTrailerOwnershipDocument && (
+                      <Alert type="info">Proof of ownership is needed to accept this item.</Alert>
+                    )}
                   </Fieldset>
                 </FormGroup>
               )}
               <h3 className={styles.reviewHeader}>Review trip {tripNumber}</h3>
               <p>Add a review for this weight ticket</p>
+              <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
               <Fieldset>
                 <div
                   className={classnames(approveRejectStyles.statusOption, {
@@ -177,9 +254,10 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
                     checked={values.status === ppmDocumentStatus.APPROVED}
                     value={ppmDocumentStatus.APPROVED}
                     name="status"
-                    label="Approve"
+                    label="Accept"
                     onChange={handleApprovalChange}
                     data-testid="approveRadio"
+                    disabled={values.trailerMeetsCriteria === 'true' && !hasProofOfTrailerOwnershipDocument}
                   />
                 </div>
                 <div
@@ -206,14 +284,18 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
 
                       {canEditRejection && (
                         <>
+                          <ErrorMessage display={!!errors?.rejectionReason && !!touched?.rejectionReason}>
+                            {errors.rejectionReason}
+                          </ErrorMessage>
                           <Textarea
                             id={`rejectReason-${weightTicket?.id}`}
                             name="rejectionReason"
                             onChange={handleChange}
+                            error={touched.rejectionReason ? errors.rejectionReason : null}
                             value={values.rejectionReason}
                             placeholder="Type something"
                           />
-                          <div className={styles.hint}>500 characters</div>
+                          <div className={styles.hint}>{500 - values.rejectionReason.length} characters</div>
                         </>
                       )}
                     </FormGroup>
@@ -230,12 +312,16 @@ export default function ReviewWeightTicket({ ppmShipment, weightTicket, tripNumb
 
 ReviewWeightTicket.propTypes = {
   weightTicket: WeightTicketShape,
-  ppmShipment: PPMShipmentShape,
+  mtoShipment: ShipmentShape,
   tripNumber: number.isRequired,
   ppmNumber: number.isRequired,
+  onSuccess: func,
+  formRef: object,
 };
 
 ReviewWeightTicket.defaultProps = {
-  weightTicket: undefined,
-  ppmShipment: undefined,
+  weightTicket: null,
+  mtoShipment: null,
+  onSuccess: null,
+  formRef: null,
 };
