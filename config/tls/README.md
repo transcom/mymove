@@ -10,7 +10,6 @@ A description of the certificates in this directory will helpful:
 | `api.demo.dp3.us.chain.der.p7b` | Certificate chain for api.demo.dp3.us (non-ATO) |
 | `api.loadtest.dp3.us.crt` | Certificate for api.loadtest.dp3.us |
 | `api.loadtest.dp3.us.chain.der.p7b` | Certificate chain for api.loadtest.dp3.us (non-ATO) |
-| `certificate_bundle.cer` | pem format of `Certificates_PKCS7_v5.6_DoD.der.p7b` |
 | `Certificates_PKCS7_v5.6_DoD.der.p7b` | |
 | `Certificates_PKCS7_v5.11_WCF.pem.p7b` | The collection of certs from which the dod-wcf-* certificates are derived. |
 | `devlocal-ca.key` | Devlocal CA Key |
