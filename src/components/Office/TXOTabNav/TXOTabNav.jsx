@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom-old';
+import { NavLink } from 'react-router-dom';
 import { Tag } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
 
@@ -41,29 +41,49 @@ const TXOTabNav = ({
         <TabNav
           items={[
             <NavLink
-              exact
-              activeClassName="usa-current"
+              end
+              className={({ isActive }) => (isActive ? 'usa-current' : '')}
               to={`/moves/${moveCode}/details`}
               data-testid="MoveDetails-Tab"
             >
               <span className="tab-title">Move details</span>
               {moveDetailsTagCount > 0 && <Tag>{moveDetailsTagCount}</Tag>}
             </NavLink>,
-            <NavLink data-testid="MoveTaskOrder-Tab" exact activeClassName="usa-current" to={`/moves/${moveCode}/mto`}>
+            <NavLink
+              data-testid="MoveTaskOrder-Tab"
+              end
+              className={({ isActive }) => (isActive ? 'usa-current' : '')}
+              to={`/moves/${moveCode}/mto`}
+            >
               <span className="tab-title">Move task order</span>
               {moveTaskOrderTagCount > 0 && <Tag>{moveTaskOrderTagCount}</Tag>}
             </NavLink>,
-            <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/payment-requests`}>
+            <NavLink
+              end
+              className={({ isActive }) => (isActive ? 'usa-current' : '')}
+              to={`/moves/${moveCode}/payment-requests`}
+            >
               <span className="tab-title">Payment requests</span>
               {pendingPaymentRequestCount > 0 && <Tag>{pendingPaymentRequestCount}</Tag>}
             </NavLink>,
-            <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/customer-support-remarks`}>
+            <NavLink
+              end
+              className={({ isActive }) => (isActive ? 'usa-current' : '')}
+              to={`/moves/${moveCode}/customer-support-remarks`}
+            >
               <span className="tab-title">Customer support remarks</span>
             </NavLink>,
-            <NavLink activeClassName="usa-current" to={`/moves/${moveCode}/evaluation-reports`}>
+            <NavLink
+              className={({ isActive }) => (isActive ? 'usa-current' : '')}
+              to={`/moves/${moveCode}/evaluation-reports`}
+            >
               <span className="tab-title">Quality assurance</span>
             </NavLink>,
-            <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/history`}>
+            <NavLink
+              end
+              className={({ isActive }) => (isActive ? 'usa-current' : '')}
+              to={`/moves/${moveCode}/history`}
+            >
               <span className="tab-title">Move history</span>
             </NavLink>,
           ]}

@@ -85,25 +85,25 @@ const ReferrerQueueLink = (props) => {
   switch (pathname) {
     case '/queues/ppm':
       return (
-        <NavLink to="/queues/ppm" activeClassName="usa-current">
+        <NavLink to="/queues/ppm" className={({ isActive }) => (isActive ? 'usa-current' : '')}>
           <span>All PPMs Queue</span>
         </NavLink>
       );
     case '/queues/ppm_payment_requested':
       return (
-        <NavLink to="/queues/ppm_payment_requested" activeClassName="usa-current">
+        <NavLink to="/queues/ppm_payment_requested" className={({ isActive }) => (isActive ? 'usa-current' : '')}>
           <span>Payment requested</span>
         </NavLink>
       );
     case '/queues/all':
       return (
-        <NavLink to="/queues/all" activeClassName="usa-current">
+        <NavLink to="/queues/all" className={({ isActive }) => (isActive ? 'usa-current' : '')}>
           <span>All moves</span>
         </NavLink>
       );
     default:
       return (
-        <NavLink to="/queues/new" activeClassName="usa-current">
+        <NavLink to="/queues/new" className={({ isActive }) => (isActive ? 'usa-current' : '')}>
           <span>New moves</span>
         </NavLink>
       );
