@@ -1,13 +1,13 @@
 import React, { lazy, Suspense } from 'react';
 import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
+import { BrowserRouter } from 'react-router-dom';
 import { PersistGate } from 'redux-persist/integration/react';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { isOfficeSite, isAdminSite } from 'shared/constants';
-import { store, persistor, history } from 'shared/store';
+import { store, persistor } from 'shared/store';
 import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminContext } from 'shared/AppContext';
 import { detectFlags } from 'utils/featureFlags';
 import '../icons';
@@ -57,14 +57,14 @@ const App = () => {
         <Provider store={store}>
           <PersistGate loading={<LoadingPlaceholder />} persistor={persistor}>
             <AppContext.Provider value={officeContext}>
-              <ConnectedRouter history={history}>
+              <BrowserRouter>
                 <Suspense fallback={<LoadingPlaceholder />}>
                   <ScrollToTop />
                   <Office />
                   {flags.markerIO && <MarkerIO />}
                 </Suspense>
                 <ReactQueryDevtools initialIsOpen={false} />
-              </ConnectedRouter>
+              </BrowserRouter>
             </AppContext.Provider>
           </PersistGate>
         </Provider>
@@ -76,11 +76,11 @@ const App = () => {
       <Provider store={store}>
         <PersistGate loading={<LoadingPlaceholder />} persistor={persistor}>
           <AppContext.Provider value={adminContext}>
-            <ConnectedRouter history={history}>
+            <BrowserRouter>
               <Suspense fallback={<LoadingPlaceholder />}>
                 <SystemAdmin />
               </Suspense>
-            </ConnectedRouter>
+            </BrowserRouter>
           </AppContext.Provider>
         </PersistGate>
       </Provider>
@@ -89,13 +89,13 @@ const App = () => {
   return (
     <Provider store={store}>
       <AppContext.Provider value={myMoveContext}>
-        <ConnectedRouter history={history}>
+        <BrowserRouter>
           <Suspense fallback={<LoadingPlaceholder />}>
             <ScrollToTop />
             <MyMove />
             {flags.markerIO && <MarkerIO />}
           </Suspense>
-        </ConnectedRouter>
+        </BrowserRouter>
       </AppContext.Provider>
     </Provider>
   );
