@@ -1,11 +1,12 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 
 import EvaluationReports from './EvaluationReports';
 
-import { MockProviders } from 'testUtils';
+import { renderWithRouter } from 'testUtils';
 import { useEvaluationReportsQueries } from 'hooks/queries';
+import { qaeCSRRoutes } from 'constants/routes';
 
 const mockRequestedMoveCode = 'LR4T8V';
 
@@ -19,8 +20,11 @@ jest.mock('react-router-dom', () => ({
     pathname: `/moves/${mockRequestedMoveCode}/evaluation-reports`,
     state: { showDeleteSuccess: true },
   }),
-  useParams: () => ({ moveCode: 'TE5TC0DE' }),
 }));
+const mockRoutingOptions = {
+  path: qaeCSRRoutes.BASE_EVALUATION_REPORTS_PATH,
+  params: { moveCode: mockRequestedMoveCode },
+};
 
 const loadingReturnValue = {
   isLoading: true,
@@ -39,11 +43,7 @@ describe('EvaluationReports', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useEvaluationReportsQueries.mockReturnValue(loadingReturnValue);
 
-      render(
-        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/evaluation-reports`]}>
-          <EvaluationReports customerInfo={{}} grade="" />
-        </MockProviders>,
-      );
+      renderWithRouter(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
 
       const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
@@ -52,11 +52,7 @@ describe('EvaluationReports', () => {
     it('renders the Something Went Wrong component when the query errors', async () => {
       useEvaluationReportsQueries.mockReturnValue(errorReturnValue);
 
-      render(
-        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
-          <EvaluationReports customerInfo={{}} grade="" />
-        </MockProviders>,
-      );
+      renderWithRouter(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
 
       const errorMessage = await screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
@@ -73,11 +69,7 @@ describe('EvaluationReports', () => {
         shipments: [],
       });
 
-      render(
-        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/evaluation-reports`]}>
-          <EvaluationReports customerInfo={{}} grade="" />
-        </MockProviders>,
-      );
+      renderWithRouter(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
 
       const h1 = await screen.getByRole('heading', { name: 'Quality assurance reports', level: 1 });
       expect(h1).toBeInTheDocument();
@@ -98,11 +90,7 @@ describe('EvaluationReports', () => {
         showDeleteSuccess: true,
       });
 
-      render(
-        <MockProviders>
-          <EvaluationReports customerInfo={{}} grade="" />
-        </MockProviders>,
-      );
+      renderWithRouter(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
 
       const alert = await screen.getByText(/Your report has been deleted/);
       expect(alert).toBeInTheDocument();

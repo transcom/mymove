@@ -7,6 +7,7 @@ import PaymentRequestCard from './PaymentRequestCard';
 
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+import { tioRoutes } from 'constants/routes';
 
 jest.mock('hooks/queries', () => ({
   useMovePaymentRequestsQueries: () => {
@@ -95,7 +96,7 @@ const shipmentInfo = [
     departureDate: '2020-12-02T00:00:00.000Z',
   },
 ];
-const testMoveLocator = 'AF7K1P';
+const moveCode = 'AF7K1P';
 
 describe('PaymentRequestCard', () => {
   const order = {
@@ -137,7 +138,7 @@ describe('PaymentRequestCard', () => {
   };
   describe('pending payment request', () => {
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+      <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
         <PaymentRequestCard
           hasBillableWeightIssues={false}
           paymentRequest={pendingPaymentRequest}
@@ -176,7 +177,8 @@ describe('PaymentRequestCard', () => {
     it('renders review payment request button disabled when shipment and/or move has billable weight issues', () => {
       render(
         <MockProviders
-          initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}
+          path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH}
+          params={{ moveCode }}
           permissions={[permissionTypes.updatePaymentServiceItemStatus]}
         >
           <PaymentRequestCard
@@ -193,7 +195,8 @@ describe('PaymentRequestCard', () => {
     it('does not render the review payment request button disabled when shipment and/or move has no billable weight issues', () => {
       render(
         <MockProviders
-          initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}
+          path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH}
+          params={{ moveCode }}
           permissions={[permissionTypes.updatePaymentServiceItemStatus]}
         >
           <PaymentRequestCard
@@ -229,7 +232,7 @@ describe('PaymentRequestCard', () => {
 
     it('does not have a view documents link', () => {
       render(
-        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
           <PaymentRequestCard
             hasBillableWeightIssues={false}
             paymentRequest={deprecatedPaymentRequest}
@@ -242,7 +245,7 @@ describe('PaymentRequestCard', () => {
 
     it('does not have service item status', async () => {
       render(
-        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
           <PaymentRequestCard
             hasBillableWeightIssues={false}
             paymentRequest={deprecatedPaymentRequest}
@@ -312,7 +315,7 @@ describe('PaymentRequestCard', () => {
     };
 
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+      <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
         <PaymentRequestCard
           hasBillableWeightIssues={false}
           paymentRequest={reviewedPaymentRequest}
@@ -355,7 +358,7 @@ describe('PaymentRequestCard', () => {
 
     it('shows only rejected if no service items are approved', () => {
       const rejected = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
           <PaymentRequestCard
             hasBillableWeightIssues={false}
             paymentRequest={rejectedPaymentRequest}
@@ -404,7 +407,7 @@ describe('PaymentRequestCard', () => {
         ],
       };
       const sentToGex = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
           <PaymentRequestCard
             hasBillableWeightIssues={false}
             paymentRequest={sentToGexPaymentRequest}
@@ -442,7 +445,7 @@ describe('PaymentRequestCard', () => {
         ],
       };
       const receivedByGex = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
           <PaymentRequestCard
             hasBillableWeightIssues={false}
             paymentRequest={receivedByGexPaymentRequest}
@@ -480,7 +483,7 @@ describe('PaymentRequestCard', () => {
         ],
       };
       const paid = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
           <PaymentRequestCard
             hasBillableWeightIssues={false}
             paymentRequest={paidPaymentRequest}
@@ -496,7 +499,8 @@ describe('PaymentRequestCard', () => {
     it('renders the review service items button when user has permission', () => {
       render(
         <MockProviders
-          initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}
+          path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH}
+          params={{ moveCode }}
           permissions={[permissionTypes.updatePaymentServiceItemStatus]}
         >
           <PaymentRequestCard
@@ -512,7 +516,7 @@ describe('PaymentRequestCard', () => {
 
     it('does not render the review service items button when user does not have permission', () => {
       render(
-        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]} permissions={[]}>
+        <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }} permissions={[]}>
           <PaymentRequestCard
             paymentRequest={pendingPaymentRequest}
             shipmentInfo={shipmentInfo}

@@ -2,9 +2,9 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { v4 } from 'uuid';
 import userEvent from '@testing-library/user-event';
-import { generatePath } from 'react-router-dom-old';
+import { generatePath } from 'react-router-dom';
 
-import { MockProviders, setUpProvidersWithHistory } from 'testUtils';
+import { MockProviders } from 'testUtils';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import Review from 'pages/MyMove/PPM/Closeout/Review/Review';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -247,16 +247,11 @@ const mockMTOShipmentWithExpensesDeleted = {
     },
   },
 };
-const mockPush = jest.fn();
+
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockPush,
-  }),
-  useParams: () => ({
-    moveId: mockMoveId,
-    mtoShipmentId: mockMTOShipmentId,
-  }),
+  useNavigate: () => mockNavigate,
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -276,15 +271,101 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+const newWeightPath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
+  moveId: mockMoveId,
+  mtoShipmentId: mockMTOShipmentId,
+});
+const editAboutYourPPMPath = generatePath(customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
+  moveId: mockMoveId,
+  mtoShipmentId: mockMTOShipmentId,
+});
+const editWeightPath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
+  moveId: mockMoveId,
+  mtoShipmentId: mockMTOShipmentId,
+  weightTicketId: mockMTOShipmentWithWeightTicket.ppmShipment.weightTickets[0].id,
+});
+const newProGearPath = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH, {
+  moveId: mockMoveId,
+  mtoShipmentId: mockMTOShipmentId,
+});
+const editProGearWeightTicket = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH, {
+  moveId: mockMoveId,
+  mtoShipmentId: mockMTOShipmentId,
+  proGearId: mockMTOShipmentWithProGear.ppmShipment.proGearWeightTickets[0].id,
+});
+const newExpensePath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_PATH, {
+  moveId: mockMoveId,
+  mtoShipmentId: mockMTOShipmentId,
+});
+const editExpensePath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
+  moveId: mockMoveId,
+  mtoShipmentId: mockMTOShipmentId,
+  expenseId: mockMTOShipmentWithExpenses.ppmShipment.movingExpenses[0].id,
+});
+const completePath = generatePath(customerRoutes.SHIPMENT_PPM_COMPLETE_PATH, {
+  moveId: mockMoveId,
+  mtoShipmentId: mockMTOShipmentId,
+});
+
+const mockRoutes = [
+  {
+    path: newWeightPath,
+    element: <div>Add More Weight Page</div>,
+  },
+  {
+    path: editAboutYourPPMPath,
+    element: <div>Edit About Your PPM Page</div>,
+  },
+  {
+    path: editWeightPath,
+    element: <div>Edit Weight Page</div>,
+  },
+  {
+    path: newProGearPath,
+    element: <div>New Pro Gear Page</div>,
+  },
+  {
+    path: editProGearWeightTicket,
+    element: <div>Edit Pro Gear Weight Ticket Page</div>,
+  },
+  {
+    path: newExpensePath,
+    element: <div>New Expense Page</div>,
+  },
+  {
+    path: editExpensePath,
+    element: <div>Edit Expense Page</div>,
+  },
+  {
+    path: completePath,
+    element: <div>Complete Page</div>,
+  },
+  { path: '/', element: <div>Home Page</div> },
+];
+
+const renderReviewPage = (props) => {
+  return render(
+    <MockProviders
+      path={customerRoutes.SHIPMENT_PPM_REVIEW_PATH}
+      params={{
+        moveId: mockMoveId,
+        mtoShipmentId: mockMTOShipmentId,
+      }}
+      routes={mockRoutes}
+    >
+      <Review {...props} />
+    </MockProviders>,
+  );
+};
+
 describe('Review page', () => {
   it('loads the selected shipment from redux', () => {
-    render(<Review />, { wrapper: MockProviders });
-
+    renderReviewPage();
     expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
   });
 
   it('renders the page headings', () => {
-    render(<Review />, { wrapper: MockProviders });
+    renderReviewPage();
 
     expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Review');
@@ -296,7 +377,7 @@ describe('Review page', () => {
   });
 
   it('renders the empty message when there are no weight tickets', () => {
-    render(<Review />, { wrapper: MockProviders });
+    renderReviewPage();
 
     expect(
       screen.getByText('No weight moved documented. At least one trip is required to continue.'),
@@ -304,163 +385,106 @@ describe('Review page', () => {
   });
 
   it('routes to the edit about your ppm page when the edit link is clicked', async () => {
-    const editAboutYourPPM = generatePath(customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
-      moveId: mockMoveId,
-      mtoShipmentId: mockMTOShipmentId,
-    });
-
-    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
-
-    render(<Review />, { wrapper: mockProviderWithHistory });
+    renderReviewPage();
 
     await userEvent.click(screen.getAllByText('Edit')[0]);
 
     await waitFor(() => {
-      expect(memoryHistory.location.pathname).toEqual(editAboutYourPPM);
+      expect(screen.getByText('Edit About Your PPM Page')).toBeInTheDocument();
     });
   });
 
   it('routes to the add weight ticket page when the add link is clicked', async () => {
-    const newWeightTicket = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
-      moveId: mockMoveId,
-      mtoShipmentId: mockMTOShipmentId,
-    });
-
-    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
-
-    render(<Review />, { wrapper: mockProviderWithHistory });
+    renderReviewPage();
 
     await userEvent.click(screen.getByText('Add More Weight'));
 
     await waitFor(() => {
-      expect(memoryHistory.location.pathname).toEqual(newWeightTicket);
+      expect(screen.getByText('Add More Weight Page')).toBeInTheDocument();
     });
   });
 
   it('routes to the edit weight ticket page when the edit link is clicked', async () => {
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithWeightTicket);
-    const editWeightTicket = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
-      moveId: mockMoveId,
-      mtoShipmentId: mockMTOShipmentId,
-      weightTicketId: mockMTOShipmentWithWeightTicket.ppmShipment.weightTickets[0].id,
-    });
 
-    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
-
-    render(<Review />, { wrapper: mockProviderWithHistory });
+    renderReviewPage();
 
     await userEvent.click(screen.getAllByText('Edit')[1]);
 
     await waitFor(() => {
-      expect(memoryHistory.location.pathname).toEqual(editWeightTicket);
+      expect(screen.getByText('Edit Weight Page')).toBeInTheDocument();
     });
   });
 
   it('routes to the add pro-gear page when the add link is clicked', async () => {
-    const newProGear = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH, {
-      moveId: mockMoveId,
-      mtoShipmentId: mockMTOShipmentId,
-    });
-
-    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
-
-    render(<Review />, { wrapper: mockProviderWithHistory });
+    renderReviewPage();
 
     await userEvent.click(screen.getByText('Add Pro-gear Weight'));
 
     await waitFor(() => {
-      expect(memoryHistory.location.pathname).toEqual(newProGear);
+      expect(screen.getByText('New Pro Gear Page')).toBeInTheDocument();
     });
   });
 
   it('routes to the edit pro-gear page when the edit link is clicked', async () => {
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithProGear);
-    const editProGearWeightTicket = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH, {
-      moveId: mockMoveId,
-      mtoShipmentId: mockMTOShipmentId,
-      proGearId: mockMTOShipmentWithProGear.ppmShipment.proGearWeightTickets[0].id,
-    });
 
-    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
-
-    render(<Review />, { wrapper: mockProviderWithHistory });
+    renderReviewPage();
 
     await userEvent.click(screen.getAllByText('Edit')[1]);
 
     await waitFor(() => {
-      expect(memoryHistory.location.pathname).toEqual(editProGearWeightTicket);
+      expect(screen.getByText('Edit Pro Gear Weight Ticket Page')).toBeInTheDocument();
     });
   });
 
   it('routes to the add expenses page when the add link is clicked', async () => {
-    const newExpensePath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_PATH, {
-      moveId: mockMoveId,
-      mtoShipmentId: mockMTOShipmentId,
-    });
-
-    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
-
-    render(<Review />, { wrapper: mockProviderWithHistory });
+    renderReviewPage();
 
     await userEvent.click(screen.getByText('Add Expenses'));
 
     await waitFor(() => {
-      expect(memoryHistory.location.pathname).toEqual(newExpensePath);
+      expect(screen.getByText('New Expense Page')).toBeInTheDocument();
     });
   });
 
   it('routes to the edit expense page when the edit link is clicked', async () => {
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithExpenses);
-    const editExpensePath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
-      moveId: mockMoveId,
-      mtoShipmentId: mockMTOShipmentId,
-      expenseId: mockMTOShipmentWithExpenses.ppmShipment.movingExpenses[0].id,
-    });
 
-    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
-
-    render(<Review />, { wrapper: mockProviderWithHistory });
+    renderReviewPage();
 
     await userEvent.click(screen.getAllByText('Edit')[1]);
 
     await waitFor(() => {
-      expect(memoryHistory.location.pathname).toEqual(editExpensePath);
+      expect(screen.getByText('Edit Expense Page')).toBeInTheDocument();
     });
   });
 
   it('routes to the home page when the return to homepage link is clicked', async () => {
-    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
-
-    render(<Review />, { wrapper: mockProviderWithHistory });
+    renderReviewPage();
 
     await userEvent.click(screen.getByText('Return To Homepage'));
 
     await waitFor(() => {
-      expect(memoryHistory.location.pathname).toEqual('/');
+      expect(screen.getByText('Home Page')).toBeInTheDocument();
     });
   });
 
   it('routes to the complete page when the save and continue link is clicked', async () => {
     selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithWeightTicket);
-    const completePath = generatePath(customerRoutes.SHIPMENT_PPM_COMPLETE_PATH, {
-      moveId: mockMoveId,
-      mtoShipmentId: mockMTOShipmentId,
-    });
 
-    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
-
-    render(<Review />, { wrapper: mockProviderWithHistory });
+    renderReviewPage();
 
     await userEvent.click(screen.getByText('Save & Continue'));
 
     await waitFor(() => {
-      expect(memoryHistory.location.pathname).toEqual(completePath);
+      expect(screen.getByText('Complete Page')).toBeInTheDocument();
     });
   });
 
   it('disables the save and continue link when there are no weight tickets', async () => {
     selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipment);
-    render(<Review />, { wrapper: MockProviders });
+    renderReviewPage();
 
     expect(screen.getByText('Save & Continue')).toHaveClass('usa-button--disabled');
     expect(screen.getByText('Save & Continue')).toHaveAttribute('aria-disabled', 'true');
@@ -468,7 +492,7 @@ describe('Review page', () => {
 
   it('disables the save and continue link when there is an incomplete weight ticket', async () => {
     selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithIncompleteWeightTicket);
-    render(<Review />, { wrapper: MockProviders });
+    renderReviewPage();
 
     expect(screen.getByText('Save & Continue')).toHaveClass('usa-button--disabled');
     expect(screen.getByText('Save & Continue')).toHaveAttribute('aria-disabled', 'true');
@@ -476,7 +500,7 @@ describe('Review page', () => {
 
   it('error message is displayed when a PPM shipment is in an incomplete state', async () => {
     selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithIncompleteWeightTicket);
-    render(<Review />, { wrapper: MockProviders });
+    renderReviewPage();
 
     expect(
       screen.getByText(
@@ -489,7 +513,7 @@ describe('Review page', () => {
 
   it('displays the delete confirmation modal when the delete button for Weight Moved/Trip 2 is clicked', async () => {
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithWeightTicket);
-    render(<Review />, { wrapper: MockProviders });
+    renderReviewPage();
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[1]);
 
@@ -508,7 +532,8 @@ describe('Review page', () => {
     const mockDeleteWeightTicket = jest.fn().mockResolvedValue({});
     deleteWeightTicket.mockImplementationOnce(mockDeleteWeightTicket);
     getMTOShipmentsForMove.mockResolvedValue(mockMTOShipmentWithWeightTicketDeleted);
-    render(<Review />, { wrapper: MockProviders });
+
+    renderReviewPage();
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
 
@@ -535,7 +560,7 @@ describe('Review page', () => {
     const mockDeleteProGearWeightTicket = jest.fn().mockResolvedValue({});
     deleteProGearWeightTicket.mockImplementationOnce(mockDeleteProGearWeightTicket);
     getMTOShipmentsForMove.mockResolvedValue(mockMTOShipmentWithProGearDeleted);
-    render(<Review />, { wrapper: MockProviders });
+    renderReviewPage();
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
 
@@ -563,7 +588,7 @@ describe('Review page', () => {
     const mockDeleteMovingExpense = jest.fn().mockResolvedValue({});
     deleteMovingExpense.mockImplementationOnce(mockDeleteMovingExpense);
     getMTOShipmentsForMove.mockResolvedValue(mockMTOShipmentWithExpensesDeleted);
-    render(<Review />, { wrapper: MockProviders });
+    renderReviewPage();
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
 
