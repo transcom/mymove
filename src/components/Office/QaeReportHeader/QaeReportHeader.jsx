@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams } from 'react-router-dom-old';
+import { useParams } from 'react-router-dom';
 
 import { formatQAReportID } from 'utils/formatters';
 import styles from 'pages/Office/TXOMoveInfo/TXOTab.module.scss';

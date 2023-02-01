@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
 import CustomerInfo from './CustomerInfo';

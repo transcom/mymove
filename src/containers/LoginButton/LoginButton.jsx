@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { bool, func } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
-import { Link } from 'react-router-dom-old';
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { selectIsLoggedIn } from '../../store/auth/selectors';
