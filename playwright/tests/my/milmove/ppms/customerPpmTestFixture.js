@@ -380,7 +380,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.locator('input[name="spouseProGearWeight"]').clear();
     await this.page.locator('input[name="spouseProGearWeight"]').type('400');
 
-    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+    await expect(this.page.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
 
     await this.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
   }
@@ -390,7 +390,7 @@ export class CustomerPpmPage extends CustomerPage {
   async submitsEstimatedWeights() {
     await this.page.locator('input[name="estimatedWeight"]').clear();
     await this.page.locator('input[name="estimatedWeight"]').type('4000');
-    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+    await expect(this.page.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
 
     await this.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
   }

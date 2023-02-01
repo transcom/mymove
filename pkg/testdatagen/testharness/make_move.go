@@ -2074,11 +2074,16 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
-
+	closeoutOfficeID := uuid.Must(uuid.NewV4())
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
+		TransportationOffice: models.TransportationOffice{
+			ID:   closeoutOfficeID,
+			Name: "Awesome base",
+		},
 		Move: models.Move{
-			Status: models.MoveStatusAPPROVED,
+			Status:           models.MoveStatusAPPROVED,
+			CloseoutOfficeID: &closeoutOfficeID,
 		},
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusApproved,
@@ -2093,6 +2098,7 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
+			FinalIncentive:              models.CentPointer(50000000),
 		},
 	}
 
