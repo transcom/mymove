@@ -40,7 +40,10 @@ export class CustomerPpmPage extends CustomerPage {
     await this.signInForPPM();
     await expect(this.page.getByRole('heading', { name: 'Your move is in progress.' })).toBeVisible();
 
-    await this.page.getByRole('button', { name: 'Upload PPM Documents' }).click();
+    await Promise.all([
+      this.page.waitForNavigation(),
+      this.page.getByRole('button', { name: 'Upload PPM Documents' }).click(),
+    ]);
   }
 
   /**
@@ -70,9 +73,7 @@ export class CustomerPpmPage extends CustomerPage {
   async signInAndNavigateToAboutPage(options = { selectAdvance: false }) {
     await this.signInAndClickOnUploadPPMDocumentsButton();
 
-    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/about`;
-
-    expect(this.page.url()).toContain(url);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/about/);
 
     await expect(this.page.getByRole('heading', { name: 'About your PPM' })).toBeVisible();
 
@@ -129,11 +130,14 @@ export class CustomerPpmPage extends CustomerPage {
   async fillOutAboutPage(options = { selectAdvance: false }) {
     // editing this field with the keyboard instead of the date picker runs async validators for pre-filled postal codes
     // this helps debounce the API calls that would be triggered in quick succession
+    await this.page.locator('input[name="actualMoveDate"]').clear();
     await this.page.locator('input[name="actualMoveDate"]').type('01 Feb 2022');
     await this.page.locator('input[name="actualMoveDate"]').blur();
 
+    await this.page.locator('input[name="actualPickupPostalCode"]').clear();
     await this.page.locator('input[name="actualPickupPostalCode"]').type('90210');
     await this.page.locator('input[name="actualPickupPostalCode"]').blur();
+    await this.page.locator('input[name="actualDestinationPostalCode"]').clear();
     await this.page.locator('input[name="actualDestinationPostalCode"]').type('76127');
     await this.page.locator('input[name="actualDestinationPostalCode"]').blur();
 
@@ -198,6 +202,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.locator('input[name="vehicleDescription"]').type('Kia Forte');
     await this.page.locator('input[name="vehicleDescription"]').blur();
 
+    await this.page.getByLabel('Empty weight').clear();
     await this.page.getByLabel('Empty weight').type('1000');
     await this.page.getByLabel('Empty weight').blur();
     if (useConstructedWeight) {
@@ -220,6 +225,7 @@ export class CustomerPpmPage extends CustomerPage {
         filepond.locator('../..').locator('p').getByText('constructedWeight.xls', { exact: true }),
       ).toBeVisible();
 
+      await this.page.getByLabel('Full weight').clear();
       await this.page.getByLabel('Full weight').type('3000');
 
       // this page has multiple labels with the same text, grab the
@@ -255,6 +261,7 @@ export class CustomerPpmPage extends CustomerPage {
         emptyFilepond.locator('../..').locator('p').getByText('sampleWeightTicket.jpg', { exact: true }),
       ).toBeVisible();
 
+      await this.page.getByLabel('Full Weight').clear();
       await this.page.getByLabel('Full Weight').type('3000');
 
       // find the label, then find the filepond wrapper. Not sure why
@@ -641,11 +648,11 @@ export class CustomerPpmPage extends CustomerPage {
 
   /**
    * @param {Object} options
-   * @param {boolean} [options.belongsToSelf]
+   * @param {boolean} [options.belongsToSelf=true]
    * @param {string} [options.weight]
    * @param {boolean} [options.missingWeightTicket]
    */
-  async submitProgearPage(options) {
+  async submitProgearPage(options = { belongsToSelf: true }) {
     await this.fillOutProgearPage(options);
     await this.navigateFromProgearPage();
   }
@@ -656,18 +663,20 @@ export class CustomerPpmPage extends CustomerPage {
    * @param {string} [options.weight]
    * @param {boolean} [options.missingWeightTicket]
    */
-  async fillOutProgearPage(options = { belongsToSelf: true }) {
+  async fillOutProgearPage(options) {
     const belongs = options?.belongsToSelf ? 'Self' : 'Spouse';
     const progearTypeSelector = `label[for="ownerOfProGear${belongs}"]`;
-
     await this.page.locator(progearTypeSelector).click();
+
+    await this.page.locator('[name="description"]').clear();
     await this.page.locator('[name="description"]').type('Radio equipment');
 
+    // need to click before clear for some reason
+    await this.page.locator('[name="weight"]').click();
+    await this.page.locator('[name="weight"]').clear();
     if (options?.belongsToSelf) {
-      await this.page.locator('[name="weight"]').clear();
       await this.page.locator('[name="weight"]').type(options?.weight || '2000');
     } else {
-      await this.page.locator('[name="weight"]').clear();
       await this.page.locator('[name="weight"]').type(options?.weight || '500');
     }
 
@@ -768,12 +777,12 @@ export class CustomerPpmPage extends CustomerPage {
       this.page.getByRole('heading', { name: `Your final estimated incentive: ${options?.finalIncentiveAmount}` }),
     ).toBeVisible();
 
-    await expect(this.page.locator('li')).toContainText(`${options?.totalNetWeight} total net weight`);
+    await expect(this.page.locator('li').getByText(`${options?.totalNetWeight} total net weight`)).toBeVisible();
 
     // TODO: Once we get moving expenses and pro gear back, check for those here as well.
 
-    await expect(this.page.locator('li')).toContainText(`${options?.proGearWeight} of pro-gear`);
-    await expect(this.page.locator('li')).toContainText(`$${options?.expensesClaimed} in expenses claimed`);
+    await expect(this.page.locator('li').getByText(`${options?.proGearWeight} of pro-gear`)).toBeVisible();
+    await expect(this.page.locator('li').getByText(`$${options?.expensesClaimed} in expenses claimed`)).toBeVisible();
   }
 
   /**
@@ -802,8 +811,8 @@ export class CustomerPpmPage extends CustomerPage {
    * @param {string} [options.finalIncentiveAmount='$500,000.00']
    */
   async submitFinalCloseout(options) {
-    this.verifyFinalIncentiveAndTotals(options);
-    this.signCloseoutAgreement();
+    await this.verifyFinalIncentiveAndTotals(options);
+    await this.signCloseoutAgreement();
   }
 }
 export { expect, test, useMobileViewport };
