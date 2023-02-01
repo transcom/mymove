@@ -20,6 +20,8 @@ const (
 	MoveMilDoDTLSCertFlag string = "move-mil-dod-tls-cert"
 	// MoveMilDoDTLSKeyFlag is the Move.mil DoD TLS Key Flag
 	MoveMilDoDTLSKeyFlag string = "move-mil-dod-tls-key"
+	// PrimeCAFlag is the Prime CA Flag
+	PrimeCAFlag string = "prime-ca"
 )
 
 // ErrInvalidPKCS7 is an Invalid PKCS7 error

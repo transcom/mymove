@@ -389,13 +389,25 @@ func initializeTLSConfig(appCtx appcontext.AppContext, v *viper.Viper) *tls.Conf
 
 	useDevlocalAuthCA := stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview, cli.EnvironmentLoadtest}, v.GetString(cli.EnvironmentFlag))
 	if useDevlocalAuthCA {
-		appCtx.Logger().Info("Adding devlocal CA to root CAs")
+		appCtx.Logger().Info("Adding devlocal CA to root CAs", zap.Any("env", cli.DevlocalCAFlag))
 		devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
 		devlocalCa, readFileErr := os.ReadFile(filepath.Clean(devlocalCAPath))
 		if readFileErr != nil {
 			appCtx.Logger().Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
 		} else {
 			rootCAs.AppendCertsFromPEM(devlocalCa)
+		}
+	}
+	primeCAPath := v.GetString(cli.PrimeCAFlag)
+	primeCA, err := os.ReadFile(filepath.Clean(primeCAPath))
+	if err != nil {
+		appCtx.Logger().Error("Unable to read prime CA file", zap.String(cli.PrimeCAFlag, primeCAPath))
+	} else {
+		success := rootCAs.AppendCertsFromPEM(primeCA)
+		if success {
+			appCtx.Logger().Info("Added prime CA to root CAs", zap.Any("env", cli.PrimeCAFlag))
+		} else {
+			appCtx.Logger().Error("Unable to add prime CA to root CAs", zap.String("env", cli.PrimeCAFlag), zap.String("path", primeCAPath))
 		}
 	}
 	// RA Summary: staticcheck - SA1019 - Using a deprecated function, variable, constant or field
