@@ -22,9 +22,6 @@ export class CustomerPpmPage extends CustomerPage {
     super(customerPage.page, customerPage.request);
     this.move = move;
     this.userId = move.Orders.ServiceMember.user_id;
-    if (this.move.MTOShipments) {
-      this.firstShipmentId = this.move.MTOShipments[0].ID;
-    }
   }
 
   /**
@@ -167,7 +164,7 @@ export class CustomerPpmPage extends CustomerPage {
   async navigateFromAboutPageToWeightTicketPage() {
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
 
-    expect(this.page.url()).toContain('/moves/[^/]+/shipments/[^/]+/weight-tickets/');
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
   }
 
   /**
@@ -176,8 +173,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.signInAndClickOnUploadPPMDocumentsButton();
 
     await expect(this.page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
-    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/weight-tickets`;
-    expect(this.page.url()).toContain(url);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
   }
 
   /**
@@ -315,8 +311,7 @@ export class CustomerPpmPage extends CustomerPage {
       this.page.getByRole('button', { name: 'Save & Continue' }).click(),
     ]);
 
-    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/review`;
-    expect(this.page.url()).toContain(url);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
   }
 
   /**
@@ -329,8 +324,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.locator('[data-testid="shipment-list-item-container"] button').getByText('Edit').click();
 
     await expect(this.page.getByRole('heading', { name: 'PPM date & location' })).toBeVisible();
-    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/edit`;
-    expect(this.page.url()).toContain(url);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/edit/);
   }
 
   /**
@@ -401,8 +395,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.locator('button').getByText('Save & Continue').click();
 
     await expect(this.page.getByRole('heading', { name: 'Estimated incentive', exact: true })).toBeVisible();
-    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/estimated-incentive`;
-    expect(this.page.url()).toContain(url);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/estimated-incentive/);
   }
 
   /**
@@ -431,8 +424,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.getByRole('button', { name: 'Next', exact: true }).click();
 
     await expect(this.page.getByRole('heading', { name: 'Advances', exact: true })).toBeVisible();
-    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/advances`;
-    expect(this.page.url()).toContain(url);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/advances/);
   }
 
   /**
@@ -646,8 +638,7 @@ export class CustomerPpmPage extends CustomerPage {
       this.page.getByRole('button', { name: 'Save & Continue' }).click(),
     ]);
 
-    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/review`;
-    expect(this.page.url()).toContain(url);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
   }
 
   /**
@@ -708,8 +699,7 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateFromCloseoutReviewPageToExpensesPage() {
     await Promise.all([this.page.waitForNavigation(), this.page.getByRole('link', { name: 'Add Expense' }).click()]);
-    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/expenses`;
-    expect(this.page.url()).toContain(url);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
   }
 
   /**
@@ -752,8 +742,7 @@ export class CustomerPpmPage extends CustomerPage {
       this.page.getByRole('button', { name: 'Save & Continue' }).click(),
     ]);
 
-    const url = `/moves/${this.move.id}/shipments/${this.firstShipmentId}/review`;
-    expect(this.page.url()).toContain(url);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
 
     const cloudStorage = this.page.getByText('Cloud storage');
     await expect(cloudStorage).toBeVisible();
