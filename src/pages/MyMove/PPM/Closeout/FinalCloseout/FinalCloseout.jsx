@@ -1,7 +1,7 @@
 import classnames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useParams } from 'react-router-dom-old';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import styles from './FinalCloseout.module.scss';
@@ -22,7 +22,7 @@ import { formatSwaggerDate } from 'utils/formatters';
 import { setFlashMessage } from 'store/flash/actions';
 
 const FinalCloseout = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,7 +50,7 @@ const FinalCloseout = () => {
   }
 
   const handleBack = () => {
-    history.push(generalRoutes.HOME_PATH);
+    navigate(generalRoutes.HOME_PATH);
   };
 
   const handleSubmit = (values) => {
@@ -76,7 +76,7 @@ const FinalCloseout = () => {
           setFlashMessage('PPM_SUBMITTED', 'success', 'You submitted documentation for review.', undefined, false),
         );
 
-        history.push(generalRoutes.HOME_PATH);
+        navigate(generalRoutes.HOME_PATH);
       })
       .catch((err) => {
         setErrorMessage(getResponseError(err.response, 'Failed to submit PPM documentation due to server error.'));

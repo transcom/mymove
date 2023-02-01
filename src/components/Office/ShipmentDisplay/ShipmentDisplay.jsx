@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom-old';
+import { useNavigate } from 'react-router-dom';
 import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
@@ -37,7 +37,7 @@ const ShipmentDisplay = ({
   showWhenCollapsed,
   neverShow,
 }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !allowApproval });
   const [isExpanded, setIsExpanded] = useState(false);
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
@@ -113,7 +113,7 @@ const ShipmentDisplay = ({
           {editURL && (
             <EditButton
               onClick={() => {
-                history.push(editURL);
+                navigate(editURL);
               }}
               className={styles.editButton}
               data-testid={editURL}
@@ -124,7 +124,7 @@ const ShipmentDisplay = ({
           {reviewURL && (
             <ReviewButton
               onClick={() => {
-                history.push(reviewURL);
+                navigate(reviewURL);
               }}
               className={styles.editButton}
               data-testid={reviewURL}

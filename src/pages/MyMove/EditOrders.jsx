@@ -1,7 +1,7 @@
 import React, { createRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { useHistory } from 'react-router-dom-old';
+import { useNavigate } from 'react-router-dom';
 
 import Alert from 'shared/Alert';
 import { withContext } from 'shared/AppContext';
@@ -39,7 +39,7 @@ export const EditOrders = ({
   context,
 }) => {
   const filePondEl = createRef();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
@@ -118,7 +118,7 @@ export const EditOrders = ({
         } else {
           setFlashMessage('EDIT_ORDERS_SUCCESS', 'success', '', 'Your changes have been saved.');
         }
-        history.goBack();
+        navigate(-1);
       })
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
@@ -131,7 +131,7 @@ export const EditOrders = ({
   };
 
   const handleCancel = () => {
-    history.goBack();
+    navigate(-1);
   };
 
   return (

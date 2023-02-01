@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useHistory, useParams } from 'react-router-dom-old';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
@@ -58,7 +58,7 @@ const MoveDetails = ({
   const [shipmentMissingRequiredInformation, setShipmentMissingRequiredInformation] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
@@ -343,7 +343,7 @@ const MoveDetails = ({
                 approveMTOShipment={mutateMTOShipmentStatus}
                 moveTaskOrder={move}
                 missingRequiredOrdersInfo={hasMissingOrdersRequiredInfo}
-                handleAfterSuccess={history.push}
+                handleAfterSuccess={navigate}
                 moveCode={moveCode}
                 errorIfMissing={errorIfMissing}
                 displayDestinationType={isRetirementOrSeparation}

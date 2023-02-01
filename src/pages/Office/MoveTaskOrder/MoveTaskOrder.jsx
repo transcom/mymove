@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { withRouter, Link, generatePath } from 'react-router-dom-old';
+import { Link, useParams, generatePath } from 'react-router-dom';
 import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
@@ -46,7 +46,6 @@ import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
-import { MatchShape } from 'types/router';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
 import { calculateEstimatedWeight, calculateWeightRequested } from 'hooks/custom';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
@@ -84,7 +83,7 @@ function showShipmentFilter(shipment) {
   );
 }
 
-export const MoveTaskOrder = ({ match, ...props }) => {
+export const MoveTaskOrder = (props) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const [isReweighModalVisible, setIsReweighModalVisible] = useState(false);
@@ -108,7 +107,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     return ['move-weights'];
   }, []);
 
-  const { moveCode } = match.params;
+  const { moveCode } = useParams();
   const {
     setUnapprovedShipmentCount,
     setUnapprovedServiceItemCount,
@@ -832,7 +831,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 };
 
 MoveTaskOrder.propTypes = {
-  match: MatchShape.isRequired,
   setUnapprovedShipmentCount: func.isRequired,
   setUnapprovedServiceItemCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
@@ -844,4 +842,4 @@ const mapDispatchToProps = {
   setMessage: setFlashMessage,
 };
 
-export default withRouter(connect(() => ({}), mapDispatchToProps)(MoveTaskOrder));
+export default connect(() => ({}), mapDispatchToProps)(MoveTaskOrder);

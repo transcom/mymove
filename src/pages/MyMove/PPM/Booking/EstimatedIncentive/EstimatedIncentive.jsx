@@ -1,5 +1,5 @@
 import React from 'react';
-import { generatePath, useHistory, useParams } from 'react-router-dom-old';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Button } from '@trussworks/react-uswds';
 import { useSelector } from 'react-redux';
 import classnames from 'classnames';
@@ -15,15 +15,15 @@ import { customerRoutes } from 'constants/routes';
 import EstimatedIncentiveDetails from 'components/Customer/PPM/Booking/EstimatedIncentiveDetails/EstimatedIncentiveDetails';
 
 const EstimatedIncentive = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
   const shipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const handleBack = () => {
-    history.push(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, { moveId, mtoShipmentId }));
+    navigate(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, { moveId, mtoShipmentId }));
   };
 
   const handleNext = () => {
-    history.push(generatePath(customerRoutes.SHIPMENT_PPM_ADVANCES_PATH, { moveId, mtoShipmentId }));
+    navigate(generatePath(customerRoutes.SHIPMENT_PPM_ADVANCES_PATH, { moveId, mtoShipmentId }));
   };
 
   return (

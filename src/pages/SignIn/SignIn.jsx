@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import qs from 'query-string';
 import { bool, shape, string } from 'prop-types';
 import { Button, ButtonGroup } from '@trussworks/react-uswds';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import '../../styles/office.scss';
 import styles from './SignIn.module.scss';
@@ -12,10 +12,10 @@ import '@trussworks/react-uswds/lib/index.css';
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
 import ConnectedEulaModal from 'components/EulaModal';
-import { LocationShape } from 'types/index';
 import { isDevelopment } from 'shared/constants';
 
-const SignIn = ({ context, location, showLocalDevLogin }) => {
+const SignIn = ({ context, showLocalDevLogin }) => {
+  const location = useLocation();
   const [showEula, setShowEula] = useState(false);
   const navigate = useNavigate();
 
@@ -111,7 +111,6 @@ SignIn.propTypes = {
     siteName: string,
     showLoginWarning: bool,
   }).isRequired,
-  location: LocationShape.isRequired,
   showLocalDevLogin: bool,
 };
 
