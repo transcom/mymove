@@ -201,13 +201,19 @@ export const useEditShipmentQueries = (moveCode) => {
 };
 
 export const usePPMShipmentDocsQueries = (shipmentID) => {
-  const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentID], getMTOShipmentByID);
+  const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentID], ({ queryKey }) =>
+    getMTOShipmentByID(...queryKey),
+  );
 
   const ppmShipmentId = mtoShipment?.ppmShipment?.id;
 
-  const { data: weightTickets, ...weightTicketsQuery } = useQuery([WEIGHT_TICKETS, ppmShipmentId], getWeightTickets, {
-    enabled: !!ppmShipmentId,
-  });
+  const { data: weightTickets, ...weightTicketsQuery } = useQuery(
+    [WEIGHT_TICKETS, ppmShipmentId],
+    ({ queryKey }) => getWeightTickets(...queryKey),
+    {
+      enabled: !!ppmShipmentId,
+    },
+  );
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, weightTicketsQuery]);
   return {

@@ -252,6 +252,7 @@ const ShipmentForm = (props) => {
                   });
                   actions.setSubmitting(false);
                   history.push(advancePath);
+                  onUpdate('success');
                 },
                 onError: () => {
                   history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
