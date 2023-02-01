@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { func, node, number, string } from 'prop-types';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './MovingInfo.module.scss';
@@ -13,7 +13,8 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { fetchLatestOrders as fetchLatestOrdersAction } from 'shared/Entities/modules/orders';
 import { formatWeight } from 'utils/formatters';
 import { selectCurrentOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
-import { RouteProps } from 'types/router';
+import withRouter from 'utils/routing';
+import { RouterShape } from 'types';
 
 const IconSection = ({ icon, headline, children }) => (
   <Grid row className={styles.IconSection}>
@@ -40,10 +41,16 @@ export class MovingInfo extends Component {
   }
 
   render() {
-    const { entitlementWeight, history, match } = this.props;
+    const {
+      entitlementWeight,
+      router: {
+        navigate,
+        params: { moveId },
+      },
+    } = this.props;
 
     const nextPath = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, {
-      moveId: match.params.moveId,
+      moveId,
     });
 
     return (
@@ -96,10 +103,10 @@ export class MovingInfo extends Component {
               isFirstPage
               showFinishLater
               onNextClick={() => {
-                history.push(nextPath);
+                navigate(nextPath);
               }}
               onCancelClick={() => {
-                history.push(generalRoutes.HOME_PATH);
+                navigate(generalRoutes.HOME_PATH);
               }}
             />
           </Grid>
@@ -113,7 +120,7 @@ MovingInfo.propTypes = {
   entitlementWeight: number,
   fetchLatestOrders: func.isRequired,
   serviceMemberId: string.isRequired,
-  ...RouteProps,
+  router: RouterShape.isRequired,
 };
 
 MovingInfo.defaultProps = {
@@ -138,4 +145,4 @@ const mapDispatchToProps = {
   fetchLatestOrders: fetchLatestOrdersAction,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(MovingInfo);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MovingInfo));

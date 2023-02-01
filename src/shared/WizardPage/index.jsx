@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom-old';
-import { push } from 'connected-react-router';
 
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Alert from 'shared/Alert';
@@ -10,6 +7,7 @@ import generatePath from './generatePath';
 import './index.css';
 
 import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
+import withRouter from 'utils/routing';
 
 export class WizardPage extends Component {
   constructor(props) {
@@ -21,18 +19,19 @@ export class WizardPage extends Component {
   }
 
   goHome() {
-    this.props.push(`/`);
+    const { router } = this.props;
+    router.navigate(`/`);
   }
 
   goto(path) {
     const {
-      push,
-      match: { params },
+      router: { navigate, params },
       additionalParams,
     } = this.props;
+
     const combinedParams = additionalParams ? { ...additionalParams, ...params } : params;
     // comes from react router redux: doing this moves to the route at path  (might consider going back to history since we need withRouter)
-    push(generatePath(path, combinedParams));
+    navigate(generatePath(path, combinedParams));
   }
 
   nextPage() {
@@ -102,8 +101,7 @@ WizardPage.propTypes = {
   pageIsValid: PropTypes.bool,
   canMoveNext: PropTypes.bool,
   dirty: PropTypes.bool,
-  push: PropTypes.func,
-  match: PropTypes.object, //from withRouter
+  router: PropTypes.object, //from withRouter
   additionalParams: PropTypes.object,
   footerText: PropTypes.node,
 };
@@ -117,8 +115,4 @@ WizardPage.defaultProps = {
   footerText: null,
 };
 
-const mapDispatchToProps = {
-  push,
-};
-
-export default withRouter(connect(null, mapDispatchToProps)(WizardPage));
+export default withRouter(WizardPage);

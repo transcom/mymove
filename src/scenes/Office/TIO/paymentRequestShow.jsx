@@ -1,9 +1,9 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom-old';
 import { Formik, Form, Field } from 'formik';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { selectPaymentRequest, getPaymentRequest, updatePaymentRequest } from 'shared/Entities/modules/paymentRequests';
+import withRouter from 'utils/routing';
 
 class PaymentRequestShow extends React.Component {
   componentDidMount() {
@@ -58,7 +58,12 @@ class PaymentRequestShow extends React.Component {
   }
 }
 const mapStateToProps = (state, props) => {
-  const id = props.match.params.id;
+  const {
+    router: {
+      params: { id },
+    },
+  } = props;
+
   return {
     id,
     paymentRequest: selectPaymentRequest(state, id),

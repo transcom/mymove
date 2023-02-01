@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router';
 import ReactTable from 'react-table-6';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -7,6 +6,7 @@ import { get } from 'lodash';
 import Alert from 'shared/Alert';
 import { formatTimeAgo } from 'utils/formatters';
 import { logOut as logOutAction } from 'store/auth/actions';
+import withRouter from 'utils/routing';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { defaultColumns } from './queueTableColumns';
 
@@ -49,8 +49,8 @@ class QueueTable extends Component {
   }
 
   openMove(rowInfo) {
-    this.props.history.push(`/queues/new/moves/${rowInfo.original.id}`, {
-      referrerPathname: this.props.history.location.pathname,
+    this.props.router.navigate(`/queues/new/moves/${rowInfo.original.id}`, {
+      state: { referrerPathname: this.props.router.location.pathname },
     });
   }
 
