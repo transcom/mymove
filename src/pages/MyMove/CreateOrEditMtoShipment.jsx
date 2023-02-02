@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { func, number, shape } from 'prop-types';
-import { withRouter } from 'react-router-dom-old';
 import qs from 'query-string';
 
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
@@ -16,10 +15,11 @@ import {
 } from 'store/entities/selectors';
 import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import { HistoryShape, MatchShape, MoveShape, OrdersShape } from 'types/customerShapes';
-import { LocationShape } from 'types/index';
+import { MoveShape, OrdersShape } from 'types/customerShapes';
+import { RouterShape } from 'types/index';
 import { ShipmentShape } from 'types/shipment';
 import { selectMove } from 'shared/Entities/modules/moves';
+import withRouter from 'utils/routing';
 
 export class CreateOrEditMtoShipment extends Component {
   componentDidMount() {
@@ -29,9 +29,7 @@ export class CreateOrEditMtoShipment extends Component {
 
   render() {
     const {
-      location,
-      match,
-      history,
+      router: { location },
       mtoShipment,
       currentResidence,
       newDutyLocationAddress,
@@ -42,7 +40,6 @@ export class CreateOrEditMtoShipment extends Component {
     } = this.props;
 
     const { type } = qs.parse(location.search);
-
     // wait until MTO shipment has loaded to render form
     if (type || mtoShipment?.id) {
       if (type === SHIPMENT_OPTIONS.PPM || mtoShipment?.shipmentType === SHIPMENT_OPTIONS.PPM) {
@@ -58,8 +55,6 @@ export class CreateOrEditMtoShipment extends Component {
 
       return (
         <MtoShipmentForm
-          match={match}
-          history={history}
           mtoShipment={mtoShipment}
           shipmentType={type || mtoShipment.shipmentType}
           isCreatePage={!!type}
@@ -77,9 +72,7 @@ export class CreateOrEditMtoShipment extends Component {
 }
 
 CreateOrEditMtoShipment.propTypes = {
-  location: LocationShape.isRequired,
-  match: MatchShape,
-  history: HistoryShape,
+  router: RouterShape.isRequired,
   fetchCustomerData: func.isRequired,
   mtoShipment: ShipmentShape,
   currentResidence: AddressShape.isRequired,
@@ -95,8 +88,6 @@ CreateOrEditMtoShipment.propTypes = {
 };
 
 CreateOrEditMtoShipment.defaultProps = {
-  match: { isExact: false, params: { moveID: '' } },
-  history: { goBack: () => {}, push: () => {} },
   mtoShipment: {
     customerRemarks: '',
     requestedPickupDate: '',
@@ -119,11 +110,15 @@ CreateOrEditMtoShipment.defaultProps = {
 
 function mapStateToProps(state, ownProps) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-
+  const {
+    router: {
+      params: { mtoShipmentId },
+    },
+  } = ownProps;
   const props = {
     serviceMember,
     orders: selectCurrentOrders(state) || {},
-    mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId) || {},
+    mtoShipment: selectMTOShipmentById(state, mtoShipmentId) || {},
     currentResidence: serviceMember?.residential_address || {},
     newDutyLocationAddress: selectCurrentOrders(state)?.new_duty_location?.address || {},
     move: selectMove(state, ownProps.match.params.moveId),

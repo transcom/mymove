@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, matchPath, useLocation } from 'react-router-dom-old';
+import { useParams, matchPath, useLocation } from 'react-router-dom';
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
@@ -18,10 +18,13 @@ const MoveDocumentWrapper = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const showOrders = matchPath(pathname, {
-    path: '/moves/:moveCode/orders',
-    exact: true,
-  });
+  const showOrders = matchPath(
+    {
+      path: '/moves/:moveCode/orders',
+      end: true,
+    },
+    pathname,
+  );
 
   const documentsForViewer = Object.values(upload || {}).concat(Object.values(amendedUpload || {}));
 
