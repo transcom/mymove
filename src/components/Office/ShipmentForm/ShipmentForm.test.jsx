@@ -44,6 +44,7 @@ const defaultProps = {
     weightAllotment: {
       totalWeightSelf: 5000,
     },
+    agency: '',
   },
   moveTaskOrderID: 'mock move id',
   mtoShipments: [],

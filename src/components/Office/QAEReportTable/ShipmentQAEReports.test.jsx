@@ -33,7 +33,14 @@ describe('ShipmentQAEReports', () => {
   it('renders with no shipments', () => {
     render(
       <MockProviders>
-        <ShipmentQAEReports shipments={[]} reports={[]} moveCode="Test123" customerInfo={customerInfo} grade="E_4" />
+        <ShipmentQAEReports
+          shipments={[]}
+          destinationDutyLocationPostalCode=""
+          reports={[]}
+          moveCode="Test123"
+          customerInfo={customerInfo}
+          grade="E_4"
+        />
       </MockProviders>,
     );
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Shipment QAE reports (0)');
