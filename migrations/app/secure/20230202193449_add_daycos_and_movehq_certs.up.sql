@@ -1,0 +1,141 @@
+-- Local test migration.
+-- This will be run on development environments.
+-- It should mirror what you intend to apply on loadtest/demo/exp/stg/prd
+-- DO NOT include any sensitive data.
+
+-- WARN: Everything below this line exists in a migration for the STG
+-- environment. This migration is commented out so that we don't deploy this
+-- across all the environments. Values here have been redacted. Please pull
+-- down the S3 migration file of the same name in the STG migration folder.
+
+-- BEGIN
+--
+-- 	-- NOTE: Variables for UserID, ClientCert SHA256, client_certs.id for
+-- 	-- both Daycos and MoveHQ. The UUID was generated with Python using the
+-- 	-- following command: python -c 'import uuid; print(str(uuid.uuid4()))'
+-- 	-- The SHA256 values were generated from the following commands:
+-- 	-- openssl x509 \
+-- 	--   -in <CERT_FILE>.crt \
+-- 	--   -outform DER \
+-- 	--   -out <CERT_FILE>.crt.der && \
+-- 	-- openssl dgst -sha256 <CERT_FILE>.crt.der && \
+-- 	daycos_user_id := '<UUID>'
+-- 	daycos_sha256 := '<SHA256>'
+-- 	daycos_client_cert_id := '<UUID>'
+-- 	movehq_user_id := '<UUID>'
+-- 	movehq_sha256 := '<SHA256>'
+-- 	movehq_client_cert_id := '<UUID>'
+--
+--
+-- 	prime_role_id := (SELECT id FROM roles WHERE role_type = 'prime');
+--
+-- 	INSERT INTO users (
+-- 		id,
+-- 		login_gov_email,
+-- 		created_at,
+-- 		updated_at
+-- 	)
+-- 	VALUES (
+-- 		daycos_user_id, -- Daycos Prime User
+-- 		daycos_sha256 || '@api.move.mil', -- This is the SHA256 of the DER file of st-mil-us-23.crt.der
+-- 		now(),
+-- 		now()
+-- 	);
+--
+-- 	INSERT INTO users (
+-- 		id,
+-- 		login_gov_email,
+-- 		created_at,
+-- 		updated_at
+-- 	)
+-- 	VALUES (
+-- 		movehq_user_id, -- MoveHQ Prime User
+-- 		movehq_sha256 || '@api.move.mil', -- This is the SHA256 of the DER file of sandbox.depot.movehqhsc.us.crt.der
+-- 		now(),
+-- 		now(),
+-- 		now()
+-- 	);
+--
+-- 	INSERT INTO client_certs (
+-- 		id,
+-- 		sha256_digest,
+-- 		subject,
+-- 		allow_orders_api,
+-- 		created_at,
+-- 		updated_at,
+-- 		allow_air_force_orders_read,
+-- 		allow_air_force_orders_write,
+-- 		allow_army_orders_read,
+-- 		allow_army_orders_write,
+-- 		allow_coast_guard_orders_read,
+-- 		allow_coast_guard_orders_write,
+-- 		allow_marine_corps_orders_read,
+-- 		allow_marine_corps_orders_write,
+-- 		allow_navy_orders_read,
+-- 		allow_navy_orders_write,
+-- 		allow_prime,
+-- 		user_id
+-- 	)
+-- 	VALUES (
+-- 		daycos_client_cert_id,
+-- 		daycos_sha256,
+-- 		'subject= CN=st-mil-us-23.daycos.com,OU=DAYCOS,OU=IdenTrust,OU=ECA,O=U.S. Government,C=US',
+-- 		true,
+-- 		now(),
+-- 		now(),
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		daycos_user_id
+-- 	)
+--
+-- 	INSERT INTO client_certs (
+-- 		id,
+-- 		sha256_digest,
+-- 		subject,
+-- 		allow_orders_api,
+-- 		created_at,
+-- 		updated_at,
+-- 		allow_air_force_orders_read,
+-- 		allow_air_force_orders_write,
+-- 		allow_army_orders_read,
+-- 		allow_army_orders_write,
+-- 		allow_coast_guard_orders_read,
+-- 		allow_coast_guard_orders_write,
+-- 		allow_marine_corps_orders_read,
+-- 		allow_marine_corps_orders_write,
+-- 		allow_navy_orders_read,
+-- 		allow_navy_orders_write,
+-- 		allow_prime,
+-- 		user_id
+-- 	)
+-- 	VALUES (
+-- 		movehq_client_cert_id,
+-- 		movehq_sha256,
+-- 		'subject= CN=depot.sandbox.movehqhsc.us,OU=MoveHQ Inc.,OU=IdenTrust,OU=ECA,O=U.S. Government,C=US',
+-- 		true,
+-- 		now(),
+-- 		now(),
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		true,
+-- 		movehq_user_id
+-- 	)
+--
+-- END $$;
