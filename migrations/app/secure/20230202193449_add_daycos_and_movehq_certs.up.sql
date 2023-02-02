@@ -59,6 +59,10 @@
 -- 		now()
 -- 	);
 --
+-- NOTE: The next 79 lines are adding new Client Certs to the `client_certs`
+-- table with a static GUID for the ID, and the SHA256 digest from the
+-- certificate, and the subject from the certificate. It also reuses the
+-- user_id for the created Users above.
 -- 	INSERT INTO client_certs (
 -- 		id,
 -- 		sha256_digest,
@@ -98,8 +102,7 @@
 -- 		true,
 -- 		true,
 -- 		daycos_user_id
--- 	)
---
+-- 	);
 -- 	INSERT INTO client_certs (
 -- 		id,
 -- 		sha256_digest,
@@ -139,7 +142,7 @@
 -- 		true,
 -- 		true,
 -- 		movehq_user_id
--- 	)
+-- 	);
 --
 --	INSERT INTO users_roles (
 --		id,
