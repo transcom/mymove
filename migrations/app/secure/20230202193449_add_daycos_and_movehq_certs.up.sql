@@ -31,6 +31,9 @@
 --
 -- 	prime_role_id := (SELECT id FROM roles WHERE role_type = 'prime');
 --
+-- NOTE: The next 24 lines are adding new Users to the `users`
+-- table with a static GUID and a custom `login_gov_email` with their SHA256
+-- value appended with `@api.move.mil`.
 -- 	INSERT INTO users (
 -- 		id,
 -- 		login_gov_email,
@@ -43,7 +46,6 @@
 -- 		now(),
 -- 		now()
 -- 	);
---
 -- 	INSERT INTO users (
 -- 		id,
 -- 		login_gov_email,
@@ -53,7 +55,6 @@
 -- 	VALUES (
 -- 		movehq_user_id, -- MoveHQ Prime User
 -- 		movehq_sha256 || '@api.move.mil', -- This is the SHA256 of the DER file of sandbox.depot.movehqhsc.us.crt.der
--- 		now(),
 -- 		now(),
 -- 		now()
 -- 	);
