@@ -138,4 +138,34 @@
 -- 		movehq_user_id
 -- 	)
 --
+--	INSERT INTO users_roles (
+--		id,
+--		role_id,
+--		user_id,
+--		created_at,
+--		updated_at
+--	)
+--	VALUES (
+--		daycos_users_roles_id,
+--		prime_role_id,
+--		daycos_user_id,
+--		now(),
+--		now()
+--	)
+--
+--	INSERT INTO users_roles (
+--		id,
+--		role_id,
+--		user_id,
+--		created_at,
+--		updated_at
+--	)
+--	VALUES (
+--		movehq_users_roles_id,
+--		prime_role_id,
+--		movehq_user_id,
+--		now(),
+--		now()
+--	)
+--
 -- END $$;
