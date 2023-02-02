@@ -1,16 +1,17 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { Component, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
-import { Route, Switch, withRouter, matchPath, Link } from 'react-router-dom-old';
+import { Route, Routes, Link, matchPath, Navigate } from 'react-router-dom';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 
 import styles from './Office.module.scss';
+
 import 'styles/full_uswds.scss';
 import 'scenes/Office/office.scss';
 
 // API / Redux actions
-import { selectIsLoggedIn } from 'store/auth/selectors';
+import { selectGetCurrentUserIsLoading, selectIsLoggedIn } from 'store/auth/selectors';
 import { loadUser as loadUserAction } from 'store/auth/actions';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import {
@@ -31,10 +32,11 @@ import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplic
 import { roleTypes } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
-import { LocationShape, UserRolesShape } from 'types/index';
+import { RouterShape, UserRolesShape } from 'types/index';
 import { servicesCounselingRoutes, primeSimulatorRoutes, tooRoutes, qaeCSRRoutes } from 'constants/routes';
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
+import withRouter from 'utils/routing';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -105,33 +107,37 @@ export class OfficeApp extends Component {
     const {
       activeRole,
       officeUserId,
+      loginIsLoading,
       userIsLoggedIn,
       userPermissions,
       userRoles,
-      location: { pathname },
+      router: {
+        location,
+        location: { pathname },
+      },
       hasRecentError,
       traceId,
-      history,
     } = this.props;
-    const selectedRole = userIsLoggedIn && activeRole;
 
     // TODO - test login page?
 
     const displayChangeRole =
       userIsLoggedIn &&
       userRoles?.length > 1 &&
-      !matchPath(pathname, {
-        path: '/select-application',
-        exact: true,
-      });
+      !matchPath(
+        {
+          path: '/select-application',
+          end: true,
+        },
+        pathname,
+      );
 
-    const goBack = () => {
-      history.push('/');
-    };
-
-    const isFullscreenPage = matchPath(pathname, {
-      path: '/moves/:moveCode/payment-requests/:id',
-    });
+    const isFullscreenPage = matchPath(
+      {
+        path: '/moves/:moveCode/payment-requests/:id',
+      },
+      pathname,
+    );
 
     const siteClasses = classnames('site', {
       [`site--fullscreen`]: isFullscreenPage,
@@ -143,12 +149,12 @@ export class OfficeApp extends Component {
           <div className={siteClasses}>
             <BypassBlock />
             <CUIHeader />
-            {selectedRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
+            {userIsLoggedIn && activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
             {displayChangeRole && <Link to="/select-application">Change user role</Link>}
             {userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader />}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
-              {hasRecentError && history.location.pathname === '/' && (
+              {hasRecentError && location.pathname === '/' && (
                 <SystemError>
                   Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
                   <br />
@@ -162,161 +168,216 @@ export class OfficeApp extends Component {
               {hasError && <SomethingWentWrong error={error} info={info} />}
 
               <Suspense fallback={<LoadingPlaceholder />}>
-                {!hasError && (
-                  <Switch>
-                    {/* no auth */}
-                    <Route path="/sign-in" component={SignIn} />
+                {!userIsLoggedIn && (
+                  // No Auth Routes
+                  <Routes>
+                    <Route path="/sign-in" element={<SignIn />} />
+                    <Route path="/invalid-permissions" element={<InvalidPermissions />} />
 
-                    {/* no auth */}
-                    <Route path="/invalid-permissions" component={InvalidPermissions} />
+                    {/* 404 */}
+                    <Route
+                      path="*"
+                      element={
+                        (loginIsLoading && <LoadingPlaceholder />) ||
+                        (!userIsLoggedIn && <Navigate to="/sign-in" replace />)
+                      }
+                    />
+                  </Routes>
+                )}
+                {!hasError && userIsLoggedIn && (
+                  // Auth Routes
+                  <Routes>
+                    <Route path="/sign-in" element={<SignIn />} />
+                    <Route path="/invalid-permissions" element={<InvalidPermissions />} />
 
                     {/* TXO */}
-                    <PrivateRoute path="/moves/queue" exact component={MoveQueue} requiredRoles={[roleTypes.TOO]} />
-                    <PrivateRoute
+                    <Route
+                      path="/moves/queue"
+                      end
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                          <MoveQueue />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
                       path="/invoicing/queue"
-                      component={PaymentRequestQueue}
-                      requiredRoles={[roleTypes.TIO]}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.TIO]}>
+                          <PaymentRequestQueue />
+                        </PrivateRoute>
+                      }
                     />
 
                     {/* SERVICES_COUNSELOR */}
-                    <PrivateRoute
+                    <Route
                       key="servicesCounselingAddShipment"
-                      exact
+                      end
                       path={servicesCounselingRoutes.SHIPMENT_ADD_PATH}
-                      component={ServicesCounselingAddShipment}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                          <ServicesCounselingAddShipment />
+                        </PrivateRoute>
+                      }
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
 
-                    <PrivateRoute
+                    <Route
                       path={servicesCounselingRoutes.QUEUE_COUNSELING_PATH}
-                      exact
-                      component={ServicesCounselingQueue}
+                      end
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                          <ServicesCounselingQueue />
+                        </PrivateRoute>
+                      }
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
 
-                    <PrivateRoute
+                    <Route
                       path={servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH}
-                      exact
-                      component={ServicesCounselingQueue}
+                      end
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                          <ServicesCounselingQueue />
+                        </PrivateRoute>
+                      }
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
 
-                    <PrivateRoute
+                    <Route
                       key="servicesCounselingMoveInfoRoute"
-                      path={servicesCounselingRoutes.BASE_MOVE_PATH}
-                      component={ServicesCounselingMoveInfo}
-                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
+                      path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                          <ServicesCounselingMoveInfo />
+                        </PrivateRoute>
+                      }
                     />
 
                     {/* TOO */}
-                    <PrivateRoute
+                    <Route
                       key="tooEditShipmentDetailsRoute"
-                      exact
-                      path={tooRoutes.SHIPMENT_EDIT_PATH}
-                      component={EditShipmentDetails}
-                      requiredRoles={[roleTypes.TOO]}
+                      end
+                      path={tooRoutes.BASE_SHIPMENT_EDIT_PATH}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                          <EditShipmentDetails />
+                        </PrivateRoute>
+                      }
                     />
-
                     {/* PRIME SIMULATOR */}
-                    <PrivateRoute
+                    <Route
                       key="primeSimulatorMovePath"
                       path={primeSimulatorRoutes.VIEW_MOVE_PATH}
-                      component={PrimeSimulatorMoveDetails}
-                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                          <PrimeSimulatorMoveDetails />
+                        </PrivateRoute>
+                      }
                     />
-
-                    <PrivateRoute
+                    <Route
                       key="primeSimulatorCreateShipmentPath"
                       path={primeSimulatorRoutes.CREATE_SHIPMENT_PATH}
-                      component={PrimeUIShipmentCreateForm}
-                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                          <PrimeUIShipmentCreateForm />
+                        </PrivateRoute>
+                      }
                     />
-
-                    <PrivateRoute
+                    <Route
                       key="primeSimulatorShipmentUpdateAddressPath"
                       path={primeSimulatorRoutes.SHIPMENT_UPDATE_ADDRESS_PATH}
-                      component={PrimeUIShipmentUpdateAddress}
-                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
-                      exact
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                          <PrimeUIShipmentUpdateAddress />
+                        </PrivateRoute>
+                      }
+                      end
                     />
-
-                    <PrivateRoute
+                    <Route
                       key="primeSimulatorUpdateShipmentPath"
                       path={primeSimulatorRoutes.UPDATE_SHIPMENT_PATH}
-                      exact
-                      component={PrimeUIShipmentForm}
-                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                      end
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                          <PrimeUIShipmentForm />
+                        </PrivateRoute>
+                      }
                     />
-
-                    <PrivateRoute
+                    <Route
                       key="primeSimulatorCreatePaymentRequestsPath"
                       path={primeSimulatorRoutes.CREATE_PAYMENT_REQUEST_PATH}
-                      component={PrimeSimulatorCreatePaymentRequest}
-                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                          <PrimeSimulatorCreatePaymentRequest />
+                        </PrivateRoute>
+                      }
                     />
-
-                    <PrivateRoute
+                    <Route
                       key="primeSimulatorUploadPaymentRequestDocumentsPath"
                       path={primeSimulatorRoutes.UPLOAD_DOCUMENTS_PATH}
-                      component={PrimeSimulatorUploadPaymentRequestDocuments}
-                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                          <PrimeSimulatorUploadPaymentRequestDocuments />
+                        </PrivateRoute>
+                      }
                     />
-
-                    <PrivateRoute
+                    <Route
                       key="primeSimulatorCreateServiceItem"
                       path={primeSimulatorRoutes.CREATE_SERVICE_ITEM_PATH}
-                      component={PrimeSimulatorCreateServiceItem}
-                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                          <PrimeSimulatorCreateServiceItem />
+                        </PrivateRoute>
+                      }
                     />
-
-                    <PrivateRoute
+                    <Route
                       key="primeSimulatorUpdateReweighPath"
                       path={primeSimulatorRoutes.SHIPMENT_UPDATE_REWEIGH_PATH}
-                      component={PrimeUIShipmentUpdateReweigh}
-                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                          <PrimeUIShipmentUpdateReweigh />
+                        </PrivateRoute>
+                      }
                     />
 
                     {/* QAE/CSR */}
-                    <PrivateRoute
+                    <Route
                       key="qaeCSRMoveSearchPath"
                       path={qaeCSRRoutes.MOVE_SEARCH_PATH}
-                      component={QAECSRMoveSearch}
-                      requiredRoles={[roleTypes.QAE_CSR]}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.QAE_CSR]}>
+                          <QAECSRMoveSearch />
+                        </PrivateRoute>
+                      }
                     />
 
-                    <PrivateRoute
+                    <Route
                       key="txoMoveInfoRoute"
-                      path="/moves/:moveCode"
-                      component={TXOMoveInfo}
-                      requiredRoles={[roleTypes.TOO, roleTypes.TIO, roleTypes.QAE_CSR]}
+                      path="/moves/:moveCode/*"
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.TOO, roleTypes.TIO, roleTypes.QAE_CSR]}>
+                          <TXOMoveInfo />
+                        </PrivateRoute>
+                      }
                     />
 
-                    <PrivateRoute exact path="/select-application" component={ConnectedSelectApplication} />
+                    <Route end path="/select-application" element={<ConnectedSelectApplication />} />
+
                     {/* ROOT */}
-                    <PrivateRoute
-                      exact
-                      path="/"
-                      render={(routeProps) => {
-                        switch (selectedRole) {
-                          case roleTypes.TIO:
-                            return <PaymentRequestQueue {...routeProps} />;
-                          case roleTypes.TOO:
-                            return <MoveQueue {...routeProps} />;
-                          case roleTypes.SERVICES_COUNSELOR:
-                            return <ServicesCounselingQueue {...routeProps} />;
-                          case roleTypes.PRIME_SIMULATOR:
-                            return <PrimeSimulatorAvailableMoves {...routeProps} />;
-                          case roleTypes.QAE_CSR:
-                            return <QAECSRMoveSearch {...routeProps} />;
-                          default:
-                            // User has unknown role or shouldn't have access
-                            return <div />;
-                        }
-                      }}
-                    />
+                    {activeRole === roleTypes.TIO && <Route end path="/" element={<PaymentRequestQueue />} />}
+                    {activeRole === roleTypes.TOO && <Route end path="/" element={<MoveQueue />} />}
+                    {activeRole === roleTypes.SERVICES_COUNSELOR && (
+                      <Route end path="/*" element={<ServicesCounselingQueue />} />
+                    )}
+                    {activeRole === roleTypes.PRIME_SIMULATOR && (
+                      <Route end path="/" element={<PrimeSimulatorAvailableMoves />} />
+                    )}
+                    {activeRole === roleTypes.QAE_CSR && <Route end path="/" element={<QAECSRMoveSearch />} />}
+
                     {/* 404 */}
-                    <Route render={(routeProps) => <NotFound {...routeProps} handleOnClick={goBack} />} />
-                  </Switch>
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
                 )}
               </Suspense>
             </main>
@@ -332,31 +393,24 @@ OfficeApp.propTypes = {
   loadInternalSchema: PropTypes.func.isRequired,
   loadPublicSchema: PropTypes.func.isRequired,
   loadUser: PropTypes.func.isRequired,
-  location: LocationShape,
   officeUserId: PropTypes.string,
+  loginIsLoading: PropTypes.bool,
   userIsLoggedIn: PropTypes.bool,
   userPermissions: PropTypes.arrayOf(PropTypes.string),
   userRoles: UserRolesShape,
   activeRole: PropTypes.string,
   hasRecentError: PropTypes.bool.isRequired,
   traceId: PropTypes.string.isRequired,
-  history: PropTypes.shape({
-    location: PropTypes.shape({
-      pathname: PropTypes.string,
-    }),
-  }),
+  router: RouterShape.isRequired,
 };
 
 OfficeApp.defaultProps = {
-  location: { pathname: '' },
   officeUserId: null,
+  loginIsLoading: true,
   userIsLoggedIn: false,
   userPermissions: [],
   userRoles: [],
   activeRole: null,
-  history: {
-    location: { pathname: '' },
-  },
 };
 
 const mapStateToProps = (state) => {
@@ -365,6 +419,7 @@ const mapStateToProps = (state) => {
   return {
     swaggerError: state.swaggerInternal.hasErrored,
     officeUserId: user?.office_user?.id,
+    loginIsLoading: selectGetCurrentUserIsLoading(state),
     userIsLoggedIn: selectIsLoggedIn(state),
     userPermissions: user?.permissions || [],
     userRoles: user?.roles || [],
