@@ -39,7 +39,7 @@
     "query-string": "7",
     "ra-data-simple-rest": "^4.7.0",
     "ra-language-english": "^4.7.2",
-    "react": "^17.0.1",
+    "react": "^18.2.0",
     "react-admin": "^3.19.11",
     "react-admin-import-csv": "^1.0.33",
     "react-app-polyfill": "^3.0.0",
