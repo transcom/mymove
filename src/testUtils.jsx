@@ -52,9 +52,13 @@ export const renderWithRouter = (ui, options) => {
  * @param {*} options - Routing options used to create a mock router. Prefered options are `path` and `params`. Other options are for extended use cases and supporting existiong patterns.
  * @returns {*} - The result of the render call from react-testing-library
  */
-export const renderWithRouterProp = (ui, path = '/', params = {}) => {
+export const renderWithRouterProp = (ui, options) => {
+  const path = options?.path || '/';
+  const params = options?.params || {};
+  const navigate = options?.navigate || jest.fn();
+
   const pathname = generatePath(path, params);
-  const router = { location: { pathname }, params };
+  const router = { location: { pathname }, params, navigate };
 
   return renderWithRouter(React.cloneElement(ui, { router: { ...router } }));
 };
