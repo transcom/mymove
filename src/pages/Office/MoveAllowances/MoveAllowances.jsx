@@ -155,7 +155,7 @@ const MoveAllowances = () => {
                   View Allowances
                 </h2>
                 <div>
-                  <Link className={styles.viewAllowances} data-testid="view-orders" to="orders">
+                  <Link className={styles.viewAllowances} data-testid="view-orders" to="../orders">
                     View Orders
                   </Link>
                 </div>

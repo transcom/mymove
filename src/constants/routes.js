@@ -62,22 +62,35 @@ export const servicesCounselingRoutes = {
   REVIEW_SHIPMENT_WEIGHTS_PATH: `${BASE_MOVE_PATH}/review-shipment-weights`,
 };
 
+const BASE_MOVES_PATH = '/moves/:moveCode';
+export const moveRoutes = {
+  BASE_MOVE_HISTORY_PATH: `${BASE_MOVES_PATH}/history`,
+  MOVE_HISTORY_PATH: 'history',
+};
+
 export const tioRoutes = {
-  PAYMENT_REQUESTS_PATH: '/moves/:moveCode/payment-requests',
-  BILLABLE_WEIGHT_PATH: `/moves/:moveCode/billable-weight`,
+  BASE_PAYMENT_REQUESTS_PATH: `${BASE_MOVES_PATH}/payment-requests`,
+  PAYMENT_REQUESTS_PATH: 'payment-requests',
+  BILLABLE_WEIGHT_PATH: 'billable-weight',
 };
 
 export const tooRoutes = {
-  SHIPMENT_EDIT_PATH: '/moves/:moveCode/shipments/:shipmentId',
-  MOVE_VIEW_PATH: '/moves/:moveCode/details',
-  ORDERS_EDIT_PATH: '/moves/:moveCode/orders',
+  BASE_SHIPMENT_EDIT_PATH: `${BASE_MOVES_PATH}/shipments/:shipmentId`,
+  SHIPMENT_EDIT_PATH: 'shipments/:shipmentId',
+  BASE_VIEW_MOVE_PATH: `${BASE_MOVES_PATH}/details`,
+  MOVE_VIEW_PATH: 'details',
+  ORDERS_EDIT_PATH: 'orders',
 };
 
 export const qaeCSRRoutes = {
   MOVE_SEARCH_PATH: '/qaecsr/search',
-  EVALUATION_REPORTS_PATH: '/moves/:moveCode/evaluation-reports',
-  EVALUATION_REPORT_PATH: '/moves/:moveCode/evaluation-reports/:reportId',
-  EVALUATION_VIOLATIONS_PATH: '/moves/:moveCode/evaluation-reports/:reportId/violations',
+  BASE_EVALUATION_REPORTS_PATH: `${BASE_MOVES_PATH}/evaluation-reports`,
+  EVALUATION_REPORTS_PATH: '/evaluation-reports',
+  BASE_EVALUATION_REPORT_PATH: `${BASE_MOVES_PATH}/evaluation-reports/:reportId/*`,
+  EVALUATION_REPORT_PATH: '/evaluation-reports/:reportId',
+  EVALUATION_VIOLATIONS_PATH: '/evaluation-reports/:reportId/violations',
+  BASE_CUSTOMER_SUPPORT_REMARKS_PATH: `${BASE_MOVES_PATH}/customer-support-remarks`,
+  CUSTOMER_SUPPORT_REMARKS_PATH: 'customer-support-remarks',
 };
 
 // README: Prime API endpoints accept either a Move code or ID.

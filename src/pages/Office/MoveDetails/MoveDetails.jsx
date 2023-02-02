@@ -377,12 +377,12 @@ const MoveDetails = ({
                 <Restricted
                   to={permissionTypes.updateOrders}
                   fallback={
-                    <Link className="usa-button usa-button--secondary" data-testid="view-orders" to="orders">
+                    <Link className="usa-button usa-button--secondary" data-testid="view-orders" to="../orders">
                       View orders
                     </Link>
                   }
                 >
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
+                  <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="../orders">
                     Edit orders
                   </Link>
                 </Restricted>
@@ -399,12 +399,12 @@ const MoveDetails = ({
                 <Restricted
                   to={permissionTypes.updateAllowances}
                   fallback={
-                    <Link className="usa-button usa-button--secondary" data-testid="view-allowances" to="allowances">
+                    <Link className="usa-button usa-button--secondary" data-testid="view-allowances" to="../allowances">
                       View allowances
                     </Link>
                   }
                 >
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
+                  <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="../allowances">
                     Edit allowances
                   </Link>
                 </Restricted>
