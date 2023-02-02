@@ -8,6 +8,7 @@ import styles from './FinalCloseoutForm.module.scss';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import { ShipmentShape } from 'types/shipment';
+import { MoveShape } from 'types/customerShapes';
 import { formatCents, formatWeight } from 'utils/formatters';
 import {
   calculateTotalMovingExpensesAmount,
@@ -16,18 +17,20 @@ import {
 } from 'utils/ppmCloseout';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
+import affiliations from 'content/serviceMemberAgencies';
 
 const validationSchema = Yup.object().shape({
   signature: Yup.string().required('Required'),
   date: Yup.string(),
 });
 
-const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit }) => {
+const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, selectedMove }) => {
   const totalNetWeight = calculateTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
-
   const totalProGearWeight = calculateTotalNetWeightForProGearWeightTickets(
     mtoShipment?.ppmShipment?.proGearWeightTickets,
   );
+
+  const isArmyOrAirForce = affiliation === affiliations.ARMY || affiliation === affiliations.AIR_FORCE;
 
   const totalExpensesClaimed = calculateTotalMovingExpensesAmount(mtoShipment?.ppmShipment?.movingExpenses);
 
@@ -88,6 +91,13 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit }) => 
               again as moving expenses. Federal tax withholding will be deducted from the profit (entitlement less
               eligible operating expenses.)
             </p>
+            {isArmyOrAirForce && (
+              <p>
+                Your closeout office for your PPM(s) is{' '}
+                {selectedMove?.closeout_office?.name ? selectedMove.closeout_office.name : ''}. This is where your PPM
+                paperwork will be reviewed before you can submit it to finance to receive your incentive.
+              </p>
+            )}
           </div>
 
           <SectionWrapper>
@@ -131,12 +141,19 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit }) => 
 
 FinalCloseoutForm.propTypes = {
   initialValues: PropTypes.shape({
+    affiliation: PropTypes.string,
     signature: PropTypes.string,
     date: PropTypes.string,
   }).isRequired,
   mtoShipment: ShipmentShape.isRequired,
   onBack: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  affiliation: PropTypes.string.isRequired,
+  selectedMove: MoveShape,
+};
+
+FinalCloseoutForm.defaultProps = {
+  selectedMove: {},
 };
 
 export default FinalCloseoutForm;

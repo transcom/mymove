@@ -151,7 +151,7 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 			})
 
 			suite.Run("Update WeightTicket - documents required", func() {
-				err := checkRequiredFields().Validate(suite.AppContextForTest(),
+				err := verifyProofOfTrailerOwnershipDocument().Validate(suite.AppContextForTest(),
 					&models.WeightTicket{
 						ID:                       weightTicketID,
 						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),

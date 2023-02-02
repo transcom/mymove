@@ -9,7 +9,7 @@ const { test } = require('../../utils/customerTest');
 
 test('A customer can go through onboarding', async ({ page, customerPage }) => {
   // Create new customer user
-  await customerPage.signIn.customer.newCustomer();
+  await customerPage.signInAsNewCustomer();
 
   // CONUS/OCONUS section
   await customerPage.waitForPage.onboardingConus();

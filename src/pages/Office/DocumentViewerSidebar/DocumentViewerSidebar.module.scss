@@ -29,12 +29,12 @@
     @include u-margin-top(1.5);
   }
 
-  h3 {
+  .supertitle {
     font-size: 15px;
     color: $base;
     font-weight: normal;
     text-transform: uppercase;
-    @include u-margin-top(0.5);
+    @include u-margin-bottom(2);
   }
 
   .header {
@@ -79,4 +79,12 @@
     @include u-border-top('gray-10');
     margin-top: auto;
   }
+}
+
+.container:not(.defaultH3) h3 {
+  font-size: 15px;
+  color: $base;
+  font-weight: normal;
+  text-transform: uppercase;
+  @include u-margin-top(0.5);
 }

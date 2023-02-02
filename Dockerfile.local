@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM milmove/circleci-docker:milmove-app-94a41a022a48dab1c05b932734b472922260f3c0 as builder
+FROM milmove/circleci-docker:milmove-app-4ac893fa1efd33ff1c06a54a2417bfb2a3176bac as builder
 
 ENV CIRCLECI=true
 
@@ -26,7 +26,7 @@ COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-rsa4096-
 COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY --from=builder --chown=root:root /home/circleci/project/bin/milmove /bin/milmove
 
-COPY config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+COPY config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b
 COPY config/tls/dod-sw-ca-54.pem /config/tls/dod-sw-ca-54.pem
 
 # While it's ok to have these certs copied locally, they should never be copied into Dockerfile.

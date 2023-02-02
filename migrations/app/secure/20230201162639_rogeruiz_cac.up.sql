@@ -1,0 +1,48 @@
+-- Local test migration.
+-- This will be run on development environments.
+-- It should mirror what you intend to apply on loadtest/demo/exp/stg/prd
+-- DO NOT include any sensitive data.
+
+-- README: Since this is something that we don't actually want to run in any environment besides STG and PRD, I'm purposefully commenting the following SQL and uploading a commented out file for the following environments:
+-- * loadtest
+-- * demo
+-- * exp
+
+-- INSERT INTO public.client_certs (
+-- 	id,
+-- 	sha256_digest,
+-- 	subject,
+-- 	allow_dps_auth_api,
+-- 	allow_orders_api,
+-- 	created_at,
+-- 	updated_at,
+-- 	allow_air_force_orders_read,
+-- 	allow_air_force_orders_write,
+-- 	allow_army_orders_read,
+-- 	allow_army_orders_write,
+-- 	allow_coast_guard_orders_read,
+-- 	allow_coast_guard_orders_write,
+-- 	allow_marine_corps_orders_read,
+-- 	allow_marine_corps_orders_write,
+-- 	allow_navy_orders_read,
+-- 	allow_navy_orders_write,
+-- 	allow_prime)
+-- VALUES (
+-- 	'<Generated ID for storing this>',
+-- 	'<SHA256 from the CAC card.',
+-- 	'<Subject from the CAC card.',
+-- 	false,
+-- 	true,
+-- 	now(),
+-- 	now(),
+-- 	true,
+-- 	true,
+-- 	true,
+-- 	true,
+-- 	true,
+-- 	true,
+-- 	true,
+-- 	true,
+-- 	true,
+-- 	true,
+-- 	true);

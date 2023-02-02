@@ -14,10 +14,12 @@ import { AddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { OrdersLOAShape } from 'types/order';
 import { shipmentStatuses } from 'constants/shipments';
+import ppmDocumentStatus from 'constants/ppms';
 import { ShipmentStatusesOneOf } from 'types/shipment';
 import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import affiliation from 'content/serviceMemberAgencies';
 
 const ShipmentDisplay = ({
   shipmentType,
@@ -61,7 +63,7 @@ const ShipmentDisplay = ({
                 data-testid="shipment-display-checkbox"
                 onChange={onChange}
                 name="shipments"
-                label=""
+                label="&nbsp;"
                 value={shipmentId}
                 aria-labelledby={`shipment-display-label-${shipmentId}`}
                 disabled={disableApproval}
@@ -83,6 +85,13 @@ const ShipmentDisplay = ({
               <Tag>cancellation requested</Tag>
             )}
             {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
+            {displayInfo.ppmDocumentStatus === ppmDocumentStatus.REJECTED && (
+              <Tag className={styles.ppmStatus}>sent to customer</Tag>
+            )}
+            {(displayInfo.ppmDocumentStatus === ppmDocumentStatus.APPROVED ||
+              displayInfo.ppmDocumentStatus === ppmDocumentStatus.EXCLUDED) && (
+              <Tag className={styles.ppmStatus}>packet ready for download</Tag>
+            )}
           </div>
 
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
@@ -140,6 +149,8 @@ ShipmentDisplay.propTypes = {
   ]),
   displayInfo: PropTypes.oneOfType([
     PropTypes.shape({
+      agency: PropTypes.oneOf(Object.values(affiliation)),
+      closeoutOffice: PropTypes.string,
       heading: PropTypes.string.isRequired,
       isDiversion: PropTypes.bool,
       shipmentStatus: ShipmentStatusesOneOf,

@@ -158,7 +158,7 @@ async function customerSetsUpAnHHGMove(page) {
 test('A customer following HHG Setup flow', async ({ page, customerPage }) => {
   const move = await customerPage.testHarness.buildSpouseProGearMove();
   const userId = move.Orders.ServiceMember.user_id;
-  await customerPage.signIn.customer.existingCustomer(userId);
+  await customerPage.signInAsExistingCustomer(userId);
 
   await customerChoosesAnHHGMove(page);
   await customerSetsUpAnHHGMove(page);
