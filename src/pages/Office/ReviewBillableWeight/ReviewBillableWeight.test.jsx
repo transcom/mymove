@@ -7,7 +7,8 @@ import ReviewBillableWeight from './ReviewBillableWeight';
 import { formatWeight, formatDateFromIso } from 'utils/formatters';
 import { useOrdersDocumentQueries, useMovePaymentRequestsQueries } from 'hooks/queries';
 import { shipmentStatuses } from 'constants/shipments';
-import { ReactQueryWrapper } from 'testUtils';
+import { tioRoutes } from 'constants/routes';
+import { MockProviders, ReactQueryWrapper } from 'testUtils';
 
 // Mock the document viewer since we're not really testing that aspect here.
 // Document Viewer tests should be covered in the component itself.
@@ -21,15 +22,12 @@ jest.mock('hooks/queries', () => ({
   useMovePaymentRequestsQueries: jest.fn(),
 }));
 
-const mockPush = jest.fn();
-
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn().mockReturnValue({ moveCode: 'testMoveCode' }),
-  useHistory: () => ({
-    push: mockPush,
-  }),
+  useNavigate: () => mockNavigate,
 }));
+const routingParams = { moveCode: 'testMoveCode' };
 
 const mockOriginDutyLocation = {
   address: {
@@ -266,17 +264,23 @@ const errorReturnValue = {
   isSuccess: false,
 };
 
+const renderWithProviders = (component) => {
+  return render(
+    <ReactQueryWrapper>
+      <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={routingParams}>
+        {component}
+      </MockProviders>
+    </ReactQueryWrapper>,
+  );
+};
+
 describe('ReviewBillableWeight', () => {
   describe('check loading and error component states', () => {
     it('renders the loading placeholder when the query is still loading', async () => {
       useOrdersDocumentQueries.mockReturnValue(loadingReturnValue);
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
-      render(
-        <ReactQueryWrapper>
-          <ReviewBillableWeight />
-        </ReactQueryWrapper>,
-      );
+      renderWithProviders(<ReviewBillableWeight />);
 
       const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
@@ -286,11 +290,7 @@ describe('ReviewBillableWeight', () => {
       useOrdersDocumentQueries.mockReturnValue(errorReturnValue);
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
-      render(
-        <ReactQueryWrapper>
-          <ReviewBillableWeight />
-        </ReactQueryWrapper>,
-      );
+      renderWithProviders(<ReviewBillableWeight />);
 
       const errorMessage = await screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
@@ -302,11 +302,7 @@ describe('ReviewBillableWeight', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
-      render(
-        <ReactQueryWrapper>
-          <ReviewBillableWeight />
-        </ReactQueryWrapper>,
-      );
+      renderWithProviders(<ReviewBillableWeight />);
       expect(screen.getByText('Review weights')).toBeInTheDocument();
       expect(screen.getByText('Document viewer text')).toBeInTheDocument();
       expect(screen.getByText(move.tioRemarks)).toBeInTheDocument();
@@ -315,11 +311,7 @@ describe('ReviewBillableWeight', () => {
     it('renders weight summary', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
-      render(
-        <ReactQueryWrapper>
-          <ReviewBillableWeight />
-        </ReactQueryWrapper>,
-      );
+      renderWithProviders(<ReviewBillableWeight />);
       expect(screen.getByTestId('maxBillableWeight').textContent).toBe(
         formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.authorizedWeight),
       );
@@ -335,14 +327,11 @@ describe('ReviewBillableWeight', () => {
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
       const weightAllowance = formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.totalWeight);
 
-      render(
-        <ReactQueryWrapper>
-          <ReviewBillableWeight />
-        </ReactQueryWrapper>,
-      );
+      renderWithProviders(<ReviewBillableWeight />);
 
       await userEvent.click(screen.getByText('Edit'));
       expect((await screen.findByTestId('maxWeight-weightAllowance')).textContent).toBe(weightAllowance);
+      screen.debug();
       expect(screen.getByTestId('maxWeight-estimatedWeight').textContent).toBe('11,000 lbs');
       expect(screen.getByText(move.tioRemarks)).toBeInTheDocument();
     });
@@ -352,19 +341,17 @@ describe('ReviewBillableWeight', () => {
     it('takes the user back to the payment requests page when x is clicked', async () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
-      render(
-        <ReactQueryWrapper>
-          <ReviewBillableWeight />
-        </ReactQueryWrapper>,
-      );
+      renderWithProviders(<ReviewBillableWeight />);
 
       const xButton = screen.getByTestId('closeSidebar');
 
       await userEvent.click(xButton);
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/moves/testMoveCode/payment-requests', {
-          from: 'review-billable-weights',
+        expect(mockNavigate).toHaveBeenCalledWith('../payment-requests', {
+          state: {
+            from: 'review-billable-weights',
+          },
         });
       });
     });
@@ -373,11 +360,7 @@ describe('ReviewBillableWeight', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
-      render(
-        <ReactQueryWrapper>
-          <ReviewBillableWeight />
-        </ReactQueryWrapper>,
-      );
+      renderWithProviders(<ReviewBillableWeight />);
 
       const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
 
@@ -412,11 +395,7 @@ describe('ReviewBillableWeight', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
-      render(
-        <ReactQueryWrapper>
-          <ReviewBillableWeight />
-        </ReactQueryWrapper>,
-      );
+      renderWithProviders(<ReviewBillableWeight />);
 
       const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
 
@@ -473,11 +452,7 @@ describe('ReviewBillableWeight', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
-      render(
-        <ReactQueryWrapper>
-          <ReviewBillableWeight />
-        </ReactQueryWrapper>,
-      );
+      renderWithProviders(<ReviewBillableWeight />);
 
       const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
 
@@ -550,11 +525,7 @@ describe('ReviewBillableWeight', () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
-        render(
-          <ReactQueryWrapper>
-            <ReviewBillableWeight />
-          </ReactQueryWrapper>,
-        );
+        renderWithProviders(<ReviewBillableWeight />);
 
         await userEvent.click(screen.getByText('Edit'));
         await userEvent.click(screen.getByText('Review shipment weights'));
@@ -565,11 +536,7 @@ describe('ReviewBillableWeight', () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
-        render(
-          <ReactQueryWrapper>
-            <ReviewBillableWeight />
-          </ReactQueryWrapper>,
-        );
+        renderWithProviders(<ReviewBillableWeight />);
 
         await userEvent.click(screen.getByText('Edit'));
         expect(await screen.findByTestId('maxBillableWeightAlert')).toBeInTheDocument();
@@ -579,11 +546,7 @@ describe('ReviewBillableWeight', () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useNonMaxBillableWeightExceededReturnValue);
 
-        render(
-          <ReactQueryWrapper>
-            <ReviewBillableWeight />
-          </ReactQueryWrapper>,
-        );
+        renderWithProviders(<ReviewBillableWeight />);
 
         await userEvent.click(screen.getByText('Edit'));
         await waitFor(() => {
@@ -595,11 +558,7 @@ describe('ReviewBillableWeight', () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useNonMaxBillableWeightExceededReturnValue);
 
-        render(
-          <ReactQueryWrapper>
-            <ReviewBillableWeight />
-          </ReactQueryWrapper>,
-        );
+        renderWithProviders(<ReviewBillableWeight />);
 
         await userEvent.click(screen.getByText('Edit'));
         await userEvent.click(screen.getByText('Review shipment weights'));
@@ -612,11 +571,7 @@ describe('ReviewBillableWeight', () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoReweighReturnValue);
 
-        render(
-          <ReactQueryWrapper>
-            <ReviewBillableWeight />
-          </ReactQueryWrapper>,
-        );
+        renderWithProviders(<ReviewBillableWeight />);
 
         expect(screen.getByTestId('maxBillableWeightMissingShipmentWeightAlert')).toBeInTheDocument();
       });
@@ -625,11 +580,7 @@ describe('ReviewBillableWeight', () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoPrimeEstimatedWeightReturnValue);
 
-        render(
-          <ReactQueryWrapper>
-            <ReviewBillableWeight />
-          </ReactQueryWrapper>,
-        );
+        renderWithProviders(<ReviewBillableWeight />);
 
         expect(screen.getByTestId('maxBillableWeightMissingShipmentWeightAlert')).toBeInTheDocument();
       });
@@ -638,11 +589,7 @@ describe('ReviewBillableWeight', () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(noAlertsReturnValue);
 
-        render(
-          <ReactQueryWrapper>
-            <ReviewBillableWeight />
-          </ReactQueryWrapper>,
-        );
+        renderWithProviders(<ReviewBillableWeight />);
 
         expect(screen.queryByTestId('maxBillableWeightMissingShipmentWeightAlert')).not.toBeInTheDocument();
       });
@@ -653,11 +600,7 @@ describe('ReviewBillableWeight', () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoReweighReturnValue);
 
-        render(
-          <ReactQueryWrapper>
-            <ReviewBillableWeight />
-          </ReactQueryWrapper>,
-        );
+        renderWithProviders(<ReviewBillableWeight />);
 
         const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
         await userEvent.click(reviewShipmentWeights);
@@ -669,11 +612,7 @@ describe('ReviewBillableWeight', () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoPrimeEstimatedWeightReturnValue);
 
-        render(
-          <ReactQueryWrapper>
-            <ReviewBillableWeight />
-          </ReactQueryWrapper>,
-        );
+        renderWithProviders(<ReviewBillableWeight />);
 
         const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
         await userEvent.click(reviewShipmentWeights);
@@ -685,11 +624,7 @@ describe('ReviewBillableWeight', () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(noAlertsReturnValue);
 
-        render(
-          <ReactQueryWrapper>
-            <ReviewBillableWeight />
-          </ReactQueryWrapper>,
-        );
+        renderWithProviders(<ReviewBillableWeight />);
 
         const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
         await userEvent.click(reviewShipmentWeights);
@@ -703,11 +638,8 @@ describe('ReviewBillableWeight', () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
-        render(
-          <ReactQueryWrapper>
-            <ReviewBillableWeight />
-          </ReactQueryWrapper>,
-        );
+        renderWithProviders(<ReviewBillableWeight />);
+
         const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
         await userEvent.click(reviewShipmentWeights);
 
@@ -718,11 +650,7 @@ describe('ReviewBillableWeight', () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(noAlertsReturnValue);
 
-        render(
-          <ReactQueryWrapper>
-            <ReviewBillableWeight />
-          </ReactQueryWrapper>,
-        );
+        renderWithProviders(<ReviewBillableWeight />);
 
         const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
         await userEvent.click(reviewShipmentWeights);
@@ -734,11 +662,7 @@ describe('ReviewBillableWeight', () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsNTSReleaseReturnValue);
 
-        render(
-          <ReactQueryWrapper>
-            <ReviewBillableWeight />
-          </ReactQueryWrapper>,
-        );
+        renderWithProviders(<ReviewBillableWeight />);
 
         const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
         await userEvent.click(reviewShipmentWeights);
