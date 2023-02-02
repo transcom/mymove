@@ -1,11 +1,12 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { Orders } from './Orders';
 
 import { createOrders, getOrdersForServiceMember, getServiceMember, patchOrders } from 'services/internalApi';
+import { MockRouting, renderWithRouterProp } from 'testUtils';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -137,6 +138,16 @@ jest.mock('components/LocationSearchBox/api', () => ({
   ),
 }));
 
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+
+afterEach(() => {
+  jest.resetAllMocks();
+});
+
 describe('Orders page', () => {
   const ordersOptions = [
     { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
@@ -146,7 +157,6 @@ describe('Orders page', () => {
 
   const testProps = {
     serviceMemberId: '123',
-    push: jest.fn(),
     context: { flags: { allOrdersTypes: true } },
     updateOrders: jest.fn(),
     updateServiceMember: jest.fn(),
@@ -154,7 +164,7 @@ describe('Orders page', () => {
 
   describe('if there are no current orders', () => {
     it('does not load orders on mount', async () => {
-      const { queryByRole } = render(<Orders {...testProps} />);
+      const { queryByRole } = renderWithRouterProp(<Orders {...testProps} />);
 
       await waitFor(() => {
         expect(queryByRole('heading', { name: 'Tell us about your move orders', level: 1 })).toBeInTheDocument();
@@ -191,7 +201,7 @@ describe('Orders page', () => {
 
       createOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
 
-      render(<Orders {...testProps} />);
+      renderWithRouterProp(<Orders {...testProps} />, { navigate: mockNavigate });
 
       await userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
       await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
@@ -226,7 +236,7 @@ describe('Orders page', () => {
       expect(testProps.updateOrders).toHaveBeenCalledWith(testOrdersValues);
       expect(getServiceMember).toHaveBeenCalledWith(testProps.serviceMemberId);
       expect(testProps.updateServiceMember).toHaveBeenCalled();
-      expect(testProps.push).toHaveBeenCalledWith('/orders/upload');
+      expect(mockNavigate).toHaveBeenCalledWith('/orders/upload');
     });
   });
 
@@ -260,7 +270,7 @@ describe('Orders page', () => {
 
       getOrdersForServiceMember.mockImplementation(() => Promise.resolve(testOrdersValues));
 
-      const { queryByText } = render(<Orders {...testProps} currentOrders={{ id: 'testOrders' }} />);
+      const { queryByText } = renderWithRouterProp(<Orders {...testProps} currentOrders={{ id: 'testOrders' }} />);
 
       expect(queryByText('Loading, please wait...')).toBeInTheDocument();
 
@@ -297,12 +307,13 @@ describe('Orders page', () => {
           updated_at: '2020-10-19T17:01:16.114Z',
         },
       };
-
       getOrdersForServiceMember.mockImplementation(() => Promise.resolve(testOrdersValues));
       patchOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
 
       // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-      const { queryByRole } = render(<Orders {...testProps} currentOrders={testOrdersValues} />);
+      const { queryByRole } = renderWithRouterProp(<Orders {...testProps} currentOrders={testOrdersValues} />, {
+        navigate: mockNavigate,
+      });
 
       await waitFor(() => {
         expect(queryByRole('button', { name: 'Next' })).toBeInTheDocument();
@@ -318,12 +329,12 @@ describe('Orders page', () => {
       expect(testProps.updateOrders).toHaveBeenNthCalledWith(2, testOrdersValues);
       expect(getServiceMember).not.toHaveBeenCalled();
       expect(testProps.updateServiceMember).not.toHaveBeenCalled();
-      expect(testProps.push).toHaveBeenCalledWith('/orders/upload');
+      expect(mockNavigate).toHaveBeenCalledWith('/orders/upload');
     });
   });
 
   it('back button goes to the Home page', async () => {
-    const { queryByText } = render(<Orders {...testProps} />);
+    const { queryByText } = renderWithRouterProp(<Orders {...testProps} />, { navigate: mockNavigate });
 
     const backButton = queryByText('Back');
     await waitFor(() => {
@@ -331,7 +342,7 @@ describe('Orders page', () => {
     });
 
     await userEvent.click(backButton);
-    expect(testProps.push).toHaveBeenCalledWith('/');
+    expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 
   it('shows an error if the API returns an error', async () => {
@@ -377,7 +388,7 @@ describe('Orders page', () => {
     );
 
     // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<Orders {...testProps} currentOrders={testOrdersValues} />);
+    const { queryByText } = renderWithRouterProp(<Orders {...testProps} currentOrders={testOrdersValues} />);
 
     await waitFor(() => {
       expect(queryByText('Next')).toBeInTheDocument();
@@ -390,12 +401,14 @@ describe('Orders page', () => {
 
     expect(queryByText('A server error occurred saving the orders')).toBeInTheDocument();
     expect(testProps.updateOrders).toHaveBeenCalledTimes(1);
-    expect(testProps.push).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   describe('with the allOrdersType feature flag set to true', () => {
     it('passes all orders types into the form', async () => {
-      const wrapper = mount(<Orders {...testProps} context={{ flags: { allOrdersTypes: true } }} />);
+      const wrapper = mount(
+        <Orders {...testProps} context={{ flags: { allOrdersTypes: true } }} router={{ navigate: mockNavigate }} />,
+      );
       await waitFor(() => {
         expect(wrapper.find('OrdersInfoForm').prop('ordersTypeOptions')).toEqual(ordersOptions);
       });
@@ -404,12 +417,16 @@ describe('Orders page', () => {
 
   describe('with the allOrdersType feature flag set to false', () => {
     it('passes only the PCS option into the form', async () => {
-      const wrapper = mount(<Orders {...testProps} context={{ flags: { allOrdersTypes: false } }} />);
+      const wrapper = mount(
+        <MockRouting>
+          <Orders {...testProps} context={{ flags: { allOrdersTypes: false } }} router={{ navigate: mockNavigate }} />
+        </MockRouting>,
+      );
       await waitFor(() => {
         expect(wrapper.find('OrdersInfoForm').prop('ordersTypeOptions')).toEqual([ordersOptions[0]]);
       });
     });
   });
 
-  afterEach(jest.clearAllMocks);
+  afterEach(jest.resetAllMocks);
 });
