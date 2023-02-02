@@ -183,9 +183,9 @@ func (h DeleteWeightTicketHandler) Handle(params weightticketops.DeleteWeightTic
 				return weightticketops.NewDeleteWeightTicketInternalServerError(), err
 			}
 			if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
-				noServiceMemberIDErr := apperror.NewSessionError("Attempted delete by wrong service member")
-				appCtx.Logger().Error("internalapi.DeleteWeightTicketHandler", zap.Error(noServiceMemberIDErr))
-				return weightticketops.NewDeleteWeightTicketForbidden(), noServiceMemberIDErr
+				wrongServiceMemberIDErr := apperror.NewSessionError("Attempted delete by wrong service member")
+				appCtx.Logger().Error("internalapi.DeleteWeightTicketHandler", zap.Error(wrongServiceMemberIDErr))
+				return weightticketops.NewDeleteWeightTicketForbidden(), wrongServiceMemberIDErr
 			}
 
 			weightTicketID := uuid.FromStringOrNil(params.WeightTicketID.String())

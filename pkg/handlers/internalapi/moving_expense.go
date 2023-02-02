@@ -203,9 +203,9 @@ func (h DeleteMovingExpenseHandler) Handle(params movingexpenseops.DeleteMovingE
 				return movingexpenseops.NewDeleteMovingExpenseInternalServerError(), err
 			}
 			if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
-				noServiceMemberIDErr := apperror.NewSessionError("Attempted delete by wrong service member")
-				appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(noServiceMemberIDErr))
-				return movingexpenseops.NewDeleteMovingExpenseForbidden(), noServiceMemberIDErr
+				wrongServiceMemberIDErr := apperror.NewSessionError("Attempted delete by wrong service member")
+				appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(wrongServiceMemberIDErr))
+				return movingexpenseops.NewDeleteMovingExpenseForbidden(), wrongServiceMemberIDErr
 			}
 
 			movingExpenseID := uuid.FromStringOrNil(params.MovingExpenseID.String())

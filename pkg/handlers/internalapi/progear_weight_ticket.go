@@ -177,9 +177,9 @@ func (h DeleteProGearWeightTicketHandler) Handle(params progearops.DeleteProGear
 				return progearops.NewDeleteProGearWeightTicketInternalServerError(), err
 			}
 			if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
-				noServiceMemberIDErr := apperror.NewSessionError("Attempted delete by wrong service member")
-				appCtx.Logger().Error("internalapi.DeleteProgearWeightTicketHandler", zap.Error(noServiceMemberIDErr))
-				return progearops.NewDeleteProGearWeightTicketForbidden(), noServiceMemberIDErr
+				wrongServiceMemberIDErr := apperror.NewSessionError("Attempted delete by wrong service member")
+				appCtx.Logger().Error("internalapi.DeleteProgearWeightTicketHandler", zap.Error(wrongServiceMemberIDErr))
+				return progearops.NewDeleteProGearWeightTicketForbidden(), wrongServiceMemberIDErr
 			}
 			progearWeightTicketID := uuid.FromStringOrNil(params.ProGearWeightTicketID.String())
 
