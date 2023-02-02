@@ -10,7 +10,7 @@
 #
 # Table of Contents
 #
-# refrences:
+# references:
 #
 # executors:
 #  av_medium:
@@ -113,7 +113,7 @@
 #
 # workflows:
 #
-# exeperimental
+# experimental:
 ############
 
 version: '2.1'
