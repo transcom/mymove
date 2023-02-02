@@ -912,6 +912,18 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 	return payload
 }
 
+// PPMDocuments payload
+func PPMDocuments(storer storage.FileStorer, ppmDocuments *models.PPMDocuments) *ghcmessages.PPMDocuments {
+
+	payload := &ghcmessages.PPMDocuments{
+		WeightTickets:        WeightTickets(storer, ppmDocuments.WeightTickets),
+		MovingExpenses:       MovingExpenses(storer, ppmDocuments.MovingExpenses),
+		ProGearWeightTickets: ProGearWeightTickets(storer, ppmDocuments.ProgearExpenses),
+	}
+
+	return payload
+}
+
 // MTOShipment payload
 func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
 
