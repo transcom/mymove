@@ -1,9 +1,8 @@
 import React from 'react';
-import { Route } from 'react-router-dom-old';
+import { Route } from 'react-router-dom';
 import { every, some, get, findKey, pick } from 'lodash';
 
 import { generalRoutes, customerRoutes } from 'constants/routes';
-import CustomerPrivateRoute from 'containers/CustomerPrivateRoute/CustomerPrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
 import { no_op } from 'shared/utils';
@@ -237,9 +236,9 @@ export const getWorkflowRoutes = (props) => {
     const currPage = pages[key];
     if (currPage.isInFlow(flowProps)) {
       const render = currPage.render(key, pageList, currPage.description, props);
-      return <CustomerPrivateRoute exact path={key} key={key} render={render} />;
+      return <Route end path={key} key={key} element={render} />;
     } else {
-      return <Route exact path={key} key={key} component={PageNotInFlow} />;
+      return <Route end path={key} key={key} element={<PageNotInFlow />} />;
     }
   });
 };
