@@ -144,6 +144,8 @@
 -- 		movehq_user_id
 -- 	);
 --
+-- README: The next 27 lines are adding entries to the `users_roles` table with
+-- the `prime_role_id` set and this reuses the user_id for the created Users above.
 --	INSERT INTO users_roles (
 --		id,
 --		role_id,
@@ -157,8 +159,7 @@
 --		daycos_user_id,
 --		now(),
 --		now()
---	)
---
+--	);
 --	INSERT INTO users_roles (
 --		id,
 --		role_id,
@@ -172,6 +173,6 @@
 --		movehq_user_id,
 --		now(),
 --		now()
---	)
+--	);
 --
 -- END $$;
