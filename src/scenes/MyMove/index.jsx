@@ -131,7 +131,7 @@ export class CustomerApp extends Component {
             {hasError && <SomethingWentWrong />}
 
             {/* No Auth Routes */}
-            {!userIsLoggedIn && !loginIsLoading && (
+            {!userIsLoggedIn && (
               <Routes>
                 <Route path={generalRoutes.SIGN_IN_PATH} element={<SignIn />} />
                 <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} element={<PrivacyPolicyStatement />} />
@@ -157,10 +157,7 @@ export class CustomerApp extends Component {
                 <Route end path="/invalid-permissions" element={<InvalidPermissions />} />
                 <Route
                   path="*"
-                  element={
-                    (loginIsLoading && <LoadingPlaceholder />) ||
-                    (!userIsLoggedIn && <Navigate to="/sign-in" replace />) || <NotFound />
-                  }
+                  element={(loginIsLoading && <LoadingPlaceholder />) || <Navigate to="/sign-in" replace />}
                 />
               </Routes>
             )}
