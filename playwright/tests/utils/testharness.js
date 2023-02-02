@@ -227,6 +227,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build submitted move with ppm shipment for SC
+   * @returns {Promise<Object>}
+   */
+  async buildSubmittedMoveWithPPMShipmentForSC() {
+    return this.buildDefault('SubmittedMoveWithPPMShipmentForSC');
+  }
+
+  /**
    * Use testharness to build NTS-R move with payment request
    * @returns {Promise<Object>}
    */

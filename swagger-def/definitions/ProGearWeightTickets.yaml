@@ -1,0 +1,5 @@
+description: All progear weight tickets associated with a PPM shipment.
+type: array
+items:
+  $ref: 'ProGearWeightTicket.yaml'
+x-omitempty: false

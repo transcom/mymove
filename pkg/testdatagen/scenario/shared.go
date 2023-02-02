@@ -963,6 +963,63 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
 }
 
+func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := MoveCreatorInfo{
+		UserID:      testdatagen.ConvertUUIDStringToUUID("385bb8f6-ee86-4948-b69d-615417bf71f9"),
+		Email:       "weightTicketsPPM+closeout@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("7ad9b8d5-db20-4d00-946b-53531a24a9e1"),
+		FirstName:   "PPMCloseout",
+		LastName:    "WeightTickets",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("6c121a40-7037-46ba-9e94-1b63c598bcd9"),
+		MoveLocator: "CLOSE1",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("443750dc-def6-40ae-a60a-b6a5a4742c6b"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          testdatagen.ConvertUUIDStringToUUID("08ab7a25-ef97-4134-bbb5-5be0e0de4734"),
+			ApprovedAt:                  &approvedAt,
+			SubmittedAt:                 models.TimePointer(approvedAt.Add(7 * time.Hour * 24)),
+			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	weightTicketAssertions := testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+	}
+
+	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+
+	weightTicketAssertions = testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		WeightTicket: models.WeightTicket{
+			MissingEmptyWeightTicket: models.BoolPointer(true),
+			MissingFullWeightTicket:  models.BoolPointer(true),
+		},
+	}
+	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+}
+
 func createApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
 		UserID:      testdatagen.ConvertUUIDStringToUUID("88007896-6ae7-4600-866a-873d3bc67fd3"),
@@ -2109,28 +2166,27 @@ func createMovesForEachBranch(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
-func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, locator string) {
-	userID := uuid.Must(uuid.NewV4())
-	email := "complete@ppm.submitted"
+func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, moveInfo MoveCreatorInfo) models.Move {
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            userID,
+				ID:            moveInfo.UserID,
 				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
+				LoginGovEmail: moveInfo.Email,
 				Active:        true,
 			}},
 	}, nil)
 
 	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			UserID:        userID,
-			FirstName:     models.StringPointer("PPMSC"),
-			LastName:      models.StringPointer("Submitted"),
-			PersonalEmail: models.StringPointer(email),
+			ID:            moveInfo.SmID,
+			UserID:        moveInfo.UserID,
+			FirstName:     models.StringPointer(moveInfo.FirstName),
+			LastName:      models.StringPointer(moveInfo.LastName),
+			PersonalEmail: models.StringPointer(moveInfo.Email),
 		},
 	})
 
@@ -2141,7 +2197,8 @@ func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 		},
 		UserUploader: userUploader,
 		Move: models.Move{
-			Locator:          locator,
+			ID:               moveInfo.MoveID,
+			Locator:          moveInfo.MoveLocator,
 			SelectedMoveType: &ppmMoveType,
 			Status:           models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt:      &submittedAt,
@@ -2172,10 +2229,11 @@ func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
 		SignedCertification: models.SignedCertification{
 			MoveID:           move.ID,
-			SubmittingUserID: userID,
+			SubmittingUserID: moveInfo.UserID,
 		},
 	})
 
+	return move
 }
 
 func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, locator string) {
