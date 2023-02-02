@@ -10,7 +10,7 @@ A description of the certificates in this directory will helpful:
 | `api.demo.dp3.us.chain.der.p7b` | Certificate chain for api.demo.dp3.us (non-ATO) |
 | `api.loadtest.dp3.us.crt` | Certificate for api.loadtest.dp3.us |
 | `api.loadtest.dp3.us.chain.der.p7b` | Certificate chain for api.loadtest.dp3.us (non-ATO) |
-| `Certificates_PKCS7_v5.6_DoD.der.p7b` | |
+| `Certificates_PKCS7_v5.9_DoD.der.p7b` | |
 | `Certificates_PKCS7_v5.11_WCF.pem.p7b` | The collection of certs from which the dod-wcf-* certificates are derived. |
 | `devlocal-ca.key` | Devlocal CA Key |
 | `devlocal-ca.pem` | Devlocal CA PEM |
@@ -42,14 +42,14 @@ writing, this package can be found at
 Search for the term `pkcs` and look for the "PKI CA Certificate Bundles: PKCS#7 For DoD PKI Only - Version X.X".
 You can download the certificate from the provided link to get a zip file.
 
-For reference only, the current [pkcs7 v5.6 archive](https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/certificates_pkcs7_v5-6_dod.zip)
+For reference only, the current [pkcs7 v5.9 archive](https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/certificates_pkcs7_DoD.zip)
 can be downloaded and unzipped with:
 
 ```sh
-curl https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/certificates_pkcs7_v5-6_dod.zip -o certificates_pkcs7_v5-6_dod.zip
-unzip certificates_pkcs7_v5-6_dod.zip -d tmp/certs/
-cp tmp/certs/Certificates_PKCS7_v5.6_DoD.der.p7b config/tls/
-chmod +x config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+curl https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/certificates_pkcs7_DoD.zip -o tmp/certificates_pkcs7_DoD.zip
+unzip certificates_pkcs7_DoD.zip -d tmp/
+cp tmp/Certificates_PKCS7_v5.9_DoD/Certificates_PKCS7_v5.9_DoD.der.p7b config/tls/
+chmod +x config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b
 ```
 
 Then, update the path accordingly in the `DOD_CA_PACKAGE` variable in `.envrc` and in other places in the code base.
