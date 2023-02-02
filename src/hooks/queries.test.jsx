@@ -15,6 +15,7 @@ import {
   useMoveDetailsQueries,
   useEditShipmentQueries,
   useEvaluationReportQueries,
+  useServicesCounselingQueuePPMQueries,
 } from './queries';
 
 import { serviceItemCodes } from 'content/serviceItems';
@@ -263,6 +264,20 @@ jest.mock('services/ghcApi', () => ({
           totalSITEndDate: '2021-10-29',
         },
       },
+    }),
+  getServicesCounselingPPMQueue: () =>
+    Promise.resolve({
+      page: 1,
+      perPage: 100,
+      totalCount: 2,
+      data: [
+        {
+          id: 'move1',
+        },
+        {
+          id: 'move2',
+        },
+      ],
     }),
 }));
 
@@ -879,77 +894,30 @@ describe('useEvaluationReportQueries', () => {
     });
   });
 });
-// describe('useServicesCounselingQueuePPMQueries', () => {
-//   it('loads data', async () => {
-//     const { result, waitFor } = renderHook(() => useServicesCounselingQueuePPMQueries('1234'), { wrapper });
 
-//     expect(result.current).toEqual({
-//       evaluationReport: {},
-//       mtoShipment: {},
-//       reportViolations: [],
-//       isLoading: true,
-//       isError: false,
-//       isSuccess: false,
-//     });
+describe('useServicesCounselingQueuePPMQueries', () => {
+  it('loads data', async () => {
+    const { result, waitFor } = renderHook(() => useServicesCounselingQueuePPMQueries('1234'), { wrapper });
 
-//     await waitFor(() => result.current.isSuccess);
+    await waitFor(() => result.current.isSuccess);
 
-//     expect(result.current).toEqual({
-//       evaluationReport: { id: '1234', moveReferenceID: '4321', type: 'SHIPMENT', shipmentID: '123' },
-//       mtoShipment: {
-//         id: '12345',
-//         moveTaskOrderId: '67890',
-//         customerRemarks: 'mock remarks',
-//         requestedPickupDate: '2020-03-01',
-//         requestedDeliveryDate: '2020-03-30',
-//       },
-//       reportViolations: [
-//         {
-//           id: '123',
-//           reportID: '456',
-//           violationID: '789',
-//         },
-//       ],
-//       isLoading: false,
-//       isError: false,
-//       isSuccess: true,
-//     });
-//   });
-// });
-// describe('usePPMShipmentDocsQueries', () => {
-//   it('loads data', async () => {
-//     const { result, waitFor } = renderHook(() => useEvaluationReportQueries('1234'), { wrapper });
-
-//     expect(result.current).toEqual({
-//       evaluationReport: {},
-//       mtoShipment: {},
-//       reportViolations: [],
-//       isLoading: true,
-//       isError: false,
-//       isSuccess: false,
-//     });
-
-//     await waitFor(() => result.current.isSuccess);
-
-//     expect(result.current).toEqual({
-//       evaluationReport: { id: '1234', moveReferenceID: '4321', type: 'SHIPMENT', shipmentID: '123' },
-//       mtoShipment: {
-//         id: '12345',
-//         moveTaskOrderId: '67890',
-//         customerRemarks: 'mock remarks',
-//         requestedPickupDate: '2020-03-01',
-//         requestedDeliveryDate: '2020-03-30',
-//       },
-//       reportViolations: [
-//         {
-//           id: '123',
-//           reportID: '456',
-//           violationID: '789',
-//         },
-//       ],
-//       isLoading: false,
-//       isError: false,
-//       isSuccess: true,
-//     });
-//   });
-// });
+    expect(result.current).toEqual({
+      queueResult: {
+        page: 1,
+        perPage: 100,
+        totalCount: 2,
+        data: [
+          {
+            id: 'move1',
+          },
+          {
+            id: 'move2',
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    });
+  });
+});
