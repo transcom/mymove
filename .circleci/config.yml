@@ -698,6 +698,8 @@ commands:
         # Instead, we run in a large instance with 1 worker and
         # increased parallelism as needed
         default: 1
+      path:
+        type: string
     steps:
       - attach_workspace:
           at: .
@@ -1035,25 +1037,11 @@ jobs:
   # separate the integration tests by site so that if there is a flaky
   # test, we only have to re-run part of the integration tests
   integration_tests_admin:
-    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 4 files here
-    parallelism: 4
-    executor: milmove_integration_tester
+    executor: milmove_playwright_tester
+    parallelism: 6
     steps:
-      - attach_workspace:
-          at: .
-      - e2e_tests_cypress:
-          spec_glob: cypress/integration/admin/**/*.js
-      - store_artifacts:
-          path: cypress/reports
-          destination: reports
-      - store_artifacts:
-          path: cypress/videos
-          destination: videos
-      - store_artifacts:
-          path: cypress/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: cypress/results
+      - e2e_tests_playwright:
+          path: playwright/tests/admin
       - announce_failure
 
   integration_tests_office:
@@ -1143,13 +1131,25 @@ jobs:
           path: cypress/results
       - announce_failure
 
-  # integration_tests_playwright runs the integration tests using
-  # playwright. We are migrating away from cypress
-  integration_tests_playwright:
+  # integration_tests_playwright_office runs the office integration
+  # tests using playwright. We are migrating away from cypress
+  integration_tests_playwright_office:
     executor: milmove_playwright_tester
     parallelism: 6
     steps:
-      - e2e_tests_playwright
+      - e2e_tests_playwright:
+          path: playwright/tests/office
+      # at some point
+      # - announce_failure
+
+  # integration_tests_playwright_office runs the office integration
+  # tests using playwright. We are migrating away from cypress
+  integration_tests_playwright_my:
+    executor: milmove_playwright_tester
+    parallelism: 6
+    steps:
+      - e2e_tests_playwright:
+          path: playwright/tests/my
       # at some point
       # - announce_failure
 
@@ -2066,7 +2066,18 @@ workflows:
               ignore: *integration-ignore-branch
 
       # not yet required, just testing
-      - integration_tests_playwright:
+      - integration_tests_playwright_office:
+          requires:
+            - compile_app_server
+            - compile_app_client
+          # See comments at the top of this file for configuring/using
+          # this branch config
+          filters:
+            branches:
+              ignore: *integration-ignore-branch
+
+      # not yet required, just testing
+      - integration_tests_playwright_my:
           requires:
             - compile_app_server
             - compile_app_client
