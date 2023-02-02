@@ -81,6 +81,27 @@ export class TestHarness {
   /**
    * @returns {Promise<Object>}
    */
+  async buildMoveWithPPMShipmentReadyForFinalCloseout() {
+    return this.buildDefault('MoveWithPPMShipmentReadyForFinalCloseout');
+  }
+
+  /**
+   * @returns {Promise<Object>}
+   */
+  async buildPPMMoveWithCloseout() {
+    return this.buildDefault('PPMMoveWithCloseout');
+  }
+
+  /**
+   * @returns {Promise<Object>}
+   */
+  async buildPPMMoveWithCloseoutOffice() {
+    return this.buildDefault('PPMMoveWithCloseoutOffice');
+  }
+
+  /**
+   * @returns {Promise<Object>}
+   */
   async buildWithShipmentMove() {
     return this.buildDefault('WithShipmentMove');
   }
@@ -166,11 +187,51 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build hhg move needing SC approval
+   * @returns {Promise<Object>}
+   */
+  async buildHHGMoveNeedsSC() {
+    return this.buildDefault('HHGMoveNeedsSC');
+  }
+
+  /**
+   * Use testharness to build hhg move needing SC approval
+   * @returns {Promise<Object>}
+   */
+  async buildHHGMoveForSeparationNeedsSC() {
+    return this.buildDefault('HHGMoveForSeparationNeedsSC');
+  }
+
+  /**
+   * Use testharness to build hhg move needing SC approval
+   * @returns {Promise<Object>}
+   */
+  async buildHHGMoveForRetireeNeedsSC() {
+    return this.buildDefault('HHGMoveForRetireeNeedsSC');
+  }
+
+  /**
    * Use testharness to build hhg move with nts
    * @returns {Promise<Object>}
    */
   async buildHHGMoveWithNTSAndNeedsSC() {
     return this.buildDefault('HHGMoveWithNTSAndNeedsSC');
+  }
+
+  /**
+   * Use testharness to build move with minimal NTS-R
+   * @returns {Promise<Object>}
+   */
+  async buildMoveWithMinimalNTSRNeedsSC() {
+    return this.buildDefault('MoveWithMinimalNTSRNeedsSC');
+  }
+
+  /**
+   * Use testharness to build submitted move with ppm shipment for SC
+   * @returns {Promise<Object>}
+   */
+  async buildSubmittedMoveWithPPMShipmentForSC() {
+    return this.buildDefault('SubmittedMoveWithPPMShipmentForSC');
   }
 
   /**

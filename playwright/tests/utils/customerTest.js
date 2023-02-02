@@ -9,6 +9,11 @@ const base = require('@playwright/test');
 const { BaseTestPage } = require('./baseTest');
 
 /**
+ * devlocal auth user types
+ */
+export const milmoveUserType = 'milmove';
+
+/**
  * CustomerPage
  * @extends BaseTestPage
  */
@@ -59,6 +64,23 @@ class CustomerPage extends BaseTestPage {
     },
   };
 
+  /**
+   * Sign in as new customer with devlocal
+   *
+   */
+  async signInAsNewCustomer() {
+    await this.signInAsNewUser(milmoveUserType);
+  }
+
+  /**
+   * Sign in as existing customer with devlocal
+   *
+   * @param {string} userId
+   */
+  async signInAsExistingCustomer(userId) {
+    await this.signInAsUserWithId(userId);
+  }
+
   async navigateBack() {
     await this.page.getByTestId('wizardCancelButton').click();
   }
@@ -81,6 +103,8 @@ const officeFixtures = {
   },
 };
 
-exports.test = base.test.extend(officeFixtures);
+export const test = base.test.extend(officeFixtures);
 
-exports.expect = base.expect;
+export const { expect } = base;
+
+export default test;

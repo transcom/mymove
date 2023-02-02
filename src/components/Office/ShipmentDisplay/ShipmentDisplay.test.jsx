@@ -12,11 +12,14 @@ import {
   ntsReleaseInfo,
   ntsReleaseMissingInfo,
   ordersLOA,
+  ppmInfo,
 } from './ShipmentDisplayTestData';
 import ShipmentDisplay from './ShipmentDisplay';
 
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import ppmDocumentStatus from 'constants/ppms';
 
 const mockPush = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -179,6 +182,78 @@ describe('Shipment Container', () => {
         </MockProviders>,
       );
       expect(screen.getByTestId('shipment-display-checkbox')).toBeDisabled();
+    });
+  });
+
+  describe('PPM shipment', () => {
+    it('renders the container successfully', () => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay
+            displayInfo={ppmInfo}
+            ordersLOA={ordersLOA}
+            shipmentType={SHIPMENT_OPTIONS.PPM}
+            isSubmitted
+            allowApproval={false}
+            warnIfMissing={['counselorRemarks']}
+            reviewURL="/"
+          />
+        </MockProviders>,
+      );
+
+      expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
+      expect(screen.getByText('PPM')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Review documents' })).toBeInTheDocument();
+    });
+    describe("renders the 'packet ready for download' tag when", () => {
+      it('approved', () => {
+        render(
+          <MockProviders permissions={[permissionTypes.updateShipment]}>
+            <ShipmentDisplay
+              displayInfo={{ ...ppmInfo, ppmDocumentStatus: ppmDocumentStatus.APPROVED }}
+              ordersLOA={ordersLOA}
+              shipmentType={SHIPMENT_OPTIONS.PPM}
+              isSubmitted
+              allowApproval={false}
+              warnIfMissing={['counselorRemarks']}
+              reviewURL="/"
+            />
+          </MockProviders>,
+        );
+        expect(screen.getByTestId('tag', { name: 'packet ready for download' })).toBeInTheDocument();
+      });
+      it('excluded', () => {
+        render(
+          <MockProviders permissions={[permissionTypes.updateShipment]}>
+            <ShipmentDisplay
+              displayInfo={{ ...ppmInfo, ppmDocumentStatus: ppmDocumentStatus.EXCLUDED }}
+              ordersLOA={ordersLOA}
+              shipmentType={SHIPMENT_OPTIONS.PPM}
+              isSubmitted
+              allowApproval={false}
+              warnIfMissing={['counselorRemarks']}
+              reviewURL="/"
+            />
+          </MockProviders>,
+        );
+        expect(screen.getByTestId('tag', { name: 'packet ready for download' })).toBeInTheDocument();
+      });
+    });
+    it("renders the 'sent to customer' tag when rejected", () => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay
+            displayInfo={{ ...ppmInfo, ppmDocumentStatus: ppmDocumentStatus.REJECTED }}
+            ordersLOA={ordersLOA}
+            shipmentType={SHIPMENT_OPTIONS.PPM}
+            isSubmitted
+            allowApproval={false}
+            warnIfMissing={['counselorRemarks']}
+            reviewURL="/"
+          />
+        </MockProviders>,
+      );
+      expect(screen.getByTestId('tag', { name: 'sent to customer' })).toBeInTheDocument();
     });
   });
 });

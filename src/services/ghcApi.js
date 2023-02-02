@@ -29,6 +29,21 @@ export async function getWeightTickets(key, ppmShipmentId) {
   return makeGHCRequest('ppm.getWeightTickets', { ppmShipmentId }, { normalize: false });
 }
 
+export async function patchWeightTicket({ ppmShipmentId, weightTicketId, payload, eTag }) {
+  return makeGHCRequest(
+    'ppm.updateWeightTicket',
+    {
+      ppmShipmentId,
+      weightTicketId,
+      'If-Match': eTag,
+      updateWeightTicketPayload: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function getMove(key, locator) {
   return makeGHCRequest('move.getMove', { locator }, { normalize: false });
 }

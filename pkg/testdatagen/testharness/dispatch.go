@@ -33,6 +33,18 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveWithNTSAndNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithNTSAndNeedsSC(appCtx)
 	},
+	"MoveWithMinimalNTSRNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeMoveWithMinimalNTSRNeedsSC(appCtx)
+	},
+	"HHGMoveNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveNeedsSC(appCtx)
+	},
+	"HHGMoveForSeparationNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveForSeparationNeedsSC(appCtx)
+	},
+	"HHGMoveForRetireeNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveForRetireeNeedsSC(appCtx)
+	},
 	"HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx)
 	},
@@ -77,6 +89,18 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"PPMInProgressMove": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakePPMInProgressMove(appCtx)
+	},
+	"MoveWithPPMShipmentReadyForFinalCloseout": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx)
+	},
+	"PPMMoveWithCloseout": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakePPMMoveWithCloseout(appCtx)
+	},
+	"PPMMoveWithCloseoutOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakePPMMoveWithCloseoutOffice(appCtx)
+	},
+	"SubmittedMoveWithPPMShipmentForSC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeSubmittedMoveWithPPMShipmentForSC(appCtx)
 	},
 	"OfficeUserWithTOOAndTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeOfficeUserWithTOOAndTIO(appCtx)

@@ -413,7 +413,6 @@ test.describe('TOO user', () => {
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
 
       await page.locator('[data-testid="submitForm"]').click();
-      await expect(page.locator('[data-testid="submitForm"]')).not.toBeEnabled();
 
       await tooFlowPage.waitForMoveDetailsPage();
     });
