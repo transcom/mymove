@@ -2095,6 +2095,7 @@ workflows:
             - integration_tests_mymove
             - integration_tests_milmove
             - integration_tests_devseed
+            - integration_tests_mtls
           # See comments at the top of this file for configuring/using
           # this branch config
           filters:
