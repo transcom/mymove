@@ -21,8 +21,7 @@ references:
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
 
-  # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
-  postgres: &postgres cimg/postgres:12.7
+  postgres: &postgres cimg/postgres:12.11
 
   redis: &redis redis:5.0.6
 
@@ -154,6 +153,16 @@ executors:
         environment:
           POSTGRES_PASSWORD: mysecretpassword
           POSTGRES_DB: test_db
+          # use ramdisk for better performance
+          # https://circleci.com/docs/databases/#optimizing-postgresql-images
+          PGDATA: /dev/shm/pgdata/data
+        # override entrypoint/command for ramdisk
+        # this has been fixed in versions of postgres newer than 13.9
+        # https://github.com/CircleCI-Public/cimg-postgres/commit/3b320e26e4f187d0cd144efea1bc26cf5a2b68b0
+        # milmove is still on 12.11
+        entrypoint: /bin/bash
+        command: -c 'ln -s /dev/shm/pgdata/data /var/lib/postgresql/ && exec /usr/local/bin/docker-entrypoint.sh postgres'
+
       - image: *redis
         auth:
           username: $DOCKERHUB_USERNAME
@@ -188,6 +197,15 @@ executors:
         environment:
           POSTGRES_PASSWORD: mysecretpassword
           POSTGRES_DB: test_db
+          # use ramdisk for better performance
+          # https://circleci.com/docs/databases/#optimizing-postgresql-images
+          PGDATA: /dev/shm/pgdata/data
+        # override entrypoint/command for ramdisk
+        # this has been fixed in versions of postgres newer than 13.9
+        # https://github.com/CircleCI-Public/cimg-postgres/commit/3b320e26e4f187d0cd144efea1bc26cf5a2b68b0
+        # milmove is still on 12.11
+        entrypoint: /bin/bash
+        command: -c 'ln -s /dev/shm/pgdata/data /var/lib/postgresql/ && exec /usr/local/bin/docker-entrypoint.sh postgres'
       - image: *redis
         auth:
           username: $DOCKERHUB_USERNAME
@@ -566,11 +584,11 @@ commands:
       application:
         type: string
     steps:
-      - run: echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-          source $BASH_ENV
       - run:
           name: make server_test_build for <<parameters.application>>
-          command: make server_test
+          command: |
+            export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+            make server_test
           environment:
             APPLICATION: '<< parameters.application >>'
             GOFLAGS: '-p=4'
@@ -721,7 +739,7 @@ commands:
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
             export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
-            export DOD_CA_PACKAGE=$PWD/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            export DOD_CA_PACKAGE=$PWD/config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b
             export HTTP_ADMIN_SERVER_NAME=adminlocal
             export HTTP_MY_SERVER_NAME=milmovelocal
             export HTTP_OFFICE_SERVER_NAME=officelocal
@@ -744,6 +762,10 @@ commands:
             dockerize -wait http://milmovelocal:4000 -timeout 5m
       - run:
           name: run e2e_test playwright
+          environment:
+            PLAYWRIGHT_MY_URL: http://milmovelocal:4000
+            PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
+            PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
           # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
@@ -1122,7 +1144,7 @@ jobs:
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENVIRONMENT: development
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b
       - announce_failure
 
   # `integration_tests` is just a fake step so that we don't have to
@@ -1167,7 +1189,8 @@ jobs:
           # e.g. go from v1-server-tests-coverage- to
           # v2-server-tests-coverage-
           #
-          # Make sure you also update the key in the save_cache below
+          # ##### NOTE: Make sure you also update the key in the
+          # ##### save_cache below
           #
           # The trailing hyphen in restore_cache seems important
           # according to the page linked above
@@ -1205,13 +1228,13 @@ jobs:
           condition:
             equal: [main, << pipeline.git.branch >>]
           steps:
-            # Make sure this key prefix matches the one above in
-            # restore_cache
+            # ##### NOTE: Make sure this key prefix matches the one
+            # ##### above in restore_cache
             #
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             save_cache:
-              key: v1-server-tests-coverage-{{ .BuildNum }}
+              key: v2-server-tests-coverage-{{ .BuildNum }}
               paths:
                 - ~/transcom/mymove/tmp/test-results
       - announce_failure
@@ -1237,7 +1260,8 @@ jobs:
           # e.g. go from v1-client-tests-coverage- to
           # v2-client-tests-coverage-
           #
-          # Make sure you also update the key in the save_cache below
+          # ##### NOTE: Make sure you also update the key in the
+          # ##### save_cache below
           #
           # The trailing hyphen in restore_cache seems important
           # according to the page linked above
@@ -1267,7 +1291,8 @@ jobs:
           condition:
             equal: [main, << pipeline.git.branch >>]
           steps:
-            # Make sure this key prefix matches the one above in restore_cache
+            # ##### NOTE: Make sure this key prefix matches the one
+            # ##### above in restore_cache
             #
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated

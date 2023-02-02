@@ -55,7 +55,7 @@ COPY migrations/app/schema /migrate/schema
 COPY migrations/app/secure /migrate/secure
 COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
 
-COPY config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+COPY config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b
 COPY config/tls/dod-sw-ca-54.pem /config/tls/dod-sw-ca-54.pem
 
 # While it's ok to have these certs copied locally, they should never be copied into Dockerfile.
@@ -112,7 +112,7 @@ COPY --from=server_builder /build/swagger /swagger
 
 COPY --from=client_builder /build/build /build
 
-COPY config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+COPY config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b
 COPY config/tls/dod-sw-ca-54.pem /config/tls/dod-sw-ca-54.pem
 
 # While it's ok to have these certs copied locally, they should never be copied into Dockerfile.

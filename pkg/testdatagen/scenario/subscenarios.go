@@ -111,9 +111,40 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
 		createMoveWithPPM(appCtx, userUploader, moveRouter)
 		createNeedsServicesCounselingWithoutCompletedOrders(appCtx, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION, models.MTOShipmentTypePPM, nil, "SCPPM1")
-		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
-		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMADD")
-		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSCF")
+
+		CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter,
+			MoveCreatorInfo{
+				UserID:      uuid.Must(uuid.NewV4()),
+				Email:       "complete@ppm.submitted",
+				FirstName:   "PPMSC",
+				LastName:    "Submitted",
+				SmID:        uuid.Must(uuid.NewV4()),
+				MoveLocator: "PPMSC1",
+				MoveID:      uuid.Must(uuid.NewV4()),
+			},
+		)
+		CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter,
+			MoveCreatorInfo{
+				UserID:      uuid.Must(uuid.NewV4()),
+				Email:       "complete@ppm.submitted",
+				FirstName:   "PPMSC",
+				LastName:    "Submitted",
+				SmID:        uuid.Must(uuid.NewV4()),
+				MoveLocator: "PPMADD",
+				MoveID:      uuid.Must(uuid.NewV4()),
+			},
+		)
+		CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter,
+			MoveCreatorInfo{
+				UserID:      uuid.Must(uuid.NewV4()),
+				Email:       "complete@ppm.submitted",
+				FirstName:   "PPMSC",
+				LastName:    "Submitted",
+				SmID:        uuid.Must(uuid.NewV4()),
+				MoveLocator: "PPMSCF",
+				MoveID:      uuid.Must(uuid.NewV4()),
+			},
+		)
 		createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx, userUploader, moveRouter, "PPMSIT")
 		// Post-onboarding
 		createApprovedMoveWithPPM(appCtx, userUploader)
