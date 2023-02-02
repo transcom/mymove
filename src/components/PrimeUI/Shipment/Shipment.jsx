@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
-import { Link } from 'react-router-dom-old';
-import { generatePath } from 'react-router';
+import { Link, generatePath } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
@@ -50,10 +49,7 @@ const Shipment = ({ shipment, moveId, onDelete }) => {
         <h3>{`${shipmentTypeLabels[shipment.shipmentType]} shipment`}</h3>
         {moveId && (
           <>
-            <Link
-              to={`/simulator/moves/${moveId}/shipments/${shipment.id}`}
-              className="usa-button usa-button-secondary"
-            >
+            <Link to={`../shipments/${shipment.id}`} relative="path" className="usa-button usa-button-secondary">
               Update Shipment
             </Link>
             {shipment.shipmentType === SHIPMENT_OPTIONS.PPM &&
@@ -61,7 +57,11 @@ const Shipment = ({ shipment, moveId, onDelete }) => {
               shipment.ppmShipment.status !== ppmShipmentStatuses.WAITING_ON_CUSTOMER && (
                 <Button onClick={showDeleteModal}>Delete Shipment</Button>
               )}
-            <Link to={`shipments/${shipment.id}/service-items/new`} className="usa-button usa-button-secondary">
+            <Link
+              to={`../shipments/${shipment.id}/service-items/new`}
+              relative="path"
+              className="usa-button usa-button-secondary"
+            >
               Add Service Item
             </Link>
           </>
