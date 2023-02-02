@@ -2896,7 +2896,7 @@
     react-lifecycles-compat "^3.0.4"
     react-select "^3.2.0"
 
-"@storybook/addon-links@^6.5.15":
+"@storybook/addon-links@^6.5.16":
   version "6.5.16"
   resolved "https://registry.yarnpkg.com/@storybook/addon-links/-/addon-links-6.5.16.tgz#cacb20cd0656f0681a874709d428d3f3577828c3"
   integrity sha512-P/mmqK57NGXnR0i3d/T5B0rIt0Lg8Yq+qionRr3LK3AwG/4yGnYt4GNomLEknn/eEwABYq1Q/Z1aOpgIhNdq5A==
@@ -16144,7 +16144,7 @@ ra-core@^4.7.2:
     react-is "^17.0.2"
     react-query "^3.32.1"
 
-ra-data-simple-rest@^4.7.0:
+ra-data-simple-rest@^4.7.2:
   version "4.7.2"
   resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.7.2.tgz#b9e62f02f90083e70c745838e09216adfed17c56"
   integrity sha512-SOa+5LCHdEgmf4pO7ZYWBhbx0vHEzI03bosyNVFi53VHaeEYFDovtoz7xMw5Nbtnae9lWx+cEaFxyW8LlxsG+Q==
