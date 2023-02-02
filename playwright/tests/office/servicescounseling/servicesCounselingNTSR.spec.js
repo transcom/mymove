@@ -5,23 +5,16 @@
  */
 
 // @ts-check
-const { test, expect } = require('../../utils/officeTest');
-
-const { ServiceCounselorPage } = require('./servicesCounselingTestFixture');
+const { expect, test } = require('./servicesCounselingTestFixture');
 
 test.describe('Services counselor user', () => {
-  /** @type {ServiceCounselorPage} */
-  let scPage;
-
   test.describe('without NTS-R on move', () => {
-    test.beforeEach(async ({ officePage }) => {
-      const move = await officePage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
-      await officePage.signInAsNewServicesCounselorUser();
-      scPage = new ServiceCounselorPage(officePage, move);
-      await scPage.navigateToMove();
+    test.beforeEach(async ({ scPage }) => {
+      const move = await scPage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
+      await scPage.navigateToMove(move.locator);
     });
 
-    test('Services Counselor can delete/remove an NTS-release shipment request', async ({ page }) => {
+    test('Services Counselor can delete/remove an NTS-release shipment request', async ({ page, scPage }) => {
       // this test is almost identical to the NTS test
       await scPage.addNTSReleaseShipment();
 
@@ -42,7 +35,7 @@ test.describe('Services counselor user', () => {
       await expect(page.locator('[data-testid="ShipmentContainer"] .usa-button')).toHaveCount(1);
     });
 
-    test('Services Counselor can enter accounting codes and submit shipment', async ({ page }) => {
+    test('Services Counselor can enter accounting codes and submit shipment', async ({ page, scPage }) => {
       // this test is almost identical to the NTS test
       await scPage.addNTSReleaseShipment();
       // edit the newly added NTS shipment
@@ -103,14 +96,12 @@ test.describe('Services counselor user', () => {
   });
 
   test.describe('with minimal NTS-R on move', () => {
-    test.beforeEach(async ({ officePage }) => {
-      const move = await officePage.testHarness.buildMoveWithMinimalNTSRNeedsSC();
-      await officePage.signInAsNewServicesCounselorUser();
-      scPage = new ServiceCounselorPage(officePage, move);
-      await scPage.navigateToMove();
+    test.beforeEach(async ({ scPage }) => {
+      const move = await scPage.testHarness.buildMoveWithMinimalNTSRNeedsSC();
+      await scPage.navigateToMove(move.locator);
     });
 
-    test('Services Counselor can see errors/warnings for missing data, then make edits', async ({ page }) => {
+    test('Services Counselor can see errors/warnings for missing data, then make edits', async ({ page, scPage }) => {
       const lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
 
       await lastShipment.locator('[data-icon="chevron-down"]').click();
