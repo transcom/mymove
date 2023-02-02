@@ -1,8 +1,10 @@
 import React from 'react';
 import { TextField, DateField, NumberField, Show, SimpleShowLayout } from 'react-admin';
+import { useParams } from 'react-router-dom';
 
-const TSPPShowTitle = ({ record }) => {
-  return <span>{`TSPP ID: ${record.id}`}</span>;
+const TSPPShowTitle = () => {
+  const { id } = useParams();
+  return <span>{`TSPP ID: ${id}`}</span>;
 };
 
 const TSPPShow = (props) => {
