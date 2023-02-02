@@ -12,14 +12,14 @@ import { ppmShipmentStatuses } from 'constants/shipments';
 import { MockProviders } from 'testUtils';
 import { validatePostalCode } from 'utils/validation';
 
-const mockPush = jest.fn();
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 const defaultProps = {
   isCreatePage: true,
-  match: { isExact: false, path: '', url: '', params: { moveCode: 'move123', shipmentId: 'shipment123' } },
-  history: {
-    push: mockPush,
-  },
   submitHandler: jest.fn(),
   newDutyLocationAddress: {
     city: 'Fort Benning',
@@ -139,10 +139,6 @@ beforeEach(() => {
 });
 
 describe('ShipmentForm component', () => {
-  beforeEach(() => {
-    defaultProps.history.push.mockReset();
-  });
-
   describe('when creating a new shipment', () => {
     it('does not show the delete shipment button', async () => {
       render(
@@ -695,7 +691,7 @@ describe('ShipmentForm component', () => {
       expect(
         await screen.findByText('Something went wrong, and your changes were not saved. Please try again.'),
       ).toBeInTheDocument();
-      expect(defaultProps.history.push).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it('shows an error if the submitHandler returns an error when editing a PPM', async () => {
@@ -728,7 +724,7 @@ describe('ShipmentForm component', () => {
       expect(
         await screen.findByText('Something went wrong, and your changes were not saved. Please try again.'),
       ).toBeInTheDocument();
-      expect(defaultProps.history.push).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it('shows an error if the submitHandler returns an error when creating a PPM', async () => {
@@ -766,7 +762,7 @@ describe('ShipmentForm component', () => {
       expect(
         await screen.findByText('Something went wrong, and your changes were not saved. Please try again.'),
       ).toBeInTheDocument();
-      expect(defaultProps.history.push).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it('saves the update to the counselor remarks when the save button is clicked', async () => {
