@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { expect, OfficePage } = require('../../utils/officeTest');
+const { expect, test, OfficePage } = require('../../utils/officeTest');
 /**
  * ServiceCounselorPage test fixture
  *
@@ -200,5 +200,7 @@ export class ServiceCounselorPage extends OfficePage {
     await expect(lastShipment.locator('[data-testid="sacType"]')).toContainText('—');
   }
 }
+
+export { expect, test };
 
 export default ServiceCounselorPage;

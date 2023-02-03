@@ -81,8 +81,9 @@ export class TooFlowPage extends OfficePage {
 
     // Click approve
     await modal.getByRole('button', { name: 'Approve and send' }).click();
+    // In CircleCI it can take more than 5 seconds for this modal to disappear
+    await expect(modal).not.toBeVisible({ timeout: 10000 });
     await this.waitForLoading();
-    await expect(this.page.locator('#approvalConfirmationModal [data-testid="modal"]')).not.toBeVisible();
   }
 
   /**

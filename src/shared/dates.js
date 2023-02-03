@@ -2,7 +2,7 @@ import moment from 'moment';
 
 export const swaggerDateFormat = 'YYYY-MM-DD';
 export const defaultDateFormat = 'M/D/YYYY';
-export const utcDateFormat = 'YYYY-MM-DDThh:mm:ssZ';
+export const utcDateFormat = 'YYYY-MM-DDTHH:mm:ssZ';
 
 // First date format is take to be the default
 const allowedDateFormats = [
@@ -14,7 +14,7 @@ const allowedDateFormats = [
   'MMM-D-YYYY',
   'DD-MMM-YY',
   'DD MMM YYYY',
-  'YYYY-MM-DDThh:mm:ssZ',
+  'YYYY-MM-DDTHH:mm:ssZ',
 ];
 
 export function parseDate(str, _format, locale = 'en') {
