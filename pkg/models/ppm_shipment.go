@@ -67,6 +67,14 @@ var AllowedPPMDocumentStatuses = []string{
 	string(PPMDocumentStatusRejected),
 }
 
+// PPMDocuments is a collection of the different PPMShipment documents. This type exists mainly to make it easier to
+// work with the group of documents as a whole when we don't actually retrieve the PPM Shipment itself.
+type PPMDocuments struct {
+	WeightTickets
+	MovingExpenses
+	ProgearExpenses ProgearWeightTickets
+}
+
 // PPMShipment is the portion of a move that a service member performs themselves
 type PPMShipment struct {
 	ID                             uuid.UUID            `json:"id" db:"id"`
