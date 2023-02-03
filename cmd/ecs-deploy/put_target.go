@@ -203,6 +203,7 @@ func putTargetFunction(cmd *cobra.Command, args []string) error {
 					NetworkConfiguration: currentTarget.EcsParameters.NetworkConfiguration,
 					TaskCount:            aws.Int64(1),
 					TaskDefinitionArn:    aws.String(taskDefARN),
+					PropagateTags:        aws.String("TASK_DEFINITION"),
 				},
 			},
 		},
