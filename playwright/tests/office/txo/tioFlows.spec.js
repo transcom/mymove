@@ -153,7 +153,21 @@ test.describe('TIO user', () => {
       await expect(page.getByTestId('MovePaymentRequests')).toBeVisible();
 
       // View Orders page for first payment request
-      await page.getByText('View orders').first().click();
+      //
+      // FLAKY: the payment requests can show up in any order, so the
+      // first payment request on the page is not necessarily the
+      // first payment request by sequence number
+      //
+      // I think this is a bug in the payments request page, but maybe
+      // not. Regardless, to reduce flakiness, always pick the payment
+      // request with the first sequence number -- ahobson 2023-01-01
+
+      const prNumber = tioFlowPage.paymentRequest.payment_request_number;
+      const prHeading = page.getByRole('heading', { name: `Payment Request ${prNumber}` });
+      await expect(prHeading).toBeVisible();
+      const prCard = prHeading.locator('../../..');
+
+      await prCard.getByRole('link', { name: 'View orders' }).click();
       await tioFlowPage.waitForLoading();
 
       const form = page.locator('form');
@@ -181,8 +195,12 @@ test.describe('TIO user', () => {
       await expect(page.getByRole('heading', { name: '$1,130.21' })).toBeVisible();
       await expect(page.getByRole('heading', { name: '$805.55' })).toBeVisible();
 
-      // first payment request
-      await Promise.all([page.waitForNavigation(), page.getByText('Review service items').first().click()]);
+      // again, find the first payment request by sequence number and
+      // operate on that
+      await Promise.all([
+        page.waitForNavigation(),
+        prCard.getByRole('button', { name: 'Review service items' }).click(),
+      ]);
       await tioFlowPage.waitForLoading();
 
       // // Payment Request detail page
@@ -250,17 +268,14 @@ test.describe('TIO user', () => {
 
       // Returns to payment requests overview for move
       expect(page.url()).toContain('/payment-requests');
-      await expect(page.getByTestId('MovePaymentRequests')).toBeVisible();
-      await expect(page.locator('[data-testid="MovePaymentRequests"] [data-testid="tag"]').first()).toBeVisible();
 
-      await expect(
-        page.locator('[data-testid="MovePaymentRequests"] [data-testid="tag"]').getByText('Reviewed'),
-      ).toHaveCount(1);
+      await expect(prCard.getByTestId('tag')).toBeVisible();
+
+      await expect(prCard.getByTestId('tag').getByText('Reviewed')).toHaveCount(1);
 
       // ensure the payment request we approved no longer has the
       // "Review Service Items" button
-      const paymentRequestCard = page.getByText(tioFlowPage.paymentRequest.payment_request_number).locator('../..');
-      await expect(paymentRequestCard.getByText('Review Service Items')).toHaveCount(0);
+      await expect(prCard.getByText('Review Service Items')).toHaveCount(0);
 
       // Go back to queue
       await page.locator('a[title="Home"]').click();

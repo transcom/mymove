@@ -2262,3 +2262,43 @@ func MakePPMMoveWithCloseoutOffice(appCtx appcontext.AppContext) models.Move {
 	newmove.CloseoutOffice = &closeoutOffice
 	return *newmove
 }
+
+func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.Move {
+	// initialize this directly with defaults instead of using command
+	// line options. Simple for now, we can revist if we need to
+	fsParams := storage.NewFilesystemParams("tmp", "storage")
+	storer := storage.NewFilesystem(fsParams)
+
+	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	if err != nil {
+		appCtx.Logger().Fatal("could not instantiate user uploader", zap.Error(err))
+	}
+
+	email := strings.ToLower(fmt.Sprintf("%sppmcustomer_%s@example.com",
+		testdatagen.MakeRandomString(5), testdatagen.MakeRandomString(8)))
+	username := strings.Split(email, "@")[0]
+	firstName := strings.Split(username, "_")[0]
+	lastName := username[len(firstName)+1:]
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       email,
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   firstName,
+		LastName:    lastName,
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: models.GenerateLocator(),
+	}
+
+	moveRouter := moverouter.NewMoveRouter()
+
+	move := scenario.CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, moveInfo)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
