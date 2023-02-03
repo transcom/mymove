@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
-import { generatePath } from 'react-router';
-import { useHistory, Switch, Route } from 'react-router-dom-old';
+import React from 'react';
+import { generatePath, Routes, Route, useNavigate, Navigate, useParams } from 'react-router-dom';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
@@ -178,81 +177,75 @@ const closeoutColumns = (ppmCloseoutGBLOC) => [
 ];
 
 const ServicesCounselingQueue = () => {
+  const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleClick = (values) => {
-    history.push(
-      generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, {
-        moveCode: values.locator,
-      }),
-    );
+    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
   };
 
   // If the office user is in a closeout GBLOC and on the closeout tab, then we will want to disable
   // the column filter for the closeout location column because it will have no effect.
   const officeUserGBLOC = data?.office_user?.transportation_office?.gbloc;
   const inPPMCloseoutGBLOC = officeUserGBLOC === 'TVCB' || officeUserGBLOC === 'NAVY' || officeUserGBLOC === 'USCG';
-
-  // Route the default queue path to the appropriate tab.
-  useEffect(() => {
-    if (isLoading || isError) {
-      return;
-    }
-
-    if (history.location.pathname === servicesCounselingRoutes.DEFAULT_QUEUE_PATH) {
-      history.replace(
-        inPPMCloseoutGBLOC
-          ? servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH
-          : servicesCounselingRoutes.QUEUE_COUNSELING_PATH,
-      );
-    }
-  });
-
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
+  const closeoutQueue = (
+    <TableQueue
+      showTabs
+      showFilters
+      showPagination
+      manualSortBy
+      defaultCanSort
+      defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
+      disableMultiSort
+      disableSortBy={false}
+      columns={closeoutColumns(inPPMCloseoutGBLOC)}
+      title="Moves"
+      handleClick={handleClick}
+      useQueries={useServicesCounselingQueuePPMQueries}
+    />
+  );
+
+  const counselingQueue = (
+    <div>
+      <TableQueue
+        className={styles.ServicesCounseling}
+        showTabs
+        showFilters
+        showPagination
+        manualSortBy
+        defaultCanSort
+        defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
+        disableMultiSort
+        disableSortBy={false}
+        columns={counselingColumns()}
+        title="Moves"
+        handleClick={handleClick}
+        useQueries={useServicesCounselingQueueQueries}
+      />
+    </div>
+  );
+
+  let defaultElement;
+  if (queueType) {
+    defaultElement = queueType === 'PPM-closeout' ? closeoutQueue : counselingQueue;
+  } else {
+    defaultElement = inPPMCloseoutGBLOC ? <Navigate to="/PPM-closeout" /> : <Navigate to="/counseling" />;
+  }
 
   return (
     // TODO: Pull out header count and add new move button
     <div className={styles.ServicesCounselingQueue}>
-      <Switch>
-        <Route path={servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH} exact>
-          <TableQueue
-            showTabs
-            showFilters
-            showPagination
-            manualSortBy
-            defaultCanSort
-            defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
-            disableMultiSort
-            disableSortBy={false}
-            columns={closeoutColumns(inPPMCloseoutGBLOC)}
-            title="Moves"
-            handleClick={handleClick}
-            useQueries={useServicesCounselingQueuePPMQueries}
-          />
-        </Route>
-        <Route path={servicesCounselingRoutes.QUEUE_COUNSELING_PATH} exact>
-          <div>
-            <TableQueue
-              className={styles.ServicesCounseling}
-              showTabs
-              showFilters
-              showPagination
-              manualSortBy
-              defaultCanSort
-              defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
-              disableMultiSort
-              disableSortBy={false}
-              columns={counselingColumns()}
-              title="Moves"
-              handleClick={handleClick}
-              useQueries={useServicesCounselingQueueQueries}
-            />
-          </div>
-        </Route>
-      </Switch>
+      <Routes>
+        <Route path="PPM-closeout" element={closeoutQueue} />
+        <Route path={servicesCounselingRoutes.QUEUE_COUNSELING_PATH} end element={counselingQueue} />
+        <Route path={servicesCounselingRoutes.QUEUE_VIEW_PATH} end element={counselingQueue} />
+        <Route path="/" end element={defaultElement} />
+      </Routes>
     </div>
   );
 };

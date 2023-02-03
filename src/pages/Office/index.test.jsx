@@ -22,7 +22,7 @@ describe('Office App', () => {
     let wrapper;
 
     beforeEach(() => {
-      wrapper = shallow(<OfficeApp {...mockOfficeProps} />);
+      wrapper = shallow(<OfficeApp {...mockOfficeProps} router={{ location: { pathname: '/' } }} />);
     });
 
     it('renders without crashing or erroring', () => {

@@ -223,18 +223,7 @@ export class OfficeApp extends Component {
                     />
 
                     <Route
-                      path={servicesCounselingRoutes.QUEUE_COUNSELING_PATH}
-                      end
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <ServicesCounselingQueue />
-                        </PrivateRoute>
-                      }
-                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
-                    />
-
-                    <Route
-                      path={servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH}
+                      path="/:queueType/*"
                       end
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
