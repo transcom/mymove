@@ -38,8 +38,6 @@ func ClientCertFromContext(ctx context.Context) *models.ClientCert {
 		return clientCert
 	}
 
-	logger.Error("The client cert key was not in the context")
-
 	return nil
 }
 
