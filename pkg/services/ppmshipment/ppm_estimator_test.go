@@ -721,19 +721,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 		suite.Run("Final Incentive - Success with disregarding rejected weight tickets", func() {
 			setupPricerData()
-			rejected := models.PPMDocumentStatusRejected
-			approved := models.PPMDocumentStatusApproved
-			fullWeight := unit.Pound(19500)
-			emptyWeight := unit.Pound(9500)
-
-			oldWeightTicket1 := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-				WeightTicket: models.WeightTicket{
-					FullWeight:  &fullWeight,
-					EmptyWeight: &emptyWeight,
-					Status:      &approved,
-				},
-			})
-
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
 			oldPPMShipment := testdatagen.MakeApprovedPPMShipmentWithActualInfo(suite.DB(), testdatagen.Assertions{
 				PPMShipment: models.PPMShipment{
@@ -742,30 +729,21 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					ActualMoveDate:              models.TimePointer(moveDate),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 					WeightTickets: models.WeightTickets{
-						oldWeightTicket1,
+						testdatagen.MakeDefaultWeightTicket(suite.DB()),
 					},
 				},
 			})
 
 			newPPM := oldPPMShipment
-			newPPM.ActualMoveDate = models.TimePointer(moveDate)
-
-			newWeightTicket1 := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-				WeightTicket: models.WeightTicket{
-					FullWeight:  &fullWeight,
-					EmptyWeight: &emptyWeight,
-					Status:      &approved,
-				},
-			})
-			newWeightTicket2 := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-				WeightTicket: models.WeightTicket{
-					Status:      &rejected,
-					FullWeight:  &fullWeight,
-					EmptyWeight: &emptyWeight,
-				},
-			})
+			weightOverride := unit.Pound(19500)
+			rejected := models.PPMDocumentStatusRejected
 			newPPM.WeightTickets = models.WeightTickets{
-				newWeightTicket1, newWeightTicket2,
+				testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+					WeightTicket: models.WeightTicket{
+						Status:     &rejected,
+						FullWeight: &weightOverride,
+					},
+				}),
 			}
 
 			mockedPaymentRequestHelper.On(
@@ -777,7 +755,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"90210", "30813").Return(2294, nil)
 
-			_, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			ppmFinal, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NilOrNoVerrs(err)
 
 			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
@@ -785,9 +763,74 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
 			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
-			suite.Equal(unit.Pound(10000), originalWeight)
-			suite.Equal(unit.Pound(10000), newWeight)
-			// suite.Equal(unit.Cents(273867426), *ppmFinal)
+			suite.Equal(unit.Pound(4000), originalWeight)
+			suite.Equal(unit.Pound(0), newWeight)
+			suite.Nil(ppmFinal)
+		})
+
+		suite.Run("Final Incentive - Success updating finalIncentive with rejected weight tickets", func() {
+			setupPricerData()
+			weight := unit.Pound(19500)
+			newWeight := unit.Pound(21500)
+
+			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			oldPPMShipment := testdatagen.MakeApprovedPPMShipmentWithActualInfo(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					ActualPickupPostalCode:      models.StringPointer("90210"),
+					ActualDestinationPostalCode: models.StringPointer("30813"),
+					ActualMoveDate:              models.TimePointer(moveDate),
+					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+					WeightTickets: models.WeightTickets{
+						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+							WeightTicket: models.WeightTicket{
+								FullWeight: &weight,
+							},
+						}),
+					},
+				},
+			})
+
+			newPPM := oldPPMShipment
+			rejected := models.PPMDocumentStatusRejected
+			approved := models.PPMDocumentStatusApproved
+			newPPM.WeightTickets = models.WeightTickets{
+				testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+					WeightTicket: models.WeightTicket{
+						Status:     &rejected,
+						FullWeight: &newWeight,
+					},
+				}),
+				testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+					WeightTicket: models.WeightTicket{
+						Status:     &approved,
+						FullWeight: &newWeight,
+					},
+				}),
+			}
+
+			mockedPaymentRequestHelper.On(
+				"FetchServiceParamsForServiceItems",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+			// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"90210", "30813").Return(2294, nil)
+
+			ppmFinal, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NilOrNoVerrs(err)
+
+			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"90210", "30813")
+			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+
+			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
+			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
+			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			suite.Equal(unit.Pound(5000), originalWeight)
+			suite.Equal(unit.Pound(7000), newWeight)
+			suite.Equal(unit.Cents(98090410), *ppmFinal)
 		})
 
 		suite.Run("Final Incentive - does not change when required fields are the same", func() {
