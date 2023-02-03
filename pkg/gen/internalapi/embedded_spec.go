@@ -5640,7 +5640,8 @@ func init() {
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",
@@ -14030,7 +14031,8 @@ func init() {
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",

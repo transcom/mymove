@@ -6913,7 +6913,8 @@ func init() {
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatus": {
       "description": "Status of the PPM document.",
@@ -8688,6 +8689,7 @@ func init() {
           "x-nullable": true
         },
         "advanceStatus": {
+          "x-nullable": true,
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
         "destinationPostalCode": {
@@ -17385,7 +17387,8 @@ func init() {
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatus": {
       "description": "Status of the PPM document.",
@@ -19168,6 +19171,7 @@ func init() {
           "x-nullable": true
         },
         "advanceStatus": {
+          "x-nullable": true,
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
         "destinationPostalCode": {

@@ -28,7 +28,7 @@ type UpdatePPMShipment struct {
 	AdvanceAmountRequested *int64 `json:"advanceAmountRequested,omitempty"`
 
 	// advance status
-	AdvanceStatus PPMAdvanceStatus `json:"advanceStatus,omitempty"`
+	AdvanceStatus *PPMAdvanceStatus `json:"advanceStatus,omitempty"`
 
 	// ZIP
 	// Example: 90210
@@ -173,13 +173,15 @@ func (m *UpdatePPMShipment) validateAdvanceStatus(formats strfmt.Registry) error
 		return nil
 	}
 
-	if err := m.AdvanceStatus.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("advanceStatus")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("advanceStatus")
+	if m.AdvanceStatus != nil {
+		if err := m.AdvanceStatus.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("advanceStatus")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("advanceStatus")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -331,13 +333,15 @@ func (m *UpdatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.
 
 func (m *UpdatePPMShipment) contextValidateAdvanceStatus(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.AdvanceStatus.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("advanceStatus")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("advanceStatus")
+	if m.AdvanceStatus != nil {
+		if err := m.AdvanceStatus.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("advanceStatus")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("advanceStatus")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
