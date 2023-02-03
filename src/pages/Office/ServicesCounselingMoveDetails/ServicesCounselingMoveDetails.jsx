@@ -234,7 +234,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
           // Since storage facility gets split into two fields - the name and the address
           // it needs to be counted twice.
           if (fieldToCheck.fieldName === 'storageFacility') {
-            numberOfErrorIfMissingForAllShipments += 1;
+            numberOfWarnIfMissingForAllShipments += 1;
           }
         });
       }
