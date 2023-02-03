@@ -30,6 +30,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
+import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 
 const errorIfMissing = {
   HHG_INTO_NTS_DOMESTIC: [
@@ -200,10 +201,8 @@ const MoveDetails = ({
 
     mtoShipments?.forEach((mtoShipment) => {
       const fieldsToCheckForShipment = errorIfMissing[mtoShipment.shipmentType];
-      const existsMissingFieldsOnShipment = fieldsToCheckForShipment?.some(
-        (field) =>
-          !mtoShipment[field.fieldName] ||
-          (mtoShipment[field.fieldName] === '' && (!field.condition || field.condition(mtoShipment))),
+      const existsMissingFieldsOnShipment = fieldsToCheckForShipment?.some((field) =>
+        objectIsMissingFieldWithCondition(mtoShipment, field),
       );
 
       // If there were no fields to check, then nothing was required.
