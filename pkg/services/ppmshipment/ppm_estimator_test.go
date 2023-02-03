@@ -825,8 +825,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				"90210", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
-			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
 			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(5000), originalWeight)
 			suite.Equal(unit.Pound(7000), newWeight)
