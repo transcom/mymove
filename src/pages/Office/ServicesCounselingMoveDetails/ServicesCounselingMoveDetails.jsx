@@ -80,6 +80,12 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   };
   const errorIfMissing = {
     HHG_OUTOF_NTS_DOMESTIC: [{ fieldName: 'storageFacility' }],
+    PPM: [
+      {
+        fieldName: 'advanceStatus',
+        condition: (shipment) => shipment?.ppmShipment?.hasRequestedAdvance === true,
+      },
+    ],
   };
 
   let shipmentsInfo = [];

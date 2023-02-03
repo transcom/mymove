@@ -9,6 +9,7 @@ import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatWeight } from 'utils/formatters';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags, fieldValidationShape } from 'utils/displayFlags';
+import { ADVANCE_STATUSES } from 'constants/ppms';
 import affiliation from 'content/serviceMemberAgencies';
 import { permissionTypes } from 'constants/permissions';
 import Restricted from 'components/Restricted/Restricted';
@@ -25,6 +26,7 @@ const PPMShipmentInfoList = ({
   const {
     hasRequestedAdvance,
     advanceAmountRequested,
+    advanceStatus,
     destinationPostalCode,
     estimatedIncentive,
     estimatedWeight,
@@ -170,6 +172,14 @@ const PPMShipmentInfoList = ({
     </div>
   );
 
+  const advanceStatusElementFlags = getDisplayFlags('advanceStatus');
+  const advanceStatusElement = (
+    <div className={advanceStatusElementFlags.classes}>
+      <dt>Advance request status</dt>
+      <dd data-testid="advanceRequestStatus">{ADVANCE_STATUSES[advanceStatus]}</dd>
+    </div>
+  );
+
   const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
   const counselorRemarksElement = (
     <div className={counselorRemarksElementFlags.classes}>
@@ -201,6 +211,7 @@ const PPMShipmentInfoList = ({
       {showElement(spouseProGearElementFlags) && spouseProGearElement}
       {showElement(estimatedIncentiveElementFlags) && estimatedIncentiveElement}
       {hasRequestedAdvanceElement}
+      {hasRequestedAdvance === true && advanceStatusElement}
       {counselorRemarksElement}
     </dl>
   );
