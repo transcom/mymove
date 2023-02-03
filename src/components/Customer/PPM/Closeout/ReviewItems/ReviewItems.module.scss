@@ -55,19 +55,19 @@
   }
 
   .missingAlert {
-     @include u-margin-top(2);
-     @include u-margin-bottom(0);
-     @include u-margin-x(3);
+     @include u-margin-bottom(2);
      @include u-font-weight(700);
-     color: #B50909;
-     display:flex;
+     @include u-color('secondary-dark');
+     display: flex;
+
   }
 
   .alertTag {
-    @include u-margin-right(10px);
-    @include u-margin-top(0.5);
+    @include u-margin-right(8px);
+    @include u-margin-top(2px);
     width: 20px;
     height: 20px;
+    @include u-bg('secondary-dark');
   }
 
   .contentsContainer {
@@ -76,11 +76,12 @@
       @include u-radius(3px);
       border-color: $border-color;
       @include u-margin-top(2);
+      @include u-padding(3);
     }
 
     .subheadingWrapper {
       @include u-margin-top(0);
-      @include u-padding(3);
+     // @include u-padding-x(3);
 
       h1, h2, h3, h4, h5, h6, dl {
         @include u-margin-top(0);
