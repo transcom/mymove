@@ -8,7 +8,7 @@ import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatWeight } from 'utils/formatters';
-import { setFlagStyles, setDisplayFlags, getDisplayFlags } from 'utils/displayFlags';
+import { setFlagStyles, setDisplayFlags, getDisplayFlags, fieldValidationShape } from 'utils/displayFlags';
 import affiliation from 'content/serviceMemberAgencies';
 import { permissionTypes } from 'constants/permissions';
 import Restricted from 'components/Restricted/Restricted';
@@ -243,8 +243,8 @@ const PPMShipmentInfoList = ({
 PPMShipmentInfoList.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
-  warnIfMissing: PropTypes.arrayOf(PropTypes.string),
-  errorIfMissing: PropTypes.arrayOf(PropTypes.string),
+  warnIfMissing: PropTypes.arrayOf(fieldValidationShape),
+  errorIfMissing: PropTypes.arrayOf(fieldValidationShape),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
   isExpanded: PropTypes.bool,
   isForEvaluationReport: PropTypes.bool,

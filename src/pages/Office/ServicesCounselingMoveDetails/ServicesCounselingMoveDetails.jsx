@@ -38,6 +38,7 @@ import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
+import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 
 const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCount }) => {
   const { moveCode } = useParams();
@@ -66,12 +67,20 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   }; // add any additional fields that we also want to always show
   const neverShow = { HHG_INTO_NTS_DOMESTIC: ['usesExternalVendor', 'serviceOrderNumber', 'storageFacility'] };
   const warnIfMissing = {
-    HHG: ['counselorRemarks'],
-    HHG_INTO_NTS_DOMESTIC: ['counselorRemarks', 'tacType', 'sacType'],
-    HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'],
-    PPM: ['counselorRemarks'],
+    HHG: [{ fieldName: 'counselorRemarks' }],
+    HHG_INTO_NTS_DOMESTIC: [{ fieldName: 'counselorRemarks' }, { fieldName: 'tacType' }, { fieldName: 'sacType' }],
+    HHG_OUTOF_NTS_DOMESTIC: [
+      { fieldName: 'ntsRecordedWeight' },
+      { fieldName: 'serviceOrderNumber' },
+      { fieldName: 'counselorRemarks' },
+      { fieldName: 'tacType' },
+      { fieldName: 'sacType' },
+    ],
+    PPM: [{ fieldName: 'counselorRemarks' }],
   };
-  const errorIfMissing = { HHG_OUTOF_NTS_DOMESTIC: ['storageFacility'] };
+  const errorIfMissing = {
+    HHG_OUTOF_NTS_DOMESTIC: [{ fieldName: 'storageFacility' }],
+  };
 
   let shipmentsInfo = [];
   let ppmShipmentsInfoNeedsApproval = [];
@@ -87,10 +96,10 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
   if (isRetirementOrSeparation) {
     // destination type must be set for for HHG, NTSR shipments only
-    errorIfMissing.HHG = ['destinationType'];
-    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push('destinationType');
-    errorIfMissing.HHG_SHORTHAUL_DOMESTIC = ['destinationType'];
-    errorIfMissing.HHG_LONGHAUL_DOMESTIC = ['destinationType'];
+    errorIfMissing.HHG = [{ fieldName: 'destinationType' }];
+    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push({ fieldName: 'destinationType' });
+    errorIfMissing.HHG_SHORTHAUL_DOMESTIC = [{ fieldName: 'destinationType' }];
+    errorIfMissing.HHG_LONGHAUL_DOMESTIC = [{ fieldName: 'destinationType' }];
   }
 
   if (!order.department_indicator || !order.order_number || !order.order_type_detail || !order.tac)
@@ -131,11 +140,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
       const errorIfMissingList = errorIfMissing[shipment.shipmentType];
       if (errorIfMissingList) {
         errorIfMissingList.forEach((fieldToCheck) => {
-          if (!displayInfo[fieldToCheck]) {
+          if (objectIsMissingFieldWithCondition(displayInfo, fieldToCheck)) {
             numberOfErrorIfMissingForAllShipments += 1;
             // Since storage facility gets split into two fields - the name and the address
             // it needs to be counted twice.
-            if (fieldToCheck === 'storageFacility') {
+            if (fieldToCheck.fieldName === 'storageFacility') {
               numberOfErrorIfMissingForAllShipments += 1;
             }
           }
@@ -145,12 +154,12 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
       const warnIfMissingList = warnIfMissing[shipment.shipmentType];
       if (warnIfMissingList) {
         warnIfMissingList.forEach((fieldToCheck) => {
-          if (!displayInfo[fieldToCheck]) {
+          if (objectIsMissingFieldWithCondition(displayInfo, fieldToCheck)) {
             numberOfWarnIfMissingForAllShipments += 1;
           }
           // Since storage facility gets split into two fields - the name and the address
           // it needs to be counted twice.
-          if (fieldToCheck === 'storageFacility') {
+          if (fieldToCheck.fieldName === 'storageFacility') {
             numberOfErrorIfMissingForAllShipments += 1;
           }
         });
@@ -198,11 +207,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
       if (errorIfMissingList) {
         errorIfMissingList.forEach((fieldToCheck) => {
-          if (!displayInfo[fieldToCheck]) {
+          if (objectIsMissingFieldWithCondition(displayInfo, fieldToCheck)) {
             numberOfErrorIfMissingForAllShipments += 1;
             // Since storage facility gets split into two fields - the name and the address
             // it needs to be counted twice.
-            if (fieldToCheck === 'storageFacility') {
+            if (fieldToCheck.fieldName === 'storageFacility') {
               numberOfErrorIfMissingForAllShipments += 1;
             }
           }
@@ -212,12 +221,12 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
       const warnIfMissingList = warnIfMissing[shipment.shipmentType];
       if (warnIfMissingList) {
         warnIfMissingList.forEach((fieldToCheck) => {
-          if (!displayInfo[fieldToCheck]) {
+          if (objectIsMissingFieldWithCondition(displayInfo, fieldToCheck)) {
             numberOfWarnIfMissingForAllShipments += 1;
           }
           // Since storage facility gets split into two fields - the name and the address
           // it needs to be counted twice.
-          if (fieldToCheck === 'storageFacility') {
+          if (fieldToCheck.fieldName === 'storageFacility') {
             numberOfErrorIfMissingForAllShipments += 1;
           }
         });
