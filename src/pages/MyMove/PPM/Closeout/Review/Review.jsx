@@ -151,7 +151,7 @@ const Review = () => {
             )}
             {!canAdvance && (
               <>
-                <Alert data-testid="reviewError" type="error">
+                <Alert type="error">
                   There are items below that are missing required information. Please select “Edit” to enter all
                   required information or “Delete” to remove the item.
                 </Alert>
