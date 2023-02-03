@@ -62,7 +62,7 @@
     "react-table-6": "^6.11.0",
     "react-tabs": "^4.2.1",
     "reduce-reducers": "^1.0.4",
-    "redux": "^4.2.0",
+    "redux": "^4.2.1",
     "redux-devtools-extension": "^2.13.2",
     "redux-form": "^8.3.9",
     "redux-mock-store": "1.5.4",
