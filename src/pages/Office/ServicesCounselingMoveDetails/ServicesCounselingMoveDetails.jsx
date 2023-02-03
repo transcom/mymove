@@ -133,6 +133,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
         },
         agency: customerData.agency,
         closeoutOffice,
+        ...shipment.ppmShipment,
         ...shipment,
         displayDestinationType: isRetirementOrSeparation,
       };

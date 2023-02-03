@@ -38,6 +38,7 @@ const PPMShipmentInfoList = ({
   } = shipment.ppmShipment || {};
 
   const { closeoutOffice, agency } = shipment;
+  const ppmShipmentInfo = { ...shipment.ppmShipment, ...shipment };
   let closeoutDisplay;
 
   switch (agency) {
@@ -57,8 +58,9 @@ const PPMShipmentInfoList = ({
   setFlagStyles({
     row: styles.row,
     warning: shipmentDefinitionListsStyles.warning,
+    missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
   });
-  setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
+  setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, ppmShipmentInfo);
 
   const showElement = (elementFlags) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
