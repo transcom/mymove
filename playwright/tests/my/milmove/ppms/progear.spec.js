@@ -5,20 +5,17 @@
  */
 
 // @ts-check
-const { expect, test, forEachViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { expect, test, forEachViewport } = require('./customerPpmTestFixture');
 
 test.describe('Progear', () => {
-  /** @type {CustomerPpmPage} */
-  let customerPpmPage;
-
-  test.beforeEach(async ({ customerPage }) => {
-    const move = await customerPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicket();
-    customerPpmPage = new CustomerPpmPage(customerPage, move);
-    await customerPpmPage.signInAndNavigateToProgearPage();
-  });
-
   forEachViewport(async () => {
-    test(`progear page loads`, async ({ page }) => {
+    test.beforeEach(async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicket();
+      await customerPpmPage.signInForPPMWithMove(move);
+      await customerPpmPage.navigateToProgearPage();
+    });
+
+    test(`progear page loads`, async ({ customerPpmPage, page }) => {
       await customerPpmPage.submitProgearPage({ belongsToSelf: true });
 
       const set2Heading = page.getByRole('heading', { name: 'Set 2' });

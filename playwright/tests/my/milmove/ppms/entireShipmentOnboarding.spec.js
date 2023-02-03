@@ -102,14 +102,15 @@ test.describe('Entire PPM onboarding flow', () => {
   /** @type {CustomerPpmOnboardingPage} */
   let customerPpmOnboardingPage;
 
-  test.beforeEach(async ({ customerPage }) => {
-    const move = await customerPage.testHarness.buildDraftMoveWithPPMWithDepartureDate();
-    customerPpmOnboardingPage = new CustomerPpmOnboardingPage(customerPage, move);
-  });
-
   forEachViewport(async ({ isMobile }) => {
+    test.beforeEach(async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildDraftMoveWithPPMWithDepartureDate();
+      customerPpmOnboardingPage = new CustomerPpmOnboardingPage(customerPpmPage);
+      customerPpmOnboardingPage.signInForPPMWithMove(move);
+    });
+
     test('flows through happy path for existing shipment', async () => {
-      await customerPpmOnboardingPage.signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage();
+      await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
       await customerPpmOnboardingPage.submitsDateAndLocation();
       await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();
       await customerPpmOnboardingPage.generalVerifyEstimatedIncentivePage({ isMobile });
@@ -120,7 +121,7 @@ test.describe('Entire PPM onboarding flow', () => {
     });
 
     test('happy path with edits and backs', async () => {
-      await customerPpmOnboardingPage.signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage();
+      await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
 
       await customerPpmOnboardingPage.submitAndVerifyUpdateDateAndLocation();
 

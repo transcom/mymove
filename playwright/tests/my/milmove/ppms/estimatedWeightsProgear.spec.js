@@ -5,16 +5,13 @@
  */
 
 // @ts-check
-const { expect, test, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { expect, test } = require('./customerPpmTestFixture');
 
 test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
-  /** @type {CustomerPpmPage} */
-  let customerPpmPage;
-
-  test.beforeEach(async ({ customerPage }) => {
-    const move = await customerPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
-    customerPpmPage = new CustomerPpmPage(customerPage, move);
-    await customerPpmPage.signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage();
+  test.beforeEach(async ({ customerPpmPage }) => {
+    const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
+    await customerPpmPage.signInForPPMWithMove(move);
+    await customerPpmPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
     await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
   });
 
@@ -97,11 +94,11 @@ test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
     await expect(errorMessage).not.toBeVisible();
   });
 
-  test('can continue to next page', async () => {
+  test('can continue to next page', async ({ customerPpmPage }) => {
     await customerPpmPage.submitsEstimatedWeights();
   });
 
-  test('can continue to next page with progear added', async () => {
+  test('can continue to next page with progear added', async ({ customerPpmPage }) => {
     await customerPpmPage.submitsEstimatedWeightsAndProGear();
   });
 });

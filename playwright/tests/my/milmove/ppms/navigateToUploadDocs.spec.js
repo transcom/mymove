@@ -5,16 +5,15 @@
  */
 
 // @ts-check
-const { expect, test, forEachViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { expect, test, forEachViewport } = require('./customerPpmTestFixture');
 
 test.describe('PPM Request Payment - Begin providing documents flow', () => {
-  test.beforeEach(async ({ customerPage }) => {
-    const move = await customerPage.testHarness.buildApprovedMoveWithPPM();
-    const customerPpmPage = new CustomerPpmPage(customerPage, move);
-    await customerPpmPage.signInForPPM();
-  });
-
   forEachViewport(async () => {
+    test.beforeEach(async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
+      await customerPpmPage.signInForPPMWithMove(move);
+    });
+
     test('has upload documents button enabled', async ({ page }) => {
       await expect(page.getByRole('heading', { name: 'Your move is in progress.' })).toBeVisible();
       const stepContainer5 = page.getByTestId('stepContainer5');

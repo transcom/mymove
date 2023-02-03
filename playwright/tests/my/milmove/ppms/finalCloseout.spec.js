@@ -5,20 +5,19 @@
  */
 
 // @ts-check
-const { test, forEachViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { test, forEachViewport } = require('./customerPpmTestFixture');
 
 test.describe('Final Closeout', () => {
-  /** @type {CustomerPpmPage} */
-  let customerPpmPage;
-
-  test.beforeEach(async ({ customerPage }) => {
-    const move = await customerPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
-    customerPpmPage = new CustomerPpmPage(customerPage, move);
-  });
-
   forEachViewport(async () => {
-    test('can see final closeout page with final estimated incentive and shipment totals', async () => {
-      await customerPpmPage.signInAndNavigateToFinalCloseoutPage();
+    test.beforeEach(async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
+      await customerPpmPage.signInForPPMWithMove(move);
+    });
+
+    test('can see final closeout page with final estimated incentive and shipment totals', async ({
+      customerPpmPage,
+    }) => {
+      await customerPpmPage.navigateToFinalCloseoutPage();
 
       await customerPpmPage.verifyFinalIncentiveAndTotals();
     });

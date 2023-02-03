@@ -5,23 +5,20 @@
  */
 
 // @ts-check
-const { expect, test, forEachViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { expect, test, forEachViewport } = require('./customerPpmTestFixture');
 
 test.describe('PPM Onboarding - Estimated Incentive', () => {
-  /** @type {CustomerPpmPage} */
-  let customerPpmPage;
-
-  test.beforeEach(async ({ customerPage }) => {
-    const move = await customerPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
-    customerPpmPage = new CustomerPpmPage(customerPage, move);
-    await customerPpmPage.signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage();
-    await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
-    await customerPpmPage.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
-    await expect(customerPage.page.locator('.container h2')).toContainText('$10,000');
-  });
-
   forEachViewport(async ({ isMobile }) => {
-    test('go to estimated incentives page', async () => {
+    test.beforeEach(async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
+      await customerPpmPage.signInForPPMWithMove(move);
+      await customerPpmPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
+      await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
+      await customerPpmPage.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
+      await expect(customerPpmPage.page.locator('.container h2')).toContainText('$10,000');
+    });
+
+    test('go to estimated incentives page', async ({ customerPpmPage }) => {
       customerPpmPage.generalVerifyEstimatedIncentivePage({ isMobile });
     });
   });

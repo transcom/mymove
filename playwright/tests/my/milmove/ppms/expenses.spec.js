@@ -5,20 +5,17 @@
  */
 
 // @ts-check
-const { expect, test, forEachViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { expect, test, forEachViewport } = require('./customerPpmTestFixture');
 
 test.describe('Expenses', () => {
-  /** @type {CustomerPpmPage} */
-  let customerPpmPage;
-
-  test.beforeEach(async ({ customerPage }) => {
-    const move = await customerPage.testHarness.buildApprovedMoveWithPPMMovingExpense();
-    customerPpmPage = new CustomerPpmPage(customerPage, move);
-    await customerPpmPage.signInAndNavigateToPPMReviewPage();
-  });
-
   forEachViewport(async () => {
-    test(`new expense page loads`, async () => {
+    test.beforeEach(async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPMMovingExpense();
+      await customerPpmPage.signInForPPMWithMove(move);
+      await customerPpmPage.navigateToPPMReviewPage();
+    });
+
+    test(`new expense page loads`, async ({ customerPpmPage }) => {
       await customerPpmPage.navigateFromCloseoutReviewPageToExpensesPage();
       await customerPpmPage.submitExpensePage();
     });

@@ -5,16 +5,13 @@
  */
 
 // @ts-check
-const { expect, test, forEachViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { expect, test, forEachViewport } = require('./customerPpmTestFixture');
 
 test.describe('About Your PPM', () => {
-  /** @type {CustomerPpmPage} */
-  let customerPpmPage;
-
-  test.beforeEach(async ({ customerPage }) => {
-    const move = await customerPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
-    customerPpmPage = new CustomerPpmPage(customerPage, move);
-    await customerPpmPage.signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage();
+  test.beforeEach(async ({ customerPpmPage }) => {
+    const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
+    await customerPpmPage.signInForPPMWithMove(move);
+    await customerPpmPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
     await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
     await customerPpmPage.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
     await customerPpmPage.navigateFromEstimatedIncentivePageToAdvancesPage();
@@ -79,7 +76,7 @@ test.describe('About Your PPM', () => {
   forEachViewport(async ({ isMobile }) => {
     [true, false].forEach((addAdvance) => {
       const advanceText = addAdvance ? 'request' : 'opt to not receive';
-      test(`can ${advanceText} an advance`, async () => {
+      test(`can ${advanceText} an advance`, async ({ customerPpmPage }) => {
         await customerPpmPage.submitsAdvancePage({ addAdvance, isMobile });
       });
     });

@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, forEachViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { test, forEachViewport } = require('./customerPpmTestFixture');
 
 const fullPPMShipmentFields = [
   ['Expected departure', '15 Mar 2020'],
@@ -23,23 +23,22 @@ const fullPPMShipmentFields = [
 ];
 
 test.describe('PPM Onboarding - Review', () => {
-  /** @type {CustomerPpmPage} */
-  let customerPpmPage;
-
-  test.beforeEach(async ({ customerPage }) => {
-    const move = await customerPage.testHarness.buildUnsubmittedMoveWithMultipleFullPPMShipmentComplete();
-    customerPpmPage = new CustomerPpmPage(customerPage, move);
-    await customerPpmPage.signInAndNavigateFromHomePageToReviewPage();
-  });
-
   forEachViewport(async ({ isMobile }) => {
-    test(`navigates to the review page, deletes and edit shipment`, async () => {
+    test.beforeEach(async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildUnsubmittedMoveWithMultipleFullPPMShipmentComplete();
+      await customerPpmPage.signInForPPMWithMove(move);
+      await customerPpmPage.navigateFromHomePageToReviewPage();
+    });
+
+    test(`navigates to the review page, deletes and edit shipment`, async ({ customerPpmPage }) => {
       const shipmentContainer = customerPpmPage.page.locator('[data-testid="ShipmentContainer"]').last();
       await customerPpmPage.deleteShipment(shipmentContainer, 1);
 
       // combining test for
-      // navigates to the review page after finishing editing the PPM shipment
-      await customerPpmPage.signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage();
+      // navigates to the review page after finishing editing the PPM
+      // shipment
+      await customerPpmPage.navigateToHomePage();
+      await customerPpmPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
       await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
       await customerPpmPage.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
       await customerPpmPage.navigateFromEstimatedIncentivePageToAdvancesPage();
@@ -49,7 +48,7 @@ test.describe('PPM Onboarding - Review', () => {
       await customerPpmPage.navigateToAgreementAndSign();
     });
 
-    test('navigates to review page from home page and submits the move', async () => {
+    test('navigates to review page from home page and submits the move', async ({ customerPpmPage }) => {
       await customerPpmPage.verifyPPMShipmentCard(fullPPMShipmentFields, { isEditable: true });
       await customerPpmPage.navigateToAgreementAndSign();
       await customerPpmPage.submitMove();

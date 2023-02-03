@@ -5,7 +5,13 @@
  */
 
 // @ts-check
-const { expect, test, forEachViewport, useMobileViewport, CustomerPage } = require('../../../utils/customerTest');
+const {
+  expect,
+  test: customerTest,
+  forEachViewport,
+  useMobileViewport,
+  CustomerPage,
+} = require('../../../utils/customerTest');
 
 /**
  * CustomerPpmPage test fixture
@@ -16,25 +22,29 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    * Create an CustomerPpmPage.
    * @param {CustomerPage} customerPage
-   * @param {object} move
    */
-  constructor(customerPage, move) {
+  constructor(customerPage) {
     super(customerPage.page, customerPage.request);
-    this.move = move;
-    this.userId = move.Orders.ServiceMember.user_id;
   }
 
   /**
+   * @param {string} userId
    */
-  async signInForPPM() {
-    await this.signInAsExistingCustomer(this.userId);
+  async signInForPPM(userId) {
+    await this.signInAsExistingCustomer(userId);
   }
 
   /**
-   * sign in for ppm
+   * @param {Object} move
    */
-  async signInAndClickOnUploadPPMDocumentsButton() {
-    await this.signInForPPM();
+  async signInForPPMWithMove(move) {
+    await this.signInAsExistingCustomer(move.Orders.ServiceMember.user_id);
+  }
+
+  /**
+   * click on upload ppm documents
+   */
+  async clickOnUploadPPMDocumentsButton() {
     await expect(this.page.getByRole('heading', { name: 'Your move is in progress.' })).toBeVisible();
 
     await Promise.all([
@@ -55,20 +65,10 @@ export class CustomerPpmPage extends CustomerPage {
 
   /**
    * @param {Object} options
-   * @param {boolean} [options.isMoveSubmitted=false]
-   */
-  async signInAndNavigateFromHomePageToReviewPage(options = { isMoveSubmitted: false }) {
-    await this.signInAsExistingCustomer(this.userId);
-
-    await this.navigateFromHomePageToReviewPage(options);
-  }
-
-  /**
-   * @param {Object} options
    * @param {boolean} [options.selectAdvance=false]
    */
-  async signInAndNavigateToAboutPage(options = { selectAdvance: false }) {
-    await this.signInAndClickOnUploadPPMDocumentsButton();
+  async navigateToAboutPage(options = { selectAdvance: false }) {
+    await this.clickOnUploadPPMDocumentsButton();
 
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/about/);
 
@@ -79,8 +79,8 @@ export class CustomerPpmPage extends CustomerPage {
 
   /**
    */
-  async signInAndNavigateToPPMReviewPage() {
-    await this.signInAndClickOnUploadPPMDocumentsButton();
+  async navigateToPPMReviewPage() {
+    await this.clickOnUploadPPMDocumentsButton();
 
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
 
@@ -98,8 +98,8 @@ export class CustomerPpmPage extends CustomerPage {
 
   /**
    */
-  async signInAndNavigateToFinalCloseoutPage() {
-    await this.signInAndNavigateToPPMReviewPage();
+  async navigateToFinalCloseoutPage() {
+    await this.navigateToPPMReviewPage();
 
     await this.navigateFromPPMReviewPageToFinalCloseoutPage();
   }
@@ -169,8 +169,8 @@ export class CustomerPpmPage extends CustomerPage {
 
   /**
    */
-  async signInAndNavigateToWeightTicketPage() {
-    await this.signInAndClickOnUploadPPMDocumentsButton();
+  async navigateToWeightTicketPage() {
+    await this.clickOnUploadPPMDocumentsButton();
 
     await expect(this.page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
@@ -316,9 +316,7 @@ export class CustomerPpmPage extends CustomerPage {
 
   /**
    */
-  async signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage() {
-    await this.signInForPPM();
-
+  async navigateFromHomePageToExistingPPMDateAndLocationPage() {
     await expect(this.page.getByRole('heading', { name: 'Time to submit your move' })).toBeVisible();
 
     await this.page.locator('[data-testid="shipment-list-item-container"] button').getByText('Edit').click();
@@ -490,6 +488,12 @@ export class CustomerPpmPage extends CustomerPage {
 
   /**
    */
+  async navigateToHomePage() {
+    await this.page.getByRole('link', { name: 'Home' }).click();
+  }
+
+  /**
+   */
   async navigateFromReviewPageToHomePage() {
     await Promise.all([this.page.waitForNavigation(), this.page.getByRole('button', { name: 'Return home' }).click()]);
 
@@ -579,8 +583,8 @@ export class CustomerPpmPage extends CustomerPage {
 
   /**
    */
-  async signInAndNavigateToProgearPage() {
-    await this.signInAndNavigateToPPMReviewPage();
+  async navigateToProgearPage() {
+    await this.navigateToPPMReviewPage();
     await this.navigateFromCloseoutReviewPageToProGearPage();
   }
 
@@ -808,6 +812,22 @@ export class CustomerPpmPage extends CustomerPage {
     await this.signCloseoutAgreement();
   }
 }
-export { expect, test, forEachViewport, useMobileViewport };
+
+/**
+ * @typedef {object} CustomerPpmPageTestArgs - customer ppm page test args
+ * @property {CustomerPpmPage} customerPpmPage    - customer ppm page
+ */
+
+/** @type {import('@playwright/test').Fixtures<CustomerPpmPageTestArgs, {}, import('../../../utils/customerTest').CustomerPageTestArgs, import('@playwright/test').PlaywrightWorkerArgs>} */
+const customerPpmFixtures = {
+  customerPpmPage: async ({ customerPage }, use) => {
+    const customerPpmPage = new CustomerPpmPage(customerPage);
+    use(customerPpmPage);
+  },
+};
+
+export const test = customerTest.extend(customerPpmFixtures);
+
+export { expect, forEachViewport, useMobileViewport };
 
 export default CustomerPpmPage;

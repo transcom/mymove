@@ -5,15 +5,15 @@
  */
 
 // @ts-check
-const { test, forEachViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { test, forEachViewport } = require('./customerPpmTestFixture');
 
 test.describe('Entire PPM closeout flow', () => {
   forEachViewport(async () => {
-    test(`flows through happy path for existing shipment`, async ({ customerPage }) => {
-      const move = await customerPage.testHarness.buildApprovedMoveWithPPM();
-      const customerPpmPage = new CustomerPpmPage(customerPage, move);
+    test(`flows through happy path for existing shipment`, async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
 
-      await customerPpmPage.signInAndNavigateToAboutPage();
+      await customerPpmPage.signInForPPMWithMove(move);
+      await customerPpmPage.navigateToAboutPage();
       await customerPpmPage.submitWeightTicketPage();
       await customerPpmPage.navigateFromCloseoutReviewPageToProGearPage();
       await customerPpmPage.submitProgearPage();
@@ -28,11 +28,11 @@ test.describe('Entire PPM closeout flow', () => {
       });
     });
 
-    test(`happy path with edits and backs`, async ({ customerPage }) => {
-      const move = await customerPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
-      const customerPpmPage = new CustomerPpmPage(customerPage, move);
+    test(`happy path with edits and backs`, async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
-      await customerPpmPage.signInAndNavigateToPPMReviewPage();
+      await customerPpmPage.signInForPPMWithMove(move);
+      await customerPpmPage.navigateToPPMReviewPage();
       await customerPpmPage.navigateFromCloseoutReviewPageToAboutPage();
       await customerPpmPage.fillOutAboutPage();
       await customerPpmPage.navigateFromCloseoutReviewPageToEditWeightTicketPage();

@@ -5,16 +5,12 @@
  */
 
 // @ts-check
-const { expect, test, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { expect, test } = require('./customerPpmTestFixture');
 
 test.describe('PPM Onboarding - Add dates and location flow', () => {
-  /** @type {CustomerPpmPage} */
-  let customerPpmPage;
-
-  test.beforeEach(async ({ customerPage }) => {
-    const move = await customerPage.testHarness.buildSpouseProGearMove();
-    customerPpmPage = new CustomerPpmPage(customerPage, move);
-    await customerPpmPage.signInForPPM();
+  test.beforeEach(async ({ customerPpmPage }) => {
+    const move = await customerPpmPage.testHarness.buildSpouseProGearMove();
+    await customerPpmPage.signInForPPMWithMove(move);
     await customerPpmPage.customerStartsAddingAPPMShipment();
   });
 
@@ -78,7 +74,7 @@ test.describe('PPM Onboarding - Add dates and location flow', () => {
     await expect(errorMessage).not.toBeVisible();
   });
 
-  test('can continue to next page', async () => {
+  test('can continue to next page', async ({ customerPpmPage }) => {
     await customerPpmPage.submitsDateAndLocation();
   });
 });

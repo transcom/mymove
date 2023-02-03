@@ -5,29 +5,29 @@
  */
 
 // @ts-check
-const { test, forEachViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
+const { test, forEachViewport } = require('./customerPpmTestFixture');
 
 test.describe('About Your PPM', () => {
-  /** @type {CustomerPpmPage} */
-  let customerPpmPage;
-
-  test.beforeEach(async ({ customerPage }) => {
-    const move = await customerPage.testHarness.buildApprovedMoveWithPPMWithAboutFormComplete();
-    customerPpmPage = new CustomerPpmPage(customerPage, move);
-    await customerPpmPage.signInAndNavigateToWeightTicketPage();
-  });
-
   forEachViewport(async () => {
-    test('proceed with weight ticket documents', async () => {
+    test.beforeEach(async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPMWithAboutFormComplete();
+      await customerPpmPage.signInForPPMWithMove(move);
+      await customerPpmPage.navigateToWeightTicketPage();
+    });
+
+    test('proceed with weight ticket documents', async ({ customerPpmPage }) => {
       await customerPpmPage.submitWeightTicketPage();
     });
-    test('proceed with claiming trailer', async () => {
+
+    test('proceed with claiming trailer', async ({ customerPpmPage }) => {
       await customerPpmPage.submitWeightTicketPage({ hasTrailer: true, ownTrailer: true });
     });
-    test('proceed without claiming trailer', async () => {
+
+    test('proceed without claiming trailer', async ({ customerPpmPage }) => {
       await customerPpmPage.submitWeightTicketPage({ hasTrailer: true, ownTrailer: false });
     });
-    test('proceed with constructed weight ticket documents', async () => {
+
+    test('proceed with constructed weight ticket documents', async ({ customerPpmPage }) => {
       await customerPpmPage.submitWeightTicketPage({ useConstructedWeight: true });
     });
   });
