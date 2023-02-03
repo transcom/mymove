@@ -739,7 +739,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				PPMShipment: models.PPMShipment{
 					ActualPickupPostalCode:      models.StringPointer("90210"),
 					ActualDestinationPostalCode: models.StringPointer("30813"),
-					ActualMoveDate:              nil,
+					ActualMoveDate:              models.TimePointer(moveDate),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 					WeightTickets: models.WeightTickets{
 						oldWeightTicket1,
