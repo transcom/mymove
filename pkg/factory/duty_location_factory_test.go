@@ -181,8 +181,8 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 	suite.Run("Successful creation of Fort Gordon DutyLocation", func() {
 		// Under test:       FetchOrMakeDefaultNewOrdersDutyLocation
 		// Set up:           Count how many dutylocations and transportation office records we have
-		//                   Call the function twice, the first time should create the appropriate records, the second time should not.
-		// Expected outcome:
+		//                   Call the function twice.
+		// Expected outcome: The first time should create the appropriate new records, the second time should not.
 
 		// Check num of DutyLocation records
 		precountDL, err := suite.DB().Count(&models.DutyLocation{})
@@ -204,6 +204,7 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 
 		// Calling the function again
 		dutyLocation2 := FetchOrBuildOrdersDutyLocation(suite.DB())
+
 		// We should get the same record we created before
 		suite.Equal("Fort Gordon", dutyLocation2.Name)
 		suite.Equal(dutyLocation.ID, dutyLocation2.ID)
