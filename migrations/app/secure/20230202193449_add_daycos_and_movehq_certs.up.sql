@@ -18,7 +18,7 @@
 -- 	  -in <CERT_FILE>.crt \
 -- 	  -outform DER \
 -- 	  -out <CERT_FILE>.crt.der && \
--- 	openssl dgst -sha256 <CERT_FILE>.crt.der && \
+-- 	openssl dgst -sha256 <CERT_FILE>.crt.der
 -- 	daycos_user_id := '<UUID>';
 -- 	daycos_sha256 := '<SHA256>';
 -- 	daycos_client_cert_id := '<UUID>';
