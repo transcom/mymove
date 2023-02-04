@@ -1,5 +1,5 @@
 module.exports = {
-  plugins: ['prettier', 'security', 'no-only-tests', 'you-dont-need-lodash-underscore', 'ato', 'import'],
+  plugins: ['prettier', 'security', 'no-only-tests', 'you-dont-need-lodash-underscore', 'ato'],
   extends: [
     'react-app',
     'airbnb',
