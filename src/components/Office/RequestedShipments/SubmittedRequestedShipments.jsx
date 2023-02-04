@@ -98,32 +98,35 @@ const SubmittedRequestedShipments = ({
           normalize: false,
         },
         {
-          onSuccess: () => {
-            filteredShipments.map((shipment) => {
-              let operationPath = 'shipment.approveShipment';
+          onSuccess: async () => {
+            try {
+              await Promise.all(
+                filteredShipments.map((shipment) => {
+                  let operationPath = 'shipment.approveShipment';
 
-              if (shipment.approvedDate) {
-                operationPath = 'shipment.approveShipmentDiversion';
-              }
-
-              return approveMTOShipment(
-                {
-                  shipmentID: shipment.id,
-                  operationPath,
-                  ifMatchETag: shipment.eTag,
-                  normalize: false,
-                },
-                {
-                  onSuccess: () => {
-                    handleAfterSuccess('mto', { showMTOpostedMessage: true });
-                  },
-                  onError: () => {
-                    // TODO: Decide if we want to display an error notice, log error event, or retry
-                    setSubmitting(false);
-                  },
-                },
+                  if (shipment.approvedDate) {
+                    operationPath = 'shipment.approveShipmentDiversion';
+                  }
+                  return approveMTOShipment(
+                    {
+                      shipmentID: shipment.id,
+                      operationPath,
+                      ifMatchETag: shipment.eTag,
+                      normalize: false,
+                    },
+                    {
+                      onError: () => {
+                        // TODO: Decide if we want to display an error notice, log error event, or retry
+                        setSubmitting(false);
+                      },
+                    },
+                  );
+                }),
               );
-            });
+              handleAfterSuccess('mto', { showMTOpostedMessage: true });
+            } catch {
+              setSubmitting(false);
+            }
           },
           onError: () => {
             // TODO: Decide if we want to display an error notice, log error event, or retry
