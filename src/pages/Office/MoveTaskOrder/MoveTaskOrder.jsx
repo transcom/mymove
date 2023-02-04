@@ -168,7 +168,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const { mutataAsync: mutateMTOShipment } = useMutation(updateMTOShipment, {
+  const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
     onSuccess: (_, variables) => {
       queryClient.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
