@@ -650,7 +650,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Nil(updatedPPM.AdvanceAmountRequested)
 	})
 
-	suite.Run("Can successfully update a PPMShipment - edit advance - advance requested yes to no when already previously approved should reset advanceStatus", func() {
+	suite.Run("Can successfully update a PPMShipment - edit advance - advance requested yes to no when advance was previously approved should reset advanceStatus", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 		approved := models.PPMAdvanceStatusApproved
 
@@ -687,7 +687,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		// Fields that should now be updated
 		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
 		suite.Nil(updatedPPM.AdvanceAmountRequested)
-		suite.Nil(updatedPPM.AdvanceStatus)
+		suite.Equal(nil, updatedPPM.AdvanceStatus)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit SIT - yes to no", func() {
