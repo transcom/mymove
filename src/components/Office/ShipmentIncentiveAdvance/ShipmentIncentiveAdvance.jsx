@@ -90,7 +90,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                     name="advanceStatus"
                     value={ppmAdvanceStatus.APPROVED}
                     title="Approve"
-                    checked={advanceRequestStatus}
+                    checked={!!statusInput.value && advanceRequestStatus} // defaults to false if advanceStatus has a null value
                     onChange={handleAdvanceRequestStatusChange}
                   />
                   <Radio
@@ -99,7 +99,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                     name="advanceStatus"
                     value={ppmAdvanceStatus.REJECTED}
                     title="Reject"
-                    checked={!advanceRequestStatus}
+                    checked={!!statusInput.value && !advanceRequestStatus} // defaults to false if advanceStatus has a null value
                     onChange={handleAdvanceRequestStatusChange}
                   />
                 </FormGroup>
