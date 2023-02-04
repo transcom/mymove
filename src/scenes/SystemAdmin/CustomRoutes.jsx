@@ -6,7 +6,7 @@ import { CustomRoutes } from 'react-admin';
 const Routes = () => (
   <CustomRoutes>
     {/* Custom route for search by id for uploads */}
-    <Route exact path="/uploads" component={UploadSearch} />
+    <Route end path="/uploads" element={<UploadSearch />} />
   </CustomRoutes>
 );
 

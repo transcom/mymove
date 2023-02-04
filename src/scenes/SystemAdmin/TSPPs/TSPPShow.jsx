@@ -7,9 +7,9 @@ const TSPPShowTitle = () => {
   return <span>{`TSPP ID: ${id}`}</span>;
 };
 
-const TSPPShow = (props) => {
+const TSPPShow = () => {
   return (
-    <Show {...props} title={<TSPPShowTitle />}>
+    <Show title={<TSPPShowTitle />}>
       <SimpleShowLayout>
         <TextField source="id" reference="transportation_service_provider_performances" />
         <TextField source="trafficDistributionListId" reference="transportation_service_provider_performances" />
