@@ -179,10 +179,8 @@ const ShipmentForm = (props) => {
 
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
 
-  const moveDetailsPath = `../../${isTOO ? tooRoutes.MOVE_VIEW_PATH : servicesCounselingRoutes.MOVE_VIEW_PATH}`;
-
-  const editOrdersRoute = isTOO ? tooRoutes.ORDERS_EDIT_PATH : servicesCounselingRoutes.ORDERS_EDIT_PATH;
-  const editOrdersPath = generatePath(editOrdersRoute, { moveCode });
+  const moveDetailsPath = isTOO ? tooRoutes.MOVE_VIEW_PATH : servicesCounselingRoutes.MOVE_VIEW_PATH;
+  const editOrdersPath = isTOO ? tooRoutes.ORDERS_EDIT_PATH : servicesCounselingRoutes.ORDERS_EDIT_PATH;
 
   const submitMTOShipment = (formValues, actions) => {
     //* PPM Shipment *//
@@ -342,7 +340,7 @@ const ShipmentForm = (props) => {
         { body, normalize: false },
         {
           onSuccess: () => {
-            navigate(moveDetailsPath, { relative: 'path' });
+            navigate(`../${moveDetailsPath}`);
           },
           onError: () => {
             setErrorMessage(`A server error occurred adding the shipment`);
@@ -368,7 +366,7 @@ const ShipmentForm = (props) => {
     else {
       submitHandler(updateMTOShipmentPayload, {
         onSuccess: () => {
-          navigate(moveDetailsPath, { relative: 'path' });
+          navigate(`../../${moveDetailsPath}`, { relative: 'path' });
         },
         onError: () => {
           setErrorMessage('A server error occurred editing the shipment details');
@@ -682,7 +680,7 @@ const ShipmentForm = (props) => {
                   <ShipmentAccountingCodes
                     TACs={TACs}
                     SACs={SACs}
-                    onEditCodesClick={() => navigate(editOrdersPath)}
+                    onEditCodesClick={() => navigate(`../${editOrdersPath}`)}
                     optional={isServiceCounselor}
                   />
                 )}
@@ -702,7 +700,7 @@ const ShipmentForm = (props) => {
                     type="button"
                     secondary
                     onClick={() => {
-                      navigate(`../../${servicesCounselingRoutes.MOVE_VIEW_PATH}`, { relative: 'path' });
+                      navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
                     }}
                   >
                     Cancel

@@ -6,7 +6,6 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import 'styles/office.scss';
-import CustomerHeader from 'components/CustomerHeader';
 import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { useEditShipmentQueries } from 'hooks/queries';
@@ -55,36 +54,33 @@ const ServicesCounselingAddShipment = () => {
   };
 
   return (
-    <>
-      <CustomerHeader order={order} customer={customer} moveCode={moveCode} />
-      <div className={styles.tabContent}>
-        <div className={styles.container}>
-          <GridContainer className={styles.gridContainer}>
-            <Grid row>
-              <Grid col desktop={{ col: 8, offset: 2 }}>
-                <ShipmentForm
-                  submitHandler={mutateMTOShipments}
-                  isCreatePage
-                  ServicesCounselingShipmentForm
-                  currentResidence={customer.current_address}
-                  originDutyLocationAddress={order.originDutyLocation?.address}
-                  newDutyLocationAddress={order.destinationDutyLocation?.address}
-                  shipmentType={shipmentType}
-                  serviceMember={{ weightAllotment, agency: customer.agency }}
-                  moveTaskOrderID={move.id}
-                  mtoShipments={mtoShipments}
-                  TACs={TACs}
-                  SACs={SACs}
-                  userRole={roleTypes.SERVICES_COUNSELOR}
-                  displayDestinationType
-                  move={move}
-                />
-              </Grid>
+    <div className={styles.tabContent}>
+      <div className={styles.container}>
+        <GridContainer className={styles.gridContainer}>
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <ShipmentForm
+                submitHandler={mutateMTOShipments}
+                isCreatePage
+                ServicesCounselingShipmentForm
+                currentResidence={customer.current_address}
+                originDutyLocationAddress={order.originDutyLocation?.address}
+                newDutyLocationAddress={order.destinationDutyLocation?.address}
+                shipmentType={shipmentType}
+                serviceMember={{ weightAllotment, agency: customer.agency }}
+                moveTaskOrderID={move.id}
+                mtoShipments={mtoShipments}
+                TACs={TACs}
+                SACs={SACs}
+                userRole={roleTypes.SERVICES_COUNSELOR}
+                displayDestinationType
+                move={move}
+              />
             </Grid>
-          </GridContainer>
-        </div>
+          </Grid>
+        </GridContainer>
       </div>
-    </>
+    </div>
   );
 };
 

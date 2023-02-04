@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@trussworks/react-uswds';
-import { generatePath, useNavigate } from 'react-router-dom';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
 import styles from './ReviewDocuments.module.scss';
 
@@ -25,8 +25,8 @@ const DOCUMENT_TYPES = {
   MOVING_EXPENSE: 'MOVING_EXPENSE',
 };
 
-export const ReviewDocuments = ({ match }) => {
-  const { shipmentId, moveCode } = match.params;
+export const ReviewDocuments = () => {
+  const { shipmentId, moveCode } = useParams();
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
@@ -101,7 +101,7 @@ export const ReviewDocuments = ({ match }) => {
   if (isError) return <SomethingWentWrong />;
 
   const onClose = () => {
-    navigate(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+    navigate(`../${generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH)}`);
   };
 
   const onBack = () => {

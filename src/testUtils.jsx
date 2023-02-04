@@ -44,6 +44,14 @@ export const renderWithRouter = (ui, options) => {
   return render(<MockRouting {...options}>{ui}</MockRouting>);
 };
 
+export const renderWithProviders = (ui, options) => {
+  return render(
+    <ReactQueryWrapper>
+      <MockProviders {...options}>{ui}</MockProviders>
+    </ReactQueryWrapper>,
+  );
+};
+
 /**
  * Renders class components with a `routing` prop. For use with components that use the `withRouter` HOC.
  * Adds a mock router prop to the component using the provided path and params in options to mock behavior of `withRouter`.
