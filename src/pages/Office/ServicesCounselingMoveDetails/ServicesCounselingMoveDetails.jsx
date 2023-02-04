@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useParams, useHistory } from 'react-router-dom-old';
+import { Link, useParams, useNavigate, generatePath } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { generatePath } from 'react-router';
 import { func } from 'prop-types';
 import classnames from 'classnames';
 import 'styles/office.scss';
@@ -44,7 +43,7 @@ import { calculateWeightRequested } from 'hooks/custom';
 
 const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCount }) => {
   const { moveCode } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
@@ -133,11 +132,10 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     );
 
     ppmShipmentsInfoNeedsApproval = ppmNeedsApprovalShipments.map((shipment) => {
-      const reviewURL = generatePath(servicesCounselingRoutes.SHIPMENT_REVIEW_PATH, {
+      const reviewURL = `../${generatePath(servicesCounselingRoutes.SHIPMENT_REVIEW_PATH, {
         moveCode,
         shipmentId: shipment.id,
-      });
-
+      })}`;
       const numberofPPMShipments = ppmNeedsApprovalShipments.length;
 
       const displayInfo = {
@@ -200,10 +198,9 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     shipmentsInfo = submittedShipmentsNonPPM.map((shipment) => {
       const editURL =
         counselorCanEdit || counselorCanEditNonPPM
-          ? generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
-              moveCode,
+          ? `../${generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
               shipmentId: shipment.id,
-            })
+            })}`
           : '';
 
       const displayInfo = {
@@ -306,12 +303,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const handleButtonDropdownChange = (e) => {
     const selectedOption = e.target.value;
 
-    const addShipmentPath = generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
-      moveCode,
+    const addShipmentPath = `../${generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
       shipmentType: selectedOption,
-    });
+    })}`;
 
-    history.push(addShipmentPath);
+    navigate(addShipmentPath);
   };
 
   const handleReviewWeightsButton = (WeightsURL) => {
@@ -553,7 +549,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                 (counselorCanEdit || counselorCanEditNonPPM) && (
                   <Link
                     className="usa-button usa-button--secondary"
-                    to={generatePath(servicesCounselingRoutes.ORDERS_EDIT_PATH, { moveCode })}
+                    to={`../${servicesCounselingRoutes.ORDERS_EDIT_PATH}`}
                   >
                     View and edit orders
                   </Link>
@@ -572,7 +568,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-allowances"
-                    to={generatePath(servicesCounselingRoutes.ALLOWANCES_EDIT_PATH, { moveCode })}
+                    to={`../${servicesCounselingRoutes.ALLOWANCES_EDIT_PATH}`}
                   >
                     Edit allowances
                   </Link>
@@ -591,7 +587,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-customer-info"
-                    to={generatePath(servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH, { moveCode })}
+                    to={`../${servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH}`}
                   >
                     Edit customer info
                   </Link>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Grid } from '@trussworks/react-uswds';
-import { generatePath, useNavigate } from 'react-router-dom';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
 import { calculateWeightRequested } from '../../../../hooks/custom';
 
@@ -29,8 +29,8 @@ const DOCUMENT_TYPES = {
   MOVING_EXPENSE: 'MOVING_EXPENSE',
 };
 
-export const ReviewDocuments = ({ match }) => {
-  const { shipmentId, moveCode } = match.params;
+export const ReviewDocuments = () => {
+  const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
@@ -112,7 +112,7 @@ export const ReviewDocuments = ({ match }) => {
   if (isError) return <SomethingWentWrong />;
 
   const onClose = () => {
-    navigate(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+    navigate(`../${generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH)}`);
   };
 
   const onBack = () => {
