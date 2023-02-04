@@ -650,6 +650,46 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Nil(updatedPPM.AdvanceAmountRequested)
 	})
 
+	suite.Run("Can successfully update a PPMShipment - edit advance - advance requested yes to no when already previously approved should reset advanceStatus", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+		approved := models.PPMAdvanceStatusApproved
+
+		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				EstimatedIncentive:     fakeEstimatedIncentive,
+				HasRequestedAdvance:    models.BoolPointer(true),
+				AdvanceAmountRequested: models.CentPointer(unit.Cents(300000)),
+				AdvanceStatus:          &approved,
+			},
+		})
+
+		newPPM := models.PPMShipment{
+			HasRequestedAdvance: models.BoolPointer(false),
+		}
+
+		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Fields that shouldn't have changed
+		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
+		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
+		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
+		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
+		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
+		suite.Equal(*originalPPM.SpouseProGearWeight, *updatedPPM.SpouseProGearWeight)
+		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
+
+		// Fields that should now be updated
+		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
+		suite.Nil(updatedPPM.AdvanceAmountRequested)
+		suite.Nil(updatedPPM.AdvanceStatus)
+	})
+
 	suite.Run("Can successfully update a PPMShipment - edit SIT - yes to no", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 

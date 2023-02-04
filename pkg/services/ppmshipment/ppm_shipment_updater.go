@@ -67,13 +67,15 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 
 		if appCtx.Session() != nil {
 			if appCtx.Session().IsOfficeUser() {
-				rejected := models.PPMAdvanceStatusRejected
+				// rejected := models.PPMAdvanceStatusRejected
 				edited := models.PPMAdvanceStatusEdited
 				if oldPPMShipment.HasRequestedAdvance != nil && updatedPPMShipment.HasRequestedAdvance != nil {
 					if !*oldPPMShipment.HasRequestedAdvance && *updatedPPMShipment.HasRequestedAdvance {
 						updatedPPMShipment.AdvanceStatus = &edited
 					} else if *oldPPMShipment.HasRequestedAdvance && !*updatedPPMShipment.HasRequestedAdvance {
-						updatedPPMShipment.AdvanceStatus = &rejected
+						// If a SC edits HasRequestedAdvance to be changed from true to false and the advanceRequest
+						// was already previously approved this will ensure advanceStatus is reset to null
+						updatedPPMShipment.AdvanceStatus = nil
 					}
 				}
 				if oldPPMShipment.AdvanceAmountRequested != nil && updatedPPMShipment.AdvanceAmountRequested != nil {
