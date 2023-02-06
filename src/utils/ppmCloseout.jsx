@@ -4,7 +4,7 @@ import moment from 'moment';
 
 import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
-import { isExpenseComplete, isProGearComplete } from 'utils/shipments';
+import { isExpenseComplete, isWeightTicketComplete, isProGearComplete } from 'utils/shipments';
 
 const getW2Address = (address) => {
   const addressLine1 = address?.streetAddress2
@@ -56,6 +56,8 @@ export const formatWeightTicketItems = (weightTickets, editPath, editParams, han
   return weightTickets?.map((weightTicket, i) => {
     const contents = {
       id: weightTicket.id,
+      isComplete: isWeightTicketComplete(weightTicket),
+      draftMessage: 'This trip is missing required information.',
       subheading: <h4 className="text-bold">Trip {i + 1}</h4>,
       rows: [
         {
