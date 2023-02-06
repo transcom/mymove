@@ -809,6 +809,54 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{shipmentID}/mto-agents": {
+      "get": {
+        "description": "Fetches a list of agents associated with a move task order.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoAgent"
+        ],
+        "summary": "Fetch move task order agents.",
+        "operationId": "fetchMTOAgentList",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all agents for a move task order",
+            "schema": {
+              "$ref": "#/definitions/MTOAgents"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of move task order",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status": {
       "patch": {
         "description": "Changes the status of a line item for a move by ID",
@@ -1548,54 +1596,6 @@ func init() {
           }
         }
       }
-    },
-    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents": {
-      "get": {
-        "description": "Fetches a list of agents associated with a move task order.",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoAgent"
-        ],
-        "summary": "Fetch move task order agents.",
-        "operationId": "fetchMTOAgentList",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all agents for a move task order",
-            "schema": {
-              "$ref": "#/definitions/MTOAgents"
-            }
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of move task order",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        },
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of the shipment",
-          "name": "shipmentID",
-          "in": "path",
-          "required": true
-        }
-      ]
     },
     "/moves/search": {
       "post": {
@@ -3724,7 +3724,7 @@ func init() {
         }
       ]
     },
-    "/shipments/{shipmentID}/ppm-documents": {
+    "/shipments/{shipmentID}/ppm_documents": {
       "get": {
         "description": "Retrieves all of the documents and associated uploads for each ppm document type connected to a PPM shipment. This\nexcludes any deleted PPM documents.\n",
         "consumes": [
@@ -10349,6 +10349,63 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{shipmentID}/mto-agents": {
+      "get": {
+        "description": "Fetches a list of agents associated with a move task order.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoAgent"
+        ],
+        "summary": "Fetch move task order agents.",
+        "operationId": "fetchMTOAgentList",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all agents for a move task order",
+            "schema": {
+              "$ref": "#/definitions/MTOAgents"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of move task order",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status": {
       "patch": {
         "description": "Changes the status of a line item for a move by ID",
@@ -11307,63 +11364,6 @@ func init() {
           }
         }
       }
-    },
-    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents": {
-      "get": {
-        "description": "Fetches a list of agents associated with a move task order.",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoAgent"
-        ],
-        "summary": "Fetch move task order agents.",
-        "operationId": "fetchMTOAgentList",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all agents for a move task order",
-            "schema": {
-              "$ref": "#/definitions/MTOAgents"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of move task order",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        },
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of the shipment",
-          "name": "shipmentID",
-          "in": "path",
-          "required": true
-        }
-      ]
     },
     "/moves/search": {
       "post": {
@@ -14023,7 +14023,7 @@ func init() {
         }
       ]
     },
-    "/shipments/{shipmentID}/ppm-documents": {
+    "/shipments/{shipmentID}/ppm_documents": {
       "get": {
         "description": "Retrieves all of the documents and associated uploads for each ppm document type connected to a PPM shipment. This\nexcludes any deleted PPM documents.\n",
         "consumes": [

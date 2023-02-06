@@ -43,7 +43,7 @@ func (o *FetchMTOAgentListURL) SetBasePath(bp string) {
 func (o *FetchMTOAgentListURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents"
+	var _path = "/move-task-orders/{moveTaskOrderID}/mto-shipments/{shipmentID}/mto-agents"
 
 	moveTaskOrderID := o.MoveTaskOrderID.String()
 	if moveTaskOrderID != "" {

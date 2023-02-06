@@ -1264,7 +1264,7 @@ paths:
       summary: Denies a SIT extension
       x-permissions:
         - update.SITExtension
-  /shipments/{shipmentID}/ppm-documents:
+  /shipments/{shipmentID}/ppm_documents:
     parameters:
       - description: ID of the shipment
         in: path
@@ -1467,7 +1467,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents:
+  /move-task-orders/{moveTaskOrderID}/mto-shipments/{shipmentID}/mto-agents:
     parameters:
       - description: ID of move task order
         in: path
