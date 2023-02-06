@@ -73,9 +73,7 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 					if !*oldPPMShipment.HasRequestedAdvance && *updatedPPMShipment.HasRequestedAdvance {
 						updatedPPMShipment.AdvanceStatus = &edited
 					} else if *oldPPMShipment.HasRequestedAdvance && !*updatedPPMShipment.HasRequestedAdvance {
-						// If a SC edits HasRequestedAdvance to be changed from true to false and the advanceRequest
-						// was already previously approved this will ensure advanceStatus is reset to null
-						updatedPPMShipment.AdvanceStatus = nil
+						updatedPPMShipment.AdvanceStatus = &edited
 					}
 				}
 				if oldPPMShipment.AdvanceAmountRequested != nil && updatedPPMShipment.AdvanceAmountRequested != nil {
