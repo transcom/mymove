@@ -387,6 +387,10 @@ describe('Review page', () => {
     expect(screen.queryByRole('heading', { level: 3, name: 'Delete this?' })).not.toBeInTheDocument();
   });
 
+  // example for PPM w weight ticket, progear, & expenses
+  // if adding to existing shipments messes w existing tests, create duplicate mock data
+  //
+
   it('calls the delete weight ticket api when confirm is clicked', async () => {
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithWeightTicket);
     const mockDeleteWeightTicket = jest.fn().mockResolvedValue({});

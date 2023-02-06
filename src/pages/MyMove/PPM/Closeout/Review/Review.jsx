@@ -26,6 +26,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { formatCents, formatWeight } from 'utils/formatters';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
+// import { deleteWeightTicket, deleteProGearWeightTicket, deleteMovingExpense } from 'services/internalApi';
 import { deleteWeightTicket } from 'services/internalApi';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import { hasCompletedAllWeightTickets, hasCompletedAllExpenses, hasCompletedAllProGear } from 'utils/shipments';
@@ -90,11 +91,13 @@ const Review = () => {
   };
 
   const onDeleteSubmit = (itemType, itemId, itemETag) => {
-    deleteWeightTicket(itemId, itemETag)
-      .then(() => {
-        setIsDeleteModalVisible(false);
-      })
-      .catch(() => {});
+    if (itemType === 'weightTicket') {
+      deleteWeightTicket(itemId, itemETag)
+        .then(() => {
+          setIsDeleteModalVisible(false);
+        })
+        .catch(() => {});
+    }
   };
 
   const aboutYourPPM = formatAboutYourPPMItem(mtoShipment?.ppmShipment, customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
