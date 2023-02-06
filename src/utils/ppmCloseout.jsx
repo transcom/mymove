@@ -4,6 +4,7 @@ import moment from 'moment';
 
 import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
+import { isExpenseComplete, isWeightTicketComplete, isProGearComplete } from 'utils/shipments';
 
 const getW2Address = (address) => {
   const addressLine1 = address?.streetAddress2
@@ -24,6 +25,7 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
   return [
     {
       id: 'about-your-ppm',
+      isComplete: true,
       rows: [
         {
           id: 'departureDate',
@@ -100,6 +102,8 @@ export const formatProGearItems = (proGears, editPath, editParams, handleDelete)
 
     const contents = {
       id: proGear.id,
+      isComplete: isProGearComplete(proGear),
+      draftMessage: 'This set is missing required information.',
       subheading: <h4 className="text-bold">Set {i + 1}</h4>,
       rows: [
         {
@@ -126,6 +130,8 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
   return expenses?.map((expense, i) => {
     const contents = {
       id: expense.id,
+      isComplete: isExpenseComplete(expense),
+      draftMessage: 'This receipt is missing required information.',
       subheading: <h4 className="text-bold">Receipt {i + 1}</h4>,
       rows: [
         {

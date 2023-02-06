@@ -372,6 +372,19 @@ describe('Review page', () => {
     expect(screen.getByText('Save & Continue')).toHaveAttribute('aria-disabled', 'true');
   });
 
+  it('error message is displayed when a PPM shipment is in an incomplete state', async () => {
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithIncompleteWeightTicket);
+    render(<Review />, { wrapper: MockProviders });
+
+    expect(
+      screen.getByText(
+        'There are items below that are missing required information. Please select “Edit” to enter all required information or “Delete” to remove the item.',
+      ),
+    ).toBeInTheDocument();
+
+    expect(screen.getByText('This trip is missing required information.')).toBeInTheDocument();
+  });
+
   it('displays the delete confirmation modal when the delete button is clicked', async () => {
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithWeightTicket);
     render(<Review />, { wrapper: MockProviders });

@@ -6,6 +6,7 @@ import classnames from 'classnames';
 
 import styles from './Review.module.scss';
 
+import Alert from 'shared/Alert';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
@@ -147,6 +148,15 @@ const Review = () => {
                 onClose={setIsDeleteModalVisible}
                 itemToDelete={itemToDelete}
               />
+            )}
+            {!canAdvance && (
+              <>
+                <Alert type="error">
+                  There are items below that are missing required information. Please select “Edit” to enter all
+                  required information or “Delete” to remove the item.
+                </Alert>
+                <br />
+              </>
             )}
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
             <h1>Review</h1>

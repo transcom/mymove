@@ -108,7 +108,7 @@ const cypressUpdateChecks = async () => {
   if (hasRootCypressDepChanged) {
     warn(
       `It looks like you updated the Cypress package dependency in one of two required places.
-Please update it in both the root package.json and the [cirlcleci-docker/milmove-cypress/](https://github.com/transcom/circleci-docker) folder's separate package.json`,
+Please update it in both the root package.json and the [circleci-docker/milmove-cypress/](https://github.com/transcom/circleci-docker) folder's separate package.json`,
     );
   }
 };
