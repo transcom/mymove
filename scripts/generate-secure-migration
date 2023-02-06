@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 #
 # A script to help manage the creation of secure migrations
-# https://github.com/transcom/mymove#secure-migrations
+# https://transcom.github.io/mymove-docs/docs/backend/setup/database-migrations#secure-migrations
 #
 
 set -eu -o pipefail
