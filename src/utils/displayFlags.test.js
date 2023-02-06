@@ -2,8 +2,8 @@ import { setFlagStyles, setDisplayFlags, getDisplayFlags, getMissingOrDash } fro
 
 describe('setAndRetrieveFlags', () => {
   // example fields and data to use for testing, not reflective of reality
-  const errorIfMissing = ['firstName'];
-  const warnIfMissing = ['counselorRemarks'];
+  const errorIfMissing = [{ fieldName: 'firstName' }];
+  const warnIfMissing = [{ fieldName: 'counselorRemarks' }];
   const showWhenCollapsed = ['shipmentAddress'];
   const neverShow = ['postalCode'];
   const shipment = {
