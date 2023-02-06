@@ -2873,7 +2873,7 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
       "patch": {
-        "description": "Updates a PPM shipment's weight ticket document with new information. Only some of the weight ticket document's\nfields are editable because some have to be set by the customer, e.g. vehicle description.\n",
+        "description": "Updates a PPM shipment's weight ticket.\n",
         "consumes": [
           "application/json"
         ],
@@ -12991,7 +12991,7 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
       "patch": {
-        "description": "Updates a PPM shipment's weight ticket document with new information. Only some of the weight ticket document's\nfields are editable because some have to be set by the customer, e.g. vehicle description.\n",
+        "description": "Updates a PPM shipment's weight ticket.\n",
         "consumes": [
           "application/json"
         ],

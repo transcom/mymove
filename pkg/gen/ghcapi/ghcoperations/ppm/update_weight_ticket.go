@@ -34,8 +34,7 @@ func NewUpdateWeightTicket(ctx *middleware.Context, handler UpdateWeightTicketHa
 
 # Updates a weight ticket document
 
-Updates a PPM shipment's weight ticket document with new information. Only some of the weight ticket document's
-fields are editable because some have to be set by the customer, e.g. vehicle description.
+Updates a PPM shipment's weight ticket.
 */
 type UpdateWeightTicket struct {
 	Context *middleware.Context

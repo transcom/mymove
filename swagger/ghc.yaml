@@ -1339,12 +1339,8 @@ paths:
       - $ref: '#/parameters/weightTicketId'
     patch:
       summary: Updates a weight ticket document
-      description: >
-        Updates a PPM shipment's weight ticket document with new information.
-        Only some of the weight ticket document's
-
-        fields are editable because some have to be set by the customer, e.g.
-        vehicle description.
+      description: |
+        Updates a PPM shipment's weight ticket.
       operationId: updateWeightTicket
       tags:
         - ppm
