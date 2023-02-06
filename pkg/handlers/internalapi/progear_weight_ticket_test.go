@@ -399,6 +399,25 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 		suite.IsType(&progearops.DeleteProGearWeightTicketNotFound{}, response)
 	})
 
+	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and moving expense ID don't match", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, false)
+		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+
+		otherPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{ServiceMemberID: serviceMember.ID},
+		})
+
+		subtestData.params.PpmShipmentID = *handlers.FmtUUID(otherPPMShipment.ID)
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateRequest(req, serviceMember)
+		unauthorizedParams := subtestData.params
+		unauthorizedParams.HTTPRequest = unauthorizedReq
+
+		response := subtestData.handler.Handle(unauthorizedParams)
+		suite.IsType(&progearops.DeleteProGearWeightTicketNotFound{}, response)
+	})
 	suite.Run("DELETE failure - 500 - server error", func() {
 		mockDeleter := mocks.ProgearWeightTicketDeleter{}
 		appCtx := suite.AppContextForTest()

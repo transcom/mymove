@@ -334,7 +334,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 		subtestData.ppmShipment = subtestData.movingExpense.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
-		endpoint := fmt.Sprintf("/ppm-shipments/%s/moving-expense/%s", subtestData.ppmShipment.ID.String(), subtestData.movingExpense.ID.String())
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/moving-expenses/%s", subtestData.ppmShipment.ID.String(), subtestData.movingExpense.ID.String())
 		req := httptest.NewRequest("DELETE", endpoint, nil)
 		if authenticateRequest {
 			req = suite.AuthenticateRequest(req, serviceMember)
@@ -406,6 +406,25 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 		response := subtestData.handler.Handle(unauthorizedParams)
 
 		suite.IsType(&movingexpenseops.DeleteMovingExpenseForbidden{}, response)
+	})
+	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and moving expense ID don't match", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, false)
+		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+
+		otherPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{ServiceMemberID: serviceMember.ID},
+		})
+
+		subtestData.params.PpmShipmentID = *handlers.FmtUUID(otherPPMShipment.ID)
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateRequest(req, serviceMember)
+		unauthorizedParams := subtestData.params
+		unauthorizedParams.HTTPRequest = unauthorizedReq
+
+		response := subtestData.handler.Handle(unauthorizedParams)
+		suite.IsType(&movingexpenseops.DeleteMovingExpenseNotFound{}, response)
 	})
 
 	suite.Run("DELETE failure - 404- not found", func() {

@@ -168,6 +168,7 @@ func (h DeleteProGearWeightTicketHandler) Handle(params progearops.DeleteProGear
 			err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
 				EagerPreload(
 					"Shipment.MoveTaskOrder.Orders",
+					"ProgearExpenses",
 				).
 				Find(&ppmShipment, ppmID)
 			if err != nil {
@@ -182,6 +183,18 @@ func (h DeleteProGearWeightTicketHandler) Handle(params progearops.DeleteProGear
 				return progearops.NewDeleteProGearWeightTicketForbidden(), wrongServiceMemberIDErr
 			}
 			progearWeightTicketID := uuid.FromStringOrNil(params.ProGearWeightTicketID.String())
+			found := false
+			for _, lineItem := range ppmShipment.ProgearExpenses {
+				if lineItem.ID == progearWeightTicketID {
+					found = true
+					break
+				}
+			}
+			if !found {
+				mismatchedPPMShipmentAndProgearWeightTicketIDErr := apperror.NewSessionError("Pro-gear weight ticket does not exist on ppm shipment")
+				appCtx.Logger().Error("internalapi.DeleteProGearWeightTicketHandler", zap.Error(mismatchedPPMShipmentAndProgearWeightTicketIDErr))
+				return progearops.NewDeleteProGearWeightTicketNotFound(), mismatchedPPMShipmentAndProgearWeightTicketIDErr
+			}
 
 			err = h.progearDeleter.DeleteProgearWeightTicket(appCtx, progearWeightTicketID)
 			if err != nil {

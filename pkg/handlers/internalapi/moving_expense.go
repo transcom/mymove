@@ -194,6 +194,7 @@ func (h DeleteMovingExpenseHandler) Handle(params movingexpenseops.DeleteMovingE
 			err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
 				EagerPreload(
 					"Shipment.MoveTaskOrder.Orders",
+					"MovingExpenses",
 				).
 				Find(&ppmShipment, ppmID)
 			if err != nil {
@@ -209,6 +210,18 @@ func (h DeleteMovingExpenseHandler) Handle(params movingexpenseops.DeleteMovingE
 			}
 
 			movingExpenseID := uuid.FromStringOrNil(params.MovingExpenseID.String())
+			found := false
+			for _, lineItem := range ppmShipment.MovingExpenses {
+				if lineItem.ID == movingExpenseID {
+					found = true
+					break
+				}
+			}
+			if !found {
+				mismatchedPPMShipmentAndMovingExpenseIDErr := apperror.NewSessionError("Moving expense does not exist on ppm shipment")
+				appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(mismatchedPPMShipmentAndMovingExpenseIDErr))
+				return movingexpenseops.NewDeleteMovingExpenseNotFound(), mismatchedPPMShipmentAndMovingExpenseIDErr
+			}
 			err = h.movingExpenseDeleter.DeleteMovingExpense(appCtx, movingExpenseID)
 			if err != nil {
 				appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(err))

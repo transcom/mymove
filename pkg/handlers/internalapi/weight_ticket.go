@@ -174,6 +174,7 @@ func (h DeleteWeightTicketHandler) Handle(params weightticketops.DeleteWeightTic
 			err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
 				EagerPreload(
 					"Shipment.MoveTaskOrder.Orders",
+					"WeightTickets",
 				).
 				Find(&ppmShipment, ppmID)
 			if err != nil {
@@ -189,6 +190,18 @@ func (h DeleteWeightTicketHandler) Handle(params weightticketops.DeleteWeightTic
 			}
 
 			weightTicketID := uuid.FromStringOrNil(params.WeightTicketID.String())
+			found := false
+			for _, lineItem := range ppmShipment.WeightTickets {
+				if lineItem.ID == weightTicketID {
+					found = true
+					break
+				}
+			}
+			if !found {
+				mismatchedPPMShipmentAndWeightTicketIDErr := apperror.NewSessionError("Weight ticket does not exist on ppm shipment")
+				appCtx.Logger().Error("internalapi.DeleteWeightTicketHandler", zap.Error(mismatchedPPMShipmentAndWeightTicketIDErr))
+				return weightticketops.NewDeleteWeightTicketNotFound(), mismatchedPPMShipmentAndWeightTicketIDErr
+			}
 
 			err = h.weightTicketDeleter.DeleteWeightTicket(appCtx, weightTicketID)
 			if err != nil {
