@@ -156,8 +156,8 @@ This endpoint supports different body definitions. In the modelType field below,
 To create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
 
 ### Errors
-
-Currently this is not implemented and will generated the NotImplemented error.
+KATY TODO: IS THIS TRUE? TEST AND UPDATE
+Currently this is not implemented and will generate the NotImplemented error.
 */
 func (a *Client) UpdateMTOServiceItem(params *UpdateMTOServiceItemParams, opts ...ClientOption) (*UpdateMTOServiceItemOK, error) {
 	// TODO: Validate the params before sending

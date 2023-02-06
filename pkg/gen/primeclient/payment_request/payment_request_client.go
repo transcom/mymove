@@ -45,6 +45,8 @@ type ClientService interface {
 A newly created payment request is assigned the status `PENDING`.
 A move task order can have multiple payment requests, and
 a final payment request can be marked using boolean `isFinal`.
+
+### KATY TODO: Add Examples
 */
 func (a *Client) CreatePaymentRequest(params *CreatePaymentRequestParams, opts ...ClientOption) (*CreatePaymentRequestCreated, error) {
 	// TODO: Validate the params before sending

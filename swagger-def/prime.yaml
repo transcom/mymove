@@ -25,6 +25,14 @@ tags:
 
       **WIP:** Add an external link to an article that explains the different types of service items in more detail.
   - name: paymentRequest
+    description: |
+      The contractor sends a **paymentRequest** when they would like to be reimbursed for a set of **mtoServiceItems**
+      on a **moveTaskOrder**.
+
+      A **paymentRequest** may include any number of **mtoServiceItems** from 1 to all **mtoServiceItems** with an `APPROVED`
+      status on a single **moveTaskOrder**.
+
+      Proof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.
 x-tagGroups:
   - name: Endpoints
     tags:
@@ -98,7 +106,7 @@ paths:
           $ref: 'responses/NotFound.yaml'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/excess-weight-record':
+  /move-task-orders/{moveTaskOrderID}/excess-weight-record:
     post:
       summary: createExcessWeightRecord
       description: >
@@ -139,7 +147,7 @@ paths:
           $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
+  /move-task-orders/{moveTaskOrderID}/post-counseling-info:
     parameters:
       - description: ID of move task order to use.
         in: path
@@ -288,7 +296,7 @@ paths:
           $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{mtoShipmentID}':
+  /mto-shipments/{mtoShipmentID}:
     patch:
       summary: updateMTOShipment
       description: |
@@ -439,7 +447,7 @@ paths:
           $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{mtoShipmentID}/addresses/{addressID}':
+  /mto-shipments/{mtoShipmentID}/addresses/{addressID}:
     put:
       summary: updateMTOShipmentAddress
       description: |
@@ -505,7 +513,7 @@ paths:
           $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{mtoShipmentID}/agents':
+  /mto-shipments/{mtoShipmentID}/agents:
     post:
       summary: createMTOAgent
       description: |
@@ -557,7 +565,7 @@ paths:
           $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{mtoShipmentID}/agents/{agentID}':
+  /mto-shipments/{mtoShipmentID}/agents/{agentID}:
     put:
       summary: updateMTOAgent
       description: |
@@ -653,13 +661,7 @@ paths:
           name: body
           schema:
             $ref: '#/definitions/UpdateReweigh'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - $ref: 'parameters/ifMatch.yaml'
       responses:
         '200':
           description: Successfully updated the reweigh.
@@ -681,7 +683,7 @@ paths:
           $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{mtoShipmentID}/sit-extensions':
+  /mto-shipments/{mtoShipmentID}/sit-extensions:
     post:
       summary: createSITExtension
       description: |
@@ -727,7 +729,7 @@ paths:
           $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{mtoShipmentID}/status':
+  /mto-shipments/{mtoShipmentID}/status:
     patch:
       summary: updateMTOShipmentStatus
       description: |
@@ -775,7 +777,7 @@ paths:
           $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-service-items':
+  /mto-service-items:
     post:
       summary: createMTOServiceItem
       description: |
@@ -879,7 +881,7 @@ paths:
           $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-service-items/{mtoServiceItemID}':
+  /mto-service-items/{mtoServiceItemID}:
     patch:
       summary: updateMTOServiceItem
       description: |
@@ -891,8 +893,8 @@ paths:
         To create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
 
         ### Errors
-
-        Currently this is not implemented and will generated the NotImplemented error.
+        KATY TODO: IS THIS TRUE? TEST AND UPDATE
+        Currently this is not implemented and will generate the NotImplemented error.
       operationId: updateMTOServiceItem
       tags:
         - mtoServiceItem
@@ -941,6 +943,8 @@ paths:
         A newly created payment request is assigned the status `PENDING`.
         A move task order can have multiple payment requests, and
         a final payment request can be marked using boolean `isFinal`.
+
+        ### KATY TODO: Add Examples
       operationId: createPaymentRequest
       tags:
         - paymentRequest

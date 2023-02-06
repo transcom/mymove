@@ -291,7 +291,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n\n### Errors\n\nCurrently this is not implemented and will generated the NotImplemented error.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n\n### Errors\nKATY TODO: IS THIS TRUE? TEST AND UPDATE\nCurrently this is not implemented and will generate the NotImplemented error.\n",
         "consumes": [
           "application/json"
         ],
@@ -900,11 +900,7 @@ func init() {
             }
           },
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           }
         ],
         "responses": {
@@ -1075,7 +1071,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n",
+        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\n### KATY TODO: Add Examples\n",
         "consumes": [
           "application/json"
         ],
@@ -4020,6 +4016,7 @@ func init() {
       "name": "mtoServiceItem"
     },
     {
+      "description": "The contractor sends a **paymentRequest** when they would like to be reimbursed for a set of **mtoServiceItems**\non a **moveTaskOrder**.\n\nA **paymentRequest** may include any number of **mtoServiceItems** from 1 to all **mtoServiceItems** with an ` + "`" + `APPROVED` + "`" + ` \nstatus on a single **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
       "name": "paymentRequest"
     }
   ],
@@ -4391,7 +4388,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n\n### Errors\n\nCurrently this is not implemented and will generated the NotImplemented error.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n\n### Errors\nKATY TODO: IS THIS TRUE? TEST AND UPDATE\nCurrently this is not implemented and will generate the NotImplemented error.\n",
         "consumes": [
           "application/json"
         ],
@@ -5405,7 +5402,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n",
+        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\n### KATY TODO: Add Examples\n",
         "consumes": [
           "application/json"
         ],
@@ -8389,6 +8386,7 @@ func init() {
       "name": "mtoServiceItem"
     },
     {
+      "description": "The contractor sends a **paymentRequest** when they would like to be reimbursed for a set of **mtoServiceItems**\non a **moveTaskOrder**.\n\nA **paymentRequest** may include any number of **mtoServiceItems** from 1 to all **mtoServiceItems** with an ` + "`" + `APPROVED` + "`" + ` \nstatus on a single **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
       "name": "paymentRequest"
     }
   ],
