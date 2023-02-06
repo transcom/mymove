@@ -4,7 +4,7 @@ import moment from 'moment';
 
 import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
-import { isExpenseComplete, isWeightTicketComplete, isProGearComplete } from 'utils/shipments';
+import { isExpenseComplete, isProGearComplete } from 'utils/shipments';
 
 const getW2Address = (address) => {
   const addressLine1 = address?.streetAddress2
