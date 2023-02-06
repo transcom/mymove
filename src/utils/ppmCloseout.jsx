@@ -51,33 +51,40 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
 };
 
 export const formatWeightTicketItems = (weightTickets, editPath, editParams, handleDelete) => {
-  return weightTickets?.map((weightTicket, i) => ({
-    id: weightTicket.id,
-    subheading: <h4 className="text-bold">Trip {i + 1}</h4>,
-    rows: [
-      {
-        id: `vehicleDescription-${i}`,
-        label: 'Vehicle description:',
-        value: weightTicket.vehicleDescription,
-      },
-      { id: `emptyWeight-${i}`, label: 'Empty:', value: formatWeight(weightTicket.emptyWeight) },
-      { id: `fullWeight-${i}`, label: 'Full:', value: formatWeight(weightTicket.fullWeight) },
-      {
-        id: `tripWeight-${i}`,
-        label: 'Trip weight:',
-        value: formatWeight(weightTicket.fullWeight - weightTicket.emptyWeight),
-      },
-      {
-        id: `trailer-${i}`,
-        label: 'Trailer:',
-        value: weightTicket.ownsTrailer ? 'Yes' : 'No',
-      },
-    ],
-    onDelete: () => handleDelete('weightTicket', weightTicket.id, weightTicket.eTag),
-    renderEditLink: () => (
-      <Link to={generatePath(editPath, { ...editParams, weightTicketId: weightTicket.id })}>Edit</Link>
-    ),
-  }));
+  return weightTickets?.map((weightTicket, i) => {
+    const contents = {
+      id: weightTicket.id,
+      subheading: <h4 className="text-bold">Trip {i + 1}</h4>,
+      rows: [
+        {
+          id: `vehicleDescription-${i}`,
+          label: 'Vehicle description:',
+          value: weightTicket.vehicleDescription,
+        },
+        { id: `emptyWeight-${i}`, label: 'Empty:', value: formatWeight(weightTicket.emptyWeight) },
+        { id: `fullWeight-${i}`, label: 'Full:', value: formatWeight(weightTicket.fullWeight) },
+        {
+          id: `tripWeight-${i}`,
+          label: 'Trip weight:',
+          value: formatWeight(weightTicket.fullWeight - weightTicket.emptyWeight),
+        },
+        {
+          id: `trailer-${i}`,
+          label: 'Trailer:',
+          value: weightTicket.ownsTrailer ? 'Yes' : 'No',
+        },
+      ],
+      onDelete: () => handleDelete('weightTicket', weightTicket.id, weightTicket.eTag),
+      renderEditLink: () => (
+        <Link to={generatePath(editPath, { ...editParams, weightTicketId: weightTicket.id })}>Edit</Link>
+      ),
+    };
+    if (weightTicket.vehicleDescription === null) {
+      contents.rows.splice(0, 1);
+      contents.rows.splice(3, 1);
+    }
+    return contents;
+  });
 };
 
 export const formatProGearItems = (proGears, editPath, editParams, handleDelete) => {
@@ -135,6 +142,11 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
         label: 'Days in storage:',
         value: 1 + moment(expense.sitEndDate).diff(moment(expense.sitStartDate), 'days'),
       });
+    }
+
+    if (expense.description === null) {
+      contents.rows.splice(0, 1);
+      contents.rows.splice(0, 1);
     }
     return contents;
   });
