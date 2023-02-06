@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
@@ -10,7 +9,7 @@ let flaggedItem = null;
 let flagStyles = null;
 
 export function objectIsMissingFieldWithCondition(object, { fieldName, condition }) {
-  return !object[fieldName] && (!condition || condition(flaggedItem));
+  return !object[fieldName] && (!condition || condition(object));
 }
 
 /*

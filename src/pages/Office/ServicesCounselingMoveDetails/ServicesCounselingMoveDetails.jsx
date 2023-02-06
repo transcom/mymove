@@ -202,6 +202,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
         destinationAddress: shipment.destinationAddress || {
           postalCode: order.destinationDutyLocation.address.postalCode,
         },
+        ...shipment.ppmShipment,
         ...shipment,
         displayDestinationType: isRetirementOrSeparation,
       };
