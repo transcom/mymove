@@ -112,7 +112,7 @@ function mapStateToProps(state, ownProps) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const {
     router: {
-      params: { mtoShipmentId },
+      params: { mtoShipmentId, moveId },
     },
   } = ownProps;
   const props = {
@@ -121,7 +121,7 @@ function mapStateToProps(state, ownProps) {
     mtoShipment: selectMTOShipmentById(state, mtoShipmentId) || {},
     currentResidence: serviceMember?.residential_address || {},
     newDutyLocationAddress: selectCurrentOrders(state)?.new_duty_location?.address || {},
-    move: selectMove(state, ownProps.match.params.moveId),
+    move: selectMove(state, moveId),
   };
 
   return props;
