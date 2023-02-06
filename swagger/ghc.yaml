@@ -1333,7 +1333,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}:
+  /ppm_shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}:
     parameters:
       - $ref: '#/parameters/ppmShipmentId'
       - $ref: '#/parameters/weightTicketId'
