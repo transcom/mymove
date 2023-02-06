@@ -766,7 +766,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/entitlements": {
       "get": {
-        "description": "Gets entitlements",
+        "description": "Gets entitlements for a move by ID (Move task order ID, a.k.a. MTO ID, a.k.a. Move ID). This is needed to know\nwhat a given service member is allowed to request for a move. Or more specifically to know what they're covered\nfor. Anything over this would not be covered by the government.\n",
         "produces": [
           "application/json"
         ],
@@ -3724,7 +3724,7 @@ func init() {
         }
       ]
     },
-    "/shipments/{shipmentID}/ppm-documents": {
+    "/shipments/{shipmentID}/ppm_documents": {
       "get": {
         "description": "Retrieves all of the documents and associated uploads for each ppm document type connected to a PPM shipment. This\nexcludes any deleted PPM documents.\n",
         "consumes": [
@@ -10291,7 +10291,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/entitlements": {
       "get": {
-        "description": "Gets entitlements",
+        "description": "Gets entitlements for a move by ID (Move task order ID, a.k.a. MTO ID, a.k.a. Move ID). This is needed to know\nwhat a given service member is allowed to request for a move. Or more specifically to know what they're covered\nfor. Anything over this would not be covered by the government.\n",
         "produces": [
           "application/json"
         ],
@@ -14023,7 +14023,7 @@ func init() {
         }
       ]
     },
-    "/shipments/{shipmentID}/ppm-documents": {
+    "/shipments/{shipmentID}/ppm_documents": {
       "get": {
         "description": "Retrieves all of the documents and associated uploads for each ppm document type connected to a PPM shipment. This\nexcludes any deleted PPM documents.\n",
         "consumes": [

@@ -34,7 +34,9 @@ func NewGetEntitlements(ctx *middleware.Context, handler GetEntitlementsHandler)
 
 # Gets entitlements for a move by ID
 
-Gets entitlements
+Gets entitlements for a move by ID (Move task order ID, a.k.a. MTO ID, a.k.a. Move ID). This is needed to know
+what a given service member is allowed to request for a move. Or more specifically to know what they're covered
+for. Anything over this would not be covered by the government.
 */
 type GetEntitlements struct {
 	Context *middleware.Context

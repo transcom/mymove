@@ -30,7 +30,7 @@ func NewGetPPMDocuments(ctx *middleware.Context, handler GetPPMDocumentsHandler)
 }
 
 /*
-	GetPPMDocuments swagger:route GET /shipments/{shipmentID}/ppm-documents ppm getPPMDocuments
+	GetPPMDocuments swagger:route GET /shipments/{shipmentID}/ppm_documents ppm getPPMDocuments
 
 # Gets all the PPM documents for a PPM shipment
 

@@ -42,7 +42,7 @@ func (o *GetPPMDocumentsURL) SetBasePath(bp string) {
 func (o *GetPPMDocumentsURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/shipments/{shipmentID}/ppm-documents"
+	var _path = "/shipments/{shipmentID}/ppm_documents"
 
 	shipmentID := o.ShipmentID.String()
 	if shipmentID != "" {

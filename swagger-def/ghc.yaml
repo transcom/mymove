@@ -1228,7 +1228,7 @@ paths:
       summary: Denies a SIT extension
       x-permissions:
         - update.SITExtension
-  /shipments/{shipmentID}/ppm-documents:
+  /shipments/{shipmentID}/ppm_documents:
     parameters:
       - description: ID of the shipment
         in: path
@@ -1839,7 +1839,10 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-      description: Gets entitlements
+      description: |
+        Gets entitlements for a move by ID (Move task order ID, a.k.a. MTO ID, a.k.a. Move ID). This is needed to know
+        what a given service member is allowed to request for a move. Or more specifically to know what they're covered
+        for. Anything over this would not be covered by the government.
       operationId: getEntitlements
       summary: Gets entitlements for a move by ID
   '/payment-requests/{paymentRequestID}':
