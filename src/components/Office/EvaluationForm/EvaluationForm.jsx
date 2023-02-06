@@ -42,8 +42,8 @@ const EvaluationForm = ({
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries([EVALUATION_REPORT, reportId]);
+    onSuccess: async () => {
+      await queryClient.refetchQueries([EVALUATION_REPORT, reportId]);
     },
   });
 
@@ -94,7 +94,9 @@ const EvaluationForm = ({
       {
         onSuccess: () =>
           // Reroute back to eval report page, include flag to show success alert
-          history.push(`/moves/${moveCode}/evaluation-reports`, { showSubmitSuccess: true }),
+          {
+            history.push(`/moves/${moveCode}/evaluation-reports`, { showSubmitSuccess: true });
+          },
       },
     );
   };

@@ -33,34 +33,30 @@ const QAEViolationsForm = ({
   const history = useHistory();
 
   const queryClient = useQueryClient();
-  const { mutateAsync: mutateEvaluationReport } = useMutation(saveEvaluationReport, {
+  const { mutate: mutateEvaluationReport } = useMutation(saveEvaluationReport, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
-    onSuccess: () => {
-      queryClient.refetchQueries([EVALUATION_REPORT, reportId]).then();
+    onSuccess: async () => {
+      await queryClient.refetchQueries([EVALUATION_REPORT, reportId]);
     },
   });
 
-  const { mutateAsync: submitEvaluationReportMutation } = useMutation(submitEvaluationReport, {
+  const { mutate: submitEvaluationReportMutation } = useMutation(submitEvaluationReport, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
-    },
-    onSuccess: () => {
-      // Reroute back to eval report page, include flag to show success alert
-      history.push(`/moves/${moveCode}/evaluation-reports`, { showSubmitSuccess: true });
     },
   });
 
-  const { mutateAsync: mutateReportViolations } = useMutation(associateReportViolations, {
+  const { mutate: mutateReportViolations } = useMutation(associateReportViolations, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
-    onSuccess: () => {
-      queryClient.refetchQueries([REPORT_VIOLATIONS, reportId]).then();
+    onSuccess: async () => {
+      await queryClient.refetchQueries([REPORT_VIOLATIONS, reportId]);
     },
   });
 
@@ -72,7 +68,15 @@ const QAEViolationsForm = ({
     setIsSubmitModalOpen(!isSubmitModalOpen);
 
     // mark as submitted in the DB
-    await submitEvaluationReportMutation({ reportID: reportId, ifMatchETag: evaluationReport.eTag });
+    submitEvaluationReportMutation(
+      { reportID: reportId, ifMatchETag: evaluationReport.eTag },
+      {
+        onSuccess: () => {
+          // Reroute back to eval report page, include flag to show success alert
+          history.push(`/moves/${moveCode}/evaluation-reports`, { showSubmitSuccess: true });
+        },
+      },
+    );
   };
 
   const modalTitle = (
@@ -192,14 +196,14 @@ const QAEViolationsForm = ({
       observedDeliveryDate: formatDateForSwagger(values.observedDeliveryDate),
     };
 
-    await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
+    mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
 
     // Also need to update any violations that were selected
-    await mutateReportViolations({ reportID: reportId, body: { violations: values.selectedViolations } });
+    mutateReportViolations({ reportID: reportId, body: { violations: values.selectedViolations } });
   };
 
   const handleSaveDraft = async (values) => {
-    await saveDraft(values);
+    saveDraft(values);
 
     history.push(`/moves/${moveCode}/evaluation-reports`, { showSaveDraftSuccess: true });
   };
@@ -245,9 +249,9 @@ const QAEViolationsForm = ({
   // Review and Submit button
   // Saves report changes
   // displays report preview ahead of final submission
-  const handlePreviewReport = async (values) => {
+  const handlePreviewReport = (values) => {
     // save updates
-    await saveDraft(values);
+    saveDraft(values);
 
     // open the modal to submit
     setIsSubmitModalOpen(!isSubmitModalOpen);
