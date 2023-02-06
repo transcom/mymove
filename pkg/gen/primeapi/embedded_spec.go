@@ -3379,6 +3379,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "params": {
+          "description": "This should be populated for the following service items:\n  * DOASIT(Domestic destination Additional day SIT)\n  * DDASIT(Domestic destination Additional day SIT)\n\nBoth take in the following param keys:\n  * ` + "`" + `SITPaymentRequestStart` + "`" + `\n  * ` + "`" + `SITPaymentRequestEnd` + "`" + `\n\nThe value of each is a date string in the format \"YYYY-MM-DD\" (e.g. \"2023-01-15\")\n",
           "type": "array",
           "items": {
             "type": "object",
@@ -4016,7 +4017,7 @@ func init() {
       "name": "mtoServiceItem"
     },
     {
-      "description": "The contractor sends a **paymentRequest** when they would like to be reimbursed for a set of **mtoServiceItems**\non a **moveTaskOrder**.\n\nA **paymentRequest** may include any number of **mtoServiceItems** from 1 to all **mtoServiceItems** with an ` + "`" + `APPROVED` + "`" + ` \nstatus on a single **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
+      "description": "The contractor sends a **paymentRequest** when they would like to be reimbursed for a set of **mtoServiceItems**\non a **moveTaskOrder**.\n\nA **paymentRequest** may include any number of **mtoServiceItems** from 1 to all **mtoServiceItems** with an ` + "`" + `APPROVED` + "`" + `\nstatus on a single **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
       "name": "paymentRequest"
     }
   ],
@@ -7746,6 +7747,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "params": {
+          "description": "This should be populated for the following service items:\n  * DOASIT(Domestic destination Additional day SIT)\n  * DDASIT(Domestic destination Additional day SIT)\n\nBoth take in the following param keys:\n  * ` + "`" + `SITPaymentRequestStart` + "`" + `\n  * ` + "`" + `SITPaymentRequestEnd` + "`" + `\n\nThe value of each is a date string in the format \"YYYY-MM-DD\" (e.g. \"2023-01-15\")\n",
           "type": "array",
           "items": {
             "$ref": "#/definitions/ServiceItemParamsItems0"
@@ -8386,7 +8388,7 @@ func init() {
       "name": "mtoServiceItem"
     },
     {
-      "description": "The contractor sends a **paymentRequest** when they would like to be reimbursed for a set of **mtoServiceItems**\non a **moveTaskOrder**.\n\nA **paymentRequest** may include any number of **mtoServiceItems** from 1 to all **mtoServiceItems** with an ` + "`" + `APPROVED` + "`" + ` \nstatus on a single **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
+      "description": "The contractor sends a **paymentRequest** when they would like to be reimbursed for a set of **mtoServiceItems**\non a **moveTaskOrder**.\n\nA **paymentRequest** may include any number of **mtoServiceItems** from 1 to all **mtoServiceItems** with an ` + "`" + `APPROVED` + "`" + `\nstatus on a single **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
       "name": "paymentRequest"
     }
   ],

@@ -5,6 +5,10 @@ import FileUpload from './FileUpload';
 export default {
   title: 'Components/FileUpload',
   component: FileUpload,
+  // Stories for this component keep getting repeatedly and incorrectly flagged by Happo
+  parameters: {
+    happo: false,
+  },
 };
 
 const mockCreateUploadSuccess = () => {

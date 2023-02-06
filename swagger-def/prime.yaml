@@ -2487,6 +2487,16 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       params:
         type: array
+        description: |
+          This should be populated for the following service items:
+            * DOASIT(Domestic destination Additional day SIT)
+            * DDASIT(Domestic destination Additional day SIT)
+
+          Both take in the following param keys:
+            * `SITPaymentRequestStart`
+            * `SITPaymentRequestEnd`
+
+          The value of each is a date string in the format "YYYY-MM-DD" (e.g. "2023-01-15")
         items:
           properties:
             key:
