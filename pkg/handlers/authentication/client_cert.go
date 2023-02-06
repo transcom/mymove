@@ -6,8 +6,11 @@ import (
 	"encoding/hex"
 	"net/http"
 
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/audit"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -27,9 +30,14 @@ func ClientCertFromRequestContext(r *http.Request) *models.ClientCert {
 
 // ClientCertFromContext gets the reference to the ClientCert stored in the request.Context()
 func ClientCertFromContext(ctx context.Context) *models.ClientCert {
+
+	logger := logging.FromContext(ctx)
+
 	if clientCert, ok := ctx.Value(clientCertContextKey).(*models.ClientCert); ok {
+		logger.Info("The client cert key was found in the context")
 		return clientCert
 	}
+
 	return nil
 }
 
@@ -52,10 +60,21 @@ func ClientCertMiddleware(appCtx appcontext.AppContext) func(next http.Handler) 
 			clientCert, err := models.FetchClientCert(newAppCtx.DB(), hashString)
 			if err != nil {
 				// This is not a known client certificate at all
-				newAppCtx.Logger().Info("Unknown / unregistered client certificate")
+				newAppCtx.Logger().Info(
+					"Unknown / unregistered client certificate",
+					zap.String("SHA256_hash_string", hashString),
+				)
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
+
+			// If we get here, we know the client certificate is valid so we're
+			// logging the SHA256_hash_string
+			newAppCtx.Logger().Info(
+				"Known / registered client certificate",
+				zap.String("SHA256_hash_string", hashString),
+			)
+
 			ctx := SetClientCertInRequestContext(r, clientCert)
 			ctx = audit.WithAuditUserID(ctx, clientCert.UserID)
 
