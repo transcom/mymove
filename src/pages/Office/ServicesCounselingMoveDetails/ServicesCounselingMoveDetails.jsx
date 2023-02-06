@@ -24,7 +24,8 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS } from 'shared/constants';
+import { ppmShipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
@@ -46,10 +47,12 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
 
-  const { order, move, mtoShipments, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { order, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
+    useMoveDetailsQueries(moveCode);
   const { customer, entitlement: allowances } = order;
 
-  const counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
+  let counselorCanEdit;
+  let counselorCanEditNonPPM;
 
   const sections = useMemo(() => {
     return ['shipments', 'orders', 'allowances', 'customer-info'];
@@ -71,6 +74,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const errorIfMissing = { HHG_OUTOF_NTS_DOMESTIC: ['storageFacility'] };
 
   let shipmentsInfo = [];
+  let ppmShipmentsInfoNeedsApproval = [];
+  let ppmShipmentsOtherStatuses = [];
   let disableSubmit = false;
   let disableSubmitDueToMissingOrderInfo = false;
   let numberOfErrorIfMissingForAllShipments = 0;
@@ -93,20 +98,32 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
+    const submittedShipmentsNonPPM = submittedShipments.filter(
+      (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+    );
+    const ppmNeedsApprovalShipments = submittedShipments.filter(
+      (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+    );
+    const onlyPpmShipments = submittedShipments.filter((shipment) => shipment.shipmentType === 'PPM');
+    ppmShipmentsOtherStatuses = onlyPpmShipments.filter(
+      (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+    );
 
-    shipmentsInfo = submittedShipments.map((shipment) => {
-      const editURL = counselorCanEdit
-        ? generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
-            moveCode,
-            shipmentId: shipment.id,
-          })
-        : '';
+    ppmShipmentsInfoNeedsApproval = ppmNeedsApprovalShipments.map((shipment) => {
+      const reviewURL = generatePath(servicesCounselingRoutes.SHIPMENT_REVIEW_PATH, {
+        moveCode,
+        shipmentId: shipment.id,
+      });
+
+      const numberofPPMShipments = ppmNeedsApprovalShipments.length;
 
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
         destinationAddress: shipment.destinationAddress || {
           postalCode: order.destinationDutyLocation.address.postalCode,
         },
+        agency: customerData.agency,
+        closeoutOffice,
         ...shipment,
         displayDestinationType: isRetirementOrSeparation,
       };
@@ -144,7 +161,75 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
       return {
         id: shipment.id,
         displayInfo,
+        reviewURL,
+        numberofPPMShipments,
+        shipmentType: shipment.shipmentType,
+      };
+    });
+
+    const counselorCanReview = ppmShipmentsInfoNeedsApproval.length > 0;
+    counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && ppmShipmentsOtherStatuses.length > 0;
+    counselorCanEditNonPPM =
+      move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
+
+    shipmentsInfo = submittedShipmentsNonPPM.map((shipment) => {
+      const editURL =
+        counselorCanEdit || counselorCanEditNonPPM
+          ? generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
+              moveCode,
+              shipmentId: shipment.id,
+            })
+          : '';
+
+      const displayInfo = {
+        heading: getShipmentTypeLabel(shipment.shipmentType),
+        destinationAddress: shipment.destinationAddress || {
+          postalCode: order.destinationDutyLocation.address.postalCode,
+        },
+        ...shipment,
+        displayDestinationType: isRetirementOrSeparation,
+      };
+
+      if (shipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
+        displayInfo.agency = customerData.agency;
+        displayInfo.closeoutOffice = closeoutOffice;
+      }
+      const errorIfMissingList = errorIfMissing[shipment.shipmentType];
+
+      if (errorIfMissingList) {
+        errorIfMissingList.forEach((fieldToCheck) => {
+          if (!displayInfo[fieldToCheck]) {
+            numberOfErrorIfMissingForAllShipments += 1;
+            // Since storage facility gets split into two fields - the name and the address
+            // it needs to be counted twice.
+            if (fieldToCheck === 'storageFacility') {
+              numberOfErrorIfMissingForAllShipments += 1;
+            }
+          }
+        });
+      }
+
+      const warnIfMissingList = warnIfMissing[shipment.shipmentType];
+      if (warnIfMissingList) {
+        warnIfMissingList.forEach((fieldToCheck) => {
+          if (!displayInfo[fieldToCheck]) {
+            numberOfWarnIfMissingForAllShipments += 1;
+          }
+          // Since storage facility gets split into two fields - the name and the address
+          // it needs to be counted twice.
+          if (fieldToCheck === 'storageFacility') {
+            numberOfErrorIfMissingForAllShipments += 1;
+          }
+        });
+      }
+
+      disableSubmit = numberOfErrorIfMissingForAllShipments !== 0;
+
+      return {
+        id: shipment.id,
+        displayInfo,
         editURL,
+        counselorCanReview,
         shipmentType: shipment.shipmentType,
       };
     });
@@ -316,26 +401,28 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <Grid col={6} className={scMoveDetailsStyles.pageTitle}>
               <h1>Move details</h1>
             </Grid>
-            <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
-              {counselorCanEdit && (
-                <Button
-                  disabled={
-                    !mtoShipments.length || allShipmentsDeleted || disableSubmit || disableSubmitDueToMissingOrderInfo
-                  }
-                  type="button"
-                  onClick={handleShowCancellationModal}
-                >
-                  Submit move details
-                </Button>
-              )}
-            </Grid>
+            {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
+              <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
+                {(counselorCanEdit || counselorCanEditNonPPM) && (
+                  <Button
+                    disabled={
+                      !mtoShipments.length || allShipmentsDeleted || disableSubmit || disableSubmitDueToMissingOrderInfo
+                    }
+                    type="button"
+                    onClick={handleShowCancellationModal}
+                  >
+                    Submit move details
+                  </Button>
+                )}
+              </Grid>
+            )}
           </Grid>
 
           <div className={styles.section} id="shipments">
             <DetailsPanel
               className={scMoveDetailsStyles.noPaddingBottom}
               editButton={
-                counselorCanEdit && (
+                (counselorCanEdit || counselorCanEditNonPPM) && (
                   <ButtonDropdown data-testid="addShipmentButton" onChange={handleButtonDropdownChange}>
                     <option value="">Add a new shipment</option>
                     <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
@@ -349,6 +436,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
               }
               financialReviewOpen={handleShowFinancialReviewModal}
               title="Shipments"
+              ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
                 <div className={scMoveDetailsStyles.scFinancialReviewContainer}>
@@ -375,6 +463,24 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                     neverShow={neverShow[shipment.shipmentType]}
                   />
                 ))}
+                {ppmShipmentsInfoNeedsApproval.length > 0 &&
+                  ppmShipmentsInfoNeedsApproval.map((shipment) => (
+                    <ShipmentDisplay
+                      numberofPPMShipments={shipment.numberofPPMShipments}
+                      displayInfo={shipment.displayInfo}
+                      reviewURL={shipment.reviewURL}
+                      isSubmitted={false}
+                      key={shipment.id}
+                      shipmentId={shipment.id}
+                      shipmentType={shipment.shipmentType}
+                      allowApproval={false}
+                      ordersLOA={ordersLOA}
+                      warnIfMissing={warnIfMissing[shipment.shipmentType]}
+                      errorIfMissing={errorIfMissing[shipment.shipmentType]}
+                      showWhenCollapsed={showWhenCollapsed[shipment.shipmentType]}
+                      neverShow={neverShow[shipment.shipmentType]}
+                    />
+                  ))}
               </div>
             </DetailsPanel>
           </div>
@@ -383,7 +489,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Orders"
               editButton={
-                counselorCanEdit && (
+                (counselorCanEdit || counselorCanEditNonPPM) && (
                   <Link
                     className="usa-button usa-button--secondary"
                     to={generatePath(servicesCounselingRoutes.ORDERS_EDIT_PATH, { moveCode })}
@@ -392,6 +498,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   </Link>
                 )
               }
+              ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
               <OrdersList ordersInfo={ordersInfo} />
             </DetailsPanel>
@@ -400,7 +507,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Allowances"
               editButton={
-                counselorCanEdit && (
+                (counselorCanEdit || counselorCanEditNonPPM) && (
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-allowances"
@@ -410,6 +517,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   </Link>
                 )
               }
+              ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
               <AllowancesList info={allowancesInfo} showVisualCues />
             </DetailsPanel>
@@ -418,7 +526,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Customer info"
               editButton={
-                counselorCanEdit && (
+                (counselorCanEdit || counselorCanEditNonPPM) && (
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-customer-info"
@@ -428,6 +536,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   </Link>
                 )
               }
+              ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
               <CustomerInfoList customerInfo={customerInfo} />
             </DetailsPanel>

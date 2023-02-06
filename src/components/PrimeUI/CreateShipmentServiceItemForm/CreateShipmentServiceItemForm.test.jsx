@@ -84,7 +84,7 @@ describe('CreateShipmentServiceItemForm component', () => {
     ['destinationSITServiceItemForm', createServiceItemModelTypes.MTOServiceItemDestSIT],
     ['shuttleSITServiceItemForm', createServiceItemModelTypes.MTOServiceItemShuttle],
     ['DomesticCratingForm', createServiceItemModelTypes.MTOServiceItemDomesticCrating],
-  ])('renders %s after selecting %s type', (formName, serviceItemType) => {
+  ])('renders %s after selecting %s type', async (formName, serviceItemType) => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
     render(
       <MockProviders>
@@ -93,7 +93,7 @@ describe('CreateShipmentServiceItemForm component', () => {
     );
 
     const dropdown = screen.getByRole('combobox', { name: 'Service item type' });
-    userEvent.selectOptions(dropdown, [serviceItemType]);
+    await userEvent.selectOptions(dropdown, [serviceItemType]);
 
     expect(screen.getByRole('form', { testid: formName })).toBeInTheDocument();
   });

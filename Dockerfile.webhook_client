@@ -2,14 +2,14 @@
 # BUILDER #
 ###########
 
-FROM milmove/circleci-docker:milmove-app-94a41a022a48dab1c05b932734b472922260f3c0 as builder
+FROM milmove/circleci-docker:milmove-app-6109bfb5e9650a79bd94bff6453ed726635a4dc2 as builder
 
 # Prepare public DOD certificates.
 # hadolint ignore=DL3002
 USER root
 COPY config/tls/dod-wcf-root-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-root-ca-1.pem.crt
 COPY config/tls/dod-wcf-intermediate-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-intermediate-ca-1.pem.crt
-COPY config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /tmp/all-public-dod-certs.der.p7b
+COPY config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b /tmp/all-public-dod-certs.der.p7b
 RUN openssl pkcs7 -print_certs -inform der -in /tmp/all-public-dod-certs.der.p7b -out /usr/local/share/ca-certificates/all-public-dod-certs.crt
 RUN update-ca-certificates
 

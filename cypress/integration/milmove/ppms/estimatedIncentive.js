@@ -14,6 +14,7 @@ describe('PPM Onboarding - Estimated Incentive', function () {
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+    cy.intercept('PATCH', '**/internal/moves/**').as('patchMove');
   });
 
   it('go to estimated incentives page', () => {
@@ -35,7 +36,7 @@ function navigateToEstimatedIncentivePage() {
   const userId = '4512dc8c-c777-444e-b6dc-7971e398f2dc';
 
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId);
-  navigateFromDateAndLocationPageToEstimatedWeightsPage('@patchShipment');
+  navigateFromDateAndLocationPageToEstimatedWeightsPage(['@patchShipment', '@patchMove']);
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
 }
 

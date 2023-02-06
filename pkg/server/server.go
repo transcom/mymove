@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -19,6 +20,11 @@ const (
 	readHeaderTimeout = 60 * time.Second  // 1 minute
 	maxHeaderSize     = 1 * 1000 * 1000   // 1 Megabyte
 )
+
+// the contextKey is typed so as not to conflict between similar keys from different pkgs
+type contextKey string
+
+var namedServerContextKey = contextKey("named_server")
 
 // ErrMissingCACert represents an error caused by server config that requires
 // certificate verification, but is missing a CA certificate
@@ -144,12 +150,18 @@ func CreateNamedServer(input *CreateNamedServerInput) (*NamedServer, error) {
 		}
 	}
 
+	// wrappedHandler includes the name of the server in the context
+	wrappedHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), namedServerContextKey, input.Name)
+		input.HTTPHandler.ServeHTTP(w, r.WithContext(ctx))
+	})
+
 	srv := &NamedServer{
 		Name: input.Name,
 		Server: &http.Server{
 			Addr:              address,
 			ErrorLog:          newStandardLogger(input.Logger),
-			Handler:           input.HTTPHandler,
+			Handler:           wrappedHandler,
 			IdleTimeout:       idleTimeout,
 			MaxHeaderBytes:    maxHeaderSize,
 			ReadHeaderTimeout: readHeaderTimeout,
@@ -158,4 +170,13 @@ func CreateNamedServer(input *CreateNamedServerInput) (*NamedServer, error) {
 	}
 	return srv, nil
 
+}
+
+// NamedServerFromContext returns name name of the server that was previously added into the context, if any.
+func NamedServerFromContext(ctx context.Context) string {
+	name, ok := ctx.Value(namedServerContextKey).(string)
+	if !ok {
+		return ""
+	}
+	return name
 }

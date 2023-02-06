@@ -25,6 +25,25 @@ export async function getPaymentRequest(key, paymentRequestID) {
   return makeGHCRequest('paymentRequests.getPaymentRequest', { paymentRequestID });
 }
 
+export async function getWeightTickets(key, ppmShipmentId) {
+  return makeGHCRequest('ppm.getWeightTickets', { ppmShipmentId }, { normalize: false });
+}
+
+export async function patchWeightTicket({ ppmShipmentId, weightTicketId, payload, eTag }) {
+  return makeGHCRequest(
+    'ppm.updateWeightTicket',
+    {
+      ppmShipmentId,
+      weightTicketId,
+      'If-Match': eTag,
+      updateWeightTicketPayload: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function getMove(key, locator) {
   return makeGHCRequest('move.getMove', { locator }, { normalize: false });
 }
@@ -267,7 +286,7 @@ export async function updateCustomerInfo({ customerId, ifMatchETag, body }) {
 }
 
 export async function updateMTOReviewedBillableWeights({ moveTaskOrderID, ifMatchETag }) {
-  const operationPath = 'moveTaskOrder.UpdateMTOReviewedBillableWeightsAt';
+  const operationPath = 'moveTaskOrder.updateMTOReviewedBillableWeightsAt';
   return makeGHCRequest(operationPath, { moveTaskOrderID, 'If-Match': ifMatchETag });
 }
 
@@ -446,16 +465,42 @@ export async function getMovesQueue(key, { sort, order, filters = [], currentPag
 
 export async function getServicesCounselingQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20 },
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, needsPPMCloseout = false },
 ) {
   const operationPath = 'queues.getServicesCounselingQueue';
   const paramFilters = {};
   filters.forEach((filter) => {
     paramFilters[`${filter.id}`] = filter.value;
   });
+
   return makeGHCRequest(
     operationPath,
-    { sort, order, page: currentPage, perPage: currentPageSize, ...paramFilters },
+    {
+      sort,
+      order,
+      page: currentPage,
+      perPage: currentPageSize,
+      needsPPMCloseout,
+      ...paramFilters,
+    },
+
+    { schemaKey: 'queueMovesResult', normalize: false },
+  );
+}
+
+export async function getServicesCounselingPPMQueue(
+  key,
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, needsPPMCloseout = true },
+) {
+  const operationPath = 'queues.getServicesCounselingQueue';
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+
+  return makeGHCRequest(
+    operationPath,
+    { sort, order, page: currentPage, perPage: currentPageSize, needsPPMCloseout, ...paramFilters },
     { schemaKey: 'queueMovesResult', normalize: false },
   );
 }
@@ -492,4 +537,22 @@ export function updateFinancialFlag({ moveID, ifMatchETag, body }) {
     },
     { normalize: false },
   );
+}
+
+export function updateMoveCloseoutOffice({ locator, ifMatchETag, body }) {
+  const operationPath = 'move.updateCloseoutOffice';
+  return makeGHCRequest(
+    operationPath,
+    {
+      locator,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { normalize: false },
+  );
+}
+
+export async function SearchTransportationOffices(search) {
+  const operationPath = 'transportationOffice.getTransportationOffices';
+  return makeGHCRequest(operationPath, { search }, { normalize: false });
 }

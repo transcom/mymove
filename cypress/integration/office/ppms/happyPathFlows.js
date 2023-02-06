@@ -15,15 +15,18 @@ describe('Services counselor user', () => {
 
   beforeEach(() => {
     cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc').as('getSortedMoves');
+    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&needsPPMCloseout=false').as(
+      'getSortedMoves',
+    );
 
-    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&locator=**').as(
+    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=**&order=asc&locator=**&needsPPMCloseout=**').as(
       'getFilterSortedMoves',
     );
     cy.intercept('GET', '**/ghc/v1/move/**').as('getMoves');
     cy.intercept('GET', '**/ghc/v1/orders/**').as('getOrders');
     cy.intercept('GET', '**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**').as('updateMTOShipments');
+    cy.intercept('PATCH', '**/ghc/v1/moves/**/closeout-office').as('updateCloseoutOffice');
     cy.intercept('POST', '**/ghc/v1/mto-shipments').as('createShipment');
     cy.intercept('GET', '**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
 
@@ -32,6 +35,7 @@ describe('Services counselor user', () => {
   });
 
   it('is able to edit a PPM shipment', () => {
+    // use a move that will need counseling
     const moveLocator = 'PPMSCF';
 
     navigateToShipmentDetails(moveLocator);
@@ -41,10 +45,11 @@ describe('Services counselor user', () => {
     cy.wait(['@getMTOShipments', '@getMoves', '@getOrders']);
 
     fillOutSitExpected();
+    cy.selectDutyLocation('JPPSO NORTHWEST', 'closeoutOffice');
 
     // Submit page 1 of form
     cy.get('[data-testid="submitForm"]').should('be.enabled').click();
-    cy.wait(['@updateMTOShipments', '@getMTOShipments', '@getMoves', '@getOrders', '@getMTOServiceItems']);
+    cy.wait(['@updateMTOShipments', '@updateCloseoutOffice', '@getMTOShipments', '@getMoves', '@getOrders']);
 
     // Verify SIT info
     cy.contains('Government constructed cost: $326');

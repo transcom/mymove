@@ -73,7 +73,7 @@ describe('DocumentViewer component', () => {
 
     const openMenuButton = await screen.findByTestId('openMenu');
 
-    userEvent.click(openMenuButton);
+    await userEvent.click(openMenuButton);
 
     const docMenu = screen.getByTestId('DocViewerMenu');
 
@@ -88,7 +88,7 @@ describe('DocumentViewer component', () => {
     // defaults to closed so we need to open it first.
     const openMenuButton = await screen.findByTestId('openMenu');
 
-    userEvent.click(openMenuButton);
+    await userEvent.click(openMenuButton);
 
     const docMenu = screen.getByTestId('DocViewerMenu');
 
@@ -98,7 +98,7 @@ describe('DocumentViewer component', () => {
 
     const closeMenuButton = await screen.findByTestId('closeMenu');
 
-    userEvent.click(closeMenuButton);
+    await userEvent.click(closeMenuButton);
 
     await waitFor(() => expect(docMenu.className).toContain('collapsed'));
   });
@@ -113,7 +113,7 @@ describe('DocumentViewer component', () => {
     // defaults to closed so we need to open it first.
     const openMenuButton = await screen.findByTestId('openMenu');
 
-    userEvent.click(openMenuButton);
+    await userEvent.click(openMenuButton);
 
     const docMenu = screen.getByTestId('DocViewerMenu');
 
@@ -121,7 +121,7 @@ describe('DocumentViewer component', () => {
 
     const otherFile = await screen.findByRole('button', { name: buttonText });
 
-    userEvent.click(otherFile);
+    await userEvent.click(otherFile);
 
     expect(docMenu.className).toContain('collapsed');
 
@@ -140,7 +140,7 @@ describe('DocumentViewer component', () => {
     // defaults to closed so we need to open it first.
     const openMenuButton = await screen.findByTestId('openMenu');
 
-    userEvent.click(openMenuButton);
+    await userEvent.click(openMenuButton);
 
     const docMenu = screen.getByTestId('DocViewerMenu');
 
@@ -150,12 +150,20 @@ describe('DocumentViewer component', () => {
 
     const docContent = screen.getByTestId('DocViewerContent');
 
-    expect(docContent.textContent).toEqual('.zip is not supported.');
+    expect(docContent.textContent).toEqual(
+      'No preview available for this kind of file.Download file to see the contents.',
+    );
   });
 
   it('displays file not found for empty files array', async () => {
     render(<DocumentViewer />);
 
     expect(await screen.findByRole('heading', { name: 'File Not Found' })).toBeInTheDocument();
+  });
+
+  it('shows the download link option when allowDownload is true', async () => {
+    render(<DocumentViewer files={mockFiles} allowDownload />);
+
+    expect(await screen.findByText('Download file')).toBeInTheDocument();
   });
 });

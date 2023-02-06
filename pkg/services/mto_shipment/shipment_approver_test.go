@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
@@ -193,8 +194,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		// Note that MakeMTOShipment will automatically add a Required Delivery Date if the ScheduledPickupDate
 		// is present, therefore we need to use MakeMTOShipmentMinimal and add the Pickup and Destination addresses
 		estimatedWeight := unit.Pound(11000)
-		destinationAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
-		pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
 		shipmentHeavy := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -395,8 +396,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		// is present, therefore we need to use MakeMTOShipmentMinimal and add the Pickup and Destination addresses
 		estimatedWeight := unit.Pound(1400)
 
-		destinationAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
-		pickupAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{})
 
 		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{

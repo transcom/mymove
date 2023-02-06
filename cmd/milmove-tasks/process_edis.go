@@ -167,6 +167,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	gexURL := v.GetString(cli.GEXURLFlag)
+	logger.Info(fmt.Sprintf("GEX URL is %v", gexURL))
 
 	isDevOrTest := dbEnv == "development" || dbEnv == "test"
 	if isDevOrTest {

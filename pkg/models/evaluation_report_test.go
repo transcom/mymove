@@ -27,6 +27,8 @@ func (suite *ModelSuite) TestReport() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	virtualInspection := models.EvaluationReportInspectionTypeVirtual
 	dataReviewInspection := models.EvaluationReportInspectionTypeDataReview
+	physicalInspection := models.EvaluationReportInspectionTypePhysical
+	location := models.EvaluationReportLocationTypeOrigin
 
 	testCases := map[string]struct {
 		report         models.EvaluationReport
@@ -75,22 +77,7 @@ func (suite *ModelSuite) TestReport() {
 				"type": {"COUNSELING does not equal SHIPMENT."},
 			},
 		},
-		"Non-physical inspection cannot have non-nil travel time": {
-			report: models.EvaluationReport{
-				ID:                uuid.Must(uuid.NewV4()),
-				OfficeUser:        officeUser,
-				OfficeUserID:      officeUser.ID,
-				Move:              move,
-				MoveID:            move.ID,
-				Type:              models.EvaluationReportTypeCounseling,
-				InspectionType:    &virtualInspection,
-				TravelTimeMinutes: swag.Int(10),
-			},
-			expectedErrors: map[string][]string{
-				"inspection_type": {"VIRTUAL does not equal PHYSICAL."},
-			},
-		},
-		"ObservedDate cannot be set for virtual inspections": {
+		"Physical inspection with time departed": {
 			report: models.EvaluationReport{
 				ID:             uuid.Must(uuid.NewV4()),
 				OfficeUser:     officeUser,
@@ -98,23 +85,37 @@ func (suite *ModelSuite) TestReport() {
 				Move:           move,
 				MoveID:         move.ID,
 				Type:           models.EvaluationReportTypeCounseling,
-				InspectionType: &virtualInspection,
-				ObservedDate:   swag.Time(time.Now()),
+				InspectionType: &physicalInspection,
+				TimeDepart:     swag.Time(time.Now()),
+				Location:       &location,
+			},
+			expectedErrors: map[string][]string{},
+		},
+		"ObservedShipmentDeliveryDate cannot be set for virtual inspections": {
+			report: models.EvaluationReport{
+				ID:                           uuid.Must(uuid.NewV4()),
+				OfficeUser:                   officeUser,
+				OfficeUserID:                 officeUser.ID,
+				Move:                         move,
+				MoveID:                       move.ID,
+				Type:                         models.EvaluationReportTypeCounseling,
+				InspectionType:               &virtualInspection,
+				ObservedShipmentDeliveryDate: swag.Time(time.Now()),
 			},
 			expectedErrors: map[string][]string{
 				"inspection_type": {"VIRTUAL does not equal PHYSICAL."},
 			},
 		},
-		"ObservedDate cannot be set for data review inspections": {
+		"ObservedShipmentPhysicalPickupDate cannot be set for data review inspections": {
 			report: models.EvaluationReport{
-				ID:             uuid.Must(uuid.NewV4()),
-				OfficeUser:     officeUser,
-				OfficeUserID:   officeUser.ID,
-				Move:           move,
-				MoveID:         move.ID,
-				Type:           models.EvaluationReportTypeCounseling,
-				InspectionType: &dataReviewInspection,
-				ObservedDate:   swag.Time(time.Now()),
+				ID:                                 uuid.Must(uuid.NewV4()),
+				OfficeUser:                         officeUser,
+				OfficeUserID:                       officeUser.ID,
+				Move:                               move,
+				MoveID:                             move.ID,
+				Type:                               models.EvaluationReportTypeCounseling,
+				InspectionType:                     &dataReviewInspection,
+				ObservedShipmentPhysicalPickupDate: swag.Time(time.Now()),
 			},
 			expectedErrors: map[string][]string{
 				"inspection_type": {"DATA_REVIEW does not equal PHYSICAL."},

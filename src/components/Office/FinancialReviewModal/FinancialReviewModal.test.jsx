@@ -12,9 +12,9 @@ describe('FinancialReviewModal', () => {
     const remarksInput = screen.getByLabelText('Remarks for financial office');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    userEvent.click(flagForReview);
-    userEvent.type(remarksInput, 'Because I said so...');
-    userEvent.click(submitBtn);
+    await userEvent.click(flagForReview);
+    await userEvent.type(remarksInput, 'Because I said so...');
+    await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
@@ -26,7 +26,7 @@ describe('FinancialReviewModal', () => {
     const flagForReview = screen.getByLabelText('Yes');
     const submitBtn = screen.getByText('Save');
 
-    userEvent.click(flagForReview);
+    await userEvent.click(flagForReview);
 
     await waitFor(() => {
       expect(submitBtn).toBeDisabled();
@@ -38,7 +38,7 @@ describe('FinancialReviewModal', () => {
     render(<FinancialReviewModal onSubmit={() => {}} onClose={mockClose} />);
     const closeBtn = screen.getByText('Cancel');
 
-    userEvent.click(closeBtn);
+    await userEvent.click(closeBtn);
 
     await waitFor(() => {
       expect(mockClose).toHaveBeenCalled();

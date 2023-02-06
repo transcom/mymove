@@ -695,6 +695,9 @@ func init() {
             "required": true
           },
           {
+            "$ref": "#/parameters/ifMatch"
+          },
+          {
             "name": "patchMovePayload",
             "in": "body",
             "required": true,
@@ -704,7 +707,7 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
+          "200": {
             "description": "updated instance of move",
             "schema": {
               "$ref": "#/definitions/MovePayload"
@@ -720,7 +723,13 @@ func init() {
             "description": "user is not authorized"
           },
           "404": {
-            "description": "move is not found"
+            "description": "move or closeout office is not found"
+          },
+          "412": {
+            "description": "precondition failed"
+          },
+          "422": {
+            "description": "unprocessable entity"
           },
           "500": {
             "description": "internal server error"
@@ -3182,6 +3191,52 @@ func init() {
         }
       }
     },
+    "/transportation-offices": {
+      "get": {
+        "description": "Returns the transportation offices matching the search query",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportation_offices"
+        ],
+        "summary": "Returns the transportation offices matching the search query",
+        "operationId": "getTransportationOffices",
+        "parameters": [
+          {
+            "minLength": 2,
+            "type": "string",
+            "description": "Search string for transportation offices",
+            "name": "search",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffices"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -4908,7 +4963,8 @@ func init() {
         "orders_id",
         "locator",
         "created_at",
-        "updated_at"
+        "updated_at",
+        "eTag"
       ],
       "properties": {
         "cancel_reason": {
@@ -4916,9 +4972,15 @@ func init() {
           "x-nullable": true,
           "example": "Change of orders"
         },
+        "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -5898,11 +5960,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "weightTickets": {
-          "description": "All weight ticket documentation records belonging to vehicles of this PPM shipment",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/WeightTicket"
-          }
+          "$ref": "#/definitions/WeightTickets"
         }
       },
       "x-nullable": true
@@ -5954,9 +6012,14 @@ func init() {
     },
     "PatchMovePayload": {
       "type": "object",
+      "required": [
+        "closeoutOfficeId"
+      ],
       "properties": {
-        "selected_move_type": {
-          "$ref": "#/definitions/SelectedMoveType"
+        "closeoutOfficeId": {
+          "description": "The transportation office that will handle the PPM shipment's closeout approvals for Army and Air Force service members",
+          "type": "string",
+          "format": "uuid"
         }
       }
     },
@@ -7146,6 +7209,12 @@ func init() {
         }
       }
     },
+    "TransportationOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TransportationOffice"
+      }
+    },
     "UpdateMovingExpense": {
       "type": "object",
       "required": [
@@ -7832,6 +7901,14 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    },
+    "WeightTickets": {
+      "description": "All weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WeightTicket"
+      },
+      "x-omitempty": false
     }
   },
   "parameters": {
@@ -7918,7 +7995,66 @@ func init() {
         "$ref": "#/definitions/ValidationError"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "responses"
+    },
+    {
+      "name": "orders"
+    },
+    {
+      "name": "certification"
+    },
+    {
+      "name": "moves"
+    },
+    {
+      "name": "office"
+    },
+    {
+      "name": "documents"
+    },
+    {
+      "name": "uploads"
+    },
+    {
+      "name": "service_members"
+    },
+    {
+      "name": "backup_contacts"
+    },
+    {
+      "name": "duty_locations"
+    },
+    {
+      "name": "transportation_offices"
+    },
+    {
+      "name": "queues"
+    },
+    {
+      "name": "entitlements"
+    },
+    {
+      "name": "calendar"
+    },
+    {
+      "name": "move_docs"
+    },
+    {
+      "name": "ppm"
+    },
+    {
+      "name": "postal_codes"
+    },
+    {
+      "name": "addresses"
+    },
+    {
+      "name": "mtoShipment"
+    }
+  ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "consumes": [
@@ -8598,6 +8734,13 @@ func init() {
             "required": true
           },
           {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
             "name": "patchMovePayload",
             "in": "body",
             "required": true,
@@ -8607,7 +8750,7 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
+          "200": {
             "description": "updated instance of move",
             "schema": {
               "$ref": "#/definitions/MovePayload"
@@ -8623,7 +8766,13 @@ func init() {
             "description": "user is not authorized"
           },
           "404": {
-            "description": "move is not found"
+            "description": "move or closeout office is not found"
+          },
+          "412": {
+            "description": "precondition failed"
+          },
+          "422": {
+            "description": "unprocessable entity"
           },
           "500": {
             "description": "internal server error"
@@ -11399,6 +11548,67 @@ func init() {
         }
       }
     },
+    "/transportation-offices": {
+      "get": {
+        "description": "Returns the transportation offices matching the search query",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportation_offices"
+        ],
+        "summary": "Returns the transportation offices matching the search query",
+        "operationId": "getTransportationOffices",
+        "parameters": [
+          {
+            "minLength": 2,
+            "type": "string",
+            "description": "Search string for transportation offices",
+            "name": "search",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffices"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -13142,7 +13352,8 @@ func init() {
         "orders_id",
         "locator",
         "created_at",
-        "updated_at"
+        "updated_at",
+        "eTag"
       ],
       "properties": {
         "cancel_reason": {
@@ -13150,9 +13361,15 @@ func init() {
           "x-nullable": true,
           "example": "Change of orders"
         },
+        "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -14132,11 +14349,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "weightTickets": {
-          "description": "All weight ticket documentation records belonging to vehicles of this PPM shipment",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/WeightTicket"
-          }
+          "$ref": "#/definitions/WeightTickets"
         }
       },
       "x-nullable": true
@@ -14188,9 +14401,14 @@ func init() {
     },
     "PatchMovePayload": {
       "type": "object",
+      "required": [
+        "closeoutOfficeId"
+      ],
       "properties": {
-        "selected_move_type": {
-          "$ref": "#/definitions/SelectedMoveType"
+        "closeoutOfficeId": {
+          "description": "The transportation office that will handle the PPM shipment's closeout approvals for Army and Air Force service members",
+          "type": "string",
+          "format": "uuid"
         }
       }
     },
@@ -15385,6 +15603,12 @@ func init() {
         }
       }
     },
+    "TransportationOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TransportationOffice"
+      }
+    },
     "UpdateMovingExpense": {
       "type": "object",
       "required": [
@@ -16082,6 +16306,14 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    },
+    "WeightTickets": {
+      "description": "All weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WeightTicket"
+      },
+      "x-omitempty": false
     }
   },
   "parameters": {
@@ -16168,6 +16400,65 @@ func init() {
         "$ref": "#/definitions/ValidationError"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "responses"
+    },
+    {
+      "name": "orders"
+    },
+    {
+      "name": "certification"
+    },
+    {
+      "name": "moves"
+    },
+    {
+      "name": "office"
+    },
+    {
+      "name": "documents"
+    },
+    {
+      "name": "uploads"
+    },
+    {
+      "name": "service_members"
+    },
+    {
+      "name": "backup_contacts"
+    },
+    {
+      "name": "duty_locations"
+    },
+    {
+      "name": "transportation_offices"
+    },
+    {
+      "name": "queues"
+    },
+    {
+      "name": "entitlements"
+    },
+    {
+      "name": "calendar"
+    },
+    {
+      "name": "move_docs"
+    },
+    {
+      "name": "ppm"
+    },
+    {
+      "name": "postal_codes"
+    },
+    {
+      "name": "addresses"
+    },
+    {
+      "name": "mtoShipment"
+    }
+  ]
 }`))
 }

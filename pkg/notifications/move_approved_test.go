@@ -7,11 +7,12 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *NotificationSuite) TestMoveApproved() {
-	approver := testdatagen.MakeStubbedUser(suite.DB())
+	approver := factory.BuildUser(nil, nil, nil)
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
 	session := &auth.Session{

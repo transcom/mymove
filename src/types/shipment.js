@@ -135,6 +135,8 @@ export const WeightTicketShape = shape({
   trailerMeetsCriteria: bool,
   trailerOwnershipDocumentId: string,
   proofOfTrailerOwnershipDocument: DocumentShape,
+  reason: string,
+  status: string,
 });
 
 export const ExpenseShape = shape({
@@ -161,4 +163,9 @@ export const StorageFacilityShape = shape({
 
 export const ProGearTicketShape = shape({
   selfProGear: bool,
+  proGearWeight: number,
+  description: string,
+  missingWeightTicket: bool,
+  reason: string,
+  status: string,
 });

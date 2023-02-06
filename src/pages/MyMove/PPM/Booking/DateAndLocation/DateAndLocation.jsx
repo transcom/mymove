@@ -9,21 +9,25 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { shipmentTypes } from 'constants/shipments';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
-import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
+import { createMTOShipment, patchMove, patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
-import { updateMTOShipment } from 'store/entities/actions';
+import { updateMTOShipment, updateMove } from 'store/entities/actions';
 import { DutyLocationShape } from 'types';
-import { ServiceMemberShape } from 'types/customerShapes';
+import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
+import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { validatePostalCode } from 'utils/validation';
 
-const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }) => {
+const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const history = useHistory();
   const { moveId, shipmentNumber } = useParams();
   const dispatch = useDispatch();
 
+  const includeCloseoutOffice =
+    serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.ARMY ||
+    serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE;
   const isNewShipment = !mtoShipment?.id;
   const handleBack = () => {
     if (isNewShipment) {
@@ -31,6 +35,22 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
     } else {
       history.push(generalRoutes.HOME_PATH);
     }
+  };
+
+  const onShipmentSaveSuccess = (response, setSubmitting) => {
+    // Update submitting state
+    setSubmitting(false);
+
+    // Update the shipment in the store
+    dispatch(updateMTOShipment(response));
+
+    // navigate to the next page
+    history.push(
+      generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
+        moveId,
+        mtoShipmentId: response.id,
+      }),
+    );
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -58,15 +78,24 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
 
     if (isNewShipment) {
       createMTOShipment(createOrUpdateShipment)
-        .then((response) => {
-          setSubmitting(false);
-          dispatch(updateMTOShipment(response));
-          history.push(
-            generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
-              moveId,
-              mtoShipmentId: response.id,
-            }),
-          );
+        .then((shipmentResponse) => {
+          if (includeCloseoutOffice) {
+            // Associate the selected closeout office with the move
+            patchMove(move.id, { closeoutOfficeId: values.closeoutOffice.id }, move.eTag)
+              .then((moveResponse) => {
+                // Both create and patch were successful
+                dispatch(updateMove(moveResponse));
+                onShipmentSaveSuccess(shipmentResponse, setSubmitting);
+              })
+              .catch(() => {
+                setSubmitting(false);
+                // Still need to update the shipment in the store since it had a successful create
+                dispatch(updateMTOShipment(shipmentResponse));
+                setErrorMessage('There was an error attempting to create the move closeout office.');
+              });
+          } else {
+            onShipmentSaveSuccess(shipmentResponse, setSubmitting);
+          }
         })
         .catch(() => {
           setSubmitting(false);
@@ -77,15 +106,23 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
       createOrUpdateShipment.ppmShipment.id = mtoShipment.ppmShipment?.id;
 
       patchMTOShipment(mtoShipment.id, createOrUpdateShipment, mtoShipment.eTag)
-        .then((response) => {
-          setSubmitting(false);
-          dispatch(updateMTOShipment(response));
-          history.push(
-            generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
-              moveId,
-              mtoShipmentId: response.id,
-            }),
-          );
+        .then((shipmentResponse) => {
+          if (includeCloseoutOffice) {
+            // Associate the selected closeout office with the move
+            patchMove(move.id, { closeoutOfficeId: values.closeoutOffice.id }, move.eTag)
+              .then((moveResponse) => {
+                dispatch(updateMove(moveResponse));
+                onShipmentSaveSuccess(shipmentResponse, setSubmitting);
+              })
+              .catch(() => {
+                setSubmitting(false);
+                // Still need to update the shipment in the store since it had a successful update
+                dispatch(updateMTOShipment(shipmentResponse));
+                setErrorMessage('There was an error attempting to update the move closeout office.');
+              });
+          } else {
+            onShipmentSaveSuccess(shipmentResponse, setSubmitting);
+          }
         })
         .catch(() => {
           setSubmitting(false);
@@ -111,6 +148,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
               mtoShipment={mtoShipment}
               serviceMember={serviceMember}
               destinationDutyLocation={destinationDutyLocation}
+              move={move}
               onSubmit={handleSubmit}
               onBack={handleBack}
               postalCodeValidator={validatePostalCode}
@@ -126,9 +164,11 @@ DateAndLocation.propTypes = {
   mtoShipment: ShipmentShape,
   serviceMember: ServiceMemberShape.isRequired,
   destinationDutyLocation: DutyLocationShape.isRequired,
+  move: MoveShape,
 };
 
 DateAndLocation.defaultProps = {
+  move: {},
   mtoShipment: {},
 };
 

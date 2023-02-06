@@ -6,6 +6,7 @@ import classnames from 'classnames';
 
 import styles from './Review.module.scss';
 
+import Alert from 'shared/Alert';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
@@ -28,7 +29,7 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { deleteWeightTicket } from 'services/internalApi';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
-import { hasCompletedAllWeightTickets, hasCompletedAllExpenses } from 'utils/shipments';
+import { hasCompletedAllWeightTickets, hasCompletedAllExpenses, hasCompletedAllProGear } from 'utils/shipments';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => (
   <div>
@@ -64,7 +65,7 @@ const Review = () => {
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
   const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
-  const proGear = mtoShipment?.ppmShipment?.proGear;
+  const proGear = mtoShipment?.ppmShipment?.proGearWeightTickets;
   const expenses = mtoShipment?.ppmShipment?.movingExpenses;
 
   if (!mtoShipment) {
@@ -112,7 +113,8 @@ const Review = () => {
 
   const weightTicketsTotal = calculateTotalNetWeightForWeightTickets(weightTickets);
 
-  const canAdvance = hasCompletedAllWeightTickets(weightTickets) && hasCompletedAllExpenses(expenses);
+  const canAdvance =
+    hasCompletedAllWeightTickets(weightTickets) && hasCompletedAllExpenses(expenses) && hasCompletedAllProGear(proGear);
 
   const proGearContents = formatProGearItems(
     proGear,
@@ -147,15 +149,24 @@ const Review = () => {
                 itemToDelete={itemToDelete}
               />
             )}
+            {!canAdvance && (
+              <>
+                <Alert type="error">
+                  There are items below that are missing required information. Please select “Edit” to enter all
+                  required information or “Delete” to remove the item.
+                </Alert>
+                <br />
+              </>
+            )}
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
             <h1>Review</h1>
-            <SectionWrapper className={styles.aboutSection}>
+            <SectionWrapper className={styles.aboutSection} data-testid="aboutYourPPM">
               <ReviewItems heading={<h2>About Your PPM</h2>} contents={aboutYourPPM} />
             </SectionWrapper>
             <SectionWrapper>
               <h2>Documents</h2>
               <ReviewItems
-                className={styles.reviewItems}
+                className={classnames(styles.reviewItems, 'reviewWeightTickets')}
                 heading={
                   <>
                     <h3>Weight moved</h3>
@@ -171,7 +182,7 @@ const Review = () => {
                 emptyMessage="No weight tickets uploaded. Add at least one set of weight tickets to request payment."
               />
               <ReviewItems
-                className={styles.reviewItems}
+                className={classnames(styles.reviewItems, 'progearSection')}
                 heading={
                   <>
                     <h3>Pro-gear</h3>

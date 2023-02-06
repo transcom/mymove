@@ -2,23 +2,42 @@ package audit
 
 import (
 	"context"
+
+	"github.com/gofrs/uuid"
 )
 
 type contextKey string
 
-var loggerContextKey = contextKey("operationID")
+var loggerEventNameContextKey = contextKey("operationID")
+var loggerAuditIDContextKey = contextKey("AuditID")
 
-// NewContext returns a new context with the operationId.
+// WithEventName returns a new context with the operationId.
 func WithEventName(ctx context.Context, operationID string) context.Context {
-	return context.WithValue(ctx, loggerContextKey, operationID)
+	return context.WithValue(ctx, loggerEventNameContextKey, operationID)
 }
 
-// FromContext returns the operationId associated with a context. If the
+// RetrieveEventNameFromContext returns the operationId associated with a context. If the
 // context has no operationId, the empty string is returned
-func EventNameFromContext(ctx context.Context) string {
-	operationID, ok := ctx.Value(loggerContextKey).(string)
+func RetrieveEventNameFromContext(ctx context.Context) string {
+	operationID, ok := ctx.Value(loggerEventNameContextKey).(string)
 	if !ok {
 		return ""
 	}
 	return operationID
+}
+
+// WithAuditUserID returns a new context with the auditUserID.
+func WithAuditUserID(ctx context.Context, userID uuid.UUID) context.Context {
+	return context.WithValue(ctx, loggerAuditIDContextKey, userID)
+}
+
+// RetrieveAuditUserIDFromContext returns the auditUserID associated with a context. If the
+// context has no auditUser, the empty user model is returned
+func RetrieveAuditUserIDFromContext(ctx context.Context) uuid.UUID {
+	var userID uuid.UUID
+	auditUserID, ok := ctx.Value(loggerAuditIDContextKey).(uuid.UUID)
+	if !ok {
+		return userID
+	}
+	return auditUserID
 }

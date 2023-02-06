@@ -37,6 +37,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/transportation_office"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -62,9 +63,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BinProducer:  runtime.ByteStreamProducer(),
 		JSONProducer: runtime.JSONProducer(),
 
-		MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler: move_task_order.UpdateMTOReviewedBillableWeightsAtHandlerFunc(func(params move_task_order.UpdateMTOReviewedBillableWeightsAtParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.UpdateMTOReviewedBillableWeightsAt has not yet been implemented")
-		}),
 		OrderAcknowledgeExcessWeightRiskHandler: order.AcknowledgeExcessWeightRiskHandlerFunc(func(params order.AcknowledgeExcessWeightRiskParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
 		}),
@@ -155,6 +153,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderGetOrderHandler: order.GetOrderHandlerFunc(func(params order.GetOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.GetOrder has not yet been implemented")
 		}),
+		PpmGetPPMDocumentsHandler: ppm.GetPPMDocumentsHandlerFunc(func(params ppm.GetPPMDocumentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.GetPPMDocuments has not yet been implemented")
+		}),
 		PwsViolationsGetPWSViolationsHandler: pws_violations.GetPWSViolationsHandlerFunc(func(params pws_violations.GetPWSViolationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation pws_violations.GetPWSViolations has not yet been implemented")
 		}),
@@ -178,6 +179,12 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PaymentRequestsGetShipmentsPaymentSITBalanceHandler: payment_requests.GetShipmentsPaymentSITBalanceHandlerFunc(func(params payment_requests.GetShipmentsPaymentSITBalanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.GetShipmentsPaymentSITBalance has not yet been implemented")
+		}),
+		TransportationOfficeGetTransportationOfficesHandler: transportation_office.GetTransportationOfficesHandlerFunc(func(params transportation_office.GetTransportationOfficesParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_office.GetTransportationOffices has not yet been implemented")
+		}),
+		PpmGetWeightTicketsHandler: ppm.GetWeightTicketsHandlerFunc(func(params ppm.GetWeightTicketsParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.GetWeightTickets has not yet been implemented")
 		}),
 		MtoServiceItemListMTOServiceItemsHandler: mto_service_item.ListMTOServiceItemsHandlerFunc(func(params mto_service_item.ListMTOServiceItemsParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.ListMTOServiceItems has not yet been implemented")
@@ -218,11 +225,17 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderUpdateBillableWeightHandler: order.UpdateBillableWeightHandlerFunc(func(params order.UpdateBillableWeightParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.UpdateBillableWeight has not yet been implemented")
 		}),
+		MoveUpdateCloseoutOfficeHandler: move.UpdateCloseoutOfficeHandlerFunc(func(params move.UpdateCloseoutOfficeParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.UpdateCloseoutOffice has not yet been implemented")
+		}),
 		CustomerUpdateCustomerHandler: customer.UpdateCustomerHandlerFunc(func(params customer.UpdateCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.UpdateCustomer has not yet been implemented")
 		}),
 		CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler: customer_support_remarks.UpdateCustomerSupportRemarkForMoveHandlerFunc(func(params customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.UpdateCustomerSupportRemarkForMove has not yet been implemented")
+		}),
+		MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler: move_task_order.UpdateMTOReviewedBillableWeightsAtHandlerFunc(func(params move_task_order.UpdateMTOReviewedBillableWeightsAtParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.UpdateMTOReviewedBillableWeightsAt has not yet been implemented")
 		}),
 		MtoServiceItemUpdateMTOServiceItemHandler: mto_service_item.UpdateMTOServiceItemHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItem has not yet been implemented")
@@ -306,8 +319,6 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
-	// MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler sets the operation handler for the update m t o reviewed billable weights at operation
-	MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler move_task_order.UpdateMTOReviewedBillableWeightsAtHandler
 	// OrderAcknowledgeExcessWeightRiskHandler sets the operation handler for the acknowledge excess weight risk operation
 	OrderAcknowledgeExcessWeightRiskHandler order.AcknowledgeExcessWeightRiskHandler
 	// ShipmentApproveSITExtensionHandler sets the operation handler for the approve s i t extension operation
@@ -368,6 +379,8 @@ type MymoveAPI struct {
 	QueuesGetMovesQueueHandler queues.GetMovesQueueHandler
 	// OrderGetOrderHandler sets the operation handler for the get order operation
 	OrderGetOrderHandler order.GetOrderHandler
+	// PpmGetPPMDocumentsHandler sets the operation handler for the get p p m documents operation
+	PpmGetPPMDocumentsHandler ppm.GetPPMDocumentsHandler
 	// PwsViolationsGetPWSViolationsHandler sets the operation handler for the get p w s violations operation
 	PwsViolationsGetPWSViolationsHandler pws_violations.GetPWSViolationsHandler
 	// PaymentRequestsGetPaymentRequestHandler sets the operation handler for the get payment request operation
@@ -384,6 +397,10 @@ type MymoveAPI struct {
 	MtoShipmentGetShipmentHandler mto_shipment.GetShipmentHandler
 	// PaymentRequestsGetShipmentsPaymentSITBalanceHandler sets the operation handler for the get shipments payment s i t balance operation
 	PaymentRequestsGetShipmentsPaymentSITBalanceHandler payment_requests.GetShipmentsPaymentSITBalanceHandler
+	// TransportationOfficeGetTransportationOfficesHandler sets the operation handler for the get transportation offices operation
+	TransportationOfficeGetTransportationOfficesHandler transportation_office.GetTransportationOfficesHandler
+	// PpmGetWeightTicketsHandler sets the operation handler for the get weight tickets operation
+	PpmGetWeightTicketsHandler ppm.GetWeightTicketsHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
 	MtoServiceItemListMTOServiceItemsHandler mto_service_item.ListMTOServiceItemsHandler
 	// MtoShipmentListMTOShipmentsHandler sets the operation handler for the list m t o shipments operation
@@ -410,10 +427,14 @@ type MymoveAPI struct {
 	OrderUpdateAllowanceHandler order.UpdateAllowanceHandler
 	// OrderUpdateBillableWeightHandler sets the operation handler for the update billable weight operation
 	OrderUpdateBillableWeightHandler order.UpdateBillableWeightHandler
+	// MoveUpdateCloseoutOfficeHandler sets the operation handler for the update closeout office operation
+	MoveUpdateCloseoutOfficeHandler move.UpdateCloseoutOfficeHandler
 	// CustomerUpdateCustomerHandler sets the operation handler for the update customer operation
 	CustomerUpdateCustomerHandler customer.UpdateCustomerHandler
 	// CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler sets the operation handler for the update customer support remark for move operation
 	CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler customer_support_remarks.UpdateCustomerSupportRemarkForMoveHandler
+	// MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler sets the operation handler for the update m t o reviewed billable weights at operation
+	MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler move_task_order.UpdateMTOReviewedBillableWeightsAtHandler
 	// MtoServiceItemUpdateMTOServiceItemHandler sets the operation handler for the update m t o service item operation
 	MtoServiceItemUpdateMTOServiceItemHandler mto_service_item.UpdateMTOServiceItemHandler
 	// MtoServiceItemUpdateMTOServiceItemStatusHandler sets the operation handler for the update m t o service item status operation
@@ -520,9 +541,6 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler == nil {
-		unregistered = append(unregistered, "move_task_order.UpdateMTOReviewedBillableWeightsAtHandler")
-	}
 	if o.OrderAcknowledgeExcessWeightRiskHandler == nil {
 		unregistered = append(unregistered, "order.AcknowledgeExcessWeightRiskHandler")
 	}
@@ -613,6 +631,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrderGetOrderHandler == nil {
 		unregistered = append(unregistered, "order.GetOrderHandler")
 	}
+	if o.PpmGetPPMDocumentsHandler == nil {
+		unregistered = append(unregistered, "ppm.GetPPMDocumentsHandler")
+	}
 	if o.PwsViolationsGetPWSViolationsHandler == nil {
 		unregistered = append(unregistered, "pws_violations.GetPWSViolationsHandler")
 	}
@@ -636,6 +657,12 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PaymentRequestsGetShipmentsPaymentSITBalanceHandler == nil {
 		unregistered = append(unregistered, "payment_requests.GetShipmentsPaymentSITBalanceHandler")
+	}
+	if o.TransportationOfficeGetTransportationOfficesHandler == nil {
+		unregistered = append(unregistered, "transportation_office.GetTransportationOfficesHandler")
+	}
+	if o.PpmGetWeightTicketsHandler == nil {
+		unregistered = append(unregistered, "ppm.GetWeightTicketsHandler")
 	}
 	if o.MtoServiceItemListMTOServiceItemsHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.ListMTOServiceItemsHandler")
@@ -676,11 +703,17 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrderUpdateBillableWeightHandler == nil {
 		unregistered = append(unregistered, "order.UpdateBillableWeightHandler")
 	}
+	if o.MoveUpdateCloseoutOfficeHandler == nil {
+		unregistered = append(unregistered, "move.UpdateCloseoutOfficeHandler")
+	}
 	if o.CustomerUpdateCustomerHandler == nil {
 		unregistered = append(unregistered, "customer.UpdateCustomerHandler")
 	}
 	if o.CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.UpdateCustomerSupportRemarkForMoveHandler")
+	}
+	if o.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler == nil {
+		unregistered = append(unregistered, "move_task_order.UpdateMTOReviewedBillableWeightsAtHandler")
 	}
 	if o.MtoServiceItemUpdateMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.UpdateMTOServiceItemHandler")
@@ -811,10 +844,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
-	}
-	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at"] = move_task_order.NewUpdateMTOReviewedBillableWeightsAt(o.context, o.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -938,6 +967,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/shipments/{shipmentID}/ppm-documents"] = ppm.NewGetPPMDocuments(o.context, o.PpmGetPPMDocumentsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/pws-violations"] = pws_violations.NewGetPWSViolations(o.context, o.PwsViolationsGetPWSViolationsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -967,6 +1000,14 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/payment-requests/{paymentRequestID}/shipments-payment-sit-balance"] = payment_requests.NewGetShipmentsPaymentSITBalance(o.context, o.PaymentRequestsGetShipmentsPaymentSITBalanceHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/transportation-offices"] = transportation_office.NewGetTransportationOffices(o.context, o.TransportationOfficeGetTransportationOfficesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/weight-tickets"] = ppm.NewGetWeightTickets(o.context, o.PpmGetWeightTicketsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -1022,11 +1063,19 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
+	o.handlers["PATCH"]["/moves/{locator}/closeout-office"] = move.NewUpdateCloseoutOffice(o.context, o.MoveUpdateCloseoutOfficeHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
 	o.handlers["PATCH"]["/customer/{customerID}"] = customer.NewUpdateCustomer(o.context, o.CustomerUpdateCustomerHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/customer-support-remarks/{customerSupportRemarkID}"] = customer_support_remarks.NewUpdateCustomerSupportRemarkForMove(o.context, o.CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at"] = move_task_order.NewUpdateMTOReviewedBillableWeightsAt(o.context, o.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

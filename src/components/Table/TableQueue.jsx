@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { GridContainer } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
+import { NavLink } from 'react-router-dom';
 
 import styles from './TableQueue.module.scss';
 
@@ -10,6 +11,8 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import { SortShape } from 'constants/queues';
+import TabNav from 'components/TabNav';
+import { servicesCounselingRoutes } from 'constants/routes';
 
 // TableQueue is a react-table that uses react-hooks to fetch, filter, sort and page data
 const TableQueue = ({
@@ -26,6 +29,7 @@ const TableQueue = ({
   useQueries,
   showFilters,
   showPagination,
+  showTabs,
 }) => {
   const [paramSort, setParamSort] = useState(defaultSortedColumns);
   const [paramFilters, setParamFilters] = useState([]);
@@ -114,8 +118,26 @@ const TableQueue = ({
   return (
     <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
       <h1>{`${title} (${totalCount})`}</h1>
+      {showTabs && (
+        <TabNav
+          className={styles.tableTabs}
+          items={[
+            <NavLink exact activeClassName="usa-current" to={servicesCounselingRoutes.QUEUE_COUNSELING_PATH}>
+              <span data-testid="counseling-tab-link" className="tab-title">
+                Counseling
+              </span>
+            </NavLink>,
+            <NavLink exact activeClassName="usa-current" to={servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH}>
+              <span data-testid="closeout-tab-link" className="tab-title">
+                PPM Closeout
+              </span>
+            </NavLink>,
+          ]}
+        />
+      )}
       <div className={styles.tableContainer}>
         <Table
+          showTabs={showTabs}
           showFilters={showFilters}
           showPagination={showPagination}
           handleClick={handleClick}
@@ -141,6 +163,8 @@ const TableQueue = ({
 };
 
 TableQueue.propTypes = {
+  // showTabs is a boolean that determines whether or not to show the tabs
+  showTabs: PropTypes.bool,
   // handleClick is the handler to handle functionality to click on a row
   handleClick: PropTypes.func.isRequired,
   // useQueries is the react-query hook call to handle data fetching
@@ -170,6 +194,7 @@ TableQueue.propTypes = {
 };
 
 TableQueue.defaultProps = {
+  showTabs: false,
   showFilters: false,
   showPagination: false,
   manualSortBy: false,
@@ -180,5 +205,4 @@ TableQueue.defaultProps = {
   defaultSortedColumns: [],
   defaultHiddenColumns: ['id'],
 };
-
 export default TableQueue;

@@ -4,6 +4,7 @@ import moment from 'moment';
 
 import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
+import { isExpenseComplete, isWeightTicketComplete, isProGearComplete } from 'utils/shipments';
 
 const getW2Address = (address) => {
   const addressLine1 = address?.streetAddress2
@@ -24,6 +25,7 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
   return [
     {
       id: 'about-your-ppm',
+      isComplete: true,
       rows: [
         {
           id: 'departureDate',
@@ -37,7 +39,7 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
           id: 'advance',
           label: 'Advance:',
           value: ppmShipment.hasReceivedAdvance
-            ? `Yes, $${formatCentsTruncateWhole(ppmShipment.advanceAmountRequested)}`
+            ? `Yes, $${formatCentsTruncateWhole(ppmShipment.advanceAmountReceived)}`
             : 'No',
         },
         {
@@ -46,7 +48,7 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
           value: getW2Address(ppmShipment.w2Address),
         },
       ],
-      renderEditLink: () => <Link to={generatePath(editPath, editParams)}>Edit</Link>,
+      renderEditLink: () => (editPath ? <Link to={generatePath(editPath, editParams)}>Edit</Link> : ''),
     },
   ];
 };
@@ -54,6 +56,8 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
 export const formatWeightTicketItems = (weightTickets, editPath, editParams, handleDelete) => {
   return weightTickets?.map((weightTicket, i) => ({
     id: weightTicket.id,
+    isComplete: isWeightTicketComplete(weightTicket),
+    draftMessage: 'This trip is missing required information.',
     subheading: <h4 className="text-bold">Trip {i + 1}</h4>,
     rows: [
       {
@@ -80,16 +84,18 @@ export const formatWeightTicketItems = (weightTickets, editPath, editParams, han
 export const formatProGearItems = (proGears, editPath, editParams, handleDelete) => {
   return proGears?.map((proGear, i) => {
     const weightValues = proGear.hasWeightTickets
-      ? { id: 'weight', label: 'Weight:', value: formatWeight(proGear.fullWeight - proGear.emptyWeight) }
-      : { id: 'constructedWeight', label: 'Constructed weight:', value: formatWeight(proGear.constructedWeight) };
+      ? { id: 'weight', label: 'Weight:', value: formatWeight(proGear.weight) }
+      : { id: 'constructedWeight', label: 'Constructed weight:', value: formatWeight(proGear.weight) };
     return {
       id: proGear.id,
+      isComplete: isProGearComplete(proGear),
+      draftMessage: 'This set is missing required information.',
       subheading: <h4 className="text-bold">Set {i + 1}</h4>,
       rows: [
         {
           id: 'proGearType',
           label: 'Pro-gear Type:',
-          value: proGear.selfProGear ? 'Pro-gear' : 'Spouse pro-gear',
+          value: proGear.belongsToSelf ? 'Pro-gear' : 'Spouse pro-gear',
           hideLabel: true,
         },
         { id: 'description', label: 'Description:', value: proGear.description, hideLabel: true },
@@ -105,6 +111,8 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
   return expenses?.map((expense, i) => {
     const contents = {
       id: expense.id,
+      isComplete: isExpenseComplete(expense),
+      draftMessage: 'This receipt is missing required information.',
       subheading: <h4 className="text-bold">Receipt {i + 1}</h4>,
       rows: [
         {
@@ -144,27 +152,18 @@ export const calculateNetWeightForWeightTicket = (weightTicket) => {
   return weightTicket.fullWeight - weightTicket.emptyWeight;
 };
 
+export const calculateNetWeightForProGearWeightTicket = (weightTicket) => {
+  if (weightTicket.weight == null || Number.isNaN(Number(weightTicket.weight))) {
+    return 0;
+  }
+
+  return weightTicket.weight;
+};
+
 export const calculateTotalNetWeightForWeightTickets = (weightTickets = []) => {
   return weightTickets.reduce((prev, curr) => {
     return prev + calculateNetWeightForWeightTicket(curr);
   }, 0);
-};
-
-export const calculateNetWeightForProGearWeightTicket = (proGearWeightTicket) => {
-  if (proGearWeightTicket.constructedWeight != null && !Number.isNaN(Number(proGearWeightTicket.constructedWeight))) {
-    return proGearWeightTicket.constructedWeight;
-  }
-
-  if (
-    proGearWeightTicket.emptyWeight == null ||
-    proGearWeightTicket.fullWeight == null ||
-    Number.isNaN(Number(proGearWeightTicket.emptyWeight)) ||
-    Number.isNaN(Number(proGearWeightTicket.fullWeight))
-  ) {
-    return 0;
-  }
-
-  return proGearWeightTicket.fullWeight - proGearWeightTicket.emptyWeight;
 };
 
 export const calculateTotalNetWeightForProGearWeightTickets = (proGearWeightTickets = []) => {

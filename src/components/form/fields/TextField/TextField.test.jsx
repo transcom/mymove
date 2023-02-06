@@ -50,7 +50,7 @@ describe('TextField component', () => {
     expect(queryByLabelText('First Name')).toHaveClass('myCustomInputClass');
   });
 
-  it('can include a trailing button', () => {
+  it('can include a trailing button', async () => {
     useField.mockReturnValue([{}, {}]);
 
     const mockOnButtonClick = jest.fn();
@@ -73,7 +73,7 @@ describe('TextField component', () => {
 
     // Click the button
     expect(mockOnButtonClick).not.toHaveBeenCalled();
-    userEvent.click(getByTestId('testButton'));
+    await userEvent.click(getByTestId('testButton'));
     expect(mockOnButtonClick).toHaveBeenCalled();
   });
 

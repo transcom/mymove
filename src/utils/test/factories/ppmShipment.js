@@ -50,7 +50,7 @@ const createBasePPMShipment = (fieldOverrides = {}) => {
       actualDestinationPostalCode: null,
       hasReceivedAdvance: null,
       advanceAmountReceived: null,
-      finalEstimatedIncentive: null,
+      finalIncentive: null,
       weightTickets: [],
       movingExpenses: [],
       proGearWeightTickets: [],
@@ -198,7 +198,7 @@ const createPPMShipmentWithFinalIncentive = (fieldOverrides = {}) => {
     ...shipment,
     ppmShipment: {
       ...shipment.ppmShipment,
-      finalEstimatedIncentive: shipment.ppmShipment.estimatedIncentive,
+      finalIncentive: shipment.ppmShipment.estimatedIncentive,
       updatedAt,
       eTag: window.btoa(updatedAt),
       ...fieldOverrides?.ppmShipment,

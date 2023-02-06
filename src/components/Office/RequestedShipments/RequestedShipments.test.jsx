@@ -1,6 +1,6 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import {
@@ -9,7 +9,11 @@ import {
   ordersInfo,
   allowancesInfo,
   customerInfo,
-  serviceItems,
+  serviceItemsMSandCS,
+  serviceItemsMS,
+  serviceItemsCS,
+  serviceItemsEmpty,
+  ppmOnlyShipments,
 } from './RequestedShipmentsTestData';
 import ApprovedRequestedShipments from './ApprovedRequestedShipments';
 import SubmittedRequestedShipments from './SubmittedRequestedShipments';
@@ -174,6 +178,7 @@ describe('RequestedShipments', () => {
     it('enables the Approve selected button when a shipment and service item are checked', async () => {
       const { container } = render(submittedRequestedShipmentsComponentWithPermission);
 
+      // TODO this doesn't seem right
       await act(async () => {
         await userEvent.type(
           container.querySelector('input[name="shipments"]'),
@@ -184,12 +189,14 @@ describe('RequestedShipments', () => {
       expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
       expect(container.querySelector('#approvalConfirmationModal')).toHaveStyle('display: none');
 
+      // TODO
       await act(async () => {
         await userEvent.click(screen.getByRole('checkbox', { name: 'Move management' }));
       });
 
       expect(screen.getByRole('button', { name: 'Approve selected' })).not.toBeDisabled();
 
+      // TODO
       await act(async () => {
         await userEvent.click(screen.getByRole('button', { name: 'Approve selected' }));
       });
@@ -199,6 +206,7 @@ describe('RequestedShipments', () => {
     it('disables the Approve selected button when there is missing required information', async () => {
       const { container } = render(submittedRequestedShipmentsComponentMissingRequiredInfo);
 
+      // TODO
       await act(async () => {
         await userEvent.type(
           container.querySelector('input[name="shipments"]'),
@@ -236,25 +244,18 @@ describe('RequestedShipments', () => {
         </MockProviders>,
       );
 
-      // You could take the shortcut and call submit directly as well if providing initial values
-      fireEvent.submit(container.querySelector('form'));
+      await userEvent.click(screen.getByRole('button', { name: 'Approve selected' }));
 
-      // When simulating change events you must pass the target with the id and
-      // name for formik to know which value to update
+      const shipmentInput = container.querySelector('input[name="shipments"]');
+      await userEvent.type(shipmentInput, 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee');
 
-      await act(async () => {
-        const shipmentInput = container.querySelector('input[name="shipments"]');
-        await userEvent.type(shipmentInput, 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee');
+      const shipmentManagementFeeInput = screen.getByRole('checkbox', { name: 'Move management' });
+      await userEvent.click(shipmentManagementFeeInput);
 
-        const shipmentManagementFeeInput = screen.getByRole('checkbox', { name: 'Move management' });
-        await userEvent.click(shipmentManagementFeeInput);
+      const counselingFeeInput = screen.getByRole('checkbox', { name: 'Counseling' });
+      await userEvent.click(counselingFeeInput);
 
-        const counselingFeeInput = screen.getByRole('checkbox', { name: 'Counseling' });
-        await userEvent.click(counselingFeeInput);
-
-        userEvent.click(container.querySelector('form button[type="button"]'));
-        userEvent.click(screen.getAllByRole('button').at(0));
-      });
+      await userEvent.click(screen.getByText('Approve and send'));
 
       expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit.mock.calls[0]).toEqual([
@@ -275,7 +276,7 @@ describe('RequestedShipments', () => {
         <ApprovedRequestedShipments
           ordersInfo={ordersInfo}
           mtoShipments={shipments}
-          mtoServiceItems={serviceItems}
+          mtoServiceItems={serviceItemsMSandCS}
           moveCode="TE5TC0DE"
         />,
       );
@@ -299,7 +300,7 @@ describe('RequestedShipments', () => {
           APPROVED: {
             ordersInfo,
             mtoShipments: shipments,
-            mtoServiceItems: serviceItems,
+            mtoServiceItems: serviceItemsMSandCS,
             moveCode: 'TE5TC0DE',
           },
           SUBMITTED: {
@@ -308,7 +309,7 @@ describe('RequestedShipments', () => {
             customerInfo,
             mtoShipments: shipments,
             approveMTO,
-            mtoServiceItems: serviceItems,
+            mtoServiceItems: serviceItemsMSandCS,
             moveCode: 'TE5TC0DE',
           },
         };
@@ -340,9 +341,7 @@ describe('RequestedShipments', () => {
 
       expect(screen.getByTestId('shipmentApproveButton')).toBeDisabled();
 
-      await waitFor(() => {
-        userEvent.click(screen.getByLabelText('Move management'));
-      });
+      await userEvent.click(screen.getByLabelText('Move management'));
 
       expect(screen.getByLabelText('Move management').checked).toEqual(true);
 
@@ -357,7 +356,7 @@ describe('RequestedShipments', () => {
       customerInfo,
       mtoShipments: shipments,
       approveMTO,
-      mtoServiceItems: serviceItems,
+      mtoServiceItems: [],
       moveCode: 'TE5TC0DE',
     };
     it('renders the "Add service items to move" section when user has permission', () => {
@@ -380,6 +379,102 @@ describe('RequestedShipments', () => {
 
       expect(screen.queryByText('Add service items to this move')).not.toBeInTheDocument();
       expect(screen.queryByText('Approve selected')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Conditional form display', () => {
+    const renderComponent = (props) => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <SubmittedRequestedShipments {...props} />
+        </MockProviders>,
+      );
+    };
+    const conditionalFormTestProps = {
+      ordersInfo,
+      allowancesInfo,
+      customerInfo,
+      approveMTO,
+      moveCode: 'TE5TC0DE',
+    };
+    it('does not render the "Add service items to move" section when both service items are present', () => {
+      const testProps = {
+        mtoServiceItems: serviceItemsMSandCS,
+        mtoShipments: shipments,
+        ...conditionalFormTestProps,
+      };
+      renderComponent(testProps);
+
+      expect(screen.queryByText('Add service items to this move')).not.toBeInTheDocument();
+      expect(screen.getByText('Approve selected')).toBeInTheDocument();
+    });
+
+    it('does not render the "Add service items to move" section when counseling is present and all shipments are PPM', () => {
+      const testProps = {
+        mtoServiceItems: serviceItemsCS,
+        mtoShipments: ppmOnlyShipments,
+        ...conditionalFormTestProps,
+      };
+      renderComponent(testProps);
+
+      expect(screen.queryByText('Add service items to this move')).not.toBeInTheDocument();
+      expect(screen.getByText('Approve selected')).toBeInTheDocument();
+    });
+
+    it('renders the "Add service items to move" section with only counseling when only move management is present in service items', () => {
+      const testProps = {
+        mtoServiceItems: serviceItemsMS,
+        mtoShipments: shipments,
+        ...conditionalFormTestProps,
+      };
+      renderComponent(testProps);
+
+      expect(screen.getByText('Add service items to this move')).toBeInTheDocument();
+      expect(screen.getByText('Approve selected')).toBeInTheDocument();
+      expect(screen.queryByTestId('shipmentManagementFee')).not.toBeInTheDocument();
+      expect(screen.getByTestId('counselingFee')).toBeInTheDocument();
+    });
+
+    it('renders the "Add service items to move" section with only move management when only counseling is present in service items', () => {
+      const testProps = {
+        mtoServiceItems: serviceItemsCS,
+        mtoShipments: shipments,
+        ...conditionalFormTestProps,
+      };
+      renderComponent(testProps);
+
+      expect(screen.getByText('Add service items to this move')).toBeInTheDocument();
+      expect(screen.getByText('Approve selected')).toBeInTheDocument();
+      expect(screen.getByTestId('shipmentManagementFee')).toBeInTheDocument();
+      expect(screen.queryByTestId('counselingFee')).not.toBeInTheDocument();
+    });
+
+    it('renders the "Add service items to move" section with all fields when neither counseling nor move management is present in service items', () => {
+      const testProps = {
+        mtoServiceItems: serviceItemsEmpty,
+        mtoShipments: shipments,
+        ...conditionalFormTestProps,
+      };
+      renderComponent(testProps);
+
+      expect(screen.getByText('Add service items to this move')).toBeInTheDocument();
+      expect(screen.getByText('Approve selected')).toBeInTheDocument();
+      expect(screen.getByTestId('shipmentManagementFee')).toBeInTheDocument();
+      expect(screen.getByTestId('counselingFee')).toBeInTheDocument();
+    });
+
+    it('renders the "Add service items to move" section with only counseling when all shipments are PPM', () => {
+      const testProps = {
+        mtoServiceItems: serviceItemsEmpty,
+        mtoShipments: ppmOnlyShipments,
+        ...conditionalFormTestProps,
+      };
+      renderComponent(testProps);
+
+      expect(screen.getByText('Add service items to this move')).toBeInTheDocument();
+      expect(screen.getByText('Approve selected')).toBeInTheDocument();
+      expect(screen.queryByTestId('shipmentManagementFee')).not.toBeInTheDocument();
+      expect(screen.getByTestId('counselingFee')).toBeInTheDocument();
     });
   });
 });

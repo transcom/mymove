@@ -78,14 +78,17 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
       />,
     );
 
-    userEvent.type(screen.getByLabelText('Address 1'), '23 City Str');
-    userEvent.type(screen.getByLabelText('City'), 'City');
-    userEvent.type(screen.getByLabelText('ZIP'), '90210');
+    await userEvent.type(screen.getByLabelText('Address 1'), '23 City Str');
+    await userEvent.type(screen.getByLabelText('City'), 'City');
+    await userEvent.clear(screen.getByLabelText('ZIP'));
+    await userEvent.type(screen.getByLabelText('ZIP'), '90210');
+    await userEvent.selectOptions(screen.getByLabelText('State'), ['CA']);
+
+    const submitBtn = screen.getByRole('button', { name: 'Save' });
     await waitFor(() => {
-      const submitBtn = screen.getByRole('button', { name: 'Save' });
       expect(submitBtn).toBeEnabled();
-      userEvent.click(submitBtn);
     });
+    await userEvent.click(submitBtn);
   });
 
   it('disables the submit button when the zip is bad', async () => {
@@ -135,7 +138,7 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
         name="pickupAddress.address"
       />,
     );
-    userEvent.clear(screen.getByLabelText('City'));
+    await userEvent.clear(screen.getByLabelText('City'));
     (await screen.getByLabelText('City')).blur();
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();

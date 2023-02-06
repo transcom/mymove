@@ -3,6 +3,7 @@ import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
 import { v4 } from 'uuid';
+import moment from 'moment';
 
 import About from 'pages/MyMove/PPM/Closeout/About/About';
 import { selectMTOShipmentById } from 'store/entities/selectors';
@@ -11,6 +12,7 @@ import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { MockProviders } from 'testUtils';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 
 const mockMoveId = v4();
 const mockMTOShipmentId = v4();
@@ -34,24 +36,43 @@ jest.mock('services/internalApi', () => ({
   getResponseError: jest.fn(),
 }));
 
+const mtoShipmentCreatedDate = new Date();
+const ppmShipmentCreatedDate = moment(mtoShipmentCreatedDate).add(5, 'seconds');
+const approvedDate = moment(ppmShipmentCreatedDate).add(2, 'days');
+
 const mockMTOShipment = {
   id: mockMTOShipmentId,
   shipmentType: SHIPMENT_OPTIONS.PPM,
+  status: shipmentStatuses.APPROVED,
+  moveTaskOrderId: mockMoveId,
   ppmShipment: {
     id: mockPPMShipmentId,
+    shipmentId: mockMTOShipmentId,
+    status: ppmShipmentStatuses.WAITING_ON_CUSTOMER,
     pickupPostalCode: '10001',
     destinationPostalCode: '10002',
     expectedDepartureDate: '2022-04-30',
-    advanceRequested: true,
-    advance: 598700,
+    hasRequestedAdvance: true,
+    advanceAmountRequested: 598700,
     estimatedWeight: 4000,
     estimatedIncentive: 1000000,
     sitExpected: false,
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
+    actualMoveDate: null,
+    actualPickupPostalCode: null,
+    actualDestinationPostalCode: null,
+    hasReceivedAdvance: null,
+    advanceAmountReceived: null,
+    weightTickets: [],
+    createdAt: ppmShipmentCreatedDate.toISOString(),
+    updatedAt: approvedDate.toISOString(),
+    eTag: window.btoa(approvedDate.toISOString()),
   },
-  eTag: 'dGVzdGluZzIzNDQzMjQ',
+  createdAt: mtoShipmentCreatedDate.toISOString(),
+  updatedAt: approvedDate.toISOString(),
+  eTag: window.btoa(approvedDate.toISOString()),
 };
 
 const partialPayload = {
@@ -70,7 +91,7 @@ const partialPayload = {
 };
 
 const mockPayload = {
-  shipmentType: 'PPM',
+  shipmentType: SHIPMENT_OPTIONS.PPM,
   ppmShipment: {
     id: mockPPMShipmentId,
     ...partialPayload,
@@ -111,32 +132,39 @@ const weightTicketsPath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKET
   mtoShipmentId: mockMTOShipmentId,
 });
 
-const fillOutBasicForm = (form) => {
-  userEvent.paste(within(form).getByLabelText('When did you leave your origin?'), '31 May 2022');
+const fillOutBasicForm = async (form) => {
+  within(form).getByLabelText('When did you leave your origin?').focus();
+  await userEvent.paste('31 May 2022');
 
-  userEvent.paste(within(form).getByLabelText('Starting ZIP'), '10001', {
+  within(form).getByLabelText('Starting ZIP').focus();
+  await userEvent.paste('10001', {
     initialSelectionStart: 0,
     initialSelectionEnd: 5,
   });
 
-  userEvent.paste(within(form).getByLabelText('Ending ZIP'), '10002', {
+  within(form).getByLabelText('Ending ZIP').focus();
+  await userEvent.paste('10002', {
     initialSelectionStart: 0,
     initialSelectionEnd: 5,
   });
 
-  userEvent.paste(within(form).getByLabelText('Address 1'), '10642 N Second Ave');
+  within(form).getByLabelText('Address 1').focus();
+  await userEvent.paste('10642 N Second Ave');
 
-  userEvent.paste(within(form).getByLabelText('City'), 'Goldsboro');
+  within(form).getByLabelText('City').focus();
+  await userEvent.paste('Goldsboro');
 
-  userEvent.selectOptions(within(form).getByLabelText('State'), 'NC');
+  await userEvent.selectOptions(within(form).getByLabelText('State'), 'NC');
 
-  userEvent.paste(within(form).getByLabelText('ZIP'), '27534');
+  within(form).getByLabelText('ZIP').focus();
+  await userEvent.paste('27534');
 };
 
-const fillOutAdvanceSections = (form) => {
-  userEvent.click(within(form).getByLabelText('Yes'));
+const fillOutAdvanceSections = async (form) => {
+  await userEvent.click(within(form).getByLabelText('Yes'));
 
-  userEvent.paste(within(form).getByLabelText('How much did you receive?'), '7500');
+  within(form).getByLabelText('How much did you receive?').focus();
+  await userEvent.paste('7500');
 };
 
 describe('About page', () => {
@@ -163,10 +191,10 @@ describe('About page', () => {
     expect(headings[5]).toHaveTextContent('W-2 address');
   });
 
-  it('routes back to home when return to homepage is clicked', () => {
+  it('routes back to home when return to homepage is clicked', async () => {
     render(<About />, { wrapper: MockProviders });
 
-    userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
     expect(mockPush).toHaveBeenCalledWith(homePath);
   });
 
@@ -174,13 +202,12 @@ describe('About page', () => {
     patchMTOShipment.mockResolvedValueOnce(mockMTOShipmentResponse);
 
     render(<About />, { wrapper: MockProviders });
-
     const form = screen.getByTestId('aboutForm');
 
-    fillOutBasicForm(form);
-    fillOutAdvanceSections(form);
+    await fillOutBasicForm(form);
+    await fillOutAdvanceSections(form);
 
-    userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
+    await userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
     await waitFor(() => {
       expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, mockPayload, mockMTOShipment.eTag);
     });
@@ -197,9 +224,9 @@ describe('About page', () => {
     render(<About />, { wrapper: MockProviders });
 
     const form = screen.getByTestId('aboutForm');
-    fillOutBasicForm(form);
+    await fillOutBasicForm(form);
 
-    userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
+    await userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
     const payload = {
       ...mockPayload,
       ppmShipment: {

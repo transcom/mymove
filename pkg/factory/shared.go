@@ -3,11 +3,15 @@ package factory
 import (
 	"fmt"
 	"log"
+	"os"
+	"path"
+	"path/filepath"
 	"reflect"
 	"strconv"
 	"strings"
 
 	"github.com/gobuffalo/pop/v6"
+	"github.com/spf13/afero"
 
 	"github.com/transcom/mymove/pkg/random"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -15,9 +19,11 @@ import (
 
 // Customization type is the building block for passing in customizations and traits
 type Customization struct {
-	Model     interface{}
-	Type      *CustomType
-	ForceUUID bool
+	Model interface{} // The model that the factory will build
+	Type  *CustomType // Custom type, usually same as model,
+	// except for models that appear in multiple fields
+	LinkOnly       bool        // Tells factory to just link in this model, do not create
+	ExtendedParams interface{} // Some models need extra data for creation, pointer to extended params
 }
 
 // CustomType is a string that represents what kind of customization it is
@@ -29,14 +35,30 @@ type CustomType string
 // where this address will get created and nested
 var control CustomType = "Control"
 var Address CustomType = "Address"
-var User CustomType = "User"
+var AdminUser CustomType = "AdminUser"
+var Entitlement CustomType = "Entitlement"
+var OfficePhoneLine CustomType = "OfficePhoneLine"
+var OfficeUser CustomType = "OfficeUser"
+var Order CustomType = "Order"
 var ServiceMember CustomType = "ServiceMember"
+var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
+var TransportationOffice CustomType = "TransportationOffice"
+var Upload CustomType = "Upload"
+var User CustomType = "User"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
-	"models.Address":       Address,
-	"models.User":          User,
-	"models.ServiceMember": ServiceMember,
+	"models.Address":              Address,
+	"models.AdminUser":            AdminUser,
+	"models.Entitlement":          Entitlement,
+	"models.OfficePhoneLine":      OfficePhoneLine,
+	"models.OfficeUser":           OfficeUser,
+	"models.Order":                Order,
+	"models.ServiceMember":        ServiceMember,
+	"models.Tariff400ngZip3":      Tariff400ngZip3,
+	"models.TransportationOffice": TransportationOffice,
+	"models.Upload":               Upload,
+	"models.User":                 User,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
@@ -125,17 +147,24 @@ func setDefaultTypes(clist []Customization) {
 	}
 }
 
-// setDefaultTypesTraits assigns types to all customizations in the traits
-//func setDefaultTypesTraits()
+// linkOnlyHasID ensures LinkOnly customizations have an ID
+func linkOnlyHasID(clist []Customization) error {
+	for idx := 0; idx < len(clist); idx++ {
+		if clist[idx].LinkOnly && !hasID(clist[idx].Model) {
+			return fmt.Errorf("Customization was LinkOnly but the Model had no ID. LinkOnly models must have ID")
+		}
+	}
+	return nil
+}
 
 // setupCustomizations prepares the customizations customs for the factory
 // by applying and merging the traits.
 // customs is a slice that will be modified by setupCustomizations.
 //
-// - Ensures a control object has been created
-// - Assigns default types to all default customizations
-// - Merges customizations and traits
-// - Ensure there's only one customization per type
+//   - Ensures a control object has been created
+//   - Assigns default types to all default customizations
+//   - Merges customizations and traits
+//   - Ensure there's only one customization per type
 func setupCustomizations(customs []Customization, traits []Trait) []Customization {
 
 	// If a valid control object does not exist, create
@@ -156,12 +185,18 @@ func setupCustomizations(customs []Customization, traits []Trait) []Customizatio
 	}
 
 	// If not valid:
+	// Ensure LinkOnly customizations all have ID
+	err := linkOnlyHasID(customs)
+	if err != nil {
+		log.Panic(err)
+	}
+
 	// Merge customizations with traits (also sets default types)
 	customs = mergeCustomization(customs, traits)
+
 	// Ensure unique customizations
-	err := isUnique(customs)
+	err = isUnique(customs)
 	if err != nil {
-		controller.isValid = false
 		log.Panic(err)
 	}
 	// Store the validation result
@@ -270,12 +305,10 @@ func mergeCustomization(customs []Customization, traits []Trait) []Customization
 		for _, traitCustom := range traitCustomizations {
 			j, callerCustom := findCustomWithIdx(customs, *traitCustom.Type)
 			if callerCustom != nil {
-				// If a customization has an ID, it means we use that precreated object
-				// Therefore we can't merge a trait with it, as those fields will not get
-				// updated.
-				// While this feels like we should warn or error out, we want to support overriding a
-				// trait with a precreated object so it's not an error.
-				if !hasID(callerCustom.Model) {
+				// If a customization is marked as LinkOnly, it means we use that precreated object
+				// Therefore we can't merge a trait with it, as we don't update fields on pre-created
+				// objects. So we only merge if LinkOnly is false.
+				if !callerCustom.LinkOnly {
 					result := mergeInterfaces(traitCustom.Model, callerCustom.Model)
 					callerCustom.Model = result
 					customs[j] = *callerCustom
@@ -289,7 +322,7 @@ func mergeCustomization(customs []Customization, traits []Trait) []Customization
 }
 
 // Helper function for when you need to elevate the type of customization from say
-// ResidentialAddress to Address before you call makeAddress
+// ResidentialAddress to Address before you call BuildAddress
 // This is a little finicky because we want to be careful not to harm the existing list
 // TBD should we validate again here?
 func convertCustomizationInList(customs []Customization, from CustomType, to CustomType) []Customization {
@@ -393,4 +426,52 @@ func RandomEdipi() string {
 		log.Panicf("Failure to generate random Edipi %v", err)
 	}
 	return strconv.Itoa(low + int(randInt))
+}
+
+// Source chars for random string
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+
+// Returns a random alphanumeric string of specified length
+func makeRandomString(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		randInt, err := random.GetRandomInt(len(letterBytes))
+		if err != nil {
+			log.Panicf("failed to create random string %v", err)
+			return ""
+		}
+		b[i] = letterBytes[randInt]
+
+	}
+	return string(b)
+}
+
+func setBoolPtr(customBoolPtr *bool, defaultBool bool) *bool {
+	result := &defaultBool
+	if customBoolPtr != nil {
+		result = customBoolPtr
+	}
+	return result
+}
+
+// FixtureOpen opens a file from the testdata dir
+func FixtureOpen(name string) afero.File {
+	fixtureDir := "testdata"
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to get current directory: %s", err))
+	}
+
+	// if this is called from inside another package, we want to drop everything
+	// including and after 'pkg'
+	// 'a/b/c/pkg/something/' → 'a/b/c/'
+	cwd = strings.Split(cwd, "pkg")[0]
+
+	fixturePath := path.Join(cwd, "pkg/testdatagen", fixtureDir, name)
+	file, err := os.Open(filepath.Clean(fixturePath))
+	if err != nil {
+		log.Panic(fmt.Errorf("Error opening local file: %v", err))
+	}
+
+	return file
 }

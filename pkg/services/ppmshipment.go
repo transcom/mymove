@@ -22,11 +22,19 @@ type PPMShipmentUpdater interface {
 	UpdatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmshipment *models.PPMShipment, mtoShipmentID uuid.UUID) (*models.PPMShipment, error)
 }
 
+// PPMDocumentFetcher fetches all documents associated with a PPM shipment
+//
+//go:generate mockery --name PPMDocumentFetcher --disable-version-string
+type PPMDocumentFetcher interface {
+	GetPPMDocuments(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (*models.PPMDocuments, error)
+}
+
 // PPMEstimator estimates the cost of a PPM shipment
 //
 //go:generate mockery --name PPMEstimator --disable-version-string
 type PPMEstimator interface {
 	EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, *unit.Cents, error)
+	FinalIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, error)
 }
 
 // PPMShipmentRouter routes a PPM shipment

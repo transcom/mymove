@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -14,16 +15,20 @@ import (
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 
 	setupTestData := func() models.ServiceMember {
-		validAddress1 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "7 Q St",
+		validAddress1 := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "7 Q St",
+				},
 			},
-		})
-		validAddress2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "448 Washington Blvd NE",
+		}, nil)
+		validAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "448 Washington Blvd NE",
+				},
 			},
-		})
+		}, nil)
 		serviceMember := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
 			ServiceMember: models.ServiceMember{
 				FirstName:          swag.String("Gregory"),
@@ -112,16 +117,20 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeServic
 		//                   Returns true/false, the reasons, and err
 		// Set up:           Create a servicemember with valid data
 		// Expected outcome: Returns true, no reasons
-		address1 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "7 Q St",
+		address1 := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "7 Q St",
+				},
 			},
-		})
-		address2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "448 Washington Blvd NE",
+		}, nil)
+		address2 := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "448 Washington Blvd NE",
+				},
 			},
-		})
+		}, nil)
 		sm := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
 			ServiceMember: models.ServiceMember{
 				FirstName:            swag.String("Peyton"),
@@ -154,26 +163,34 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeServic
 	setupInvalidTestData := func(index int) (models.ServiceMember, []string) {
 		// Create a valid service member, then replace each field with an invalid string and
 		// ensure it is caught by the function.
-		address1 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "7 Q St",
+		address1 := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "7 Q St",
+				},
 			},
-		})
-		address2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "448 Washington Blvd NE",
+		}, nil)
+		address2 := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "448 Washington Blvd NE",
+				},
 			},
-		})
-		invalidAddress1 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "24 Main St",
+		}, nil)
+		invalidAddress1 := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "24 Main St",
+				},
 			},
-		})
-		invalidAddress2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "123 Not Real Fake Pl",
+		}, nil)
+		invalidAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "123 Not Real Fake Pl",
+				},
 			},
-		})
+		}, nil)
 		validServiceMemberAssertions := testdatagen.Assertions{
 			ServiceMember: models.ServiceMember{
 				FirstName:            swag.String("Peyton"),
@@ -319,11 +336,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelA
 		// Set up:           Create an address with valid data
 		// Expected outcome: Returns true, no error
 
-		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "3373 NW Martin Luther King Jr Blvd",
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "3373 NW Martin Luther King Jr Blvd",
+				},
 			},
-		})
+		}, nil)
 		result, err := IsValidFakeModelAddress(&address)
 		suite.NoError(err)
 		suite.Equal(true, result)
@@ -336,11 +355,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelA
 	// Expected outcome: Returns false
 
 	suite.Run("invalid fake address data", func() {
-		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "1600 pennsylvania ave",
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1600 pennsylvania ave",
+				},
 			},
-		})
+		}, nil)
 		result, err := IsValidFakeModelAddress(&address)
 		suite.NoError(err)
 		suite.Equal(false, result)
@@ -351,26 +372,34 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 
 	setupTestData := func() models.MTOShipment {
 
-		validPickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "7 Q St",
+		validPickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "7 Q St",
+				},
 			},
-		})
-		validSecondaryPickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "448 Washington Blvd NE",
+		}, nil)
+		validSecondaryPickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "448 Washington Blvd NE",
+				},
 			},
-		})
-		validDestinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "3373 NW Martin Luther King Jr Blvd",
+		}, nil)
+		validDestinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "3373 NW Martin Luther King Jr Blvd",
+				},
 			},
-		})
-		validSecondaryDeliveryAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "142 E Barrel Hoop Circle #4A",
+		}, nil)
+		validSecondaryDeliveryAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "142 E Barrel Hoop Circle #4A",
+				},
 			},
-		})
+		}, nil)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypeHHG,
@@ -419,41 +448,49 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 		var shipment models.MTOShipment
 		invalidAssertion := validMTOShipmentAssertion
 		if index == 0 {
-			invalidPickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-				Address: models.Address{
-					StreetAddress1: "1600 pennsylvania ave",
+			invalidPickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						StreetAddress1: "1600 pennsylvania ave",
+					},
 				},
-			})
+			}, nil)
 			// Copy the valid assertions then overwrite the pickup address
 			invalidAssertion.PickupAddress = invalidPickupAddress
 			shipment = testdatagen.MakeMTOShipment(suite.DB(), invalidAssertion)
 
 		} else if index == 1 {
-			invalidSecondaryPickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-				Address: models.Address{
-					StreetAddress1: "20 W 34th St",
+			invalidSecondaryPickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						StreetAddress1: "20 W 34th St",
+					},
 				},
-			})
+			}, nil)
 			invalidAssertion.SecondaryPickupAddress = invalidSecondaryPickupAddress
 			shipment = testdatagen.MakeMTOShipment(suite.DB(), invalidAssertion)
 
 		} else if index == 2 {
 
-			invalidDestinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-				Address: models.Address{
-					StreetAddress1: "86 Pike Pl",
+			invalidDestinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						StreetAddress1: "86 Pike Pl",
+					},
 				},
-			})
+			}, nil)
 			invalidAssertion.DestinationAddress = invalidDestinationAddress
 			shipment = testdatagen.MakeMTOShipment(suite.DB(), invalidAssertion)
 
 		} else if index == 3 {
 
-			invalidSecondaryDeliveryAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-				Address: models.Address{
-					StreetAddress1: "4000 Central Florida Blvd",
+			invalidSecondaryDeliveryAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						StreetAddress1: "4000 Central Florida Blvd",
+					},
 				},
-			})
+			}, nil)
 			invalidAssertion.SecondaryDeliveryAddress = invalidSecondaryDeliveryAddress
 			shipment = testdatagen.MakeMTOShipment(suite.DB(), invalidAssertion)
 		}

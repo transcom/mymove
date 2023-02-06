@@ -39,11 +39,6 @@ import PermissionProvider from 'components/Restricted/PermissionProvider';
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
-// PPM pages (TODO move into src/pages)
-const MoveInfo = lazy(() => import('scenes/Office/MoveInfo'));
-const Queues = lazy(() => import('scenes/Office/Queues'));
-const OrdersInfo = lazy(() => import('scenes/Office/OrdersInfo'));
-const DocumentViewer = lazy(() => import('scenes/Office/DocumentViewer'));
 // TXO
 const TXOMoveInfo = lazy(() => import('pages/Office/TXOMoveInfo/TXOMoveInfo'));
 // TOO pages
@@ -122,19 +117,6 @@ export class OfficeApp extends Component {
 
     // TODO - test login page?
 
-    // TODO - I don't love this solution but it will work for now. Ideally we can abstract the page layout into a separate file where each route can use it or not
-    // Don't show Header on OrdersInfo or DocumentViewer pages (PPM only)
-    const hideHeaderPPM =
-      selectedRole === roleTypes.PPM &&
-      (matchPath(pathname, {
-        path: '/moves/:moveId/documents/:moveDocumentId?',
-        exact: true,
-      }) ||
-        matchPath(pathname, {
-          path: '/moves/:moveId/orders',
-          exact: true,
-        }));
-
     const displayChangeRole =
       userIsLoggedIn &&
       userRoles?.length > 1 &&
@@ -146,31 +128,6 @@ export class OfficeApp extends Component {
     const goBack = () => {
       history.push('/');
     };
-
-    const ppmRoutes = [
-      <PrivateRoute
-        key="ppmOrdersRoute"
-        path="/moves/:moveId/orders"
-        component={OrdersInfo}
-        requiredRoles={[roleTypes.PPM]}
-      />,
-      <PrivateRoute
-        key="ppmMoveDocumentRoute"
-        path="/moves/:moveId/documents/:moveDocumentId?"
-        component={DocumentViewer}
-        requiredRoles={[roleTypes.PPM]}
-      />,
-    ];
-
-    // TODO - Services counseling routes not finalized, revisit
-    const txoRoutes = [
-      <PrivateRoute
-        key="txoMoveInfoRoute"
-        path="/moves/:moveCode"
-        component={TXOMoveInfo}
-        requiredRoles={[roleTypes.TOO, roleTypes.TIO, roleTypes.QAE_CSR]}
-      />,
-    ];
 
     const isFullscreenPage = matchPath(pathname, {
       path: '/moves/:moveCode/payment-requests/:id',
@@ -188,7 +145,7 @@ export class OfficeApp extends Component {
             <CUIHeader />
             {selectedRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
             {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-            {!hideHeaderPPM && userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader />}
+            {userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader />}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
               {hasRecentError && history.location.pathname === '/' && (
@@ -213,14 +170,6 @@ export class OfficeApp extends Component {
                     {/* no auth */}
                     <Route path="/invalid-permissions" component={InvalidPermissions} />
 
-                    {/* PPM */}
-                    <PrivateRoute
-                      path="/queues/:queueType/moves/:moveId"
-                      component={MoveInfo}
-                      requiredRoles={[roleTypes.PPM]}
-                    />
-                    <PrivateRoute path="/queues/:queueType" component={Queues} requiredRoles={[roleTypes.PPM]} />
-
                     {/* TXO */}
                     <PrivateRoute path="/moves/queue" exact component={MoveQueue} requiredRoles={[roleTypes.TOO]} />
                     <PrivateRoute
@@ -237,12 +186,21 @@ export class OfficeApp extends Component {
                       component={ServicesCounselingAddShipment}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
+
                     <PrivateRoute
-                      path={servicesCounselingRoutes.QUEUE_VIEW_PATH}
+                      path={servicesCounselingRoutes.QUEUE_COUNSELING_PATH}
                       exact
                       component={ServicesCounselingQueue}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
+
+                    <PrivateRoute
+                      path={servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH}
+                      exact
+                      component={ServicesCounselingQueue}
+                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
+                    />
+
                     <PrivateRoute
                       key="servicesCounselingMoveInfoRoute"
                       path={servicesCounselingRoutes.BASE_MOVE_PATH}
@@ -326,8 +284,12 @@ export class OfficeApp extends Component {
                       requiredRoles={[roleTypes.QAE_CSR]}
                     />
 
-                    {/* PPM & TXO conflicting routes - select based on user role */}
-                    {selectedRole === roleTypes.PPM ? ppmRoutes : txoRoutes}
+                    <PrivateRoute
+                      key="txoMoveInfoRoute"
+                      path="/moves/:moveCode"
+                      component={TXOMoveInfo}
+                      requiredRoles={[roleTypes.TOO, roleTypes.TIO, roleTypes.QAE_CSR]}
+                    />
 
                     <PrivateRoute exact path="/select-application" component={ConnectedSelectApplication} />
                     {/* ROOT */}
@@ -336,8 +298,6 @@ export class OfficeApp extends Component {
                       path="/"
                       render={(routeProps) => {
                         switch (selectedRole) {
-                          case roleTypes.PPM:
-                            return <Queues queueType="new" {...routeProps} />;
                           case roleTypes.TIO:
                             return <PaymentRequestQueue {...routeProps} />;
                           case roleTypes.TOO:

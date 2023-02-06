@@ -3,7 +3,7 @@
 ###########
 
 # Base builder so the ci build image hash is referenced once
-FROM milmove/circleci-docker:milmove-app-94a41a022a48dab1c05b932734b472922260f3c0 as builder
+FROM milmove/circleci-docker:milmove-app-6109bfb5e9650a79bd94bff6453ed726635a4dc2 as builder
 
 ENV CIRCLECI=docker
 ENV REACT_APP_NODE_ENV=development
@@ -37,13 +37,15 @@ COPY pkg /build/pkg
 # fake src dir to silence make
 RUN mkdir /build/src
 
+# fake the .go-version
 RUN set -x \
+  && touch .go-version \
   && make bin/rds-ca-2019-root.pem \
   && rm -f bin/milmove && make bin/milmove \
   && make bin/generate-test-data
 
 # define migrations before client build since it doesn't need client
-FROM alpine:3.17.0 as migrate
+FROM alpine:3.17.1 as migrate
 
 COPY --from=server_builder /build/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY --from=server_builder /build/bin/milmove /bin/milmove
@@ -53,7 +55,7 @@ COPY migrations/app/schema /migrate/schema
 COPY migrations/app/secure /migrate/secure
 COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
 
-COPY config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+COPY config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b
 COPY config/tls/dod-sw-ca-54.pem /config/tls/dod-sw-ca-54.pem
 
 # While it's ok to have these certs copied locally, they should never be copied into Dockerfile.
@@ -110,7 +112,7 @@ COPY --from=server_builder /build/swagger /swagger
 
 COPY --from=client_builder /build/build /build
 
-COPY config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+COPY config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b
 COPY config/tls/dod-sw-ca-54.pem /config/tls/dod-sw-ca-54.pem
 
 # While it's ok to have these certs copied locally, they should never be copied into Dockerfile.

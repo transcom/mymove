@@ -8,9 +8,10 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-// UserMaker is the base maker function to create a user
-// customs is a slice that will be modified by setupCustomizations.
-// db can be set to nil to create a stubbed model that is not stored in DB.
+// BuildUser creates a User
+// Params:
+// - customs is a slice that will be modified by the factory
+// - db can be set to nil to create a stubbed model that is not stored in DB.
 func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) models.User {
 	customs = setupCustomizations(customs, traits)
 
@@ -18,10 +19,12 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 	var cUser models.User
 	if result := findValidCustomization(customs, User); result != nil {
 		cUser = result.Model.(models.User)
+		if result.LinkOnly {
+			return cUser
+		}
 	}
 
 	// create user
-	// MYTODO: Add forceUUID functionality
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	user := models.User{
 		LoginGovUUID:  &loginGovUUID,

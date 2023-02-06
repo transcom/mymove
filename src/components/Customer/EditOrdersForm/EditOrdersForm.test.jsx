@@ -6,7 +6,7 @@ import EditOrdersForm from './EditOrdersForm';
 
 import { documentSizeLimitMsg } from 'shared/constants';
 
-jest.mock('components/DutyLocationSearchBox/api', () => ({
+jest.mock('components/LocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
     Promise.resolve({
       city: 'Glendale Luke AFB',
@@ -51,11 +51,12 @@ jest.mock('components/DutyLocationSearchBox/api', () => ({
       },
       {
         address: {
-          city: '',
-          id: '00000000-0000-0000-0000-000000000000',
-          postalCode: '',
-          state: '',
-          streetAddress1: '',
+          city: 'Glendale Luke AFB',
+          country: 'United States',
+          id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+          postalCode: '85309',
+          state: 'AZ',
+          streetAddress1: 'n/a',
         },
         address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
         affiliation: 'AIR_FORCE',
@@ -222,7 +223,7 @@ describe('EditOrdersForm component', () => {
       const ordersTypeDropdown = await screen.findByLabelText('Orders type');
       expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
 
-      userEvent.selectOptions(ordersTypeDropdown, selectionOption);
+      await userEvent.selectOptions(ordersTypeDropdown, selectionOption);
       await waitFor(() => {
         expect(ordersTypeDropdown).toHaveValue(expectedValue);
       });
@@ -255,15 +256,15 @@ describe('EditOrdersForm component', () => {
       expect(submitButton).not.toBeDisabled();
     });
 
-    userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
-    userEvent.click(screen.getByLabelText('No'));
+    await userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
+    await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
+    await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
+    await userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
     const selectedOption = await screen.findByText(/Luke/);
-    userEvent.click(selectedOption);
+    await userEvent.click(selectedOption);
 
     await waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
@@ -289,8 +290,8 @@ describe('EditOrdersForm component', () => {
     });
 
     const ordersTypeDropdown = screen.getByLabelText('Orders type');
-    userEvent.selectOptions(ordersTypeDropdown, '');
-    userEvent.tab();
+    await userEvent.selectOptions(ordersTypeDropdown, '');
+    await userEvent.tab();
 
     await waitFor(() => {
       expect(submitButton).toBeDisabled();
@@ -320,15 +321,15 @@ describe('EditOrdersForm component', () => {
       />,
     );
 
-    userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
-    userEvent.click(screen.getByLabelText('No'));
+    await userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
+    await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
+    await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
+    await userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
     const selectedOption = await screen.findByText(/Luke/);
-    userEvent.click(selectedOption);
+    await userEvent.click(selectedOption);
 
     await waitFor(() =>
       expect(screen.getByRole('form')).toHaveFormValues({
@@ -338,7 +339,7 @@ describe('EditOrdersForm component', () => {
 
     const submitBtn = screen.getByRole('button', { name: 'Save' });
     expect(submitBtn).not.toBeDisabled();
-    userEvent.click(submitBtn);
+    await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalledWith(
@@ -373,7 +374,7 @@ describe('EditOrdersForm component', () => {
     render(<EditOrdersForm {...testProps} />);
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
 
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     await waitFor(() => {
       expect(testProps.onCancel).toHaveBeenCalled();

@@ -22,6 +22,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -63,10 +64,15 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
 	moveTaskOrderResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
 	moveTaskOrderPayload := moveTaskOrderResponse.Payload
+
+	// Validate outgoing payload
+	suite.NoError(moveTaskOrderPayload.Validate(strfmt.Default))
 
 	suite.Assertions.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
 	suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrderPayload.ID)
@@ -101,7 +107,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: validStatus.status}})
 
 		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveID}/status", nil)
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 
 		traceID, err := uuid.NewV4()
@@ -128,12 +134,17 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		// make the request
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
 		moveResponse := response.(*movetaskorderops.UpdateMoveTaskOrderStatusOK)
 		movePayload := moveResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
 
 		updatedMove := models.Move{}
 		suite.DB().Find(&updatedMove, movePayload.ID)
@@ -173,7 +184,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 	})
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	requestUser := factory.BuildUser(nil, nil, nil)
 	request = suite.AuthenticateUserRequest(request, requestUser)
 	params := movetaskorderops.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
@@ -195,8 +206,15 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 
 	// make the request
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{handlerConfig, moveUpdater}
+
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 	suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderStatusPreconditionFailed{}, response)
+	payload := response.(*movetaskorderops.UpdateMoveTaskOrderStatusPreconditionFailed).Payload
+
+	// Validate outgoing payload
+	suite.NoError(payload.Validate(strfmt.Default))
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncompleteOrder() {
@@ -209,7 +227,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 	})
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	requestUser := factory.BuildUser(nil, nil, nil)
 	request = suite.AuthenticateUserRequest(request, requestUser)
 	params := movetaskorderops.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
@@ -225,10 +243,17 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{handlerConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 	}
+
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderStatusUnprocessableEntity{}, response)
 	invalidResponse := response.(*movetaskorderops.UpdateMoveTaskOrderStatusUnprocessableEntity).Payload
+
+	// Validate outgoing payload
+	suite.NoError(invalidResponse.Validate(strfmt.Default))
+
 	errorDetail := invalidResponse.Detail
 
 	suite.Contains(*errorDetail, "TransportationAccountingCode cannot be blank.")
@@ -267,10 +292,14 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 			IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		moveTaskOrderResponse := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedOK)
 		moveTaskOrderPayload := moveTaskOrderResponse.Payload
+
+		// Validate outgoing payload
 		suite.NoError(moveTaskOrderPayload.Validate(strfmt.Default))
 
 		suite.IsType(&movetaskorderops.UpdateMTOStatusServiceCounselingCompletedOK{}, response)
@@ -289,9 +318,15 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 			HTTPRequest: forbiddenRequest,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		suite.IsType(&movetaskorderops.UpdateMTOStatusServiceCounselingCompletedForbidden{}, response)
+		payload := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedForbidden).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Unsuccessful move status update to Service Counseling Completed, not found - Integration", func() {
@@ -304,9 +339,15 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()).String(),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		suite.IsType(&movetaskorderops.UpdateMTOStatusServiceCounselingCompletedNotFound{}, response)
+		payload := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Unsuccessful move status update to Service Counseling Completed, eTag does not match - Integration", func() {
@@ -325,9 +366,15 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 			IfMatch:         etag.GenerateEtag(time.Now()),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		suite.IsType(&movetaskorderops.UpdateMTOStatusServiceCounselingCompletedPreconditionFailed{}, response)
+		payload := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Unsuccessful move status update to Service Counseling Completed, state conflict - Integration", func() {
@@ -350,9 +397,15 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 			IfMatch:         etag.GenerateEtag(draftMove.UpdatedAt),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		suite.IsType(&movetaskorderops.UpdateMTOStatusServiceCounselingCompletedConflict{}, response)
+		payload := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedConflict).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Unsuccessful move status update to Service Counseling Completed, misc mocked errors - Integration", func() {
@@ -390,9 +443,21 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 				&mockUpdater,
 			}
 
+			// Validate incoming payload: no body to validate
+
 			response := handler.Handle(params)
 			suite.IsNotErrResponse(response)
 			suite.IsType(testCase.handlerResponse, response)
+
+			// Validate outgoing payload
+			switch response := response.(type) {
+			case *movetaskorderops.UpdateMTOStatusServiceCounselingCompletedUnprocessableEntity:
+				suite.NoError(response.Payload.Validate(strfmt.Default))
+			case *movetaskorderops.UpdateMTOStatusServiceCounselingCompletedInternalServerError:
+				suite.Nil(response.Payload)
+			default:
+				suite.Fail(fmt.Sprintf("unexpected response type of %T", response))
+			}
 		}
 	})
 }
@@ -407,7 +472,7 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 			},
 			Order: order,
 		})
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		requestUser := factory.BuildUser(nil, nil, nil)
 		handlerConfig := suite.HandlerConfig()
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
@@ -431,10 +496,17 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 			Body:            &ghcmessages.Move{TioRemarks: &remarks},
 			IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		moveTaskOrderResponse := response.(*movetaskorderops.UpdateMoveTIORemarksOK)
 		moveTaskOrderPayload := moveTaskOrderResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(moveTaskOrderPayload.Validate(strfmt.Default))
 
 		suite.Assertions.IsType(&movetaskorderops.UpdateMoveTIORemarksOK{}, response)
 		updatedMove := models.Move{}
@@ -452,10 +524,18 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 			MoveTaskOrderID: move.ID.String(),
 			Body:            &ghcmessages.Move{TioRemarks: &remarks},
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 
 		suite.Assertions.IsType(&movetaskorderops.UpdateMoveTIORemarksPreconditionFailed{}, response)
+		payload := response.(*movetaskorderops.UpdateMoveTIORemarksPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Unsuccessful move TIO Remarks update, not found", func() {
@@ -468,9 +548,17 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()).String(),
 			Body:            &ghcmessages.Move{TioRemarks: &remarks},
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 
 		suite.Assertions.IsType(&movetaskorderops.UpdateMoveTIORemarksNotFound{}, response)
+		payload := response.(*movetaskorderops.UpdateMoveTIORemarksNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }

@@ -61,7 +61,7 @@ const WeightTicketUpload = ({
       return 'Upload empty weight ticket';
     }
 
-    if (name === 'proGearDocument') {
+    if (name === 'document') {
       return "Upload your pro-gear's weight tickets";
     }
 
@@ -98,7 +98,7 @@ const WeightTicketUpload = ({
           createUpload={(file) => onCreateUpload(fieldName, file, setFieldTouched)}
           onChange={(err, upload) => {
             onUploadComplete(err);
-            fileUploadRef.current.removeFile(upload.id);
+            fileUploadRef?.current?.removeFile(upload.id);
           }}
           acceptedFileTypes={acceptableFileTypes}
           labelFileTypeNotAllowed="Upload a supported file type"

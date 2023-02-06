@@ -10,7 +10,7 @@ describe('FinancialReviewButton', () => {
     render(<FinancialReviewButton onClick={mockOnClick} />);
     const submitBtn = screen.getByText('Flag move for financial review');
 
-    userEvent.click(submitBtn);
+    await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(mockOnClick).toHaveBeenCalled();

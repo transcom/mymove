@@ -17,9 +17,15 @@ type movingExpenseUpdater struct {
 	checks []movingExpenseValidator
 }
 
-func NewMovingExpenseUpdater() services.MovingExpenseUpdater {
+func NewCustomerMovingExpenseUpdater() services.MovingExpenseUpdater {
 	return &movingExpenseUpdater{
-		checks: updateChecks(),
+		checks: customerUpdateChecks(),
+	}
+}
+
+func NewOfficeMovingExpenseUpdater() services.MovingExpenseUpdater {
+	return &movingExpenseUpdater{
+		checks: officeUpdateChecks(),
 	}
 }
 

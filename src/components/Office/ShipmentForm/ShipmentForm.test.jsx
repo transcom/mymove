@@ -184,9 +184,10 @@ describe('ShipmentForm component', () => {
     });
 
     it('uses the current residence address for pickup address when checked', async () => {
+      const user = userEvent.setup();
       render(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
-      userEvent.click(screen.getByLabelText('Use current address'));
+      await user.click(screen.getByLabelText('Use current address'));
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveValue(
         defaultProps.currentResidence.streetAddress1,
@@ -201,7 +202,7 @@ describe('ShipmentForm component', () => {
     it('renders a second address fieldset when the user has a delivery address', async () => {
       render(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
-      userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getByLabelText('Yes'));
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveAttribute(
         'name',
@@ -224,7 +225,7 @@ describe('ShipmentForm component', () => {
 
     it('renders a delivery address type for retirement orders type', async () => {
       render(<ShipmentForm {...defaultPropsRetirement} shipmentType={SHIPMENT_OPTIONS.HHG} />);
-      userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getByLabelText('Yes'));
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
@@ -232,7 +233,7 @@ describe('ShipmentForm component', () => {
 
     it('does not render delivery address type for PCS order type', async () => {
       render(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
-      userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getByLabelText('Yes'));
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.queryByLabelText('Destination type')).toBeNull();
@@ -240,7 +241,7 @@ describe('ShipmentForm component', () => {
 
     it('renders a delivery address type for separation orders type', async () => {
       render(<ShipmentForm {...defaultPropsSeparation} shipmentType={SHIPMENT_OPTIONS.HHG} />);
-      userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getByLabelText('Yes'));
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
@@ -443,14 +444,16 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      userEvent.click(screen.getByTestId('clearSelection-sacType'));
+      await userEvent.click(screen.getByTestId('clearSelection-sacType'));
       const saveButton = screen.getByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalledWith(
-          expect.objectContaining({ body: expect.objectContaining({ tacType: 'NTS', sacType: '' }) }),
+          expect.objectContaining({
+            shipment: expect.objectContaining({ body: expect.objectContaining({ tacType: 'NTS', sacType: '' }) }),
+          }),
         );
       });
     });
@@ -470,17 +473,19 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      userEvent.type(screen.getByLabelText('Requested pickup date'), '26 Mar 2022');
-      userEvent.click(screen.getByTestId('useCurrentResidence'));
+      await userEvent.type(screen.getByLabelText('Requested pickup date'), '26 Mar 2022');
+      await userEvent.click(screen.getByTestId('useCurrentResidence'));
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalledWith(
           expect.objectContaining({
-            body: expect.not.objectContaining({ tacType: expect.any(String), sacType: expect.any(String) }),
+            shipment: expect.objectContaining({
+              body: expect.not.objectContaining({ tacType: expect.any(String), sacType: expect.any(String) }),
+            }),
           }),
         );
       });
@@ -591,7 +596,7 @@ describe('ShipmentForm component', () => {
 
       expect(saveButton).not.toBeDisabled();
 
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalled();
@@ -605,46 +610,48 @@ describe('ShipmentForm component', () => {
       const newCounselorRemarks = 'Counselor remarks';
 
       const expectedPayload = {
-        body: {
-          customerRemarks: 'mock customer remarks',
-          counselorRemarks: newCounselorRemarks,
-          destinationAddress: {
-            streetAddress1: '441 SW Rio de la Plata Drive',
-            city: 'Tacoma',
-            state: 'WA',
-            postalCode: '98421',
-            streetAddress2: '',
-          },
-          pickupAddress: {
-            streetAddress1: '812 S 129th St',
-            city: 'San Antonio',
-            state: 'TX',
-            postalCode: '78234',
-            streetAddress2: '',
-          },
-          agents: [
-            {
-              agentType: 'RELEASING_AGENT',
-              email: 'jasn@email.com',
-              firstName: 'Jason',
-              lastName: 'Ash',
-              phone: '999-999-9999',
+        shipment: {
+          body: {
+            customerRemarks: 'mock customer remarks',
+            counselorRemarks: newCounselorRemarks,
+            destinationAddress: {
+              streetAddress1: '441 SW Rio de la Plata Drive',
+              city: 'Tacoma',
+              state: 'WA',
+              postalCode: '98421',
+              streetAddress2: '',
             },
-            {
-              agentType: 'RECEIVING_AGENT',
-              email: 'rbaker@email.com',
-              firstName: 'Riley',
-              lastName: 'Baker',
-              phone: '863-555-9664',
+            pickupAddress: {
+              streetAddress1: '812 S 129th St',
+              city: 'San Antonio',
+              state: 'TX',
+              postalCode: '78234',
+              streetAddress2: '',
             },
-          ],
-          requestedDeliveryDate: '2020-03-30',
-          requestedPickupDate: '2020-03-01',
-          shipmentType: SHIPMENT_OPTIONS.HHG,
+            agents: [
+              {
+                agentType: 'RELEASING_AGENT',
+                email: 'jasn@email.com',
+                firstName: 'Jason',
+                lastName: 'Ash',
+                phone: '999-999-9999',
+              },
+              {
+                agentType: 'RECEIVING_AGENT',
+                email: 'rbaker@email.com',
+                firstName: 'Riley',
+                lastName: 'Baker',
+                phone: '863-555-9664',
+              },
+            ],
+            requestedDeliveryDate: '2020-03-30',
+            requestedPickupDate: '2020-03-01',
+            shipmentType: SHIPMENT_OPTIONS.HHG,
+          },
+          shipmentID: 'shipment123',
+          moveTaskOrderID: 'mock move id',
+          normalize: false,
         },
-        shipmentID: 'shipment123',
-        moveTaskOrderID: 'mock move id',
-        normalize: false,
       };
 
       const patchResponse = {
@@ -667,15 +674,15 @@ describe('ShipmentForm component', () => {
 
       const counselorRemarks = await screen.findByLabelText('Counselor remarks');
 
-      userEvent.clear(counselorRemarks);
+      await userEvent.clear(counselorRemarks);
 
-      userEvent.type(counselorRemarks, newCounselorRemarks);
+      await userEvent.type(counselorRemarks, newCounselorRemarks);
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
 
       expect(saveButton).not.toBeDisabled();
 
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalledWith(expectedPayload);
@@ -751,9 +758,9 @@ describe('ShipmentForm component', () => {
       );
 
       expect(await screen.getByLabelText('Planned departure date')).toHaveValue('01 Apr 2022');
-      userEvent.click(screen.getByLabelText('Use current ZIP'));
+      await userEvent.click(screen.getByLabelText('Use current ZIP'));
       expect(await screen.getByLabelText('Origin ZIP')).toHaveValue(defaultProps.originDutyLocationAddress.postalCode);
-      userEvent.click(screen.getByLabelText('Use ZIP for new duty location'));
+      await userEvent.click(screen.getByLabelText('Use ZIP for new duty location'));
 
       expect(await screen.getByLabelText('Destination ZIP')).toHaveValue(
         defaultProps.newDutyLocationAddress.postalCode,
@@ -789,9 +796,11 @@ describe('ShipmentForm component', () => {
       await waitFor(() => {
         expect(defaultProps.submitHandler).toHaveBeenCalledWith(
           expect.objectContaining({
-            body: expect.objectContaining({
-              counselorRemarks: 'mock counselor remarks',
-              ppmShipment: expect.objectContaining({ hasRequestedAdvance: true, advanceAmountRequested: 487500 }),
+            shipment: expect.objectContaining({
+              body: expect.objectContaining({
+                counselorRemarks: 'mock counselor remarks',
+                ppmShipment: expect.objectContaining({ hasRequestedAdvance: true, advanceAmountRequested: 487500 }),
+              }),
             }),
           }),
         );
@@ -818,7 +827,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('No')).not.toBeChecked();
       expect(screen.getByLabelText('Yes')).toBeChecked();
       // Reject a requested advance
-      userEvent.click(screen.getByLabelText('No'));
+      await userEvent.click(screen.getByLabelText('No'));
       await waitFor(() => {
         expect(screen.getByLabelText('No')).toBeChecked();
         expect(screen.getByLabelText('Yes')).not.toBeChecked();
@@ -840,9 +849,11 @@ describe('ShipmentForm component', () => {
       await waitFor(() => {
         expect(defaultProps.submitHandler).toHaveBeenCalledWith(
           expect.objectContaining({
-            body: expect.objectContaining({
-              counselorRemarks: 'retirees are not given advances',
-              ppmShipment: expect.objectContaining({ hasRequestedAdvance: false }),
+            shipment: expect.objectContaining({
+              body: expect.objectContaining({
+                counselorRemarks: 'retirees are not given advances',
+                ppmShipment: expect.objectContaining({ hasRequestedAdvance: false }),
+              }),
             }),
           }),
         );
@@ -870,8 +881,8 @@ describe('ShipmentForm component', () => {
 
       expect(advanceAmountInput).toHaveValue('4,875');
       // Edit a requested advance amount
-      userEvent.clear(advanceAmountInput);
-      userEvent.type(advanceAmountInput, '2,000');
+      await userEvent.clear(advanceAmountInput);
+      await userEvent.type(advanceAmountInput, '2,000');
       advanceAmountInput.blur();
       await waitFor(() => {
         expect(advanceAmountInput).toHaveValue('2,000');

@@ -63,6 +63,8 @@ func Move(move *models.Move) *ghcmessages.Move {
 		TioRemarks:                   handlers.FmtStringPtr(move.TIORemarks),
 		FinancialReviewFlag:          move.FinancialReviewFlag,
 		FinancialReviewRemarks:       move.FinancialReviewRemarks,
+		CloseoutOfficeID:             handlers.FmtUUIDPtr(move.CloseoutOfficeID),
+		CloseoutOffice:               TransportationOffice(move.CloseoutOffice),
 	}
 
 	return payload
@@ -154,34 +156,54 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 
 	evaluationReportOfficeUserPayload := EvaluationReportOfficeUser(evaluationReport.OfficeUser)
 
+	var timeDepart *string
+	if evaluationReport.TimeDepart != nil {
+		td := evaluationReport.TimeDepart.Format(timeHHMMFormat)
+		timeDepart = &td
+	}
+
+	var evalStart *string
+	if evaluationReport.EvalStart != nil {
+		es := evaluationReport.EvalStart.Format(timeHHMMFormat)
+		evalStart = &es
+	}
+
+	var evalEnd *string
+	if evaluationReport.EvalEnd != nil {
+		ee := evaluationReport.EvalEnd.Format(timeHHMMFormat)
+		evalEnd = &ee
+	}
+
 	payload := &ghcmessages.EvaluationReport{
-		CreatedAt:                     strfmt.DateTime(evaluationReport.CreatedAt),
-		EvaluationLengthMinutes:       handlers.FmtIntPtrToInt64(evaluationReport.EvaluationLengthMinutes),
-		ID:                            id,
-		InspectionDate:                handlers.FmtDatePtr(evaluationReport.InspectionDate),
-		InspectionType:                inspectionType,
-		Location:                      location,
-		LocationDescription:           evaluationReport.LocationDescription,
-		MoveID:                        moveID,
-		ObservedDate:                  handlers.FmtDatePtr(evaluationReport.ObservedDate),
-		Remarks:                       evaluationReport.Remarks,
-		ShipmentID:                    shipmentID,
-		SubmittedAt:                   handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),
-		TravelTimeMinutes:             handlers.FmtIntPtrToInt64(evaluationReport.TravelTimeMinutes),
-		Type:                          reportType,
-		ViolationsObserved:            evaluationReport.ViolationsObserved,
-		MoveReferenceID:               evaluationReport.Move.ReferenceID,
-		OfficeUser:                    &evaluationReportOfficeUserPayload,
-		SeriousIncident:               evaluationReport.SeriousIncident,
-		SeriousIncidentDesc:           evaluationReport.SeriousIncidentDesc,
-		ObservedClaimsResponseDate:    handlers.FmtDatePtr(evaluationReport.ObservedClaimsResponseDate),
-		ObservedPickupDate:            handlers.FmtDatePtr(evaluationReport.ObservedPickupDate),
-		ObservedPickupSpreadStartDate: handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadStartDate),
-		ObservedPickupSpreadEndDate:   handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadEndDate),
-		ObservedDeliveryDate:          handlers.FmtDatePtr(evaluationReport.ObservedDeliveryDate),
-		ETag:                          etag.GenerateEtag(evaluationReport.UpdatedAt),
-		UpdatedAt:                     strfmt.DateTime(evaluationReport.UpdatedAt),
-		ReportViolations:              ReportViolations(evaluationReport.ReportViolations),
+		CreatedAt:                          strfmt.DateTime(evaluationReport.CreatedAt),
+		ID:                                 id,
+		InspectionDate:                     handlers.FmtDatePtr(evaluationReport.InspectionDate),
+		InspectionType:                     inspectionType,
+		Location:                           location,
+		LocationDescription:                evaluationReport.LocationDescription,
+		MoveID:                             moveID,
+		ObservedShipmentPhysicalPickupDate: handlers.FmtDatePtr(evaluationReport.ObservedShipmentPhysicalPickupDate),
+		ObservedShipmentDeliveryDate:       handlers.FmtDatePtr(evaluationReport.ObservedShipmentDeliveryDate),
+		Remarks:                            evaluationReport.Remarks,
+		ShipmentID:                         shipmentID,
+		SubmittedAt:                        handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),
+		TimeDepart:                         timeDepart,
+		EvalStart:                          evalStart,
+		EvalEnd:                            evalEnd,
+		Type:                               reportType,
+		ViolationsObserved:                 evaluationReport.ViolationsObserved,
+		MoveReferenceID:                    evaluationReport.Move.ReferenceID,
+		OfficeUser:                         &evaluationReportOfficeUserPayload,
+		SeriousIncident:                    evaluationReport.SeriousIncident,
+		SeriousIncidentDesc:                evaluationReport.SeriousIncidentDesc,
+		ObservedClaimsResponseDate:         handlers.FmtDatePtr(evaluationReport.ObservedClaimsResponseDate),
+		ObservedPickupDate:                 handlers.FmtDatePtr(evaluationReport.ObservedPickupDate),
+		ObservedPickupSpreadStartDate:      handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadStartDate),
+		ObservedPickupSpreadEndDate:        handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadEndDate),
+		ObservedDeliveryDate:               handlers.FmtDatePtr(evaluationReport.ObservedDeliveryDate),
+		ETag:                               etag.GenerateEtag(evaluationReport.UpdatedAt),
+		UpdatedAt:                          strfmt.DateTime(evaluationReport.UpdatedAt),
+		ReportViolations:                   ReportViolations(evaluationReport.ReportViolations),
 	}
 	return payload
 }
@@ -232,6 +254,41 @@ func ReportViolation(reportViolation *models.ReportViolation) *ghcmessages.Repor
 		ViolationID: violationID,
 		ReportID:    reportID,
 		Violation:   PWSViolationItem(&reportViolation.Violation),
+	}
+	return payload
+}
+
+// TransportationOffice payload
+func TransportationOffice(office *models.TransportationOffice) *ghcmessages.TransportationOffice {
+	if office == nil || office.ID == uuid.Nil {
+		return nil
+	}
+
+	phoneLines := []string{}
+	for _, phoneLine := range office.PhoneLines {
+		if phoneLine.Type == "voice" {
+			phoneLines = append(phoneLines, phoneLine.Number)
+		}
+	}
+
+	payload := &ghcmessages.TransportationOffice{
+		ID:         handlers.FmtUUID(office.ID),
+		CreatedAt:  handlers.FmtDateTime(office.CreatedAt),
+		UpdatedAt:  handlers.FmtDateTime(office.UpdatedAt),
+		Name:       swag.String(office.Name),
+		Gbloc:      office.Gbloc,
+		Address:    Address(&office.Address),
+		PhoneLines: phoneLines,
+	}
+	return payload
+}
+
+func TransportationOffices(transportationOffices models.TransportationOffices) ghcmessages.TransportationOffices {
+	payload := make(ghcmessages.TransportationOffices, len(transportationOffices))
+
+	for i, to := range transportationOffices {
+		transportationOffice := to
+		payload[i] = TransportationOffice(&transportationOffice)
 	}
 	return payload
 }
@@ -634,7 +691,7 @@ func SITStatuses(shipmentSITStatuses map[string]services.SITStatus) map[string]*
 }
 
 // PPMShipment payload
-func PPMShipment(ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
+func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 	if ppmShipment == nil || ppmShipment.ID.IsNil() {
 		return nil
 	}
@@ -856,7 +913,7 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 }
 
 // MTOShipment payload
-func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
+func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
 
 	payload := &ghcmessages.MTOShipment{
 		ID:                          strfmt.UUID(mtoShipment.ID.String()),
@@ -889,7 +946,7 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		UsesExternalVendor:          mtoShipment.UsesExternalVendor,
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
-		PpmShipment:                 PPMShipment(mtoShipment.PPMShipment),
+		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
 	}
 
 	if sitStatusPayload != nil {
@@ -962,15 +1019,15 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 }
 
 // MTOShipments payload
-func MTOShipments(mtoShipments *models.MTOShipments, sitStatusPayload map[string]*ghcmessages.SITStatus) *ghcmessages.MTOShipments {
+func MTOShipments(storer storage.FileStorer, mtoShipments *models.MTOShipments, sitStatusPayload map[string]*ghcmessages.SITStatus) *ghcmessages.MTOShipments {
 	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
 		copyOfMtoShipment := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 		if sitStatus, ok := sitStatusPayload[copyOfMtoShipment.ID.String()]; ok {
-			payload[i] = MTOShipment(&copyOfMtoShipment, sitStatus)
+			payload[i] = MTOShipment(storer, &copyOfMtoShipment, sitStatus)
 		} else {
-			payload[i] = MTOShipment(&copyOfMtoShipment, nil)
+			payload[i] = MTOShipment(storer, &copyOfMtoShipment, nil)
 		}
 	}
 	return &payload
@@ -1327,6 +1384,18 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			// some reason, then we should get the empty string (no GBLOC).
 			gbloc = ghcmessages.GBLOC(move.OriginDutyLocationGBLOC.GBLOC)
 		}
+		var closeoutLocation string
+		if move.CloseoutOffice != nil {
+			closeoutLocation = move.CloseoutOffice.Name
+		}
+		var closeoutInitiated time.Time
+		for _, shipment := range move.MTOShipments {
+			if shipment.PPMShipment != nil && shipment.PPMShipment.SubmittedAt != nil {
+				if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
+					closeoutInitiated = *shipment.PPMShipment.SubmittedAt
+				}
+			}
+		}
 
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:                Customer(&customer),
@@ -1340,6 +1409,9 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
 			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation),
 			OriginGBLOC:             gbloc,
+			PpmType:                 move.PPMType,
+			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
+			CloseoutLocation:        &closeoutLocation,
 		}
 	}
 	return &queueMoves
@@ -1393,7 +1465,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			ID:                 *handlers.FmtUUID(paymentRequest.ID),
 			MoveID:             *handlers.FmtUUID(moveTaskOrder.ID),
 			Customer:           Customer(&orders.ServiceMember),
-			Status:             ghcmessages.PaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
+			Status:             ghcmessages.QueuePaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
 			Age:                math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0),
 			SubmittedAt:        *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:            moveTaskOrder.Locator,

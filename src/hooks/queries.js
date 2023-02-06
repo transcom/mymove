@@ -11,6 +11,7 @@ import {
   getDocument,
   getMovesQueue,
   getPaymentRequestsQueue,
+  getWeightTickets,
   getServicesCounselingQueue,
   getMovePaymentRequests,
   getCustomer,
@@ -23,6 +24,7 @@ import {
   getPWSViolations,
   getReportViolationsByReportID,
   getMTOShipmentByID,
+  getServicesCounselingPPMQueue,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorAvailableMoves, getPrimeSimulatorMove } from 'services/primeApi';
@@ -52,6 +54,7 @@ import {
   PWS_VIOLATIONS,
   REPORT_VIOLATIONS,
   MTO_SHIPMENT,
+  WEIGHT_TICKETS,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -171,6 +174,25 @@ export const useEditShipmentQueries = (moveCode) => {
     move,
     order,
     mtoShipments,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const usePPMShipmentDocsQueries = (shipmentID) => {
+  const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentID], getMTOShipmentByID);
+
+  const ppmShipmentId = mtoShipment?.ppmShipment?.id;
+
+  const { data: weightTickets, ...weightTicketsQuery } = useQuery([WEIGHT_TICKETS, ppmShipmentId], getWeightTickets, {
+    enabled: !!ppmShipmentId,
+  });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, weightTicketsQuery]);
+  return {
+    mtoShipment,
+    weightTickets,
     isLoading,
     isError,
     isSuccess,
@@ -298,6 +320,28 @@ export const useMovesQueueQueries = ({
   };
 };
 
+export const useServicesCounselingQueuePPMQueries = ({
+  sort,
+  order,
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+}) => {
+  const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
+    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: true }],
+    getServicesCounselingPPMQueue,
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([servicesCounselingQueueQuery]);
+  const { queueMoves, ...dataProps } = data;
+  return {
+    queueResult: { data: queueMoves, ...dataProps },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
 export const useServicesCounselingQueueQueries = ({
   sort,
   order,
@@ -306,9 +350,10 @@ export const useServicesCounselingQueueQueries = ({
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
 }) => {
   const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
-    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
+    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false }],
     getServicesCounselingQueue,
   );
+
   const { isLoading, isError, isSuccess } = getQueriesStatus([servicesCounselingQueueQuery]);
   const { queueMoves, ...dataProps } = data;
   return {
@@ -506,6 +551,13 @@ export const useMoveDetailsQueries = (moveCode) => {
 
   const order = Object.values(orders || {})?.[0];
 
+  const customerId = order?.customerID;
+  const { data: { customer } = {}, ...customerQuery } = useQuery([CUSTOMER, customerId], getCustomer, {
+    enabled: !!customerId,
+  });
+  const customerData = customer && Object.values(customer)[0];
+  const closeoutOffice = move.closeoutOffice && move.closeoutOffice.name;
+
   const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
     enabled: !!moveId,
   });
@@ -520,6 +572,7 @@ export const useMoveDetailsQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
     orderQuery,
+    customerQuery,
     mtoShipmentQuery,
     mtoServiceItemQuery,
   ]);
@@ -527,6 +580,8 @@ export const useMoveDetailsQueries = (moveCode) => {
   return {
     move,
     order,
+    customerData,
+    closeoutOffice,
     mtoShipments,
     mtoServiceItems,
     isLoading,

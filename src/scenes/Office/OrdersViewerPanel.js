@@ -9,7 +9,7 @@ import { selectOrdersForMove, updateOrders } from 'shared/Entities/modules/order
 import { formatDate, formatDateTime } from 'utils/formatters';
 import { editablePanelify, PanelField, PanelSwaggerField, RowBasedHeader } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import DutyLocationSearchBox from 'components/DutyLocationSearchBox/DutyLocationSearchBox';
+import LocationSearchBox from 'components/LocationSearchBox/LocationSearchBox';
 import { renderStatusIcon } from 'shared/utils';
 
 import './office.scss';
@@ -89,16 +89,12 @@ const OrdersViewerEdit = (props) => {
         </FormSection>
         <FormSection name="serviceMember">
           <div className="duty-location">
-            <Field
-              name="current_location"
-              component={DutyLocationSearchBox}
-              props={{ title: 'Current Duty Location' }}
-            />
+            <Field name="current_location" component={LocationSearchBox} props={{ title: 'Current Duty Location' }} />
           </div>
         </FormSection>
         <FormSection name="orders">
           <div className="duty-location">
-            <Field name="new_duty_location" component={DutyLocationSearchBox} props={{ title: 'New Duty Location' }} />
+            <Field name="new_duty_location" component={LocationSearchBox} props={{ title: 'New Duty Location' }} />
           </div>
           <SwaggerField fieldName="has_dependents" swagger={schema} title="Dependents authorized" />
           <SwaggerField title="Dept. Indicator" fieldName="department_indicator" swagger={schema} required />

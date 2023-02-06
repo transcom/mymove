@@ -89,7 +89,7 @@ endif
 
 .PHONY: check_go_version
 check_go_version: .check_go_version.stamp ## Check that the correct Golang version is installed
-.check_go_version.stamp: scripts/check-go-version
+.check_go_version.stamp: scripts/check-go-version .go-version
 	scripts/check-go-version
 	touch .check_go_version.stamp
 
@@ -105,7 +105,7 @@ endif
 
 .PHONY: check_node_version
 check_node_version: .check_node_version.stamp ## Check that the correct Node version is installed
-.check_node_version.stamp: scripts/check-node-version
+.check_node_version.stamp: scripts/check-node-version .node-version
 	scripts/check-node-version
 	touch .check_node_version.stamp
 
@@ -153,18 +153,18 @@ client_deps_update: .check_node_version.stamp ## Update client dependencies
 	yarn upgrade
 
 .PHONY: client_deps
-client_deps: .check_hosts.stamp .check_node_version.stamp .client_deps.stamp ## Install client dependencies
-.client_deps.stamp: yarn.lock
+client_deps: .check_hosts.stamp .client_deps.stamp ## Install client dependencies
+.client_deps.stamp: yarn.lock .check_node_version.stamp
 	yarn install
 	scripts/copy-swagger-ui
 	touch .client_deps.stamp
 
-.client_build.stamp: .check_node_version.stamp $(shell find src -type f)
+.client_build.stamp: .client_deps.stamp $(shell find src -type f)
 	yarn build
 	touch .client_build.stamp
 
 .PHONY: client_build
-client_build: .client_deps.stamp .client_build.stamp ## Build the client
+client_build: .client_build.stamp ## Build the client
 
 build/index.html: ## milmove serve requires this file to boot, but it isn't used during local development
 	mkdir -p build
@@ -266,28 +266,28 @@ bin/iws: cmd/iws
 
 PKG_GOSRC := $(shell find pkg -name '*.go')
 
-bin/milmove: $(shell find cmd/milmove -name '*.go') $(PKG_GOSRC)
+bin/milmove: $(shell find cmd/milmove -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
-bin/milmove-tasks: $(shell find cmd/milmove-tasks -name '*.go') $(PKG_GOSRC)
+bin/milmove-tasks: $(shell find cmd/milmove-tasks -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin/prime-api-client: $(shell find cmd/prime-api-client -name '*.go') $(PKG_GOSRC)
+bin/prime-api-client: $(shell find cmd/prime-api-client -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/prime-api-client ./cmd/prime-api-client
 
-bin/webhook-client: $(shell find cmd/webhook-client -name '*.go') $(PKG_GOSRC)
+bin/webhook-client: $(shell find cmd/webhook-client -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/webhook-client ./cmd/webhook-client
 
-bin/read-alb-logs: $(shell find cmd/read-alb-logs -name '*.go') $(PKG_GOSRC)
+bin/read-alb-logs: $(shell find cmd/read-alb-logs -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
 
-bin/send-to-gex: $(shell find cmd/send-to-gex -name '*.go') $(PKG_GOSRC)
+bin/send-to-gex: $(shell find cmd/send-to-gex -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send-to-gex
 
-bin/tls-checker: $(shell find cmd/tls-checker -name '*.go') $(PKG_GOSRC)
+bin/tls-checker: $(shell find cmd/tls-checker -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
-bin/generate-payment-request-edi: $(shell find cmd/generate-payment-request-edi -name '*.go') $(PKG_GOSRC)
+bin/generate-payment-request-edi: $(shell find cmd/generate-payment-request-edi -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-payment-request-edi ./cmd/generate-payment-request-edi
 
 #
@@ -310,7 +310,7 @@ SWAGGER_AUTOREBUILD=1
 endif
 SWAGGER_FILES = $(shell find swagger swagger-def -type f)
 .swagger_build.stamp: $(SWAGGER_FILES)
-ifndef SWAGGER_AUTOREBUILD
+ifeq ($(SWAGGER_AUTOREBUILD),0)
 ifneq ("$(shell find swagger -type f -name '*.yaml' -newer .swagger_build.stamp)","")
 	@echo "Unexpected changes found in swagger build files. Code may be overwritten."
 	@read -p "Continue with rebuild? [y/N] : " ANS && test "$${ANS}" == "y" || (echo "Exiting rebuild."; false)
@@ -386,37 +386,6 @@ build_tools: bin/gin \
 
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client
-
-# acceptance_test runs a few acceptance tests against a local or remote environment.
-# This can help identify potential errors before deploying a container.
-.PHONY: acceptance_test
-acceptance_test: bin/rds-ca-2019-root.pem bin/rds-ca-rsa4096-g1.pem ## Run acceptance tests
-ifndef TEST_ACC_ENV
-	@echo "Running acceptance tests for webserver using local environment."
-	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
-	TEST_ACC_CWD=$(PWD) \
-	SERVE_ADMIN=true \
-	SERVE_ORDERS=true \
-	SERVE_API_INTERNAL=true \
-	SERVE_API_GHC=true \
-	MUTUAL_TLS_ENABLED=true \
-	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
-else
-ifndef CIRCLECI
-	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
-	TEST_ACC_CWD=$(PWD) \
-	DISABLE_AWS_VAULT_WRAPPER=1 \
-	aws-vault exec $(AWS_PROFILE) -- \
-	chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
-	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
-else
-	go build -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber/v2
-	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
-	TEST_ACC_CWD=$(PWD) \
-	bin/chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
-	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
-endif
-endif
 
 .PHONY: mocks_generate
 mocks_generate: bin/mockery ## Generate mockery mocks for tests
@@ -569,7 +538,7 @@ db_dev_fresh: check_app db_dev_reset db_dev_migrate ## Recreate dev db from scra
 .PHONY: db_dev_truncate
 db_dev_truncate: ## Truncate dev db
 	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users, uploads, webhook_subscriptions, traffic_distribution_lists, storage_facilities CASCADE'
 
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: check_app db_dev_migrate db_dev_truncate ## Migrate dev db and populate with devseed data
@@ -1125,7 +1094,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-94a41a022a48dab1c05b932734b472922260f3c0 bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-6109bfb5e9650a79bd94bff6453ed726635a4dc2 bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images

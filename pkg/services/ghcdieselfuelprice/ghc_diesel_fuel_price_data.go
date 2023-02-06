@@ -16,7 +16,6 @@ type DieselFuelPriceInfo struct {
 type eiaDataFetcherFunction func(string) (EIAData, error)
 
 type dieselFuelPriceData struct {
-	lastUpdated     string
 	publicationDate string
 	price           float64
 }
@@ -24,39 +23,61 @@ type dieselFuelPriceData struct {
 // EIAData stores all the data returned from a call to the EIA Open Data API
 type EIAData struct {
 	responseStatusCode int
+	ResponseData       responseData `json:"response"`
 	RequestData        requestData  `json:"request"`
-	ErrorData          errorData    `json:"data"`
-	SeriesData         []seriesData `json:"series"`
+	ErrorData          errorData    `json:"error"`
+}
+
+type responseData struct {
+	Total       int        `json:"total"`
+	DateFormat  string     `json:"dateFormat"`
+	Frequency   string     `json:"frequency"`
+	FuelData    []fuelData `json:"data"`
+	Description string     `json:"description"`
+	ID          string     `json:"id"`
+}
+
+// returns a date format map that maps the possible EIA API date formats with the equivalent golang time parse formats.
+func getEIADateFormatMap() map[string]string {
+	dateFormatMap := make(map[string]string)
+	dateFormatMap["YYYY"] = "2006"
+	dateFormatMap["YYYYMM"] = "200601"
+	dateFormatMap["YYYY-MM"] = "2006-01"
+	dateFormatMap["YYYYMMDD"] = "20060102"
+	dateFormatMap["YYYY-MM-DD"] = "2006-01-02"
+	return dateFormatMap
 }
 
 type requestData struct {
-	Command  string `json:"command"`
-	SeriesID string `json:"series_id"`
+	Command string `json:"command"`
 }
 
 type errorData struct {
-	Error string `json:"error"`
+	Code    string `json:"code"`
+	Message string `json:"message"`
 }
 
-type seriesData struct {
-	Updated string          `json:"updated"`
-	Data    [][]interface{} `json:"data"`
+type fuelData struct {
+	Period   string  `json:"period"`
+	DuoArea  string  `json:"duoarea"`
+	AreaName string  `json:"area-name"`
+	Product  string  `json:"product"`
+	Process  string  `json:"process"`
+	Series   string  `json:"series"`
+	Value    float64 `json:"value"`
+	Units    string  `json:"units"`
 }
 
-func (e EIAData) lastUpdated() string {
-	return e.SeriesData[0].Updated
+func (e EIAData) publicationDate() string {
+	publicationDate := e.ResponseData.FuelData[0].Period
+
+	return publicationDate
 }
 
-func (e EIAData) publicationDate() (string, bool) {
-	publicationDate, ok := e.SeriesData[0].Data[0][0].(string)
+func (e EIAData) price() float64 {
+	price := e.ResponseData.FuelData[0].Value
 
-	return publicationDate, ok
-}
-
-func (e EIAData) price() (float64, bool) {
-	price, ok := e.SeriesData[0].Data[0][1].(float64)
-
-	return price, ok
+	return price
 }
 
 // NewDieselFuelPriceInfo creates a new dieselFuelPriceInfo struct and returns a pointer to said struct

@@ -320,7 +320,7 @@ describe('ReviewBillableWeight', () => {
 
       render(<ReviewBillableWeight />);
 
-      userEvent.click(screen.getByText('Edit'));
+      await userEvent.click(screen.getByText('Edit'));
       expect((await screen.findByTestId('maxWeight-weightAllowance')).textContent).toBe(weightAllowance);
       expect(screen.getByTestId('maxWeight-estimatedWeight').textContent).toBe('11,000 lbs');
       expect(screen.getByText(move.tioRemarks)).toBeInTheDocument();
@@ -335,7 +335,7 @@ describe('ReviewBillableWeight', () => {
 
       const xButton = screen.getByTestId('closeSidebar');
 
-      userEvent.click(xButton);
+      await userEvent.click(xButton);
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/moves/testMoveCode/payment-requests', {
@@ -352,7 +352,7 @@ describe('ReviewBillableWeight', () => {
 
       const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
 
-      userEvent.click(reviewShipmentWeights);
+      await userEvent.click(reviewShipmentWeights);
 
       await waitFor(() => {
         expect(screen.getByText('Review weights')).toBeInTheDocument();
@@ -387,7 +387,7 @@ describe('ReviewBillableWeight', () => {
 
       const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
 
-      userEvent.click(reviewShipmentWeights);
+      await userEvent.click(reviewShipmentWeights);
 
       expect(screen.getByText('Shipment 1 of 3')).toBeInTheDocument();
       expect(screen.getByTestId('estimatedWeight').textContent).toBe(
@@ -403,7 +403,7 @@ describe('ReviewBillableWeight', () => {
       expect(screen.getByTestId('reweighRemarks').textContent).toBe(mockMtoShipments[0].reweigh.verificationReason);
 
       const nextShipment = screen.getByRole('button', { name: 'Next Shipment' });
-      userEvent.click(nextShipment);
+      await userEvent.click(nextShipment);
       await waitFor(() => {
         expect(screen.getByText('Shipment 2 of 3')).toBeInTheDocument();
       });
@@ -418,7 +418,7 @@ describe('ReviewBillableWeight', () => {
         formatDateFromIso(mockMtoShipments[1].reweigh.requestedAt, 'DD MMM YYYY'),
       );
       expect(screen.getByTestId('reweighRemarks').textContent).toBe(mockMtoShipments[1].reweigh.verificationReason);
-      userEvent.click(nextShipment);
+      await userEvent.click(nextShipment);
       await waitFor(() => {
         expect(screen.getByText('Shipment 3 of 3')).toBeInTheDocument();
       });
@@ -444,11 +444,11 @@ describe('ReviewBillableWeight', () => {
 
       const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
 
-      userEvent.click(reviewShipmentWeights);
+      await userEvent.click(reviewShipmentWeights);
 
       const nextShipment = screen.getByRole('button', { name: 'Next Shipment' });
-      userEvent.click(nextShipment);
-      userEvent.click(nextShipment);
+      await userEvent.click(nextShipment);
+      await userEvent.click(nextShipment);
       await waitFor(() => {
         expect(screen.getByText('Shipment 3 of 3')).toBeInTheDocument();
       });
@@ -465,7 +465,7 @@ describe('ReviewBillableWeight', () => {
       expect(screen.getByTestId('reweighRemarks').textContent).toBe(mockMtoShipments[2].reweigh.verificationReason);
 
       const back = screen.getByRole('button', { name: 'Back' });
-      userEvent.click(back);
+      await userEvent.click(back);
       await waitFor(() => {
         expect(screen.getByText('Shipment 2 of 3')).toBeInTheDocument();
       });
@@ -481,7 +481,7 @@ describe('ReviewBillableWeight', () => {
       );
       expect(screen.getByTestId('reweighRemarks').textContent).toBe(mockMtoShipments[1].reweigh.verificationReason);
 
-      userEvent.click(back);
+      await userEvent.click(back);
       await waitFor(() => {
         expect(screen.getByText('Shipment 1 of 3')).toBeInTheDocument();
       });
@@ -497,7 +497,7 @@ describe('ReviewBillableWeight', () => {
       );
       expect(screen.getByTestId('reweighRemarks').textContent).toBe(mockMtoShipments[0].reweigh.verificationReason);
 
-      userEvent.click(back);
+      await userEvent.click(back);
       await waitFor(() => {
         expect(screen.getByText('Edit max billable weight')).toBeInTheDocument();
       });
@@ -509,14 +509,14 @@ describe('ReviewBillableWeight', () => {
 
   describe('check that the various alerts show up when expected', () => {
     describe('max billable weight alert', () => {
-      it('renders in shipment view when billable weight is exceeded', () => {
+      it('renders in shipment view when billable weight is exceeded', async () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
         render(<ReviewBillableWeight />);
 
-        userEvent.click(screen.getByText('Edit'));
-        userEvent.click(screen.getByText('Review shipment weights'));
+        await userEvent.click(screen.getByText('Edit'));
+        await userEvent.click(screen.getByText('Review shipment weights'));
         expect(screen.queryByTestId('maxBillableWeightAlert')).toBeInTheDocument();
       });
 
@@ -526,7 +526,7 @@ describe('ReviewBillableWeight', () => {
 
         render(<ReviewBillableWeight />);
 
-        userEvent.click(screen.getByText('Edit'));
+        await userEvent.click(screen.getByText('Edit'));
         expect(await screen.findByTestId('maxBillableWeightAlert')).toBeInTheDocument();
       });
 
@@ -536,20 +536,20 @@ describe('ReviewBillableWeight', () => {
 
         render(<ReviewBillableWeight />);
 
-        userEvent.click(screen.getByText('Edit'));
+        await userEvent.click(screen.getByText('Edit'));
         await waitFor(() => {
           expect(screen.queryByTestId('maxBillableWeightAlert')).not.toBeInTheDocument();
         });
       });
 
-      it('does not render in shipment view when billable weight is not exceeded', () => {
+      it('does not render in shipment view when billable weight is not exceeded', async () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useNonMaxBillableWeightExceededReturnValue);
 
         render(<ReviewBillableWeight />);
 
-        userEvent.click(screen.getByText('Edit'));
-        userEvent.click(screen.getByText('Review shipment weights'));
+        await userEvent.click(screen.getByText('Edit'));
+        await userEvent.click(screen.getByText('Review shipment weights'));
         expect(screen.queryByTestId('maxBillableWeightAlert')).not.toBeInTheDocument();
       });
     });
@@ -584,76 +584,76 @@ describe('ReviewBillableWeight', () => {
     });
 
     describe('shipment missing information', () => {
-      it('renders the alert when the shipment is missing a reweigh weight', () => {
+      it('renders the alert when the shipment is missing a reweigh weight', async () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoReweighReturnValue);
 
         render(<ReviewBillableWeight />);
 
         const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
-        userEvent.click(reviewShipmentWeights);
+        await userEvent.click(reviewShipmentWeights);
 
         expect(screen.getByTestId('shipmentMissingInformation')).toBeInTheDocument();
       });
 
-      it('renders the alert when the shipment is missing a prime estimated weight', () => {
+      it('renders the alert when the shipment is missing a prime estimated weight', async () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoPrimeEstimatedWeightReturnValue);
 
         render(<ReviewBillableWeight />);
 
         const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
-        userEvent.click(reviewShipmentWeights);
+        await userEvent.click(reviewShipmentWeights);
 
         expect(screen.getByTestId('shipmentMissingInformation')).toBeInTheDocument();
       });
 
-      it('does not render when the shipment is not missing a reweigh or a prime estimated ewight', () => {
+      it('does not render when the shipment is not missing a reweigh or a prime estimated ewight', async () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(noAlertsReturnValue);
 
         render(<ReviewBillableWeight />);
 
         const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
-        userEvent.click(reviewShipmentWeights);
+        await userEvent.click(reviewShipmentWeights);
 
         expect(screen.queryByTestId('shipmentMissingInformation')).not.toBeInTheDocument();
       });
     });
 
     describe('shipment exceeds 110% of estimated weight', () => {
-      it('renders the alert when the shipment is overweight - the billable weight is greater than the estimated weight * 110%', () => {
+      it('renders the alert when the shipment is overweight - the billable weight is greater than the estimated weight * 110%', async () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
         render(<ReviewBillableWeight />);
 
         const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
-        userEvent.click(reviewShipmentWeights);
+        await userEvent.click(reviewShipmentWeights);
 
         expect(screen.getByTestId('shipmentBillableWeightExceeds110OfEstimated')).toBeInTheDocument();
       });
 
-      it('does not render the alert when the shipment is not overweight - the billable weight is less than the estimated weight * 110%', () => {
+      it('does not render the alert when the shipment is not overweight - the billable weight is less than the estimated weight * 110%', async () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(noAlertsReturnValue);
 
         render(<ReviewBillableWeight />);
 
         const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
-        userEvent.click(reviewShipmentWeights);
+        await userEvent.click(reviewShipmentWeights);
 
         expect(screen.queryByTestId('shipmentBillableWeightExceeds110OfEstimated')).not.toBeInTheDocument();
       });
 
-      it('does not render the alert when the shipment an NTS-release', () => {
+      it('does not render the alert when the shipment an NTS-release', async () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsNTSReleaseReturnValue);
 
         render(<ReviewBillableWeight />);
 
         const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
-        userEvent.click(reviewShipmentWeights);
+        await userEvent.click(reviewShipmentWeights);
 
         expect(screen.queryByTestId('shipmentBillableWeightExceeds110OfEstimated')).not.toBeInTheDocument();
       });

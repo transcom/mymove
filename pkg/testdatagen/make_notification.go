@@ -12,7 +12,7 @@ import (
 func MakeNotification(db *pop.Connection, assertions Assertions) models.Notification {
 	serviceMember := assertions.Notification.ServiceMember
 	// There's a uniqueness constraint on notification emails so add some randomness
-	email := fmt.Sprintf("leo_spaceman_office_%s@example.com", makeRandomString(5))
+	email := fmt.Sprintf("leo_spaceman_office_%s@example.com", MakeRandomString(5))
 
 	if isZeroUUID(assertions.Notification.ServiceMemberID) {
 		if assertions.User.LoginGovEmail == "" {

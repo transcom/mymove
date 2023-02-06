@@ -13,6 +13,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	shipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -72,7 +73,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 	})
 
 	// third shipment with destination address and type
-	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	destinationType := models.DestinationTypeHomeOfRecord
 	thirdShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
@@ -166,10 +167,15 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsOK{}, response)
-
 		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
+
+		// Validate outgoing payload
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
 		suite.Len(okResponse.Payload, 4)
 
 		payloadShipment := okResponse.Payload[0]
@@ -221,8 +227,14 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.NewQueryError("MTOShipment", errors.New("query error"), ""))
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsInternalServerError{}, response)
+		payload := response.(*mtoshipmentops.ListMTOShipmentsInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Failure list fetch - 404 Not Found - Move Task Order ID", func() {
@@ -239,8 +251,14 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.NewNotFoundError(uuid.FromStringOrNil(params.MoveTaskOrderID.String()), "move not found"))
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsNotFound{}, response)
+		payload := response.(*mtoshipmentops.ListMTOShipmentsNotFound).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -265,8 +283,14 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 			ShipmentID:  *handlers.FmtUUID(uuid),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(deletionParams)
 		suite.IsType(&shipmentops.DeleteShipmentForbidden{}, response)
+		payload := response.(*shipmentops.DeleteShipmentForbidden).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 204 when all validations pass", func() {
@@ -289,9 +313,12 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
 
-		response := handler.Handle(deletionParams)
+		// Validate incoming payload: no body to validate
 
+		response := handler.Handle(deletionParams)
 		suite.IsType(&shipmentops.DeleteShipmentNoContent{}, response)
+
+		// Validate outgoing payload: no payload
 	})
 
 	suite.Run("Returns 404 when deleter returns NotFoundError", func() {
@@ -314,8 +341,14 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(deletionParams)
 		suite.IsType(&shipmentops.DeleteShipmentNotFound{}, response)
+		payload := response.(*shipmentops.DeleteShipmentNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 403 when deleter returns ForbiddenError", func() {
@@ -338,8 +371,14 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(deletionParams)
 		suite.IsType(&shipmentops.DeleteShipmentForbidden{}, response)
+		payload := response.(*shipmentops.DeleteShipmentForbidden).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 422 - Unprocessable Enitity error", func() {
@@ -362,8 +401,14 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(deletionParams)
 		suite.IsType(&shipmentops.DeleteShipmentUnprocessableEntity{}, response)
+		payload := response.(*shipmentops.DeleteShipmentUnprocessableEntity).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 409 - Conflict error", func() {
@@ -386,16 +431,21 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(deletionParams)
 		suite.IsType(&shipmentops.DeleteShipmentConflict{}, response)
-	})
+		payload := response.(*shipmentops.DeleteShipmentConflict).Payload
 
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
+	})
 }
 
 func (suite *HandlerSuite) TestGetShipmentHandler() {
 	// Success integration test
 	suite.Run("Successful fetch (integration) test", func() {
-		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		handlerConfig := suite.HandlerConfig()
 		fetcher := mtoshipment.NewMTOShipmentFetcher()
@@ -412,9 +462,16 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 			mtoShipmentFetcher: fetcher,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.GetShipmentOK{}, response)
+		payload := response.(*mtoshipmentops.GetShipmentOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
+
 	// 404 response
 	suite.Run("404 response when the service returns not found", func() {
 		uuidForShipment, _ := uuid.NewV4()
@@ -434,8 +491,14 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 			mtoShipmentFetcher: fetcher,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.GetShipmentNotFound{}, response)
+		payload := response.(*mtoshipmentops.GetShipmentNotFound).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -500,8 +563,15 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentOK{}, response)
+		payload := response.(*shipmentops.ApproveShipmentOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.HasWebhookNotification(shipment.ID, traceID)
 	})
 
@@ -527,8 +597,14 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			IfMatch:     etag.GenerateEtag(time.Now()),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentForbidden{}, response)
+		payload := response.(*shipmentops.ApproveShipmentForbidden).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 404 when approver returns NotFoundError", func() {
@@ -554,8 +630,14 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentNotFound{}, response)
+		payload := response.(*shipmentops.ApproveShipmentNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 409 when approver returns Conflict Error", func() {
@@ -581,8 +663,14 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentConflict{}, response)
+		payload := response.(*shipmentops.ApproveShipmentConflict).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -608,8 +696,14 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentPreconditionFailed{}, response)
+		payload := response.(*shipmentops.ApproveShipmentPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when approver returns validation errors", func() {
@@ -635,8 +729,14 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentUnprocessableEntity{}, response)
+		payload := response.(*shipmentops.ApproveShipmentUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 500 when approver returns unexpected error", func() {
@@ -662,8 +762,14 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentInternalServerError{}, response)
+		payload := response.(*shipmentops.ApproveShipmentInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
 
@@ -703,8 +809,15 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentDiversionOK{}, response)
+		payload := response.(*shipmentops.RequestShipmentDiversionOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.HasWebhookNotification(shipment.ID, traceID)
 	})
 
@@ -730,8 +843,14 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 			IfMatch:     etag.GenerateEtag(time.Now()),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentDiversionForbidden{}, response)
+		payload := response.(*shipmentops.RequestShipmentDiversionForbidden).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 404 when requester returns NotFoundError", func() {
@@ -757,8 +876,14 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentDiversionNotFound{}, response)
+		payload := response.(*shipmentops.RequestShipmentDiversionNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 409 when requester returns Conflict Error", func() {
@@ -784,8 +909,14 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentDiversionConflict{}, response)
+		payload := response.(*shipmentops.RequestShipmentDiversionConflict).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -811,8 +942,14 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentDiversionPreconditionFailed{}, response)
+		payload := response.(*shipmentops.RequestShipmentDiversionPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when requester returns validation errors", func() {
@@ -838,8 +975,14 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentDiversionUnprocessableEntity{}, response)
+		payload := response.(*shipmentops.RequestShipmentDiversionUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 500 when requester returns unexpected error", func() {
@@ -865,8 +1008,14 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentDiversionInternalServerError{}, response)
+		payload := response.(*shipmentops.RequestShipmentDiversionInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
 
@@ -908,8 +1057,15 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentDiversionOK{}, response)
+		payload := response.(*shipmentops.ApproveShipmentDiversionOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.HasWebhookNotification(shipment.ID, traceID)
 	})
 
@@ -935,8 +1091,14 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 			IfMatch:     etag.GenerateEtag(time.Now()),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentDiversionForbidden{}, response)
+		payload := response.(*shipmentops.ApproveShipmentDiversionForbidden).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 404 when approver returns NotFoundError", func() {
@@ -962,8 +1124,14 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentDiversionNotFound{}, response)
+		payload := response.(*shipmentops.ApproveShipmentDiversionNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 409 when approver returns Conflict Error", func() {
@@ -989,8 +1157,14 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentDiversionConflict{}, response)
+		payload := response.(*shipmentops.ApproveShipmentDiversionConflict).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -1016,8 +1190,14 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentDiversionPreconditionFailed{}, response)
+		payload := response.(*shipmentops.ApproveShipmentDiversionPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when approver returns validation errors", func() {
@@ -1043,8 +1223,14 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentDiversionUnprocessableEntity{}, response)
+		payload := response.(*shipmentops.ApproveShipmentDiversionUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 500 when approver returns unexpected error", func() {
@@ -1070,8 +1256,14 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentDiversionInternalServerError{}, response)
+		payload := response.(*shipmentops.ApproveShipmentDiversionInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
 
@@ -1113,10 +1305,16 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			},
 		}
 
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RejectShipmentOK{}, response)
+		payload := response.(*shipmentops.RejectShipmentOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.HasWebhookNotification(shipment.ID, traceID)
 	})
 
@@ -1144,10 +1342,15 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			},
 		}
 
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RejectShipmentForbidden{}, response)
+		payload := response.(*shipmentops.RejectShipmentForbidden).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 404 when rejecter returns NotFoundError", func() {
@@ -1175,10 +1378,15 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			},
 		}
 
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RejectShipmentNotFound{}, response)
+		payload := response.(*shipmentops.RejectShipmentNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 409 when rejecter returns Conflict Error", func() {
@@ -1206,10 +1414,15 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			},
 		}
 
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RejectShipmentConflict{}, response)
+		payload := response.(*shipmentops.RejectShipmentConflict).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -1237,10 +1450,15 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			},
 		}
 
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RejectShipmentPreconditionFailed{}, response)
+		payload := response.(*shipmentops.RejectShipmentPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when rejecter returns validation errors", func() {
@@ -1268,10 +1486,15 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			},
 		}
 
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RejectShipmentUnprocessableEntity{}, response)
+		payload := response.(*shipmentops.RejectShipmentUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 500 when rejecter returns unexpected error", func() {
@@ -1299,10 +1522,15 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			},
 		}
 
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RejectShipmentInternalServerError{}, response)
+		payload := response.(*shipmentops.RejectShipmentInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Requires rejection reason in Body of request", func() {
@@ -1331,10 +1559,15 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			Body:        &ghcmessages.RejectShipment{},
 		}
 
+		// Validate incoming payload
 		suite.Error(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RejectShipmentUnprocessableEntity{}, response)
+		payload := response.(*shipmentops.RejectShipmentUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -1375,8 +1608,15 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentCancellationOK{}, response)
+		payload := response.(*shipmentops.RequestShipmentCancellationOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.HasWebhookNotification(shipment.ID, traceID)
 	})
 
@@ -1402,8 +1642,14 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 			IfMatch:     etag.GenerateEtag(time.Now()),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentCancellationForbidden{}, response)
+		payload := response.(*shipmentops.RequestShipmentCancellationForbidden).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 404 when canceler returns NotFoundError", func() {
@@ -1429,8 +1675,14 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentCancellationNotFound{}, response)
+		payload := response.(*shipmentops.RequestShipmentCancellationNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 409 when canceler returns Conflict Error", func() {
@@ -1456,8 +1708,14 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentCancellationConflict{}, response)
+		payload := response.(*shipmentops.RequestShipmentCancellationConflict).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -1483,8 +1741,14 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentCancellationPreconditionFailed{}, response)
+		payload := response.(*shipmentops.RequestShipmentCancellationPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when canceler returns validation errors", func() {
@@ -1510,8 +1774,14 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentCancellationUnprocessableEntity{}, response)
+		payload := response.(*shipmentops.RequestShipmentCancellationUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 500 when canceler returns unexpected error", func() {
@@ -1537,8 +1807,14 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 			IfMatch:     eTag,
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentCancellationInternalServerError{}, response)
+		payload := response.(*shipmentops.RequestShipmentCancellationInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
 
@@ -1596,10 +1872,16 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentReweighOK{}, response)
 		okResponse := response.(*shipmentops.RequestShipmentReweighOK)
 		payload := okResponse.Payload
-		suite.IsType(&shipmentops.RequestShipmentReweighOK{}, response)
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.Equal(strfmt.UUID(shipment.ID.String()), payload.ShipmentID)
 		suite.EqualValues(models.ReweighRequesterTOO, payload.RequestedBy)
 		suite.WithinDuration(time.Now(), (time.Time)(payload.RequestedAt), 2*time.Second)
@@ -1647,8 +1929,14 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			ShipmentID:  *handlers.FmtUUID(uuid),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentReweighForbidden{}, response)
+		payload := response.(*shipmentops.RequestShipmentReweighForbidden).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 404 when reweighRequester returns NotFoundError", func() {
@@ -1691,8 +1979,14 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		}
 		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, apperror.NotFoundError{})
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighNotFound{}, response)
+		payload := response.(*shipmentops.RequestShipmentReweighNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 409 when reweighRequester returns Conflict Error", func() {
@@ -1736,8 +2030,14 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, apperror.ConflictError{})
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighConflict{}, response)
+		payload := response.(*shipmentops.RequestShipmentReweighConflict).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when reweighRequester returns validation errors", func() {
@@ -1780,8 +2080,14 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		}
 		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighUnprocessableEntity{}, response)
+		payload := response.(*shipmentops.RequestShipmentReweighUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 500 when reweighRequester returns unexpected error", func() {
@@ -1825,8 +2131,14 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, models.ReweighRequesterTOO).Return(nil, errors.New("UnexpectedError"))
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RequestShipmentReweighInternalServerError{}, response)
+		payload := response.(*shipmentops.RequestShipmentReweighInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
 
@@ -1841,6 +2153,7 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				SITDaysAllowance: &sitDaysAllowance,
+				Status:           models.MTOShipmentStatusApproved,
 			},
 			Move: move,
 		})
@@ -1888,10 +2201,18 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 			ShipmentID:     *handlers.FmtUUID(mtoShipment.ID),
 			SitExtensionID: *handlers.FmtUUID(sitExtension.ID),
 		}
+
+		// Validate incoming payload
+		suite.NoError(approveParams.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveSITExtensionOK{}, response)
 		okResponse := response.(*shipmentops.ApproveSITExtensionOK)
 		payload := okResponse.Payload
-		suite.IsType(&shipmentops.ApproveSITExtensionOK{}, response)
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.Equal(int64(30), *payload.SitDaysAllowance)
 		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
 		suite.Require().NotNil(payload.SitExtensions[0].OfficeRemarks)
@@ -1906,6 +2227,7 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				SITDaysAllowance: &sitDaysAllowance,
+				Status:           models.MTOShipmentStatusApproved,
 			},
 			Move: move,
 		})
@@ -1935,10 +2257,18 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 			ShipmentID:     *handlers.FmtUUID(mtoShipment.ID),
 			SitExtensionID: *handlers.FmtUUID(sitExtension.ID),
 		}
+
+		// Validate incoming payload
+		suite.NoError(denyParams.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(denyParams)
+		suite.IsType(&shipmentops.DenySITExtensionOK{}, response)
 		okResponse := response.(*shipmentops.DenySITExtensionOK)
 		payload := okResponse.Payload
-		suite.IsType(&shipmentops.DenySITExtensionOK{}, response)
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.Equal("DENIED", payload.SitExtensions[0].Status)
 	})
 }
@@ -1974,12 +2304,18 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 			},
 			ShipmentID: *handlers.FmtUUID(mtoShipment.ID),
 		}
+
+		// Validate incoming payload
 		suite.NoError(createParams.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(createParams)
+		suite.IsType(&shipmentops.CreateSITExtensionAsTOOOK{}, response)
 		okResponse := response.(*shipmentops.CreateSITExtensionAsTOOOK)
 		payload := okResponse.Payload
-		suite.IsType(&shipmentops.CreateSITExtensionAsTOOOK{}, response)
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.Equal(int64(10), *payload.SitDaysAllowance)
 		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
 		suite.Require().NotNil(payload.SitExtensions[0].OfficeRemarks)
@@ -2019,12 +2355,18 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 			},
 			ShipmentID: *handlers.FmtUUID(mtoShipment.ID),
 		}
+
+		// Validate incoming payload
 		suite.NoError(createParams.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(createParams)
+		suite.IsType(&shipmentops.CreateSITExtensionAsTOOOK{}, response)
 		okResponse := response.(*shipmentops.CreateSITExtensionAsTOOOK)
 		payload := okResponse.Payload
-		suite.IsType(&shipmentops.CreateSITExtensionAsTOOOK{}, response)
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.Equal(int64(30), *payload.SitDaysAllowance)
 		suite.Equal("APPROVED", payload.SitExtensions[0].Status)
 		suite.Require().NotNil(payload.SitExtensions[0].OfficeRemarks)
@@ -2042,8 +2384,8 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 	subtestData = &createMTOShipmentSubtestData{}
 
 	mto := testdatagen.MakeAvailableMove(suite.DB())
-	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
-	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move:        mto,
 		MTOShipment: models.MTOShipment{},
@@ -2117,10 +2459,17 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentCreator,
 			sitStatus,
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
 		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
 		createMTOShipmentPayload := okResponse.Payload
-		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+
+		// Validate outgoing payload
+		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
 
 		suite.Require().Equal(ghcmessages.MTOShipmentStatusSUBMITTED, createMTOShipmentPayload.Status, "MTO Shipment should have been submitted")
 		suite.Require().Equal(createMTOShipmentPayload.ShipmentType, ghcmessages.MTOShipmentTypeHHG, "MTO Shipment should be an HHG")
@@ -2150,9 +2499,16 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*models.MTOShipment"),
 		).Return(nil, err)
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
+		payload := response.(*mtoshipmentops.CreateMTOShipmentInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("POST failure - 422 -- Bad agent IDs set on shipment", func() {
@@ -2185,9 +2541,16 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		paramsBadIDs := params
 		paramsBadIDs.Body.Agents = ghcmessages.MTOAgents{agent}
 
+		// Validate incoming payload
+		suite.NoError(paramsBadIDs.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(paramsBadIDs)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
+
+		// Validate outgoing payload
+		suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
+
 		suite.NotEmpty(typedResponse.Payload.InvalidFields)
 	})
 
@@ -2214,12 +2577,18 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		badParams := params
 		badParams.Body.PickupAddress.Address.StreetAddress1 = nil
 
+		// Validate incoming payload
 		suite.NoError(badParams.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(badParams)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
-		// CreateMTOShipment is returning services.NewInvalidInputError without any validation errors
+
+		// Validate outgoing payload
+		// TODO: Can't validate the response because of the issue noted below. Figure out a way to
+		//   either alter the service or relax the swagger requirements.
+		// suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
+		// CreateShipment is returning apperror.InvalidInputError without any validation errors
 		// so InvalidFields won't be added to the payload.
 		suite.Empty(typedResponse.Payload.InvalidFields)
 	})
@@ -2248,8 +2617,15 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		badParams := params
 		badParams.Body.MoveTaskOrderID = handlers.FmtUUID(uuid.FromStringOrNil(uuidString))
 
+		// Validate incoming payload
+		suite.NoError(badParams.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(badParams)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentNotFound{}, response)
+		payload := response.(*mtoshipmentops.CreateMTOShipmentNotFound).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("POST failure - 400 -- nil body", func() {
@@ -2276,9 +2652,16 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		paramsNilBody := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 		}
+
+		// Validate incoming payload: nil body (the point of this test)
+
 		response := handler.Handle(paramsNilBody)
 
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentBadRequest{}, response)
+		payload := response.(*mtoshipmentops.CreateMTOShipmentBadRequest).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
 
@@ -2349,21 +2732,24 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			},
 		}
 
-		// Run swagger validations
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
-		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
+		payload := okResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		// Check MTOShipment fields.
-		payload := okResponse.Payload
 		suite.NotZero(payload.ID)
 		suite.NotEqual(uuid.Nil.String(), payload.ID.String())
 		suite.Equal(move.ID.String(), payload.MoveTaskOrderID.String())
@@ -2445,21 +2831,24 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			},
 		}
 
-		// Run swagger validations
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil, nil).Once()
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
-		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
+		payload := okResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		// Check MTOShipment fields.
-		payload := okResponse.Payload
 		suite.NotZero(payload.ID)
 		suite.NotEqual(uuid.Nil.String(), payload.ID.String())
 		suite.Equal(move.ID.String(), payload.MoveTaskOrderID.String())
@@ -2492,9 +2881,9 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	servicesCounselor.User.Roles = append(servicesCounselor.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeServicesCounselor,
 	})
-	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	pickupAddress.StreetAddress1 = "123 Fake Test St NW"
-	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
 	customerRemarks := "help"
 	counselorRemarks := "counselor approved"
@@ -2599,13 +2988,16 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		})
 		params := suite.getUpdateShipmentParams(oldShipment)
 
-		// Run swagger validations
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
-
 		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(updatedShipment.Validate(strfmt.Default))
+
 		suite.Equal(oldShipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(params.Body.BillableWeightCap, updatedShipment.BillableWeightCap)
 		suite.Equal(params.Body.BillableWeightJustification, updatedShipment.BillableWeightJustification)
@@ -2691,19 +3083,28 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			SpouseProGearWeight:            handlers.FmtPoundPtr(&spouseProGearWeight),
 		}
 
-		// Run swagger validations
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
+		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
-
 		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(updatedShipment.Validate(strfmt.Default))
+
 		suite.Equal(ppmShipment.Shipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(handlers.FmtDatePtr(&actualMoveDate), updatedShipment.PpmShipment.ActualMoveDate)
 		suite.Equal(handlers.FmtDatePtr(&expectedDepartureDate), updatedShipment.PpmShipment.ExpectedDepartureDate)
@@ -2749,9 +3150,15 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		params := suite.getUpdateShipmentParams(oldShipment)
 		params.Body = nil
 
+		// Validate incoming payload: nil body (the point of this test)
+
 		response := handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
+		payload := response.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("PATCH failure - 404 -- not found", func() {
@@ -2780,12 +3187,16 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		params := suite.getUpdateShipmentParams(oldShipment)
 		params.ShipmentID = *uuidString
 
-		// Run swagger validations
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
+		payload := response.(*mtoshipmentops.UpdateMTOShipmentNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
@@ -2813,12 +3224,16 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		params := suite.getUpdateShipmentParams(oldShipment)
 		params.IfMatch = "intentionally-bad-if-match-header-value"
 
-		// Run swagger validations
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
+		payload := response.(*mtoshipmentops.UpdateMTOShipmentPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("PATCH failure - 412 -- shipment shouldn't be updatable", func() {
@@ -2846,12 +3261,16 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		params := suite.getUpdateShipmentParams(oldShipment)
 
-		// Run swagger validations
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentForbidden{}, response)
+		payload := response.(*mtoshipmentops.UpdateMTOShipmentForbidden).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("PATCH failure - 500", func() {
@@ -2877,12 +3296,15 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		})
 		params := suite.getUpdateShipmentParams(oldShipment)
 
-		// Run swagger validations
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentInternalServerError{}, response)
-	})
+		payload := response.(*mtoshipmentops.UpdateMTOShipmentInternalServerError).Payload
 
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
 }

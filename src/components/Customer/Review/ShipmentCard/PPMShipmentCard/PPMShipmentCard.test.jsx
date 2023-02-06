@@ -5,6 +5,8 @@ import userEvent from '@testing-library/user-event';
 import PPMShipmentCard from './PPMShipmentCard';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import transportationOfficeFactory from 'utils/test/factories/transportationOffice';
+import affiliations from 'content/serviceMemberAgencies';
 
 const defaultProps = {
   showEditAndDeleteBtn: true,
@@ -128,17 +130,85 @@ describe('PPMShipmentCard component', () => {
     expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
   });
 
-  it('calls onEditClick when edit button is pressed', () => {
+  it('calls onEditClick when edit button is pressed', async () => {
     render(<PPMShipmentCard {...completeProps} />);
     const editBtn = screen.getByRole('button', { name: 'Edit' });
-    userEvent.click(editBtn);
+    await userEvent.click(editBtn);
     expect(completeProps.onEditClick).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onDeleteClick when delete button is pressed', () => {
+  it('calls onDeleteClick when delete button is pressed', async () => {
     render(<PPMShipmentCard {...completeProps} />);
     const deleteBtn = screen.getByRole('button', { name: 'Delete' });
-    userEvent.click(deleteBtn);
+    await userEvent.click(deleteBtn);
     expect(completeProps.onDeleteClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders component with closeout office and army affiliation', () => {
+    const move = { closeout_office: transportationOfficeFactory() };
+
+    render(<PPMShipmentCard {...completeProps} affiliation={affiliations.ARMY} move={move} />);
+
+    const descriptionDefinitions = screen.getAllByRole('definition');
+
+    expect(descriptionDefinitions.length).toBe(12);
+
+    const expectedRows = [
+      ['Expected departure', '01 Jan 2020'],
+      ['Origin ZIP', '10001'],
+      ['Second origin ZIP', '10002'],
+      ['Destination ZIP', '11111'],
+      ['Second destination ZIP', '22222'],
+      ['Closeout office', move.closeout_office.name],
+      ['Storage expected? (SIT)', 'Yes'],
+      ['Estimated weight', '5,999 lbs'],
+      ['Pro-gear', 'Yes, 1,250 lbs'],
+      ['Spouse pro-gear', 'Yes, 375 lbs'],
+      ['Estimated incentive', '$10,000'],
+      ['Advance', 'Yes, $6,000'],
+    ];
+
+    expectedRows.forEach((expectedRow, index) => {
+      // dt (definition terms) are not accessible elements that can be found with getByRole although
+      // testing library claims this is fixed we need to find the node package that is out of date
+      expect(descriptionDefinitions[index].previousElementSibling).toHaveTextContent(expectedRow[0]);
+      expect(descriptionDefinitions[index]).toHaveTextContent(expectedRow[1]);
+    });
+
+    expect();
+  });
+
+  it('renders component with closeout office and air force affiliation', () => {
+    const move = { closeout_office: transportationOfficeFactory() };
+
+    render(<PPMShipmentCard {...completeProps} affiliation={affiliations.AIR_FORCE} move={move} />);
+
+    const descriptionDefinitions = screen.getAllByRole('definition');
+
+    expect(descriptionDefinitions.length).toBe(12);
+
+    const expectedRows = [
+      ['Expected departure', '01 Jan 2020'],
+      ['Origin ZIP', '10001'],
+      ['Second origin ZIP', '10002'],
+      ['Destination ZIP', '11111'],
+      ['Second destination ZIP', '22222'],
+      ['Closeout office', move.closeout_office.name],
+      ['Storage expected? (SIT)', 'Yes'],
+      ['Estimated weight', '5,999 lbs'],
+      ['Pro-gear', 'Yes, 1,250 lbs'],
+      ['Spouse pro-gear', 'Yes, 375 lbs'],
+      ['Estimated incentive', '$10,000'],
+      ['Advance', 'Yes, $6,000'],
+    ];
+
+    expectedRows.forEach((expectedRow, index) => {
+      // dt (definition terms) are not accessible elements that can be found with getByRole although
+      // testing library claims this is fixed we need to find the node package that is out of date
+      expect(descriptionDefinitions[index].previousElementSibling).toHaveTextContent(expectedRow[0]);
+      expect(descriptionDefinitions[index]).toHaveTextContent(expectedRow[1]);
+    });
+
+    expect();
   });
 });
