@@ -6,6 +6,7 @@ const ClientCertCreate = (props) => (
     <SimpleForm>
       <TextInput source="subject" validate={required()} />
       <TextInput source="sha256Digest" validate={required()} />
+      <TextInput source="user_id" validate={required()} />
       <SelectInput
         source="allowOrdersAPI"
         choices={[
