@@ -89,6 +89,10 @@ export const formatWeightTicketItems = (weightTickets, editPath, editParams, han
 
 export const formatProGearItems = (proGears, editPath, editParams, handleDelete) => {
   return proGears?.map((proGear, i) => {
+    const weightValues = proGear.hasWeightTickets
+      ? { id: 'weight', label: 'Weight:', value: formatWeight(proGear.weight) }
+      : { id: 'constructedWeight', label: 'Constructed weight:', value: formatWeight(proGear.weight) };
+
     let proGearBelongsTo = false;
     if (proGear.belongsToSelf === true || proGear.belongsToSelf === null) {
       proGearBelongsTo = true;
@@ -105,7 +109,7 @@ export const formatProGearItems = (proGears, editPath, editParams, handleDelete)
           hideLabel: true,
         },
         { id: 'description', label: 'Description:', value: proGear.description ? proGear.description : null },
-        { id: 'weight', label: 'Weight:', value: formatWeight(proGear.weight) },
+        weightValues,
       ],
       renderEditLink: () => <Link to={generatePath(editPath, { ...editParams, proGearId: proGear.id })}>Edit</Link>,
       onDelete: () => handleDelete('proGear', proGear.id, proGear.eTag),
