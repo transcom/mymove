@@ -123,7 +123,7 @@ const SubmittedRequestedShipments = ({
                   );
                 }),
               );
-              handleAfterSuccess('mto', { showMTOpostedMessage: true });
+              handleAfterSuccess('../mto', { showMTOpostedMessage: true });
             } catch {
               setSubmitting(false);
             }
