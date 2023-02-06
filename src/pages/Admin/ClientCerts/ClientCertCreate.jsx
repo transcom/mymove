@@ -2,15 +2,23 @@ import React from 'react';
 import { Create, SimpleForm, TextInput, SelectInput, required } from 'react-admin';
 import { Typography } from '@material-ui/core';
 
+const IDENTITY_DESCRIPTION = `
+This section is used create the client certificate and user relationship needed
+to authenticate via mutual TLS (mTLS).
+`;
+
+const ROLES_DESCRIPTION = `
+This section is used to grant roles to the client certificate. Be mindful of
+the roles you give a particulate client certificate.
+`;
+
 const ClientCertCreate = (props) => (
   <Create {...props}>
     <SimpleForm>
       <Typography variant="h5" gutterBottom>
         Indentity
       </Typography>
-      <Typography>
-        This section is used create the client certificate and user relationship needed to authenticate via mutual TLS.
-      </Typography>
+      <Typography paragraph>{IDENTITY_DESCRIPTION}</Typography>
       <TextInput source="subject" validate={required()} multiline />
       <TextInput source="sha256Digest" validate={required()} multiline />
       <TextInput source="user_id" validate={required()} multiline />
@@ -18,7 +26,7 @@ const ClientCertCreate = (props) => (
       <Typography variant="h5" gutterBottom>
         Roles
       </Typography>
-      <Typography> This section is used to grant roles to the client certificate. </Typography>
+      <Typography paragraph>{ROLES_DESCRIPTION}</Typography>
       <SelectInput
         source="allowPrime"
         choices={[
