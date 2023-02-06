@@ -1,12 +1,31 @@
 import React from 'react';
 import { Create, SimpleForm, TextInput, SelectInput, required } from 'react-admin';
+import { Typography } from '@material-ui/core';
 
 const ClientCertCreate = (props) => (
   <Create {...props}>
     <SimpleForm>
-      <TextInput source="subject" validate={required()} />
-      <TextInput source="sha256Digest" validate={required()} />
-      <TextInput source="user_id" validate={required()} />
+      <Typography variant="h5" gutterBottom>
+        Indentity
+      </Typography>
+      <Typography>
+        This section is used create the client certificate and user relationship needed to authenticate via mutual TLS.
+      </Typography>
+      <TextInput source="subject" validate={required()} multiline />
+      <TextInput source="sha256Digest" validate={required()} multiline />
+      <TextInput source="user_id" validate={required()} multiline />
+      {/* <ReferenceInput source="user_id" validate={required()} reference="users" /> */}
+      <Typography variant="h5" gutterBottom>
+        Roles
+      </Typography>
+      <Typography> This section is used to grant roles to the client certificate. </Typography>
+      <SelectInput
+        source="allowPrime"
+        choices={[
+          { id: true, name: 'Yes' },
+          { id: false, name: 'No' },
+        ]}
+      />
       <SelectInput
         source="allowOrdersAPI"
         choices={[
@@ -79,13 +98,6 @@ const ClientCertCreate = (props) => (
       />
       <SelectInput
         source="allowNavyOrdersWrite"
-        choices={[
-          { id: true, name: 'Yes' },
-          { id: false, name: 'No' },
-        ]}
-      />
-      <SelectInput
-        source="allowPrime"
         choices={[
           { id: true, name: 'Yes' },
           { id: false, name: 'No' },
