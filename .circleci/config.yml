@@ -179,7 +179,9 @@ executors:
           password: $DOCKERHUB_PASSWORD
 
   milmove_playwright_tester:
-    resource_class: large
+    # maybe don't need xlarge, but getting many timeouts with large
+    # ahobson - 2023-02-07
+    resource_class: xlarge
     # use ~/project as that already exists in cimg/node and is owned
     # by circleci
     working_directory: ~/project
@@ -751,7 +753,7 @@ commands:
             make db_dev_create
             bin/milmove migrate
             # playwright tests DO NOT NEED SEED DATA
-            bin/milmove serve 2>&1 | tee server.log | fmt
+            bin/milmove serve 2>&1 | fmt
       - run:
           name: wait for server
           command: |
@@ -785,8 +787,6 @@ commands:
             zip -r complete-playwright-report.zip playwright-report
       - store_artifacts:
           path: complete-playwright-report.zip
-      - store_artifacts:
-          path: server.log
       - store_test_results:
           path: playwright-results.xml
 
