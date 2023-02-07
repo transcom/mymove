@@ -8,6 +8,22 @@
 -- across all the environments. Values here have been redacted. Please pull
 -- down the S3 migration file of the same name in the STG migration folder.
 
+-- DO $$
+-- NOTE: Variables for UserID, ClientCert SHA256, client_certs.id for
+-- both Daycos and MoveHQ must be declared.
+-- DECLARE
+-- 	daycos_user_id UUID;
+-- 	daycos_sha256 VARCHAR;
+-- 	daycos_client_cert_id UUID;
+-- 	daycos_users_roles_id UUID;
+--
+-- 	movehq_user_id UUID;
+-- 	movehq_sha256 VARCHAR;
+-- 	movehq_client_cert_id UUID;
+-- 	movehq_users_roles_id UUID;
+--
+-- 	prime_role_id UUID;
+--
 -- BEGIN
 --
 -- 	NOTE: Variables for UserID, ClientCert SHA256, client_certs.id for
@@ -18,16 +34,16 @@
 -- 	  -in <CERT_FILE>.crt \
 -- 	  -outform DER \
 -- 	  -out <CERT_FILE>.crt.der && \
--- 	openssl dgst -sha256 <CERT_FILE>.crt.der && \
+-- 	openssl dgst -sha256 <CERT_FILE>.crt.der
 -- 	daycos_user_id := '<UUID>';
 -- 	daycos_sha256 := '<SHA256>';
 -- 	daycos_client_cert_id := '<UUID>';
 -- 	daycos_users_roles_id := '<UUID>';
+--
 -- 	movehq_user_id := '<UUID>';
 -- 	movehq_sha256 := '<SHA256>';
 -- 	movehq_client_cert_id := '<UUID>';
 -- 	movehq_users_roles_id := '<UUID>';
---
 --
 -- 	prime_role_id := (SELECT id FROM roles WHERE role_type = 'prime');
 --
