@@ -3,7 +3,7 @@ package adminapi
 import (
 	clientcertop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/client_certs"
 	"github.com/transcom/mymove/pkg/models"
-	fetch "github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/clientcert"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 )
@@ -25,14 +25,14 @@ func (suite *HandlerSuite) TestIndexClientCertsHandler() {
 		handler := IndexClientCertsHandler{
 			HandlerConfig:         suite.HandlerConfig(),
 			NewQueryFilter:        query.NewQueryFilter,
-			ClientCertListFetcher: fetch.NewListFetcher(queryBuilder),
+			ClientCertListFetcher: clientcert.NewClientCertListFetcher(queryBuilder),
 			NewPagination:         pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
 
-		suite.IsType(&userop.IndexUsersOK{}, response)
-		okResponse := response.(*userop.IndexUsersOK)
+		suite.IsType(&clientcertop.IndexClientCertsOK{}, response)
+		okResponse := response.(*clientcertop.IndexClientCertsOK)
 		suite.Len(okResponse.Payload, 2)
 		suite.Equal(users[0].ID.String(), okResponse.Payload[0].ID.String())
 	})
