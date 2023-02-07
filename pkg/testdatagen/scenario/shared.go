@@ -2166,28 +2166,27 @@ func createMovesForEachBranch(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
-func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, locator string) {
-	userID := uuid.Must(uuid.NewV4())
-	email := "complete@ppm.submitted"
+func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, moveInfo MoveCreatorInfo) models.Move {
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            userID,
+				ID:            moveInfo.UserID,
 				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
+				LoginGovEmail: moveInfo.Email,
 				Active:        true,
 			}},
 	}, nil)
 
 	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			UserID:        userID,
-			FirstName:     models.StringPointer("PPMSC"),
-			LastName:      models.StringPointer("Submitted"),
-			PersonalEmail: models.StringPointer(email),
+			ID:            moveInfo.SmID,
+			UserID:        moveInfo.UserID,
+			FirstName:     models.StringPointer(moveInfo.FirstName),
+			LastName:      models.StringPointer(moveInfo.LastName),
+			PersonalEmail: models.StringPointer(moveInfo.Email),
 		},
 	})
 
@@ -2198,7 +2197,8 @@ func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 		},
 		UserUploader: userUploader,
 		Move: models.Move{
-			Locator:          locator,
+			ID:               moveInfo.MoveID,
+			Locator:          moveInfo.MoveLocator,
 			SelectedMoveType: &ppmMoveType,
 			Status:           models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt:      &submittedAt,
@@ -2229,10 +2229,11 @@ func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
 		SignedCertification: models.SignedCertification{
 			MoveID:           move.ID,
-			SubmittingUserID: userID,
+			SubmittingUserID: moveInfo.UserID,
 		},
 	})
 
+	return move
 }
 
 func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, locator string) {
