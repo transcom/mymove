@@ -19,7 +19,7 @@ test.describe('PPM Onboarding - Estimated Incentive', () => {
     });
 
     test('go to estimated incentives page', async ({ customerPpmPage }) => {
-      customerPpmPage.generalVerifyEstimatedIncentivePage({ isMobile });
+      await customerPpmPage.generalVerifyEstimatedIncentivePage({ isMobile });
     });
   });
 });
