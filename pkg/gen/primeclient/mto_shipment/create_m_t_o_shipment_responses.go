@@ -97,6 +97,11 @@ func (o *CreateMTOShipmentOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the create m t o shipment o k response
+func (o *CreateMTOShipmentOK) Code() int {
+	return 200
+}
+
 func (o *CreateMTOShipmentOK) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentOK  %+v", 200, o.Payload)
 }
@@ -158,6 +163,11 @@ func (o *CreateMTOShipmentBadRequest) IsServerError() bool {
 // IsCode returns true when this create m t o shipment bad request response a status code equal to that given
 func (o *CreateMTOShipmentBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the create m t o shipment bad request response
+func (o *CreateMTOShipmentBadRequest) Code() int {
+	return 400
 }
 
 func (o *CreateMTOShipmentBadRequest) Error() string {
@@ -223,6 +233,11 @@ func (o *CreateMTOShipmentNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the create m t o shipment not found response
+func (o *CreateMTOShipmentNotFound) Code() int {
+	return 404
+}
+
 func (o *CreateMTOShipmentNotFound) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentNotFound  %+v", 404, o.Payload)
 }
@@ -286,6 +301,11 @@ func (o *CreateMTOShipmentUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the create m t o shipment unprocessable entity response
+func (o *CreateMTOShipmentUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *CreateMTOShipmentUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -347,6 +367,11 @@ func (o *CreateMTOShipmentInternalServerError) IsServerError() bool {
 // IsCode returns true when this create m t o shipment internal server error response a status code equal to that given
 func (o *CreateMTOShipmentInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the create m t o shipment internal server error response
+func (o *CreateMTOShipmentInternalServerError) Code() int {
+	return 500
 }
 
 func (o *CreateMTOShipmentInternalServerError) Error() string {

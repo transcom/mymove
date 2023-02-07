@@ -103,6 +103,11 @@ func (o *ListMTOsOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the list m t os o k response
+func (o *ListMTOsOK) Code() int {
+	return 200
+}
+
 func (o *ListMTOsOK) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsOK  %+v", 200, o.Payload)
 }
@@ -162,6 +167,11 @@ func (o *ListMTOsBadRequest) IsServerError() bool {
 // IsCode returns true when this list m t os bad request response a status code equal to that given
 func (o *ListMTOsBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the list m t os bad request response
+func (o *ListMTOsBadRequest) Code() int {
+	return 400
 }
 
 func (o *ListMTOsBadRequest) Error() string {
@@ -227,6 +237,11 @@ func (o *ListMTOsUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the list m t os unauthorized response
+func (o *ListMTOsUnauthorized) Code() int {
+	return 401
+}
+
 func (o *ListMTOsUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsUnauthorized  %+v", 401, o.Payload)
 }
@@ -288,6 +303,11 @@ func (o *ListMTOsForbidden) IsServerError() bool {
 // IsCode returns true when this list m t os forbidden response a status code equal to that given
 func (o *ListMTOsForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the list m t os forbidden response
+func (o *ListMTOsForbidden) Code() int {
+	return 403
 }
 
 func (o *ListMTOsForbidden) Error() string {
@@ -353,6 +373,11 @@ func (o *ListMTOsNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the list m t os not found response
+func (o *ListMTOsNotFound) Code() int {
+	return 404
+}
+
 func (o *ListMTOsNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsNotFound  %+v", 404, o.Payload)
 }
@@ -414,6 +439,11 @@ func (o *ListMTOsInternalServerError) IsServerError() bool {
 // IsCode returns true when this list m t os internal server error response a status code equal to that given
 func (o *ListMTOsInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the list m t os internal server error response
+func (o *ListMTOsInternalServerError) Code() int {
+	return 500
 }
 
 func (o *ListMTOsInternalServerError) Error() string {
