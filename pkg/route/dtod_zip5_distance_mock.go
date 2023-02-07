@@ -43,6 +43,25 @@ func (m *mockDTODZip5DistanceInfo) DTODZip5Distance(appCtx appcontext.AppContext
 	destinationZip5 := destinationZip[0:5]
 	destinationZip3 := destinationZip5[0:3]
 
+	// According to https://www.unitedstateszipcodes.org/80901/ this
+	// zip is a PO Box only zip. From the slack thread
+	// https://ustcdp3.slack.com/archives/C0250Q8469K/p1672933844613089
+	if pickupZip5 == "80901" || destinationZip5 == "80901" {
+		// in dtod_zip5_distance.go, this is the error if DTOD returns
+		// a distance less than or equal to 0. The DTOD service
+		// returns 0 for PO Box zips
+		return 0, fmt.Errorf("invalid distance using pickup %s and destination %s", pickupZip5, destinationZip5)
+	}
+
+	// invalid zip from
+	// https://gist.github.com/lsl/98eb26082f71ce5d4f39eb348401b28b
+	if pickupZip5 == "11111" || destinationZip5 == "11111" {
+		// in dtod_zip5_distance.go, this is the error if DTOD returns
+		// a distance less than or equal to 0. The DTOD service
+		// returns 0 for invalid zips
+		return 0, fmt.Errorf("invalid distance using pickup %s and destination %s", pickupZip5, destinationZip5)
+	}
+
 	// Convert zip codes to integers to help with creating a deterministic distance
 	pickupZip5Int, err := strconv.Atoi(pickupZip5)
 	if err != nil {

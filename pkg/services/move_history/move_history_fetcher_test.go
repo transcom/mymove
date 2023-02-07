@@ -699,8 +699,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			Move: approvedMove,
 		})
 
-		changeOldDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-		changeNewDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		changeOldDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		changeNewDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 
 		// Make sure we're testing for all the things that we can update on the Orders page
 		// README: This list of properties below here is taken from

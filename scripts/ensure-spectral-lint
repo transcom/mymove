@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+
+from collections import Counter
+import glob
+import json
+import os
+import os.path
+import sys
+import subprocess
+
+HELP_URL = "https://transcom.github.io/mymove-docs/docs/frontend/testing/how-to-run-spectral-lint"
+
+SEVERITY_NAMES = {
+  0: "error",
+  1: "warning",
+  2: "info",
+  3: "hint"
+}
+
+
+def total_linting_counts(filename):
+    """parse out the total lint problems from the json
+    """
+    total_count = Counter()
+    with open(filename) as f:
+        findings = json.load(f)
+    for entry in findings:
+        severity = entry.get("severity")
+        severity_name = SEVERITY_NAMES.get(severity, "unknown")
+        total_count.update([severity_name])
+
+    return total_count
+
+
+def linting_filename_from_basename(filename):
+    """convert the base filename to a linting result filename"""
+    root, ext = os.path.splitext(os.path.basename(filename))
+    return root + ".json"
+
+
+if len(sys.argv) != 3:
+    print(f"Usage: {sys.argv[0]} baseline_dir new_linting_dir")
+    sys.exit(1)
+
+baseline_dir = sys.argv[1]
+new_dir = sys.argv[2]
+
+os.makedirs(new_dir, exist_ok=True)
+files = []
+for fn in glob.glob("swagger/*.yaml"):
+    basename = os.path.basename(fn)
+    files.append(basename)
+    root, ext = os.path.splitext(os.path.basename(fn))
+    linting_file = linting_filename_from_basename(fn)
+    new_file = os.path.join(new_dir, linting_file)
+    # run with `check=False` because this command will often fail
+    # because of errors
+    subprocess.run(["yarn", "spectral", "lint",
+                    "-r", "swagger-def/.spectral.yml",
+                    "-f", "json",
+                    "-o", new_file, fn], check=False)
+
+baseline_error_increase = False
+
+for fn in files:
+    linting_file = linting_filename_from_basename(fn)
+    baseline_file = os.path.join(baseline_dir, linting_file)
+    new_linting_file = os.path.join(new_dir, linting_file)
+    # set a really high number that will come down
+    unknown_baseline_count = 1024
+    baseline_counts = {}
+    if not os.path.exists(baseline_dir):
+        print(f"\nBaseline file for '{fn}' does not exist, assuming {unknown_baseline_count}")
+    else:
+        baseline_counts = total_linting_counts(baseline_file)
+
+    new_counts = total_linting_counts(new_linting_file)
+
+    for severity_name in SEVERITY_NAMES.values():
+        baseline_severity_count = unknown_baseline_count
+        new_severity_count = 0
+        if severity_name in baseline_counts:
+            baseline_severity_count = baseline_counts[severity_name]
+        if severity_name in new_counts:
+            new_severity_count = new_counts[severity_name]
+
+        # only check if new severities are found
+        if new_severity_count > 0:
+            print(f"Baseline counts for '{fn}' severity '{severity_name}': {baseline_severity_count}")
+            print(f"New counts for '{fn}' severity '{severity_name}': {new_severity_count}")
+            if new_severity_count > baseline_severity_count:
+                baseline_error_increase = True
+
+if baseline_error_increase:
+    print("Spectral Errors have increased")
+    print(f"Refer to the following to learn how resolve this: {HELP_URL}")
+    # for now, only warn on spectral errors
+    sys.exit(0)
