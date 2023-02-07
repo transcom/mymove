@@ -6,7 +6,6 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
-
 	"github.com/transcom/mymove/pkg/models"
 	prhelpermocks "github.com/transcom/mymove/pkg/payment_request/mocks"
 	"github.com/transcom/mymove/pkg/route/mocks"
@@ -614,7 +613,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			newPPM := oldPPMShipment
 			newPPM.DestinationPostalCode = "94040"
-
 			_, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NoError(err)
 			suite.Nil(newPPM.EstimatedIncentive)
@@ -722,30 +720,24 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		suite.Run("Final Incentive - Success with disregarding rejected weight tickets", func() {
 			setupPricerData()
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-			oldPPMShipment := testdatagen.MakeApprovedPPMShipmentWithActualInfo(suite.DB(), testdatagen.Assertions{
+			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 				PPMShipment: models.PPMShipment{
 					ActualPickupPostalCode:      models.StringPointer("90210"),
 					ActualDestinationPostalCode: models.StringPointer("30813"),
 					ActualMoveDate:              models.TimePointer(moveDate),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-					WeightTickets: models.WeightTickets{
-						testdatagen.MakeDefaultWeightTicket(suite.DB()),
-					},
 				},
 			})
 
 			newPPM := oldPPMShipment
-			weightOverride := unit.Pound(19500)
 			rejected := models.PPMDocumentStatusRejected
 			newPPM.WeightTickets = models.WeightTickets{
 				testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
 					WeightTicket: models.WeightTicket{
-						Status:     &rejected,
-						FullWeight: &weightOverride,
+						Status: &rejected,
 					},
 				}),
 			}
-
 			mockedPaymentRequestHelper.On(
 				"FetchServiceParamsForServiceItems",
 				mock.AnythingOfType("*appcontext.appContext"),
@@ -770,24 +762,16 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 		suite.Run("Final Incentive - Success updating finalIncentive with rejected weight tickets", func() {
 			setupPricerData()
-			weight := unit.Pound(19500)
 			newWeight := unit.Pound(21500)
 
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-			oldPPMShipment := testdatagen.MakeApprovedPPMShipmentWithActualInfo(suite.DB(), testdatagen.Assertions{
+			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 				PPMShipment: models.PPMShipment{
 					ActualPickupPostalCode:      models.StringPointer("90210"),
 					ActualDestinationPostalCode: models.StringPointer("30813"),
 					ActualMoveDate:              models.TimePointer(moveDate),
 					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight: &weight,
-							},
-						}),
-					},
 				},
 			})
 
@@ -826,7 +810,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
 			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
-			suite.Equal(unit.Pound(5000), originalWeight)
+			suite.Equal(unit.Pound(4000), originalWeight)
 			suite.Equal(unit.Pound(7000), newWeight)
 			suite.Equal(unit.Cents(98090410), *ppmFinal)
 		})
