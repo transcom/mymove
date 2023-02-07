@@ -59,13 +59,17 @@ func (d *weightTicketDeleter) DeleteWeightTicket(appCtx appcontext.AppContext, w
 		if err != nil {
 			return err
 		}
-		newPPM.FinalIncentive = finalIncentive
-		verrs, err := appCtx.DB().ValidateAndUpdate(newPPM)
-		if err != nil {
-			return err
-		}
-		if verrs.HasAny() {
-			return verrs
+
+		// Only update PPM if the incentive has changed
+		if finalIncentive != oldPPM.FinalIncentive || (finalIncentive != nil && oldPPM.FinalIncentive != nil && *finalIncentive != *oldPPM.FinalIncentive) {
+			newPPM.FinalIncentive = finalIncentive
+			verrs, err := appCtx.DB().ValidateAndUpdate(newPPM)
+			if err != nil {
+				return err
+			}
+			if verrs.HasAny() {
+				return verrs
+			}
 		}
 
 		return nil
