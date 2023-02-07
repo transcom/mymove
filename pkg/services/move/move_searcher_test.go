@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -136,16 +137,16 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move) {
 	armyAffiliation := models.AffiliationARMY
 	navyAffiliation := models.AffiliationNAVY
-	firstMoveOriginDutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{PostalCode: "89523"},
-	})
-	firstMoveNewDutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		// For some reason, I need to include both of these. If either one is omitted,
-		// the postal code in the Go model returned by MakeDutyLocation won't match what gets
-		// saved in the database.
-		Address:      models.Address{PostalCode: "11111"},
-		DutyLocation: models.DutyLocation{Address: models.Address{PostalCode: "11111"}},
-	})
+	firstMoveOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{PostalCode: "89523"},
+		},
+	}, nil)
+	firstMoveNewDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{PostalCode: "11111"},
+		},
+	}, nil)
 	firstMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName:   swag.String("María"),
@@ -166,16 +167,16 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move) {
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: firstMove,
 	})
-	secondMoveOriginDutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{PostalCode: "90211"},
-	})
-	secondMoveNewDutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		// For some reason, I need to include both of these. If I omit either one,
-		// the postal code in the Go model returned by MakeDutyLocation won't match what gets
-		// saved in the database.
-		Address:      models.Address{PostalCode: "22222"},
-		DutyLocation: models.DutyLocation{Address: models.Address{PostalCode: "22222"}},
-	})
+	secondMoveOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{PostalCode: "90211"},
+		},
+	}, nil)
+	secondMoveNewDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{PostalCode: "22222"},
+		},
+	}, nil)
 	secondMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName:   swag.String("Mariah"),
