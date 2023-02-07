@@ -1,7 +1,7 @@
 package storage
 
 import (
-	//RA Summary: gosec - G401 - Weak cryptographic hash
+	//RA Summary: gosec - G501 - Weak cryptographic hash
 	//RA: This line was flagged because of the use of MD5 hashing
 	//RA: This line of code hashes the AWS object to be able to verify data integrity
 	//RA: Purpose of this hash is to protect against environmental risks, it does not
