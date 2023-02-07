@@ -291,7 +291,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n\n### Errors\nKATY TODO: IS THIS TRUE? TEST AND UPDATE\nCurrently this is not implemented and will generate the NotImplemented error.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
         "consumes": [
           "application/json"
         ],
@@ -1071,7 +1071,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\n### KATY TODO: Add Examples\n",
+        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items,\nthe shipment *must* be updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n**Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be\nupdated on the shipment.\n\nTo create a paymentRequest for a SIT Delivery mtoServiceItem, the item must\nfirst have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).\n",
         "consumes": [
           "application/json"
         ],
@@ -4389,7 +4389,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n\n### Errors\nKATY TODO: IS THIS TRUE? TEST AND UPDATE\nCurrently this is not implemented and will generate the NotImplemented error.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
         "consumes": [
           "application/json"
         ],
@@ -5403,7 +5403,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\n### KATY TODO: Add Examples\n",
+        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items,\nthe shipment *must* be updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n**Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be\nupdated on the shipment.\n\nTo create a paymentRequest for a SIT Delivery mtoServiceItem, the item must\nfirst have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).\n",
         "consumes": [
           "application/json"
         ],
