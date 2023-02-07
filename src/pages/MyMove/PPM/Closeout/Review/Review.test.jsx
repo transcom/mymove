@@ -199,7 +199,7 @@ describe('Review page', () => {
     render(<Review />, { wrapper: MockProviders });
 
     expect(
-      screen.getByText('No weight tickets uploaded. Add at least one set of weight tickets to request payment.'),
+      screen.getByText('No weight moved documented. At least one trip is required to continue.'),
     ).toBeInTheDocument();
   });
 
