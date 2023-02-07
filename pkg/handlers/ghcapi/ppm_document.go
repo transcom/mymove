@@ -42,8 +42,6 @@ func (h GetPPMDocumentsHandler) Handle(params ppmdocumentops.GetPPMDocumentsPara
 				appCtx.Logger().Error("ghcapi.GetPPMDocumentsHandler error", zap.Error(err))
 
 				switch e := err.(type) {
-				case apperror.ForbiddenError:
-					return ppmdocumentops.NewGetPPMDocumentsForbidden().WithPayload(errPayload), nil
 				case apperror.QueryError:
 					if e.Unwrap() != nil {
 						// If you can unwrap, log the error (usually a pq error) for better debugging
