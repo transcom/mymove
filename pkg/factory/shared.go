@@ -45,6 +45,7 @@ var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
 var User CustomType = "User"
+var ClientCert CustomType = "ClientCert"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{

@@ -1,6 +1,7 @@
 package adminapi
 
 import (
+	"github.com/transcom/mymove/pkg/factory"
 	clientcertop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/client_certs"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/clientcert"
@@ -11,12 +12,10 @@ import (
 func (suite *HandlerSuite) TestIndexClientCertsHandler() {
 	// test that everything is wired up
 	suite.Run("integration test ok response", func() {
-		users := models.ClientCerts{
-			models.ClientCert{
-				Subject:      "CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US",
-				Sha256Digest: "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-			},
+		clientCerts := models.ClientCerts{
+			factory.BuildDefaultClientCert(suite.DB()),
 		}
+
 		params := clientcertop.IndexClientCertsParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/client_certs"),
 		}
@@ -34,7 +33,7 @@ func (suite *HandlerSuite) TestIndexClientCertsHandler() {
 		suite.IsType(&clientcertop.IndexClientCertsOK{}, response)
 		okResponse := response.(*clientcertop.IndexClientCertsOK)
 		suite.Len(okResponse.Payload, 2)
-		suite.Equal(users[0].ID.String(), okResponse.Payload[0].ID.String())
+		suite.Equal(clientCerts[0].ID.String(), okResponse.Payload[0].ID.String())
 	})
 
 	// suite.Run("unsuccesful response when fetch fails", func() {
