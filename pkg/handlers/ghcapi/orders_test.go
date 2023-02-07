@@ -13,6 +13,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	orderop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -214,8 +215,8 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (sub
 
 	subtestData.amendedOrder = subtestData.approvalsRequestedMove.Orders
 
-	subtestData.originDutyLocation = testdatagen.MakeDefaultDutyLocation(suite.DB())
-	subtestData.destinationDutyLocation = testdatagen.MakeDefaultDutyLocation(suite.DB())
+	subtestData.originDutyLocation = factory.BuildDutyLocation(suite.DB(), nil, nil)
+	subtestData.destinationDutyLocation = factory.BuildDutyLocation(suite.DB(), nil, nil)
 
 	return subtestData
 }
@@ -470,8 +471,8 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *upd
 	subtestData.move = testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
 	subtestData.order = subtestData.move.Orders
 
-	originDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-	destinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+	destinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 	deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
@@ -769,8 +770,8 @@ func (suite *HandlerSuite) makeCounselingUpdateOrderHandlerSubtestData() (subtes
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 	subtestData.move = testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 	subtestData.order = subtestData.move.Orders
-	originDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-	destinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+	destinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 
 	subtestData.body = &ghcmessages.CounselingUpdateOrderPayload{
 		IssueDate:            handlers.FmtDatePtr(&issueDate),
