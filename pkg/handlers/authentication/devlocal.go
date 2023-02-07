@@ -143,7 +143,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						<button type="submit" data-hook="existing-user-login">Login</button>
 					</p>
 				</form>
-			  <h4>Showing the first {{$.QueryLimit}} users by creation date in ascending order:</h4>
+			  <h4>Showing the first {{$.QueryLimit}} users by creation date in descending order:</h4>
 			  {{range .Identities}}
 				<form method="post" action="/devlocal-auth/login">
 					<p id="{{.ID}}">
