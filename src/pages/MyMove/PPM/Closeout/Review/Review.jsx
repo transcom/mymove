@@ -6,6 +6,7 @@ import classnames from 'classnames';
 
 import styles from './Review.module.scss';
 
+import Alert from 'shared/Alert';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
@@ -148,6 +149,15 @@ const Review = () => {
                 itemToDelete={itemToDelete}
               />
             )}
+            {!canAdvance && (
+              <>
+                <Alert type="error">
+                  There are items below that are missing required information. Please select “Edit” to enter all
+                  required information or “Delete” to remove the item.
+                </Alert>
+                <br />
+              </>
+            )}
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
             <h1>Review</h1>
             <SectionWrapper className={styles.aboutSection} data-testid="aboutYourPPM">
@@ -169,7 +179,7 @@ const Review = () => {
                     Add More Weight
                   </Link>
                 )}
-                emptyMessage="No weight tickets uploaded. Add at least one set of weight tickets to request payment."
+                emptyMessage="No weight moved documented. At least one trip is required to continue."
               />
               <ReviewItems
                 className={classnames(styles.reviewItems, 'progearSection')}
