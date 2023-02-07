@@ -26,7 +26,7 @@ require (
 	github.com/go-swagger/go-swagger v0.30.4
 	github.com/gobuffalo/envy v1.10.2
 	github.com/gobuffalo/fizz v1.14.4
-	github.com/gobuffalo/flect v0.3.0
+	github.com/gobuffalo/flect v1.0.0
 	github.com/gobuffalo/pop/v6 v6.1.0
 	github.com/gobuffalo/validate/v3 v3.3.3
 	github.com/gocarina/gocsv v0.0.0-20221216233619-1fea7ae8d380
