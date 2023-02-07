@@ -56,12 +56,13 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 			},
 		},
 	}, nil)
-	location := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		DutyLocation: DutyLocation{
-			ID: uuid.Must(uuid.NewV4()),
+	location := factory.BuildDutyLocation(nil, []factory.Customization{
+		{
+			Model: DutyLocation{
+				ID: uuid.Must(uuid.NewV4()),
+			},
 		},
-		Stub: true,
-	})
+	}, nil)
 
 	serviceMember := ServiceMember{
 		ID:                     uuid.Must(uuid.NewV4()),
@@ -168,8 +169,8 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 
 		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-		dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
-		dutyLocation2 := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
+		dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+		dutyLocation2 := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 		issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 		reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 		ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
