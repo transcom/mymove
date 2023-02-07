@@ -14,7 +14,7 @@ import (
 func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) models.Address {
 	customs = setupCustomizations(customs, traits)
 
-	// Find address assertion and convert to models address
+	// Find address customization and extract the custom address
 	var cAddress models.Address
 	if result := findValidCustomization(customs, Address); result != nil {
 		cAddress = result.Model.(models.Address)
