@@ -49,7 +49,9 @@ type IndexClientCertsHandler struct {
 	services.NewPagination
 }
 
-// Handle retrieves a list of office users
+// Handle retrieves a list of client certificates.
+// This list is used to authorize certificates used in the authentication and
+// authorization of Prime API requests.
 func (h IndexClientCertsHandler) Handle(params clientcertop.IndexClientCertsParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
