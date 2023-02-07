@@ -1145,22 +1145,26 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 	suite.Run("Sort by destination duty location", func() {
 		officeUser := setupTestData()
 
-		dutyLocationA := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-			DutyLocation: models.DutyLocation{
-				Name: "A",
+		dutyLocationA := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "A",
+				},
 			},
-		})
+		}, nil)
 		ppmShipmentA := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
 				NewDutyLocationID: dutyLocationA.ID,
 				NewDutyLocation:   dutyLocationA,
 			},
 		})
-		dutyLocationB := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-			DutyLocation: models.DutyLocation{
-				Name: "B",
+		dutyLocationB := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "B",
+				},
 			},
-		})
+		}, nil)
 		ppmShipmentB := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
 				NewDutyLocationID: dutyLocationB.ID,
@@ -1270,13 +1274,17 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 				},
 			},
 		}, nil)
-		originDutyLocation2 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-			DutyLocation: models.DutyLocation{
-				Name:      "Fort Sam Snap",
-				AddressID: dutyLocationAddress2.ID,
-				Address:   dutyLocationAddress2,
+		originDutyLocation2 := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Fort Sam Snap",
+				},
 			},
-		})
+			{
+				Model:    dutyLocationAddress2,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), dutyLocationAddress2.PostalCode, "ZANY")
 
 		// Create a second move from the ZANY gbloc

@@ -356,11 +356,13 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 	suite.Run("Routes to service counseling when feature flag is true", func() {
 		// Given: a set of orders with an origin duty location that provides services counseling,
 		// a move, user and servicemember
-		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-			DutyLocation: models.DutyLocation{
-				ProvidesServicesCounseling: true,
+		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
 			},
-		})
+		}, nil)
 		assertions := testdatagen.Assertions{
 			Order: models.Order{
 				OriginDutyLocation: &dutyLocation,
@@ -432,13 +434,17 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		},
 	}, nil)
 
-	dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			Name:      "Fort Sam Houston",
-			AddressID: dutyLocationAddress.ID,
-			Address:   dutyLocationAddress,
+	dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name: "Fort Sam Houston",
+			},
 		},
-	})
+		{
+			Model:    dutyLocationAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	rank := models.ServiceMemberRankE4
 	serviceMember := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
@@ -461,13 +467,17 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		},
 	}, nil)
 
-	newDutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			Name:      "Fort Gordon",
-			AddressID: newDutyLocationAddress.ID,
-			Address:   newDutyLocationAddress,
+	newDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name: "Fort Gordon",
+			},
 		},
-	})
+		{
+			Model:    newDutyLocationAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
