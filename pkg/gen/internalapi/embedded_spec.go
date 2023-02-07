@@ -2312,7 +2312,7 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
       "delete": {
-        "description": "Soft deletes a PPM closeout line item for a moving expense by ID",
+        "description": "Removes a single moving expense receipt from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
         "produces": [
           "application/json"
         ],
@@ -2470,7 +2470,7 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "delete": {
-        "description": "Soft deletes a PPM closeout line item for pro-gear by ID",
+        "description": "Removes a single pro-gear weight ticket set from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
         "produces": [
           "application/json"
         ],
@@ -2826,7 +2826,7 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
       "delete": {
-        "description": "Soft deletes a PPM closeout line item for a weight ticket by ID",
+        "description": "Removes a single weight ticket from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database. This may change the PPM shipment's final\nincentive.\n",
         "produces": [
           "application/json"
         ],
@@ -10594,7 +10594,7 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
       "delete": {
-        "description": "Soft deletes a PPM closeout line item for a moving expense by ID",
+        "description": "Removes a single moving expense receipt from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
         "produces": [
           "application/json"
         ],
@@ -10839,7 +10839,7 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "delete": {
-        "description": "Soft deletes a PPM closeout line item for pro-gear by ID",
+        "description": "Removes a single pro-gear weight ticket set from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
         "produces": [
           "application/json"
         ],
@@ -11350,7 +11350,7 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
       "delete": {
-        "description": "Soft deletes a PPM closeout line item for a weight ticket by ID",
+        "description": "Removes a single weight ticket from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database. This may change the PPM shipment's final\nincentive.\n",
         "produces": [
           "application/json"
         ],

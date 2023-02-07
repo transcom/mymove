@@ -5602,7 +5602,11 @@ paths:
           $ref: '#/responses/ServerError'
     delete:
       summary: Soft deletes a pro-gear weight line item by ID
-      description: Soft deletes a PPM closeout line item for pro-gear by ID
+      description: >
+        Removes a single pro-gear weight ticket set from the closeout line items
+        for a PPM shipment. Soft deleted
+
+        records are not visible in milmove, but are kept in the database.
       operationId: deleteProGearWeightTicket
       tags:
         - ppm
@@ -5698,7 +5702,11 @@ paths:
           $ref: '#/responses/ServerError'
     delete:
       summary: Soft deletes a moving expense by ID
-      description: Soft deletes a PPM closeout line item for a moving expense by ID
+      description: >
+        Removes a single moving expense receipt from the closeout line items for
+        a PPM shipment. Soft deleted
+
+        records are not visible in milmove, but are kept in the database.
       operationId: deleteMovingExpense
       tags:
         - ppm
@@ -5792,7 +5800,14 @@ paths:
           $ref: '#/responses/ServerError'
     delete:
       summary: Soft deletes a weight ticket by ID
-      description: Soft deletes a PPM closeout line item for a weight ticket by ID
+      description: >
+        Removes a single weight ticket from the closeout line items for a PPM
+        shipment. Soft deleted
+
+        records are not visible in milmove, but are kept in the database. This
+        may change the PPM shipment's final
+
+        incentive.
       operationId: deleteWeightTicket
       tags:
         - ppm

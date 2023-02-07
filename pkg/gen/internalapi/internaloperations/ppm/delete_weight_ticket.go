@@ -34,7 +34,9 @@ func NewDeleteWeightTicket(ctx *middleware.Context, handler DeleteWeightTicketHa
 
 # Soft deletes a weight ticket by ID
 
-Soft deletes a PPM closeout line item for a weight ticket by ID
+Removes a single weight ticket from the closeout line items for a PPM shipment. Soft deleted
+records are not visible in milmove, but are kept in the database. This may change the PPM shipment's final
+incentive.
 */
 type DeleteWeightTicket struct {
 	Context *middleware.Context

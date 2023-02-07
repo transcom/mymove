@@ -34,7 +34,8 @@ func NewDeleteProGearWeightTicket(ctx *middleware.Context, handler DeleteProGear
 
 # Soft deletes a pro-gear weight line item by ID
 
-Soft deletes a PPM closeout line item for pro-gear by ID
+Removes a single pro-gear weight ticket set from the closeout line items for a PPM shipment. Soft deleted
+records are not visible in milmove, but are kept in the database.
 */
 type DeleteProGearWeightTicket struct {
 	Context *middleware.Context

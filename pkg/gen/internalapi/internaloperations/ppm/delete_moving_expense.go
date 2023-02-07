@@ -34,7 +34,8 @@ func NewDeleteMovingExpense(ctx *middleware.Context, handler DeleteMovingExpense
 
 # Soft deletes a moving expense by ID
 
-Soft deletes a PPM closeout line item for a moving expense by ID
+Removes a single moving expense receipt from the closeout line items for a PPM shipment. Soft deleted
+records are not visible in milmove, but are kept in the database.
 */
 type DeleteMovingExpense struct {
 	Context *middleware.Context
