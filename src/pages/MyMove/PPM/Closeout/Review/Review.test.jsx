@@ -395,9 +395,7 @@ describe('Review page', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
-      expect(
-        screen.getByText('You are about to delete Trip 2. This cannot be undone', { exact: false }),
-      ).toBeInTheDocument();
+      expect(screen.getByText('You are about to delete Trip 2. This cannot be undone.')).toBeInTheDocument();
     });
 
     await userEvent.click(screen.getByRole('button', { name: 'No, Keep It' }));

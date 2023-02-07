@@ -32,6 +32,7 @@ import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import { hasCompletedAllWeightTickets, hasCompletedAllExpenses, hasCompletedAllProGear } from 'utils/shipments';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
+  const deleteDetailMessage = <p>You are about to delete {itemToDelete.itemNumber}. This cannot be undone.</p>;
   return (
     <div>
       <Overlay />
@@ -41,7 +42,7 @@ const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
           <ModalTitle>
             <h3>Delete this?</h3>
           </ModalTitle>
-          <p>You are about to delete {itemToDelete.itemNumber}. This cannot be undone.</p>
+          {deleteDetailMessage}
           <ModalActions>
             <Button
               className="usa-button--destructive"
@@ -93,7 +94,6 @@ const Review = () => {
   };
 
   const onDeleteSubmit = (itemType, itemId, itemETag) => {
-    // progear or movingExpense
     if (itemType === 'weightTicket') {
       deleteWeightTicket(itemId, itemETag)
         .then(() => setIsDeleteModalVisible(false))
