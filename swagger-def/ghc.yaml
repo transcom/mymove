@@ -593,7 +593,7 @@ paths:
       description: Gets a move
       operationId: getMoveTaskOrder
       summary: Gets a move by ID
-  '/move_task_orders/{moveTaskOrderID}/mto_service_items':
+  '/move-task-orders/{moveTaskOrderID}/mto-service-items':
     parameters:
       - description: ID of move for mto service item to use
         in: path

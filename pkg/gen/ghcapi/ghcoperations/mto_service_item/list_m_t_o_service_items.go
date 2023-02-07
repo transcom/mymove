@@ -30,7 +30,7 @@ func NewListMTOServiceItems(ctx *middleware.Context, handler ListMTOServiceItems
 }
 
 /*
-	ListMTOServiceItems swagger:route GET /move_task_orders/{moveTaskOrderID}/mto_service_items mtoServiceItem listMTOServiceItems
+	ListMTOServiceItems swagger:route GET /move-task-orders/{moveTaskOrderID}/mto-service-items mtoServiceItem listMTOServiceItems
 
 # Gets all line items for a move
 
