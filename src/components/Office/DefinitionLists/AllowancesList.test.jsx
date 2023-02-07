@@ -58,7 +58,7 @@ describe('AllowancesList', () => {
     expect(screen.getByText('500 lbs')).toBeInTheDocument();
   });
 
-  it('renders formatted rme', () => {
+  it('renders formatted Required medical equipment', () => {
     render(<AllowancesList info={info} />);
     expect(screen.getByText('1,000 lbs')).toBeInTheDocument();
   });
@@ -78,7 +78,7 @@ describe('AllowancesList', () => {
     render(<AllowancesList info={info} showVisualCues />);
     expect(screen.getByText('Pro-gear').parentElement.className).toContain('rowWithVisualCue');
     expect(screen.getByText('Spouse pro-gear').parentElement.className).toContain('rowWithVisualCue');
-    expect(screen.getByText('RME').parentElement.className).toContain('rowWithVisualCue');
+    expect(screen.getByText('Required medical equipment').parentElement.className).toContain('rowWithVisualCue');
     expect(screen.getByText('OCIE').parentElement.className).toContain('rowWithVisualCue');
   });
 });
