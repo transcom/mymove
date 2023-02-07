@@ -41,17 +41,33 @@ export const Basic = () => (
       ...ppmInfo,
       counselorRemarks: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam vulputate commodo erat. ',
     }}
-    warnIfMissing={['counselorRemarks']}
+    warnIfMissing={[{ fieldName: 'counselorRemarks' }]}
     isExpanded
   />
 );
+
 export const DefaultView = () => (
   <PPMShipmentInfoList
     shipment={{
       ...ppmInfo,
       counselorRemarks: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam vulputate commodo erat. ',
     }}
-    warnIfMissing={['counselorRemarks']}
+    warnIfMissing={[{ fieldName: 'counselorRemarks' }]}
   />
 );
-export const MissingInfo = () => <PPMShipmentInfoList shipment={ppmInfo} warnIfMissing={['counselorRemarks']} />;
+
+export const Warning = () => (
+  <PPMShipmentInfoList shipment={ppmInfo} warnIfMissing={[{ fieldName: 'counselorRemarks' }]} />
+);
+
+export const MissingInfo = () => (
+  <PPMShipmentInfoList
+    shipment={ppmInfo}
+    errorIfMissing={[
+      {
+        fieldName: 'advanceStatus',
+        condition: (shipment) => shipment?.ppmShipment?.hasRequestedAdvance === true,
+      },
+    ]}
+  />
+);
