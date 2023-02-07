@@ -731,14 +731,13 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			})
 
 			newPPM := oldPPMShipment
+			newWeightTicket := newPPM.WeightTickets[0]
 			rejected := models.PPMDocumentStatusRejected
-			newPPM.WeightTickets = models.WeightTickets{
-				testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-					WeightTicket: models.WeightTicket{
-						Status: &rejected,
-					},
-				}),
-			}
+			newWeightTicket.Status = &rejected
+			newPPM.WeightTickets = models.WeightTickets{newWeightTicket}
+			// At this point the updated weight tickets on the newPPMShipment could be saved to the DB
+			// the save is being omitted here to reduce DB calls in our test
+
 			mockedPaymentRequestHelper.On(
 				"FetchServiceParamsForServiceItems",
 				mock.AnythingOfType("*appcontext.appContext"),
@@ -763,7 +762,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 		suite.Run("Final Incentive - Success updating finalIncentive with rejected weight tickets", func() {
 			setupPricerData()
-			newWeight := unit.Pound(21500)
 
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
 			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
@@ -776,24 +774,21 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				},
 			})
 
+			oldPPMShipment.WeightTickets = models.WeightTickets{
+				oldPPMShipment.WeightTickets[0],
+				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+			}
+
 			newPPM := oldPPMShipment
 			rejected := models.PPMDocumentStatusRejected
 			approved := models.PPMDocumentStatusApproved
-			newPPM.WeightTickets = models.WeightTickets{
-				testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-					WeightTicket: models.WeightTicket{
-						Status:     &rejected,
-						FullWeight: &newWeight,
-					},
-				}),
-				testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-					WeightTicket: models.WeightTicket{
-						Status:     &approved,
-						FullWeight: &newWeight,
-					},
-				}),
-			}
-
+			newWeightTicket1 := newPPM.WeightTickets[0]
+			newWeightTicket1.Status = &rejected
+			newWeightTicket2 := newPPM.WeightTickets[1]
+			newWeightTicket2.Status = &approved
+			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
+			// At this point the updated weight tickets on the newPPMShipment could be saved to the DB
+			// the save is being omitted here to reduce DB calls in our test
 			mockedPaymentRequestHelper.On(
 				"FetchServiceParamsForServiceItems",
 				mock.AnythingOfType("*appcontext.appContext"),
@@ -811,9 +806,9 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
 			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
-			suite.Equal(unit.Pound(4000), originalWeight)
-			suite.Equal(unit.Pound(7000), newWeight)
-			suite.Equal(unit.Cents(98090410), *ppmFinal)
+			suite.Equal(unit.Pound(8000), originalWeight)
+			suite.Equal(unit.Pound(4000), newWeight)
+			suite.Equal(unit.Cents(38213948), *ppmFinal)
 		})
 
 		suite.Run("Final Incentive - does not change when required fields are the same", func() {
