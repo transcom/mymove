@@ -121,9 +121,6 @@ func (suite *ModelSuite) TestGeneratePSIReferenceID() {
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
-		fmt.Println("paymentRequestID", paymentRequest.ID)
-		fmt.Println("moveTaskOrderID", paymentRequest.MoveTaskOrderID)
-		fmt.Println("moveReferenceID", *paymentRequest.MoveTaskOrder.ReferenceID)
 
 		return paymentRequest, serviceItem
 	}

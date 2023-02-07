@@ -92,7 +92,7 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 	for _, ts := range tests {
 		dutyLocations, err := models.FindDutyLocations(suite.DB(), ts.query)
 		suite.NoError(err)
-		suite.Equal(len(dutyLocations), len(ts.dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
+		suite.Require().Equal(len(dutyLocations), len(ts.dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
 		for i, dutyLocation := range dutyLocations {
 			suite.Equal(dutyLocation.Name, ts.dutyLocations[i], "Duty locations don't match order: %s", ts.query)
 		}

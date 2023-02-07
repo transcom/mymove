@@ -99,8 +99,29 @@ var actionDispatcher = map[string]actionFunc{
 	"PPMMoveWithCloseoutOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakePPMMoveWithCloseoutOffice(appCtx)
 	},
+	"ApprovedMoveWithPPM": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPM(appCtx)
+	},
 	"SubmittedMoveWithPPMShipmentForSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeSubmittedMoveWithPPMShipmentForSC(appCtx)
+	},
+	"UnSubmittedMoveWithPPMShipmentThroughEstimatedWeights": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx)
+	},
+	"ApprovedMoveWithPPMWithAboutFormComplete": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMWithAboutFormComplete(appCtx)
+	},
+	"UnsubmittedMoveWithMultipleFullPPMShipmentComplete": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeUnsubmittedMoveWithMultipleFullPPMShipmentComplete(appCtx)
+	},
+	"ApprovedMoveWithPPMProgearWeightTicket": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMProgearWeightTicket(appCtx)
+	},
+	"ApprovedMoveWithPPMMovingExpense": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMMovingExpense(appCtx)
+	},
+	"DraftMoveWithPPMWithDepartureDate": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeDraftMoveWithPPMWithDepartureDate(appCtx)
 	},
 	"OfficeUserWithTOOAndTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeOfficeUserWithTOOAndTIO(appCtx)
