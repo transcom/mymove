@@ -1266,7 +1266,7 @@ paths:
         - update.SITExtension
   /shipments/{shipmentID}/ppm-documents:
     parameters:
-      - description: ID of the shipment
+      - description: ID of the shipment to fetch PPM documents for.
         in: path
         name: shipmentID
         required: true

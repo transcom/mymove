@@ -31,7 +31,7 @@ type GetPPMDocumentsParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*ID of the shipment
+	/*ID of the shipment to fetch PPM documents for.
 	  Required: true
 	  In: path
 	*/

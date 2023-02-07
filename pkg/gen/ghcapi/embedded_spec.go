@@ -3763,7 +3763,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of the shipment",
+          "description": "ID of the shipment to fetch PPM documents for.",
           "name": "shipmentID",
           "in": "path",
           "required": true
@@ -14074,7 +14074,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of the shipment",
+          "description": "ID of the shipment to fetch PPM documents for.",
           "name": "shipmentID",
           "in": "path",
           "required": true
