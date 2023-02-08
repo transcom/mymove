@@ -89,9 +89,11 @@ const ppmShipmentSchema = ({
       }),
 
     closeoutOffice: closeoutOfficeSchema(showCloseoutOffice, isAdvancePage),
-    counselorRemarks: Yup.string().when(['advance', 'advanceRequested'], {
-      is: (advance, advanceRequested) =>
-        isAdvancePage && (Number(advance) !== advanceAmountRequested / 100 || advanceRequested !== hasRequestedAdvance),
+    counselorRemarks: Yup.string().when(['advance', 'advanceRequested', 'advanceStatus'], {
+      is: (advance, advanceRequested, advanceStatus) =>
+        (isAdvancePage &&
+          (Number(advance) !== advanceAmountRequested / 100 || advanceRequested !== hasRequestedAdvance)) ||
+        (isAdvancePage && advanceStatus === 'REJECTED'),
       then: (schema) => schema.required('Required'),
     }),
   });

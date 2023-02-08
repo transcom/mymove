@@ -8,10 +8,14 @@ import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { calculateMaxAdvanceAndFormatAdvanceAndIncentive } from 'utils/incentives';
+import ppmAdvanceStatus from 'constants/ppms';
 
 const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
   const [advanceInput, , advanceHelper] = useField('advanceRequested');
+  const [statusInput, , statusHelper] = useField('advanceStatus');
+
   const advanceRequested = String(advanceInput.value) === 'true';
+  const advanceRequestStatus = statusInput.value === ppmAdvanceStatus.APPROVED;
 
   const { formattedMaxAdvance, formattedIncentive } =
     calculateMaxAdvanceAndFormatAdvanceAndIncentive(estimatedIncentive);
@@ -19,6 +23,11 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
   const handleHasRequestedAdvanceChange = (event) => {
     const selected = event.target.value;
     advanceHelper.setValue(selected === 'Yes');
+  };
+
+  const handleAdvanceRequestStatusChange = (event) => {
+    const selected = event.target.value;
+    statusHelper.setValue(selected);
   };
 
   return (
@@ -70,6 +79,29 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
 
                 <FormGroup>
                   <div className={styles.AdvanceText}>Maximum advance: ${formattedMaxAdvance}</div>
+                </FormGroup>
+
+                <FormGroup>
+                  <h3 className={styles.NoSpacing}>Review the advance (AOA) request:</h3>
+                  <Label className={styles.Label}>Advance request status:</Label>
+                  <Radio
+                    id="approveAdvanceRequest"
+                    label="Approve"
+                    name="advanceStatus"
+                    value={ppmAdvanceStatus.APPROVED}
+                    title="Approve"
+                    checked={!!statusInput.value && advanceRequestStatus} // defaults to false if advanceStatus has a null value
+                    onChange={handleAdvanceRequestStatusChange}
+                  />
+                  <Radio
+                    id="rejectAdvanceRequest"
+                    label="Reject"
+                    name="advanceStatus"
+                    value={ppmAdvanceStatus.REJECTED}
+                    title="Reject"
+                    checked={!!statusInput.value && !advanceRequestStatus} // defaults to false if advanceStatus has a null value
+                    onChange={handleAdvanceRequestStatusChange}
+                  />
                 </FormGroup>
               </>
             )}
