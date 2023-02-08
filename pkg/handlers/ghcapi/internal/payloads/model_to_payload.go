@@ -737,7 +737,8 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 	}
 
 	if ppmShipment.AdvanceStatus != nil {
-		payloadPPMShipment.AdvanceStatus = (*ghcmessages.PPMAdvanceStatus)(ppmShipment.AdvanceStatus)
+		advanceStatus := ghcmessages.PPMAdvanceStatus(*ppmShipment.AdvanceStatus)
+		payloadPPMShipment.AdvanceStatus = &advanceStatus
 	}
 
 	if ppmShipment.W2Address != nil {
