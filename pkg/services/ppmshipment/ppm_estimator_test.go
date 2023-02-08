@@ -720,6 +720,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 		suite.Run("Final Incentive - Success with disregarding rejected weight tickets", func() {
 			setupPricerData()
+			oldEmptyWeight := unit.Pound(6000)
+			oldFullWeight := unit.Pound(10000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
 			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 				PPMShipment: models.PPMShipment{
@@ -727,6 +729,14 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					ActualDestinationPostalCode: models.StringPointer("30813"),
 					ActualMoveDate:              models.TimePointer(moveDate),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+					WeightTickets: models.WeightTickets{
+						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+							WeightTicket: models.WeightTicket{
+								FullWeight:  &oldFullWeight,
+								EmptyWeight: &oldEmptyWeight,
+							},
+						}),
+					},
 				},
 			})
 
@@ -762,7 +772,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 		suite.Run("Final Incentive - Success updating finalIncentive with rejected weight tickets", func() {
 			setupPricerData()
-
+			oldEmptyWeight := unit.Pound(6000)
+			oldFullWeight := unit.Pound(10000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
 			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 				PPMShipment: models.PPMShipment{
@@ -771,6 +782,14 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					ActualMoveDate:              models.TimePointer(moveDate),
 					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+					WeightTickets: models.WeightTickets{
+						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+							WeightTicket: models.WeightTicket{
+								FullWeight:  &oldFullWeight,
+								EmptyWeight: &oldEmptyWeight,
+							},
+						}),
+					},
 				},
 			})
 
