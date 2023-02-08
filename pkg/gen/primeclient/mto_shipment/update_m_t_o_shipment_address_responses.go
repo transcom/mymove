@@ -121,6 +121,11 @@ func (o *UpdateMTOShipmentAddressOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the update m t o shipment address o k response
+func (o *UpdateMTOShipmentAddressOK) Code() int {
+	return 200
+}
+
 func (o *UpdateMTOShipmentAddressOK) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressOK  %+v", 200, o.Payload)
 }
@@ -182,6 +187,11 @@ func (o *UpdateMTOShipmentAddressBadRequest) IsServerError() bool {
 // IsCode returns true when this update m t o shipment address bad request response a status code equal to that given
 func (o *UpdateMTOShipmentAddressBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the update m t o shipment address bad request response
+func (o *UpdateMTOShipmentAddressBadRequest) Code() int {
+	return 400
 }
 
 func (o *UpdateMTOShipmentAddressBadRequest) Error() string {
@@ -247,6 +257,11 @@ func (o *UpdateMTOShipmentAddressUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the update m t o shipment address unauthorized response
+func (o *UpdateMTOShipmentAddressUnauthorized) Code() int {
+	return 401
+}
+
 func (o *UpdateMTOShipmentAddressUnauthorized) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressUnauthorized  %+v", 401, o.Payload)
 }
@@ -308,6 +323,11 @@ func (o *UpdateMTOShipmentAddressForbidden) IsServerError() bool {
 // IsCode returns true when this update m t o shipment address forbidden response a status code equal to that given
 func (o *UpdateMTOShipmentAddressForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the update m t o shipment address forbidden response
+func (o *UpdateMTOShipmentAddressForbidden) Code() int {
+	return 403
 }
 
 func (o *UpdateMTOShipmentAddressForbidden) Error() string {
@@ -373,6 +393,11 @@ func (o *UpdateMTOShipmentAddressNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the update m t o shipment address not found response
+func (o *UpdateMTOShipmentAddressNotFound) Code() int {
+	return 404
+}
+
 func (o *UpdateMTOShipmentAddressNotFound) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressNotFound  %+v", 404, o.Payload)
 }
@@ -434,6 +459,11 @@ func (o *UpdateMTOShipmentAddressConflict) IsServerError() bool {
 // IsCode returns true when this update m t o shipment address conflict response a status code equal to that given
 func (o *UpdateMTOShipmentAddressConflict) IsCode(code int) bool {
 	return code == 409
+}
+
+// Code gets the status code for the update m t o shipment address conflict response
+func (o *UpdateMTOShipmentAddressConflict) Code() int {
+	return 409
 }
 
 func (o *UpdateMTOShipmentAddressConflict) Error() string {
@@ -499,6 +529,11 @@ func (o *UpdateMTOShipmentAddressPreconditionFailed) IsCode(code int) bool {
 	return code == 412
 }
 
+// Code gets the status code for the update m t o shipment address precondition failed response
+func (o *UpdateMTOShipmentAddressPreconditionFailed) Code() int {
+	return 412
+}
+
 func (o *UpdateMTOShipmentAddressPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressPreconditionFailed  %+v", 412, o.Payload)
 }
@@ -562,6 +597,11 @@ func (o *UpdateMTOShipmentAddressUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the update m t o shipment address unprocessable entity response
+func (o *UpdateMTOShipmentAddressUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *UpdateMTOShipmentAddressUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -623,6 +663,11 @@ func (o *UpdateMTOShipmentAddressInternalServerError) IsServerError() bool {
 // IsCode returns true when this update m t o shipment address internal server error response a status code equal to that given
 func (o *UpdateMTOShipmentAddressInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the update m t o shipment address internal server error response
+func (o *UpdateMTOShipmentAddressInternalServerError) Code() int {
+	return 500
 }
 
 func (o *UpdateMTOShipmentAddressInternalServerError) Error() string {

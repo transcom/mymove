@@ -151,6 +151,7 @@ This subset of development scripts is used for testing
 | ------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | `ensure-go-test-coverage`              | Parse the go test coverage to ensure coverage increases                                                          |
 | `ensure-js-test-coverage`              | Parse the js test coverage to ensure coverage increases                                                          |
+| `ensure-spectral-lint`                 | Parse the spectral lint output to ensure error/warning counts decrease                                           |
 | `run-e2e-test`                        | Runs cypress tests with interactive GUI                                                          |
 | `run-e2e-test-docker`                 | Runs cypress tests entirely inside docker containers like in CircleCI                            |
 | `run-e2e-mtls-test-docker`            | Runs integration tests for mtls endpoints inside docker containers like in CircleCI              |

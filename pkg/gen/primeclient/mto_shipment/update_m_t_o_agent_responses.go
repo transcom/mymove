@@ -115,6 +115,11 @@ func (o *UpdateMTOAgentOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the update m t o agent o k response
+func (o *UpdateMTOAgentOK) Code() int {
+	return 200
+}
+
 func (o *UpdateMTOAgentOK) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/agents/{agentID}][%d] updateMTOAgentOK  %+v", 200, o.Payload)
 }
@@ -176,6 +181,11 @@ func (o *UpdateMTOAgentBadRequest) IsServerError() bool {
 // IsCode returns true when this update m t o agent bad request response a status code equal to that given
 func (o *UpdateMTOAgentBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the update m t o agent bad request response
+func (o *UpdateMTOAgentBadRequest) Code() int {
+	return 400
 }
 
 func (o *UpdateMTOAgentBadRequest) Error() string {
@@ -241,6 +251,11 @@ func (o *UpdateMTOAgentUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the update m t o agent unauthorized response
+func (o *UpdateMTOAgentUnauthorized) Code() int {
+	return 401
+}
+
 func (o *UpdateMTOAgentUnauthorized) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/agents/{agentID}][%d] updateMTOAgentUnauthorized  %+v", 401, o.Payload)
 }
@@ -302,6 +317,11 @@ func (o *UpdateMTOAgentForbidden) IsServerError() bool {
 // IsCode returns true when this update m t o agent forbidden response a status code equal to that given
 func (o *UpdateMTOAgentForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the update m t o agent forbidden response
+func (o *UpdateMTOAgentForbidden) Code() int {
+	return 403
 }
 
 func (o *UpdateMTOAgentForbidden) Error() string {
@@ -367,6 +387,11 @@ func (o *UpdateMTOAgentNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the update m t o agent not found response
+func (o *UpdateMTOAgentNotFound) Code() int {
+	return 404
+}
+
 func (o *UpdateMTOAgentNotFound) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/agents/{agentID}][%d] updateMTOAgentNotFound  %+v", 404, o.Payload)
 }
@@ -428,6 +453,11 @@ func (o *UpdateMTOAgentPreconditionFailed) IsServerError() bool {
 // IsCode returns true when this update m t o agent precondition failed response a status code equal to that given
 func (o *UpdateMTOAgentPreconditionFailed) IsCode(code int) bool {
 	return code == 412
+}
+
+// Code gets the status code for the update m t o agent precondition failed response
+func (o *UpdateMTOAgentPreconditionFailed) Code() int {
+	return 412
 }
 
 func (o *UpdateMTOAgentPreconditionFailed) Error() string {
@@ -493,6 +523,11 @@ func (o *UpdateMTOAgentUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the update m t o agent unprocessable entity response
+func (o *UpdateMTOAgentUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *UpdateMTOAgentUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/agents/{agentID}][%d] updateMTOAgentUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -554,6 +589,11 @@ func (o *UpdateMTOAgentInternalServerError) IsServerError() bool {
 // IsCode returns true when this update m t o agent internal server error response a status code equal to that given
 func (o *UpdateMTOAgentInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the update m t o agent internal server error response
+func (o *UpdateMTOAgentInternalServerError) Code() int {
+	return 500
 }
 
 func (o *UpdateMTOAgentInternalServerError) Error() string {
