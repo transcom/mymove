@@ -121,6 +121,11 @@ func (o *RecalculatePaymentRequestCreated) IsCode(code int) bool {
 	return code == 201
 }
 
+// Code gets the status code for the recalculate payment request created response
+func (o *RecalculatePaymentRequestCreated) Code() int {
+	return 201
+}
+
 func (o *RecalculatePaymentRequestCreated) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestCreated  %+v", 201, o.Payload)
 }
@@ -182,6 +187,11 @@ func (o *RecalculatePaymentRequestBadRequest) IsServerError() bool {
 // IsCode returns true when this recalculate payment request bad request response a status code equal to that given
 func (o *RecalculatePaymentRequestBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the recalculate payment request bad request response
+func (o *RecalculatePaymentRequestBadRequest) Code() int {
+	return 400
 }
 
 func (o *RecalculatePaymentRequestBadRequest) Error() string {
@@ -247,6 +257,11 @@ func (o *RecalculatePaymentRequestUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the recalculate payment request unauthorized response
+func (o *RecalculatePaymentRequestUnauthorized) Code() int {
+	return 401
+}
+
 func (o *RecalculatePaymentRequestUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestUnauthorized  %+v", 401, o.Payload)
 }
@@ -308,6 +323,11 @@ func (o *RecalculatePaymentRequestForbidden) IsServerError() bool {
 // IsCode returns true when this recalculate payment request forbidden response a status code equal to that given
 func (o *RecalculatePaymentRequestForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the recalculate payment request forbidden response
+func (o *RecalculatePaymentRequestForbidden) Code() int {
+	return 403
 }
 
 func (o *RecalculatePaymentRequestForbidden) Error() string {
@@ -373,6 +393,11 @@ func (o *RecalculatePaymentRequestNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the recalculate payment request not found response
+func (o *RecalculatePaymentRequestNotFound) Code() int {
+	return 404
+}
+
 func (o *RecalculatePaymentRequestNotFound) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestNotFound  %+v", 404, o.Payload)
 }
@@ -434,6 +459,11 @@ func (o *RecalculatePaymentRequestConflict) IsServerError() bool {
 // IsCode returns true when this recalculate payment request conflict response a status code equal to that given
 func (o *RecalculatePaymentRequestConflict) IsCode(code int) bool {
 	return code == 409
+}
+
+// Code gets the status code for the recalculate payment request conflict response
+func (o *RecalculatePaymentRequestConflict) Code() int {
+	return 409
 }
 
 func (o *RecalculatePaymentRequestConflict) Error() string {
@@ -499,6 +529,11 @@ func (o *RecalculatePaymentRequestPreconditionFailed) IsCode(code int) bool {
 	return code == 412
 }
 
+// Code gets the status code for the recalculate payment request precondition failed response
+func (o *RecalculatePaymentRequestPreconditionFailed) Code() int {
+	return 412
+}
+
 func (o *RecalculatePaymentRequestPreconditionFailed) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestPreconditionFailed  %+v", 412, o.Payload)
 }
@@ -562,6 +597,11 @@ func (o *RecalculatePaymentRequestUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the recalculate payment request unprocessable entity response
+func (o *RecalculatePaymentRequestUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *RecalculatePaymentRequestUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -623,6 +663,11 @@ func (o *RecalculatePaymentRequestInternalServerError) IsServerError() bool {
 // IsCode returns true when this recalculate payment request internal server error response a status code equal to that given
 func (o *RecalculatePaymentRequestInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the recalculate payment request internal server error response
+func (o *RecalculatePaymentRequestInternalServerError) Code() int {
+	return 500
 }
 
 func (o *RecalculatePaymentRequestInternalServerError) Error() string {

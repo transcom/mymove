@@ -102,6 +102,13 @@ export class TestHarness {
   /**
    * @returns {Promise<Object>}
    */
+  async buildApprovedMoveWithPPM() {
+    return this.buildDefault('ApprovedMoveWithPPM');
+  }
+
+  /**
+   * @returns {Promise<Object>}
+   */
   async buildWithShipmentMove() {
     return this.buildDefault('WithShipmentMove');
   }
@@ -232,6 +239,54 @@ export class TestHarness {
    */
   async buildSubmittedMoveWithPPMShipmentForSC() {
     return this.buildDefault('SubmittedMoveWithPPMShipmentForSC');
+  }
+
+  /**
+   * Use testharness to build unsubmitted ppm move
+   * @returns {Promise<Object>}
+   */
+  async buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights() {
+    return this.buildDefault('UnSubmittedMoveWithPPMShipmentThroughEstimatedWeights');
+  }
+
+  /**
+   * Use testharness to build unsubmitted ppm move
+   * @returns {Promise<Object>}
+   */
+  async buildApprovedMoveWithPPMWithAboutFormComplete() {
+    return this.buildDefault('ApprovedMoveWithPPMWithAboutFormComplete');
+  }
+
+  /**
+   * Use testharness to build unsubmitted move with multiple ppm shipments
+   * @returns {Promise<Object>}
+   */
+  async buildUnsubmittedMoveWithMultipleFullPPMShipmentComplete() {
+    return this.buildDefault('UnsubmittedMoveWithMultipleFullPPMShipmentComplete');
+  }
+
+  /**
+   * Use testharness to build approved move with ppm progear
+   * @returns {Promise<Object>}
+   */
+  async buildApprovedMoveWithPPMProgearWeightTicket() {
+    return this.buildDefault('ApprovedMoveWithPPMProgearWeightTicket');
+  }
+
+  /**
+   * Use testharness to build approved move with ppm moving expenses
+   * @returns {Promise<Object>}
+   */
+  async buildApprovedMoveWithPPMMovingExpense() {
+    return this.buildDefault('ApprovedMoveWithPPMMovingExpense');
+  }
+
+  /**
+   * Use testharness to build draft move with ppm departure date
+   * @returns {Promise<Object>}
+   */
+  async buildDraftMoveWithPPMWithDepartureDate() {
+    return this.buildDefault('DraftMoveWithPPMWithDepartureDate');
   }
 
   /**

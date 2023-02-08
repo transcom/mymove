@@ -53,7 +53,7 @@ describe('LabeledDetails', () => {
       ['Dependents', ': Yes'],
       ['Pro-gear', ': 100 lbs'],
       ['Spouse pro-gear', ': 50 lbs'],
-      ['RME', ': 300 lbs'],
+      ['Required medical equipment', ': 300 lbs'],
       ['Orders type', ': Permanent Change Of Station (PCS)'],
       ['Orders type detail', ': Shipment of HHG Permitted'],
       ['Origin duty location name', ': Origin duty location name'],
