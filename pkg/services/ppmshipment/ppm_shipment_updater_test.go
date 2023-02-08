@@ -18,6 +18,8 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+const dateOnly = "2006-01-02"
+
 func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 	// One-time test setup
@@ -109,7 +111,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that should now be updated
-		newPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(newPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(newPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(newPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(newPPM.SITExpected, updatedPPM.SITExpected)
@@ -153,7 +155,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
 
 		// Fields that should now be updated
-		newPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(newPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(newPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(newPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(newPPM.SITExpected, updatedPPM.SITExpected)
@@ -177,7 +179,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -212,7 +214,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -242,7 +244,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -277,7 +279,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -320,7 +322,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -360,7 +362,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -395,7 +397,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -433,7 +435,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -472,7 +474,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -513,7 +515,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -554,7 +556,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -594,7 +596,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -631,7 +633,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -674,7 +676,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SecondaryPickupPostalCode, updatedPPM.SecondaryPickupPostalCode)
@@ -723,7 +725,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SecondaryPickupPostalCode, updatedPPM.SecondaryPickupPostalCode)

@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.2.1",
+    "@fortawesome/fontawesome-svg-core": "^6.3.0",
     "@fortawesome/free-regular-svg-icons": "^6.2.1",
     "@fortawesome/free-solid-svg-icons": "^6.2.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
@@ -168,7 +168,7 @@
     "jest-preview": "^0.3.1",
     "mime-types": "^2.1.35",
     "mockdate": "^3.0.5",
-    "prettier": "2.8.3",
+    "prettier": "2.8.4",
     "react-app-rewired": "^2.2.1",
     "react-scripts": "5.0.1",
     "react-select-event": "^5.5.1",

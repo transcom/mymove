@@ -121,6 +121,11 @@ func (o *UpdateReweighOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the update reweigh o k response
+func (o *UpdateReweighOK) Code() int {
+	return 200
+}
+
 func (o *UpdateReweighOK) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighOK  %+v", 200, o.Payload)
 }
@@ -182,6 +187,11 @@ func (o *UpdateReweighBadRequest) IsServerError() bool {
 // IsCode returns true when this update reweigh bad request response a status code equal to that given
 func (o *UpdateReweighBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the update reweigh bad request response
+func (o *UpdateReweighBadRequest) Code() int {
+	return 400
 }
 
 func (o *UpdateReweighBadRequest) Error() string {
@@ -247,6 +257,11 @@ func (o *UpdateReweighUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the update reweigh unauthorized response
+func (o *UpdateReweighUnauthorized) Code() int {
+	return 401
+}
+
 func (o *UpdateReweighUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighUnauthorized  %+v", 401, o.Payload)
 }
@@ -308,6 +323,11 @@ func (o *UpdateReweighForbidden) IsServerError() bool {
 // IsCode returns true when this update reweigh forbidden response a status code equal to that given
 func (o *UpdateReweighForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the update reweigh forbidden response
+func (o *UpdateReweighForbidden) Code() int {
+	return 403
 }
 
 func (o *UpdateReweighForbidden) Error() string {
@@ -373,6 +393,11 @@ func (o *UpdateReweighNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the update reweigh not found response
+func (o *UpdateReweighNotFound) Code() int {
+	return 404
+}
+
 func (o *UpdateReweighNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighNotFound  %+v", 404, o.Payload)
 }
@@ -434,6 +459,11 @@ func (o *UpdateReweighConflict) IsServerError() bool {
 // IsCode returns true when this update reweigh conflict response a status code equal to that given
 func (o *UpdateReweighConflict) IsCode(code int) bool {
 	return code == 409
+}
+
+// Code gets the status code for the update reweigh conflict response
+func (o *UpdateReweighConflict) Code() int {
+	return 409
 }
 
 func (o *UpdateReweighConflict) Error() string {
@@ -499,6 +529,11 @@ func (o *UpdateReweighPreconditionFailed) IsCode(code int) bool {
 	return code == 412
 }
 
+// Code gets the status code for the update reweigh precondition failed response
+func (o *UpdateReweighPreconditionFailed) Code() int {
+	return 412
+}
+
 func (o *UpdateReweighPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighPreconditionFailed  %+v", 412, o.Payload)
 }
@@ -562,6 +597,11 @@ func (o *UpdateReweighUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the update reweigh unprocessable entity response
+func (o *UpdateReweighUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *UpdateReweighUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -623,6 +663,11 @@ func (o *UpdateReweighInternalServerError) IsServerError() bool {
 // IsCode returns true when this update reweigh internal server error response a status code equal to that given
 func (o *UpdateReweighInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the update reweigh internal server error response
+func (o *UpdateReweighInternalServerError) Code() int {
+	return 500
 }
 
 func (o *UpdateReweighInternalServerError) Error() string {

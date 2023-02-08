@@ -78,7 +78,7 @@ export const formatWeightTicketItems = (weightTickets, editPath, editParams, han
           value: weightTicket.ownsTrailer ? 'Yes' : 'No',
         },
       ],
-      onDelete: () => handleDelete('weightTicket', weightTicket.id, weightTicket.eTag),
+      onDelete: () => handleDelete('weightTicket', weightTicket.id, weightTicket.eTag, `Trip ${i + 1}`),
       renderEditLink: () => (
         <Link to={generatePath(editPath, { ...editParams, weightTicketId: weightTicket.id })}>Edit</Link>
       ),
@@ -120,7 +120,7 @@ export const formatProGearItems = (proGears, editPath, editParams, handleDelete)
         weightValues,
       ],
       renderEditLink: () => <Link to={generatePath(editPath, { ...editParams, proGearId: proGear.id })}>Edit</Link>,
-      onDelete: () => handleDelete('proGear', proGear.id, proGear.eTag),
+      onDelete: () => handleDelete('proGear', proGear.id, proGear.eTag, `Set ${i + 1}`),
     };
 
     if (proGear.description) {
@@ -145,7 +145,7 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
       subheading: <h4 className="text-bold">Receipt {i + 1}</h4>,
       rows: [{ id: 'amount', label: 'Amount:', value: `$${formatCents(expense.amount)}` }],
       renderEditLink: () => <Link to={generatePath(editPath, { ...editParams, expenseId: expense.id })}>Edit</Link>,
-      onDelete: () => handleDelete('expense', expense.id, expense.eTag),
+      onDelete: () => handleDelete('expense', expense.id, expense.eTag, `Receipt ${i + 1}`),
     };
 
     if (expense.movingExpenseType === expenseTypes.STORAGE) {

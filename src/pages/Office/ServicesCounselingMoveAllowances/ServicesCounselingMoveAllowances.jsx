@@ -37,7 +37,7 @@ const validationSchema = Yup.object({
     .transform((value) => (Number.isNaN(value) ? 0 : value))
     .notRequired(),
   requiredMedicalEquipmentWeight: Yup.number()
-    .min(0, 'RME weight must be greater than or equal to 0')
+    .min(0, 'Required medical equipment weight must be greater than or equal to 0')
     .transform((value) => (Number.isNaN(value) ? 0 : value))
     .notRequired(),
   storageInTransit: Yup.number()
