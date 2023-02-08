@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -78,7 +79,7 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 
 func (suite *PaperworkSuite) TestFormatValuesShipment() {
 	suite.Run("storage facility with phone and email", func() {
-		storageFacility := testdatagen.MakeDefaultStorageFacility(suite.DB())
+		storageFacility := factory.BuildDefaultStorageFacility(suite.DB())
 		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{
 			StorageFacility: storageFacility,
 			MTOShipment:     models.MTOShipment{StorageFacility: &storageFacility},
@@ -90,7 +91,7 @@ func (suite *PaperworkSuite) TestFormatValuesShipment() {
 	})
 
 	suite.Run("storage facility with no phone number should not panic", func() {
-		storageFacility := testdatagen.MakeDefaultStorageFacility(suite.DB())
+		storageFacility := factory.BuildDefaultStorageFacility(suite.DB())
 		storageFacility.Phone = nil
 		suite.MustSave(&storageFacility)
 		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{
@@ -103,7 +104,7 @@ func (suite *PaperworkSuite) TestFormatValuesShipment() {
 	})
 
 	suite.Run("storage facility with no email should not panic", func() {
-		storageFacility := testdatagen.MakeDefaultStorageFacility(suite.DB())
+		storageFacility := factory.BuildDefaultStorageFacility(suite.DB())
 		storageFacility.Email = nil
 		suite.MustSave(&storageFacility)
 		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{
