@@ -103,6 +103,11 @@ func (o *CreateExcessWeightRecordCreated) IsCode(code int) bool {
 	return code == 201
 }
 
+// Code gets the status code for the create excess weight record created response
+func (o *CreateExcessWeightRecordCreated) Code() int {
+	return 201
+}
+
 func (o *CreateExcessWeightRecordCreated) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/excess-weight-record][%d] createExcessWeightRecordCreated  %+v", 201, o.Payload)
 }
@@ -164,6 +169,11 @@ func (o *CreateExcessWeightRecordUnauthorized) IsServerError() bool {
 // IsCode returns true when this create excess weight record unauthorized response a status code equal to that given
 func (o *CreateExcessWeightRecordUnauthorized) IsCode(code int) bool {
 	return code == 401
+}
+
+// Code gets the status code for the create excess weight record unauthorized response
+func (o *CreateExcessWeightRecordUnauthorized) Code() int {
+	return 401
 }
 
 func (o *CreateExcessWeightRecordUnauthorized) Error() string {
@@ -229,6 +239,11 @@ func (o *CreateExcessWeightRecordForbidden) IsCode(code int) bool {
 	return code == 403
 }
 
+// Code gets the status code for the create excess weight record forbidden response
+func (o *CreateExcessWeightRecordForbidden) Code() int {
+	return 403
+}
+
 func (o *CreateExcessWeightRecordForbidden) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/excess-weight-record][%d] createExcessWeightRecordForbidden  %+v", 403, o.Payload)
 }
@@ -290,6 +305,11 @@ func (o *CreateExcessWeightRecordNotFound) IsServerError() bool {
 // IsCode returns true when this create excess weight record not found response a status code equal to that given
 func (o *CreateExcessWeightRecordNotFound) IsCode(code int) bool {
 	return code == 404
+}
+
+// Code gets the status code for the create excess weight record not found response
+func (o *CreateExcessWeightRecordNotFound) Code() int {
+	return 404
 }
 
 func (o *CreateExcessWeightRecordNotFound) Error() string {
@@ -355,6 +375,11 @@ func (o *CreateExcessWeightRecordUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the create excess weight record unprocessable entity response
+func (o *CreateExcessWeightRecordUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *CreateExcessWeightRecordUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/excess-weight-record][%d] createExcessWeightRecordUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -416,6 +441,11 @@ func (o *CreateExcessWeightRecordInternalServerError) IsServerError() bool {
 // IsCode returns true when this create excess weight record internal server error response a status code equal to that given
 func (o *CreateExcessWeightRecordInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the create excess weight record internal server error response
+func (o *CreateExcessWeightRecordInternalServerError) Code() int {
+	return 500
 }
 
 func (o *CreateExcessWeightRecordInternalServerError) Error() string {

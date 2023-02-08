@@ -17,10 +17,11 @@ if [[ $CIRCLE_JOB == *"deploy"* ]]; then
   color="danger"
 fi
 
+# use the default channel on the webhook so that config is handled in
+# one place
 slack_payload=$(
 cat <<EOM
 {
-    "channel": "#prac-engineering",
     "attachments": [
         {
             "fallback": "$message $CIRCLE_BUILD_URL",
