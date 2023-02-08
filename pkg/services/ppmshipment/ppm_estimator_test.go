@@ -831,6 +831,37 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.NotEqual(oldPPMShipment.FinalIncentive, *ppmFinal)
 		})
 
+		suite.Run("Sum Weights", func() {
+			oldFullWeight := unit.Pound(10000)
+			oldEmptyWeight := unit.Pound(6000)
+			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					ActualPickupPostalCode:      models.StringPointer("90210"),
+					ActualDestinationPostalCode: models.StringPointer("30813"),
+					ActualMoveDate:              models.TimePointer(moveDate),
+					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+					WeightTickets: models.WeightTickets{
+						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+							WeightTicket: models.WeightTicket{
+								FullWeight:  &oldFullWeight,
+								EmptyWeight: &oldEmptyWeight,
+							},
+						}),
+					},
+				},
+			})
+			newPPM := oldPPMShipment
+			rejected := models.PPMDocumentStatusRejected
+			newWeightTicket1 := newPPM.WeightTickets[0]
+			newWeightTicket1.Status = &rejected
+			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1}
+			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			suite.Equal(unit.Pound(4000), originalWeight)
+			suite.Equal(unit.Pound(0), newWeight)
+		})
+
 		suite.Run("Final Incentive - does not change when required fields are the same", func() {
 			oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 				PPMShipment: models.PPMShipment{
