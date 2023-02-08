@@ -1,7 +1,6 @@
 package utilities
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"time"
@@ -21,7 +20,7 @@ func SoftDestroy(c *pop.Connection, model interface{}) error {
 	var err error
 
 	if !IsModel(model) {
-		return errors.New("can only soft delete type model")
+		return fmt.Errorf("can only soft delete type model, got %s", GetModelName(model))
 	}
 
 	modelValue := reflect.ValueOf(model).Elem()
@@ -35,13 +34,13 @@ func SoftDestroy(c *pop.Connection, model interface{}) error {
 			verrs, err = c.ValidateAndSave(model)
 
 			if err != nil || verrs.HasAny() {
-				return errors.New("error updating model")
+				return fmt.Errorf("error updating model (%s)", GetModelName(model))
 			}
 		} else {
-			return errors.New("can not soft delete this model")
+			return fmt.Errorf("can not soft delete this model (%s)", GetModelName(model))
 		}
 	} else {
-		return errors.New("this model does not have deleted_at field")
+		return fmt.Errorf("this model (%s) does not have deleted_at field", GetModelName(model))
 	}
 
 	associations, err := GetForeignKeyAssociations(c, model)
@@ -59,6 +58,11 @@ func SoftDestroy(c *pop.Connection, model interface{}) error {
 		}
 	}
 	return nil
+}
+
+// GetModelName returns the name of the model
+func GetModelName(model interface{}) string {
+	return reflect.TypeOf(model).String()
 }
 
 // IsModel verifies if the given interface is a model

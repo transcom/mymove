@@ -1,8 +1,8 @@
 package models_test
 
 import (
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestFindDutyLocations() {
@@ -92,7 +92,7 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 	for _, ts := range tests {
 		dutyLocations, err := models.FindDutyLocations(suite.DB(), ts.query)
 		suite.NoError(err)
-		suite.Equal(len(dutyLocations), len(ts.dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
+		suite.Require().Equal(len(dutyLocations), len(ts.dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
 		for i, dutyLocation := range dutyLocations {
 			suite.Equal(dutyLocation.Name, ts.dutyLocations[i], "Duty locations don't match order: %s", ts.query)
 		}
@@ -111,7 +111,7 @@ func (suite *ModelSuite) Test_DutyLocationValidations() {
 }
 func (suite *ModelSuite) Test_FetchDutyLocationTransportationOffice() {
 	t := suite.T()
-	dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 
 	office, err := models.FetchDutyLocationTransportationOffice(suite.DB(), dutyLocation.ID)
 	if err != nil {

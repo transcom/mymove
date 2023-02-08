@@ -14,6 +14,7 @@ describe('ReviewItems component', () => {
             id: '1',
             rows: [
               { id: 'moveDate', hideLabel: true, label: 'Actual Move Date:', value: '04 Jul 2022' },
+              { id: 'depatureDate', label: 'Departure date:', value: '16 Mar 2020' },
               { id: 'pickupPostalCode', label: 'Starting ZIP:', value: '90210' },
             ],
             renderEditLink: () => <Link to="#">Edit</Link>,
@@ -24,7 +25,8 @@ describe('ReviewItems component', () => {
 
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('About Your PPM');
     expect(screen.queryByRole('term', { name: 'Actual Move Date:' })).not.toBeInTheDocument();
-    expect(screen.getByRole('term')).toHaveTextContent('Starting ZIP:');
+    expect(screen.getAllByRole('term')[0]).toHaveTextContent('Departure date:');
+    expect(screen.getAllByRole('term')[1]).toHaveTextContent('Starting ZIP:');
     expect(screen.getByText('Edit')).toBeInstanceOf(HTMLAnchorElement);
   });
 
@@ -47,6 +49,76 @@ describe('ReviewItems component', () => {
     );
 
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+  });
+
+  it('render weight moved required labels', () => {
+    render(
+      <ReviewItems
+        heading={<h3>Weight moved</h3>}
+        contents={[
+          {
+            id: '1',
+            subheading: <h4>Trip 1</h4>,
+            rows: [
+              { id: 'vehicleDescription', label: 'Vehicle description:', value: '2022 Honda CR-V Hybrid' },
+              { id: 'trailer', label: 'Trailer:', value: 'No' },
+            ],
+            renderEditLink: () => <Link to="#">Edit</Link>,
+            onDelete: () => {},
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getAllByRole('term')[0]).toHaveTextContent('Vehicle description:');
+    expect(screen.getAllByRole('definition')[0]).toHaveTextContent('2022 Honda CR-V Hybrid');
+    expect(screen.getAllByRole('term')[1]).toHaveTextContent('Trailer:');
+  });
+
+  it('render pro-gear required labels', () => {
+    render(
+      <ReviewItems
+        heading={<h3>Pro-gear</h3>}
+        contents={[
+          {
+            id: '1',
+            subheading: <h4>Trip 1</h4>,
+            rows: [
+              { id: 'proGearDescription', label: 'Description:', value: 'Professional equipment' },
+              { id: 'proGearWeight', label: 'Weight:', value: '475 lbs' },
+            ],
+            renderEditLink: () => <Link to="#">Edit</Link>,
+            onDelete: () => {},
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getAllByRole('term')[0]).toHaveTextContent('Description:');
+    expect(screen.getAllByRole('term')[1]).toHaveTextContent('Weight:');
+  });
+
+  it('render expenses required labels', () => {
+    render(
+      <ReviewItems
+        heading={<h3>Expenses</h3>}
+        contents={[
+          {
+            id: '1',
+            subheading: <h4>Receipt 1</h4>,
+            rows: [
+              { id: 'exprenseType', label: 'Type:', value: 'Packing materials' },
+              { id: 'expenseDescription', label: 'Description:', value: 'Packing Peanuts' },
+            ],
+            renderEditLink: () => <Link to="#">Edit</Link>,
+            onDelete: () => {},
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getAllByRole('term')[0]).toHaveTextContent('Type:');
+    expect(screen.getAllByRole('term')[1]).toHaveTextContent('Description:');
   });
 
   it('displays the empty message when there are no contents', () => {

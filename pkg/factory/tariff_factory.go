@@ -50,6 +50,9 @@ func BuildTariff400ngZip3(db *pop.Connection, customs []Customization, traits []
 
 // FetchOrBuildTariff400ngZip3 tries fetching an existing zip3 first, then falls back to creating one
 func FetchOrBuildTariff400ngZip3(db *pop.Connection, customs []Customization, traits []Trait) models.Tariff400ngZip3 {
+	if db == nil {
+		return BuildTariff400ngZip3(db, customs, traits)
+	}
 	var existingZip3s models.Tariff400ngZip3s
 	zip3 := DefaultZip3
 
