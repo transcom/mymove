@@ -26,11 +26,8 @@ tags:
       **WIP:** Add an external link to an article that explains the different types of service items in more detail.
   - name: paymentRequest
     description: |
-      The contractor sends a **paymentRequest** when they would like to be reimbursed for a set of **mtoServiceItems**
-      on a **moveTaskOrder**.
-
-      A **paymentRequest** may include any number of **mtoServiceItems** from 1 to all **mtoServiceItems** with an `APPROVED`
-      status on a single **moveTaskOrder**.
+      The contractor submits a **paymentRequest** to the TIO for approval in order to be reimbursed for 1 or more
+      **mtoServiceItems** on a **moveTaskOrder**.
 
       Proof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.
 x-tagGroups:
