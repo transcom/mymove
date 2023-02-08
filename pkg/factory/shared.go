@@ -42,6 +42,7 @@ var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
 var ServiceMember CustomType = "ServiceMember"
+var StorageFacility CustomType = "StorageFacility"
 var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
@@ -57,6 +58,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.OfficeUser":           OfficeUser,
 	"models.Order":                Order,
 	"models.ServiceMember":        ServiceMember,
+	"models.StorageFacility":      StorageFacility,
 	"models.Tariff400ngZip3":      Tariff400ngZip3,
 	"models.TransportationOffice": TransportationOffice,
 	"models.Upload":               Upload,
