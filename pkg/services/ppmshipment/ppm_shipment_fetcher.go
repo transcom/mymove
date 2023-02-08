@@ -29,6 +29,7 @@ func FindPPMShipmentAndWeightTickets(appCtx appcontext.AppContext, id uuid.UUID)
 			return nil, apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipmentAndWeightTickets")
 		}
 	}
+	ppmShipment.WeightTickets = ppmShipment.WeightTickets.FilterDeleted()
 
 	return &ppmShipment, nil
 }

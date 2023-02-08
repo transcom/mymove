@@ -20,3 +20,10 @@ type ProgearWeightTicketCreator interface {
 type ProgearWeightTicketUpdater interface {
 	UpdateProgearWeightTicket(appCtx appcontext.AppContext, progearWeightTicket models.ProgearWeightTicket, eTag string) (*models.ProgearWeightTicket, error)
 }
+
+// ProgearWeightTicketDeleter deletes a ProgearWeightTicket
+//
+//go:generate mockery --name ProgearWeightTicketDeleter --disable-version-string
+type ProgearWeightTicketDeleter interface {
+	DeleteProgearWeightTicket(appCtx appcontext.AppContext, progearWeightTicketID uuid.UUID) error
+}
