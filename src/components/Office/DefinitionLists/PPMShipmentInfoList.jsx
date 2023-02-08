@@ -176,7 +176,9 @@ const PPMShipmentInfoList = ({
   const advanceStatusElement = (
     <div className={advanceStatusElementFlags.classes}>
       <dt>Advance request status</dt>
-      <dd data-testid="advanceRequestStatus">{ADVANCE_STATUSES[advanceStatus]}</dd>
+      <dd data-testid="advanceRequestStatus">
+        {ADVANCE_STATUSES[advanceStatus] ? ADVANCE_STATUSES[advanceStatus] : `Review required`}
+      </dd>
     </div>
   );
 
