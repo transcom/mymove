@@ -4017,7 +4017,7 @@ func init() {
       "name": "mtoServiceItem"
     },
     {
-      "description": "The contractor sends a **paymentRequest** when they would like to be reimbursed for a set of **mtoServiceItems**\non a **moveTaskOrder**.\n\nA **paymentRequest** may include any number of **mtoServiceItems** from 1 to all **mtoServiceItems** with an ` + "`" + `APPROVED` + "`" + `\nstatus on a single **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
+      "description": "The contractor submits a **paymentRequest** to the TIO for approval in order to be reimbursed for 1 or more\n**mtoServiceItems** on a **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
       "name": "paymentRequest"
     }
   ],
@@ -8388,7 +8388,7 @@ func init() {
       "name": "mtoServiceItem"
     },
     {
-      "description": "The contractor sends a **paymentRequest** when they would like to be reimbursed for a set of **mtoServiceItems**\non a **moveTaskOrder**.\n\nA **paymentRequest** may include any number of **mtoServiceItems** from 1 to all **mtoServiceItems** with an ` + "`" + `APPROVED` + "`" + `\nstatus on a single **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
+      "description": "The contractor submits a **paymentRequest** to the TIO for approval in order to be reimbursed for 1 or more\n**mtoServiceItems** on a **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
       "name": "paymentRequest"
     }
   ],
