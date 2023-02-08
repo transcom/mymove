@@ -109,6 +109,11 @@ func (o *CreateUploadCreated) IsCode(code int) bool {
 	return code == 201
 }
 
+// Code gets the status code for the create upload created response
+func (o *CreateUploadCreated) Code() int {
+	return 201
+}
+
 func (o *CreateUploadCreated) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadCreated  %+v", 201, o.Payload)
 }
@@ -170,6 +175,11 @@ func (o *CreateUploadBadRequest) IsServerError() bool {
 // IsCode returns true when this create upload bad request response a status code equal to that given
 func (o *CreateUploadBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the create upload bad request response
+func (o *CreateUploadBadRequest) Code() int {
+	return 400
 }
 
 func (o *CreateUploadBadRequest) Error() string {
@@ -235,6 +245,11 @@ func (o *CreateUploadUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the create upload unauthorized response
+func (o *CreateUploadUnauthorized) Code() int {
+	return 401
+}
+
 func (o *CreateUploadUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadUnauthorized  %+v", 401, o.Payload)
 }
@@ -296,6 +311,11 @@ func (o *CreateUploadForbidden) IsServerError() bool {
 // IsCode returns true when this create upload forbidden response a status code equal to that given
 func (o *CreateUploadForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the create upload forbidden response
+func (o *CreateUploadForbidden) Code() int {
+	return 403
 }
 
 func (o *CreateUploadForbidden) Error() string {
@@ -361,6 +381,11 @@ func (o *CreateUploadNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the create upload not found response
+func (o *CreateUploadNotFound) Code() int {
+	return 404
+}
+
 func (o *CreateUploadNotFound) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadNotFound  %+v", 404, o.Payload)
 }
@@ -424,6 +449,11 @@ func (o *CreateUploadUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the create upload unprocessable entity response
+func (o *CreateUploadUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *CreateUploadUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -485,6 +515,11 @@ func (o *CreateUploadInternalServerError) IsServerError() bool {
 // IsCode returns true when this create upload internal server error response a status code equal to that given
 func (o *CreateUploadInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the create upload internal server error response
+func (o *CreateUploadInternalServerError) Code() int {
+	return 500
 }
 
 func (o *CreateUploadInternalServerError) Error() string {

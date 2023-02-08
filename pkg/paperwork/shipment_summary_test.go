@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route/mocks"
@@ -134,7 +135,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 			},
 		})
 
-		currentDutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+		currentDutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 		return ppm, order, currentDutyLocation
 	}
 
@@ -245,7 +246,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 				DestinationPostalCode: &destinationPostalCode,
 			},
 		})
-		currentDutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+		currentDutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 		shipmentSummaryFormParams := models.ShipmentSummaryFormData{
 			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
 			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
