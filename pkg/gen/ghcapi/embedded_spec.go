@@ -6684,6 +6684,14 @@ func init() {
         }
       }
     },
+    "MovingExpenses": {
+      "description": "All moving expenses associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MovingExpense"
+      },
+      "x-omitempty": false
+    },
     "NullableString": {
       "type": "string",
       "x-go-type": {
@@ -6941,7 +6949,7 @@ func init() {
       "type": "object",
       "properties": {
         "MovingExpenses": {
-          "$ref": "#/definitions/ProGearWeightTickets"
+          "$ref": "#/definitions/MovingExpenses"
         },
         "ProGearWeightTickets": {
           "$ref": "#/definitions/ProGearWeightTickets"
@@ -17158,6 +17166,14 @@ func init() {
         }
       }
     },
+    "MovingExpenses": {
+      "description": "All moving expenses associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MovingExpense"
+      },
+      "x-omitempty": false
+    },
     "NullableString": {
       "type": "string",
       "x-go-type": {
@@ -17415,7 +17431,7 @@ func init() {
       "type": "object",
       "properties": {
         "MovingExpenses": {
-          "$ref": "#/definitions/ProGearWeightTickets"
+          "$ref": "#/definitions/MovingExpenses"
         },
         "ProGearWeightTickets": {
           "$ref": "#/definitions/ProGearWeightTickets"
