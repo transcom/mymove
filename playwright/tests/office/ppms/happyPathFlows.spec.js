@@ -5,20 +5,15 @@
  */
 
 // @ts-check
-const { test, expect, ScPpmPage } = require('./scPpmTestFixture');
+const { test, expect } = require('./scPpmTestFixture');
 
 test.describe('Services counselor user', () => {
-  /** @type {ScPpmPage} */
-  let scPpmPage;
-
-  test.beforeEach(async ({ officePage }) => {
-    const move = await officePage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
-    await officePage.signInAsNewServicesCounselorUser();
-    scPpmPage = new ScPpmPage(officePage, move);
-    await scPpmPage.navigateToMove();
+  test.beforeEach(async ({ scPpmPage }) => {
+    const move = await scPpmPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
+    await scPpmPage.navigateToMove(move.locator);
   });
 
-  test('is able to edit a PPM shipment', async ({ page }) => {
+  test('is able to edit a PPM shipment', async ({ page, scPpmPage }) => {
     // View existing shipment
     await page.locator('[data-testid="ShipmentContainer"] .usa-button').click();
 

@@ -166,9 +166,14 @@ client_deps: .check_hosts.stamp .client_deps.stamp ## Install client dependencie
 .PHONY: client_build
 client_build: .client_build.stamp ## Build the client
 
-build/index.html: ## milmove serve requires this file to boot, but it isn't used during local development
+build/index.html: build/downloads ## milmove serve requires this file to boot, but it isn't used during local development
 	mkdir -p build
 	touch build/index.html
+
+build/downloads: public/downloads
+	mkdir -p build
+	rm -r build/downloads
+	cp -r public/downloads build/downloads
 
 .PHONY: client_run
 client_run: .client_deps.stamp ## Run MilMove Service Member client

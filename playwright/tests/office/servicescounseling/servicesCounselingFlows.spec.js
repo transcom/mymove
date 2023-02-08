@@ -5,20 +5,13 @@
  */
 
 // @ts-check
-const { test, expect } = require('../../utils/officeTest');
-
-const { ServiceCounselorPage } = require('./servicesCounselingTestFixture');
+const { expect, test } = require('./servicesCounselingTestFixture');
 
 test.describe('Services counselor user', () => {
-  /** @type {ServiceCounselorPage} */
-  let scPage;
-
   test.describe('with basic HHG move', () => {
-    test.beforeEach(async ({ officePage }) => {
-      const move = await officePage.testHarness.buildHHGMoveNeedsSC();
-      await officePage.signInAsNewServicesCounselorUser();
-      scPage = new ServiceCounselorPage(officePage, move);
-      await scPage.navigateToMove();
+    test.beforeEach(async ({ scPage }) => {
+      const move = await scPage.testHarness.buildHHGMoveNeedsSC();
+      await scPage.navigateToMove(move.locator);
     });
 
     test('is able to click on move and submit after using the move code filter', async ({ page }) => {
@@ -39,7 +32,7 @@ test.describe('Services counselor user', () => {
       await expect(page.getByText('Move submitted.')).toBeVisible();
     });
 
-    test('is able to flag a move for financial review', async ({ page }) => {
+    test('is able to flag a move for financial review', async ({ page, scPage }) => {
       // click to trigger financial review modal
       await page.getByText('Flag move for financial review').click();
 
@@ -74,14 +67,12 @@ test.describe('Services counselor user', () => {
   });
 
   test.describe('with separation HHG move', () => {
-    test.beforeEach(async ({ officePage }) => {
-      const move = await officePage.testHarness.buildHHGMoveForSeparationNeedsSC();
-      await officePage.signInAsNewServicesCounselorUser();
-      scPage = new ServiceCounselorPage(officePage, move);
-      await scPage.navigateToMove();
+    test.beforeEach(async ({ scPage }) => {
+      const move = await scPage.testHarness.buildHHGMoveForSeparationNeedsSC();
+      await scPage.navigateToMove(move.locator);
     });
 
-    test('is able to add a shipment', async ({ page }) => {
+    test('is able to add a shipment', async ({ page, scPage }) => {
       const deliveryDate = new Date().toLocaleDateString('en-US');
       await expect(page.locator('[data-testid="ShipmentContainer"] .usa-button')).toHaveCount(2);
 
@@ -108,11 +99,9 @@ test.describe('Services counselor user', () => {
   });
 
   test.describe('with separation HHG move', () => {
-    test.beforeEach(async ({ officePage }) => {
-      const move = await officePage.testHarness.buildHHGMoveForRetireeNeedsSC();
-      await officePage.signInAsNewServicesCounselorUser();
-      scPage = new ServiceCounselorPage(officePage, move);
-      await scPage.navigateToMove();
+    test.beforeEach(async ({ scPage }) => {
+      const move = await scPage.testHarness.buildHHGMoveForRetireeNeedsSC();
+      await scPage.navigateToMove(move.locator);
     });
 
     /**
@@ -185,7 +174,7 @@ test.describe('Services counselor user', () => {
       expect(newScrollY).toBeGreaterThan(origScrollY);
     });
 
-    test('is able to edit a shipment', async ({ page }) => {
+    test('is able to edit a shipment', async ({ page, scPage }) => {
       const deliveryDate = new Date().toLocaleDateString('en-US');
 
       // edit a shipment
@@ -213,7 +202,7 @@ test.describe('Services counselor user', () => {
       await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
     });
 
-    test('is able to see that the tag next to shipment is updated', async ({ page }) => {
+    test('is able to see that the tag next to shipment is updated', async ({ page, scPage }) => {
       // Verify that there's a tag on the left nav that flags missing information
       await expect(page.locator('[data-testid="requestedShipmentsTag"]')).toContainText('3');
 

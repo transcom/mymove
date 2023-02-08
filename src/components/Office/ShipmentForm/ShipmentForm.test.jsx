@@ -111,6 +111,7 @@ const mockPPMShipment = {
     estimatedIncentive: 1234500,
     hasRequestedAdvance: true,
     advanceAmountRequested: 487500,
+    advanceStatus: 'APPROVED',
   },
 };
 
@@ -885,6 +886,7 @@ describe('ShipmentForm component', () => {
       expect(screen.findByText('Estimated incentive: $12,345').toBeInTheDocument);
       expect(screen.getByLabelText('Amount requested')).toHaveValue('4,875');
       expect((await screen.findByText('Maximum advance: $7,407')).toBeInTheDocument);
+      expect(screen.getByLabelText('Approve')).toBeChecked();
       expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
 
       await userEvent.click(screen.getByRole('button', { name: 'Save and Continue' }));
@@ -894,7 +896,11 @@ describe('ShipmentForm component', () => {
           expect.objectContaining({
             body: expect.objectContaining({
               counselorRemarks: 'mock counselor remarks',
-              ppmShipment: expect.objectContaining({ hasRequestedAdvance: true, advanceAmountRequested: 487500 }),
+              ppmShipment: expect.objectContaining({
+                hasRequestedAdvance: true,
+                advanceAmountRequested: 487500,
+                advanceStatus: 'APPROVED',
+              }),
             }),
           }),
           expect.objectContaining({
@@ -904,7 +910,7 @@ describe('ShipmentForm component', () => {
       });
     });
 
-    it('validates the Advance Page making counselor remarks required when advance is denied', async () => {
+    it('validates the Advance Page making counselor remarks required when `Advance Requested?` is changed from Yes to No', async () => {
       const ppmShipmentWithoutRemarks = {
         ...mockPPMShipment,
         counselorRemarks: '',
@@ -925,7 +931,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Incentive & advance');
       expect(screen.getByLabelText('No')).not.toBeChecked();
       expect(screen.getByLabelText('Yes')).toBeChecked();
-      // Reject a requested advance
+      // Selecting advance not requested
       await userEvent.click(screen.getByLabelText('No'));
       await waitFor(() => {
         expect(screen.getByLabelText('No')).toBeChecked();
@@ -1016,6 +1022,62 @@ describe('ShipmentForm component', () => {
       await waitFor(() => {
         const requiredAlerts = screen.getAllByRole('alert');
         expect(requiredAlerts[0]).toHaveTextContent('Enter an amount $1 or more.');
+      });
+    });
+
+    it('sets `Counselor Remarks` as required when an advance request is rejected', async () => {
+      const ppmShipmentWithoutRemarks = {
+        ...mockPPMShipment,
+        counselorRemarks: '',
+      };
+
+      render(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          isAdvancePage
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={ppmShipmentWithoutRemarks}
+        />,
+        { wrapper: MockProviders },
+      );
+
+      expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Incentive & advance');
+      expect(screen.getByLabelText('Approve')).toBeChecked();
+      expect(screen.getByLabelText('Reject')).not.toBeChecked();
+      // Rejecting advance request
+      await userEvent.click(screen.getByLabelText('Reject'));
+      await waitFor(() => {
+        expect(screen.getByLabelText('Approve')).not.toBeChecked();
+        expect(screen.getByLabelText('Reject')).toBeChecked();
+      });
+      const requiredAlert = screen.getAllByRole('alert');
+      expect(requiredAlert[0]).toHaveTextContent('Required');
+
+      await userEvent.type(
+        screen.getByLabelText('Counselor remarks'),
+        'I, a service counselor, have rejected your advance request',
+      );
+      await userEvent.tab();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeEnabled();
+      });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save and Continue' }));
+
+      await waitFor(() => {
+        expect(defaultProps.submitHandler).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.objectContaining({
+              counselorRemarks: 'I, a service counselor, have rejected your advance request',
+              ppmShipment: expect.objectContaining({ advanceStatus: 'REJECTED' }),
+            }),
+          }),
+          expect.objectContaining({
+            onSuccess: expect.any(Function),
+          }),
+        );
       });
     });
   });
