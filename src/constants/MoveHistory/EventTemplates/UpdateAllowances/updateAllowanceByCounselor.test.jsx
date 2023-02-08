@@ -29,7 +29,7 @@ describe('When a service counselor updates shipping allowances', () => {
       ['Dependents', ': Yes'],
       ['Pro-gear', ': 100 lbs'],
       ['Spouse pro-gear', ': 85 lbs'],
-      ['RME', ': 10 lbs'],
+      ['Required medical equipment', ': 10 lbs'],
       ['Storage in transit (SIT)', ': 80 days'],
     ])('displays the correct details value for %s', async (label, value) => {
       const result = getTemplate(historyRecord);

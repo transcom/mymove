@@ -6882,6 +6882,12 @@ definitions:
     items:
       $ref: '#/definitions/ProGearWeightTicket'
     x-omitempty: false
+  MovingExpenses:
+    description: All moving expenses associated with a PPM shipment.
+    type: array
+    items:
+      $ref: '#/definitions/MovingExpense'
+    x-omitempty: false
   PPMDocuments:
     description: >-
       All documents associated with a PPM shipment, including weight tickets,
@@ -6895,7 +6901,7 @@ definitions:
       ProGearWeightTickets:
         $ref: '#/definitions/ProGearWeightTickets'
       MovingExpenses:
-        $ref: '#/definitions/ProGearWeightTickets'
+        $ref: '#/definitions/MovingExpenses'
   PPMDocumentStatus:
     description: Status of the PPM document.
     type: string
