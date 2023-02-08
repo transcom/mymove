@@ -772,8 +772,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 		suite.Run("Final Incentive - Success updating finalIncentive with rejected weight tickets", func() {
 			setupPricerData()
-			oldEmptyWeight := unit.Pound(6000)
 			oldFullWeight := unit.Pound(10000)
+			oldEmptyWeight := unit.Pound(6000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
 			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 				PPMShipment: models.PPMShipment{
@@ -828,6 +828,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.Equal(unit.Pound(8000), originalWeight)
 			suite.Equal(unit.Pound(4000), newWeight)
 			suite.Equal(unit.Cents(38213948), *ppmFinal)
+			suite.NotEqual(oldPPMShipment.FinalIncentive, *ppmFinal)
 		})
 
 		suite.Run("Final Incentive - does not change when required fields are the same", func() {
