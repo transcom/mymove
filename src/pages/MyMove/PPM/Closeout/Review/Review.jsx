@@ -27,36 +27,39 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { formatCents, formatWeight } from 'utils/formatters';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
-import { deleteWeightTicket } from 'services/internalApi';
+import { deleteWeightTicket, deleteProGearWeightTicket, deleteMovingExpense } from 'services/internalApi';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import { hasCompletedAllWeightTickets, hasCompletedAllExpenses, hasCompletedAllProGear } from 'utils/shipments';
 
-const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => (
-  <div>
-    <Overlay />
-    <ModalContainer>
-      <Modal>
-        <ModalClose handleClick={() => onClose(false)} />
-        <ModalTitle>
-          <h3>Delete this?</h3>
-        </ModalTitle>
-        <p>Your information will be gone. You’ll need to start over if you want it back.</p>
-        <ModalActions>
-          <Button
-            className="usa-button--destructive"
-            type="submit"
-            onClick={() => onSubmit(itemToDelete.itemType, itemToDelete.itemId, itemToDelete.itemETag)}
-          >
-            Yes, Delete
-          </Button>
-          <Button type="button" onClick={() => onClose(false)} data-testid="modalBackButton" secondary>
-            No, Keep It
-          </Button>
-        </ModalActions>
-      </Modal>
-    </ModalContainer>
-  </div>
-);
+const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
+  const deleteDetailMessage = <p>You are about to delete {itemToDelete.itemNumber}. This cannot be undone.</p>;
+  return (
+    <div>
+      <Overlay />
+      <ModalContainer>
+        <Modal>
+          <ModalClose handleClick={() => onClose(false)} />
+          <ModalTitle>
+            <h3>Delete this?</h3>
+          </ModalTitle>
+          {deleteDetailMessage}
+          <ModalActions>
+            <Button
+              className="usa-button--destructive"
+              type="submit"
+              onClick={() => onSubmit(itemToDelete.itemType, itemToDelete.itemId, itemToDelete.itemETag)}
+            >
+              Yes, Delete
+            </Button>
+            <Button type="button" onClick={() => onClose(false)} data-testid="modalBackButton" secondary>
+              No, Keep It
+            </Button>
+          </ModalActions>
+        </Modal>
+      </ModalContainer>
+    </div>
+  );
+};
 
 const Review = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -80,11 +83,12 @@ const Review = () => {
   const expensesCreatePath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_PATH, { moveId, mtoShipmentId });
   const completePath = generatePath(customerRoutes.SHIPMENT_PPM_COMPLETE_PATH, { moveId, mtoShipmentId });
 
-  const handleDelete = (itemType, itemId, itemETag) => {
+  const handleDelete = (itemType, itemId, itemETag, itemNumber) => {
     setItemToDelete(() => ({
       itemType,
       itemId,
       itemETag,
+      itemNumber,
     }));
     setIsDeleteModalVisible(true);
   };
@@ -92,10 +96,14 @@ const Review = () => {
   const onDeleteSubmit = (itemType, itemId, itemETag) => {
     if (itemType === 'weightTicket') {
       deleteWeightTicket(itemId, itemETag)
-        .then(() => {
-          setIsDeleteModalVisible(false);
-        })
+        .then(() => setIsDeleteModalVisible(false))
         .catch(() => {});
+    }
+    if (itemType === 'proGear') {
+      deleteProGearWeightTicket(itemId, itemETag).then(() => setIsDeleteModalVisible(false));
+    }
+    if (itemType === 'expense') {
+      deleteMovingExpense(itemId, itemETag).then(() => setIsDeleteModalVisible(false));
     }
   };
 
