@@ -1019,6 +1019,13 @@ definitions:
       trailerMeetsCriteria:
         description: Indicates if the trailer that the customer used meets all the criteria to be claimable.
         type: boolean
+      adjustedNetWeight:
+        description: Indicates the net weight of the vehicle
+        type: integer
+        minimum: 0
+      netWeightRemarks:
+        description: Remarks explaining any edits made to the net weight
+        type: string
   TransportationOffices:
     type: array
     items:
