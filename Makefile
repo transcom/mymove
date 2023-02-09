@@ -172,7 +172,7 @@ build/index.html: build/downloads ## milmove serve requires this file to boot, b
 
 build/downloads: public/downloads
 	mkdir -p build
-	rm -r build/downloads
+	rm -rf build/downloads
 	cp -r public/downloads build/downloads
 
 .PHONY: client_run
