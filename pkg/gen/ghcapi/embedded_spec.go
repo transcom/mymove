@@ -19570,6 +19570,7 @@ func init() {
         "adjustedNetWeight": {
           "description": "Indicates the net weight of the vehicle",
           "type": "integer",
+          "minimum": 0,
           "x-nullable": true,
           "x-omitempty": false
         },

@@ -20,6 +20,7 @@ import (
 type WeightTicket struct {
 
 	// Indicates the net weight of the vehicle
+	// Minimum: 0
 	AdjustedNetWeight *int64 `json:"adjustedNetWeight"`
 
 	// created at
@@ -120,6 +121,10 @@ type WeightTicket struct {
 func (m *WeightTicket) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAdjustedNetWeight(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -179,6 +184,18 @@ func (m *WeightTicket) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *WeightTicket) validateAdjustedNetWeight(formats strfmt.Registry) error {
+	if swag.IsZero(m.AdjustedNetWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("adjustedNetWeight", "body", *m.AdjustedNetWeight, 0, false); err != nil {
+		return err
+	}
+
 	return nil
 }
 
