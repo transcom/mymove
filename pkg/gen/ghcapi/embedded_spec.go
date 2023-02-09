@@ -8937,6 +8937,10 @@ func init() {
     "UpdateWeightTicket": {
       "type": "object",
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the net weight of the vehicle",
+          "type": "integer"
+        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer"
@@ -8944,6 +8948,10 @@ func init() {
         "fullWeight": {
           "description": "The weight of the vehicle when full.",
           "type": "integer"
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string"
         },
         "ownsTrailer": {
           "description": "Indicates if the customer used a trailer they own for the move.",
@@ -19440,6 +19448,11 @@ func init() {
     "UpdateWeightTicket": {
       "type": "object",
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the net weight of the vehicle",
+          "type": "integer",
+          "minimum": 0
+        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer",
@@ -19449,6 +19462,10 @@ func init() {
           "description": "The weight of the vehicle when full.",
           "type": "integer",
           "minimum": 0
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string"
         },
         "ownsTrailer": {
           "description": "Indicates if the customer used a trailer they own for the move.",
