@@ -41,22 +41,10 @@ func BuildOfficeUser(db *pop.Connection, customs []Customization, traits []Trait
 	}
 
 	// Find/create the user model
-	var user models.User
-	result := findValidCustomization(customs, User)
-	if result != nil {
-		user = result.Model.(models.User)
-	}
-	user = BuildUserAndUsersRoles(db, customs, nil)
-	// At this point, user exists. It's either the provided or created user
+	user := BuildUserAndUsersRoles(db, customs, nil)
 
 	// Find/create the TransportationOffice model
-	var transportationOffice models.TransportationOffice
-	result = findValidCustomization(customs, TransportationOffice)
-	if result != nil {
-		transportationOffice = result.Model.(models.TransportationOffice)
-	}
-	transportationOffice = BuildTransportationOffice(db, customs, nil)
-	// At this point, TransportationOffice exists. It's either the provided or created TransportationOffice
+	transportationOffice := BuildTransportationOffice(db, customs, nil)
 
 	// create officeuser
 	officeUser := models.OfficeUser{
@@ -117,6 +105,7 @@ func BuildOfficeUserWithRoles(db *pop.Connection, customs []Customization, roleT
 		user.Roles = rolesList
 		customs[idx].Model = user
 	} else {
+		// create a new user customization with the correct roles
 		user.Roles = rolesList
 		customs = append(customs, Customization{Model: user})
 	}
