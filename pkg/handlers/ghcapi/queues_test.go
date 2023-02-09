@@ -564,13 +564,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
-	dutyLocation1 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			Name: "This Other Station",
+	dutyLocation1 := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name: "This Other Station",
+			},
 		},
-	})
+	}, nil)
 
-	dutyLocation2 := testdatagen.MakeDefaultDutyLocation(suite.DB())
+	dutyLocation2 := factory.BuildDutyLocation(suite.DB(), nil, nil)
 
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
 
@@ -1225,13 +1227,17 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		},
 	}, nil)
 
-	originDutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			Name:      "Fort Sam Houston",
-			AddressID: dutyLocationAddress.ID,
-			Address:   dutyLocationAddress,
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name: "Fort Sam Houston",
+			},
 		},
-	})
+		{
+			Model:    dutyLocationAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	excludedGBLOCMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{

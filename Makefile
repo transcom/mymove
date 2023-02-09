@@ -166,9 +166,14 @@ client_deps: .check_hosts.stamp .client_deps.stamp ## Install client dependencie
 .PHONY: client_build
 client_build: .client_build.stamp ## Build the client
 
-build/index.html: ## milmove serve requires this file to boot, but it isn't used during local development
+build/index.html: build/downloads ## milmove serve requires this file to boot, but it isn't used during local development
 	mkdir -p build
 	touch build/index.html
+
+build/downloads: public/downloads
+	mkdir -p build
+	rm -r build/downloads
+	cp -r public/downloads build/downloads
 
 .PHONY: client_run
 client_run: .client_deps.stamp ## Run MilMove Service Member client
@@ -1094,7 +1099,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-4ac893fa1efd33ff1c06a54a2417bfb2a3176bac bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-6109bfb5e9650a79bd94bff6453ed726635a4dc2 bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images

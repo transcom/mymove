@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { expect, OfficePage } = require('../../utils/officeTest');
+const { expect, test: officeTest, OfficePage } = require('../../utils/officeTest');
 /**
  * ServiceCounselorPage test fixture
  *
@@ -14,26 +14,24 @@ const { expect, OfficePage } = require('../../utils/officeTest');
 export class ServiceCounselorPage extends OfficePage {
   /**
    * @param {OfficePage} officePage
-   * @param {Object} move
    * @override
    */
-  constructor(officePage, move) {
+  constructor(officePage) {
     super(officePage.page, officePage.request);
-    this.move = move;
-    this.moveLocator = move.locator;
   }
 
   /**
    * Service Counselor navigate to move
+   * @param {string} moveLocator
    */
-  async navigateToMove() {
+  async navigateToMove(moveLocator) {
     // type in move code/locator to filter
-    await this.page.locator('input[name="locator"]').type(this.moveLocator);
+    await this.page.locator('input[name="locator"]').type(moveLocator);
     await this.page.locator('input[name="locator"]').blur();
 
     await this.page.locator('tbody > tr').first().click();
     await this.waitForLoading();
-    expect(this.page.url()).toContain(`/counseling/moves/${this.moveLocator}/details`);
+    expect(this.page.url()).toContain(`/counseling/moves/${moveLocator}/details`);
   }
 
   async addNTSShipment() {
@@ -200,5 +198,23 @@ export class ServiceCounselorPage extends OfficePage {
     await expect(lastShipment.locator('[data-testid="sacType"]')).toContainText('—');
   }
 }
+
+/**
+ * @typedef {object} ServiceCounselorPageTestArgs - services counselor page test args
+ * @property {ServiceCounselorPage} scPage    - services counselor page
+ */
+
+/** @type {import('@playwright/test').Fixtures<ServiceCounselorPageTestArgs, {}, import('../../utils/officeTest').OfficePageTestArgs, import('@playwright/test').PlaywrightWorkerArgs>} */
+const scFixtures = {
+  scPage: async ({ officePage }, use) => {
+    const scPage = new ServiceCounselorPage(officePage);
+    await scPage.signInAsNewServicesCounselorUser();
+    use(scPage);
+  },
+};
+
+export const test = officeTest.extend(scFixtures);
+
+export { expect };
 
 export default ServiceCounselorPage;

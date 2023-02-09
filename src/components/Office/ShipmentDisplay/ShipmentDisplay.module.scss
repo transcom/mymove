@@ -30,6 +30,11 @@
     :global(.usa-tag) {
       @include u-font-size('body', 3xs);
       background-color: $info-light;
+      &.ppmStatus {
+        @include u-font-size('body', 'sm');
+        @include u-margin-left(1);
+        background-color: $base-lightest;
+      }
     }
 
     :global(.usa-tag--red) {
@@ -81,7 +86,6 @@
     @include u-margin-x(3);
     @include u-margin-y(3);
   }
-
 }
 
 .storyBookWrap {

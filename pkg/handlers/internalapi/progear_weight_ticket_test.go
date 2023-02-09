@@ -293,3 +293,155 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
 	})
 }
+
+// DELETE test
+func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
+	// Create Reusable objects
+	progearWeightTicketDeleter := progear.NewProgearWeightTicketDeleter()
+
+	type progearWeightTicketDeleteSubtestData struct {
+		ppmShipment         models.PPMShipment
+		progearWeightTicket models.ProgearWeightTicket
+		params              progearops.DeleteProGearWeightTicketParams
+		handler             DeleteProGearWeightTicketHandler
+	}
+	makeDeleteSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData progearWeightTicketDeleteSubtestData) {
+		db := appCtx.DB()
+
+		// Fake data:
+		subtestData.progearWeightTicket = testdatagen.MakeProgearWeightTicket(db, testdatagen.Assertions{})
+		subtestData.ppmShipment = subtestData.progearWeightTicket.PPMShipment
+		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/pro-gear-weight-tickets/%s", subtestData.ppmShipment.ID.String(), subtestData.progearWeightTicket.ID.String())
+		req := httptest.NewRequest("DELETE", endpoint, nil)
+		if authenticateRequest {
+			req = suite.AuthenticateRequest(req, serviceMember)
+		}
+		subtestData.params = progearops.
+			DeleteProGearWeightTicketParams{
+			HTTPRequest:           req,
+			PpmShipmentID:         *handlers.FmtUUID(subtestData.ppmShipment.ID),
+			ProGearWeightTicketID: *handlers.FmtUUID(subtestData.progearWeightTicket.ID),
+		}
+
+		// Use createS3HandlerConfig for the HandlerConfig because we are required to upload a doc
+		subtestData.handler = DeleteProGearWeightTicketHandler{
+			suite.createS3HandlerConfig(),
+			progearWeightTicketDeleter,
+		}
+
+		return subtestData
+	}
+
+	suite.Run("Successfully Delete Pro-gear Weight Ticket - Integration Test", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, true)
+
+		params := subtestData.params
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&progearops.DeleteProGearWeightTicketNoContent{}, response)
+	})
+
+	suite.Run("DELETE failure - 401 - permission denied - not authenticated", func() {
+		appCtx := suite.AppContextForTest()
+		subtestData := makeDeleteSubtestData(appCtx, false)
+		response := subtestData.handler.Handle(subtestData.params)
+
+		suite.IsType(&progearops.DeleteProGearWeightTicketUnauthorized{}, response)
+	})
+
+	suite.Run("DELETE failure - 403 - permission denied - wrong application / user", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, false)
+
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
+		unauthorizedParams := subtestData.params
+		unauthorizedParams.HTTPRequest = unauthorizedReq
+
+		response := subtestData.handler.Handle(unauthorizedParams)
+
+		suite.IsType(&progearops.DeleteProGearWeightTicketForbidden{}, response)
+	})
+
+	suite.Run("DELETE failure - 403 - permission denied - wrong service member user", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, false)
+
+		otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateRequest(req, otherServiceMember)
+		unauthorizedParams := subtestData.params
+		unauthorizedParams.HTTPRequest = unauthorizedReq
+
+		response := subtestData.handler.Handle(unauthorizedParams)
+
+		suite.IsType(&progearops.DeleteProGearWeightTicketForbidden{}, response)
+	})
+
+	suite.Run("DELETE failure - 404- not found", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, true)
+		params := subtestData.params
+		// Wrong ID provided
+		uuidString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("e392b01d-3b23-45a9-8f98-e4d5b03c8a93"))
+		params.ProGearWeightTicketID = *uuidString
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&progearops.DeleteProGearWeightTicketNotFound{}, response)
+	})
+
+	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and moving expense ID don't match", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, false)
+		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+
+		otherPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{ServiceMemberID: serviceMember.ID},
+		})
+
+		subtestData.params.PpmShipmentID = *handlers.FmtUUID(otherPPMShipment.ID)
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateRequest(req, serviceMember)
+		unauthorizedParams := subtestData.params
+		unauthorizedParams.HTTPRequest = unauthorizedReq
+
+		response := subtestData.handler.Handle(unauthorizedParams)
+		suite.IsType(&progearops.DeleteProGearWeightTicketNotFound{}, response)
+	})
+	suite.Run("DELETE failure - 500 - server error", func() {
+		mockDeleter := mocks.ProgearWeightTicketDeleter{}
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, true)
+		params := subtestData.params
+
+		err := errors.New("ServerError")
+
+		mockDeleter.On("DeleteProgearWeightTicket",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(err)
+
+		// Use createS3HandlerConfig for the HandlerConfig because we are required to upload a doc
+		handler := DeleteProGearWeightTicketHandler{
+			suite.createS3HandlerConfig(),
+			&mockDeleter,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&progearops.DeleteProGearWeightTicketInternalServerError{}, response)
+	})
+}

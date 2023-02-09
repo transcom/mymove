@@ -14,7 +14,10 @@ DB_ENV=test DB_PORT="$DB_PORT_TEST" LOGIN_GOV_CALLBACK_PORT="$CYPRESS_PORT" NO_T
 		--excludeDir vendor --excludeDir node_modules \
     --immediate \
 		--buildArgs "-i" serve &
-npx cypress open || true
+
+# Run cypress with these NODE_OPTIONS for compatibility between our older cypress 8.x and node 18
+# (which uses openssl 3.x). This is a temporary fix until playwright replaces cypress.
+NODE_OPTIONS=--openssl-legacy-provider npx cypress open || true
 
 # Terminate the background webserver
 kill %1

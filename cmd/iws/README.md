@@ -11,7 +11,7 @@ service members.
 The way to use this code is:
 
 ```sh
-$ bin/iws -dod_ca_package config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b -ssn 666585049 -last "Escudero OCampo"
+$ bin/iws -dod_ca_package config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b -ssn 666585049 -last "Escudero OCampo"
 Identity Web Services: Real-Time Broker Service (REST)
 Host: pkict.dmdc.osd.mil
 Operation: pids-P

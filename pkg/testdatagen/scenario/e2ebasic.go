@@ -4354,9 +4354,40 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createApprovedMoveWithPPMMovingExpense(appCtx, &MoveCreatorInfo{UserID: uuid.FromStringOrNil("da65c290-6256-46db-a1a0-3779191638a2"), Email: "movingExpensePPM2@ppm.approved", MoveLocator: "EXPNS2"}, userUploader)
 	createMoveWithPPMShipmentReadyForFinalCloseout2(appCtx, userUploader)
 	createMoveWithPPMShipmentReadyForFinalCloseout3(appCtx, userUploader)
-	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
-	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMADD")
-	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSCF")
+
+	CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter,
+		MoveCreatorInfo{
+			UserID:      uuid.Must(uuid.NewV4()),
+			Email:       "complete@ppm.submitted",
+			FirstName:   "PPMSC",
+			LastName:    "Submitted",
+			SmID:        uuid.Must(uuid.NewV4()),
+			MoveLocator: "PPMSC1",
+			MoveID:      uuid.Must(uuid.NewV4()),
+		},
+	)
+	CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter,
+		MoveCreatorInfo{
+			UserID:      uuid.Must(uuid.NewV4()),
+			Email:       "complete@ppm.submitted",
+			FirstName:   "PPMSC",
+			LastName:    "Submitted",
+			SmID:        uuid.Must(uuid.NewV4()),
+			MoveLocator: "PPMADD",
+			MoveID:      uuid.Must(uuid.NewV4()),
+		},
+	)
+	CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter,
+		MoveCreatorInfo{
+			UserID:      uuid.Must(uuid.NewV4()),
+			Email:       "complete@ppm.submitted",
+			FirstName:   "PPMSC",
+			LastName:    "Submitted",
+			SmID:        uuid.Must(uuid.NewV4()),
+			MoveLocator: "PPMSCF",
+			MoveID:      uuid.Must(uuid.NewV4()),
+		},
+	)
 	createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx, userUploader, moveRouter, "PPMSIT")
 
 	// TIO

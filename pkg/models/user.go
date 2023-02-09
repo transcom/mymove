@@ -196,7 +196,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 				ou.middle_initials AS ou_middle
 			FROM office_users as ou
 			JOIN users on ou.user_id = users.id
-			ORDER BY users.created_at LIMIT $1`
+			ORDER BY users.created_at DESC LIMIT $1`
 	case auth.AdminApp:
 		query = `SELECT users.id,
 				users.login_gov_email AS email,
@@ -207,7 +207,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 				au.last_name AS au_lname
 			FROM admin_users as au
 			JOIN users on au.user_id = users.id
-			ORDER BY users.created_at LIMIT $1`
+			ORDER BY users.created_at DESC LIMIT $1`
 	default:
 		query = `SELECT users.id,
 				users.login_gov_email AS email,
@@ -219,7 +219,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 			FROM service_members as sm
 			JOIN users on sm.user_id = users.id
 			WHERE users.login_gov_email != 'first.last@login.gov.test'
-			ORDER BY users.created_at LIMIT $1`
+			ORDER BY users.created_at DESC LIMIT $1`
 	}
 
 	err := db.RawQuery(query, limit).All(&identities)

@@ -1,0 +1,11 @@
+description: All documents associated with a PPM shipment, including weight tickets, progear weight tickets, and moving expenses.
+x-nullable: true
+x-omitempty: false
+type: object
+properties:
+  WeightTickets:
+    $ref: 'WeightTickets.yaml'
+  ProGearWeightTickets:
+    $ref: 'ProGearWeightTickets.yaml'
+  MovingExpenses:
+    $ref: 'MovingExpenses.yaml'

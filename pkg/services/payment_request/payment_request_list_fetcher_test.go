@@ -471,17 +471,21 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.PreloadData(func() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTIO})
 
-		originDutyLocation1 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-			DutyLocation: models.DutyLocation{
-				Name: "Applewood, CA 99999",
+		originDutyLocation1 := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Applewood, CA 99999",
+				},
 			},
-		})
+		}, nil)
 
-		originDutyLocation2 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-			DutyLocation: models.DutyLocation{
-				Name: "Scott AFB",
+		originDutyLocation2 := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Scott AFB",
+				},
 			},
-		})
+		}, nil)
 
 		expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			ServiceMember: models.ServiceMember{

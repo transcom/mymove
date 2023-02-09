@@ -63,7 +63,7 @@ var ppmMoveType = models.SelectedMoveTypePPM
 var tioRemarks = "New billable weight set"
 
 // Closeout offices populated via migrations, this is the ID of one with the name 'Base Ketchikan'
-var defaultCloseoutOfficeID = uuid.FromStringOrNil("4afd7912-5cb5-4a90-a85d-ec72b436380e")
+var DefaultCloseoutOfficeID = uuid.FromStringOrNil("4afd7912-5cb5-4a90-a85d-ec72b436380e")
 
 // fully public to facilitate reuse outside of this package
 type MoveCreatorInfo struct {
@@ -130,7 +130,7 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo MoveCrea
 	move := testdatagen.MakeMove(appCtx.DB(), moveAssertions)
 
 	if *smWithPPM.Affiliation == models.AffiliationARMY || *smWithPPM.Affiliation == models.AffiliationAIRFORCE {
-		move.CloseoutOfficeID = &defaultCloseoutOfficeID
+		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
 
@@ -321,7 +321,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	})
 
 	if *smWithCombo.Affiliation == models.AffiliationARMY || *smWithCombo.Affiliation == models.AffiliationAIRFORCE {
-		move.CloseoutOfficeID = &defaultCloseoutOfficeID
+		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
 
@@ -446,7 +446,7 @@ func createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appconte
 		LastName:         "PPM",
 		MoveID:           testdatagen.ConvertUUIDStringToUUID("e89a7018-be76-449a-b99b-e30a09c485dc"),
 		MoveLocator:      "PPMEWH",
-		CloseoutOfficeID: &defaultCloseoutOfficeID,
+		CloseoutOfficeID: &DefaultCloseoutOfficeID,
 	}
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -530,7 +530,7 @@ func createUnSubmittedMoveWithFullPPMShipment2(appCtx appcontext.AppContext, use
 		LastName:         "PPM",
 		MoveID:           testdatagen.ConvertUUIDStringToUUID("b122621c-8577-4b3f-a392-4ade43169fe9"),
 		MoveLocator:      "PPMHPE",
-		CloseoutOfficeID: &defaultCloseoutOfficeID,
+		CloseoutOfficeID: &DefaultCloseoutOfficeID,
 	}
 
 	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
@@ -562,7 +562,7 @@ func createUnSubmittedMoveWithFullPPMShipment3(appCtx appcontext.AppContext, use
 		LastName:         "PPM",
 		MoveID:           testdatagen.ConvertUUIDStringToUUID("4d0aa509-e6ee-4757-ad14-368e334fc51f"),
 		MoveLocator:      "PPMHPM",
-		CloseoutOfficeID: &defaultCloseoutOfficeID,
+		CloseoutOfficeID: &DefaultCloseoutOfficeID,
 	}
 
 	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
@@ -694,7 +694,7 @@ func createApprovedMoveWithPPM2(appCtx appcontext.AppContext, userUploader *uplo
 		UserUploader: userUploader,
 		Move: models.Move{
 			Status:           models.MoveStatusAPPROVED,
-			CloseoutOfficeID: &defaultCloseoutOfficeID,
+			CloseoutOfficeID: &DefaultCloseoutOfficeID,
 		},
 		MTOShipment: models.MTOShipment{
 			ID:     testdatagen.ConvertUUIDStringToUUID("ef256d30-a6e7-4be8-8a60-b4ffb7dc7a7f"),
@@ -1771,12 +1771,12 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		},
 	}, nil)
 
-	newDutyLocation := testdatagen.MakeDutyLocation(appCtx.DB(), testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			AddressID: address.ID,
-			Address:   address,
+	newDutyLocation := factory.BuildDutyLocation(appCtx.DB(), []factory.Customization{
+		{
+			Model:    address,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
@@ -1797,7 +1797,7 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 	})
 
 	if branch == models.AffiliationARMY || branch == models.AffiliationAIRFORCE {
-		move.CloseoutOfficeID = &defaultCloseoutOfficeID
+		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
 
@@ -1868,7 +1868,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 	})
 
 	if branch == models.AffiliationARMY || branch == models.AffiliationAIRFORCE {
-		move.CloseoutOfficeID = &defaultCloseoutOfficeID
+		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
 
@@ -1953,7 +1953,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 	})
 
 	if branch == models.AffiliationARMY || branch == models.AffiliationAIRFORCE {
-		move.CloseoutOfficeID = &defaultCloseoutOfficeID
+		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
 
@@ -2038,7 +2038,7 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 	})
 
 	if branch == models.AffiliationARMY || branch == models.AffiliationAIRFORCE {
-		move.CloseoutOfficeID = &defaultCloseoutOfficeID
+		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
 
@@ -2166,28 +2166,27 @@ func createMovesForEachBranch(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
-func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, locator string) {
-	userID := uuid.Must(uuid.NewV4())
-	email := "complete@ppm.submitted"
+func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, moveInfo MoveCreatorInfo) models.Move {
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            userID,
+				ID:            moveInfo.UserID,
 				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
+				LoginGovEmail: moveInfo.Email,
 				Active:        true,
 			}},
 	}, nil)
 
 	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			UserID:        userID,
-			FirstName:     models.StringPointer("PPMSC"),
-			LastName:      models.StringPointer("Submitted"),
-			PersonalEmail: models.StringPointer(email),
+			ID:            moveInfo.SmID,
+			UserID:        moveInfo.UserID,
+			FirstName:     models.StringPointer(moveInfo.FirstName),
+			LastName:      models.StringPointer(moveInfo.LastName),
+			PersonalEmail: models.StringPointer(moveInfo.Email),
 		},
 	})
 
@@ -2198,7 +2197,8 @@ func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 		},
 		UserUploader: userUploader,
 		Move: models.Move{
-			Locator:          locator,
+			ID:               moveInfo.MoveID,
+			Locator:          moveInfo.MoveLocator,
 			SelectedMoveType: &ppmMoveType,
 			Status:           models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt:      &submittedAt,
@@ -2206,7 +2206,7 @@ func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 	})
 
 	if *smWithPPM.Affiliation == models.AffiliationARMY || *smWithPPM.Affiliation == models.AffiliationAIRFORCE {
-		move.CloseoutOfficeID = &defaultCloseoutOfficeID
+		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
 	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
@@ -2229,10 +2229,11 @@ func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
 		SignedCertification: models.SignedCertification{
 			MoveID:           move.ID,
-			SubmittingUserID: userID,
+			SubmittingUserID: moveInfo.UserID,
 		},
 	})
 
+	return move
 }
 
 func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, locator string) {
@@ -2272,12 +2273,12 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 			SelectedMoveType: &ppmMoveType,
 			Status:           models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt:      &submittedAt,
-			CloseoutOfficeID: &defaultCloseoutOfficeID,
+			CloseoutOfficeID: &DefaultCloseoutOfficeID,
 		},
 	})
 
 	if *smWithPPM.Affiliation == models.AffiliationARMY || *smWithPPM.Affiliation == models.AffiliationAIRFORCE {
-		move.CloseoutOfficeID = &defaultCloseoutOfficeID
+		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
 
@@ -2326,7 +2327,7 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx appcontext
 		LastName:         "Complete",
 		MoveID:           testdatagen.ConvertUUIDStringToUUID("d94789bb-f8f7-4b5f-b86e-48503af70bfc"),
 		MoveLocator:      "MULTI1",
-		CloseoutOfficeID: &defaultCloseoutOfficeID,
+		CloseoutOfficeID: &DefaultCloseoutOfficeID,
 	}
 
 	assertions := testdatagen.Assertions{
@@ -2357,7 +2358,7 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete2(appCtx appcontext
 		LastName:         "Complete2",
 		MoveID:           testdatagen.ConvertUUIDStringToUUID("839f893c-1c72-44e9-8544-298a19f1229a"),
 		MoveLocator:      "MULTI2",
-		CloseoutOfficeID: &defaultCloseoutOfficeID,
+		CloseoutOfficeID: &DefaultCloseoutOfficeID,
 	}
 
 	assertions := testdatagen.Assertions{
@@ -2414,7 +2415,7 @@ func createSubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext
 	})
 
 	if *smWithPPM.Affiliation == models.AffiliationARMY || *smWithPPM.Affiliation == models.AffiliationAIRFORCE {
-		move.CloseoutOfficeID = &defaultCloseoutOfficeID
+		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
 
@@ -7279,12 +7280,12 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 		},
 	}, nil)
 
-	newDutyLocation := testdatagen.MakeDutyLocation(db, testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			AddressID: address.ID,
-			Address:   address,
+	newDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
+		{
+			Model:    address,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 
 	order := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
@@ -7398,7 +7399,7 @@ func createNeedsServicesCounselingWithoutCompletedOrders(appCtx appcontext.AppCo
 	})
 
 	if *orders.ServiceMember.Affiliation == models.AffiliationARMY || *orders.ServiceMember.Affiliation == models.AffiliationAIRFORCE {
-		move.CloseoutOfficeID = &defaultCloseoutOfficeID
+		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
 

@@ -175,14 +175,17 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.PpmCreateMovingExpenseHandler = CreateMovingExpenseHandler{handlerConfig, movingexpense.NewMovingExpenseCreator()}
 	internalAPI.PpmUpdateMovingExpenseHandler = UpdateMovingExpenseHandler{handlerConfig, movingexpense.NewCustomerMovingExpenseUpdater()}
+	internalAPI.PpmDeleteMovingExpenseHandler = DeleteMovingExpenseHandler{handlerConfig, movingexpense.NewMovingExpenseDeleter()}
 
 	internalAPI.PpmCreateWeightTicketHandler = CreateWeightTicketHandler{handlerConfig, weightticket.NewCustomerWeightTicketCreator()}
 
 	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
 	internalAPI.PpmUpdateWeightTicketHandler = UpdateWeightTicketHandler{handlerConfig, weightticket.NewCustomerWeightTicketUpdater(weightTicketFetcher, ppmShipmentUpdater)}
+	internalAPI.PpmDeleteWeightTicketHandler = DeleteWeightTicketHandler{handlerConfig, weightticket.NewWeightTicketDeleter(weightTicketFetcher, ppmEstimator)}
 
 	internalAPI.PpmCreateProGearWeightTicketHandler = CreateProGearWeightTicketHandler{handlerConfig, progear.NewCustomerProgearWeightTicketCreator()}
 	internalAPI.PpmUpdateProGearWeightTicketHandler = UpdateProGearWeightTicketHandler{handlerConfig, progear.NewCustomerProgearWeightTicketUpdater()}
+	internalAPI.PpmDeleteProGearWeightTicketHandler = DeleteProGearWeightTicketHandler{handlerConfig, progear.NewProgearWeightTicketDeleter()}
 
 	internalAPI.PpmCreatePPMUploadHandler = CreatePPMUploadHandler{handlerConfig}
 

@@ -7,6 +7,10 @@ const { devices } = require('@playwright/test');
  */
 // require('dotenv').config();
 
+// mac arm machines are much faster than x86 and can handle more
+// workers without increasing flakiness
+const defaultWorkers = process.arch.startsWith('arm') ? 4 : 2;
+
 /**
  * @see https://playwright.dev/docs/test-configuration
  * @type {import('@playwright/test').PlaywrightTestConfig}
@@ -28,8 +32,8 @@ const config = {
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Opt out of parallel tests on CI, but default workers based on arch */
+  workers: process.env.CI ? 1 : defaultWorkers,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [['html', { outputFolder: 'playwright/html-report' }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -50,7 +54,7 @@ const config = {
       name: 'admin',
       testMatch: 'admin/**/*',
       use: {
-        baseURL: process.env.PLAYWRIGHT_ADMIN_URL || 'http://adminlocal:4000',
+        baseURL: process.env.PLAYWRIGHT_ADMIN_URL || 'http://adminlocal:3000',
         ...devices['Desktop Chrome'],
       },
     },
@@ -60,7 +64,7 @@ const config = {
       name: 'my',
       testMatch: 'my/**/*',
       use: {
-        baseURL: process.env.PLAYWRIGHT_MY_URL || 'http://milmovelocal:4000',
+        baseURL: process.env.PLAYWRIGHT_MY_URL || 'http://milmovelocal:3000',
         ...devices['Desktop Chrome'],
       },
     },
@@ -69,7 +73,7 @@ const config = {
       name: 'office',
       testMatch: 'office/**/*',
       use: {
-        baseURL: process.env.PLAYWRIGHT_OFFICE_URL || 'http://officelocal:4000',
+        baseURL: process.env.PLAYWRIGHT_OFFICE_URL || 'http://officelocal:3000',
         ...devices['Desktop Chrome'],
       },
     },
