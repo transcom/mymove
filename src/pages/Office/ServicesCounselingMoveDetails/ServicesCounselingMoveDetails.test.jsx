@@ -3,6 +3,7 @@ import React from 'react';
 import { generatePath } from 'react-router';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { debug } from 'jest-preview';
 
 import ServicesCounselingMoveDetails from './ServicesCounselingMoveDetails';
 
@@ -307,7 +308,7 @@ const ppmShipmentQuery = {
     {
       customerRemarks: 'Please treat gently',
       eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMTc4MVo=',
-      id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+      id: 'e33a1a7b-530f-4df4-b947-d3d719786385',
       moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
       ppmShipment: {
         actualDestinationPostalCode: null,
@@ -335,7 +336,7 @@ const ppmShipmentQuery = {
         reviewedAt: null,
         secondaryDestinationPostalCode: '30814',
         secondaryPickupPostalCode: '90211',
-        shipmentId: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+        shipmentId: 'e33a1a7b-530f-4df4-b947-d3d719786385',
         sitEstimatedCost: null,
         sitEstimatedDepartureDate: null,
         sitEstimatedEntryDate: null,
@@ -561,6 +562,15 @@ describe('MoveDetails page', () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
       render(mockedComponent);
       expect(screen.getAllByRole('button', { name: 'Review documents' }).length).toBe(2);
+    });
+
+    it('shows an error if there is an advance requested and no advance status for a PPM shipment', async () => {
+      useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
+      render(mockedComponent);
+
+      debug();
+      const advanceStatusElement = screen.getAllByTestId('advanceRequestStatus')[0];
+      expect(advanceStatusElement.parentElement).toHaveClass('missingInfoError');
     });
 
     it('renders shipments info even if destination address is missing', async () => {

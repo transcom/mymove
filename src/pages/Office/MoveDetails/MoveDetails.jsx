@@ -30,10 +30,20 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
+import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 
 const errorIfMissing = {
-  HHG_INTO_NTS_DOMESTIC: ['storageFacility', 'serviceOrderNumber', 'tacType'],
-  HHG_OUTOF_NTS_DOMESTIC: ['storageFacility', 'ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
+  HHG_INTO_NTS_DOMESTIC: [
+    { fieldName: 'storageFacility' },
+    { fieldName: 'serviceOrderNumber' },
+    { fieldName: 'tacType' },
+  ],
+  HHG_OUTOF_NTS_DOMESTIC: [
+    { fieldName: 'storageFacility' },
+    { fieldName: 'ntsRecordedWeight' },
+    { fieldName: 'serviceOrderNumber' },
+    { fieldName: 'tacType' },
+  ],
 };
 
 const MoveDetails = ({
@@ -59,10 +69,10 @@ const MoveDetails = ({
 
   if (isRetirementOrSeparation) {
     // destination type must be set for for HHG, NTSR shipments only
-    errorIfMissing.HHG = ['destinationType'];
-    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push('destinationType');
-    errorIfMissing.HHG_SHORTHAUL_DOMESTIC = ['destinationType'];
-    errorIfMissing.HHG_LONGHAUL_DOMESTIC = ['destinationType'];
+    errorIfMissing.HHG = [{ fieldName: 'destinationType' }];
+    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push({ fieldName: 'destinationType' });
+    errorIfMissing.HHG_SHORTHAUL_DOMESTIC = [{ fieldName: 'destinationType' }];
+    errorIfMissing.HHG_LONGHAUL_DOMESTIC = [{ fieldName: 'destinationType' }];
   }
 
   let sections = useMemo(() => {
@@ -191,8 +201,8 @@ const MoveDetails = ({
 
     mtoShipments?.forEach((mtoShipment) => {
       const fieldsToCheckForShipment = errorIfMissing[mtoShipment.shipmentType];
-      const existsMissingFieldsOnShipment = fieldsToCheckForShipment?.some(
-        (field) => !mtoShipment[field] || mtoShipment[field] === '',
+      const existsMissingFieldsOnShipment = fieldsToCheckForShipment?.some((field) =>
+        objectIsMissingFieldWithCondition(mtoShipment, field),
       );
 
       // If there were no fields to check, then nothing was required.

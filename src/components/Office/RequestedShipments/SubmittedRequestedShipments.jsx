@@ -19,6 +19,7 @@ import { shipmentTypeLabels } from 'content/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import { ShipmentShape } from 'types/shipment';
+import { fieldValidationShape } from 'utils/displayFlags';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
@@ -290,7 +291,7 @@ SubmittedRequestedShipments.propTypes = {
   missingRequiredOrdersInfo: PropTypes.bool,
   moveCode: PropTypes.string.isRequired,
   handleAfterSuccess: PropTypes.func,
-  errorIfMissing: PropTypes.shape({}),
+  errorIfMissing: PropTypes.objectOf(PropTypes.arrayOf(fieldValidationShape)),
   displayDestinationType: PropTypes.bool,
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
 };
