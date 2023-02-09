@@ -70,5 +70,7 @@ func (w *WeightTicket) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Name: "ProofOfTrailerOwnershipDocumentID", Field: w.ProofOfTrailerOwnershipDocumentID},
 		&OptionalStringInclusion{Name: "Status", Field: (*string)(w.Status), List: AllowedPPMDocumentStatuses},
 		&StringIsNilOrNotBlank{Name: "Reason", Field: w.Reason},
+		&OptionalPoundIsNonNegative{Name: "AdjustedNetWeight", Field: w.AdjustedNetWeight},
+		&StringIsNilOrNotBlank{Name: "NetWeightRemarks", Field: w.NetWeightRemarks},
 	), nil
 }
