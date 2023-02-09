@@ -29,6 +29,7 @@ func (suite *FactorySuite) TestBuildOfficeUser() {
 		suite.Equal(defaultUserEmail, officeUser.User.LoginGovEmail)
 		suite.False(officeUser.User.Active)
 		suite.Equal(defaultOffice.FirstName, officeUser.FirstName)
+		suite.Nil(officeUser.MiddleInitials)
 		suite.Equal(defaultOffice.LastName, officeUser.LastName)
 		suite.Equal(defaultOffice.Email, officeUser.Email)
 		suite.Equal(defaultOffice.Telephone, officeUser.Telephone)
@@ -57,9 +58,12 @@ func (suite *FactorySuite) TestBuildOfficeUser() {
 		// Set up:          Create an officeUser and pass in specified emails
 		// Expected outcome:officeUser and User should be created with specified emails
 		customOffice := models.OfficeUser{
-			Email:     "mycustom@example.com",
-			FirstName: "Jason",
-			LastName:  "Ash",
+			Email:          "mycustom@example.com",
+			FirstName:      "Jason",
+			MiddleInitials: models.StringPointer("M"),
+			LastName:       "Ash",
+			Telephone:      "555-555-5555",
+			Active:         true,
 		}
 		transportationOffice := models.TransportationOffice{
 			Name:  "Test transportaion office",
@@ -77,7 +81,10 @@ func (suite *FactorySuite) TestBuildOfficeUser() {
 		}, nil)
 		suite.Equal(customEmail, officeUser.User.LoginGovEmail)
 		suite.Equal(customOffice.Email, officeUser.Email)
+		suite.Equal(customOffice.Telephone, officeUser.Telephone)
+		suite.Equal(customOffice.Active, officeUser.Active)
 		suite.Equal(customOffice.FirstName, officeUser.FirstName)
+		suite.Equal(customOffice.MiddleInitials, officeUser.MiddleInitials)
 		suite.Equal(customOffice.LastName, officeUser.LastName)
 		suite.Equal(transportationOffice.Name, officeUser.TransportationOffice.Name)
 		suite.Equal(transportationOffice.Gbloc, officeUser.TransportationOffice.Gbloc)
@@ -237,7 +244,7 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 	suite.Run("Successful creation of OfficeUser with multiple roles using BuildOfficeUserWithRoles", func() {
 		// Under test:       BuildOfficeUserWithRoles
 		// Set up:           Use BuildOfficeUserWithRoles helper function to create
-		//					 an OfficeUser with multiple role
+		//					 an OfficeUser with multiple roles
 		// Expected outcome: officeUser and User should be returned as expected
 		precountRoles, err := suite.DB().Count(&roles.Role{})
 		suite.NoError(err)

@@ -16,7 +16,7 @@ import (
 // Also creates, if not provided
 //   - User
 //   - TransportationOffice
-//   - calls BuildOfficeUserWithRoles which creates Roles and UsersRoles
+//   - calls BuildUserAndUsersRoles which creates Roles and UsersRoles
 //
 // Params:
 // - customs is a slice that will be modified by the factory
@@ -132,7 +132,7 @@ func GetTraitOfficeUserEmail() []Customization {
 	}
 }
 
-// GetTraitOfficeUserWithID helps check session auths by creating a UUID even if db is nil
+// GetTraitOfficeUserWithID adds a UUID to the record regardless of whether it's stubbed or not
 func GetTraitOfficeUserWithID() []Customization {
 	return []Customization{
 		{
