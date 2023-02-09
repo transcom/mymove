@@ -702,7 +702,7 @@ const ShipmentForm = (props) => {
                   <ShipmentAccountingCodes
                     TACs={TACs}
                     SACs={SACs}
-                    onEditCodesClick={() => navigate(`../${editOrdersPath}`)}
+                    onEditCodesClick={() => navigate(`../../${editOrdersPath}`, { relative: 'path' })}
                     optional={isServiceCounselor}
                   />
                 )}
