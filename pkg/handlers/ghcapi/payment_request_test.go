@@ -39,7 +39,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 			},
 		})
 
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 			RoleType: roles.RoleTypeTIO,
 		})
@@ -126,7 +126,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 	var moveLocator string
 
 	setupTestData := func() (models.PaymentServiceItemParam, models.OfficeUser) {
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 		moveLocator = move.Locator
@@ -568,9 +568,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 
 	setupTestData := func() models.OfficeUser {
-		officeUserTIO := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTIO,
-		})
+		officeUserTIO := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
 		return officeUserTIO
 	}
 

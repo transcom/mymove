@@ -12,7 +12,7 @@ import (
 
 func (suite *CustomerSupportRemarksSuite) setupTestData() (models.CustomerSupportRemarks, models.Move) {
 
-	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
 	var customerSupportRemarks models.CustomerSupportRemarks
@@ -35,7 +35,7 @@ func (suite *CustomerSupportRemarksSuite) setupTestDataMultipleUsers() (models.C
 	var officeUsers models.OfficeUsers
 	var customerSupportRemarks models.CustomerSupportRemarks
 	for i := 0; i < 3; i++ {
-		officeUsers = append(officeUsers, factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO}))
+		officeUsers = append(officeUsers, factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO}))
 		for x := 0; x < 2; x++ {
 			remark := testdatagen.MakeCustomerSupportRemark(suite.DB(),
 				testdatagen.Assertions{
@@ -81,7 +81,7 @@ func (suite *CustomerSupportRemarksSuite) TestCustomerSupportRemarksListFetcher(
 	})
 
 	suite.Run("Soft deleted remarks should not be returned", func() {
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		remark := testdatagen.MakeCustomerSupportRemark(suite.DB(),
 			testdatagen.Assertions{

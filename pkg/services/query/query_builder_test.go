@@ -63,8 +63,8 @@ func (suite *QueryBuilderSuite) TestFetchOne() {
 
 	suite.Run("fetches one with filter", func() {
 		// create extra record to make sure we filter
-		user := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
-		user2 := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		user2 := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		filters := []services.QueryFilter{
 			NewQueryFilter("id", equals, user.ID.String()),
 		}
@@ -143,8 +143,8 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		// Mocked: None
 		// Set up: Create 2 users, fetch based on first ID, fetch based on second ID
 		// Expected outcome: Each search returns the single matching record
-		user := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
-		user2 := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		user2 := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		filters := []services.QueryFilter{
 			NewQueryFilter("id", equals, user2.ID.String()),
@@ -176,8 +176,8 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		//			than that recorded for first user
 		// Expected outcome: Fetch returns the single matching record
 
-		user := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
-		user2 := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		user2 := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		filters := []services.QueryFilter{
 			NewQueryFilter("created_at", greaterThan, user.CreatedAt),
@@ -196,7 +196,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		// Mocked: None
 		// Set up: Create 2 users, search for all users with email including something.com
 		// Expected outcome: Expect to find 1 of the 2 users
-		factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		factory.BuildOfficeUser(suite.DB(), []factory.Customization{
 			{Model: models.OfficeUser{
 				Email: "email@something.com",
@@ -220,8 +220,8 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		// Mocked: None
 		// Set up: Create 2 users, search with sort order by created_at, descending
 		// Expected outcome: Expect that they will be returned sorted by created_at
-		factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
-		factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		filters := []services.QueryFilter{}
 		order, sort := "created_at", false
@@ -247,8 +247,8 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		order, sort := "created_at", true
 		ordering := NewQueryOrder(&order, &sort)
 
-		factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
-		factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		var actualUsers models.OfficeUsers
 
@@ -266,8 +266,8 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		// Set up: Create 2 users, search for a fake column
 		// Expected outcome: Expect an error related to the fake column
 
-		user := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
-		factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		var actualUsers models.OfficeUsers
 		filters := []services.QueryFilter{
@@ -287,8 +287,8 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		// Set up: Create 2 users, search for users using invalid id *
 		// Expected outcome: Expect error about the invalid id
 
-		user := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
-		factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		var actualUsers models.OfficeUsers
 		filters := []services.QueryFilter{
@@ -424,8 +424,8 @@ func (suite *QueryBuilderSuite) TestCount() {
 	builder := NewQueryBuilder()
 
 	suite.Run("counts with uuid filter", func() {
-		user := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
-		user2 := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		user2 := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		filters := []services.QueryFilter{
 			NewQueryFilter("id", equals, user2.ID.String()),
 		}
@@ -447,8 +447,8 @@ func (suite *QueryBuilderSuite) TestCount() {
 	})
 
 	suite.Run("counts with time filter", func() {
-		user := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
-		factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeQaeCsr})
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 		filters := []services.QueryFilter{
 			NewQueryFilter("created_at", greaterThan, user.CreatedAt),
 		}
@@ -459,7 +459,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 	})
 
 	suite.Run("fails with invalid column", func() {
-		user := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		filters := []services.QueryFilter{
 			NewQueryFilter("fake_column", equals, user.ID.String()),

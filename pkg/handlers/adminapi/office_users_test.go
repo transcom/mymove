@@ -28,8 +28,8 @@ import (
 func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 	setupTestData := func() models.OfficeUsers {
 		return models.OfficeUsers{
-			factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeQaeCsr}),
-			factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeQaeCsr}),
+			factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr}),
+			factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr}),
 		}
 	}
 
@@ -89,7 +89,7 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 		// Test:				GetOfficeUserHandler, Fetcher
 		// Set up:				Provide a valid req with the office user ID to the endpoint
 		// Expected Outcome:	The office user is returned and we get a 200 OK.
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		params := officeuserop.GetOfficeUserParams{
 			HTTPRequest:  suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/office_users/%s", officeUser.ID)),
 			OfficeUserID: strfmt.UUID(officeUser.ID.String()),

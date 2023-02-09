@@ -27,7 +27,7 @@ func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
 
 		fetcher := remarksservice.NewCustomerSupportRemarks()
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		expectedCustomerSupportRemark := testdatagen.MakeCustomerSupportRemark(suite.DB(), testdatagen.Assertions{
 			CustomerSupportRemark: models.CustomerSupportRemark{
 				Content:      "This is a customer support remark.",
@@ -93,7 +93,7 @@ func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
 func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 	suite.Run("Successful POST", func() {
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		handlerConfig := suite.HandlerConfig()
 
 		creator := &mocks.CustomerSupportRemarksCreator{}
@@ -193,7 +193,7 @@ func (suite *HandlerSuite) TestUpdateCustomerSupportRemarksHandler() {
 
 		updater := mocks.CustomerSupportRemarkUpdater{}
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		originalRemark := testdatagen.MakeCustomerSupportRemark(suite.DB(), testdatagen.Assertions{
 			CustomerSupportRemark: models.CustomerSupportRemark{
 				Content:      "This is a customer support remark.",

@@ -32,10 +32,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
-	officeUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-		factory.GetTraitOfficeUserTOO,
-		factory.GetTraitOfficeUserWithID,
-	})
+	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
@@ -272,7 +269,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 
 		order := move.Orders
 
-		requestUser := factory.BuildOfficeUserWithRoles(nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		body := &ghcmessages.UpdateOrderPayload{
@@ -350,7 +347,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		amendedOrder := subtestData.amendedOrder
 		approvalsRequestedMove := subtestData.approvalsRequestedMove
 
-		requestUser := factory.BuildOfficeUserWithRoles(nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		unacknowledgedOrders := false
@@ -410,7 +407,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		destinationDutyLocation := order.NewDutyLocation
 		originDutyStation := order.OriginDutyLocation
 
-		requestUser := factory.BuildOfficeUserWithRoles(nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		unacknowledgedOrders := false
@@ -508,7 +505,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUserWithRoles(nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateOrderParams{
@@ -564,10 +561,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTIO,
-			factory.GetTraitOfficeUserWithID,
-		})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateOrderParams{
@@ -605,10 +599,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserWithID,
-		})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateOrderParams{
@@ -646,10 +637,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserWithID,
-		})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateOrderParams{
@@ -687,10 +675,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserWithID,
-		})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateOrderParams{
@@ -730,10 +715,7 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 
 	body := &ghcmessages.UpdateOrderPayload{}
 
-	requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-		factory.GetTraitOfficeUserTOO,
-		factory.GetTraitOfficeUserWithID,
-	})
+	requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -816,7 +798,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUserWithRoles(nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateOrderParams{
@@ -863,7 +845,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateOrderParams{
@@ -900,7 +882,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateOrderParams{
@@ -937,7 +919,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateOrderParams{
@@ -1058,7 +1040,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUserWithRoles(nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateAllowanceParams{
@@ -1105,10 +1087,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserWithID,
-		})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateAllowanceParams{
@@ -1145,10 +1124,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserWithID,
-		})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateAllowanceParams{
@@ -1185,10 +1161,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserWithID,
-		})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateAllowanceParams{
@@ -1227,10 +1200,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 
 	body := &ghcmessages.UpdateAllowancePayload{}
 
-	requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-		factory.GetTraitOfficeUserTOO,
-		factory.GetTraitOfficeUserWithID,
-	})
+	requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1299,7 +1269,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
-		requestUser := factory.BuildOfficeUserWithRoles(nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateAllowanceParams{
@@ -1344,7 +1314,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateAllowanceParams{
@@ -1380,7 +1350,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateAllowanceParams{
@@ -1416,7 +1386,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor, factory.GetTraitOfficeUserWithID})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateAllowanceParams{
@@ -1457,7 +1427,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUserWithRoles(nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateMaxBillableWeightAsTIOParams{
@@ -1496,10 +1466,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTIO,
-			factory.GetTraitOfficeUserWithID,
-		})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateMaxBillableWeightAsTIOParams{
@@ -1538,10 +1505,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTIO,
-			factory.GetTraitOfficeUserWithID,
-		})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateMaxBillableWeightAsTIOParams{
@@ -1580,10 +1544,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTIO,
-			factory.GetTraitOfficeUserWithID,
-		})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateMaxBillableWeightAsTIOParams{
@@ -1629,7 +1590,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUserWithRoles(nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateBillableWeightParams{
@@ -1668,10 +1629,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserWithID,
-		})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateBillableWeightParams{
@@ -1709,10 +1667,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserWithID,
-		})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateBillableWeightParams{
@@ -1750,10 +1705,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserWithID,
-		})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateBillableWeightParams{
@@ -1796,10 +1748,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightEventTrigger() {
 	body := subtestData.body
 	move := subtestData.move
 
-	requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-		factory.GetTraitOfficeUserTOO,
-		factory.GetTraitOfficeUserWithID,
-	})
+	requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/update-billable-weight", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1854,7 +1803,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		})
 		order := move.Orders
 
-		requestUser := factory.BuildOfficeUserWithRoles(nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.AcknowledgeExcessWeightRiskParams{
@@ -1893,10 +1842,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		})
 		order := move.Orders
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserWithID,
-		})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.AcknowledgeExcessWeightRiskParams{
@@ -1933,10 +1879,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		})
 		order := move.Orders
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserWithID,
-		})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.AcknowledgeExcessWeightRiskParams{
@@ -1973,10 +1916,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		})
 		order := move.Orders
 
-		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-			factory.GetTraitOfficeUserTOO,
-			factory.GetTraitOfficeUserWithID,
-		})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.AcknowledgeExcessWeightRiskParams{
@@ -2017,10 +1957,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskEventTrigger() {
 	})
 	order := move.Orders
 
-	requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
-		factory.GetTraitOfficeUserTOO,
-		factory.GetTraitOfficeUserWithID,
-	})
+	requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 	request := httptest.NewRequest("POST", "/orders/{orderID}/acknowledge-excess-weight-risk", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
 

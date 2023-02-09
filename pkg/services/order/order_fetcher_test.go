@@ -71,7 +71,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 	agfmPostalCode := "06001"
 	setupTestData := func() (models.OfficeUser, models.Move) {
 		// Make an office user → GBLOC X
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 		// Create a move with a shipment → GBLOC X
@@ -449,7 +449,7 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 			},
 		}, nil)
 		// Create office user tied to the default KKFA GBLOC
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserOooRah.ID, &params)
@@ -472,13 +472,13 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 	showMove := true
 
 	suite.Run("office user in normal GBLOC should only see non-Navy/Marines/CoastGuard moves that need closeout in closeout tab", func() {
-		officeUserSC := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
 					Gbloc: "AAAA",
 				},
 			},
-		}, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		army := models.AffiliationARMY
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -554,14 +554,13 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 	})
 
 	suite.Run("office user in normal GBLOC should not see moves that require closeout in counseling tab", func() {
-		officeUserSC := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
 					Gbloc: "AAAA",
 				},
 			},
-		}, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
-
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		// PPM moves that need closeout should not show up in counseling queue
 		army := models.AffiliationARMY
 		closeoutMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -660,14 +659,13 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 			Move: cgMove,
 		})
 
-		officeUserSC := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
 					Gbloc: "NAVY",
 				},
 			},
-		}, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
-
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		params := services.ListOrderParams{PerPage: swag.Int64(9), Page: swag.Int64(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
 
@@ -716,14 +714,13 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 			Move: nonMarineMove,
 		})
 
-		officeUserSC := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
 					Gbloc: "TVCB",
 				},
 			},
-		}, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
-
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
 
@@ -772,13 +769,13 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 			Move: armyMove,
 		})
 
-		officeUserSC := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
 					Gbloc: "USCG",
 				},
 			},
-		}, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
 
@@ -807,13 +804,13 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 			Move: cgMoveInWrongStatus,
 		})
 
-		officeUserSC := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
 					Gbloc: "USCG",
 				},
 			},
-		}, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
 
@@ -838,13 +835,13 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 			Move: moveWithHHG,
 		})
 
-		officeUserSC := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
 					Gbloc: "USCG",
 				},
 			},
-		}, []factory.Trait{factory.GetTraitOfficeUserServicesCounselor})
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
 
@@ -860,7 +857,7 @@ func (suite *OrderServiceSuite) TestListOrdersMarines() {
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			ServiceMember: models.ServiceMember{Affiliation: &marines},
 		})
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		// Map default shipment ZIP code to default office user GBLOC
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
@@ -913,7 +910,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersWithPagination() {
-	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 	// Map default shipment postal code to office user's GBLOC
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
@@ -978,7 +975,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 				RequestedPickupDate: &requestedMoveDate3,
 			},
 		})
-		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
@@ -1092,7 +1089,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 	defaultShipmentPickupPostalCode := "90210"
 	setupTestData := func() models.OfficeUser {
 		// Make an office user → GBLOC X
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 		// Ensure there's an entry connecting the default shipment pickup postal code with the office user's gbloc
@@ -1306,7 +1303,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 		//             We expect only the move that matches the counselors GBLOC - aka the LKNQ move.
 
 		// Create a services counselor (default GBLOC is KKFA)
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeServicesCounselor})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 		// Create a move with Origin LKNQ, needs service couseling
 		hhgMoveType := models.SelectedMoveTypeHHG
@@ -1373,7 +1370,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 	move := testdatagen.MakeNTSRMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
 	// Make a TOO user and the postal code to GBLOC link.
-	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode, tooOfficeUser.TransportationOffice.Gbloc)
 
 	orderFetcher := NewOrderFetcher()
@@ -1399,7 +1396,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 	})
 
 	// Make a TOO user and the postal code to GBLOC link.
-	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	// GBLOC for the below doesn't really matter, it just means the query for the moves passes the inner join in ListOrders
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode, "FOO")
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), ppmShipment.PickupPostalCode, tooOfficeUser.TransportationOffice.Gbloc)
@@ -1434,7 +1431,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 	})
 
 	// Make a TOO user and the postal code to GBLOC link.
-	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	// GBLOC for the below doesn't really matter, it just means the query for the moves passes the inner join in ListOrders
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode, "FOO")
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), ppmShipment.PickupPostalCode, tooOfficeUser.TransportationOffice.Gbloc)
@@ -1480,7 +1477,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 	})
 
 	// Make a TOO user and the postal code to GBLOC link.
-	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	// GBLOC for the below doesn't really matter, it just means the query for the moves passes the inner join in ListOrders
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode, "FOO")
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), ppmShipment1.PickupPostalCode, tooOfficeUser.TransportationOffice.Gbloc)

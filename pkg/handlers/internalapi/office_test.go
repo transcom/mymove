@@ -31,7 +31,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	}
 	move := testdatagen.MakeMove(suite.DB(), assertions)
 	// Given: an office User
-	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	moveRouter := moverouter.NewMoveRouter()
 
 	// Move is submitted and saved
@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	// Given: a set of incomplete orders, a move, office user and servicemember user
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	// Given: an office User
-	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	moveRouter := moverouter.NewMoveRouter()
 
 	// Move is submitted and saved
@@ -246,7 +246,7 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 		},
 	})
 
-	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
@@ -309,7 +309,7 @@ func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
 func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	reimbursement := testdatagen.MakeDefaultRequestedReimbursement(suite.DB())
-	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/reimbursement/some_id/approve", nil)

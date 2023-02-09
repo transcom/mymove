@@ -34,7 +34,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 		}
 
 		// Given: An office user
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		// Make a PPM
 		moveShow := true
@@ -104,7 +104,7 @@ func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 func (suite *HandlerSuite) TestShowQueueHandlerNotFound() {
 
 	// Given: An office user
-	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 	// And: the context contains the auth values
 	queueType := "queue_not_found"

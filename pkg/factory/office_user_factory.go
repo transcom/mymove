@@ -26,7 +26,7 @@ import (
 //     when creating a test with multiple office users
 //   - The OfficeUser returned won't have an ID if the db is nil. If an ID is needed for a stubbed user,
 //     use trait GetTraitOfficeUserWithID
-//   - Don't use traits to build an office user with multiple roles. Either use BuildOfficeUserWithRoles
+//   - To build an office user with multiple roles. Either use BuildOfficeUserWithRoles
 //     or pass in a list of roles into the User customization []roles.Role{roles.Role{RoleType: roles.RoleTypeTOO}}
 func BuildOfficeUser(db *pop.Connection, customs []Customization, traits []Trait) models.OfficeUser {
 	customs = setupCustomizations(customs, traits)
@@ -85,7 +85,14 @@ func BuildOfficeUser(db *pop.Connection, customs []Customization, traits []Trait
 //   - User
 //   - Role
 //   - UsersRoles
-func BuildOfficeUserWithRoles(db *pop.Connection, roleTypes []roles.RoleType) models.OfficeUser {
+//
+// Notes:
+//   - roleTypes passed into the function will overwrite over any roles in a User customization
+//   - a unique email for the user will be created
+//   - a UUID will be added to the OfficeUser record when it's stubbed
+func BuildOfficeUserWithRoles(db *pop.Connection, customs []Customization, roleTypes []roles.RoleType) models.OfficeUser {
+	customs = setupCustomizations(customs, nil)
+
 	var rolesList []roles.Role
 	for _, roleType := range roleTypes {
 		role := roles.Role{
@@ -99,13 +106,22 @@ func BuildOfficeUserWithRoles(db *pop.Connection, roleTypes []roles.RoleType) mo
 		// UUIDs are only set when saving to a DB, but they're necessary when checking session auths
 		traits = append(traits, GetTraitOfficeUserWithID)
 	}
-	return BuildOfficeUser(db, []Customization{
-		{
-			Model: models.User{
-				Roles: rolesList,
-			},
-		},
-	}, traits)
+
+	// Find/create the user model
+	// If there is a user customization, add the roles to it, otherwise add a new user customization
+	var user models.User
+	idx, result := findCustomWithIdx(customs, User)
+	if result != nil {
+		// add roles to the existing user customization
+		user = result.Model.(models.User)
+		user.Roles = rolesList
+		customs[idx].Model = user
+	} else {
+		user.Roles = rolesList
+		customs = append(customs, Customization{Model: user})
+	}
+
+	return BuildOfficeUser(db, customs, traits)
 }
 
 // ------------------------
@@ -143,102 +159,6 @@ func GetTraitOfficeUserWithID() []Customization {
 		{
 			Model: models.User{
 				ID: uuid.Must(uuid.NewV4()),
-			},
-		},
-	}
-}
-
-// GetTraitOfficeUserTIO creates an office user with a unique email and the TIO role
-func GetTraitOfficeUserTIO() []Customization {
-	// There's a uniqueness constraint on office user emails so add some randomness
-	email := strings.ToLower(fmt.Sprintf("leo_spaceman_office_%s@example.com", makeRandomString(5)))
-
-	tioRole := roles.Role{
-		RoleType: roles.RoleTypeTIO,
-	}
-
-	return []Customization{
-		{
-			Model: models.User{
-				LoginGovEmail: email,
-				Roles:         []roles.Role{tioRole},
-			},
-		},
-		{
-			Model: models.OfficeUser{
-				Email: email,
-			},
-		},
-	}
-}
-
-// GetTraitOfficeUserTOO creates an office user with a unique email and the TOO role
-func GetTraitOfficeUserTOO() []Customization {
-	// There's a uniqueness constraint on office user emails so add some randomness
-	email := strings.ToLower(fmt.Sprintf("leo_spaceman_office_%s@example.com", makeRandomString(5)))
-
-	tooRole := roles.Role{
-		RoleType: roles.RoleTypeTOO,
-	}
-
-	return []Customization{
-		{
-			Model: models.User{
-				LoginGovEmail: email,
-				Roles:         []roles.Role{tooRole},
-			},
-		},
-		{
-			Model: models.OfficeUser{
-				Email: email,
-			},
-		},
-	}
-}
-
-// GetTraitOfficeUserServicesCounselor creates an office user with a unique email and the Services counselor role
-func GetTraitOfficeUserServicesCounselor() []Customization {
-	// There's a uniqueness constraint on office user emails so add some randomness
-	email := strings.ToLower(fmt.Sprintf("leo_spaceman_office_%s@example.com", makeRandomString(5)))
-
-	scRole := roles.Role{
-		RoleType: roles.RoleTypeServicesCounselor,
-	}
-
-	return []Customization{
-		{
-			Model: models.User{
-				LoginGovEmail: email,
-				Roles:         []roles.Role{scRole},
-			},
-		},
-		{
-			Model: models.OfficeUser{
-				Email: email,
-			},
-		},
-	}
-}
-
-// GetTraitOfficeUserQAECSR creates an office user with a unique email and the Services counselor role
-func GetTraitOfficeUserQAECSR() []Customization {
-	// There's a uniqueness constraint on office user emails so add some randomness
-	email := strings.ToLower(fmt.Sprintf("leo_spaceman_office_%s@example.com", makeRandomString(5)))
-
-	qaeCsrRole := roles.Role{
-		RoleType: roles.RoleTypeQaeCsr,
-	}
-
-	return []Customization{
-		{
-			Model: models.User{
-				LoginGovEmail: email,
-				Roles:         []roles.Role{qaeCsrRole},
-			},
-		},
-		{
-			Model: models.OfficeUser{
-				Email: email,
 			},
 		},
 	}

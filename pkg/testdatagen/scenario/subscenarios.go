@@ -237,7 +237,7 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 			Status:          models.MTOShipmentStatusSubmitted,
 		}})
 
-		officeUser := factory.BuildOfficeUserWithRoles(appCtx.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
 			CustomerSupportRemark: models.CustomerSupportRemark{
 				Content: "This is a customer support remark. It can have text content like this." +
@@ -252,7 +252,7 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 				MoveID:       remarkMove.ID,
 			},
 		})
-		officeUser2 := factory.BuildOfficeUserWithRoles(appCtx.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser2 := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
 			CustomerSupportRemark: models.CustomerSupportRemark{
 				Content:      "The customer mentioned that there was some damage done to their grandfather clock.",

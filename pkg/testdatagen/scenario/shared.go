@@ -7363,7 +7363,7 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 			RequestedDeliveryDate: &requestedDeliveryDate,
 		},
 	})
-	officeUser := factory.BuildOfficeUserWithRoles(db, []roles.RoleType{roles.RoleTypeTOO})
+	officeUser := factory.BuildOfficeUserWithRoles(db, nil, []roles.RoleType{roles.RoleTypeTOO})
 	testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
 		CustomerSupportRemark: models.CustomerSupportRemark{
 			Content:      "The customer mentioned that they need to provide some more complex instructions for pickup and drop off.",

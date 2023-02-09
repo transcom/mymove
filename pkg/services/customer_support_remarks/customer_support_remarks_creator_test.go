@@ -13,7 +13,7 @@ func (suite *CustomerSupportRemarksSuite) TestCustomerSupportRemarksCreator() {
 	suite.Run("Can create customer support remark successfully", func() {
 
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		remark := &models.CustomerSupportRemark{Content: "Test Remark", OfficeUserID: officeUser.ID}
 		createdCustomerSupportRemark, err := creator.CreateCustomerSupportRemark(suite.AppContextForTest(), remark, move.Locator)
 
@@ -29,7 +29,7 @@ func (suite *CustomerSupportRemarksSuite) TestCustomerSupportRemarksCreator() {
 
 	suite.Run("Remark requires valid move", func() {
 
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		remark := &models.CustomerSupportRemark{Content: "Bad Move Remark", OfficeUserID: officeUser.ID}
 		createdCustomerSupportRemark, err := creator.CreateCustomerSupportRemark(suite.AppContextForTest(), remark, "0")
 

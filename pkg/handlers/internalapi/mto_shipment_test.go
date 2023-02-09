@@ -405,7 +405,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		subtestData := makeCreateSubtestData(appCtx)
 
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		req := subtestData.params.HTTPRequest
 		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1232,7 +1232,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.Run("PATCH failure - 403- permission denied - wrong application / user", func() {
 		appCtx := suite.AppContextForTest()
 
-		officeUser := factory.BuildOfficeUserWithRoles(appCtx.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
 
@@ -1490,7 +1490,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 	suite.Run("POST failure - 401 - permission denied - not authenticated", func() {
 		subtestData := suite.makeListSubtestData()
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		unauthorizedReq := suite.AuthenticateOfficeRequest(subtestData.params.HTTPRequest, officeUser)
 		unauthorizedParams := mtoshipmentops.ListMTOShipmentsParams{
 			HTTPRequest:     unauthorizedReq,

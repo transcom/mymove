@@ -122,7 +122,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 	})
 
 	suite.Run("checkUpdateAllowed", func() {
-		servicesCounselor := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeServicesCounselor})
+		servicesCounselor := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		servicesCounselorSession := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *servicesCounselor.UserID,
@@ -130,7 +130,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		}
 		servicesCounselorSession.Roles = append(servicesCounselorSession.Roles, servicesCounselor.User.Roles...)
 
-		too := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		tooSession := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
@@ -138,10 +138,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		}
 		tooSession.Roles = append(tooSession.Roles, too.User.Roles...)
 
-		tio := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
-			factory.GetTraitOfficeUserTIO,
-			factory.GetTraitOfficeUserEmail,
-		})
+		tio := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 		tioSession := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *tio.UserID,

@@ -209,7 +209,7 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 // role must have update.shipment permissions
 func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 	// TIO users have the proper permissions for our test - update.shipment
-	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTIO})
+	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
 	identity, err := models.FetchUserIdentity(suite.DB(), tioOfficeUser.User.LoginGovUUID.String())
 
@@ -252,7 +252,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 // role must NOT have update.shipment permissions
 func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 	// QAECSR users will be denied access as they lack the proper permissions for our test - update.shipment
-	qaeCsrOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeQaeCsr})
+	qaeCsrOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 
 	identity, err := models.FetchUserIdentity(suite.DB(), qaeCsrOfficeUser.User.LoginGovUUID.String())
 

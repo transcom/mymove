@@ -85,7 +85,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 
 func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
 	suite.Run("returns office user on success", func() {
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		fetcher := NewOfficeUserFetcherPop()
 
 		fetchedUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), officeUser.ID)

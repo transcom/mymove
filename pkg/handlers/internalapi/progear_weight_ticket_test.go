@@ -87,7 +87,7 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 
 		subtestData := makeCreateSubtestData(appCtx, false)
 
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		req := subtestData.params.HTTPRequest
 		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)

@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 }
 
 func (suite *HandlerSuite) TestUpdateCustomerHandler() {
-	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTOO})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeServicesCounselor,
 	})

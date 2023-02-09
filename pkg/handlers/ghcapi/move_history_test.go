@@ -217,7 +217,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		})
 
 		// Build history request for a TIO user
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []roles.RoleType{roles.RoleTypeTIO})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 		request := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 
