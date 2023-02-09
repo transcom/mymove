@@ -141,8 +141,9 @@ func (suite *FactorySuite) TestBuildDefaultUser() {
 		}, nil)
 
 		// Check that the user has the office user role
-		_, hasRole := user.Roles.GetRole(roles.RoleTypeTIO)
+		role, hasRole := user.Roles.GetRole(roles.RoleTypeTIO)
 		suite.True(hasRole)
+		suite.Equal(role.ID, user.Roles[0].ID)
 
 		// Count how many roles are in the DB, new role should have been created.
 		count, err := suite.DB().Count(&roles.Role{})

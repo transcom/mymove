@@ -1,6 +1,9 @@
 package factory
 
 import (
+	"database/sql"
+	"log"
+
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -65,6 +68,14 @@ func BuildUserAndUsersRoles(db *pop.Connection, customs []Customization, traits 
 					},
 				},
 			}, nil)
+		}
+
+		// Find the user and eager load roles so user is returned with associated roles
+		if user.Roles != nil {
+			err := db.Eager("Roles").Where("id=$1", user.ID).First(&user)
+			if err != nil && err != sql.ErrNoRows {
+				log.Panic(err)
+			}
 		}
 	}
 	return user
