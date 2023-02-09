@@ -431,6 +431,11 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		model.SITLocation = &sitLocation
 	}
 
+	if ppmShipment.AdvanceStatus != nil {
+		advanceStatus := models.PPMAdvanceStatus(*ppmShipment.AdvanceStatus)
+		model.AdvanceStatus = &advanceStatus
+	}
+
 	model.SITEstimatedWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.SitEstimatedWeight)
 
 	sitEstimatedEntryDate := handlers.FmtDatePtrToPopPtr(ppmShipment.SitEstimatedEntryDate)

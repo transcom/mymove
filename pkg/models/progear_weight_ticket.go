@@ -30,6 +30,21 @@ type ProgearWeightTicket struct {
 
 type ProgearWeightTickets []ProgearWeightTicket
 
+func (e ProgearWeightTickets) FilterDeleted() ProgearWeightTickets {
+	if len(e) == 0 {
+		return e
+	}
+
+	nonDeletedTickets := ProgearWeightTickets{}
+	for _, ticket := range e {
+		if ticket.DeletedAt == nil {
+			nonDeletedTickets = append(nonDeletedTickets, ticket)
+		}
+	}
+
+	return nonDeletedTickets
+}
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate,
 // pop.ValidateAndUpdate) method. This should contain validation that is for data integrity. Business validation should
 // occur in service objects.

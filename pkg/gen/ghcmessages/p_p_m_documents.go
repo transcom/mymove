@@ -19,7 +19,7 @@ import (
 type PPMDocuments struct {
 
 	// moving expenses
-	MovingExpenses ProGearWeightTickets `json:"MovingExpenses"`
+	MovingExpenses MovingExpenses `json:"MovingExpenses"`
 
 	// pro gear weight tickets
 	ProGearWeightTickets ProGearWeightTickets `json:"ProGearWeightTickets"`

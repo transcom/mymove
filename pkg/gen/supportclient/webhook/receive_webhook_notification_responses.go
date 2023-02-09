@@ -97,6 +97,11 @@ func (o *ReceiveWebhookNotificationOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the receive webhook notification o k response
+func (o *ReceiveWebhookNotificationOK) Code() int {
+	return 200
+}
+
 func (o *ReceiveWebhookNotificationOK) Error() string {
 	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationOK  %+v", 200, o.Payload)
 }
@@ -158,6 +163,11 @@ func (o *ReceiveWebhookNotificationBadRequest) IsServerError() bool {
 // IsCode returns true when this receive webhook notification bad request response a status code equal to that given
 func (o *ReceiveWebhookNotificationBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the receive webhook notification bad request response
+func (o *ReceiveWebhookNotificationBadRequest) Code() int {
+	return 400
 }
 
 func (o *ReceiveWebhookNotificationBadRequest) Error() string {
@@ -223,6 +233,11 @@ func (o *ReceiveWebhookNotificationUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the receive webhook notification unauthorized response
+func (o *ReceiveWebhookNotificationUnauthorized) Code() int {
+	return 401
+}
+
 func (o *ReceiveWebhookNotificationUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationUnauthorized  %+v", 401, o.Payload)
 }
@@ -286,6 +301,11 @@ func (o *ReceiveWebhookNotificationForbidden) IsCode(code int) bool {
 	return code == 403
 }
 
+// Code gets the status code for the receive webhook notification forbidden response
+func (o *ReceiveWebhookNotificationForbidden) Code() int {
+	return 403
+}
+
 func (o *ReceiveWebhookNotificationForbidden) Error() string {
 	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationForbidden  %+v", 403, o.Payload)
 }
@@ -347,6 +367,11 @@ func (o *ReceiveWebhookNotificationInternalServerError) IsServerError() bool {
 // IsCode returns true when this receive webhook notification internal server error response a status code equal to that given
 func (o *ReceiveWebhookNotificationInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the receive webhook notification internal server error response
+func (o *ReceiveWebhookNotificationInternalServerError) Code() int {
+	return 500
 }
 
 func (o *ReceiveWebhookNotificationInternalServerError) Error() string {

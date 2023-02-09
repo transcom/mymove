@@ -9,7 +9,7 @@ import { selectMTOShipmentById } from 'store/entities/selectors';
 import Review from 'pages/MyMove/PPM/Closeout/Review/Review';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { customerRoutes } from 'constants/routes';
-import { deleteWeightTicket } from 'services/internalApi';
+import { deleteWeightTicket, deleteProGearWeightTicket, deleteMovingExpense } from 'services/internalApi';
 import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import { createBaseProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
 import { createCompleteMovingExpense, createCompleteSITMovingExpense } from 'utils/test/factories/movingExpense';
@@ -65,7 +65,7 @@ const mockMTOShipmentWithWeightTicket = {
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
-    weightTickets: [createCompleteWeightTicket()],
+    weightTickets: [createCompleteWeightTicket(), createCompleteWeightTicket()],
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -163,6 +163,8 @@ jest.mock('react-router-dom', () => ({
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   deleteWeightTicket: jest.fn(() => {}),
+  deleteProGearWeightTicket: jest.fn(() => {}),
+  deleteMovingExpense: jest.fn(() => {}),
 }));
 
 jest.mock('store/entities/selectors', () => ({
@@ -197,7 +199,7 @@ describe('Review page', () => {
     render(<Review />, { wrapper: MockProviders });
 
     expect(
-      screen.getByText('No weight tickets uploaded. Add at least one set of weight tickets to request payment.'),
+      screen.getByText('No weight moved documented. At least one trip is required to continue.'),
     ).toBeInTheDocument();
   });
 
@@ -385,14 +387,15 @@ describe('Review page', () => {
     expect(screen.getByText('This trip is missing required information.')).toBeInTheDocument();
   });
 
-  it('displays the delete confirmation modal when the delete button is clicked', async () => {
+  it('displays the delete confirmation modal when the delete button for Weight Moved/Trip 2 is clicked', async () => {
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithWeightTicket);
     render(<Review />, { wrapper: MockProviders });
 
-    await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+    await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[1]);
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
+      expect(screen.getByText('You are about to delete Trip 2. This cannot be undone.')).toBeInTheDocument();
     });
 
     await userEvent.click(screen.getByRole('button', { name: 'No, Keep It' }));
@@ -417,6 +420,46 @@ describe('Review page', () => {
     const weightTicket = mockMTOShipmentWithWeightTicket.ppmShipment.weightTickets[0];
     await waitFor(() => {
       expect(mockDeleteWeightTicket).toHaveBeenCalledWith(weightTicket.id, weightTicket.eTag);
+    });
+  });
+
+  it('calls the delete progear weight ticket api when confirm is clicked', async () => {
+    selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithProGear);
+    const mockDeleteProGearWeightTicket = jest.fn().mockResolvedValue({});
+    deleteProGearWeightTicket.mockImplementationOnce(mockDeleteProGearWeightTicket);
+    render(<Review />, { wrapper: MockProviders });
+
+    await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Yes, Delete' }));
+
+    const proGearWeightTicket = mockMTOShipmentWithProGear.ppmShipment.proGearWeightTickets[0];
+    await waitFor(() => {
+      expect(mockDeleteProGearWeightTicket).toHaveBeenCalledWith(proGearWeightTicket.id, proGearWeightTicket.eTag);
+    });
+  });
+
+  it('calls the delete moving expense api when confirm is clicked', async () => {
+    selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithExpenses);
+    const mockDeleteMovingExpense = jest.fn().mockResolvedValue({});
+    deleteMovingExpense.mockImplementationOnce(mockDeleteMovingExpense);
+    render(<Review />, { wrapper: MockProviders });
+
+    await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Yes, Delete' }));
+
+    const movingExpense = mockMTOShipmentWithExpenses.ppmShipment.movingExpenses[0];
+    await waitFor(() => {
+      expect(mockDeleteMovingExpense).toHaveBeenCalledWith(movingExpense.id, movingExpense.eTag);
     });
   });
 });

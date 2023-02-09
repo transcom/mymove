@@ -28,3 +28,10 @@ type WeightTicketFetcher interface {
 type WeightTicketUpdater interface {
 	UpdateWeightTicket(appCtx appcontext.AppContext, weightTicket models.WeightTicket, eTag string) (*models.WeightTicket, error)
 }
+
+// WeightTicketDeleter deletes a WeightTicket
+//
+//go:generate mockery --name WeightTicketDeleter --disable-version-string
+type WeightTicketDeleter interface {
+	DeleteWeightTicket(appCtx appcontext.AppContext, weightTicketID uuid.UUID) error
+}

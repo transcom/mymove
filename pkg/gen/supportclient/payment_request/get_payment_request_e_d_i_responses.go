@@ -115,6 +115,11 @@ func (o *GetPaymentRequestEDIOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the get payment request e d i o k response
+func (o *GetPaymentRequestEDIOK) Code() int {
+	return 200
+}
+
 func (o *GetPaymentRequestEDIOK) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIOK  %+v", 200, o.Payload)
 }
@@ -176,6 +181,11 @@ func (o *GetPaymentRequestEDIBadRequest) IsServerError() bool {
 // IsCode returns true when this get payment request e d i bad request response a status code equal to that given
 func (o *GetPaymentRequestEDIBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the get payment request e d i bad request response
+func (o *GetPaymentRequestEDIBadRequest) Code() int {
+	return 400
 }
 
 func (o *GetPaymentRequestEDIBadRequest) Error() string {
@@ -241,6 +251,11 @@ func (o *GetPaymentRequestEDIUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the get payment request e d i unauthorized response
+func (o *GetPaymentRequestEDIUnauthorized) Code() int {
+	return 401
+}
+
 func (o *GetPaymentRequestEDIUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIUnauthorized  %+v", 401, o.Payload)
 }
@@ -302,6 +317,11 @@ func (o *GetPaymentRequestEDIForbidden) IsServerError() bool {
 // IsCode returns true when this get payment request e d i forbidden response a status code equal to that given
 func (o *GetPaymentRequestEDIForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the get payment request e d i forbidden response
+func (o *GetPaymentRequestEDIForbidden) Code() int {
+	return 403
 }
 
 func (o *GetPaymentRequestEDIForbidden) Error() string {
@@ -367,6 +387,11 @@ func (o *GetPaymentRequestEDINotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the get payment request e d i not found response
+func (o *GetPaymentRequestEDINotFound) Code() int {
+	return 404
+}
+
 func (o *GetPaymentRequestEDINotFound) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDINotFound  %+v", 404, o.Payload)
 }
@@ -428,6 +453,11 @@ func (o *GetPaymentRequestEDIConflict) IsServerError() bool {
 // IsCode returns true when this get payment request e d i conflict response a status code equal to that given
 func (o *GetPaymentRequestEDIConflict) IsCode(code int) bool {
 	return code == 409
+}
+
+// Code gets the status code for the get payment request e d i conflict response
+func (o *GetPaymentRequestEDIConflict) Code() int {
+	return 409
 }
 
 func (o *GetPaymentRequestEDIConflict) Error() string {
@@ -493,6 +523,11 @@ func (o *GetPaymentRequestEDIUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the get payment request e d i unprocessable entity response
+func (o *GetPaymentRequestEDIUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *GetPaymentRequestEDIUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -554,6 +589,11 @@ func (o *GetPaymentRequestEDIInternalServerError) IsServerError() bool {
 // IsCode returns true when this get payment request e d i internal server error response a status code equal to that given
 func (o *GetPaymentRequestEDIInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the get payment request e d i internal server error response
+func (o *GetPaymentRequestEDIInternalServerError) Code() int {
+	return 500
 }
 
 func (o *GetPaymentRequestEDIInternalServerError) Error() string {

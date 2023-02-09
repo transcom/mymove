@@ -6684,6 +6684,14 @@ func init() {
         }
       }
     },
+    "MovingExpenses": {
+      "description": "All moving expenses associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MovingExpense"
+      },
+      "x-omitempty": false
+    },
     "NullableString": {
       "type": "string",
       "x-go-type": {
@@ -6906,13 +6914,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatus": {
       "description": "Status of the PPM document.",
@@ -6939,7 +6949,7 @@ func init() {
       "type": "object",
       "properties": {
         "MovingExpenses": {
-          "$ref": "#/definitions/ProGearWeightTickets"
+          "$ref": "#/definitions/MovingExpenses"
         },
         "ProGearWeightTickets": {
           "$ref": "#/definitions/ProGearWeightTickets"
@@ -8685,6 +8695,10 @@ func init() {
           "type": "integer",
           "format": "cents",
           "x-nullable": true
+        },
+        "advanceStatus": {
+          "x-nullable": true,
+          "$ref": "#/definitions/PPMAdvanceStatus"
         },
         "destinationPostalCode": {
           "type": "string",
@@ -17152,6 +17166,14 @@ func init() {
         }
       }
     },
+    "MovingExpenses": {
+      "description": "All moving expenses associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MovingExpense"
+      },
+      "x-omitempty": false
+    },
     "NullableString": {
       "type": "string",
       "x-go-type": {
@@ -17374,13 +17396,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatus": {
       "description": "Status of the PPM document.",
@@ -17407,7 +17431,7 @@ func init() {
       "type": "object",
       "properties": {
         "MovingExpenses": {
-          "$ref": "#/definitions/ProGearWeightTickets"
+          "$ref": "#/definitions/MovingExpenses"
         },
         "ProGearWeightTickets": {
           "$ref": "#/definitions/ProGearWeightTickets"
@@ -19161,6 +19185,10 @@ func init() {
           "type": "integer",
           "format": "cents",
           "x-nullable": true
+        },
+        "advanceStatus": {
+          "x-nullable": true,
+          "$ref": "#/definitions/PPMAdvanceStatus"
         },
         "destinationPostalCode": {
           "type": "string",
