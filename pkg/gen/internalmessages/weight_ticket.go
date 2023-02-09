@@ -19,6 +19,9 @@ import (
 // swagger:model WeightTicket
 type WeightTicket struct {
 
+	// Indicates the net weight of the vehicle
+	AdjustedNetWeight *int64 `json:"adjustedNetWeight"`
+
 	// created at
 	// Required: true
 	// Read Only: true
@@ -69,6 +72,9 @@ type WeightTicket struct {
 
 	// Indicates if the customer is missing a weight ticket for the vehicle weight when full.
 	MissingFullWeightTicket *bool `json:"missingFullWeightTicket"`
+
+	// Remarks explaining any edits made to the net weight
+	NetWeightRemarks *string `json:"netWeightRemarks"`
 
 	// Indicates if the customer used a trailer they own for the move.
 	OwnsTrailer *bool `json:"ownsTrailer"`

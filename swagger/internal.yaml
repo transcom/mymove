@@ -3126,6 +3126,16 @@ definitions:
         $ref: '#/definitions/OmittablePPMDocumentStatus'
       reason:
         $ref: '#/definitions/PPMDocumentStatusReason'
+      adjustedNetWeight:
+        description: Indicates the net weight of the vehicle
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      netWeightRemarks:
+        description: Remarks explaining any edits made to the net weight
+        type: string
+        x-nullable: true
+        x-omitempty: false
       eTag:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string

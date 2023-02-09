@@ -7908,6 +7908,12 @@ func init() {
         "proofOfTrailerOwnershipDocumentId"
       ],
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the net weight of the vehicle",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -7979,6 +7985,12 @@ func init() {
         "missingFullWeightTicket": {
           "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -16541,6 +16553,12 @@ func init() {
         "proofOfTrailerOwnershipDocumentId"
       ],
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the net weight of the vehicle",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -16614,6 +16632,12 @@ func init() {
         "missingFullWeightTicket": {
           "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
