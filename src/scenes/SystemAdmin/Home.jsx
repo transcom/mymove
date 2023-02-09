@@ -60,7 +60,7 @@ const AdminLayout = (props) => <Layout {...props} menu={Menu} appBar={CUIWrapper
 
 const Home = () => (
   <div className={styles['admin-system-wrapper']}>
-    <Admin dataProvider={dataProvider} asename="/system" appLayout={AdminLayout} bdisableTelemetry>
+    <Admin dataProvider={dataProvider} basename="/system" appLayout={AdminLayout} disableTelemetry>
       <CustomRoutes />
       <Resource
         name="office-users"
