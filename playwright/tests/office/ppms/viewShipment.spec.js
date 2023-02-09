@@ -5,17 +5,12 @@
  */
 
 // @ts-check
-const { test, expect, ScPpmPage } = require('./scPpmTestFixture');
+const { test, expect } = require('./scPpmTestFixture');
 
 test.describe('Services counselor user', () => {
-  /** @type {ScPpmPage} */
-  let scPpmPage;
-
-  test.beforeEach(async ({ officePage }) => {
-    const move = await officePage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
-    await officePage.signInAsNewServicesCounselorUser();
-    scPpmPage = new ScPpmPage(officePage, move);
-    await scPpmPage.navigateToMove();
+  test.beforeEach(async ({ scPpmPage }) => {
+    const move = await scPpmPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
+    await scPpmPage.navigateToMove(move.locator);
   });
 
   test('is able to click on move and submit after using the move code filter', async ({ page }) => {

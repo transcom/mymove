@@ -347,8 +347,8 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 func (suite *QueryBuilderSuite) TestFetchManyAssociations() {
 	setupTestData := func() {
 		// Create two default duty locations (with address and transportation office)
-		testdatagen.MakeDefaultDutyLocation(suite.DB())
-		testdatagen.MakeDefaultDutyLocation(suite.DB())
+		factory.BuildDutyLocation(suite.DB(), nil, nil)
+		factory.BuildDutyLocation(suite.DB(), nil, nil)
 	}
 	builder := NewQueryBuilder()
 

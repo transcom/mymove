@@ -91,6 +91,11 @@ func (o *ListMovesOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the list moves o k response
+func (o *ListMovesOK) Code() int {
+	return 200
+}
+
 func (o *ListMovesOK) Error() string {
 	return fmt.Sprintf("[GET /moves][%d] listMovesOK  %+v", 200, o.Payload)
 }
@@ -150,6 +155,11 @@ func (o *ListMovesUnauthorized) IsServerError() bool {
 // IsCode returns true when this list moves unauthorized response a status code equal to that given
 func (o *ListMovesUnauthorized) IsCode(code int) bool {
 	return code == 401
+}
+
+// Code gets the status code for the list moves unauthorized response
+func (o *ListMovesUnauthorized) Code() int {
+	return 401
 }
 
 func (o *ListMovesUnauthorized) Error() string {
@@ -215,6 +225,11 @@ func (o *ListMovesForbidden) IsCode(code int) bool {
 	return code == 403
 }
 
+// Code gets the status code for the list moves forbidden response
+func (o *ListMovesForbidden) Code() int {
+	return 403
+}
+
 func (o *ListMovesForbidden) Error() string {
 	return fmt.Sprintf("[GET /moves][%d] listMovesForbidden  %+v", 403, o.Payload)
 }
@@ -276,6 +291,11 @@ func (o *ListMovesInternalServerError) IsServerError() bool {
 // IsCode returns true when this list moves internal server error response a status code equal to that given
 func (o *ListMovesInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the list moves internal server error response
+func (o *ListMovesInternalServerError) Code() int {
+	return 500
 }
 
 func (o *ListMovesInternalServerError) Error() string {

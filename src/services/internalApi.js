@@ -490,6 +490,10 @@ export async function patchMovingExpense(ppmShipmentId, movingExpenseId, payload
   );
 }
 
+export async function deleteMovingExpense() {
+  return Promise.resolve();
+}
+
 export async function submitPPMShipmentSignedCertification(ppmShipmentId, payload) {
   return makeInternalRequest(
     'ppm.submitPPMShipmentDocumentation',

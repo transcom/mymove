@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -210,11 +211,13 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		// Under test: MoveRouter.Submit
 		// Set up: Create a move that should go to services counselor, but doesn't have DRAFT or NEEDS SERVICE COUNSELING STATUS
 		// Expected outcome: Error
-		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-			DutyLocation: models.DutyLocation{
-				ProvidesServicesCounseling: true,
+		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
 			},
-		})
+		}, nil)
 		assertions := testdatagen.Assertions{
 			Order: models.Order{
 				OriginDutyLocation: &dutyLocation,
@@ -259,11 +262,13 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		}
 		for _, tt := range tests {
 			suite.Run(tt.desc, func() {
-				dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-					DutyLocation: models.DutyLocation{
-						ProvidesServicesCounseling: tt.ProvidesServicesCounseling,
+				dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+					{
+						Model: models.DutyLocation{
+							ProvidesServicesCounseling: tt.ProvidesServicesCounseling,
+						},
 					},
-				})
+				}, nil)
 
 				move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 					Order: models.Order{
@@ -325,11 +330,13 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		}
 		for _, tt := range tests {
 			suite.Run(tt.desc, func() {
-				dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-					DutyLocation: models.DutyLocation{
-						ProvidesServicesCounseling: tt.ProvidesServicesCounseling,
+				dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+					{
+						Model: models.DutyLocation{
+							ProvidesServicesCounseling: tt.ProvidesServicesCounseling,
+						},
 					},
-				})
+				}, nil)
 
 				move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 					Order: models.Order{
