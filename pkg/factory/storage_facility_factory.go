@@ -26,13 +26,7 @@ func BuildStorageFacility(db *pop.Connection, customs []Customization, traits []
 	}
 
 	// Find/create the address model
-	var address models.Address
-	result := findValidCustomization(customs, Address)
-	if result != nil {
-		address = result.Model.(models.Address)
-	}
-	address = BuildAddress(db, customs, traits)
-	// At this point, address exists. It's either the provided or created address
+	address := BuildAddress(db, customs, traits)
 
 	// Create StorageFacility
 	StorageFacility := models.StorageFacility{
