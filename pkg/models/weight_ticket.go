@@ -35,6 +35,8 @@ type WeightTicket struct {
 	ProofOfTrailerOwnershipDocument   Document           `belongs_to:"documents" fk_id:"proof_of_trailer_ownership_document_id"`
 	Status                            *PPMDocumentStatus `json:"status" db:"status"`
 	Reason                            *string            `json:"reason" db:"reason"`
+	AdjustedNetWeight                 *unit.Pound        `json:"adjusted_net_weight" db:"adjusted_net_weight"`
+	NetWeightRemarks                  *string            `json:"net_weight_remarks" db:"net_weight_remarks"`
 }
 
 type WeightTickets []WeightTicket
