@@ -1124,12 +1124,13 @@ clean_server:
 	rm -f bin/milmove
 
 .PHONY: clean
+# yarn clean removes node_modules
 clean: ## Clean all generated files
 	rm -f .*.stamp
 	rm -f coverage.out
 	rm -rf ./bin
 	rm -rf ./build
-	rm -rf ./node_modules
+	yarn clean
 	rm -rf ./public/swagger-ui/*.{css,js,png}
 	rm -rf ./tmp/secure_migrations
 	rm -rf ./tmp/storage

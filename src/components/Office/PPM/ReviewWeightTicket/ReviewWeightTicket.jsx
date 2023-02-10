@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { func, number, object } from 'prop-types';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
@@ -51,7 +51,7 @@ export default function ReviewWeightTicket({
 }) {
   const [canEditRejection, setCanEditRejection] = useState(true);
 
-  const [patchWeightTicketMutation] = useMutation(patchWeightTicket, {
+  const { mutate: patchWeightTicketMutation } = useMutation(patchWeightTicket, {
     onSuccess,
     onError,
   });

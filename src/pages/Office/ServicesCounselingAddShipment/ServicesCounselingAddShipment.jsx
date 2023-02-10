@@ -1,30 +1,22 @@
 import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { queryCache, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import 'styles/office.scss';
 import CustomerHeader from 'components/CustomerHeader';
 import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
-import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
+import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
-import { createMTOShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
+import { createMTOShipment } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { roleTypes } from 'constants/userRoles';
 import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 
-// createMTOShipmentWrapper allows us to pass in the closeout office and include it
-// with the results from creating the shipment, which allows us to chain on the closeout office
-// update.
-function createMTOShipmentWrapper({ shipment, closeoutOffice }) {
-  return createMTOShipment(shipment).then((newShipment) => {
-    return { newShipment, closeoutOffice };
-  });
-}
 const ServicesCounselingAddShipment = ({ match }) => {
   const params = useParams();
   let { shipmentType } = params;
@@ -38,26 +30,13 @@ const ServicesCounselingAddShipment = ({ match }) => {
 
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
-  const [mutateMTOShipments] = useMutation(createMTOShipmentWrapper, {
-    onSuccess: (result) => {
-      mtoShipments.push(result.newShipment);
-      queryCache.setQueryData([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID]);
-
-      if (result.closeoutOffice) {
-        updateMoveCloseoutOffice({
-          locator: moveCode,
-          ifMatchETag: move.eTag,
-          body: { closeoutOfficeId: result.closeoutOffice.id },
-        }).then(() => {
-          queryCache.invalidateQueries([MOVES, moveCode]);
-        });
-      }
-
-      return result.newShipment;
-    },
-    onError: () => {
-      // TODO
+  const queryClient = useQueryClient();
+  const { mutate: mutateMTOShipments } = useMutation(createMTOShipment, {
+    onSuccess: (newMTOShipment) => {
+      mtoShipments.push(newMTOShipment);
+      queryClient.setQueryData([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID]);
+      return newMTOShipment;
     },
   });
 

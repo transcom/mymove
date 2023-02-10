@@ -91,41 +91,51 @@ const SubmittedRequestedShipments = ({
         serviceCodeCS: values.counselingFee,
       };
 
-      approveMTO({
-        moveTaskOrderID: moveTaskOrder.id,
-        ifMatchETag: moveTaskOrder.eTag,
-        mtoApprovalServiceItemCodes,
-        normalize: false,
-      })
-        .then(() => {
-          Promise.all(
-            filteredShipments.map((shipment) => {
-              let operationPath = 'shipment.approveShipment';
+      approveMTO(
+        {
+          moveTaskOrderID: moveTaskOrder.id,
+          ifMatchETag: moveTaskOrder.eTag,
+          mtoApprovalServiceItemCodes,
+          normalize: false,
+        },
+        {
+          onSuccess: async () => {
+            try {
+              await Promise.all(
+                filteredShipments.map((shipment) => {
+                  let operationPath = 'shipment.approveShipment';
 
-              if (shipment.approvedDate) {
-                operationPath = 'shipment.approveShipmentDiversion';
-              }
-
-              return approveMTOShipment({
-                shipmentID: shipment.id,
-                operationPath,
-                ifMatchETag: shipment.eTag,
-                normalize: false,
-              });
-            }),
-          )
-            .then(() => {
+                  if (shipment.approvedDate) {
+                    operationPath = 'shipment.approveShipmentDiversion';
+                  }
+                  return approveMTOShipment(
+                    {
+                      shipmentID: shipment.id,
+                      operationPath,
+                      ifMatchETag: shipment.eTag,
+                      normalize: false,
+                    },
+                    {
+                      onError: () => {
+                        // TODO: Decide if we want to display an error notice, log error event, or retry
+                        setSubmitting(false);
+                      },
+                    },
+                  );
+                }),
+              );
               handleAfterSuccess('mto', { showMTOpostedMessage: true });
-            })
-            .catch(() => {
-              // TODO: Decide if we want to display an error notice, log error event, or retry
+            } catch {
               setSubmitting(false);
-            });
-        })
-        .catch(() => {
-          // TODO: Decide if we want to display an error notice, log error event, or retry
-          setSubmitting(false);
-        });
+            }
+          },
+          onError: () => {
+            // TODO: Decide if we want to display an error notice, log error event, or retry
+            setSubmitting(false);
+          },
+        },
+      );
+      //
     },
   });
 
