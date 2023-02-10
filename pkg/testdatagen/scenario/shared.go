@@ -1503,7 +1503,9 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
-	closeoutOfficeID := testdatagen.ConvertUUIDStringToUUID("59131551-efc8-4e63-bb06-9cc88bd8f8a0")
+	// Since we don't truncate the transportation_office table in our dev data generation workflow,
+	// we need to generate an ID here instead of using a string to prevent duplicate entries.
+	closeoutOfficeID := uuid.Must(uuid.NewV4())
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
