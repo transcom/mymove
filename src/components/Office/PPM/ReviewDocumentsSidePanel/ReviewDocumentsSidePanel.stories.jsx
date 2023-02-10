@@ -3,6 +3,9 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import ReviewDocumentsSidePanel from './ReviewDocumentsSidePanel';
 
+import PPMDocumentsStatus from 'constants/ppms';
+import { expenseTypes } from 'constants/ppmExpenseTypes';
+
 export default {
   title: 'Office Components / PPM / Review Documents Side Panel',
   component: ReviewDocumentsSidePanel,
@@ -31,4 +34,17 @@ FilledIn.args = {
     hasReceivedAdvance: true,
     advanceAmountReceived: 60000,
   },
+  expenseTickets: [
+    { movingExpenseType: expenseTypes.STORAGE, status: PPMDocumentsStatus.REJECTED, reason: 'Too large' },
+    { movingExpenseType: expenseTypes.PACKING_MATERIALS, status: PPMDocumentsStatus.ACCEPTED, reason: null },
+  ],
+  proGearTickets: [
+    { status: PPMDocumentsStatus.EXCLUDED, reason: 'Objects not applicable' },
+    { status: PPMDocumentsStatus.ACCEPTED, reason: null },
+  ],
+  weightTickets: [
+    {
+      status: PPMDocumentsStatus.APPROVED,
+    },
+  ],
 };

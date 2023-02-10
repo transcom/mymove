@@ -5,6 +5,7 @@ import { generatePath, useHistory, withRouter } from 'react-router-dom';
 
 import styles from './ReviewDocuments.module.scss';
 
+import ReviewDocumentsSidePanel from 'components/Office/PPM/ReviewDocumentsSidePanel/ReviewDocumentsSidePanel';
 import { ErrorMessage } from 'components/form';
 import { servicesCounselingRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -85,6 +86,7 @@ export const ReviewDocuments = ({ match }) => {
   const weightTicketPanelRef = useRef();
 
   const [serverError, setServerError] = useState(null);
+  const [showOverview, setShowOverview] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -97,7 +99,9 @@ export const ReviewDocuments = ({ match }) => {
 
   const onBack = () => {
     setServerError(null);
-    if (documentSetIndex > 0) {
+    if (showOverview) {
+      setShowOverview(false);
+    } else if (documentSetIndex > 0) {
       setDocumentSetIndex(documentSetIndex - 1);
     }
   };
@@ -107,8 +111,12 @@ export const ReviewDocuments = ({ match }) => {
     if (documentSetIndex < fullDocuments.length - 1) {
       setDocumentSetIndex(documentSetIndex + 1);
     } else {
-      history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+      setShowOverview(true);
     }
+  };
+
+  const onConfirmSuccess = () => {
+    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
 
   const onError = () => {
@@ -137,24 +145,35 @@ export const ReviewDocuments = ({ match }) => {
         <DocumentViewerSidebar.Content mainRef={weightTicketPanelRef}>
           <NotificationScrollToTop dependency={documentSetIndex || serverError} target={weightTicketPanelRef.current} />
           <ErrorMessage display={!!serverError}>{serverError}</ErrorMessage>
-          {documentSet && (
-            <ReviewWeightTicket
-              weightTicket={documentSet[0]}
-              ppmNumber={1}
-              tripNumber={documentSetIndex + 1}
-              mtoShipment={mtoShipment}
-              onError={onError}
-              onSuccess={onSuccess}
-              formRef={formRef}
-            />
-          )}
+          {documentSet &&
+            (showOverview ? (
+              <ReviewDocumentsSidePanel
+                ppmShipment={ppmShipment}
+                weightTickets={weightTickets}
+                proGearTickets={proGearTickets}
+                expenseTickets={expenseTickets}
+                onError={onError}
+                onSuccess={onConfirmSuccess}
+                formRef={formRef}
+              />
+            ) : (
+              <ReviewWeightTicket
+                weightTicket={documentSet}
+                ppmNumber={1}
+                tripNumber={documentSetIndex + 1}
+                mtoShipment={mtoShipment}
+                onError={onError}
+                onSuccess={onSuccess}
+                formRef={formRef}
+              />
+            ))}
         </DocumentViewerSidebar.Content>
         <DocumentViewerSidebar.Footer>
-          <Button onClick={onBack} disabled={documentSetIndex === 0}>
+          <Button className="usa-button--secondary" onClick={onBack} disabled={documentSetIndex === 0}>
             Back
           </Button>
           <Button type="submit" onClick={onContinue}>
-            Continue
+            {showOverview ? 'Confirm' : 'Continue'}
           </Button>
         </DocumentViewerSidebar.Footer>
       </DocumentViewerSidebar>
