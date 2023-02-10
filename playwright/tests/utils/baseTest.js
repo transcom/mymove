@@ -5,11 +5,11 @@
  */
 // @ts-check
 
-const path = require('path');
+import * as path from 'path';
 
-const { expect } = require('@playwright/test');
+import { expect } from '@playwright/test';
 
-const { TestHarness } = require('./testharness');
+import { TestHarness } from './testharness';
 
 /**
  * base test fixture for playwright

@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, expect } = require('./scPpmTestFixture');
+import { test, expect } from './scPpmTestFixture';
 
 test.describe('Services counselor user', () => {
   test.beforeEach(async ({ scPpmPage }) => {

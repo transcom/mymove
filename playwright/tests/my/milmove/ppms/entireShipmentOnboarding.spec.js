@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { expect, test, forEachViewport, CustomerPpmPage } = require('./customerPpmTestFixture');
+import { expect, test, forEachViewport, CustomerPpmPage } from './customerPpmTestFixture';
 
 /**
  * CustomerPpmOnboardingPage test fixture. Our linting rules (like
@@ -106,7 +106,7 @@ test.describe('Entire PPM onboarding flow', () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildDraftMoveWithPPMWithDepartureDate();
       customerPpmOnboardingPage = new CustomerPpmOnboardingPage(customerPpmPage);
-      customerPpmOnboardingPage.signInForPPMWithMove(move);
+      await customerPpmOnboardingPage.signInForPPMWithMove(move);
     });
 
     test('flows through happy path for existing shipment', async () => {

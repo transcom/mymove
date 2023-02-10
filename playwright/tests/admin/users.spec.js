@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, expect } = require('../utils/adminTest');
+import { test, expect } from '../utils/adminTest';
 
 test.describe('Users Page', () => {
   test('successfully navigates to users page', async ({ page, adminPage }) => {
