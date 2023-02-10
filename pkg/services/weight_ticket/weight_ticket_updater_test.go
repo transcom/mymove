@@ -171,8 +171,9 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		appCtx := suite.AppContextForTest()
 
 		override := models.WeightTicket{
-			EmptyWeight: models.PoundPointer(3000),
-			FullWeight:  models.PoundPointer(4200),
+			EmptyWeight:       models.PoundPointer(3000),
+			FullWeight:        models.PoundPointer(4200),
+			AdjustedNetWeight: models.PoundPointer(1200),
 		}
 
 		originalWeightTicket := setupForTest(appCtx, &override, true, true, false)
@@ -188,6 +189,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			MissingFullWeightTicket:  models.BoolPointer(true),
 			OwnsTrailer:              models.BoolPointer(false),
 			TrailerMeetsCriteria:     models.BoolPointer(false),
+			AdjustedNetWeight:        models.PoundPointer(1200),
+			NetWeightRemarks:         models.StringPointer("Adjusted weight!"),
 		}
 
 		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
@@ -204,6 +207,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(*desiredWeightTicket.MissingFullWeightTicket, *updatedWeightTicket.MissingFullWeightTicket)
 		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.OwnsTrailer)
 		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.TrailerMeetsCriteria)
+		suite.Equal(*desiredWeightTicket.AdjustedNetWeight, *updatedWeightTicket.AdjustedNetWeight)
+		suite.Equal(*desiredWeightTicket.NetWeightRemarks, *updatedWeightTicket.NetWeightRemarks)
 	})
 
 	suite.Run("Succesfully updates when files are required", func() {
