@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -254,14 +255,16 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			UpdatedAt:        time.Time{},
 		},
 	})
-	subtestData.paramKeyDimensionHeight = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameDimensionHeight,
-			Description: "height",
-			Type:        models.ServiceItemParamTypeDecimal,
-			Origin:      models.ServiceItemParamOriginSystem,
+	subtestData.paramKeyDimensionHeight = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNameDimensionHeight,
+				Description: "height",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
 		},
-	})
+	}, nil)
 	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
 			ServiceID:             reServiceDCRT.ID,
@@ -269,14 +272,16 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			ServiceItemParamKey:   subtestData.paramKeyDimensionHeight,
 		},
 	})
-	subtestData.paramKeyDimensionWidth = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameDimensionWidth,
-			Description: "width",
-			Type:        models.ServiceItemParamTypeDecimal,
-			Origin:      models.ServiceItemParamOriginSystem,
+	subtestData.paramKeyDimensionWidth = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNameDimensionWidth,
+				Description: "width",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
 		},
-	})
+	}, nil)
 	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
 			ServiceID:             reServiceDCRT.ID,
@@ -284,14 +289,16 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			ServiceItemParamKey:   subtestData.paramKeyDimensionWidth,
 		},
 	})
-	subtestData.paramKeyDimensionLength = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameDimensionLength,
-			Description: "length",
-			Type:        models.ServiceItemParamTypeDecimal,
-			Origin:      models.ServiceItemParamOriginSystem,
+	subtestData.paramKeyDimensionLength = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNameDimensionLength,
+				Description: "length",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
 		},
-	})
+	}, nil)
 	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
 			ServiceID:             reServiceDCRT.ID,
@@ -299,14 +306,16 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			ServiceItemParamKey:   subtestData.paramKeyDimensionLength,
 		},
 	})
-	subtestData.paramKeyCubicFeetBilled = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameCubicFeetBilled,
-			Description: "cubic feet billed",
-			Type:        models.ServiceItemParamTypeDecimal,
-			Origin:      models.ServiceItemParamOriginSystem,
+	subtestData.paramKeyCubicFeetBilled = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNameCubicFeetBilled,
+				Description: "cubic feet billed",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
 		},
-	})
+	}, nil)
 
 	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
