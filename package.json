@@ -104,7 +104,7 @@
     "start": "react-app-rewired start",
     "test": "react-app-rewired test --env=jsdom",
     "test:debug": "react-app-rewired --inspect-brk test --runInBand --env=jsdom",
-    "test:coverage": "react-app-rewired test --coverage --reporters=default --reporters=jest-junit --env=jsdom --coverageDirectory=coverage --runInBand --watchAll=false",
+    "test:coverage": "react-app-rewired test --coverage --reporters=default --reporters=jest-junit --env=jsdom --coverageDirectory=coverage --maxWorkers=2 --watchAll=false",
     "test:e2e": "playwright test --trace=on",
     "prettier": "prettier --write --loglevel warn 'src/**/*.{js,jsx}'",
     "prettier-ci": "prettier --check 'src/**/*.{js,jsx}'",
