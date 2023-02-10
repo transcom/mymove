@@ -1045,114 +1045,21 @@ jobs:
       - announce_failure
 
   integration_tests_office:
-    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 12 files here
-    parallelism: 12
-    executor: milmove_integration_tester
-    steps:
-      - attach_workspace:
-          at: .
-      - e2e_tests_cypress:
-          spec_glob: cypress/integration/office/**/*.js
-      - store_artifacts:
-          path: cypress/reports
-          destination: reports
-      - store_artifacts:
-          path: cypress/videos
-          destination: videos
-      - store_artifacts:
-          path: cypress/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: cypress/results
-      - announce_failure
-
-  integration_tests_prime:
-    executor: milmove_integration_tester
-    steps:
-      - attach_workspace:
-          at: .
-      - e2e_tests_cypress:
-          spec_glob: cypress/integration/api/**/*.js
-      - store_artifacts:
-          path: cypress/reports
-          destination: reports
-      - store_artifacts:
-          path: cypress/videos
-          destination: videos
-      - store_artifacts:
-          path: cypress/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: cypress/results
-      - announce_failure
-
-  # reads integration tests in mymove dir, should eventually be removed when tests are in milmove dir
-  integration_tests_mymove:
-    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 8 files here
-    parallelism: 8
-    executor: milmove_integration_tester
-    steps:
-      - attach_workspace:
-          at: .
-      - e2e_tests_cypress:
-          spec_glob: cypress/integration/mymove/**/*.js
-      - store_artifacts:
-          path: cypress/reports
-          destination: reports
-      - store_artifacts:
-          path: cypress/videos
-          destination: videos
-      - store_artifacts:
-          path: cypress/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: cypress/results
-      - announce_failure
-
-  integration_tests_milmove:
-    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 6 files here
-    parallelism: 6
-    executor: milmove_integration_tester
-    steps:
-      - attach_workspace:
-          at: .
-      - e2e_tests_cypress:
-          spec_glob: cypress/integration/milmove/**/*.js
-      - store_artifacts:
-          path: cypress/reports
-          destination: reports
-      - store_artifacts:
-          path: cypress/videos
-          destination: videos
-      - store_artifacts:
-          path: cypress/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: cypress/results
-      - announce_failure
-
-  # integration_tests_playwright_office runs the office integration
-  # tests using playwright. We are migrating away from cypress
-  integration_tests_playwright_office:
     executor: milmove_playwright_tester
     parallelism: 6
     steps:
       - e2e_tests_playwright:
           path: playwright/tests/office
-      # at some point
-      # - announce_failure
+      - announce_failure
 
-  # integration_tests_playwright_office runs the office integration
-  # tests using playwright. We are migrating away from cypress
-  integration_tests_playwright_my:
+  # reads integration tests in mymove dir, should eventually be removed when tests are in milmove dir
+  integration_tests_my:
     executor: milmove_playwright_tester
     parallelism: 6
     steps:
       - e2e_tests_playwright:
           path: playwright/tests/my
-      # at some point
-      # - announce_failure
-
+      - announce_failure
 
   # `integration_tests_devseed` runs the devseed data generation
   integration_tests_devseed:
@@ -2026,27 +1933,7 @@ workflows:
             branches:
               ignore: *integration-ignore-branch
 
-      - integration_tests_prime:
-          requires:
-            - compile_app_server
-            - compile_app_client
-          # See comments at the top of this file for configuring/using
-          # this branch config
-          filters:
-            branches:
-              ignore: *integration-ignore-branch
-
-      - integration_tests_mymove:
-          requires:
-            - compile_app_server
-            - compile_app_client
-          # See comments at the top of this file for configuring/using
-          # this branch config
-          filters:
-            branches:
-              ignore: *integration-ignore-branch
-
-      - integration_tests_milmove:
+      - integration_tests_my:
           requires:
             - compile_app_server
             - compile_app_client
@@ -2065,35 +1952,12 @@ workflows:
             branches:
               ignore: *integration-ignore-branch
 
-      # not yet required, just testing
-      - integration_tests_playwright_office:
-          requires:
-            - compile_app_server
-            - compile_app_client
-          # See comments at the top of this file for configuring/using
-          # this branch config
-          filters:
-            branches:
-              ignore: *integration-ignore-branch
-
-      # not yet required, just testing
-      - integration_tests_playwright_my:
-          requires:
-            - compile_app_server
-            - compile_app_client
-          # See comments at the top of this file for configuring/using
-          # this branch config
-          filters:
-            branches:
-              ignore: *integration-ignore-branch
 
       - integration_tests:
           requires:
             - integration_tests_admin
             - integration_tests_office
-            - integration_tests_prime
-            - integration_tests_mymove
-            - integration_tests_milmove
+            - integration_tests_my
             - integration_tests_devseed
             - integration_tests_mtls
           # See comments at the top of this file for configuring/using
