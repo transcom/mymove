@@ -961,7 +961,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 	user := factory.BuildDefaultUser(suite.DB())
 	// user is in office_users but has never logged into the app
-	officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 		{
 			Model: models.OfficeUser{
 				Active: true,
@@ -973,18 +973,8 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 			Model:    user,
 			LinkOnly: true,
 		},
-	}, nil)
+	}, []roles.RoleType{roles.RoleTypeQaeCsr})
 
-	qaeCsrRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeQaeCsr)
-	// this user doesn't have roles, so creating UsersRoles here
-	factory.BuildUsersRoles(suite.DB(), []factory.Customization{
-		{
-			Model: models.UsersRoles{
-				UserID: user.ID,
-				RoleID: qaeCsrRole.ID,
-			},
-		},
-	}, nil)
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
 
@@ -1024,7 +1014,11 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 	suite.NotEqual("", foundUser.CurrentOfficeSessionID)
 	// Make sure session contains roles and permissions
 	suite.NotEmpty(session.Roles)
-	suite.Equal(qaeCsrRole.ID, session.Roles[0].ID)
+	userRole, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeQaeCsr)
+	suite.True(hasRole)
+	sessionRole, hasRole := session.Roles.GetRole(roles.RoleTypeQaeCsr)
+	suite.True(hasRole)
+	suite.Equal(userRole.ID, sessionRole.ID)
 	suite.NotEmpty(session.Permissions)
 	suite.ElementsMatch(QAECSR.Permissions, session.Permissions)
 }

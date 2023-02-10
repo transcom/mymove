@@ -13,21 +13,15 @@ import (
 )
 
 // BuildOfficeUser creates an OfficeUser
-// Also creates, if not provided
-//   - User
-//   - TransportationOffice
-//   - calls BuildUserAndUsersRoles which creates Roles and UsersRoles
-//
 // Params:
 // - customs is a slice that will be modified by the factory
 // - db can be set to nil to create a stubbed model that is not stored in DB.
 // Notes:
+//   - To build an office user with one or more roles use BuildOfficeUserWithRoles
 //   - There's a uniqueness constraint on office user emails so use the GetTraitOfficeUserEmail trait
 //     when creating a test with multiple office users
 //   - The OfficeUser returned won't have an ID if the db is nil. If an ID is needed for a stubbed user,
 //     use trait GetTraitOfficeUserWithID
-//   - To build an office user with multiple roles. Either use BuildOfficeUserWithRoles
-//     or pass in a list of roles into the User customization []roles.Role{roles.Role{RoleType: roles.RoleTypeTOO}}
 func BuildOfficeUser(db *pop.Connection, customs []Customization, traits []Trait) models.OfficeUser {
 	customs = setupCustomizations(customs, traits)
 

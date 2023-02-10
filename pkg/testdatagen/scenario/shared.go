@@ -6400,28 +6400,27 @@ func createServicesCounselorForCloseoutWithGbloc(appCtx appcontext.AppContext, u
 
 	loginGovID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	factory.BuildOfficeUserWithRoles(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Email:  email,
+				Active: true,
+			},
+		},
 		{
 			Model: models.User{
 				ID:            userID,
 				LoginGovUUID:  &loginGovID,
 				LoginGovEmail: email,
 				Active:        true,
-				Roles:         []roles.Role{servicesCounselorRole},
 			},
 		},
-	}, nil)
-
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			Email:  email,
-			Active: true,
-			UserID: &userID,
+		{
+			Model: models.TransportationOffice{
+				Gbloc: gbloc,
+			},
 		},
-		TransportationOffice: models.TransportationOffice{
-			Gbloc: gbloc,
-		},
-	})
+	}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 }
 
 func createPrimeUser(appCtx appcontext.AppContext) models.User {
