@@ -2549,7 +2549,42 @@ func init() {
         "$ref": "#/definitions/WebhookSubscription"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "office_users"
+    },
+    {
+      "name": "webhook_subscriptions"
+    },
+    {
+      "name": "transportation_service_provider_performances"
+    },
+    {
+      "name": "admin_users"
+    },
+    {
+      "name": "office"
+    },
+    {
+      "name": "electronic_order"
+    },
+    {
+      "name": "upload"
+    },
+    {
+      "name": "organization"
+    },
+    {
+      "name": "notification"
+    },
+    {
+      "name": "move"
+    },
+    {
+      "name": "users"
+    }
+  ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "consumes": [
@@ -5088,6 +5123,41 @@ func init() {
         "$ref": "#/definitions/WebhookSubscription"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "office_users"
+    },
+    {
+      "name": "webhook_subscriptions"
+    },
+    {
+      "name": "transportation_service_provider_performances"
+    },
+    {
+      "name": "admin_users"
+    },
+    {
+      "name": "office"
+    },
+    {
+      "name": "electronic_order"
+    },
+    {
+      "name": "upload"
+    },
+    {
+      "name": "organization"
+    },
+    {
+      "name": "notification"
+    },
+    {
+      "name": "move"
+    },
+    {
+      "name": "users"
+    }
+  ]
 }`))
 }
