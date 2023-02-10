@@ -16,6 +16,18 @@ consumes:
   - application/json
 produces:
   - application/json
+tags:
+  - name: office_users
+  - name: webhook_subscriptions
+  - name: transportation_service_provider_performances
+  - name: admin_users
+  - name: office
+  - name: electronic_order
+  - name: upload
+  - name: organization
+  - name: notification
+  - name: move
+  - name: users
 definitions:
   ClientError:
     type: object
