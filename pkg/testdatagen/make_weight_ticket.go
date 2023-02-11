@@ -52,9 +52,9 @@ func MakeWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTi
 	emptyDocument := GetOrCreateDocumentWithUploads(db, assertions.WeightTicket.EmptyDocument, assertions)
 	fullDocument := GetOrCreateDocumentWithUploads(db, assertions.WeightTicket.FullDocument, assertions)
 
-	emptyWeight := unit.Pound(14500)
+	emptyWeight := unit.Pound(2000)
 	fullWeight := emptyWeight + unit.Pound(4000)
-	netAdjustedWeight := fullWeight - emptyWeight
+	adjustedNetWeight := fullWeight - emptyWeight
 
 	fullAssertions := Assertions{
 		WeightTicket: models.WeightTicket{
@@ -69,7 +69,7 @@ func MakeWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTi
 			FullDocument:             fullDocument,
 			OwnsTrailer:              models.BoolPointer(false),
 			TrailerMeetsCriteria:     models.BoolPointer(false),
-			AdjustedNetWeight:        &netAdjustedWeight,
+			AdjustedNetWeight:        &adjustedNetWeight,
 			NetWeightRemarks:         models.StringPointer("Weight has been adjusted"),
 		},
 	}

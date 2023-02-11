@@ -85,8 +85,8 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 						MissingFullWeightTicket:  models.BoolPointer(true),
 						OwnsTrailer:              models.BoolPointer(false),
 						TrailerMeetsCriteria:     models.BoolPointer(false),
-						// AdjustedNetWeight:        models.PoundPointer(800),
-						// NetWeightRemarks:         models.StringPointer("Net weight has been adjusted"),
+						AdjustedNetWeight:        models.PoundPointer(800),
+						NetWeightRemarks:         models.StringPointer("Net weight has been adjusted"),
 					},
 					existingWeightTicket,
 				)
@@ -108,7 +108,7 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 				switch verr := err.(type) {
 				case *validate.Errors:
 					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 13)
+					suite.Equal(len(verr.Keys()), 15)
 					suite.Contains(verr.Keys(), "PPMShipmentID")
 					suite.Contains(verr.Keys(), "EmptyDocumentID")
 					suite.Contains(verr.Keys(), "FullDocumentID")
@@ -122,8 +122,8 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 					suite.Contains(verr.Keys(), "FullWeightDocument")
 					suite.Contains(verr.Keys(), "OwnsTrailer")
 					suite.Contains(verr.Keys(), "TrailerMeetsCriteria")
-					// suite.Contains(verr.Keys(), "AdjustedNetWeight")
-					// suite.Contains(verr.Keys(), "NetWeightRemarks")
+					suite.Contains(verr.Keys(), "AdjustedNetWeight")
+					suite.Contains(verr.Keys(), "NetWeightRemarks")
 				default:
 					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
 				}
@@ -140,8 +140,8 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 						MissingFullWeightTicket:  models.BoolPointer(true),
 						OwnsTrailer:              models.BoolPointer(false),
 						TrailerMeetsCriteria:     models.BoolPointer(false),
-						// AdjustedNetWeight:        models.PoundPointer(3000),
-						// NetWeightRemarks: models.StringPointer("Weight was adjusted"),
+						AdjustedNetWeight:        models.PoundPointer(3000),
+						NetWeightRemarks:         models.StringPointer("Weight was adjusted"),
 					},
 					existingWeightTicket,
 				)
