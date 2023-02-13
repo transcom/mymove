@@ -11,7 +11,7 @@ import {
   getDocument,
   getMovesQueue,
   getPaymentRequestsQueue,
-  getWeightTickets,
+  getPPMDocuments,
   getServicesCounselingQueue,
   getMovePaymentRequests,
   getCustomer,
@@ -54,7 +54,7 @@ import {
   PWS_VIOLATIONS,
   REPORT_VIOLATIONS,
   MTO_SHIPMENT,
-  WEIGHT_TICKETS,
+  DOCUMENTS,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -180,19 +180,17 @@ export const useEditShipmentQueries = (moveCode) => {
   };
 };
 
-export const usePPMShipmentDocsQueries = (shipmentID) => {
-  const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentID], getMTOShipmentByID);
+export const usePPMShipmentDocsQueries = (shipmentId) => {
+  const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentId], getMTOShipmentByID);
 
-  const ppmShipmentId = mtoShipment?.ppmShipment?.id;
-
-  const { data: weightTickets, ...weightTicketsQuery } = useQuery([WEIGHT_TICKETS, ppmShipmentId], getWeightTickets, {
-    enabled: !!ppmShipmentId,
+  const { data: documents } = useQuery([DOCUMENTS, shipmentId], getPPMDocuments, {
+    enabled: !!shipmentId,
   });
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, weightTicketsQuery]);
+  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery]);
   return {
     mtoShipment,
-    weightTickets,
+    documents,
     isLoading,
     isError,
     isSuccess,
