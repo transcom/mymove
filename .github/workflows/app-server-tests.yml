@@ -36,6 +36,9 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
+      # Currently running steps outside container, so need to
+      # expose ports
+      # https://docs.github.com/en/actions/using-containerized-services/about-service-containers#mapping-docker-host-and-service-container-ports
       postgres:
         image: postgres:12.11
         env:
@@ -47,8 +50,12 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 5432:5432
       redis:
         image: redis:5.0.6
+        ports:
+          - 6379:6379
     steps:
       - name: Check out repository
         uses: actions/checkout@v3.3.0
@@ -94,16 +101,41 @@ jobs:
 
       - name: Run server test:coverage
         run: |
-          make server_test_coverage
+          export MIGRATION_MANIFEST="${PWD}/migrations/app/migrations_manifest.txt"
+          export MIGRATION_PATH="file://${PWD}/migrations/app/schema;file://${PWD}/migrations/app/secure"
+          make server_test
+        env:
+            APPLICATION: app
+            GOFLAGS: '-p=4'
+            DB_PASSWORD: mysecretpassword
+            DB_USER_LOW_PRIV: crud
+            DB_PASSWORD_LOW_PRIV: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            DTOD_USE_MOCK: true
+            EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+            ENV: test
+            ENVIRONMENT: test
+            LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
+            LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
+            LOGIN_GOV_ADMIN_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:adminmovemillocal
+            REDIS_HOST: localhost
+            SERVER_REPORT: 1
+            COVERAGE: 1
+            SERVE_API_INTERNAL: true
 
-      - name: Publish client test report
+      - name: Publish server test report
         uses: mikepenz/action-junit-report@v3
         if: success() || failure() # always run even if the previous step fails
         with:
-          report_paths: 'coverage/clover.xml'
+          report_paths: 'tmp/test-results/gotest/app/go-test-report.xml'
 
-      - name: Archive client code coverage results
+      - name: Archive server code coverage results
         uses: actions/upload-artifact@v3
         with:
-          name: client-code-coverage-report
-          path: coverage
+          name: server-code-coverage-report
+          path: tmp/test-results/gotest/app

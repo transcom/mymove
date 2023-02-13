@@ -28,6 +28,10 @@ WEBSERVER_LDFLAGS=-X main.gitBranch=$(GIT_BRANCH) -X main.gitCommit=$(GIT_COMMIT
 GC_FLAGS=-trimpath=$(GOPATH)
 DB_PORT_DEV=5432
 DB_PORT_TEST=5433
+# allow overriding the db host, useful in CI
+ifeq ($(DB_HOST),)
+	DB_HOST := localhost
+endif
 DB_PORT_DEPLOYED_MIGRATIONS=5434
 DB_PORT_DOCKER=5432
 REDIS_PORT=6379
@@ -513,7 +517,7 @@ ifndef CI
 	DB_NAME=postgres scripts/wait-for-db && DB_NAME=postgres psql-wrapper "CREATE DATABASE $(DB_NAME_DEV);" || true
 else
 	@echo "Relying on CI's database setup to create the DB."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_DEV);'
+	psql postgres://postgres:$(PGPASSWORD)@$(DB_HOST):$(DB_PORT)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_DEV);'
 endif
 
 
@@ -546,7 +550,7 @@ db_dev_fresh: check_app db_dev_reset db_dev_migrate ## Recreate dev db from scra
 .PHONY: db_dev_truncate
 db_dev_truncate: ## Truncate dev db
 	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users, uploads, webhook_subscriptions, traffic_distribution_lists, storage_facilities CASCADE'
+	psql postgres://postgres:$(PGPASSWORD)@$(DB_HOST):$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users, uploads, webhook_subscriptions, traffic_distribution_lists, storage_facilities CASCADE'
 
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: check_app db_dev_migrate db_dev_truncate ## Migrate dev db and populate with devseed data
@@ -599,7 +603,7 @@ endif
 db_deployed_migrations_create: ## Create Deployed Migrations DB
 	@echo "Create the ${DB_NAME_DEPLOYED_MIGRATIONS} database..."
 	DB_NAME=postgres DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) scripts/wait-for-db && \
-		createdb -p $(DB_PORT_DEPLOYED_MIGRATIONS) -h localhost -U postgres $(DB_NAME_DEPLOYED_MIGRATIONS) || true
+		createdb -p $(DB_PORT_DEPLOYED_MIGRATIONS) -h $(DB_HOST) -U postgres $(DB_NAME_DEPLOYED_MIGRATIONS) || true
 
 .PHONY: db_deployed_migrations_run
 db_deployed_migrations_run: db_deployed_migrations_start db_deployed_migrations_create ## Run Deployed Migrations DB (start and create)
@@ -635,7 +639,7 @@ ifndef CI
 		echo "No database container"
 else
 	@echo "Relying on CI's database setup to destroy the DB."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'DROP DATABASE IF EXISTS $(DB_NAME_TEST);'
+	psql postgres://postgres:$(PGPASSWORD)@$(DB_HOST):$(DB_PORT_TEST)?sslmode=disable -c 'DROP DATABASE IF EXISTS $(DB_NAME_TEST);'
 endif
 
 .PHONY: db_test_start
@@ -660,7 +664,7 @@ db_test_create: ## Create Test DB
 ifndef CI
 	@echo "Create the ${DB_NAME_TEST} database..."
 	DB_NAME=postgres DB_PORT=$(DB_PORT_TEST) scripts/wait-for-db && \
-		createdb -p $(DB_PORT_TEST) -h localhost -U postgres $(DB_NAME_TEST) || true
+		createdb -p $(DB_PORT_TEST) -h $(DB_HOST) -U postgres $(DB_NAME_TEST) || true
 else
 	@echo "Relying on CI's database setup to create the DB."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_TEST);'

@@ -134,7 +134,7 @@ if [[ "${GOTESTSUM:-}" == "1" ]]; then
   fi
 
   DB_NAME="${DB_NAME_TEST}" DB_PORT="${DB_PORT_TEST}" \
-         gotestsum "${gotestsum_args[@]}" -- \
+         bin/gotestsum "${gotestsum_args[@]}" -- \
          "${gotest_args[@]}" \
          "${package_list[@]}"
 else
