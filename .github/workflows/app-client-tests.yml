@@ -56,7 +56,7 @@ jobs:
           path: ~/.cache/pre-commit
           key: pre-commit-v1|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
 
-      - name: Install and run pre-commmit
+      - name: Install and run client pre-commmit except eslint and prettier
         env:
           SKIP: 'go-version,golangci-lint,ato-go-linter,appcontext-linter,gomod,swagger,eslint,prettier'
         run: |
