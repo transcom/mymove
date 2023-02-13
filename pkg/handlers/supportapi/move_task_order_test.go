@@ -227,7 +227,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		destinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		originDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		customer := testdatagen.MakeDefaultServiceMember(suite.DB())
-		contractor := testdatagen.MakeDefaultContractor(suite.DB())
+		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		document := testdatagen.MakeDefaultDocument(suite.DB())
 
 		// Create the mto payload we will be requesting to create
