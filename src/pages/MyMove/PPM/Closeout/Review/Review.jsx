@@ -93,17 +93,17 @@ const Review = () => {
     setIsDeleteModalVisible(true);
   };
 
-  const onDeleteSubmit = (itemType, itemId, itemETag) => {
+  const onDeleteSubmit = (itemType, itemId) => {
     if (itemType === 'weightTicket') {
-      deleteWeightTicket(itemId, itemETag)
+      deleteWeightTicket(mtoShipment.ppmShipment.id, itemId)
         .then(() => setIsDeleteModalVisible(false))
         .catch(() => {});
     }
     if (itemType === 'proGear') {
-      deleteProGearWeightTicket(itemId, itemETag).then(() => setIsDeleteModalVisible(false));
+      deleteProGearWeightTicket(mtoShipment.ppmShipment.id, itemId).then(() => setIsDeleteModalVisible(false));
     }
     if (itemType === 'expense') {
-      deleteMovingExpense(itemId, itemETag).then(() => setIsDeleteModalVisible(false));
+      deleteMovingExpense(mtoShipment.ppmShipment.id, itemId).then(() => setIsDeleteModalVisible(false));
     }
   };
 
