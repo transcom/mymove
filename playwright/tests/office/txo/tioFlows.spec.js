@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, expect, OfficePage } = require('../../utils/officeTest');
+import { test, expect, OfficePage } from '../../utils/officeTest';
 
 /**
  * TioFlowPage test fixture

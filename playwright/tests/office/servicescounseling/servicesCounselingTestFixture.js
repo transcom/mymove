@@ -5,7 +5,8 @@
  */
 
 // @ts-check
-const { expect, test: officeTest, OfficePage } = require('../../utils/officeTest');
+import { expect, test as officeTest, OfficePage } from '../../utils/officeTest';
+
 /**
  * ServiceCounselorPage test fixture
  *
