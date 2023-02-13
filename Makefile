@@ -32,7 +32,7 @@ DB_PORT_DEPLOYED_MIGRATIONS=5434
 DB_PORT_DOCKER=5432
 REDIS_PORT=6379
 REDIS_PORT_DOCKER=6379
-ifdef CIRCLECI
+ifdef CI
 	DB_PORT_DEV=5432
 	DB_PORT_TEST=5432
 	UNAME_S := $(shell uname -s)
@@ -80,10 +80,10 @@ prereqs: ## Check that pre-requirements are installed, includes dependency scrip
 .PHONY: check_hosts
 check_hosts: .check_hosts.stamp ## Check that hosts are in the /etc/hosts file
 .check_hosts.stamp: scripts/check-hosts-file
-ifndef CIRCLECI
+ifndef CI
 	scripts/check-hosts-file
 else
-	@echo "Not checking hosts on CircleCI."
+	@echo "Not checking hosts on CI."
 endif
 	touch .check_hosts.stamp
 
@@ -96,10 +96,10 @@ check_go_version: .check_go_version.stamp ## Check that the correct Golang versi
 .PHONY: check_gopath
 check_gopath: .check_gopath.stamp ## Check that $GOPATH exists in $PATH
 .check_gopath.stamp: scripts/check-gopath go.sum # Make sure any go binaries rebuild if version possibly changes
-ifndef CIRCLECI
+ifndef CI
 	scripts/check-gopath
 else
-	@echo "No need to check go path on CircleCI."
+	@echo "No need to check go path on CI."
 endif
 	touch .check_gopath.stamp
 
@@ -308,9 +308,9 @@ swagger_generate: .swagger_build.stamp ## Check that the build files haven't bee
 # If any swagger files (source or generated) have changed, re-run so
 # we can warn on improperly modified files. Look for any files so that
 # if API docs have changed, swagger regeneration will capture those
-# changes. On Circle CI, or if the user has set
+# changes. On CI, or if the user has set
 # SWAGGER_AUTOREBUILD, rebuild automatically without asking
-ifdef CIRCLECI
+ifdef CI
 SWAGGER_AUTOREBUILD=1
 endif
 SWAGGER_FILES = $(shell find swagger swagger-def -type f)
@@ -437,16 +437,16 @@ server_test_coverage: db_test_reset db_test_migrate redis_reset server_test_cove
 
 .PHONY: redis_pull
 redis_pull: ## Pull redis image
-ifdef CIRCLECI
-	@echo "Relying on CircleCI to setup redis."
+ifdef CI
+	@echo "Relying on CI to setup redis."
 else
 	docker pull $(REDIS_DOCKER_CONTAINER_IMAGE)
 endif
 
 .PHONY: redis_destroy
 redis_destroy: ## Destroy Redis
-ifdef CIRCLECI
-	@echo "Relying on CircleCI to setup redis."
+ifdef CI
+	@echo "Relying on CI to setup redis."
 else
 	@echo "Destroying the ${REDIS_DOCKER_CONTAINER} docker redis container..."
 	docker rm -f $(REDIS_DOCKER_CONTAINER) || echo "No Redis container"
@@ -454,8 +454,8 @@ endif
 
 .PHONY: redis_run
 redis_run: redis_pull ## Run Redis
-ifdef CIRCLECI
-	@echo "Relying on CircleCI to setup redis."
+ifdef CI
+	@echo "Relying on CI to setup redis."
 else
 		@echo "Stopping the Redis brew service in case it's running..."
 		brew services stop redis 2> /dev/null || true
@@ -483,17 +483,17 @@ db_pull: ## Pull db image
 
 .PHONY: db_dev_destroy
 db_dev_destroy: ## Destroy Dev DB
-ifndef CIRCLECI
+ifndef CI
 	@echo "Destroying the ${DB_DOCKER_CONTAINER_DEV} docker database container..."
 	docker rm -f $(DB_DOCKER_CONTAINER_DEV) || echo "No database container"
 	rm -fr mnt/db_dev # delete mount directory if exists
 else
-	@echo "Relying on CircleCI's database setup to destroy the DB."
+	@echo "Relying on CI's database setup to destroy the DB."
 endif
 
 .PHONY: db_dev_start
 db_dev_start: ## Start Dev DB
-ifndef CIRCLECI
+ifndef CI
 	brew services stop postgresql 2> /dev/null || true
 	@echo "Starting the ${DB_DOCKER_CONTAINER_DEV} docker database container..."
 	# If running do nothing, if not running try to start, if can't start then run
@@ -503,16 +503,16 @@ ifndef CIRCLECI
 			-p $(DB_PORT_DEV):$(DB_PORT_DOCKER)\
 			$(DB_DOCKER_CONTAINER_IMAGE)
 else
-	@echo "Relying on CircleCI's database setup to start the DB."
+	@echo "Relying on CI's database setup to start the DB."
 endif
 
 .PHONY: db_dev_create
 db_dev_create: ## Create Dev DB
-ifndef CIRCLECI
+ifndef CI
 	@echo "Create the ${DB_NAME_DEV} database..."
 	DB_NAME=postgres scripts/wait-for-db && DB_NAME=postgres psql-wrapper "CREATE DATABASE $(DB_NAME_DEV);" || true
 else
-	@echo "Relying on CircleCI's database setup to create the DB."
+	@echo "Relying on CI's database setup to create the DB."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_DEV);'
 endif
 
@@ -574,17 +574,17 @@ db_dev_bandwidth_up: check_app bin/generate-test-data db_dev_truncate ## Truncat
 
 .PHONY: db_deployed_migrations_destroy
 db_deployed_migrations_destroy: ## Destroy Deployed Migrations DB
-ifndef CIRCLECI
+ifndef CI
 	@echo "Destroying the ${DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS} docker database container..."
 	docker rm -f $(DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS) || echo "No database container"
 	rm -fr mnt/db_deployed_migrations # delete mount directory if exists
 else
-	@echo "Relying on CircleCI's database setup to destroy the DB."
+	@echo "Relying on CI's database setup to destroy the DB."
 endif
 
 .PHONY: db_deployed_migrations_start
 db_deployed_migrations_start: ## Start Deployed Migrations DB
-ifndef CIRCLECI
+ifndef CI
 	brew services stop postgresql 2> /dev/null || true
 endif
 	@echo "Starting the ${DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS} docker database container..."
@@ -629,18 +629,18 @@ db_deployed_psql: ## Open PostgreSQL shell for Deployed Migrations DB
 
 .PHONY: db_test_destroy
 db_test_destroy: ## Destroy Test DB
-ifndef CIRCLECI
+ifndef CI
 	@echo "Destroying the ${DB_DOCKER_CONTAINER_TEST} docker database container..."
 	docker rm -f $(DB_DOCKER_CONTAINER_TEST) || \
 		echo "No database container"
 else
-	@echo "Relying on CircleCI's database setup to destroy the DB."
+	@echo "Relying on CI's database setup to destroy the DB."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'DROP DATABASE IF EXISTS $(DB_NAME_TEST);'
 endif
 
 .PHONY: db_test_start
 db_test_start: ## Start Test DB
-ifndef CIRCLECI
+ifndef CI
 	brew services stop postgresql 2> /dev/null || true
 	@echo "Starting the ${DB_DOCKER_CONTAINER_TEST} docker database container..."
 	docker start $(DB_DOCKER_CONTAINER_TEST) || \
@@ -652,17 +652,17 @@ ifndef CIRCLECI
 			--mount type=tmpfs,destination=/var/lib/postgresql/data \
 			$(DB_DOCKER_CONTAINER_IMAGE)
 else
-	@echo "Relying on CircleCI's database setup to start the DB."
+	@echo "Relying on CI's database setup to start the DB."
 endif
 
 .PHONY: db_test_create
 db_test_create: ## Create Test DB
-ifndef CIRCLECI
+ifndef CI
 	@echo "Create the ${DB_NAME_TEST} database..."
 	DB_NAME=postgres DB_PORT=$(DB_PORT_TEST) scripts/wait-for-db && \
 		createdb -p $(DB_PORT_TEST) -h localhost -U postgres $(DB_NAME_TEST) || true
 else
-	@echo "Relying on CircleCI's database setup to create the DB."
+	@echo "Relying on CI's database setup to create the DB."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_TEST);'
 endif
 
@@ -679,7 +679,7 @@ db_test_truncate:
 
 .PHONY: db_test_migrate_standalone
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
-ifndef CIRCLECI
+ifndef CI
 	@echo "Migrating the ${DB_NAME_TEST} database..."
 	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove migrate -p "file://migrations/${APPLICATION}/secure;file://migrations/${APPLICATION}/schema" -m "migrations/${APPLICATION}/migrations_manifest.txt"
 else
@@ -1019,7 +1019,7 @@ run_prime_docker: ## Runs the docker that spins up the Prime API and data to tes
 #
 
 .PHONY: make_test
-make_test: ## Test make targets not checked by CircleCI
+make_test: ## Test make targets not checked by CI
 	scripts/make-test
 
 #
@@ -1048,7 +1048,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-6109bfb5e9650a79bd94bff6453ed726635a4dc2 bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CI=1 milmove/circleci-docker:milmove-app-6109bfb5e9650a79bd94bff6453ed726635a4dc2 bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images

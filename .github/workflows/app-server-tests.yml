@@ -1,0 +1,104 @@
+name: App Server Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'pkg/**'
+              - 'cmd/**'
+              - 'Makefile'
+              - 'swagger/**'
+              - 'go.mod'
+              - 'go.sum'
+              - 'migrations/**'
+              - 'testdata/**'
+
+  server:
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12.11
+        env:
+          POSTGRES_PASSWORD: mysecretpassword
+          POSTGRES_DB: test_db
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:5.0.6
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3.3.0
+
+      - name: Set up node
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.19.3'
+          cache: true
+
+      - name: Install dependencies
+        run: go mod tidy
+
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: pre-commit==2.20.0
+
+      - name: pre-commit cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-v1|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Install and run go pre-commit tests without golangci-lint
+        env:
+          SKIP: 'golangci-lint'
+        run: |
+          python -m pip install pre-commit==2.20.0
+          # looking for .go files is a great way to only run
+          # pre-commit hooks for go
+          git ls-files -- '*.go' | xargs pre-commit run --files
+          # explicitly run swagger checks in go pre check
+          pre-commit run --all-files swagger
+      - name: Run golangci-lint
+        run: |
+          # TODO: is this the right concurrency?
+          export GOLANGCI_LINT_CONCURRENCY=1
+          export GOLANGCI_LINT_VERBOSE=-v
+          mkdir -p tmp/test-results/pretest
+          pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
+
+      - name: Run server test:coverage
+        run: |
+          make server_test_coverage
+
+      - name: Publish client test report
+        uses: mikepenz/action-junit-report@v3
+        if: success() || failure() # always run even if the previous step fails
+        with:
+          report_paths: 'coverage/clover.xml'
+
+      - name: Archive client code coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: client-code-coverage-report
+          path: coverage
