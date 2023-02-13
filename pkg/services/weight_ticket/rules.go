@@ -89,7 +89,7 @@ func checkRequiredFields() weightTicketValidator {
 		}
 
 		if newWeightTicket.FullWeight != nil && newWeightTicket.AdjustedNetWeight != nil && *newWeightTicket.AdjustedNetWeight >= *newWeightTicket.FullWeight {
-			verrs.Add("AdjustedNetWeight", "Adjusted Net Weight cannot be less than the empty weight or greater than the full weight")
+			verrs.Add("AdjustedNetWeight", "Adjusted Net Weight cannot be greater than the full weight")
 		}
 
 		if newWeightTicket.NetWeightRemarks == nil || *newWeightTicket.NetWeightRemarks == "" {
