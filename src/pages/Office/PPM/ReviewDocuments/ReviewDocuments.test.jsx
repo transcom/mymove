@@ -230,6 +230,10 @@ describe('ReviewDocuments', () => {
       await userEvent.click(getByRole('button', { name: 'Continue' }));
       expect(queryByText('Reviewing this weight ticket is required')).not.toBeInTheDocument();
       expect(mockPatchWeightTicket).toHaveBeenCalledWith(rejectedPayload);
+      await waitFor(() => {
+        expect(getByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
+      });
+      await userEvent.click(getByRole('button', { name: 'Confirm' }));
       expect(mockPush).toHaveBeenCalled();
     });
     it('renders and handles the Close button', async () => {

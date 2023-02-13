@@ -37,12 +37,17 @@
       margin: 12px 8px;
     }
   }
+  ul {
+    @include u-margin-top(0);
+    @include u-margin-bottom(0);
+  }
   .row {
     display: flex;
     flex-direction: row;
     border-top: 1px solid #dcdee0;
     padding: 12px 8px;
-    h3 {
+
+    .tripNumber {
       @include u-font-size('body', 'xs');
       @include u-margin-bottom(0);
       font-weight: normal;
@@ -88,4 +93,9 @@
 .container .ReviewDocumentsSidePanel main {
   padding-left: 0;
   padding-right: 0;
+}
+
+.sidebar {
+  @include u-margin-top(0);
+  @include u-margin-bottom(0);
 }

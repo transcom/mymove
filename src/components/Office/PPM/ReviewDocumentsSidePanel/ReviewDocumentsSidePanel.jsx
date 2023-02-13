@@ -20,38 +20,17 @@ export default function ReviewDocumentsSidePanel({
   ppmNumber,
   formRef,
   onSuccess,
-  onError,
   expenseTickets,
   proGearTickets,
   weightTickets,
 }) {
-  // TODO: return pro-gear tickets & expenses data will be done in later tickets. For now, we have placeholders here (proGearTickets, expenseTickets).
-
-  // TODO: ability to reject/approve weight tickets will be done in another ticker. For now, this is placeholder for an accepted weight ticket
-
-  // TODO: will need something like this for form submission
-
-  // const [patchWeightTicketMutation] = useMutation(patchWeightTicket, {
-  //   onSuccess,
-  //   onError,
-  // });
-
-  // const [confirmPPMDocuments] = useMutation(confirmPPMDocuments, {
-  //   onSuccess,
-  //   onError,
-  // });
-
-  const handleSubmit = () => {
-    // TODO: use the mutation and pass in onSuccess and onError, like ReviewWeightTicket
-    if (Math.random() < 0.9999) {
-      onSuccess();
-    } else {
-      onError();
-    }
-  };
-
   let status;
   let showReason;
+
+  const handleSubmit = () => {
+    // TODO: use a mutation query and then attach onSuccess and an onError handler
+    onSuccess();
+  };
 
   const statusWithIcon = (ticket) => {
     if (ticket.status === PPMDocumentsStatus.APPROVED) {
@@ -82,43 +61,48 @@ export default function ReviewDocumentsSidePanel({
   };
 
   return (
-    <div className={classnames(styles.container, 'container--accent--ppm')}>
-      <Formik innerRef={formRef} onSubmit={handleSubmit} initialValues>
+    <Formik initialValues innerRef={formRef} onSubmit={handleSubmit}>
+      <div className={classnames(styles.container, 'container--accent--ppm')}>
         <Form className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel)}>
           <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
           <hr />
           <h3 className={styles.send}>Send to customer?</h3>
           <DocumentViewerSidebar.Content className={styles.sideBar}>
-            {weightTickets?.length > 0
-              ? weightTickets.map((weight, index) => {
+            {weightTickets.length > 0 && (
+              <ul>
+                {weightTickets.map((weight, index) => {
                   return (
-                    <div className={styles.rowContainer} key={index}>
+                    <li className={styles.rowContainer} key={index}>
                       <div className={styles.row}>
                         <h3 className={styles.tripNumber}>Trip {index + 1}</h3>
                         {statusWithIcon(weight)}
                       </div>
                       {showReason ? <p>{weight.reason}</p> : null}
-                    </div>
+                    </li>
                   );
-                })
-              : null}
-            {proGearTickets.length > 0
-              ? proGearTickets.map((gear, index) => {
+                })}
+              </ul>
+            )}
+            {proGearTickets.length > 0 && (
+              <ul>
+                {proGearTickets.map((gear, index) => {
                   return (
-                    <div className={styles.rowContainer} key={index}>
+                    <li className={styles.rowContainer} key={index}>
                       <div className={styles.row}>
                         <h3 className={styles.tripNumber}>Pro-gear {index + 1}</h3>
                         {statusWithIcon(gear)}
                       </div>
                       {showReason ? <p>{gear.reason}</p> : null}
-                    </div>
+                    </li>
                   );
-                })
-              : null}
-            {expenseTickets.length > 0
-              ? expenseTickets.map((exp, index) => {
+                })}
+              </ul>
+            )}
+            {expenseTickets.length > 0 && (
+              <ul>
+                {expenseTickets.map((exp, index) => {
                   return (
-                    <div className={styles.rowContainer} key={index}>
+                    <li className={styles.rowContainer} key={index}>
                       <div className={styles.row}>
                         <h3 className={styles.tripNumber}>
                           {exp.movingExpenseType === expenseTypes.STORAGE ? 'Storage' : 'Receipt'}
@@ -127,14 +111,15 @@ export default function ReviewDocumentsSidePanel({
                         {statusWithIcon(exp)}
                       </div>
                       {showReason ? <p>{exp.reason}</p> : null}
-                    </div>
+                    </li>
                   );
-                })
-              : null}
+                })}
+              </ul>
+            )}
           </DocumentViewerSidebar.Content>
         </Form>
-      </Formik>
-    </div>
+      </div>
+    </Formik>
   );
 }
 
@@ -143,7 +128,6 @@ ReviewDocumentsSidePanel.propTypes = {
   ppmNumber: number,
   formRef: object,
   onSuccess: func,
-  onError: func,
   expenseTickets: array,
   proGearTickets: array,
   weightTickets: array,
@@ -154,7 +138,6 @@ ReviewDocumentsSidePanel.defaultProps = {
   ppmNumber: 1,
   formRef: null,
   onSuccess: () => {},
-  onError: () => {},
   expenseTickets: [],
   proGearTickets: [],
   weightTickets: [],
