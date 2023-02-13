@@ -681,6 +681,8 @@ commands:
             export HTTP_ORDERS_SERVER_NAME=orderslocal
             export HTTP_PRIME_SERVER_NAME=primelocal
             export ENVIRONMENT=test
+            # disable for speed, playwright tests can fail otherwise
+            export DB_DEBUG=false
 
             make db_dev_create
             bin/milmove migrate
