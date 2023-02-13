@@ -149,8 +149,9 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 				switch verr := err.(type) {
 				case *validate.Errors:
 					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 1)
+					suite.Equal(len(verr.Keys()), 2)
 					suite.Contains(verr.Keys(), "FullWeight")
+					suite.Contains(verr.Keys(), "AdjustedNetWeight")
 				default:
 					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
 				}

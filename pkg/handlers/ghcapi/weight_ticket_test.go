@@ -296,10 +296,12 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 			mock.AnythingOfType("uuid.UUID"),
 		).Return(nil, nil)
 
-		// Add full and empty weights
+		// Add full, empty, and adjusted net weight
 		params.UpdateWeightTicketPayload = &ghcmessages.UpdateWeightTicket{
-			EmptyWeight: handlers.FmtInt64(1),
-			FullWeight:  handlers.FmtInt64(4000),
+			EmptyWeight:       handlers.FmtInt64(1),
+			FullWeight:        handlers.FmtInt64(4000),
+			AdjustedNetWeight: handlers.FmtInt64(3999),
+			NetWeightRemarks:  "adjusted weight",
 		}
 
 		// Validate incoming payload: no body to validate

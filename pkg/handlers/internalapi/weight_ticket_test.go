@@ -210,6 +210,8 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 			MissingFullWeightTicket:  false,
 			OwnsTrailer:              true,
 			TrailerMeetsCriteria:     true,
+			AdjustedNetWeight:        handlers.FmtInt64(3999),
+			NetWeightRemarks:         "Adjusted net weight",
 		}
 
 		response := subtestData.handler.Handle(params)
