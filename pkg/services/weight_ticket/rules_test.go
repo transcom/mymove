@@ -108,7 +108,7 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 				switch verr := err.(type) {
 				case *validate.Errors:
 					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 15)
+					suite.Equal(len(verr.Keys()), 13)
 					suite.Contains(verr.Keys(), "PPMShipmentID")
 					suite.Contains(verr.Keys(), "EmptyDocumentID")
 					suite.Contains(verr.Keys(), "FullDocumentID")
@@ -122,8 +122,6 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 					suite.Contains(verr.Keys(), "FullWeightDocument")
 					suite.Contains(verr.Keys(), "OwnsTrailer")
 					suite.Contains(verr.Keys(), "TrailerMeetsCriteria")
-					suite.Contains(verr.Keys(), "AdjustedNetWeight")
-					suite.Contains(verr.Keys(), "NetWeightRemarks")
 				default:
 					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
 				}
@@ -140,8 +138,6 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 						MissingFullWeightTicket:  models.BoolPointer(true),
 						OwnsTrailer:              models.BoolPointer(false),
 						TrailerMeetsCriteria:     models.BoolPointer(false),
-						AdjustedNetWeight:        models.PoundPointer(3000),
-						NetWeightRemarks:         models.StringPointer("Weight was adjusted"),
 					},
 					existingWeightTicket,
 				)
@@ -149,9 +145,8 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 				switch verr := err.(type) {
 				case *validate.Errors:
 					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 2)
+					suite.Equal(len(verr.Keys()), 1)
 					suite.Contains(verr.Keys(), "FullWeight")
-					suite.Contains(verr.Keys(), "AdjustedNetWeight")
 				default:
 					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
 				}
@@ -449,6 +444,92 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 					suite.Contains(verrs.Get(
 						changedWeightTicketTestCase.expectedErrorKey),
 						changedWeightTicketTestCase.expectedErrorMsg,
+					)
+				})
+			}
+		})
+	})
+
+	suite.Run("verifyAdjustedNetWeightandNetWeightRemarksAreValid", func() {
+		suite.Run("Success", func() {
+			validWeightTicketTestCases := map[string]models.WeightTicket{
+				"Net weight is adjusted with accompanying remarks": {
+					AdjustedNetWeight: models.PoundPointer(1000),
+					NetWeightRemarks:  models.StringPointer("Adjusted Weight"),
+				},
+			}
+
+			for name, validWeightTicket := range validWeightTicketTestCases {
+				name := name
+				validWeightTicket := validWeightTicket
+
+				suite.Run(name, func() {
+					err := verifyAdjustedNetWeightandNetWeightRemarksAreValid().Validate(
+						suite.AppContextForTest(),
+						&validWeightTicket,
+						nil,
+					)
+
+					suite.NilOrNoVerrs(err)
+				})
+			}
+		})
+
+		suite.Run("Failure", func() {
+			invalidWeightTicketTestCases := map[string]struct {
+				newWeightTicket  models.WeightTicket
+				expectedErrorKey string
+				expectedErrorMsg string
+			}{
+				"Adjustment is less than 0": {
+					newWeightTicket: models.WeightTicket{
+						AdjustedNetWeight: models.PoundPointer(-1),
+						NetWeightRemarks:  models.StringPointer("Adjusted Weight"),
+					},
+					expectedErrorKey: "AdjustedNetWeight",
+					expectedErrorMsg: "Adjusted Net Weight must have a value of at least 0",
+				},
+				"Adjustment exists without remark": {
+					newWeightTicket: models.WeightTicket{
+						AdjustedNetWeight: models.PoundPointer(1000),
+					},
+					expectedErrorKey: "NetWeightRemarks",
+					expectedErrorMsg: "Net Weight Remarks must exist when net weight is adjusted",
+				},
+				"Adjustment exceeds full weight": {
+					newWeightTicket: models.WeightTicket{
+						FullWeight:        models.PoundPointer(500),
+						AdjustedNetWeight: models.PoundPointer(1000),
+						NetWeightRemarks:  models.StringPointer("Adjusted Weight"),
+					},
+					expectedErrorKey: "AdjustedNetWeight",
+					expectedErrorMsg: "Adjusted Net Weight cannot be greater than or equal to the full weight",
+				},
+			}
+
+			for name, invalidWeightTicketTestCase := range invalidWeightTicketTestCases {
+				name := name
+				invalidWeightTicketTestCase := invalidWeightTicketTestCase
+
+				suite.Run(name, func() {
+					err := verifyAdjustedNetWeightandNetWeightRemarksAreValid().Validate(
+						suite.AppContextForTest(),
+						&invalidWeightTicketTestCase.newWeightTicket,
+						nil,
+					)
+
+					suite.Error(err)
+
+					suite.IsType(&validate.Errors{}, err)
+					verrs := err.(*validate.Errors)
+
+					suite.Len(verrs.Errors, 1)
+
+					suite.Contains(verrs.Keys(), invalidWeightTicketTestCase.expectedErrorKey)
+
+					suite.Contains(
+						verrs.Get(invalidWeightTicketTestCase.expectedErrorKey),
+						invalidWeightTicketTestCase.expectedErrorMsg,
 					)
 				})
 			}
