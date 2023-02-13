@@ -5,6 +5,9 @@ import ReviewDocumentsSidePanel from './ReviewDocumentsSidePanel';
 
 import PPMDocumentsStatus from 'constants/ppms';
 import { expenseTypes } from 'constants/ppmExpenseTypes';
+import { createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
+import { createBaseProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
+import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 
 export default {
   title: 'Office Components / PPM / Review Documents Side Panel',
@@ -35,16 +38,25 @@ FilledIn.args = {
     advanceAmountReceived: 60000,
   },
   expenseTickets: [
-    { movingExpenseType: expenseTypes.STORAGE, status: PPMDocumentsStatus.REJECTED, reason: 'Too large' },
-    { movingExpenseType: expenseTypes.PACKING_MATERIALS, status: PPMDocumentsStatus.ACCEPTED, reason: null },
+    createCompleteMovingExpense(
+      {},
+      { movingExpenseType: expenseTypes.STORAGE, status: PPMDocumentsStatus.REJECTED, reason: 'Too large' },
+    ),
+    createCompleteMovingExpense(
+      {},
+      { movingExpenseType: expenseTypes.PACKING_MATERIALS, status: PPMDocumentsStatus.APPROVED, reason: null },
+    ),
   ],
   proGearTickets: [
-    { status: PPMDocumentsStatus.EXCLUDED, reason: 'Objects not applicable' },
-    { status: PPMDocumentsStatus.ACCEPTED, reason: null },
+    createBaseProGearWeightTicket({}, { status: PPMDocumentsStatus.EXCLUDED, reason: 'Objects not applicable' }),
+    createBaseProGearWeightTicket({}, { status: PPMDocumentsStatus.APPROVED, reason: null }),
   ],
   weightTickets: [
-    {
-      status: PPMDocumentsStatus.APPROVED,
-    },
+    createCompleteWeightTicket(
+      {},
+      {
+        status: PPMDocumentsStatus.APPROVED,
+      },
+    ),
   ],
 };

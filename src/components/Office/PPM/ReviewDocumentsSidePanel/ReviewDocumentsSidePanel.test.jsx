@@ -3,16 +3,23 @@ import { render, screen } from '@testing-library/react';
 
 import ReviewDocumentsSidePanel from './ReviewDocumentsSidePanel';
 
+import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import PPMDocumentsStatus from 'constants/ppms';
 
 const mockWeightTickets = [
-  {
-    status: PPMDocumentsStatus.APPROVED,
-  },
-  {
-    status: PPMDocumentsStatus.REJECTED,
-    reason: 'Rejection reason',
-  },
+  createCompleteWeightTicket(
+    {},
+    {
+      status: PPMDocumentsStatus.APPROVED,
+    },
+  ),
+  createCompleteWeightTicket(
+    {},
+    {
+      status: PPMDocumentsStatus.REJECTED,
+      reason: 'Rejection reason',
+    },
+  ),
 ];
 
 describe('ReviewDocumentsSidePanel', () => {
@@ -23,8 +30,8 @@ describe('ReviewDocumentsSidePanel', () => {
   });
 
   it('shows the appropriate statuses once weight tickets are reviewed', async () => {
-    const { getAllByRole } = render(<ReviewDocumentsSidePanel weightTickets={mockWeightTickets} />);
-    const listItems = await getAllByRole('listitem');
+    render(<ReviewDocumentsSidePanel weightTickets={mockWeightTickets} />);
+    const listItems = await screen.getAllByRole('listitem');
     expect(listItems).toHaveLength(2);
     expect(listItems[0]).toHaveTextContent(/Trip 1/);
     expect(listItems[0]).toHaveTextContent(/Accept/);

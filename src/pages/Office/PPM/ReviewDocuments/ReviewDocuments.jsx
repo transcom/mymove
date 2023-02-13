@@ -148,17 +148,17 @@ export const ReviewDocuments = ({ match }) => {
           {documentSet &&
             (showOverview ? (
               <ReviewDocumentsSidePanel
-                ppmShipment={ppmShipment}
+                ppmShipment={mtoShipment.ppmShipment}
                 weightTickets={weightTickets}
-                proGearTickets={proGearTickets}
-                expenseTickets={expenseTickets}
+                proGearTickets={proGearWeightTickets}
+                expenseTickets={movingExpenses}
                 onError={onError}
                 onSuccess={onConfirmSuccess}
                 formRef={formRef}
               />
             ) : (
               <ReviewWeightTicket
-                weightTicket={documentSet}
+                weightTicket={documentSet[0]}
                 ppmNumber={1}
                 tripNumber={documentSetIndex + 1}
                 mtoShipment={mtoShipment}

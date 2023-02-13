@@ -38,8 +38,11 @@
     }
   }
   ul {
-    @include u-margin-top(0);
-    @include u-margin-bottom(0);
+    margin: 0;
+    padding: 0;
+    li {
+      list-style: none;
+    }
   }
   .row {
     display: flex;
@@ -91,8 +94,7 @@
 }
 
 .container .ReviewDocumentsSidePanel main {
-  padding-left: 0;
-  padding-right: 0;
+  padding: 0;
 }
 
 .sidebar {

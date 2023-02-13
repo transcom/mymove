@@ -3,13 +3,13 @@ import { Form } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { array, func, number, object } from 'prop-types';
+import { arrayOf, func, number, object } from 'prop-types';
 
 import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewDocumentsSidePanel.module.scss';
 
-import { PPMShipmentShape } from 'types/shipment';
+import { ExpenseShape, PPMShipmentShape, ProGearTicketShape, WeightTicketShape } from 'types/shipment';
 import formStyles from 'styles/form.module.scss';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import PPMDocumentsStatus from 'constants/ppms';
@@ -26,6 +26,8 @@ export default function ReviewDocumentsSidePanel({
 }) {
   let status;
   let showReason;
+  let storageNumber = 0;
+  let receiptNumber = 0;
 
   const handleSubmit = () => {
     // TODO: use a mutation query and then attach onSuccess and an onError handler
@@ -68,54 +70,56 @@ export default function ReviewDocumentsSidePanel({
           <hr />
           <h3 className={styles.send}>Send to customer?</h3>
           <DocumentViewerSidebar.Content className={styles.sideBar}>
-            {weightTickets.length > 0 && (
-              <ul>
-                {weightTickets.map((weight, index) => {
-                  return (
-                    <li className={styles.rowContainer} key={index}>
-                      <div className={styles.row}>
-                        <h3 className={styles.tripNumber}>Trip {index + 1}</h3>
-                        {statusWithIcon(weight)}
-                      </div>
-                      {showReason ? <p>{weight.reason}</p> : null}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-            {proGearTickets.length > 0 && (
-              <ul>
-                {proGearTickets.map((gear, index) => {
-                  return (
-                    <li className={styles.rowContainer} key={index}>
-                      <div className={styles.row}>
-                        <h3 className={styles.tripNumber}>Pro-gear {index + 1}</h3>
-                        {statusWithIcon(gear)}
-                      </div>
-                      {showReason ? <p>{gear.reason}</p> : null}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-            {expenseTickets.length > 0 && (
-              <ul>
-                {expenseTickets.map((exp, index) => {
-                  return (
-                    <li className={styles.rowContainer} key={index}>
-                      <div className={styles.row}>
-                        <h3 className={styles.tripNumber}>
-                          {exp.movingExpenseType === expenseTypes.STORAGE ? 'Storage' : 'Receipt'}
-                          &nbsp;{index + 1}
-                        </h3>
-                        {statusWithIcon(exp)}
-                      </div>
-                      {showReason ? <p>{exp.reason}</p> : null}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
+            <ul>
+              {weightTickets.length > 0
+                ? weightTickets.map((weight, index) => {
+                    return (
+                      <li className={styles.rowContainer} key={index}>
+                        <div className={styles.row}>
+                          <h3 className={styles.tripNumber}>Trip {index + 1}</h3>
+                          {statusWithIcon(weight)}
+                        </div>
+                        {showReason ? <p>{weight.reason}</p> : null}
+                      </li>
+                    );
+                  })
+                : null}
+              {proGearTickets.length > 0
+                ? proGearTickets.map((gear, index) => {
+                    return (
+                      <li className={styles.rowContainer} key={index}>
+                        <div className={styles.row}>
+                          <h3 className={styles.tripNumber}>Pro-gear {index + 1}</h3>
+                          {statusWithIcon(gear)}
+                        </div>
+                        {showReason ? <p>{gear.reason}</p> : null}
+                      </li>
+                    );
+                  })
+                : null}
+              {expenseTickets.length > 0
+                ? expenseTickets.map((exp, index) => {
+                    const isStorage = exp.movingExpenseType === expenseTypes.STORAGE;
+                    if (isStorage) {
+                      storageNumber += 1;
+                    } else {
+                      receiptNumber += 1;
+                    }
+                    return (
+                      <li className={styles.rowContainer} key={index}>
+                        <div className={styles.row}>
+                          <h3 className={styles.tripNumber}>
+                            {isStorage ? 'Storage' : 'Receipt'}
+                            &nbsp;{isStorage ? storageNumber : receiptNumber}
+                          </h3>
+                          {statusWithIcon(exp)}
+                        </div>
+                        {showReason ? <p>{exp.reason}</p> : null}
+                      </li>
+                    );
+                  })
+                : null}
+            </ul>
           </DocumentViewerSidebar.Content>
         </Form>
       </div>
@@ -128,9 +132,9 @@ ReviewDocumentsSidePanel.propTypes = {
   ppmNumber: number,
   formRef: object,
   onSuccess: func,
-  expenseTickets: array,
-  proGearTickets: array,
-  weightTickets: array,
+  expenseTickets: arrayOf(ExpenseShape),
+  proGearTickets: arrayOf(ProGearTicketShape),
+  weightTickets: arrayOf(WeightTicketShape),
 };
 
 ReviewDocumentsSidePanel.defaultProps = {
