@@ -36,11 +36,8 @@ type CustomType string
 var control CustomType = "Control"
 var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
-<<<<<<< HEAD
-var DutyLocation CustomType = "DutyLocation"
-=======
 var Contractor CustomType = "Contractor"
->>>>>>> 2845a92706 (add BuildContractor funcs + tests)
+var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
