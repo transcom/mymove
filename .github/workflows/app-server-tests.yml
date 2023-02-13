@@ -82,6 +82,7 @@ jobs:
           # pre-commit hooks for go
           git ls-files -- '*.go' | xargs pre-commit run --files
           # explicitly run swagger checks in go pre check
+          make bin/swagger
           pre-commit run --all-files swagger
       - name: Run golangci-lint
         run: |
