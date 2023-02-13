@@ -330,8 +330,17 @@ export async function patchWeightTicket(ppmShipmentId, weightTicketId, payload, 
   );
 }
 
-export async function deleteWeightTicket() {
-  return Promise.resolve();
+export async function deleteWeightTicket(ppmShipmentId, weightTicketId) {
+  return makeInternalRequest(
+    'ppm.deleteWeightTicket',
+    {
+      ppmShipmentId,
+      weightTicketId,
+    },
+    {
+      normalize: false,
+    },
+  );
 }
 
 export async function createProGearWeightTicket(ppmShipmentId) {
