@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, expect } = require('../utils/adminTest');
+import { test, expect } from '../utils/adminTest';
 
 /**
  * @param {import('@playwright/test').Page} page

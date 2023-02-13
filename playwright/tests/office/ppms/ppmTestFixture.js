@@ -5,27 +5,14 @@
  */
 
 // @ts-check
-const { expect, test, ServiceCounselorPage } = require('../servicescounseling/servicesCounselingTestFixture');
+import { expect, test, ServiceCounselorPage } from '../servicescounseling/servicesCounselingTestFixture';
+
 /**
  * PpmPage test fixture
  *
  * @extends ServiceCounselorPage
  */
 export class PpmPage extends ServiceCounselorPage {
-  /**
-   * Navigate to counseling move
-   */
-  async navigateToShipmentDetails() {
-    /**
-     * SC Moves queue
-     */
-    // use move in counseling tab, this effects PPM cypress tests in
-    // the 3 ppm files
-    await this.page.locator('[data-testid="counseling-tab-link"]').click();
-
-    await this.navigateToMove();
-  }
-
   async fillOutWeight(options = {}) {
     const {
       estimatedWeight = '4000',

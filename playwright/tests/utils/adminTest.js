@@ -4,9 +4,9 @@
  * <https://playwright.dev/docs/test-fixtures>
  */
 // @ts-check
-const base = require('@playwright/test');
+import * as base from '@playwright/test';
 
-const { BaseTestPage } = require('./baseTest');
+import { BaseTestPage } from './baseTest';
 
 /**
  * devlocal auth user types
