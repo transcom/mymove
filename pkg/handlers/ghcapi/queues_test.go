@@ -22,7 +22,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
@@ -120,7 +120,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 		var expectedMoves []models.Move
 		expectedMoves = append(expectedMoves, hhgMove, hhgPPMMove, ntsMove, ntsrMove)
 
-		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), stub)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		orderFetcher := mocks.OrderFetcher{}
 		orderFetcher.On("ListOrders", mock.AnythingOfType("*appcontext.appContext"),
@@ -157,7 +157,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
@@ -220,7 +220,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
@@ -336,7 +336,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
@@ -574,7 +574,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 
 	dutyLocation2 := factory.BuildDutyLocation(suite.DB(), nil, nil)
 
-	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
@@ -781,7 +781,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
-	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -834,7 +834,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
@@ -882,7 +882,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
-	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
 	// Default Origin Duty Location GBLOC is LKNQ
 	hhgMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
@@ -948,7 +948,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
-	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
 	outOfRangeDate, _ := time.Parse("2006-01-02", "2020-10-10")
 
@@ -1048,7 +1048,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() {
-	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -1074,7 +1074,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() 
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
-	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
 
 	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
 
@@ -1108,7 +1108,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
-	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
 
 	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
 
@@ -1156,7 +1156,7 @@ type servicesCounselingSubtestData struct {
 
 func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *servicesCounselingSubtestData) {
 	subtestData = &servicesCounselingSubtestData{}
-	subtestData.officeUser = testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+	subtestData.officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
@@ -1371,7 +1371,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 
 	suite.Run("responds with forbidden error when user is not an office user", func() {
 		subtestData := suite.makeServicesCounselingSubtestData()
-		user := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		user := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
 
 		request := httptest.NewRequest("GET", "/queues/counseling", nil)
 		request = suite.AuthenticateOfficeRequest(request, user)
