@@ -84,18 +84,6 @@ func checkRequiredFields() weightTicketValidator {
 			verrs.Add("TrailerMeetsCriteria", "Trailer Meets Criteria is required")
 		}
 
-		if newWeightTicket.AdjustedNetWeight == nil || *newWeightTicket.AdjustedNetWeight < 0 {
-			verrs.Add("AdjustedNetWeight", "Adjusted Net Weight must have a value of at least 0")
-		}
-
-		if newWeightTicket.FullWeight != nil && newWeightTicket.AdjustedNetWeight != nil && *newWeightTicket.AdjustedNetWeight >= *newWeightTicket.FullWeight {
-			verrs.Add("AdjustedNetWeight", "Adjusted Net Weight cannot be greater than the full weight")
-		}
-
-		if newWeightTicket.NetWeightRemarks == nil || *newWeightTicket.NetWeightRemarks == "" {
-			verrs.Add("NetWeightRemarks", "Net Weight Remarks must exist")
-		}
-
 		return verrs
 	})
 }
@@ -159,6 +147,24 @@ func verifyReasonAndStatusAreValid() weightTicketValidator {
 	})
 }
 
+func verifyAdjustedNetWeightandNetWeightRemarksAreValid() weightTicketValidator {
+	return weightTicketValidatorFunc(func(_ appcontext.AppContext, newWeightTicket *models.WeightTicket, originalWeightTicket *models.WeightTicket) error {
+		verrs := validate.NewErrors()
+
+		if newWeightTicket.AdjustedNetWeight != nil {
+			if *newWeightTicket.AdjustedNetWeight < 0 {
+				verrs.Add("AdjustedNetWeight", "Adjusted Net Weight must have a value of at least 0")
+			} else if newWeightTicket.FullWeight != nil && newWeightTicket.AdjustedNetWeight != nil && *newWeightTicket.AdjustedNetWeight >= *newWeightTicket.FullWeight {
+				verrs.Add("AdjustedNetWeight", "Adjusted Net Weight cannot be greater than or equal to the full weight")
+			} else if newWeightTicket.NetWeightRemarks == nil || *newWeightTicket.NetWeightRemarks == "" {
+				verrs.Add("NetWeightRemarks", "Net Weight Remarks must exist when net weight is adjusted")
+			}
+		}
+
+		return verrs
+	})
+}
+
 func basicChecksForCreate() []weightTicketValidator {
 	return []weightTicketValidator{
 		checkID(),
@@ -180,5 +186,6 @@ func basicChecksForOffice() []weightTicketValidator {
 		checkID(),
 		checkRequiredFields(),
 		verifyReasonAndStatusAreValid(),
+		verifyAdjustedNetWeightandNetWeightRemarksAreValid(),
 	}
 }
