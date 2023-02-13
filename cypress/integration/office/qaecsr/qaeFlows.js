@@ -321,25 +321,23 @@ describe('Quality Evaluation Report', () => {
       cy.contains('Yes').should('exist');
 
       cy.get('h1').contains('Shipment report');
-      cy.get('h2').contains('Evaluation report').parent().as('report');
+      cy.get('h2').contains('Evaluation report');
       cy.get('h3').contains('Violations');
       cy.get('h3').contains('QAE remarks');
 
       // Verify preview has correct sections/headers/content
-      cy.get('@report').within(() => {
-        cy.contains('td', '01 Oct 2022');
-        cy.contains('dd', 'Physical');
-        cy.contains('dd', 'Other');
-        cy.contains('dd', 'This is a test other location text');
-        cy.contains('dd', 'This is a test evaluation report');
+      cy.contains('td', '01 Oct 2022');
+      cy.contains('dd', 'Physical');
+      cy.contains('dd', 'Other');
+      cy.contains('dd', 'This is a test other location text');
+      cy.contains('dd', 'This is a test evaluation report');
 
-        //  kpi dates
-        cy.contains('dd', '03 Oct 2022');
-        cy.contains('dd', '04 Oct 2022');
-        cy.contains('dd', '05 Oct 2022');
-        cy.contains('dd', '06 Oct 2022');
-        cy.contains('dd', '07 Oct 2022');
-      });
+      //  kpi dates
+      cy.contains('dd', '03 Oct 2022');
+      cy.contains('dd', '04 Oct 2022');
+      cy.contains('dd', '05 Oct 2022');
+      cy.contains('dd', '06 Oct 2022');
+      cy.contains('dd', '07 Oct 2022');
 
       // Submit report
       submitReportFromPreview();

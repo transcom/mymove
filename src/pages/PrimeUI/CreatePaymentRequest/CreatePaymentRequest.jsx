@@ -3,7 +3,7 @@ import { useParams, useHistory, withRouter } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
-import { queryCache, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import moment from 'moment';
 import { generatePath } from 'react-router';
 import { connect } from 'react-redux';
@@ -32,15 +32,16 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
 
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
 
-  const [createPaymentRequestMutation] = useMutation(createPaymentRequest, {
+  const queryClient = useQueryClient();
+  const { mutate: createPaymentRequestMutation } = useMutation(createPaymentRequest, {
     onSuccess: (data) => {
       if (!moveTaskOrder.paymentRequests?.length) {
         moveTaskOrder.paymentRequests = [];
       }
       moveTaskOrder.paymentRequests.push(data);
 
-      queryCache.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
-      queryCache.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]).then(() => {});
+      queryClient.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
+      queryClient.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]).then(() => {});
 
       setFlashMessage(
         `MSG_CREATE_PAYMENT_SUCCESS${moveCodeOrID}`,

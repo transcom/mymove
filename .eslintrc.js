@@ -51,6 +51,13 @@ module.exports = {
         'newlines-between': 'always',
       },
     ],
+    'import/named': 'error',
+    // TODO: The folowing rules were introduced from exisiting eslint preset libraries we use.
+    // Disabling them for now until we have a conversation to see which rules we would like to keep from
+    // the import library.
+    'import/no-named-as-default-member': 'off',
+    'import/no-named-as-default': 'off',
+    //
     'import/no-extraneous-dependencies': [
       'error',
       {
@@ -114,9 +121,10 @@ module.exports = {
     'import/resolver': {
       node: {
         moduleDirectory: ['src', 'node_modules'],
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        extensions: ['.js', '.jsx'],
       },
     },
+    'import/ignore': ['.coffee$'],
     linkComponents: [
       // Components used as alternatives to <a> for linking, eg. <Link to={ url } />
       {

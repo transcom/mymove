@@ -172,7 +172,7 @@ build/index.html: build/downloads ## milmove serve requires this file to boot, b
 
 build/downloads: public/downloads
 	mkdir -p build
-	rm -r build/downloads
+	rm -rf build/downloads
 	cp -r public/downloads build/downloads
 
 .PHONY: client_run
@@ -1124,12 +1124,13 @@ clean_server:
 	rm -f bin/milmove
 
 .PHONY: clean
+# yarn clean removes node_modules
 clean: ## Clean all generated files
 	rm -f .*.stamp
 	rm -f coverage.out
 	rm -rf ./bin
 	rm -rf ./build
-	rm -rf ./node_modules
+	yarn clean
 	rm -rf ./public/swagger-ui/*.{css,js,png}
 	rm -rf ./tmp/secure_migrations
 	rm -rf ./tmp/storage
