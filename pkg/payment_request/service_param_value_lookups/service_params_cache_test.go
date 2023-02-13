@@ -112,23 +112,27 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		ReService: reServiceMS,
 	})
 
-	subtestData.paramKeyWeightEstimated = testdatagen.FetchOrMakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameWeightEstimated,
-			Description: "estimated weight",
-			Type:        models.ServiceItemParamTypeInteger,
-			Origin:      models.ServiceItemParamOriginPrime,
+	subtestData.paramKeyWeightEstimated = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNameWeightEstimated,
+				Description: "estimated weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
 		},
-	})
+	}, nil)
 
-	subtestData.paramKeyRequestedPickupDate = testdatagen.FetchOrMakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameRequestedPickupDate,
-			Description: "requested pickup date",
-			Type:        models.ServiceItemParamTypeDate,
-			Origin:      models.ServiceItemParamOriginPrime,
+	subtestData.paramKeyRequestedPickupDate = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNameRequestedPickupDate,
+				Description: "requested pickup date",
+				Type:        models.ServiceItemParamTypeDate,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
 		},
-	})
+	}, nil)
 
 	// DLH
 	_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
@@ -159,14 +163,16 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		},
 	})
 
-	subtestData.paramKeyMTOAvailableToPrimeAt = testdatagen.FetchOrMakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameMTOAvailableToPrimeAt,
-			Description: "prime mto made available date",
-			Type:        models.ServiceItemParamTypeDate,
-			Origin:      models.ServiceItemParamOriginSystem,
+	subtestData.paramKeyMTOAvailableToPrimeAt = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				Description: "prime mto made available date",
+				Type:        models.ServiceItemParamTypeDate,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
 		},
-	})
+	}, nil)
 
 	_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
