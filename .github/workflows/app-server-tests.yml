@@ -120,9 +120,6 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
-            LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
-            LOGIN_GOV_ADMIN_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:adminmovemillocal
             REDIS_HOST: localhost
             SERVER_REPORT: 1
             COVERAGE: 1
