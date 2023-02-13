@@ -3,7 +3,7 @@ import * as PropTypes from 'prop-types';
 import 'styles/office.scss';
 import { GridContainer, Grid, Button, Radio, FormGroup, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 import { useParams, useHistory, useLocation } from 'react-router';
-import { useMutation, queryCache } from 'react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import classnames from 'classnames';
@@ -34,26 +34,26 @@ const EvaluationForm = ({
   const { moveCode, reportId } = useParams();
   const history = useHistory();
   const location = useLocation();
+  const queryClient = useQueryClient();
 
-  const [deleteEvaluationReportMutation] = useMutation(deleteEvaluationReport);
-  const [submitEvaluationReportMutation] = useMutation(submitEvaluationReport, {
+  const { mutate: deleteEvaluationReportMutation } = useMutation(deleteEvaluationReport);
+  const { mutate: submitEvaluationReportMutation } = useMutation(submitEvaluationReport, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
-    onSuccess: () => {
-      // Reroute back to eval report page, include flag to show success alert
-      history.push(`/moves/${moveCode}/evaluation-reports`, { showSubmitSuccess: true });
+    onSuccess: async () => {
+      await queryClient.refetchQueries([EVALUATION_REPORT, reportId]);
     },
   });
 
-  const [mutateEvaluationReport] = useMutation(saveEvaluationReport, {
+  const { mutate: mutateEvaluationReport } = useMutation(saveEvaluationReport, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
     onSuccess: () => {
-      queryCache.refetchQueries([EVALUATION_REPORT, reportId]).then();
+      queryClient.invalidateQueries([EVALUATION_REPORT, reportId]);
     },
   });
 
@@ -70,27 +70,38 @@ const EvaluationForm = ({
     history.push(`/moves/${moveCode}/evaluation-reports`);
   };
 
-  const deleteReport = async () => {
+  const deleteReport = () => {
     // Close the modal
     setIsDeleteModalOpen(!isDeleteModalOpen);
 
     // Mark as deleted in database
-    await deleteEvaluationReportMutation(reportId);
-
-    // Reroute back to eval report page, include flag to know to show alert
-    history.push(`/moves/${moveCode}/evaluation-reports`, { showCanceledSuccess: true });
+    deleteEvaluationReportMutation(reportId, {
+      onSuccess: () => {
+        // Reroute back to eval report page, include flag to know to show alert
+        history.push(`/moves/${moveCode}/evaluation-reports`, { showCanceledSuccess: true });
+      },
+    });
   };
 
   // passed to the confrimation modal
-  const submitReport = async () => {
+  const submitReport = () => {
     // close the modal
     setIsSubmitModalOpen(!isSubmitModalOpen);
 
     // mark as submitted in the DB
-    await submitEvaluationReportMutation({ reportID: reportId, ifMatchETag: evaluationReport.eTag });
+    submitEvaluationReportMutation(
+      { reportID: reportId, ifMatchETag: evaluationReport.eTag },
+      {
+        onSuccess: () =>
+          // Reroute back to eval report page, include flag to show success alert
+          {
+            history.push(`/moves/${moveCode}/evaluation-reports`, { showSubmitSuccess: true });
+          },
+      },
+    );
   };
 
-  const saveDraft = async (values) => {
+  const saveDraft = (values) => {
     // pull out fields we dont want to save/update
     const {
       createdAt,
@@ -176,11 +187,11 @@ const EvaluationForm = ({
       evalEnd,
     };
 
-    await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
+    mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
   };
 
   const handleSaveDraft = async (values) => {
-    await saveDraft(values);
+    saveDraft(values);
 
     history.push(`/moves/${moveCode}/evaluation-reports`, { showSaveDraftSuccess: true });
   };
@@ -190,14 +201,14 @@ const EvaluationForm = ({
   // displays report preview ahead of final submission
   const handlePreviewReport = async (values) => {
     // save updates
-    await saveDraft(values);
+    saveDraft(values);
 
     // open the modal to submit
     setIsSubmitModalOpen(!isSubmitModalOpen);
   };
 
   const handleSelectViolations = async (values) => {
-    await saveDraft(values);
+    saveDraft(values);
 
     // Reroute to currentURL/violations
     history.push(`${location.pathname}/violations`);

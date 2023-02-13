@@ -5,13 +5,13 @@
  */
 
 // @ts-check
-const {
+import {
   expect,
-  test: customerTest,
+  test as customerTest,
   forEachViewport,
   useMobileViewport,
   CustomerPage,
-} = require('../../../utils/customerTest');
+} from '../../../utils/customerTest';
 
 /**
  * CustomerPpmPage test fixture
@@ -822,7 +822,7 @@ export class CustomerPpmPage extends CustomerPage {
 const customerPpmFixtures = {
   customerPpmPage: async ({ customerPage }, use) => {
     const customerPpmPage = new CustomerPpmPage(customerPage);
-    use(customerPpmPage);
+    await use(customerPpmPage);
   },
 };
 

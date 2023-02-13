@@ -2,6 +2,7 @@ import * as Yup from 'yup';
 
 import { getFormattedMaxAdvancePercentage } from 'utils/incentives';
 import { InvalidZIPTypeError, ZIP5_CODE_REGEX } from 'utils/validation';
+import { ADVANCE_STATUSES } from 'constants/ppms';
 
 function closeoutOfficeSchema(showCloseoutOffice, isAdvancePage) {
   if (showCloseoutOffice && !isAdvancePage) {
@@ -93,7 +94,7 @@ const ppmShipmentSchema = ({
       is: (advance, advanceRequested, advanceStatus) =>
         (isAdvancePage &&
           (Number(advance) !== advanceAmountRequested / 100 || advanceRequested !== hasRequestedAdvance)) ||
-        (isAdvancePage && advanceStatus === 'REJECTED'),
+        (isAdvancePage && ADVANCE_STATUSES[advanceStatus] === ADVANCE_STATUSES.REJECTED),
       then: (schema) => schema.required('Required'),
     }),
   });

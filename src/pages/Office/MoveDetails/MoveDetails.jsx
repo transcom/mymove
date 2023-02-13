@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { queryCache, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
@@ -30,10 +30,20 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
+import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 
 const errorIfMissing = {
-  HHG_INTO_NTS_DOMESTIC: ['storageFacility', 'serviceOrderNumber', 'tacType'],
-  HHG_OUTOF_NTS_DOMESTIC: ['storageFacility', 'ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
+  HHG_INTO_NTS_DOMESTIC: [
+    { fieldName: 'storageFacility' },
+    { fieldName: 'serviceOrderNumber' },
+    { fieldName: 'tacType' },
+  ],
+  HHG_OUTOF_NTS_DOMESTIC: [
+    { fieldName: 'storageFacility' },
+    { fieldName: 'ntsRecordedWeight' },
+    { fieldName: 'serviceOrderNumber' },
+    { fieldName: 'tacType' },
+  ],
 };
 
 const MoveDetails = ({
@@ -59,10 +69,10 @@ const MoveDetails = ({
 
   if (isRetirementOrSeparation) {
     // destination type must be set for for HHG, NTSR shipments only
-    errorIfMissing.HHG = ['destinationType'];
-    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push('destinationType');
-    errorIfMissing.HHG_SHORTHAUL_DOMESTIC = ['destinationType'];
-    errorIfMissing.HHG_LONGHAUL_DOMESTIC = ['destinationType'];
+    errorIfMissing.HHG = [{ fieldName: 'destinationType' }];
+    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push({ fieldName: 'destinationType' });
+    errorIfMissing.HHG_SHORTHAUL_DOMESTIC = [{ fieldName: 'destinationType' }];
+    errorIfMissing.HHG_LONGHAUL_DOMESTIC = [{ fieldName: 'destinationType' }];
   }
 
   let sections = useMemo(() => {
@@ -70,27 +80,28 @@ const MoveDetails = ({
   }, []);
 
   // use mutation calls
-  const [mutateMoveStatus] = useMutation(updateMoveStatus, {
+  const queryClient = useQueryClient();
+  const { mutate: mutateMoveStatus } = useMutation(updateMoveStatus, {
     onSuccess: (data) => {
-      queryCache.setQueryData([MOVES, data.locator], data);
-      queryCache.invalidateQueries([MOVES, data.locator]);
-      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, data.id]);
+      queryClient.setQueryData([MOVES, data.locator], data);
+      queryClient.invalidateQueries([MOVES, data.locator]);
+      queryClient.invalidateQueries([MTO_SERVICE_ITEMS, data.id]);
     },
   });
 
-  const [mutateMTOShipmentStatus] = useMutation(updateMTOShipmentStatus, {
+  const { mutate: mutateMTOShipmentStatus } = useMutation(updateMTOShipmentStatus, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
-      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.invalidateQueries([MTO_SERVICE_ITEMS, updatedMTOShipment.moveTaskOrderID]);
     },
   });
 
-  const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
+  const { mutate: mutateFinancialReview } = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
-      queryCache.setQueryData([MOVES, data.locator], data);
-      queryCache.invalidateQueries([MOVES, data.locator]);
+      queryClient.setQueryData([MOVES, data.locator], data);
+      queryClient.invalidateQueries([MOVES, data.locator]);
       if (data.financialReviewFlag) {
         setAlertMessage('Move flagged for financial review.');
         setAlertType('success');
@@ -191,8 +202,8 @@ const MoveDetails = ({
 
     mtoShipments?.forEach((mtoShipment) => {
       const fieldsToCheckForShipment = errorIfMissing[mtoShipment.shipmentType];
-      const existsMissingFieldsOnShipment = fieldsToCheckForShipment?.some(
-        (field) => !mtoShipment[field] || mtoShipment[field] === '',
+      const existsMissingFieldsOnShipment = fieldsToCheckForShipment?.some((field) =>
+        objectIsMissingFieldWithCondition(mtoShipment, field),
       );
 
       // If there were no fields to check, then nothing was required.

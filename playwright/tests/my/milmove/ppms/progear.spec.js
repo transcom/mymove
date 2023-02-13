@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { expect, test, forEachViewport } = require('./customerPpmTestFixture');
+import { expect, test, forEachViewport } from './customerPpmTestFixture';
 
 test.describe('Progear', () => {
   forEachViewport(async () => {
