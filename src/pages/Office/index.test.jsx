@@ -398,20 +398,24 @@ describe('Office App', () => {
         },
       };
 
-      it.each([['ServicesCounselingMoveInfo', '/counseling/moves/AU67C6', '/counseling/moves/:moveCode']])(
-        'handles a %s URL (%s) with a given path of %s',
-        (pageName, initialURL, pathToMatch) => {
-          const app = mount(
-            <MockProviders initialState={loggedInServicesCounselorState} initialEntries={[initialURL]}>
-              <ConnectedOffice />
-            </MockProviders>,
-          );
+      it.each([
+        ['ServicesCounselingMoveInfo', '/counseling/moves/AU67C6', '/counseling/moves/:moveCode'],
+        [
+          'ServicesCounselingReviewShipmentWeights',
+          '/counseling/moves/AU67C6/review-shipment-weights',
+          '/counseling/moves/:moveCode/review-shipment-weights',
+        ],
+      ])('handles a %s URL (%s) with a given path of %s', (pageName, initialURL, pathToMatch) => {
+        const app = mount(
+          <MockProviders initialState={loggedInServicesCounselorState} initialEntries={[initialURL]}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
 
-          const renderedRoute = app.find('PrivateRoute');
-          expect(renderedRoute).toHaveLength(1);
-          expect(renderedRoute.prop('path')).toEqual(pathToMatch);
-        },
-      );
+        const renderedRoute = app.find('PrivateRoute');
+        expect(renderedRoute).toHaveLength(1);
+        expect(renderedRoute.prop('path')).toEqual(pathToMatch);
+      });
     });
 
     describe('Prime Simulator routes', () => {
