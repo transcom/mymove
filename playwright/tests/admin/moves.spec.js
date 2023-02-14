@@ -51,7 +51,7 @@ test('Moves Details Show Page', async ({ page, adminPage }) => {
     'Service member last name',
   ];
 
-  await adminPage.expectLocatorLabelsByText('label', labels, { exact: true });
+  await adminPage.expectLabels(labels);
 });
 
 test('Moves Details Edit Page', async ({ page, adminPage }) => {
@@ -75,7 +75,7 @@ test('Moves Details Edit Page', async ({ page, adminPage }) => {
   await adminPage.waitForAdminPageToLoad();
   expect(page.url()).toContain(moveId);
 
-  await page.getByRole('button', { name: 'Edit' }).click();
+  await page.getByRole('link', { name: 'Edit' }).click();
   await adminPage.waitForAdminPageToLoad();
   expect(page.url()).toContain(moveId);
 

@@ -26,7 +26,7 @@ test('Admin User Create Page', async ({ page, adminPage }) => {
   await adminPage.waitForAdminPageToLoad();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Create' }).click();
+  await page.getByRole('link', { name: 'Create' }).click();
   await adminPage.waitForAdminPageToLoad();
   await expect(page.getByRole('heading', { name: 'Create Admin Users' })).toBeVisible();
 
@@ -85,7 +85,7 @@ test('Admin Users Show Page', async ({ page, adminPage }) => {
     'Updated at',
   ];
 
-  await adminPage.expectLocatorLabelsByText('label', labels, { exact: true });
+  await adminPage.expectLabels(labels);
 });
 
 test('Admin Users Edit Page', async ({ page, adminPage }) => {
@@ -106,7 +106,7 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
   await page.goto(`/system/admin-users/${adminUserId}/show`);
   await adminPage.waitForAdminPageToLoad();
 
-  await page.getByRole('button', { name: 'Edit' }).click();
+  await page.getByRole('link', { name: 'Edit' }).click();
   await adminPage.waitForAdminPageToLoad();
   expect(page.url()).toContain(adminUserId);
 
