@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/DATA-DOG/go-txdb v0.1.5
-	github.com/XSAM/otelsql v0.17.1
+	github.com/XSAM/otelsql v0.19.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20221223131519-238b052508b6
 	github.com/alexedwards/scs/v2 v2.5.0
 	github.com/aws/aws-sdk-go v1.44.200
@@ -73,9 +73,9 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.12.0
 	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.34.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.13.0
-	go.opentelemetry.io/otel/metric v0.34.0
+	go.opentelemetry.io/otel/metric v0.36.0
 	go.opentelemetry.io/otel/sdk v1.13.0
-	go.opentelemetry.io/otel/sdk/metric v0.34.0
+	go.opentelemetry.io/otel/sdk/metric v0.36.0
 	go.opentelemetry.io/otel/trace v1.13.0
 	go.uber.org/zap v1.24.0
 	golang.org/x/crypto v0.5.0
