@@ -301,7 +301,7 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 		}})
 		testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{Move: move})
 
-		storageFacility := factory.BuildDefaultStorageFacility(appCtx.DB())
+		storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
 		ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{

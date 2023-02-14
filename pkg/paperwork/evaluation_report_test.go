@@ -79,7 +79,7 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 
 func (suite *PaperworkSuite) TestFormatValuesShipment() {
 	suite.Run("storage facility with phone and email", func() {
-		storageFacility := factory.BuildDefaultStorageFacility(suite.DB())
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{
 			StorageFacility: storageFacility,
 			MTOShipment:     models.MTOShipment{StorageFacility: &storageFacility},
@@ -91,7 +91,7 @@ func (suite *PaperworkSuite) TestFormatValuesShipment() {
 	})
 
 	suite.Run("storage facility with no phone number should not panic", func() {
-		storageFacility := factory.BuildDefaultStorageFacility(suite.DB())
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 		storageFacility.Phone = nil
 		suite.MustSave(&storageFacility)
 		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{
@@ -104,7 +104,7 @@ func (suite *PaperworkSuite) TestFormatValuesShipment() {
 	})
 
 	suite.Run("storage facility with no email should not panic", func() {
-		storageFacility := factory.BuildDefaultStorageFacility(suite.DB())
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 		storageFacility.Email = nil
 		suite.MustSave(&storageFacility)
 		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{

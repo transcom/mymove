@@ -506,7 +506,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 				Status: models.MTOShipmentStatusSubmitted,
 			},
 		})
-		storageFacility := factory.BuildDefaultStorageFacility(suite.DB())
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 
 		updatedShipment := models.MTOShipment{
 			ID:              shipment.ID,
@@ -1025,7 +1025,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
-		storageFacility := factory.BuildDefaultStorageFacility(suite.DB())
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 
 		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: mto,

@@ -52,7 +52,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 
 	mto := testdatagen.MakeDefaultMove(suite.DB())
 
-	storageFacility := factory.BuildDefaultStorageFacility(suite.DB())
+	storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 
 	sitAllowance := int(90)
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{

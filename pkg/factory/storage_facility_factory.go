@@ -48,11 +48,6 @@ func BuildStorageFacility(db *pop.Connection, customs []Customization, traits []
 	return StorageFacility
 }
 
-// BuildDefaultStorageFacility creates one with a phoneline hooked up.
-func BuildDefaultStorageFacility(db *pop.Connection) models.StorageFacility {
-	return BuildStorageFacility(db, nil, nil)
-}
-
 // ------------------------
 //        TRAITS
 // ------------------------

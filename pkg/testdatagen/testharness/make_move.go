@@ -1842,7 +1842,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 		}
 	}
 
-	storageFacility := factory.BuildDefaultStorageFacility(appCtx.DB())
+	storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
 
 	updatedShipment := updatedShipments[1]
 
@@ -1946,7 +1946,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 		}
 	}
 
-	storageFacility := factory.BuildDefaultStorageFacility(appCtx.DB())
+	storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
 
 	updatedShipment := updatedShipments[1]
 

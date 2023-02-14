@@ -180,7 +180,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		storageFacility := factory.BuildDefaultStorageFacility(nil)
+		storageFacility := factory.BuildStorageFacility(nil, nil, nil)
 
 		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
