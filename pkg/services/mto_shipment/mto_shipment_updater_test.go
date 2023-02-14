@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	notificationMocks "github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/route/mocks"
@@ -367,7 +368,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			CustomerRemarks:          &customerRemarks,
 			CounselorRemarks:         &counselorRemarks,
 		}
-		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
@@ -513,7 +514,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
-		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
@@ -575,7 +576,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
-		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
@@ -605,7 +606,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			NTSRecordedWeight: &ntsRecorededWeight,
 		}
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
-		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
@@ -635,7 +636,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			NTSRecordedWeight: &ntsRecorededWeight,
 		}
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
-		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
@@ -1726,7 +1727,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 			SACType: &nullLOAType,
 		}
 
-		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
@@ -1760,7 +1761,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 			TACType: &hhgLOAType,
 		}
 
-		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,

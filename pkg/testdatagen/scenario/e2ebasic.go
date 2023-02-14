@@ -95,20 +95,24 @@ func basicUserWithOfficeAccess(appCtx appcontext.AppContext) {
 	email := "officeuser1@example.com"
 	userID := uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b"))
 	loginGovID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            userID,
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         []roles.Role{tooRole},
+	factory.BuildOfficeUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),
+				Email:  email,
+				Active: true,
+			},
 		},
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),
-			Email:  email,
-			Active: true,
+		{
+			Model: models.User{
+				ID:            userID,
+				LoginGovUUID:  &loginGovID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{tooRole},
+			},
 		},
-	})
+	}, nil)
 }
 
 func userWithRoles(appCtx appcontext.AppContext) {
@@ -157,17 +161,21 @@ func userWithTOORole(appCtx appcontext.AppContext) {
 		},
 	}, nil)
 
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("144503a6-485c-463e-b943-d3c3bad11b09"),
-			Email:  email,
-			Active: true,
-			UserID: &tooUUID,
+	factory.BuildOfficeUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("144503a6-485c-463e-b943-d3c3bad11b09"),
+				Email:  email,
+				Active: true,
+				UserID: &tooUUID,
+			},
 		},
-		TransportationOffice: models.TransportationOffice{
-			Gbloc: "KKFA",
+		{
+			Model: models.TransportationOffice{
+				Gbloc: "KKFA",
+			},
 		},
-	})
+	}, nil)
 }
 
 func userWithTIORole(appCtx appcontext.AppContext) {
@@ -193,14 +201,16 @@ func userWithTIORole(appCtx appcontext.AppContext) {
 		},
 	}, nil)
 
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("f1828a35-43fd-42be-8b23-af4d9d51f0f3"),
-			Email:  email,
-			Active: true,
-			UserID: &tioUUID,
+	factory.BuildOfficeUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("f1828a35-43fd-42be-8b23-af4d9d51f0f3"),
+				Email:  email,
+				Active: true,
+				UserID: &tioUUID,
+			},
 		},
-	})
+	}, nil)
 }
 
 func userWithServicesCounselorRole(appCtx appcontext.AppContext) {
@@ -226,14 +236,16 @@ func userWithServicesCounselorRole(appCtx appcontext.AppContext) {
 		},
 	}, nil)
 
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("c70d9a38-4bff-4d37-8dcc-456f317d7935"),
-			Email:  email,
-			Active: true,
-			UserID: &servicesCounselorUUID,
+	factory.BuildOfficeUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("c70d9a38-4bff-4d37-8dcc-456f317d7935"),
+				Email:  email,
+				Active: true,
+				UserID: &servicesCounselorUUID,
+			},
 		},
-	})
+	}, nil)
 }
 
 func userWithQAECSRRole(appCtx appcontext.AppContext, userID uuid.UUID, email string) {
@@ -257,16 +269,20 @@ func userWithQAECSRRole(appCtx appcontext.AppContext, userID uuid.UUID, email st
 		},
 	}, nil)
 
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			Email:  email,
-			Active: true,
-			UserID: &userID,
+	factory.BuildOfficeUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Email:  email,
+				Active: true,
+				UserID: &userID,
+			},
 		},
-		TransportationOffice: models.TransportationOffice{
-			Gbloc: "KKFA",
+		{
+			Model: models.TransportationOffice{
+				Gbloc: "KKFA",
+			},
 		},
-	})
+	}, nil)
 }
 
 func userWithTOOandTIORole(appCtx appcontext.AppContext) {
@@ -298,14 +314,16 @@ func userWithTOOandTIORole(appCtx appcontext.AppContext) {
 		},
 	}, nil)
 
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
-			Email:  email,
-			Active: true,
-			UserID: &tooTioUUID,
+	factory.BuildOfficeUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
+				Email:  email,
+				Active: true,
+				UserID: &tooTioUUID,
+			},
 		},
-	})
+	}, nil)
 	testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			User:   user,
@@ -349,14 +367,16 @@ func userWithTOOandTIOandQAECSRRole(appCtx appcontext.AppContext) {
 		},
 	}, nil)
 
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("45a6b7c2-2484-49af-bb7f-3ca8c179bcfb"),
-			Email:  email,
-			Active: true,
-			UserID: &tooTioQaecsrUUID,
+	factory.BuildOfficeUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("45a6b7c2-2484-49af-bb7f-3ca8c179bcfb"),
+				Email:  email,
+				Active: true,
+				UserID: &tooTioQaecsrUUID,
+			},
 		},
-	})
+	}, nil)
 	testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			User:   user,
@@ -399,14 +419,16 @@ func userWithTOOandTIOandServicesCounselorRole(appCtx appcontext.AppContext) {
 		},
 	}, nil)
 
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("f3503012-e17a-4136-aa3c-508ee3b1962f"),
-			Email:  email,
-			Active: true,
-			UserID: &ttooTioServicesUUID,
+	factory.BuildOfficeUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("f3503012-e17a-4136-aa3c-508ee3b1962f"),
+				Email:  email,
+				Active: true,
+				UserID: &ttooTioServicesUUID,
+			},
 		},
-	})
+	}, nil)
 	testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			User:   user,
@@ -438,14 +460,16 @@ func userWithPrimeSimulatorRole(appCtx appcontext.AppContext) {
 		},
 	}, nil)
 
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("471bce0c-1a13-4df9-bef5-26be7d27a5bd"),
-			Email:  email,
-			Active: true,
-			UserID: &primeSimulatorUserID,
+	factory.BuildOfficeUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("471bce0c-1a13-4df9-bef5-26be7d27a5bd"),
+				Email:  email,
+				Active: true,
+				UserID: &primeSimulatorUserID,
+			},
 		},
-	})
+	}, nil)
 }
 
 /*

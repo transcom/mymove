@@ -5,27 +5,14 @@
  */
 
 // @ts-check
-const { expect, test, ServiceCounselorPage } = require('../servicescounseling/servicesCounselingTestFixture');
+import { expect, test as scTest, ServiceCounselorPage } from '../servicescounseling/servicesCounselingTestFixture';
+
 /**
  * PpmPage test fixture
  *
  * @extends ServiceCounselorPage
  */
 export class ScPpmPage extends ServiceCounselorPage {
-  /**
-   * Navigate to counseling move
-   */
-  async navigateToShipmentDetails() {
-    /**
-     * SC Moves queue
-     */
-    // use move in counseling tab, this effects PPM cypress tests in
-    // the 3 ppm files
-    await this.page.locator('[data-testid="counseling-tab-link"]').click();
-
-    await this.navigateToMove();
-  }
-
   async fillOutWeight(options = {}) {
     const {
       estimatedWeight = '4000',
@@ -110,6 +97,22 @@ export class ScPpmPage extends ServiceCounselorPage {
   }
 }
 
-export { expect, test };
+/**
+ * @typedef {object} ScPpmPageTestArgs - services counselor ppm page test args
+ * @property {ScPpmPage} scPpmPage    - services counselor ppm page
+ */
+
+/** @type {import('@playwright/test').Fixtures<ScPpmPageTestArgs, {}, import('../../utils/officeTest').OfficePageTestArgs, import('@playwright/test').PlaywrightWorkerArgs>} */
+const scpPpmFixtures = {
+  scPpmPage: async ({ officePage }, use) => {
+    const scPpmPage = new ScPpmPage(officePage);
+    await scPpmPage.signInAsNewServicesCounselorUser();
+    use(scPpmPage);
+  },
+};
+
+export const test = scTest.extend(scpPpmFixtures);
+
+export { expect };
 
 export default ScPpmPage;

@@ -4,7 +4,7 @@ import { generatePath } from 'react-router';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
-import { queryCache, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import ordersFormValidationSchema from '../Orders/ordersFormValidationSchema';
@@ -39,15 +39,16 @@ const ServicesCounselingOrders = () => {
     history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
 
-  const [mutateOrders] = useMutation(counselingUpdateOrder, {
+  const queryClient = useQueryClient();
+  const { mutate: mutateOrders } = useMutation(counselingUpdateOrder, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
-      queryCache.setQueryData([ORDERS, variables.orderID], {
+      queryClient.setQueryData([ORDERS, variables.orderID], {
         orders: {
           [`${variables.orderID}`]: updatedOrder,
         },
       });
-      queryCache.invalidateQueries(ORDERS);
+      queryClient.invalidateQueries(ORDERS);
       handleClose();
     },
     onError: (error) => {
