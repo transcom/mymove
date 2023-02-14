@@ -3213,7 +3213,8 @@ func init() {
               "locator",
               "status",
               "originDutyLocation",
-              "destinationDutyLocation"
+              "destinationDutyLocation",
+              "requestedMoveDate"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -3258,6 +3259,12 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
             "in": "query"
           },
           {
@@ -13435,7 +13442,8 @@ func init() {
               "locator",
               "status",
               "originDutyLocation",
-              "destinationDutyLocation"
+              "destinationDutyLocation",
+              "requestedMoveDate"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -13480,6 +13488,12 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
             "in": "query"
           },
           {
