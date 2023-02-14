@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -43,7 +44,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 				PaymentRequestID: paymentRequest1.ID,
 			},
 		})
-		contractor := testdatagen.MakeDefaultContractor(suite.DB())
+		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
 			PrimeUpload: models.PrimeUpload{
 				ProofOfServiceDocID: proofOfServiceDoc.ID,
@@ -71,7 +72,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 				PaymentRequestID: paymentRequest2.ID,
 			},
 		})
-		contractor := testdatagen.MakeDefaultContractor(suite.DB())
+		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
 			PrimeUpload: models.PrimeUpload{
 				ProofOfServiceDocID: proofOfServiceDoc.ID,

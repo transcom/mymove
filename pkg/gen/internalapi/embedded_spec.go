@@ -5783,13 +5783,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",
@@ -14400,13 +14402,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",

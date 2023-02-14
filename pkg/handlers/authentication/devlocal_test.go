@@ -12,11 +12,11 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func getCookie(name string, cookies []*http.Cookie) (*http.Cookie, error) {
@@ -67,10 +67,18 @@ func (suite *AuthSuite) TestCreateUserHandlerMilMove() {
 
 func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 	// These roles are created during migrations but our test suite truncates all tables
-	testdatagen.MakeTOORole(suite.DB())
-	testdatagen.MakeTIORole(suite.DB())
-	testdatagen.MakeServicesCounselorRole(suite.DB())
-	testdatagen.MakeQaeCsrRole(suite.DB())
+	factory.BuildRole(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitTOORole,
+	})
+	factory.BuildRole(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitTIORole,
+	})
+	factory.BuildRole(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitServicesCounselorRole,
+	})
+	factory.BuildRole(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitQaeCsrRole,
+	})
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -227,7 +235,9 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 	t := suite.T()
-	testdatagen.MakeTOORole(suite.DB())
+	factory.BuildRole(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitTOORole,
+	})
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -393,7 +403,9 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToMilMove() {
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToOffice() {
 	t := suite.T()
-	testdatagen.MakeTOORole(suite.DB())
+	factory.BuildRole(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitTOORole,
+	})
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()

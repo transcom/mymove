@@ -78,7 +78,7 @@ export const NTSRMissingInfo = () => (
       ntsRecordedWeight: info.ntsRecordedWeight,
       serviceOrderNumber: info.serviceOrderNumber,
     }}
-    errorIfMissing={['storageFacility']}
+    errorIfMissing={[{ fieldName: 'storageFacility' }]}
   />
 );
 

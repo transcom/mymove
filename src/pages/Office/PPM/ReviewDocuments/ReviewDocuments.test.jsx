@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { ReviewDocuments } from './ReviewDocuments';
 
 import { usePPMShipmentDocsQueries } from 'hooks/queries';
+import { MockProviders } from 'testUtils';
 
 Element.prototype.scrollTo = jest.fn();
 
@@ -157,13 +158,21 @@ describe('ReviewDocuments', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(loadingReturnValue);
-      render(<ReviewDocuments {...requiredProps} />);
+      render(
+        <MockProviders>
+          <ReviewDocuments {...requiredProps} />
+        </MockProviders>,
+      );
       const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
     });
     it('renders the Something Went Wrong component when the query errors', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(errorReturnValue);
-      render(<ReviewDocuments {...requiredProps} />);
+      render(
+        <MockProviders>
+          <ReviewDocuments {...requiredProps} />
+        </MockProviders>,
+      );
       const errorMessage = await screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
     });
@@ -175,7 +184,12 @@ describe('ReviewDocuments', () => {
       });
       await waitFor(() => {
         usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
-        render(<ReviewDocuments {...requiredProps} />);
+        render(
+          <MockProviders>
+            {' '}
+            <ReviewDocuments {...requiredProps} />{' '}
+          </MockProviders>,
+        );
       });
       const docs = screen.getByText(/Documents/);
       expect(docs).toBeInTheDocument();
@@ -189,7 +203,11 @@ describe('ReviewDocuments', () => {
     });
     it('renders and handles the Continue button with the appropriate payload', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
-      const { getByRole, getByLabelText, queryByText } = render(<ReviewDocuments {...requiredProps} />);
+      const { getByRole, getByLabelText, queryByText } = render(
+        <MockProviders>
+          <ReviewDocuments {...requiredProps} />
+        </MockProviders>,
+      );
       await waitFor(() => {
         expect(getByLabelText('Accept')).toBeInTheDocument();
         expect(getByLabelText('Reject')).toBeInTheDocument();
@@ -210,7 +228,11 @@ describe('ReviewDocuments', () => {
     });
     it('renders and handles the Close button', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
-      const { getByTestId } = render(<ReviewDocuments {...requiredProps} />);
+      const { getByTestId } = render(
+        <MockProviders>
+          <ReviewDocuments {...requiredProps} />
+        </MockProviders>,
+      );
       expect(getByTestId('closeSidebar')).toBeInTheDocument();
       await userEvent.click(getByTestId('closeSidebar'));
       expect(mockPush).toHaveBeenCalled();
@@ -219,7 +241,11 @@ describe('ReviewDocuments', () => {
       jest.spyOn(console, 'error').mockImplementation(() => {});
       mockPatchWeightTicket.mockRejectedValueOnce('fatal error');
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
-      const { getByRole, getByLabelText, queryByText } = render(<ReviewDocuments {...requiredProps} />);
+      const { getByRole, getByLabelText, queryByText } = render(
+        <MockProviders>
+          <ReviewDocuments {...requiredProps} />
+        </MockProviders>,
+      );
       await waitFor(() => {
         expect(getByRole('button', { name: 'Continue' })).toBeInTheDocument();
       });
@@ -233,7 +259,11 @@ describe('ReviewDocuments', () => {
   describe('with multiple document sets loaded', () => {
     it('renders and handles the Accept button', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueMultiple);
-      const { getByRole, getByLabelText } = render(<ReviewDocuments {...requiredProps} />);
+      const { getByRole, getByLabelText } = render(
+        <MockProviders>
+          <ReviewDocuments {...requiredProps} />
+        </MockProviders>,
+      );
       expect(getByRole('heading', { level: 2, text: '1 of 2 Document Sets' }));
       expect(getByLabelText('Accept')).toBeInTheDocument();
       expect(getByLabelText('Reject')).toBeInTheDocument();
@@ -247,7 +277,11 @@ describe('ReviewDocuments', () => {
     });
     it('renders and handles the Back button', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueMultiple);
-      const { getByRole, getByLabelText } = render(<ReviewDocuments {...requiredProps} />);
+      const { getByRole, getByLabelText } = render(
+        <MockProviders>
+          <ReviewDocuments {...requiredProps} />
+        </MockProviders>,
+      );
       expect(getByRole('heading', { level: 2, text: '1 of 2 Document Sets' }));
       expect(getByLabelText('Accept')).toBeInTheDocument();
       expect(getByLabelText('Reject')).toBeInTheDocument();

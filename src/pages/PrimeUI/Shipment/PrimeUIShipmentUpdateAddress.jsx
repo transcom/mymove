@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { generatePath } from 'react-router';
-import { queryCache, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
 
@@ -47,7 +47,9 @@ const PrimeUIShipmentUpdateAddress = () => {
   const handleClose = () => {
     history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
-  const [mutateMTOShipment] = useMutation(updatePrimeMTOShipmentAddress, {
+
+  const queryClient = useQueryClient();
+  const { mutateAsync: mutateMTOShipment } = useMutation(updatePrimeMTOShipmentAddress, {
     onSuccess: (updatedMTOShipmentAddress) => {
       const shipmentIndex = mtoShipments.findIndex((mtoShipment) => mtoShipment.id === shipmentId);
       let updateQuery = false;
@@ -59,8 +61,8 @@ const PrimeUIShipmentUpdateAddress = () => {
       });
       if (updateQuery) {
         moveTaskOrder.mtoShipments = mtoShipments;
-        queryCache.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
-        queryCache.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]);
+        queryClient.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
+        queryClient.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]);
       }
       handleClose();
     },

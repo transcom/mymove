@@ -450,47 +450,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*newPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
 	})
 
-	suite.Run("Can successfully update a PPMShipment - office user rejects requested advance", func() {
-		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-			OfficeUserID: uuid.Must(uuid.NewV4()),
-		})
-		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				EstimatedIncentive:     fakeEstimatedIncentive,
-				HasRequestedAdvance:    models.BoolPointer(true),
-				AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
-			},
-		})
-
-		newPPM := models.PPMShipment{
-			HasRequestedAdvance:    models.BoolPointer(false),
-			AdvanceAmountRequested: nil,
-		}
-
-		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
-
-		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
-
-		suite.NilOrNoVerrs(err)
-
-		// Fields that shouldn't have changed
-		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
-		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
-		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
-		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
-		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
-		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
-		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
-		suite.Equal(*originalPPM.SpouseProGearWeight, *updatedPPM.SpouseProGearWeight)
-		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
-
-		// Fields that should now be updated
-		rejected := models.PPMAdvanceStatusRejected
-		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
-		suite.Nil(updatedPPM.AdvanceAmountRequested)
-		suite.Equal(&rejected, updatedPPM.AdvanceStatus)
-	})
-
 	suite.Run("Can successfully update a PPMShipment - office user edits requested advance", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: uuid.Must(uuid.NewV4()),
@@ -532,7 +491,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(&edited, updatedPPM.AdvanceStatus)
 	})
 
-	suite.Run("Can successfully update a PPMShipment - office user approves requested advance", func() {
+	suite.Run("Can successfully update a PPMShipment - office user approves advance request", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: uuid.Must(uuid.NewV4()),
 		})
@@ -544,9 +503,12 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			},
 		})
 
+		approved := models.PPMAdvanceStatusApproved
+
 		newPPM := models.PPMShipment{
 			HasRequestedAdvance:    models.BoolPointer(true),
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+			AdvanceStatus:          &approved,
 		}
 
 		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
@@ -567,14 +529,58 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
 
 		// Fields that should now be updated
-		approved := models.PPMAdvanceStatusApproved
 		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
 		suite.Equal(*newPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
 		suite.Equal(&approved, updatedPPM.AdvanceStatus)
 	})
 
+	suite.Run("Can successfully update a PPMShipment - office user rejects advance request", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				EstimatedIncentive:     fakeEstimatedIncentive,
+				HasRequestedAdvance:    models.BoolPointer(true),
+				AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+			},
+		})
+
+		rejected := models.PPMAdvanceStatusRejected
+
+		newPPM := models.PPMShipment{
+			HasRequestedAdvance:    models.BoolPointer(true),
+			AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+			AdvanceStatus:          &rejected,
+		}
+
+		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Fields that shouldn't have changed
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
+		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
+		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
+		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
+		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
+		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
+		suite.Equal(*originalPPM.SpouseProGearWeight, *updatedPPM.SpouseProGearWeight)
+		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
+
+		// Fields that should now be updated
+		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
+		suite.Equal(*newPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
+		suite.Equal(&rejected, updatedPPM.AdvanceStatus)
+	})
+
 	suite.Run("Can successfully update a PPMShipment - edit advance - advance requested no to yes", func() {
-		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
 
 		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
@@ -584,9 +590,12 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			},
 		})
 
+		approved := models.PPMAdvanceStatusApproved
+
 		newPPM := models.PPMShipment{
 			HasRequestedAdvance:    models.BoolPointer(true),
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+			AdvanceStatus:          &approved,
 		}
 
 		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
@@ -607,12 +616,16 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
 
 		// Fields that should now be updated
+		edited := models.PPMAdvanceStatusEdited
 		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
 		suite.Equal(*newPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
+		suite.Equal(&edited, updatedPPM.AdvanceStatus)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit advance - advance requested yes to no", func() {
-		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
 
 		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
@@ -644,8 +657,10 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
 
 		// Fields that should now be updated
+		edited := models.PPMAdvanceStatusEdited
 		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
 		suite.Nil(updatedPPM.AdvanceAmountRequested)
+		suite.Equal(&edited, updatedPPM.AdvanceStatus)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit SIT - yes to no", func() {

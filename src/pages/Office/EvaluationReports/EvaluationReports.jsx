@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useHistory, useLocation } from 'react-router-dom';
 import { Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
-import { useMutation, queryCache } from 'react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
@@ -27,20 +27,26 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
   const history = useHistory();
   const [reportToDelete, setReportToDelete] = useState(undefined);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const { shipmentEvaluationReports, counselingEvaluationReports, shipments, isLoading, isError } =
     useEvaluationReportsQueries(moveCode);
 
-  const [deleteEvaluationReportMutation] = useMutation(deleteEvaluationReport);
+  const { mutate: deleteEvaluationReportMutation } = useMutation(deleteEvaluationReport, {
+    onSuccess: async () => {
+      await queryClient.refetchQueries([COUNSELING_EVALUATION_REPORTS]);
+      await queryClient.refetchQueries(SHIPMENT_EVALUATION_REPORTS);
+    },
+  });
 
-  const deleteReport = async () => {
+  const deleteReport = () => {
     // Close the modal
     setIsDeleteModalOpen(!isDeleteModalOpen);
 
     const reportID = reportToDelete.id;
 
     // Mark as deleted in database
-    await deleteEvaluationReportMutation(reportID, {
+    deleteEvaluationReportMutation(reportID, {
       onError: (error) => {
         const errorMsg = error?.response?.body;
         milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
@@ -48,16 +54,13 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
       onSuccess: () => {
         // Reroute back to eval report page, include flag to show success alert
         history.push(`/moves/${moveCode}/evaluation-reports`, { showDeleteSuccess: true });
-        queryCache
-          .refetchQueries([COUNSELING_EVALUATION_REPORTS])
-          .then(queryCache.refetchQueries(SHIPMENT_EVALUATION_REPORTS).then());
       },
     });
   };
 
-  const [createCounselingEvaluationReportMutation] = useMutation(createCounselingEvaluationReport, {
+  const { mutate: createCounselingEvaluationReportMutation } = useMutation(createCounselingEvaluationReport, {
     onSuccess: () => {
-      queryCache.invalidateQueries([COUNSELING_EVALUATION_REPORTS, moveCode]);
+      queryClient.invalidateQueries([COUNSELING_EVALUATION_REPORTS, moveCode]);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -65,11 +68,16 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
     },
   });
 
-  const handleCounselingCreateClick = async () => {
-    const report = await createCounselingEvaluationReportMutation({ moveCode });
-    const reportId = report?.id;
-
-    history.push(`/moves/${moveCode}/evaluation-reports/${reportId}`);
+  const handleCounselingCreateClick = () => {
+    createCounselingEvaluationReportMutation(
+      { moveCode },
+      {
+        onSuccess: (report) => {
+          const reportId = report?.id;
+          history.push(`/moves/${moveCode}/evaluation-reports/${reportId}`);
+        },
+      },
+    );
   };
 
   if (isLoading) {

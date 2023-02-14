@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { expect, test } = require('./customerPpmTestFixture');
+import { expect, test } from './customerPpmTestFixture';
 
 test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
   test.beforeEach(async ({ customerPpmPage }) => {

@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { queryCache, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { generatePath } from 'react-router';
 import { useHistory, useParams } from 'react-router-dom';
 import { GridContainer } from '@trussworks/react-uswds';
@@ -24,17 +24,17 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
   const handleClose = () => {
     history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
-
-  const [mutateCustomerInfo] = useMutation(updateCustomerInfo, {
+  const queryClient = useQueryClient();
+  const { mutate: mutateCustomerInfo } = useMutation(updateCustomerInfo, {
     onSuccess: (data, variables) => {
       const updatedCustomer = data.customer[variables.customerId];
-      queryCache.setQueryData([CUSTOMER, variables.customerId], {
+      queryClient.setQueryData([CUSTOMER, variables.customerId], {
         customer: {
           [`${variables.customerId}`]: updatedCustomer,
         },
       });
-      queryCache.invalidateQueries([CUSTOMER, variables.customerId]);
-      queryCache.invalidateQueries([ORDERS, ordersId]);
+      queryClient.invalidateQueries([CUSTOMER, variables.customerId]);
+      queryClient.invalidateQueries([ORDERS, ordersId]);
       onUpdate('success');
       handleClose();
     },

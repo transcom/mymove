@@ -3,6 +3,7 @@ package upload
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -10,20 +11,23 @@ import (
 func (suite *UploadServiceSuite) TestFetchUploadInformation() {
 	suite.Run("fetch office user upload", func() {
 		email := "officeuser1@example.com"
-		ou := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-			User: models.User{
-				ID:            uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b")),
-				LoginGovEmail: email,
+		ou := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.User{
+					ID:            uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b")),
+					LoginGovEmail: email,
+				},
 			},
-			OfficeUser: models.OfficeUser{
-				ID:        uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),
-				Email:     email,
-				FirstName: "Office",
-				LastName:  "User",
-				Telephone: "212-312-1234",
+			{
+				Model: models.OfficeUser{
+					ID:        uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),
+					Email:     email,
+					FirstName: "Office",
+					LastName:  "User",
+					Telephone: "212-312-1234",
+				},
 			},
-		})
-
+		}, nil)
 		assertions := testdatagen.Assertions{UserUpload: models.UserUpload{UploaderID: *ou.UserID}}
 		uu := testdatagen.MakeUserUpload(suite.DB(), assertions)
 		uif := NewUploadInformationFetcher()

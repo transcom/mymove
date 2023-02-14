@@ -3,7 +3,9 @@ package models_test
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -13,7 +15,7 @@ func (suite *ModelSuite) TestCustomerSupportRemarkCreation() {
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		suite.NotNil(move)
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		suite.NotNil(officeUser)
 		customerSupportRemark := "This is a note that's saying something about the move."
 		validCustomerSupportRemark := models.CustomerSupportRemark{
