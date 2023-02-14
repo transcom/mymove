@@ -7,7 +7,9 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -15,7 +17,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 	suite.Run("fetch for move with no evaluation reports should return empty array", func() {
 		fetcher := NewEvaluationReportFetcher()
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeCounseling, move.ID, officeUser.ID)
 		suite.NoError(err)
 		suite.Empty(reports)
@@ -33,7 +35,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 	suite.Run("submitted and draft reports for current user should be included", func() {
 		fetcher := NewEvaluationReportFetcher()
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
 				MoveID:       move.ID,
@@ -54,8 +56,12 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 	suite.Run("reports submitted by other office users should be included", func() {
 		fetcher := NewEvaluationReportFetcher()
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
-		otherOfficeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
+			factory.GetTraitOfficeUserEmail,
+		})
+		otherOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
+			factory.GetTraitOfficeUserEmail,
+		})
 		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
 				MoveID:       move.ID,
@@ -71,8 +77,12 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 	suite.Run("draft reports by other office users should not be included", func() {
 		fetcher := NewEvaluationReportFetcher()
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
-		otherOfficeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
+			factory.GetTraitOfficeUserEmail,
+		})
+		otherOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
+			factory.GetTraitOfficeUserEmail,
+		})
 		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
 				MoveID:       move.ID,
@@ -87,7 +97,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 	suite.Run("fetch counseling reports should only return counseling reports", func() {
 		fetcher := NewEvaluationReportFetcher()
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		counselingReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
 				MoveID:       move.ID,
@@ -112,7 +122,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 	suite.Run("fetch shipment reports should only return shipment reports", func() {
 		fetcher := NewEvaluationReportFetcher()
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
 				MoveID:       move.ID,
@@ -141,7 +151,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportByID() {
 	suite.Run("fetch for a submitted evaluation report that exists should be successful", func() {
 		fetcher := NewEvaluationReportFetcher()
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := testdatagen.MakeQAECSROfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
 			OfficeUserID: officeUser.ID,
 			MoveID:       move.ID,
@@ -157,8 +167,8 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportByID() {
 	suite.Run("fetch for a draft evaluation report should return a forbidden if the requester isn't the owner", func() {
 		fetcher := NewEvaluationReportFetcher()
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := testdatagen.MakeQAECSROfficeUser(suite.DB(), testdatagen.Assertions{})
-		officeUserOwner := testdatagen.MakeQAECSROfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+		officeUserOwner := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
 			OfficeUserID: officeUserOwner.ID,
 			MoveID:       move.ID,
@@ -172,7 +182,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportByID() {
 	suite.Run("fetch should return a not found error if the reportID doesn't exist", func() {
 		fetcher := NewEvaluationReportFetcher()
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := testdatagen.MakeQAECSROfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
 			OfficeUserID: officeUser.ID,
 			MoveID:       move.ID,
