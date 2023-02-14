@@ -94,6 +94,7 @@ export const tooRoutes = {
   SHIPMENT_EDIT_PATH: 'shipments/:shipmentId',
   BASE_MOVE_VIEW_PATH: `${BASE_MOVES_PATH}/details`,
   MOVE_VIEW_PATH: 'details',
+  BASE_ORDERS_EDIT_PATH: `${BASE_MOVES_PATH}/orders`,
   ORDERS_EDIT_PATH: 'orders',
 };
 

@@ -183,7 +183,9 @@ const ShipmentForm = (props) => {
   const moveDetailsPath = isTOO
     ? generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode })
     : generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode });
-  const editOrdersPath = isTOO ? tooRoutes.ORDERS_EDIT_PATH : servicesCounselingRoutes.ORDERS_EDIT_PATH;
+  const editOrdersPath = isTOO
+    ? generatePath(tooRoutes.BASE_ORDERS_EDIT_PATH, { moveCode })
+    : generatePath(servicesCounselingRoutes.BASE_ORDERS_EDIT_PATH, { moveCode });
 
   const submitMTOShipment = (formValues, actions) => {
     //* PPM Shipment *//
@@ -704,7 +706,7 @@ const ShipmentForm = (props) => {
                   <ShipmentAccountingCodes
                     TACs={TACs}
                     SACs={SACs}
-                    onEditCodesClick={() => navigate(`../../${editOrdersPath}`, { relative: 'path' })}
+                    onEditCodesClick={() => navigate(editOrdersPath)}
                     optional={isServiceCounselor}
                   />
                 )}
