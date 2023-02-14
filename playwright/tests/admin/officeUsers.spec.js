@@ -45,7 +45,7 @@ test.describe('Office User Create Page', () => {
     // so let's work with the assumption that we were already redirected to this page:
     expect(page.url()).toContain('/system/office-users');
 
-    await page.getByRole('button', { name: 'Create' }).click();
+    await page.getByRole('link', { name: 'Create' }).click();
     await expect(page.getByRole('heading', { name: 'Create Office Users' })).toBeVisible();
 
     expect(page.url()).toContain('/system/office-users/create');
@@ -71,7 +71,7 @@ test.describe('Office User Create Page', () => {
     // tests running that are adding offices
     await page.getByRole('option', { name: 'JPPSOTestyMcTest' }).first().click();
 
-    await page.getByRole('button', { name: 'Save' }).click();
+    await page.getByRole('link', { name: 'Save' }).click();
     await adminPage.waitForAdminPageToLoad();
 
     // redirected to edit details page
@@ -122,7 +122,7 @@ test.describe('Office Users Show Page', () => {
       'Created at',
       'Updated at',
     ];
-    await adminPage.expectLocatorLabelsByText('label', labels, { exact: true });
+    await adminPage.expectLabels(labels);
   });
 });
 
@@ -138,7 +138,7 @@ test.describe('Office Users Edit Page', () => {
     await page.getByText(email).click();
     await adminPage.waitForAdminPageToLoad();
 
-    await page.getByRole('button', { name: 'Edit' }).click();
+    await page.getByRole('link', { name: 'Edit' }).click();
     await adminPage.waitForAdminPageToLoad();
 
     const disabledFields = ['id', 'email', 'userId', 'createdAt', 'updatedAt'];
