@@ -117,13 +117,11 @@ jobs:
             DB_NAME: test_db
             DB_NAME_TEST: test_db
             DTOD_USE_MOCK: true
-            EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
             REDIS_HOST: localhost
             SERVER_REPORT: 1
             COVERAGE: 1
-            SERVE_API_INTERNAL: true
 
       - name: Publish server test report
         uses: mikepenz/action-junit-report@v3
