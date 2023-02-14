@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { queryCache } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
+// import { queryCache } from 'react-query';
 import { Button } from '@trussworks/react-uswds';
 import { generatePath, useHistory, withRouter } from 'react-router-dom';
 
@@ -87,6 +88,8 @@ export const ReviewDocuments = ({ match }) => {
 
   const [serverError, setServerError] = useState(null);
 
+  const queryClient = useQueryClient();
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -102,7 +105,8 @@ export const ReviewDocuments = ({ match }) => {
   };
 
   const onSuccess = () => {
-    queryCache.invalidateQueries([DOCUMENTS, shipmentId]);
+    // queryCache.invalidateQueries([DOCUMENTS, shipmentId]);
+    queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
     if (documentSetIndex < fullDocuments.length - 1) {
       setDocumentSetIndex(documentSetIndex + 1);
     } else {

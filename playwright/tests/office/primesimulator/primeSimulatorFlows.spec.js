@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, expect } = require('../../utils/officeTest');
+import { test, expect } from '../../utils/officeTest';
 
 // I was trying to avoid importing moment.js, these can definitely be
 // improved
@@ -94,13 +94,13 @@ test.describe('Prime simulator user', () => {
     await expect(page.getByText('Successfully updated shipment')).toHaveCount(1);
     expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
     // If you added another shipment to the move you would want to scope these with within()
-    expect(page.getByText(`Scheduled Pickup Date:${formatNumericDate(scheduledPickupDate)}`)).toBeVisible();
-    expect(page.getByText(`Actual Pickup Date:${formatNumericDate(actualPickupDate)}`)).toBeVisible();
-    expect(page.getByText(`Scheduled Delivery Date:${formatNumericDate(scheduledDeliveryDate)}`)).toBeVisible();
-    expect(page.getByText(`Actual Delivery Date:${formatNumericDate(actualDeliveryDate)}`)).toBeVisible();
-    expect(page.getByText('Estimated Weight:7500')).toBeVisible();
-    expect(page.getByText('Actual Weight:8000')).toBeVisible();
-    expect(page.getByText('Destination Address:142 E Barrel Hoop Circle, Joshua Tree, CA 92252')).toBeVisible();
+    await expect(page.getByText(`Scheduled Pickup Date:${formatNumericDate(scheduledPickupDate)}`)).toBeVisible();
+    await expect(page.getByText(`Actual Pickup Date:${formatNumericDate(actualPickupDate)}`)).toBeVisible();
+    await expect(page.getByText(`Scheduled Delivery Date:${formatNumericDate(scheduledDeliveryDate)}`)).toBeVisible();
+    await expect(page.getByText(`Actual Delivery Date:${formatNumericDate(actualDeliveryDate)}`)).toBeVisible();
+    await expect(page.getByText('Estimated Weight:7500')).toBeVisible();
+    await expect(page.getByText('Actual Weight:8000')).toBeVisible();
+    await expect(page.getByText('Destination Address:142 E Barrel Hoop Circle, Joshua Tree, CA 92252')).toBeVisible();
 
     // Can only create a payment request if there is a destination
 

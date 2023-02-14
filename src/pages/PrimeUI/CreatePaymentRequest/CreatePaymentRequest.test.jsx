@@ -209,10 +209,12 @@ describe('CreatePaymentRequest page', () => {
       await userEvent.click(serviceItemInputs[1]);
       await userEvent.click(serviceItemInputs[2]);
 
-      await userEvent.click(screen.getByRole('button', { name: 'Submit Payment Request' }));
+      await act(async () => {
+        await userEvent.click(screen.getByRole('button', { name: 'Submit Payment Request' }));
+      });
 
-      waitFor(() => {
-        expect(screen.getByText('Error title')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Prime API: Error title')).toBeInTheDocument();
         expect(screen.getByText('Error detail')).toBeInTheDocument();
       });
     });

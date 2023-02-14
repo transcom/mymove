@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, expect } = require('../utils/officeTest');
+import { test, expect } from '../utils/officeTest';
 
 test.describe('The document viewer', () => {
   test.describe('When not logged in', () => {

@@ -1,4 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks';
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { SHIPMENT_OPTIONS } from '../shared/constants';
 
@@ -13,9 +15,15 @@ import {
   useMoveDetailsQueries,
   useEditShipmentQueries,
   useEvaluationReportQueries,
+  useServicesCounselingQueuePPMQueries,
 } from './queries';
 
 import { serviceItemCodes } from 'content/serviceItems';
+
+const queryClient = new QueryClient();
+const wrapper = ({ children }) => {
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+};
 
 jest.mock('services/ghcApi', () => ({
   getCustomer: (key, id) =>
@@ -243,7 +251,7 @@ jest.mock('services/ghcApi', () => ({
         violationID: '789',
       },
     ]),
-  getShipmentsPaymentSITBalance: () => {
+  getShipmentsPaymentSITBalance: () =>
     Promise.resolve({
       shipmentsPaymentSITBalance: {
         a1: {
@@ -256,8 +264,21 @@ jest.mock('services/ghcApi', () => ({
           totalSITEndDate: '2021-10-29',
         },
       },
-    });
-  },
+    }),
+  getServicesCounselingPPMQueue: () =>
+    Promise.resolve({
+      page: 1,
+      perPage: 100,
+      totalCount: 2,
+      data: [
+        {
+          id: 'move1',
+        },
+        {
+          id: 'move2',
+        },
+      ],
+    }),
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -270,7 +291,7 @@ jest.mock('services/internalApi', () => ({
 describe('useTXOMoveInfoQueries', () => {
   it('loads data', async () => {
     const testMoveCode = 'ABCDEF';
-    const { result, waitForNextUpdate } = renderHook(() => useTXOMoveInfoQueries(testMoveCode));
+    const { result, waitFor } = renderHook(() => useTXOMoveInfoQueries(testMoveCode), { wrapper });
 
     expect(result.current).toEqual({
       order: undefined,
@@ -280,7 +301,7 @@ describe('useTXOMoveInfoQueries', () => {
       isSuccess: false,
     });
 
-    await waitForNextUpdate();
+    await waitFor(() => result.current.isSuccess);
 
     expect(result.current).toEqual({
       customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999', agency: 'NAVY' },
@@ -310,19 +331,20 @@ describe('useTXOMoveInfoQueries', () => {
 describe('usePaymentRequestQueries', () => {
   it('loads data', async () => {
     const testId = 'a1b2';
-    const { result, waitForNextUpdate } = renderHook(() => usePaymentRequestQueries(testId));
+    const { result, waitFor } = renderHook(() => usePaymentRequestQueries(testId), { wrapper });
 
     expect(result.current).toEqual({
       paymentRequest: undefined,
       paymentRequests: undefined,
       paymentServiceItems: undefined,
       mtoShipments: undefined,
+      shipmentsPaymentSITBalance: undefined,
       isLoading: true,
       isError: false,
       isSuccess: false,
     });
 
-    await waitForNextUpdate();
+    await waitFor(() => result.current.isSuccess);
 
     expect(result.current).toEqual({
       paymentRequest: {
@@ -378,6 +400,17 @@ describe('usePaymentRequestQueries', () => {
           ],
         },
       ],
+      shipmentsPaymentSITBalance: {
+        a1: {
+          pendingBilledEndDate: '2021-08-29',
+          pendingSITDaysInvoiced: 30,
+          previouslyBilledDays: 0,
+          shipmentID: 'a1',
+          totalSITDaysAuthorized: 90,
+          totalSITDaysRemaining: 60,
+          totalSITEndDate: '2021-10-29',
+        },
+      },
       isLoading: false,
       isError: false,
       isSuccess: true,
@@ -388,7 +421,7 @@ describe('usePaymentRequestQueries', () => {
 describe('useMoveDetailsQueries', () => {
   it('loads data', async () => {
     const moveCode = 'ABCDEF';
-    const { result, waitForNextUpdate } = renderHook(() => useMoveDetailsQueries(moveCode));
+    const { result, waitForNextUpdate } = renderHook(() => useMoveDetailsQueries(moveCode), { wrapper });
 
     expect(result.current).toEqual({
       move: {
@@ -523,7 +556,7 @@ describe('useMoveDetailsQueries', () => {
 describe('useMoveTaskOrderQueries', () => {
   it('loads data', async () => {
     const moveId = 'ABCDEF';
-    const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(moveId));
+    const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(moveId), { wrapper });
 
     await waitForNextUpdate();
 
@@ -615,7 +648,7 @@ describe('useMoveTaskOrderQueries', () => {
 describe('useEditShipmentQueries', () => {
   it('loads data', async () => {
     const moveCode = 'ABCDEF';
-    const { result, waitForNextUpdate } = renderHook(() => useEditShipmentQueries(moveCode));
+    const { result, waitForNextUpdate } = renderHook(() => useEditShipmentQueries(moveCode), { wrapper });
 
     await waitForNextUpdate();
 
@@ -696,7 +729,9 @@ describe('useOrdersDocumentQueries', () => {
   it('loads data', async () => {
     const testLocatorId = 'ABCDEF';
 
-    const { result, waitForNextUpdate } = renderHook(() => useOrdersDocumentQueries(testLocatorId));
+    const { result, waitForNextUpdate } = renderHook(() => useOrdersDocumentQueries(testLocatorId), {
+      wrapper,
+    });
 
     await waitForNextUpdate();
 
@@ -747,8 +782,9 @@ describe('useOrdersDocumentQueries', () => {
 
 describe('useMovesQueueQueries', () => {
   it('loads data', async () => {
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useMovesQueueQueries({ filters: [], currentPage: 1, currentPageSize: 100 }),
+    const { result, waitForNextUpdate } = renderHook(
+      () => useMovesQueueQueries({ filters: [], currentPage: 1, currentPageSize: 100 }),
+      { wrapper },
     );
 
     await waitForNextUpdate();
@@ -776,8 +812,9 @@ describe('useMovesQueueQueries', () => {
 
 describe('usePaymentRequestsQueueQueries', () => {
   it('loads data', async () => {
-    const { result, waitForNextUpdate } = renderHook(() =>
-      usePaymentRequestQueueQueries({ filters: [], currentPage: 1, currentPageSize: 100 }),
+    const { result, waitForNextUpdate } = renderHook(
+      () => usePaymentRequestQueueQueries({ filters: [], currentPage: 1, currentPageSize: 100 }),
+      { wrapper },
     );
 
     await waitForNextUpdate();
@@ -805,7 +842,7 @@ describe('usePaymentRequestsQueueQueries', () => {
 
 describe('useUserQueries', () => {
   it('loads data', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useUserQueries());
+    const { result, waitForNextUpdate } = renderHook(() => useUserQueries(), { wrapper });
 
     await waitForNextUpdate();
 
@@ -822,7 +859,7 @@ describe('useUserQueries', () => {
 
 describe('useEvaluationReportQueries', () => {
   it('loads data', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useEvaluationReportQueries('1234'));
+    const { result, waitFor } = renderHook(() => useEvaluationReportQueries('1234'), { wrapper });
 
     expect(result.current).toEqual({
       evaluationReport: {},
@@ -833,7 +870,7 @@ describe('useEvaluationReportQueries', () => {
       isSuccess: false,
     });
 
-    await waitForNextUpdate();
+    await waitFor(() => result.current.isSuccess);
 
     expect(result.current).toEqual({
       evaluationReport: { id: '1234', moveReferenceID: '4321', type: 'SHIPMENT', shipmentID: '123' },
@@ -851,6 +888,33 @@ describe('useEvaluationReportQueries', () => {
           violationID: '789',
         },
       ],
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    });
+  });
+});
+
+describe('useServicesCounselingQueuePPMQueries', () => {
+  it('loads data', async () => {
+    const { result, waitFor } = renderHook(() => useServicesCounselingQueuePPMQueries('1234'), { wrapper });
+
+    await waitFor(() => result.current.isSuccess);
+
+    expect(result.current).toEqual({
+      queueResult: {
+        page: 1,
+        perPage: 100,
+        totalCount: 2,
+        data: [
+          {
+            id: 'move1',
+          },
+          {
+            id: 'move2',
+          },
+        ],
+      },
       isLoading: false,
       isError: false,
       isSuccess: true,

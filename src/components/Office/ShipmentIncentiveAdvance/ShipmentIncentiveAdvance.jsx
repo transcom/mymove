@@ -8,14 +8,14 @@ import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { calculateMaxAdvanceAndFormatAdvanceAndIncentive } from 'utils/incentives';
-import ppmAdvanceStatus from 'constants/ppms';
+import { ADVANCE_STATUSES } from 'constants/ppms';
 
 const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
   const [advanceInput, , advanceHelper] = useField('advanceRequested');
   const [statusInput, , statusHelper] = useField('advanceStatus');
 
   const advanceRequested = String(advanceInput.value) === 'true';
-  const advanceRequestStatus = statusInput.value === ppmAdvanceStatus.APPROVED;
+  const advanceRequestStatus = statusInput.value === ADVANCE_STATUSES.APPROVED.apiValue;
 
   const { formattedMaxAdvance, formattedIncentive } =
     calculateMaxAdvanceAndFormatAdvanceAndIncentive(estimatedIncentive);
@@ -88,7 +88,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                     id="approveAdvanceRequest"
                     label="Approve"
                     name="advanceStatus"
-                    value={ppmAdvanceStatus.APPROVED}
+                    value={ADVANCE_STATUSES.APPROVED.apiValue}
                     title="Approve"
                     checked={!!statusInput.value && advanceRequestStatus} // defaults to false if advanceStatus has a null value
                     onChange={handleAdvanceRequestStatusChange}
@@ -97,7 +97,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                     id="rejectAdvanceRequest"
                     label="Reject"
                     name="advanceStatus"
-                    value={ppmAdvanceStatus.REJECTED}
+                    value={ADVANCE_STATUSES.REJECTED.apiValue}
                     title="Reject"
                     checked={!!statusInput.value && !advanceRequestStatus} // defaults to false if advanceStatus has a null value
                     onChange={handleAdvanceRequestStatusChange}
