@@ -121,7 +121,7 @@ describe('TXO Move Info Container', () => {
       useTXOMoveInfoQueries.mockReturnValue(loadingReturnValue);
 
       render(
-        <MockProviders path={tooRoutes.BASE_VIEW_MOVE_PATH} params={{ moveCode: testMoveCode }}>
+        <MockProviders path={tooRoutes.BASE_MOVE_VIEW_PATH} params={{ moveCode: testMoveCode }}>
           <TXOMoveInfo />
         </MockProviders>,
       );
@@ -134,7 +134,7 @@ describe('TXO Move Info Container', () => {
       useTXOMoveInfoQueries.mockReturnValue(errorReturnValue);
 
       render(
-        <MockProviders path={tooRoutes.BASE_VIEW_MOVE_PATH} params={{ moveCode: testMoveCode }}>
+        <MockProviders path={tooRoutes.BASE_MOVE_VIEW_PATH} params={{ moveCode: testMoveCode }}>
           <TXOMoveInfo />
         </MockProviders>,
       );
@@ -148,7 +148,7 @@ describe('TXO Move Info Container', () => {
     it('should render the move tab container', () => {
       useTXOMoveInfoQueries.mockReturnValueOnce(basicUseTXOMoveInfoQueriesValue);
       const wrapper = mount(
-        <MockProviders path={tooRoutes.BASE_VIEW_MOVE_PATH} params={{ moveCode: testMoveCode }}>
+        <MockProviders path={tooRoutes.BASE_MOVE_VIEW_PATH} params={{ moveCode: testMoveCode }}>
           <TXOMoveInfo />
         </MockProviders>,
       );
@@ -183,7 +183,7 @@ describe('TXO Move Info Container', () => {
       render(
         <MockProviders
           initialState={{ interceptor: { hasRecentError: true, traceId: 'some-trace-id' } }}
-          path={tooRoutes.BASE_VIEW_MOVE_PATH}
+          path={tooRoutes.BASE_MOVE_VIEW_PATH}
           params={{ moveCode: testMoveCode }}
         >
           <TXOMoveInfo />
@@ -202,7 +202,7 @@ describe('TXO Move Info Container', () => {
       render(
         <MockProviders
           initialState={{ interceptor: { hasRecentError: false, traceId: '' } }}
-          path={tooRoutes.BASE_VIEW_MOVE_PATH}
+          path={tooRoutes.BASE_MOVE_VIEW_PATH}
           params={{ moveCode: testMoveCode }}
         >
           <TXOMoveInfo />

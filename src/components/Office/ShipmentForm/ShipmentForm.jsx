@@ -179,7 +179,9 @@ const ShipmentForm = (props) => {
 
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
 
-  const moveDetailsPath = isTOO ? tooRoutes.MOVE_VIEW_PATH : servicesCounselingRoutes.MOVE_VIEW_PATH;
+  const moveDetailsPath = isTOO
+    ? generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode })
+    : generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode });
   const editOrdersPath = isTOO ? tooRoutes.ORDERS_EDIT_PATH : servicesCounselingRoutes.ORDERS_EDIT_PATH;
 
   const submitMTOShipment = (formValues, actions) => {
@@ -340,7 +342,7 @@ const ShipmentForm = (props) => {
         { body, normalize: false },
         {
           onSuccess: () => {
-            navigate(`../${moveDetailsPath}`);
+            navigate(moveDetailsPath);
           },
           onError: () => {
             setErrorMessage(`A server error occurred adding the shipment`);
@@ -353,11 +355,11 @@ const ShipmentForm = (props) => {
       // error handling handled in parent components
       submitHandler(updateMTOShipmentPayload, {
         onSuccess: () => {
-          navigate(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+          navigate(moveDetailsPath);
           onUpdate('success');
         },
         onError: () => {
-          navigate(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+          navigate(moveDetailsPath);
           onUpdate('error');
         },
       });
@@ -366,7 +368,7 @@ const ShipmentForm = (props) => {
     else {
       submitHandler(updateMTOShipmentPayload, {
         onSuccess: () => {
-          navigate(`../../${moveDetailsPath}`, { relative: 'path' });
+          navigate(moveDetailsPath);
         },
         onError: () => {
           setErrorMessage('A server error occurred editing the shipment details');

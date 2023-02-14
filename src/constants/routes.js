@@ -92,7 +92,7 @@ export const tioRoutes = {
 export const tooRoutes = {
   BASE_SHIPMENT_EDIT_PATH: `${BASE_MOVES_PATH}/shipments/:shipmentId`,
   SHIPMENT_EDIT_PATH: 'shipments/:shipmentId',
-  BASE_VIEW_MOVE_PATH: `${BASE_MOVES_PATH}/details`,
+  BASE_MOVE_VIEW_PATH: `${BASE_MOVES_PATH}/details`,
   MOVE_VIEW_PATH: 'details',
   ORDERS_EDIT_PATH: 'orders',
 };
