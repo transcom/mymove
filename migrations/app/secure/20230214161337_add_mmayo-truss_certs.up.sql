@@ -29,7 +29,8 @@
 -- 	allow_marine_corps_orders_write,
 -- 	allow_navy_orders_read,
 -- 	allow_navy_orders_write,
--- 	allow_prime)
+-- 	allow_prime,
+-- 	user_id)
 -- VALUES (
 -- 	'<Generated ID for storing this>',
 -- 	'<SHA256 from the CAC card.',
