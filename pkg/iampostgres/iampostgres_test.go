@@ -2,6 +2,7 @@ package iampostgres
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -49,6 +50,7 @@ func TestGetCurrentPassword(t *testing.T) {
 	assert := assert.New(t)
 
 	rdsu := RDSUTest{}
+	rdsu.passes = append(rdsu.passes, "")
 	rdsu.passes = append(rdsu.passes, "abc")
 	logger := zaptest.NewLogger(t)
 	iamConfig.currentIamPass = "" // ensure iamConfig is in new state
@@ -81,7 +83,10 @@ func TestGetCurrentPassword(t *testing.T) {
 	shouldQuitChan <- true
 	tmr.Stop()
 
-	assert.Equal(1, pauseCounter)
+	// If the refreshRDSIAM go routine runs before getCurrentPass,
+	// there would be only one pause. If getCurrentPass runs before
+	// refreshRDSIAM, there would be two pauses
+	assert.True(1 <= pauseCounter, "expected pauseCounter to be greater than 1, was "+fmt.Sprintf("%d", pauseCounter))
 }
 
 func TestGetCurrentPasswordFail(t *testing.T) {
