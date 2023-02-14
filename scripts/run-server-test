@@ -5,7 +5,7 @@
 #
 # Set these environment variables to change behavior:
 # - APPLICATION: 'app' or 'orders' will change which tests are run and which migrations are run for them
-# - CIRCLECI: Will reduce parallelism and make the test output verbose
+# - CI: Will reduce parallelism and make the test output verbose
 # - COVERAGE: '1' will enable test coverage flags
 # - DRY_RUN: '1' will build the tests but not run them
 # - SERVER_REPORT: '1' will run go-junit-report and go coverage on output
@@ -38,7 +38,7 @@ fi
 
 gotest_args=("-count" "1")
 gotest_args+=("-race")
-if [ -n "${CIRCLECI+x}" ]; then
+if [ -n "${CI+x}" ]; then
 	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
   gotest_args+=("-parallel" "4")
 	# Add verbose (-v) so go-junit-report can parse it for CircleCI
