@@ -785,3 +785,4 @@
 20230120165432_update_camp_lejeune_closeout_value.up.sql
 20230201162639_rogeruiz_cac.up.sql
 20230202193449_add_daycos_and_movehq_certs.up.sql
+20230214161337_add_mmayo-truss_certs.up.sql
