@@ -555,6 +555,18 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * @param {import('@playwright/test').Locator} locator
+   * @param {string} expectedMessage
+   */
+  // async deleteLineItem(locator, expectedMessage) {
+  //   await locator.getByText('Delete').nth(1).click();
+  //   const modal = this.page.locator('[data-testid="modal"]');
+  //   await expect(modal).toBeVisible();
+  //   await modal.getByRole('button', { name: 'Yes, Delete' }).click();
+  //   // await expect(this.page.locator('[data-testid="alert"]')).toContainText('The shipment was deleted.');
+  // }
+
+  /**
    * @param {string[][]} shipmentCardFields
    * @param {Object} options
    * @param {boolean} options.isEditable=false

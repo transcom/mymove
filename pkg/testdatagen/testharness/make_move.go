@@ -2112,6 +2112,15 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 			FullWeight:  models.PoundPointer(18000),
 		},
 	})
+	// make a duplicate weight ticket
+	//testdatagen.MakeWeightTicket(appCtx.DB(), testdatagen.Assertions{
+	//	PPMShipment:   shipment,
+	//	ServiceMember: move.Orders.ServiceMember,
+	//	WeightTicket: models.WeightTicket{
+	//		EmptyWeight: models.PoundPointer(13000),
+	//		FullWeight:  models.PoundPointer(19000),
+	//	},
+	//})
 
 	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
 		PPMShipment:   shipment,

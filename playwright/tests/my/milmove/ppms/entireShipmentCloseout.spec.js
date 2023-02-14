@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { test, forEachViewport } from './customerPpmTestFixture';
+const { test, expect, forEachViewport } = require('./customerPpmTestFixture');
 
 test.describe('Entire PPM closeout flow', () => {
   forEachViewport(async () => {
@@ -48,6 +48,29 @@ test.describe('Entire PPM closeout flow', () => {
         expensesClaimed: '833.41',
         finalIncentiveAmount: '$31,180.87',
       });
+    });
+    test(`happy path with line item deletions`, async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
+
+      await customerPpmPage.signInForPPMWithMove(move);
+      await customerPpmPage.navigateToPPMReviewPage();
+      // await customerPpmPage.deleteLineItem(customerPpmPage.page.getByText('Weight moved'), 'You are about to delete Trip 1. This cannot be undone.');
+      // await customerPpmPage.deleteLineItem(customerPpmPage.page, 'You are about to delete Trip 1. This cannot be undone.');
+      // await customerPpmPage.navigateFromCloseoutReviewPageToAboutPage();
+
+      // First approach here is to click on each of the delete buttons separately by index
+      // The indices shift so this is not reliable. Either need to not check the message and just do it 3 times, or have
+      // a smarter selector
+      await customerPpmPage.page.getByRole('button', { name: 'Delete' }).nth(1).click();
+      await expect(customerPpmPage.page.getByText('You are about to delete')).toBeVisible();
+      // await expect(customerPpmPage.page.getByText('You are about to delete Trip 1. This cannot be undone.')).toBeVisible();
+      await customerPpmPage.page.getByRole('button', { name: 'Yes, Delete' }).click();
+      await customerPpmPage.page.getByRole('button', { name: 'Delete' }).nth(2).click();
+      // await customerPpmPage.page.getByTestId('modal').getByTestId('button').click();
+      await customerPpmPage.page.getByText('You are about to delete Set 1. This cannot be undone.').click();
+      await customerPpmPage.page.getByTestId('button').nth(1).click();
+      await customerPpmPage.page.getByRole('button', { name: 'Delete' }).nth(3).click();
+      await customerPpmPage.page.getByText('You are about to delete Receipt 1. This cannot be undone.').click();
     });
   });
 });
