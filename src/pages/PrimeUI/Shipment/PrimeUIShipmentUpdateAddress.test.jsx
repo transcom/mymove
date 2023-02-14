@@ -1,9 +1,12 @@
 import React from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
 import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
 import { updatePrimeMTOShipmentAddress } from '../../../services/primeApi';
+
 import PrimeUIShipmentUpdateAddress from './PrimeUIShipmentUpdateAddress';
+
 import { ReactQueryWrapper, MockProviders } from 'testUtils';
 import { primeSimulatorRoutes } from 'constants/routes';
 

@@ -7,7 +7,7 @@ import EditShipmentDetails from './EditShipmentDetails';
 
 import { updateMTOShipment } from 'services/ghcApi';
 import { useEditShipmentQueries } from 'hooks/queries';
-import { renderWithRouter, MockProviders } from 'testUtils';
+import { renderWithRouter } from 'testUtils';
 import { tooRoutes } from 'constants/routes';
 
 const mockNavigate = jest.fn();
