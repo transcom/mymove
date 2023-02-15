@@ -2937,47 +2937,6 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/weight-tickets": {
-      "get": {
-        "description": "Retrieves all of the weight tickets and associated uploads for each document for the specified PPM shipment. This\nexcludes any deleted weight tickets or uploads.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Gets all the weight tickets for a PPM shipment",
-        "operationId": "getWeightTickets",
-        "responses": {
-          "200": {
-            "description": "All weight tickets and associated uploads for the specified PPM shipment.",
-            "schema": {
-              "$ref": "#/definitions/WeightTickets"
-            }
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "$ref": "#/parameters/ppmShipmentId"
-        }
-      ]
-    },
     "/pws-violations": {
       "get": {
         "description": "Fetch the possible PWS violations for an evaluation report",
@@ -13126,64 +13085,6 @@ func init() {
           "format": "uuid",
           "description": "UUID of the weight ticket",
           "name": "weightTicketId",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/ppm-shipments/{ppmShipmentId}/weight-tickets": {
-      "get": {
-        "description": "Retrieves all of the weight tickets and associated uploads for each document for the specified PPM shipment. This\nexcludes any deleted weight tickets or uploads.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Gets all the weight tickets for a PPM shipment",
-        "operationId": "getWeightTickets",
-        "responses": {
-          "200": {
-            "description": "All weight tickets and associated uploads for the specified PPM shipment.",
-            "schema": {
-              "$ref": "#/definitions/WeightTickets"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "UUID of the PPM shipment",
-          "name": "ppmShipmentId",
           "in": "path",
           "required": true
         }
