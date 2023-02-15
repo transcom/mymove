@@ -108,6 +108,17 @@ func GetTraitQaeCsrRole() []Customization {
 	}
 }
 
+func GetTraitPrimeSimulatorRole() []Customization {
+	return []Customization{
+		{
+			Model: roles.Role{
+				RoleType: roles.RoleTypePrimeSimulator,
+				RoleName: "Prime Simulator",
+			},
+		},
+	}
+}
+
 func GetTraitContractingOfficerRole() []Customization {
 	return []Customization{
 		{
