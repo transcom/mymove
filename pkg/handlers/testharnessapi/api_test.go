@@ -18,10 +18,6 @@ type TestHarnessAPISuite struct {
 	handlers.BaseHandlerTestSuite
 }
 
-// func (suite *TestHarnessAPISuite) SetupTest() {
-
-// }
-
 func TestTestHarnessAPISuite(t *testing.T) {
 	hs := &TestHarnessAPISuite{
 		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(notifications.NewStubNotificationSender("milmovelocal"), testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
