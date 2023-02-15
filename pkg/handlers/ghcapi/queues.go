@@ -46,6 +46,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				LastName:                params.LastName,
 				DestinationDutyLocation: params.DestinationDutyLocation,
 				OriginDutyLocation:      params.OriginDutyLocation,
+				RequestedMoveDate:       params.RequestedMoveDate,
 				Status:                  params.Status,
 				Page:                    params.Page,
 				PerPage:                 params.PerPage,

@@ -142,7 +142,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	// Given: a set of orders, a move, and office user
 	// Orders has service member with transportation office and phone nums
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
-	testdatagen.MakeDefaultContractor(suite.DB())
+	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	moveRouter := moverouter.NewMoveRouter()
 
 	selectedMoveType := models.SelectedMoveTypePPM
