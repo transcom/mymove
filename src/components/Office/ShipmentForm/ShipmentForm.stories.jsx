@@ -8,6 +8,7 @@ import ShipmentForm from './ShipmentForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { roleTypes } from 'constants/userRoles';
 import styles from 'pages/Office/ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
+import { MockProviders } from 'testUtils';
 
 const defaultProps = {
   match: {
@@ -113,15 +114,17 @@ export default {
   component: ShipmentForm,
   decorators: [
     (Story) => (
-      <div className="officeApp">
-        <GridContainer className={styles.gridContainer}>
-          <Grid row>
-            <Grid col desktop={{ col: 8, offset: 2 }}>
-              <Story />
+      <MockProviders>
+        <div className="officeApp">
+          <GridContainer className={styles.gridContainer}>
+            <Grid row>
+              <Grid col desktop={{ col: 8, offset: 2 }}>
+                <Story />
+              </Grid>
             </Grid>
-          </Grid>
-        </GridContainer>
-      </div>
+          </GridContainer>
+        </div>
+      </MockProviders>
     ),
   ],
 };

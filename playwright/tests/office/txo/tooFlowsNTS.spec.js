@@ -5,9 +5,9 @@
  */
 
 // @ts-check
-const { test, expect } = require('../../utils/officeTest');
+import { test, expect } from '../../utils/officeTest';
 
-const { TooFlowPage } = require('./tooTestFixture');
+import { TooFlowPage } from './tooTestFixture';
 
 test.describe('TOO user', () => {
   /** @type {TooFlowPage} */
@@ -204,7 +204,7 @@ test.describe('TOO user', () => {
       // edit facility info and address
       await page.locator('[data-testid="edit-facility-info-modal-open"]').click();
 
-      expect(page.getByTestId('modal')).toBeVisible();
+      await expect(page.getByTestId('modal')).toBeVisible();
       let modal = page.getByTestId('modal');
       // Storage facility info
       await modal.locator('#facilityName').clear();
@@ -223,7 +223,7 @@ test.describe('TOO user', () => {
       await modal.locator('#facilityLotNumber').type('1111111');
 
       await modal.locator('button[type="submit"]').click();
-      expect(modal).not.toBeVisible();
+      await expect(modal).not.toBeVisible();
 
       lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
       let sidebar = lastShipment.locator('[class*="ShipmentDetailsSidebar"]');
@@ -235,7 +235,7 @@ test.describe('TOO user', () => {
       // edit service order number
       await lastShipment.locator('[data-testid="service-order-number-modal-open"]').click();
 
-      expect(page.getByTestId('modal')).toBeVisible();
+      await expect(page.getByTestId('modal')).toBeVisible();
       modal = page.getByTestId('modal');
 
       await modal.locator('[data-testid="textInput"]').clear();
@@ -250,7 +250,7 @@ test.describe('TOO user', () => {
       // edit accounting codes
       await lastShipment.locator('[data-testid="edit-accounting-codes-modal-open"]').click();
 
-      expect(page.getByTestId('modal')).toBeVisible();
+      await expect(page.getByTestId('modal')).toBeVisible();
       modal = page.getByTestId('modal');
       await modal.locator('[data-testid="radio"] [for="tacType-HHG"]').click();
       await modal.locator('[data-testid="radio"] [for="sacType-NTS"]').click();

@@ -2749,6 +2749,7 @@ paths:
             - status
             - originDutyLocation
             - destinationDutyLocation
+            - requestedMoveDate
           description: field that results should be sorted by
         - in: query
           name: order
@@ -2775,6 +2776,10 @@ paths:
         - in: query
           name: destinationDutyLocation
           type: string
+        - in: query
+          name: requestedMoveDate
+          type: string
+          description: filters the requested pickup date of a shipment on the move
         - in: query
           name: status
           type: array

@@ -20,6 +20,7 @@ import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import affiliation from 'content/serviceMemberAgencies';
+import { fieldValidationShape, objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 
 const ShipmentDisplay = ({
   shipmentType,
@@ -42,7 +43,9 @@ const ShipmentDisplay = ({
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
 
-  const disableApproval = errorIfMissing.some((requiredInfo) => !displayInfo[requiredInfo]);
+  const disableApproval = errorIfMissing.some((requiredInfo) =>
+    objectIsMissingFieldWithCondition(displayInfo, requiredInfo),
+  );
 
   const handleExpandClick = () => {
     setIsExpanded((prev) => !prev);
@@ -202,8 +205,8 @@ ShipmentDisplay.propTypes = {
   editURL: PropTypes.string,
   reviewURL: PropTypes.string,
   ordersLOA: OrdersLOAShape,
-  warnIfMissing: PropTypes.arrayOf(PropTypes.string),
-  errorIfMissing: PropTypes.arrayOf(PropTypes.string),
+  warnIfMissing: PropTypes.arrayOf(fieldValidationShape),
+  errorIfMissing: PropTypes.arrayOf(fieldValidationShape),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
   neverShow: PropTypes.arrayOf(PropTypes.string),
 };

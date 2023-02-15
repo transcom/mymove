@@ -5,6 +5,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import EvaluationViolations from './EvaluationViolations';
 
 import { useEvaluationReportShipmentListQueries, usePWSViolationsQueries } from 'hooks/queries';
+import { MockProviders } from 'testUtils';
 
 const mockMoveCode = 'A12345';
 const mockMoveId = '551dd01f-90cf-44d6-addb-ff919433dd61';
@@ -156,7 +157,11 @@ describe('EvaluationViolations', () => {
       reportViolations: [mockViolation],
     }));
 
-    render(<EvaluationViolations {...{ customerInfo }} />);
+    render(
+      <MockProviders>
+        <EvaluationViolations {...{ customerInfo }} />
+      </MockProviders>,
+    );
 
     await waitFor(() => {
       // Displays heading

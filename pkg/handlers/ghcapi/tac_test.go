@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 
+	"github.com/transcom/mymove/pkg/factory"
 	tacop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -14,7 +15,7 @@ import (
 func (suite *HandlerSuite) TestTacValidation() {
 
 	suite.Run("TAC validation", func() {
-		user := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		user := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		transportationAccountingCode := testdatagen.MakeDefaultTransportationAccountingCode(suite.DB())
 		tests := []struct {
 			tacCode string

@@ -72,7 +72,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			},
 		})
 		oldProofOfServiceDocIDs = append(oldProofOfServiceDocIDs, proofOfServiceDoc.ID.String())
-		contractor := testdatagen.MakeDefaultContractor(suite.DB())
+		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
 			PrimeUpload: models.PrimeUpload{
 				ProofOfServiceDocID: proofOfServiceDoc.ID,

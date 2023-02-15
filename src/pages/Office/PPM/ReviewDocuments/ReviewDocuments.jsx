@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { queryCache } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@trussworks/react-uswds';
 import { generatePath, useHistory, withRouter } from 'react-router-dom';
 
@@ -15,22 +15,69 @@ import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import { usePPMShipmentDocsQueries } from 'hooks/queries';
 import ReviewWeightTicket from 'components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket';
-import { WEIGHT_TICKETS } from 'constants/queryKeys';
+import { DOCUMENTS } from 'constants/queryKeys';
 
 export const ReviewDocuments = ({ match }) => {
   const { shipmentId, moveCode } = match.params;
-  const { mtoShipment, weightTickets, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
-
-  const ppmShipment = mtoShipment?.ppmShipment;
+  const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
 
-  let documentSet;
+  let documentSet = [];
+  const allDocuments = [];
+
+  const movingExpenses = documents?.MovingExpenses;
+  const weightTickets = documents?.WeightTickets;
+  const proGearWeightTickets = documents?.ProGearWeightTickets;
+
+  if (movingExpenses?.length !== 0) {
+    allDocuments.push(movingExpenses);
+  }
+  if (weightTickets?.length !== 0) {
+    allDocuments.push(weightTickets);
+  }
+  if (proGearWeightTickets?.length !== 0) {
+    allDocuments.push(proGearWeightTickets);
+  }
+
+  const fullDocuments = [];
+  allDocuments?.map((docSet) => {
+    docSet?.map((doc) => {
+      return fullDocuments.push(doc);
+    });
+    return fullDocuments;
+  });
+
+  let uploads = [];
+  weightTickets?.forEach((weightTicket) => {
+    uploads = uploads.concat(weightTicket.emptyDocument?.uploads);
+    uploads = uploads.concat(weightTicket.fullDocument?.uploads);
+    uploads = uploads.concat(weightTicket.proofOfTrailerOwnershipDocument?.uploads);
+  });
 
   if (weightTickets) {
     weightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
-    documentSet = weightTickets[documentSetIndex];
+    documentSet = documentSet.concat(weightTickets[documentSetIndex]);
   }
+
+  proGearWeightTickets?.forEach((proGearWeightTicket) => {
+    uploads = uploads.concat(proGearWeightTicket.document?.uploads);
+  });
+
+  if (proGearWeightTickets) {
+    proGearWeightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+    documentSet = documentSet.concat(proGearWeightTickets[documentSetIndex]);
+  }
+
+  movingExpenses?.forEach((movingExpense) => {
+    uploads = uploads.concat(movingExpense.document?.uploads);
+  });
+
+  if (movingExpenses) {
+    movingExpenses.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+    documentSet = documentSet.concat(movingExpenses[documentSetIndex]);
+  }
+
   const history = useHistory();
 
   const formRef = useRef();
@@ -39,18 +86,10 @@ export const ReviewDocuments = ({ match }) => {
 
   const [serverError, setServerError] = useState(null);
 
-  // placeholder pro-gear tickets & expenses
-  // const progearTickets = [];
-  // const expenses = [];
+  const queryClient = useQueryClient();
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
-
-  let uploads = [];
-  weightTickets?.forEach((weightTicket) => {
-    uploads = uploads.concat(weightTicket.emptyDocument?.uploads);
-    uploads = uploads.concat(weightTicket.fullDocument?.uploads);
-    uploads = uploads.concat(weightTicket.proofOfTrailerOwnershipDocument?.uploads);
-  });
 
   const onClose = () => {
     history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
@@ -64,8 +103,8 @@ export const ReviewDocuments = ({ match }) => {
   };
 
   const onSuccess = () => {
-    queryCache.invalidateQueries([WEIGHT_TICKETS, ppmShipment.id]);
-    if (documentSetIndex < weightTickets.length - 1) {
+    queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
+    if (documentSetIndex < fullDocuments.length - 1) {
       setDocumentSetIndex(documentSetIndex + 1);
     } else {
       history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
@@ -92,8 +131,7 @@ export const ReviewDocuments = ({ match }) => {
         title="Review documents"
         onClose={onClose}
         className={styles.sidebar}
-        // TODO: set this correctly based on total document sets, including pro gear and expenses
-        supertitle={`${documentSetIndex + 1} of ${weightTickets.length} Document Sets`}
+        supertitle={`${documentSetIndex + 1} of ${fullDocuments.length} Document Sets`}
         defaultH3
       >
         <DocumentViewerSidebar.Content mainRef={weightTicketPanelRef}>
@@ -101,7 +139,7 @@ export const ReviewDocuments = ({ match }) => {
           <ErrorMessage display={!!serverError}>{serverError}</ErrorMessage>
           {documentSet && (
             <ReviewWeightTicket
-              weightTicket={documentSet}
+              weightTicket={documentSet[0]}
               ppmNumber={1}
               tripNumber={documentSetIndex + 1}
               mtoShipment={mtoShipment}

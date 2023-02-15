@@ -1104,12 +1104,12 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	}, nil)
 
 	// Make a storage facility
-	storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
-		StorageFacility: models.StorageFacility{
-			Address: storageFacilityAddress,
+	storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
+		{
+			Model:    storageFacilityAddress,
+			LinkOnly: true,
 		},
-	})
-
+	}, nil)
 	// Contract year, service area, rate area, zip3
 	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
 		ReContractYear: models.ReContractYear{
