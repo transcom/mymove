@@ -8,6 +8,8 @@ import { fromPrimeAPIAddressFormat } from '../../../utils/formatters';
 
 import PrimeUIShipmentUpdateAddressForm from './PrimeUIShipmentUpdateAddressForm';
 
+import { ReactQueryWrapper } from 'testUtils';
+
 const mockUseHistoryPush = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -50,13 +52,16 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
 
   it('renders the form', async () => {
     render(
-      <PrimeUIShipmentUpdateAddressForm
-        initialValues={initialValuesPickupAddress}
-        updateShipmentAddressSchema={updatePickupAddressSchema}
-        addressLocation="Pickup address"
-        onSubmit={jest.fn()}
-        name="pickupAddress.address"
-      />,
+      <ReactQueryWrapper>
+        <PrimeUIShipmentUpdateAddressForm
+          initialValues={initialValuesPickupAddress}
+          updateShipmentAddressSchema={updatePickupAddressSchema}
+          addressLocation="Pickup address"
+          onSubmit={jest.fn()}
+          name="pickupAddress.address"
+        />
+        ,
+      </ReactQueryWrapper>,
     );
     expect(screen.getByRole('heading', { name: 'Pickup address', level: 2 })).toBeInTheDocument();
     expect(screen.getByLabelText('Address 1')).toBeInTheDocument();
@@ -69,13 +74,16 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
 
   it('change text and button is enabled', async () => {
     render(
-      <PrimeUIShipmentUpdateAddressForm
-        initialValues={initialValuesPickupAddress}
-        updateShipmentAddressSchema={updatePickupAddressSchema}
-        addressLocation="Pickup address"
-        onSubmit={jest.fn()}
-        name="pickupAddress.address"
-      />,
+      <ReactQueryWrapper>
+        <PrimeUIShipmentUpdateAddressForm
+          initialValues={initialValuesPickupAddress}
+          updateShipmentAddressSchema={updatePickupAddressSchema}
+          addressLocation="Pickup address"
+          onSubmit={jest.fn()}
+          name="pickupAddress.address"
+        />
+        ,
+      </ReactQueryWrapper>,
     );
 
     await userEvent.type(screen.getByLabelText('Address 1'), '23 City Str');
@@ -93,13 +101,16 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
 
   it('disables the submit button when the zip is bad', async () => {
     render(
-      <PrimeUIShipmentUpdateAddressForm
-        initialValues={initialValuesPickupAddress}
-        updateShipmentAddressSchema={updatePickupAddressSchema}
-        addressLocation="Pickup address"
-        onSubmit={jest.fn()}
-        name="pickupAddress.address"
-      />,
+      <ReactQueryWrapper>
+        <PrimeUIShipmentUpdateAddressForm
+          initialValues={initialValuesPickupAddress}
+          updateShipmentAddressSchema={updatePickupAddressSchema}
+          addressLocation="Pickup address"
+          onSubmit={jest.fn()}
+          name="pickupAddress.address"
+        />
+        ,
+      </ReactQueryWrapper>,
     );
     await userEvent.clear(screen.getByLabelText('ZIP'));
     await userEvent.type(screen.getByLabelText('ZIP'), '1');
@@ -112,13 +123,16 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
 
   it('disables the submit button when the address 1 is missing', async () => {
     render(
-      <PrimeUIShipmentUpdateAddressForm
-        initialValues={initialValuesPickupAddress}
-        updateShipmentAddressSchema={updatePickupAddressSchema}
-        addressLocation="Pickup address"
-        onSubmit={jest.fn()}
-        name="pickupAddress.address"
-      />,
+      <ReactQueryWrapper>
+        <PrimeUIShipmentUpdateAddressForm
+          initialValues={initialValuesPickupAddress}
+          updateShipmentAddressSchema={updatePickupAddressSchema}
+          addressLocation="Pickup address"
+          onSubmit={jest.fn()}
+          name="pickupAddress.address"
+        />
+        ,
+      </ReactQueryWrapper>,
     );
     await userEvent.clear(screen.getByLabelText('Address 1'));
     (await screen.getByLabelText('Address 1')).blur();
@@ -130,13 +144,16 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
 
   it('disables the submit button when city is missing', async () => {
     render(
-      <PrimeUIShipmentUpdateAddressForm
-        initialValues={initialValuesPickupAddress}
-        updateShipmentAddressSchema={updatePickupAddressSchema}
-        addressLocation="Pickup address"
-        onSubmit={jest.fn()}
-        name="pickupAddress.address"
-      />,
+      <ReactQueryWrapper>
+        <PrimeUIShipmentUpdateAddressForm
+          initialValues={initialValuesPickupAddress}
+          updateShipmentAddressSchema={updatePickupAddressSchema}
+          addressLocation="Pickup address"
+          onSubmit={jest.fn()}
+          name="pickupAddress.address"
+        />
+        ,
+      </ReactQueryWrapper>,
     );
     await userEvent.clear(screen.getByLabelText('City'));
     (await screen.getByLabelText('City')).blur();

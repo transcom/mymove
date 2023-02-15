@@ -5,6 +5,7 @@ import (
 	"github.com/jackc/pgerrcode"
 
 	"github.com/transcom/mymove/pkg/db/dberr"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -49,7 +50,7 @@ func (suite *ModelSuite) Test_PrimeUploadValidations() {
 
 func (suite *ModelSuite) TestFetchPrimeUploadWithNoUpload() {
 	posDoc := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
-	contractor := testdatagen.MakeDefaultContractor(suite.DB())
+	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	primeUpload := models.PrimeUpload{
 		ProofOfServiceDocID: posDoc.ID,
@@ -64,7 +65,7 @@ func (suite *ModelSuite) TestFetchPrimeUpload() {
 	t := suite.T()
 
 	posDoc := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
-	contractor := testdatagen.MakeDefaultContractor(suite.DB())
+	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	upload := models.Upload{
 		Filename:    "test.pdf",
@@ -107,7 +108,7 @@ func (suite *ModelSuite) TestFetchDeletedPrimeUpload() {
 	t := suite.T()
 
 	posDoc := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
-	contractor := testdatagen.MakeDefaultContractor(suite.DB())
+	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	upload := models.Upload{
 		Filename:    "test.pdf",

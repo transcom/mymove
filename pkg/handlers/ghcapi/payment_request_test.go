@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -38,7 +39,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 			},
 		})
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 			RoleType: roles.RoleTypeTIO,
 		})
@@ -125,7 +126,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 	var moveLocator string
 
 	setupTestData := func() (models.PaymentServiceItemParam, models.OfficeUser) {
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 		moveLocator = move.Locator
@@ -226,7 +227,11 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	officeUserUUID, _ := uuid.NewV4()
 
 	setupTestData := func() models.OfficeUser {
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true, OfficeUser: models.OfficeUser{ID: officeUserUUID}})
+		officeUser := factory.BuildOfficeUser(nil, []factory.Customization{
+			{Model: models.OfficeUser{
+				ID: officeUserUUID,
+			}},
+		}, nil)
 		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 			RoleType: roles.RoleTypeTIO,
 		})
@@ -563,7 +568,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 
 	setupTestData := func() models.OfficeUser {
-		officeUserTIO := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		officeUserTIO := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
 		return officeUserTIO
 	}
 

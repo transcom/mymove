@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { queryCache } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@trussworks/react-uswds';
 import { generatePath, useHistory, withRouter } from 'react-router-dom';
 
@@ -39,6 +39,8 @@ export const ReviewDocuments = ({ match }) => {
 
   const [serverError, setServerError] = useState(null);
 
+  const queryClient = useQueryClient();
+
   // placeholder pro-gear tickets & expenses
   // const progearTickets = [];
   // const expenses = [];
@@ -64,7 +66,7 @@ export const ReviewDocuments = ({ match }) => {
   };
 
   const onSuccess = () => {
-    queryCache.invalidateQueries([WEIGHT_TICKETS, ppmShipment.id]);
+    queryClient.invalidateQueries([WEIGHT_TICKETS, ppmShipment.id]);
     if (documentSetIndex < weightTickets.length - 1) {
       setDocumentSetIndex(documentSetIndex + 1);
     } else {
