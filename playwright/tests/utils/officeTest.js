@@ -15,7 +15,7 @@ export const TOOOfficeUserType = 'TOO office';
 export const TIOOfficeUserType = 'TIO office';
 export const QAECSROfficeUserType = 'QAE/CSR office';
 export const ServicesCounselorOfficeUserType = 'Services Counselor office';
-export const PrimeSimulatorUserType = 'Prime Simulator';
+export const PrimeSimulatorUserType = 'Prime Simulator office';
 
 /**
  * office test fixture for playwright
