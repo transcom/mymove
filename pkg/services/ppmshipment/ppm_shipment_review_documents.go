@@ -13,12 +13,17 @@ import (
 // ppmShipmentReviewDocuments implements the services.PPMShipmentReviewDocuments interface
 type ppmShipmentReviewDocuments struct {
 	services.PPMShipmentRouter
+	services.PPMDocumentFetcher
 }
 
 // NewPPMShipmentReviewDocuments creates a new ppmShipmentReviewDocuments
-func NewPPMShipmentReviewDocuments(ppmShipmentRouter services.PPMShipmentRouter) services.PPMShipmentReviewDocuments {
+func NewPPMShipmentReviewDocuments(
+	ppmShipmentRouter services.PPMShipmentRouter,
+	ppmDocumentFetcher services.PPMDocumentFetcher,
+) services.PPMShipmentReviewDocuments {
 	return &ppmShipmentReviewDocuments{
-		PPMShipmentRouter: ppmShipmentRouter,
+		PPMShipmentRouter:  ppmShipmentRouter,
+		PPMDocumentFetcher: ppmDocumentFetcher,
 	}
 }
 
@@ -34,6 +39,11 @@ func (p *ppmShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.A
 		return nil, err
 	}
 
+	ppmDocuments, err := p.PPMDocumentFetcher.GetPPMDocuments(appCtx, ppmShipment.ShipmentID)
+	if err != nil {
+		return nil, err
+	}
+
 	var updatedPPMShipment models.PPMShipment
 
 	err = copier.CopyWithOption(&updatedPPMShipment, ppmShipment, copier.Option{IgnoreEmpty: true, DeepCopy: true})
@@ -42,7 +52,7 @@ func (p *ppmShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.A
 	}
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		err = p.PPMShipmentRouter.SubmitReviewedDocuments(txnAppCtx, &updatedPPMShipment)
+		err = p.PPMShipmentRouter.SubmitReviewedDocuments(txnAppCtx, &updatedPPMShipment, ppmDocuments)
 
 		if err != nil {
 			return err
