@@ -27,7 +27,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 			paymentrequest.NewPaymentRequestUploadCreator(handlerConfig.FileStorer()),
 		}
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		testdatagen.MakeDefaultContractor(suite.DB())
+		factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		return handler, paymentRequest
 	}
 

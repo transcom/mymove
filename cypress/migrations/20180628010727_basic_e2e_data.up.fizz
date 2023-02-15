@@ -1,1 +1,0 @@
-exec("bin/generate-test-data --named-scenario e2e_basic")

@@ -70,6 +70,10 @@ type GetMovesQueueParams struct {
 	  In: query
 	*/
 	PerPage *int64
+	/*filters the requested pickup date of a shipment on the move
+	  In: query
+	*/
+	RequestedMoveDate *string
 	/*field that results should be sorted by
 	  In: query
 	*/
@@ -134,6 +138,11 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 
 	qPerPage, qhkPerPage, _ := qs.GetOK("perPage")
 	if err := o.bindPerPage(qPerPage, qhkPerPage, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qRequestedMoveDate, qhkRequestedMoveDate, _ := qs.GetOK("requestedMoveDate")
+	if err := o.bindRequestedMoveDate(qRequestedMoveDate, qhkRequestedMoveDate, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -338,6 +347,24 @@ func (o *GetMovesQueueParams) bindPerPage(rawData []string, hasKey bool, formats
 	return nil
 }
 
+// bindRequestedMoveDate binds and validates parameter RequestedMoveDate from query.
+func (o *GetMovesQueueParams) bindRequestedMoveDate(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.RequestedMoveDate = &raw
+
+	return nil
+}
+
 // bindSort binds and validates parameter Sort from query.
 func (o *GetMovesQueueParams) bindSort(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
@@ -363,7 +390,7 @@ func (o *GetMovesQueueParams) bindSort(rawData []string, hasKey bool, formats st
 // validateSort carries on validations for parameter Sort
 func (o *GetMovesQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "originDutyLocation", "destinationDutyLocation"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "originDutyLocation", "destinationDutyLocation", "requestedMoveDate"}, true); err != nil {
 		return err
 	}
 

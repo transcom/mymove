@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { expect, test } = require('./servicesCounselingTestFixture');
+import { test, expect } from './servicesCounselingTestFixture';
 
 test.describe('Services counselor user', () => {
   let moveLocator = '';

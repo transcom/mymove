@@ -36,21 +36,25 @@ type CustomType string
 var control CustomType = "Control"
 var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
+var Contractor CustomType = "Contractor"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
 var ServiceMember CustomType = "ServiceMember"
+var Role CustomType = "Role"
 var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
 var User CustomType = "User"
+var UsersRoles CustomType = "UsersRoles"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
 	"models.Address":              Address,
 	"models.AdminUser":            AdminUser,
+	"models.Contractor":           Contractor,
 	"models.DutyLocation":         DutyLocation,
 	"models.Entitlement":          Entitlement,
 	"models.OfficePhoneLine":      OfficePhoneLine,
@@ -61,6 +65,8 @@ var defaultTypesMap = map[string]CustomType{
 	"models.TransportationOffice": TransportationOffice,
 	"models.Upload":               Upload,
 	"models.User":                 User,
+	"models.UsersRoles":           UsersRoles,
+	"roles.Role":                  Role,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
