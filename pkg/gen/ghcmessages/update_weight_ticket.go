@@ -19,7 +19,7 @@ import (
 // swagger:model UpdateWeightTicket
 type UpdateWeightTicket struct {
 
-	// Indicates the net weight of the vehicle
+	// Indicates the adjusted net weight of the vehicle
 	// Minimum: 0
 	AdjustedNetWeight *int64 `json:"adjustedNetWeight,omitempty"`
 

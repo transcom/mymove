@@ -1041,7 +1041,7 @@ definitions:
           to be claimable.
         type: boolean
       adjustedNetWeight:
-        description: Indicates the net weight of the vehicle
+        description: Indicates the adjusted net weight of the vehicle
         type: integer
         minimum: 0
       netWeightRemarks:
@@ -3134,7 +3134,7 @@ definitions:
       reason:
         $ref: '#/definitions/PPMDocumentStatusReason'
       adjustedNetWeight:
-        description: Indicates the net weight of the vehicle
+        description: Indicates the adjusted net weight of the vehicle
         type: integer
         minimum: 0
         x-nullable: true

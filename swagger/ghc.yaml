@@ -4435,7 +4435,7 @@ definitions:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
       adjustedNetWeight:
-        description: Indicates the net weight of the vehicle
+        description: Indicates the adjusted net weight of the vehicle
         type: integer
         minimum: 0
       netWeightRemarks:
@@ -6137,7 +6137,7 @@ definitions:
       reason:
         $ref: '#/definitions/PPMDocumentStatusReason'
       adjustedNetWeight:
-        description: Indicates the net weight of the vehicle
+        description: Indicates the adjusted net weight of the vehicle
         type: integer
         minimum: 0
         x-nullable: true

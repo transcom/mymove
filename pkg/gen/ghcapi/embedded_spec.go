@@ -8945,7 +8945,7 @@ func init() {
       "type": "object",
       "properties": {
         "adjustedNetWeight": {
-          "description": "Indicates the net weight of the vehicle",
+          "description": "Indicates the adjusted net weight of the vehicle",
           "type": "integer"
         },
         "emptyWeight": {
@@ -9075,7 +9075,7 @@ func init() {
       ],
       "properties": {
         "adjustedNetWeight": {
-          "description": "Indicates the net weight of the vehicle",
+          "description": "Indicates the adjusted net weight of the vehicle",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
@@ -19463,7 +19463,7 @@ func init() {
       "type": "object",
       "properties": {
         "adjustedNetWeight": {
-          "description": "Indicates the net weight of the vehicle",
+          "description": "Indicates the adjusted net weight of the vehicle",
           "type": "integer",
           "minimum": 0
         },
@@ -19599,7 +19599,7 @@ func init() {
       ],
       "properties": {
         "adjustedNetWeight": {
-          "description": "Indicates the net weight of the vehicle",
+          "description": "Indicates the adjusted net weight of the vehicle",
           "type": "integer",
           "minimum": 0,
           "x-nullable": true,

@@ -1020,7 +1020,7 @@ definitions:
         description: Indicates if the trailer that the customer used meets all the criteria to be claimable.
         type: boolean
       adjustedNetWeight:
-        description: Indicates the net weight of the vehicle
+        description: Indicates the adjusted net weight of the vehicle
         type: integer
         minimum: 0
       netWeightRemarks:
