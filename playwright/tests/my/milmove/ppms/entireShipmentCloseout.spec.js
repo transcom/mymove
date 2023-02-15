@@ -61,7 +61,12 @@ test.describe('Entire PPM closeout flow', () => {
       // First approach here is to click on each of the delete buttons separately by index
       // The indices shift so this is not reliable. Either need to not check the message and just do it 3 times, or have
       // a smarter selector
-      await customerPpmPage.page.getByRole('button', { name: 'Delete' }).nth(1).click();
+      const weightMoved = await customerPpmPage.page.getByRole('heading', { name: 'Weight moved' });
+      await expect(weightMoved).toBeVisible();
+      const foo = weightMoved.locator('../../..');
+      await expect(foo).toBeVisible();
+      await expect(foo.getByRole('button', { name: 'Delete' })).toBeVisible();
+      await foo.getByRole('button', { name: 'Delete' }).click();
       await expect(customerPpmPage.page.getByText('You are about to delete')).toBeVisible();
       // await expect(customerPpmPage.page.getByText('You are about to delete Trip 1. This cannot be undone.')).toBeVisible();
       await customerPpmPage.page.getByRole('button', { name: 'Yes, Delete' }).click();
