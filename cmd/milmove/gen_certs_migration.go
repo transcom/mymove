@@ -27,6 +27,11 @@ const (
 	UpdateFlag string = "update"
 	// ClientCertIDFlag is the ID flag for Client Cert
 	ClientCertIDFlag string = "certid"
+	// UserIDFlag is the User ID associated for Client Certificates flag
+	UserIDFlag string = "userid"
+
+	// The default UserID if a value for `userid` is not passed in
+	UserIDFlagDefault string = "Replace me with a User.ID (UUID) for a User from the Users table. This User.ID will be different across environments."
 
 	// template for adding client certificates
 	createCertsMigration string = `
@@ -95,12 +100,14 @@ type CertsTemplate struct {
 	ID          string
 	Fingerprint string
 	Subject     string
+	UserID      string
 }
 
 // InitCertsMigrationFlags initializes certs migration command line flags
 func InitCertsMigrationFlags(flag *pflag.FlagSet) {
 	flag.StringP(FingerprintFlag, "f", "", "Certificate fingerprint in SHA 256 form")
 	flag.StringP(SubjectFlag, "s", "", "Certificate subject")
+	flag.StringP(UserIDFlag, "u", UserIDFlagDefault, "User ID to associate with the Certificate")
 	flag.Bool(UpdateFlag, false, "Create an update migration")
 	flag.String(ClientCertIDFlag, "", "Previous ID of client cert entry")
 
@@ -135,6 +142,24 @@ func CheckCertsMigration(v *viper.Viper) error {
 		if len(subject) == 0 {
 			return errors.Errorf("%s is missing", SubjectFlag)
 		}
+	}
+
+	// Check if the User ID was passed in as a flag & validate if it's a valid
+	// UUID. Ultimately, the responsibility for this to be correct falls on the
+	// operator of the CLI without having this CLI check values from the RDS
+	// instance that this migration will be running on.
+	if v.GetString(UserIDFlag) != UserIDFlagDefault {
+		userID := v.GetString(UserIDFlag)
+
+		// Check if userID is a valid GUID
+		if uuid.FromStringOrNil(userID) == uuid.Nil {
+			return errors.Errorf(
+				"%s is not a valid UUID (value given: %s). Please copy the User ID from the Admin UI to ensure the User ID is a valid UUID",
+				UserIDFlag,
+				userID,
+			)
+		}
+
 	}
 
 	if v.GetBool(UpdateFlag) {
