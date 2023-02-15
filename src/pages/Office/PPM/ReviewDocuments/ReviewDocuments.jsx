@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-// import { queryCache } from 'react-query';
 import { Button } from '@trussworks/react-uswds';
 import { generatePath, useHistory, withRouter } from 'react-router-dom';
 
@@ -24,7 +23,7 @@ export const ReviewDocuments = ({ match }) => {
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
 
-  let documentSet;
+  let documentSet = [];
   const allDocuments = [];
 
   const movingExpenses = documents?.MovingExpenses;
@@ -58,7 +57,6 @@ export const ReviewDocuments = ({ match }) => {
 
   if (weightTickets) {
     weightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
-    documentSet = [];
     documentSet = documentSet.concat(weightTickets[documentSetIndex]);
   }
 
@@ -105,7 +103,6 @@ export const ReviewDocuments = ({ match }) => {
   };
 
   const onSuccess = () => {
-    // queryCache.invalidateQueries([DOCUMENTS, shipmentId]);
     queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
     if (documentSetIndex < fullDocuments.length - 1) {
       setDocumentSetIndex(documentSetIndex + 1);

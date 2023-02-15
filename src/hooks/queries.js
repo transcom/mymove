@@ -201,14 +201,10 @@ export const useEditShipmentQueries = (moveCode) => {
 };
 
 export const usePPMShipmentDocsQueries = (shipmentId) => {
-  // const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentId], getMTOShipmentByID);
   const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentId], ({ queryKey }) =>
     getMTOShipmentByID(...queryKey),
   );
 
-  // const { data: documents } = useQuery([DOCUMENTS, shipmentId], getPPMDocuments, {
-  //   enabled: !!shipmentId,
-  // });
   const { data: documents, ...documentsQuery } = useQuery(
     [DOCUMENTS, shipmentId],
     ({ queryKey }) => getPPMDocuments(...queryKey),
@@ -218,7 +214,6 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
   );
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, documentsQuery]);
-  // const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery]);
   return {
     mtoShipment,
     documents,

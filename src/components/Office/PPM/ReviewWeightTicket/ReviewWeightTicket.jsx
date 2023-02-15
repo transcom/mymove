@@ -56,11 +56,6 @@ export default function ReviewWeightTicket({
     onError,
   });
 
-  // const [patchWeightTicketMutation] = useMutation(patchWeightTicket, {
-  //   onSuccess,
-  //   onError,
-  // });
-
   const ppmShipment = mtoShipment?.ppmShipment;
 
   const handleSubmit = (values) => {
