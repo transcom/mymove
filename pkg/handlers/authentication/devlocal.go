@@ -79,9 +79,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				http.StatusInternalServerError)
 			return
 		}
-		appCtx.Logger().Info("DREW DEBUG ir", zap.Any("roles", identities[i].Roles))
 	}
-	appCtx.Logger().Info("DREW DEBUG id", zap.Any("identities", identities))
 
 	// grab all GBLOCs
 	var gblocList []string
