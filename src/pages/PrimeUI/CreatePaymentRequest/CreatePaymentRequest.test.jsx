@@ -193,7 +193,7 @@ describe('CreatePaymentRequest page', () => {
   });
 
   describe('error alert display', () => {
-    it('displays the error alert when the api submission returns an error', () => {
+    it('displays the error alert when the api submission returns an error', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       createPaymentRequest.mockRejectedValue({ response: { body: { title: 'Error title', detail: 'Error detail' } } });
 
@@ -205,14 +205,16 @@ describe('CreatePaymentRequest page', () => {
 
       const serviceItemInputs = screen.getAllByRole('checkbox', { name: 'Add to payment request' });
       // avoiding linter pitfalls with async for loops
-      userEvent.click(serviceItemInputs[0]);
-      userEvent.click(serviceItemInputs[1]);
-      userEvent.click(serviceItemInputs[2]);
+      await userEvent.click(serviceItemInputs[0]);
+      await userEvent.click(serviceItemInputs[1]);
+      await userEvent.click(serviceItemInputs[2]);
 
-      userEvent.click(screen.getByRole('button', { name: 'Submit Payment Request' }));
+      await act(async () => {
+        await userEvent.click(screen.getByRole('button', { name: 'Submit Payment Request' }));
+      });
 
-      waitFor(() => {
-        expect(screen.getByText('Error title')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Prime API: Error title')).toBeInTheDocument();
         expect(screen.getByText('Error detail')).toBeInTheDocument();
       });
     });

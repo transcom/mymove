@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -38,7 +39,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		newDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		payload := ghcmessages.UpdateOrderPayload{
@@ -57,7 +58,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		originDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		payload := ghcmessages.UpdateOrderPayload{
@@ -94,8 +95,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
-		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedDestinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -152,8 +153,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
-		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedDestinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -186,8 +187,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
-		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedDestinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -230,8 +231,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
-		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedDestinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -274,8 +275,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
-		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedDestinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -318,8 +319,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
-		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedDestinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -361,8 +362,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
-		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedDestinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 
 		payload := ghcmessages.UpdateOrderPayload{
@@ -422,8 +423,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
-		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedDestinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
@@ -471,8 +472,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
-		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedDestinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		ordersType := ghcmessages.OrdersTypePERMANENTCHANGEOFSTATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -777,11 +778,12 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 	suite.Run("Creates and saves new amendedOrder doc when the order.UploadedAmendedOrders is nil", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
-		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-			DutyLocation: models.DutyLocation{
-				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
+		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 		var moves models.Moves
 		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
@@ -867,11 +869,12 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 	suite.Run("Saves userUpload payload to order.UploadedAmendedOrders if the document already exists", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
-		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-			DutyLocation: models.DutyLocation{
-				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
+		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 		var moves models.Moves
 		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 

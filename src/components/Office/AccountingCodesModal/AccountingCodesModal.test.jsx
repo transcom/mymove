@@ -39,11 +39,11 @@ describe('components/Office/AccountingCodesModal', () => {
     expect(screen.getByLabelText('1234 (HHG)')).toBeChecked();
     expect(screen.getByLabelText('BCDE (NTS)')).toBeChecked();
 
-    userEvent.click(screen.getByRole('button', { name: 'Add or edit codes' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Add or edit codes' }));
     await waitFor(() => expect(onEditCodesClick).toHaveBeenCalledTimes(1));
 
-    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-    userEvent.click(screen.getByTestId('modalCloseButton'));
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await userEvent.click(screen.getByTestId('modalCloseButton'));
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(2));
   });
 
@@ -62,12 +62,12 @@ describe('components/Office/AccountingCodesModal', () => {
       />,
     );
 
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({ tacType: 'HHG', sacType: 'NTS' }));
 
-    userEvent.click(screen.getByLabelText('2345 (NTS)'));
-    userEvent.click(screen.getByLabelText('ABCD (HHG)'));
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByLabelText('2345 (NTS)'));
+    await userEvent.click(screen.getByLabelText('ABCD (HHG)'));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({ tacType: 'NTS', sacType: 'HHG' }));
   });
 });

@@ -6,16 +6,19 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	orderop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -29,7 +32,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
-	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
@@ -46,12 +49,17 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 		orderservice.NewOrderFetcher(),
 	}
 
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
+	suite.IsType(&orderop.GetOrderOK{}, response)
 	orderOK := response.(*orderop.GetOrderOK)
 	ordersPayload := orderOK.Payload
 
-	suite.Assertions.IsType(&orderop.GetOrderOK{}, response)
+	// Validate outgoing payload
+	suite.NoError(ordersPayload.Validate(strfmt.Default))
+
 	suite.Equal(order.ID.String(), ordersPayload.ID.String())
 	suite.Equal(move.Locator, ordersPayload.MoveCode)
 	suite.Equal(order.ServiceMemberID.String(), ordersPayload.Customer.ID.String())
@@ -99,12 +107,19 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 			handlerConfig,
 			&orderFetcher,
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
-
+		suite.IsType(&orderop.GetOrderOK{}, response)
 		orderOK := response.(*orderop.GetOrderOK)
 		orderPayload := orderOK.Payload
+
+		// Validate outgoing payload
+		suite.NoError(orderPayload.Validate(strfmt.Default))
+
 		payloadEntitlement := orderPayload.Entitlement
 		orderEntitlement := order.Entitlement
 		expectedAllowance := int64(orderEntitlement.WeightAllotment().TotalWeightSelf)
@@ -139,12 +154,19 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 			handlerConfig,
 			&orderFetcher,
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
-
+		suite.IsType(&orderop.GetOrderOK{}, response)
 		orderOK := response.(*orderop.GetOrderOK)
 		orderPayload := orderOK.Payload
+
+		// Validate outgoing payload
+		suite.NoError(orderPayload.Validate(strfmt.Default))
+
 		payloadEntitlement := orderPayload.Entitlement
 		orderEntitlement := order.Entitlement
 		expectedAllowance := int64(orderEntitlement.WeightAllotment().TotalWeightSelfPlusDependents)
@@ -194,8 +216,8 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (sub
 
 	subtestData.amendedOrder = subtestData.approvalsRequestedMove.Orders
 
-	subtestData.originDutyLocation = testdatagen.MakeDefaultDutyLocation(suite.DB())
-	subtestData.destinationDutyLocation = testdatagen.MakeDefaultDutyLocation(suite.DB())
+	subtestData.originDutyLocation = factory.BuildDutyLocation(suite.DB(), nil, nil)
+	subtestData.destinationDutyLocation = factory.BuildDutyLocation(suite.DB(), nil, nil)
 
 	return subtestData
 }
@@ -247,7 +269,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 
 		order := move.Orders
 
-		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		body := &ghcmessages.UpdateOrderPayload{
@@ -273,8 +295,6 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			Body:        body,
 		}
 
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		handler := UpdateOrderHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -284,13 +304,19 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		suite.Nil(order.AmendedOrdersAcknowledgedAt)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
 
-		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
+		suite.IsType(&orderop.UpdateOrderOK{}, response)
 		orderOK := response.(*orderop.UpdateOrderOK)
 		ordersPayload := orderOK.Payload
+
+		// Validate outgoing payload
+		suite.NoError(ordersPayload.Validate(strfmt.Default))
 
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
@@ -321,7 +347,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		amendedOrder := subtestData.amendedOrder
 		approvalsRequestedMove := subtestData.approvalsRequestedMove
 
-		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		unacknowledgedOrders := false
@@ -348,8 +374,6 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			Body:        body,
 		}
 
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		orderUpdater := orderservice.NewOrderUpdater(moveRouter)
 		handler := UpdateOrderHandler{
 			handlerConfig,
@@ -357,10 +381,17 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			moveTaskOrderUpdater,
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
-		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
+		suite.IsType(&orderop.UpdateOrderOK{}, response)
+		payload := response.(*orderop.UpdateOrderOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		var moveInDB models.Move
 		err := suite.DB().Find(&moveInDB, approvalsRequestedMove.ID)
@@ -376,7 +407,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		destinationDutyLocation := order.NewDutyLocation
 		originDutyStation := order.OriginDutyLocation
 
-		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		unacknowledgedOrders := false
@@ -403,8 +434,6 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			Body:        body,
 		}
 
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		orderUpdater := orderservice.NewOrderUpdater(moveRouter)
 		handler := UpdateOrderHandler{
 			handlerConfig,
@@ -412,10 +441,17 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			moveTaskOrderUpdater,
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
-		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
+		suite.IsType(&orderop.UpdateOrderOK{}, response)
+		payload := response.(*orderop.UpdateOrderOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		var moveInDB models.Move
 		err := suite.DB().Find(&moveInDB, move.ID)
@@ -436,8 +472,8 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *upd
 	subtestData.move = testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
 	subtestData.order = subtestData.move.Orders
 
-	originDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-	destinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+	destinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 	deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
@@ -469,7 +505,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateOrderParams{
@@ -479,7 +515,6 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 			Body:        body,
 		}
 
-		suite.NoError(params.Body.Validate(strfmt.Default))
 		moveTaskOrderUpdater := mocks.MoveTaskOrderUpdater{}
 		moveRouter := moverouter.NewMoveRouter()
 		handler := UpdateOrderHandler{
@@ -487,14 +522,20 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 			orderservice.NewOrderUpdater(moveRouter),
 			&moveTaskOrderUpdater,
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
-
+		suite.IsType(&orderop.UpdateOrderOK{}, response)
 		orderOK := response.(*orderop.UpdateOrderOK)
 		ordersPayload := orderOK.Payload
 
-		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
+		// Validate outgoing payload
+		suite.NoError(ordersPayload.Validate(strfmt.Default))
+
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
 		suite.Equal(body.OriginDutyLocationID.String(), ordersPayload.OriginDutyLocation.ID.String())
@@ -520,7 +561,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateOrderParams{
@@ -529,8 +570,6 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
 			Body:        body,
 		}
-
-		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		updater := &mocks.OrderUpdater{}
 		handler := UpdateOrderHandler{
@@ -541,9 +580,17 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 
 		updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(&order, move.ID, nil)
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateOrderOK{}, response)
+		payload := response.(*orderop.UpdateOrderOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
@@ -552,7 +599,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateOrderParams{
@@ -572,9 +619,16 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.NotFoundError{})
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateOrderNotFound{}, response)
+		payload := response.(*orderop.UpdateOrderNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -583,7 +637,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateOrderParams{
@@ -603,9 +657,16 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.PreconditionFailedError{})
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateOrderPreconditionFailed{}, response)
+		payload := response.(*orderop.UpdateOrderPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
@@ -614,7 +675,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateOrderParams{
@@ -634,9 +695,16 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.InvalidInputError{})
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateOrderUnprocessableEntity{}, response)
+		payload := response.(*orderop.UpdateOrderUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -647,7 +715,7 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 
 	body := &ghcmessages.UpdateOrderPayload{}
 
-	requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -673,15 +741,19 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 		&mocks.MoveTaskOrderUpdater{},
 	}
 
+	// Validate incoming payload: not needed since we're mocking UpdateOrderAsTOO
+
 	response := handler.Handle(params) // This step also saves traceID into DB
 
 	suite.IsNotErrResponse(response)
-
+	suite.IsType(&orderop.UpdateOrderOK{}, response)
 	orderOK := response.(*orderop.UpdateOrderOK)
 	ordersPayload := orderOK.Payload
 
+	// Validate outgoing payload
+	suite.NoError(ordersPayload.Validate(strfmt.Default))
+
 	suite.FatalNoError(err, "Error creating a new trace ID.")
-	suite.IsType(&orderop.UpdateOrderOK{}, response)
 	suite.Equal(ordersPayload.ID, strfmt.UUID(order.ID.String()))
 	suite.HasWebhookNotification(order.ID, traceID)
 }
@@ -699,8 +771,8 @@ func (suite *HandlerSuite) makeCounselingUpdateOrderHandlerSubtestData() (subtes
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 	subtestData.move = testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 	subtestData.order = subtestData.move.Orders
-	originDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-	destinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+	destinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 
 	subtestData.body = &ghcmessages.CounselingUpdateOrderPayload{
 		IssueDate:            handlers.FmtDatePtr(&issueDate),
@@ -726,7 +798,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateOrderParams{
@@ -736,20 +808,25 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 			Body:        body,
 		}
 
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		moveRouter := moverouter.NewMoveRouter()
 		handler := CounselingUpdateOrderHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
+		suite.IsType(&orderop.CounselingUpdateOrderOK{}, response)
 		orderOK := response.(*orderop.CounselingUpdateOrderOK)
 		ordersPayload := orderOK.Payload
 
-		suite.Assertions.IsType(&orderop.CounselingUpdateOrderOK{}, response)
+		// Validate outgoing payload
+		suite.NoError(ordersPayload.Validate(strfmt.Default))
+
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
 		suite.Equal(body.OriginDutyLocationID.String(), ordersPayload.OriginDutyLocation.ID.String())
@@ -768,7 +845,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateOrderParams{
@@ -787,9 +864,16 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		updater.On("UpdateOrderAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.NotFoundError{})
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.CounselingUpdateOrderNotFound{}, response)
+		payload := response.(*orderop.CounselingUpdateOrderNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -798,7 +882,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateOrderParams{
@@ -817,9 +901,16 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		updater.On("UpdateOrderAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.PreconditionFailedError{})
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.CounselingUpdateOrderPreconditionFailed{}, response)
+		payload := response.(*orderop.CounselingUpdateOrderPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
@@ -828,7 +919,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateOrderParams{
@@ -847,9 +938,16 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		updater.On("UpdateOrderAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.InvalidInputError{})
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.CounselingUpdateOrderUnprocessableEntity{}, response)
+		payload := response.(*orderop.CounselingUpdateOrderUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -942,7 +1040,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateAllowanceParams{
@@ -952,20 +1050,25 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 			Body:        body,
 		}
 
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		moveRouter := moverouter.NewMoveRouter()
 		handler := UpdateAllowanceHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
+		suite.IsType(&orderop.UpdateAllowanceOK{}, response)
 		orderOK := response.(*orderop.UpdateAllowanceOK)
 		ordersPayload := orderOK.Payload
 
-		suite.Assertions.IsType(&orderop.UpdateAllowanceOK{}, response)
+		// Validate outgoing payload
+		suite.NoError(ordersPayload.Validate(strfmt.Default))
+
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
 		suite.Equal(body.Grade, ordersPayload.Grade)
@@ -984,7 +1087,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateAllowanceParams{
@@ -1003,9 +1106,16 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.NotFoundError{})
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateAllowanceNotFound{}, response)
+		payload := response.(*orderop.UpdateAllowanceNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -1014,7 +1124,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateAllowanceParams{
@@ -1033,9 +1143,16 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.PreconditionFailedError{})
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateAllowancePreconditionFailed{}, response)
+		payload := response.(*orderop.UpdateAllowancePreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
@@ -1044,7 +1161,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateAllowanceParams{
@@ -1063,9 +1180,16 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.InvalidInputError{})
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateAllowanceUnprocessableEntity{}, response)
+		payload := response.(*orderop.UpdateAllowanceUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -1076,7 +1200,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 
 	body := &ghcmessages.UpdateAllowancePayload{}
 
-	requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1101,15 +1225,20 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 		updater,
 	}
 
+	// Validate incoming payload
+	suite.NoError(params.Body.Validate(strfmt.Default))
+
 	response := handler.Handle(params) // This step also saves traceID into DB
 
 	suite.IsNotErrResponse(response)
-
+	suite.IsType(&orderop.UpdateAllowanceOK{}, response)
 	orderOK := response.(*orderop.UpdateAllowanceOK)
 	ordersPayload := orderOK.Payload
 
+	// Validate outgoing payload
+	suite.NoError(ordersPayload.Validate(strfmt.Default))
+
 	suite.FatalNoError(err, "Error creating a new trace ID.")
-	suite.IsType(&orderop.UpdateAllowanceOK{}, response)
 	suite.Equal(ordersPayload.ID, strfmt.UUID(order.ID.String()))
 	suite.HasWebhookNotification(order.ID, traceID)
 }
@@ -1140,7 +1269,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
-		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateAllowanceParams{
@@ -1150,20 +1279,25 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 			Body:        body,
 		}
 
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		moveRouter := moverouter.NewMoveRouter()
 		handler := CounselingUpdateAllowanceHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
+		suite.IsType(&orderop.CounselingUpdateAllowanceOK{}, response)
 		orderOK := response.(*orderop.CounselingUpdateAllowanceOK)
 		ordersPayload := orderOK.Payload
 
-		suite.Assertions.IsType(&orderop.CounselingUpdateAllowanceOK{}, response)
+		// Validate outgoing payload
+		suite.NoError(ordersPayload.Validate(strfmt.Default))
+
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.Grade, ordersPayload.Grade)
 		suite.Equal(body.Agency, ordersPayload.Agency)
@@ -1180,7 +1314,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
-		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateAllowanceParams{
@@ -1199,9 +1333,16 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		updater.On("UpdateAllowanceAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.NotFoundError{})
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.CounselingUpdateAllowanceNotFound{}, response)
+		payload := response.(*orderop.CounselingUpdateAllowanceNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -1209,7 +1350,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
-		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateAllowanceParams{
@@ -1228,9 +1369,16 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		updater.On("UpdateAllowanceAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.PreconditionFailedError{})
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.CounselingUpdateAllowancePreconditionFailed{}, response)
+		payload := response.(*orderop.CounselingUpdateAllowancePreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
@@ -1238,7 +1386,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
-		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateAllowanceParams{
@@ -1257,9 +1405,16 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		updater.On("UpdateAllowanceAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, apperror.InvalidInputError{})
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.CounselingUpdateAllowanceUnprocessableEntity{}, response)
+		payload := response.(*orderop.CounselingUpdateAllowanceUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -1272,7 +1427,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateMaxBillableWeightAsTIOParams{
@@ -1282,20 +1437,25 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 			Body:        body,
 		}
 
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		router := moverouter.NewMoveRouter()
 		handler := UpdateMaxBillableWeightAsTIOHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
+		suite.IsType(&orderop.UpdateMaxBillableWeightAsTIOOK{}, response)
 		orderOK := response.(*orderop.UpdateMaxBillableWeightAsTIOOK)
 		ordersPayload := orderOK.Payload
 
-		suite.Assertions.IsType(&orderop.UpdateMaxBillableWeightAsTIOOK{}, response)
+		// Validate outgoing payload
+		suite.NoError(ordersPayload.Validate(strfmt.Default))
+
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
 	})
@@ -1306,7 +1466,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateMaxBillableWeightAsTIOParams{
@@ -1327,9 +1487,16 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		updater.On("UpdateMaxBillableWeightAsTIO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, apperror.NotFoundError{})
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateMaxBillableWeightAsTIONotFound{}, response)
+		payload := response.(*orderop.UpdateMaxBillableWeightAsTIONotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -1338,7 +1505,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateMaxBillableWeightAsTIOParams{
@@ -1359,9 +1526,16 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		updater.On("UpdateMaxBillableWeightAsTIO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, apperror.PreconditionFailedError{})
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateMaxBillableWeightAsTIOPreconditionFailed{}, response)
+		payload := response.(*orderop.UpdateMaxBillableWeightAsTIOPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
@@ -1370,7 +1544,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateMaxBillableWeightAsTIOParams{
@@ -1388,12 +1562,22 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
 		tioRemarks := params.Body.TioRemarks
 
+		verrs := validate.NewErrors()
+		verrs.Add("some key", "some validation error")
+		invalidInputError := apperror.NewInvalidInputError(order.ID, nil, verrs, "")
 		updater.On("UpdateMaxBillableWeightAsTIO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, apperror.InvalidInputError{})
+			order.ID, dbAuthorizedWeight, tioRemarks, params.IfMatch).Return(nil, nil, invalidInputError)
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateMaxBillableWeightAsTIOUnprocessableEntity{}, response)
+		payload := response.(*orderop.UpdateMaxBillableWeightAsTIOUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -1406,7 +1590,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateBillableWeightParams{
@@ -1416,20 +1600,25 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 			Body:        body,
 		}
 
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		router := moverouter.NewMoveRouter()
 		handler := UpdateBillableWeightHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
 		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
+		suite.IsType(&orderop.UpdateBillableWeightOK{}, response)
 		orderOK := response.(*orderop.UpdateBillableWeightOK)
 		ordersPayload := orderOK.Payload
 
-		suite.Assertions.IsType(&orderop.UpdateBillableWeightOK{}, response)
+		// Validate outgoing payload
+		suite.NoError(ordersPayload.Validate(strfmt.Default))
+
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
 	})
@@ -1440,7 +1629,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateBillableWeightParams{
@@ -1460,9 +1649,16 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, apperror.NotFoundError{})
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateBillableWeightNotFound{}, response)
+		payload := response.(*orderop.UpdateBillableWeightNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -1471,7 +1667,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateBillableWeightParams{
@@ -1491,9 +1687,16 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, apperror.PreconditionFailedError{})
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateBillableWeightPreconditionFailed{}, response)
+		payload := response.(*orderop.UpdateBillableWeightPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
@@ -1502,7 +1705,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.UpdateBillableWeightParams{
@@ -1519,12 +1722,22 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		}
 		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
 
+		verrs := validate.NewErrors()
+		verrs.Add("some key", "some validation error")
+		invalidInputError := apperror.NewInvalidInputError(order.ID, nil, verrs, "")
 		updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, apperror.InvalidInputError{})
+			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, invalidInputError)
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateBillableWeightUnprocessableEntity{}, response)
+		payload := response.(*orderop.UpdateBillableWeightUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -1535,7 +1748,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightEventTrigger() {
 	body := subtestData.body
 	move := subtestData.move
 
-	requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/update-billable-weight", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1561,15 +1774,20 @@ func (suite *HandlerSuite) TestUpdateBillableWeightEventTrigger() {
 		updater,
 	}
 
+	// Validate incoming payload
+	suite.NoError(params.Body.Validate(strfmt.Default))
+
 	response := handler.Handle(params) // This step also saves traceID into DB
 
 	suite.IsNotErrResponse(response)
-
+	suite.IsType(&orderop.UpdateBillableWeightOK{}, response)
 	orderOK := response.(*orderop.UpdateBillableWeightOK)
 	ordersPayload := orderOK.Payload
 
+	// Validate outgoing payload
+	suite.NoError(ordersPayload.Validate(strfmt.Default))
+
 	suite.FatalNoError(err, "Error creating a new trace ID.")
-	suite.IsType(&orderop.UpdateBillableWeightOK{}, response)
 	suite.Equal(ordersPayload.ID, strfmt.UUID(order.ID.String()))
 	suite.HasWebhookNotification(order.ID, traceID)
 }
@@ -1585,7 +1803,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		})
 		order := move.Orders
 
-		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.AcknowledgeExcessWeightRiskParams{
@@ -1599,13 +1817,19 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
+		suite.IsType(&orderop.AcknowledgeExcessWeightRiskOK{}, response)
 		moveOK := response.(*orderop.AcknowledgeExcessWeightRiskOK)
 		movePayload := moveOK.Payload
 
-		suite.Assertions.IsType(&orderop.AcknowledgeExcessWeightRiskOK{}, response)
+		// Validate outgoing payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
+
 		suite.Equal(move.ID.String(), movePayload.ID.String())
 		suite.NotNil(movePayload.ExcessWeightAcknowledgedAt)
 	})
@@ -1618,7 +1842,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		})
 		order := move.Orders
 
-		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.AcknowledgeExcessWeightRiskParams{
@@ -1636,9 +1860,15 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		updater.On("AcknowledgeExcessWeightRisk", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, params.IfMatch).Return(nil, apperror.NotFoundError{})
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.AcknowledgeExcessWeightRiskNotFound{}, response)
+		payload := response.(*orderop.AcknowledgeExcessWeightRiskNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
@@ -1649,7 +1879,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		})
 		order := move.Orders
 
-		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.AcknowledgeExcessWeightRiskParams{
@@ -1667,9 +1897,15 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		updater.On("AcknowledgeExcessWeightRisk", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, params.IfMatch).Return(nil, apperror.PreconditionFailedError{})
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.AcknowledgeExcessWeightRiskPreconditionFailed{}, response)
+		payload := response.(*orderop.AcknowledgeExcessWeightRiskPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
@@ -1680,7 +1916,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		})
 		order := move.Orders
 
-		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.AcknowledgeExcessWeightRiskParams{
@@ -1695,12 +1931,21 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 			updater,
 		}
 
+		verrs := validate.NewErrors()
+		verrs.Add("some key", "some validation error")
+		invalidInputError := apperror.NewInvalidInputError(order.ID, nil, verrs, "")
 		updater.On("AcknowledgeExcessWeightRisk", mock.AnythingOfType("*appcontext.appContext"),
-			order.ID, params.IfMatch).Return(nil, apperror.InvalidInputError{})
+			order.ID, params.IfMatch).Return(nil, invalidInputError)
+
+		// Validate incoming payload: no body to validate
 
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.AcknowledgeExcessWeightRiskUnprocessableEntity{}, response)
+		payload := response.(*orderop.AcknowledgeExcessWeightRiskUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -1712,7 +1957,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskEventTrigger() {
 	})
 	order := move.Orders
 
-	requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 	request := httptest.NewRequest("POST", "/orders/{orderID}/acknowledge-excess-weight-risk", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1736,15 +1981,19 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskEventTrigger() {
 		updater,
 	}
 
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params) // This step also saves traceID into DB
 
 	suite.IsNotErrResponse(response)
-
+	suite.IsType(&orderop.AcknowledgeExcessWeightRiskOK{}, response)
 	moveOK := response.(*orderop.AcknowledgeExcessWeightRiskOK)
 	movePayload := moveOK.Payload
 
+	// Validate outgoing payload
+	suite.NoError(movePayload.Validate(strfmt.Default))
+
 	suite.FatalNoError(err, "Error creating a new trace ID.")
-	suite.IsType(&orderop.AcknowledgeExcessWeightRiskOK{}, response)
 	suite.Equal(movePayload.ID, strfmt.UUID(move.ID.String()))
 	suite.HasWebhookNotification(move.ID, traceID)
 }

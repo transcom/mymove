@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/getlantern/deepcopy"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -292,8 +292,9 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		return nil, verr
 	}
 
+	// save the original db version, oldShipment will be modified
 	var dbShipment models.MTOShipment
-	err = deepcopy.Copy(&dbShipment, oldShipment) // save the original db version, oldShipment will be modified
+	err = copier.CopyWithOption(&dbShipment, oldShipment, copier.Option{IgnoreEmpty: true, DeepCopy: true})
 	if err != nil {
 		return nil, fmt.Errorf("error copying shipment data %w", err)
 	}

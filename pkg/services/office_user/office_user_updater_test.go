@@ -6,30 +6,24 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 	queryBuilder := query.NewQueryBuilder()
 	updater := NewOfficeUserUpdater(queryBuilder)
 	setupTestData := func() models.OfficeUser {
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-			OfficeUser: models.OfficeUser{
-				TransportationOffice: models.TransportationOffice{
-					Name: "Random Office",
-				},
-			},
-		})
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		return officeUser
 	}
 
 	// Happy path
 	suite.Run("If the user is updated successfully it should be returned", func() {
 		officeUser := setupTestData()
-		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+		transportationOffice := factory.BuildDefaultTransportationOffice(suite.DB())
 
 		firstName := "Lea"
 		payload := &adminmessages.OfficeUserUpdatePayload{
@@ -42,6 +36,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 		suite.Nil(verrs)
 		suite.Equal(updatedOfficeUser.ID.String(), officeUser.ID.String())
 		suite.Equal(updatedOfficeUser.TransportationOfficeID.String(), transportationOffice.ID.String())
+		suite.NotEqual(updatedOfficeUser.TransportationOfficeID.String(), officeUser.TransportationOffice.ID.String())
 		suite.Equal(updatedOfficeUser.FirstName, firstName)
 		suite.Equal(updatedOfficeUser.LastName, officeUser.LastName)
 	})

@@ -26,6 +26,7 @@ const ServicesCounselorCustomerSupportRemarks = lazy(() =>
   import('pages/Office/ServicesCounselorCustomerSupportRemarks/ServicesCounselorCustomerSupportRemarks'),
 );
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
+const ReviewDocuments = lazy(() => import('pages/Office/PPM/ReviewDocuments/ReviewDocuments'));
 
 const ServicesCounselingMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = useState(0);
@@ -81,7 +82,15 @@ const ServicesCounselingMoveInfo = () => {
       exact: true,
     }) ||
     matchPath(pathname, {
+      path: servicesCounselingRoutes.SHIPMENT_REVIEW_PATH,
+      exact: true,
+    }) ||
+    matchPath(pathname, {
       path: servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH,
+      exact: true,
+    }) ||
+    matchPath(pathname, {
+      path: servicesCounselingRoutes.SHIPMENT_REVIEW_PATH,
       exact: true,
     });
 
@@ -115,6 +124,10 @@ const ServicesCounselingMoveInfo = () => {
 
           <Route path={servicesCounselingRoutes.CUSTOMER_SUPPORT_REMARKS_PATH} exact>
             <ServicesCounselorCustomerSupportRemarks />
+          </Route>
+
+          <Route path={servicesCounselingRoutes.SHIPMENT_REVIEW_PATH} exact>
+            <ReviewDocuments />
           </Route>
 
           <Route path={servicesCounselingRoutes.MOVE_HISTORY_PATH} exact>
@@ -151,6 +164,15 @@ const ServicesCounselingMoveInfo = () => {
             render={(props) => (
               // eslint-disable-next-line react/jsx-props-no-spreading
               <ServicesCounselingEditShipmentDetails {...props} onUpdate={onInfoSavedUpdate} isAdvancePage />
+            )}
+          />
+
+          <Route
+            path={servicesCounselingRoutes.SHIPMENT_REVIEW_PATH}
+            exact
+            render={(props) => (
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              <ReviewDocuments {...props} onUpdate={onInfoSavedUpdate} />
             )}
           />
 

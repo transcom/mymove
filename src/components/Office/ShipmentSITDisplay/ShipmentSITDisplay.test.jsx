@@ -20,7 +20,11 @@ import { permissionTypes } from 'constants/permissions';
 
 describe('ShipmentSITDisplay', () => {
   it('renders the Shipment SIT Extensions', async () => {
-    render(<ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusOrigin} shipment={SITShipment} />);
+    render(
+      <MockProviders>
+        <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusOrigin} shipment={SITShipment} />
+      </MockProviders>,
+    );
     expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeTruthy();
 
     expect(screen.getByText('270 authorized')).toBeInTheDocument();
@@ -37,21 +41,33 @@ describe('ShipmentSITDisplay', () => {
   });
 
   it('renders the Shipment SIT at Destination, no previous SIT', async () => {
-    render(<ShipmentSITDisplay sitStatus={SITStatusDestination} shipment={SITShipment} />);
+    render(
+      <MockProviders>
+        <ShipmentSITDisplay sitStatus={SITStatusDestination} shipment={SITShipment} />
+      </MockProviders>,
+    );
 
     expect(screen.getByText('Current location: destination')).toBeInTheDocument();
     expect(screen.getByText('Days in destination SIT')).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT at Destination, previous origin SIT', async () => {
-    render(<ShipmentSITDisplay sitStatus={SITStatusWithPastSITOriginServiceItem} shipment={SITShipment} />);
+    render(
+      <MockProviders>
+        <ShipmentSITDisplay sitStatus={SITStatusWithPastSITOriginServiceItem} shipment={SITShipment} />
+      </MockProviders>,
+    );
 
     expect(screen.getByText('Previously used SIT')).toBeInTheDocument();
     expect(await screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021)`)).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT at Destination, multiple previous SIT', async () => {
-    render(<ShipmentSITDisplay sitStatus={SITStatusWithPastSITServiceItems} shipment={SITShipment} />);
+    render(
+      <MockProviders>
+        <ShipmentSITDisplay sitStatus={SITStatusWithPastSITServiceItems} shipment={SITShipment} />
+      </MockProviders>,
+    );
     expect(screen.getByText('Previously used SIT')).toBeInTheDocument();
     expect(await screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021)`)).toBeInTheDocument();
     expect(await screen.getByText(`21 days at destination (03 Sep 2021 - 24 Sep 2021)`)).toBeInTheDocument();
@@ -59,7 +75,9 @@ describe('ShipmentSITDisplay', () => {
 
   it('renders the approved Shipment SIT Extensions', async () => {
     render(
-      <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusDestination} shipment={SITShipment} />,
+      <MockProviders>
+        <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusDestination} shipment={SITShipment} />
+      </MockProviders>,
     );
     expect(screen.getByText('SIT extensions')).toBeInTheDocument();
     expect(screen.getByText('30 days added')).toBeInTheDocument();
@@ -69,11 +87,14 @@ describe('ShipmentSITDisplay', () => {
 
   it('renders the approved Shipment SIT Extensions with comments', async () => {
     render(
-      <ShipmentSITDisplay
-        sitExtensions={SITExtensionsWithComments}
-        sitStatus={SITStatusDestination}
-        shipment={SITShipment}
-      />,
+      <MockProviders>
+        <ShipmentSITDisplay
+          sitExtensions={SITExtensionsWithComments}
+          sitStatus={SITStatusDestination}
+          shipment={SITShipment}
+        />
+        ,
+      </MockProviders>,
     );
     expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeInTheDocument();
 
@@ -87,7 +108,13 @@ describe('ShipmentSITDisplay', () => {
 
   it('renders the denied Shipment SIT Extensions', async () => {
     render(
-      <ShipmentSITDisplay sitExtensions={SITExtensionDenied} sitStatus={SITStatusDestination} shipment={SITShipment} />,
+      <MockProviders>
+        <ShipmentSITDisplay
+          sitExtensions={SITExtensionDenied}
+          sitStatus={SITStatusDestination}
+          shipment={SITShipment}
+        />
+      </MockProviders>,
     );
     expect(screen.getByText('SIT extensions')).toBeInTheDocument();
     expect(screen.getByText('0 days added')).toBeInTheDocument();
@@ -97,11 +124,13 @@ describe('ShipmentSITDisplay', () => {
 
   it('omits SIT Extension history when there is only a pending SIT Extension', async () => {
     render(
-      <ShipmentSITDisplay
-        sitExtensions={SITExtensionPending}
-        sitStatus={SITStatusDestination}
-        shipment={SITShipment}
-      />,
+      <MockProviders>
+        <ShipmentSITDisplay
+          sitExtensions={SITExtensionPending}
+          sitStatus={SITStatusDestination}
+          shipment={SITShipment}
+        />
+      </MockProviders>,
     );
 
     expect(await screen.queryByText('SIT extensions')).not.toBeInTheDocument();
@@ -122,7 +151,7 @@ describe('ShipmentSITDisplay', () => {
 
     const reviewButton = screen.getByRole('button', { name: 'View request' });
 
-    userEvent.click(reviewButton);
+    await userEvent.click(reviewButton);
 
     await waitFor(() => {
       expect(showReviewSITExtension).toHaveBeenCalledWith(true);
@@ -144,7 +173,7 @@ describe('ShipmentSITDisplay', () => {
 
     const reviewButton = screen.getByRole('button', { name: 'Edit' });
 
-    userEvent.click(reviewButton);
+    await userEvent.click(reviewButton);
 
     await waitFor(() => {
       expect(showSubmitSITExtension).toHaveBeenCalledWith(true);
@@ -183,7 +212,9 @@ describe('ShipmentSITDisplay', () => {
 
   it('View request button is hidden when user does not have permissions', async () => {
     render(
-      <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusDestination} shipment={SITShipment} />,
+      <MockProviders>
+        <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusDestination} shipment={SITShipment} />
+      </MockProviders>,
     );
 
     expect(await screen.queryByRole('button', { name: 'View request' })).not.toBeInTheDocument();
@@ -191,7 +222,9 @@ describe('ShipmentSITDisplay', () => {
 
   it('Edit button is hidden when user does not have permissions', async () => {
     render(
-      <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusDestination} shipment={SITShipment} />,
+      <MockProviders>
+        <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusDestination} shipment={SITShipment} />
+      </MockProviders>,
     );
 
     expect(await screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();

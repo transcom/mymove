@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useHistory, useParams } from 'react-router-dom';
-import { generatePath } from 'react-router';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { queryCache, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
@@ -15,24 +14,18 @@ import { useEditShipmentQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
-import { servicesCounselingRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
 
 const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage }) => {
   const { moveCode, shipmentId } = useParams();
   const history = useHistory();
+  const queryClient = useQueryClient();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
-  const [mutateMTOShipment] = useMutation(updateMTOShipment, {
+  const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
-      history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
-      onUpdate('success');
-    },
-    onError: () => {
-      history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
-      onUpdate('error');
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
     },
   });
 
@@ -64,6 +57,7 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
                 match={match}
                 history={history}
                 submitHandler={mutateMTOShipment}
+                onUpdate={onUpdate}
                 isCreatePage={false}
                 isForServicesCounseling
                 currentResidence={customer.current_address}
@@ -71,7 +65,7 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
                 newDutyLocationAddress={order.destinationDutyLocation?.address}
                 shipmentType={matchingShipment.shipmentType}
                 mtoShipment={matchingShipment}
-                serviceMember={{ weightAllotment }}
+                serviceMember={{ weightAllotment, agency: customer.agency }}
                 moveTaskOrderID={move.id}
                 mtoShipments={mtoShipments}
                 TACs={TACs}
@@ -79,6 +73,7 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
                 userRole={roleTypes.SERVICES_COUNSELOR}
                 displayDestinationType
                 isAdvancePage={isAdvancePage}
+                move={move}
               />
             </Grid>
           </Grid>

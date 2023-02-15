@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -22,8 +23,6 @@ import (
 const (
 	// MilMoveUserType is the type of user for a Service Member
 	MilMoveUserType string = "milmove"
-	// PPMOfficeUserType is the type of user for an Office user
-	PPMOfficeUserType string = "PPM office"
 	// TOOOfficeUserType is the type of user for an Office user
 	TOOOfficeUserType string = "TOO office"
 	// TIOOfficeUserType is the type of user for an Office user
@@ -31,9 +30,11 @@ const (
 	// ServicesCounselorOfficeUserType is the type of user for an Office User
 	ServicesCounselorOfficeUserType string = "Services Counselor office"
 	// PrimeSimulatorOfficeUserType is the type of user for an Office user
-	PrimeSimulatorOfficeUserType string = "Prime Simulator"
+	PrimeSimulatorOfficeUserType string = "Prime Simulator office"
 	// QaeCsrOfficeUserType is a type of user for an Office user
 	QaeCsrOfficeUserType string = "QAE/CSR office"
+	// MultiRoleOfficeUserType has all the Office user roles
+	MultiRoleOfficeUserType string = "Multi role office"
 	// AdminUserType is the type of user for an admin user
 	AdminUserType string = "admin"
 )
@@ -66,6 +67,20 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get roles for all identities
+	for i := range identities {
+		rerr := appCtx.DB().RawQuery(`SELECT * FROM roles
+									WHERE id in (select role_id from users_roles
+										where deleted_at is null and user_id = ?)`, identities[i].ID).All(&identities[i].Roles)
+		if rerr != nil {
+			appCtx.Logger().Error("Could not load identity roles", zap.Error(rerr))
+			http.Error(w,
+				fmt.Sprintf("%s - Could not load list of users, try migrating the DB", http.StatusText(500)),
+				http.StatusInternalServerError)
+			return
+		}
+	}
+
 	// grab all GBLOCs
 	var gblocList []string
 	err = appCtx.DB().RawQuery("select distinct gbloc from transportation_offices").All(&gblocList)
@@ -84,12 +99,12 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		IsMilApp                        bool
 		MilMoveUserType                 string
 		IsOfficeApp                     bool
-		PPMOfficeUserType               string
 		TOOOfficeUserType               string
 		TIOOfficeUserType               string
 		ServicesCounselorOfficeUserType string
 		PrimeSimulatorOfficeUserType    string
 		QaeCsrOfficeUserType            string
+		MultiRoleOfficeUserType         string
 		IsAdminApp                      bool
 		AdminUserType                   string
 		CsrfToken                       string
@@ -103,12 +118,12 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		IsMilApp:                        auth.MilApp == appCtx.Session().ApplicationName,
 		MilMoveUserType:                 MilMoveUserType,
 		IsOfficeApp:                     auth.OfficeApp == appCtx.Session().ApplicationName,
-		PPMOfficeUserType:               PPMOfficeUserType,
 		TOOOfficeUserType:               TOOOfficeUserType,
 		TIOOfficeUserType:               TIOOfficeUserType,
 		ServicesCounselorOfficeUserType: ServicesCounselorOfficeUserType,
 		PrimeSimulatorOfficeUserType:    PrimeSimulatorOfficeUserType,
 		QaeCsrOfficeUserType:            QaeCsrOfficeUserType,
+		MultiRoleOfficeUserType:         MultiRoleOfficeUserType,
 		IsAdminApp:                      auth.AdminApp == appCtx.Session().ApplicationName,
 		AdminUserType:                   AdminUserType,
 		// Build CSRF token instead of grabbing from middleware. Otherwise throws errors when accessed directly.
@@ -141,13 +156,13 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				<form method="post" action="/devlocal-auth/login">
 					<p>
 						<input type="hidden" name="gorilla.csrf.Token" value="{{$.CsrfToken}}">
-						<input type="hidden" name="userType" value="{{if $.IsOfficeApp}}{{$.PPMOfficeUserType}}{{else}}{{$.MilMoveUserType}}{{end}}">
+						<input type="hidden" name="userType" value="{{if $.IsOfficeApp}}{{$.TOOOfficeUserType}}{{else}}{{$.MilMoveUserType}}{{end}}">
 						<label for="email">User Email</label>
 						<input type="text" name="email" size="60">
 						<button type="submit" data-hook="existing-user-login">Login</button>
 					</p>
 				</form>
-			  <h4>Showing the first {{$.QueryLimit}} users by creation date in ascending order:</h4>
+			  <h4>Showing the first {{$.QueryLimit}} users by creation date in descending order:</h4>
 			  {{range .Identities}}
 				<form method="post" action="/devlocal-auth/login">
 					<p id="{{.ID}}">
@@ -157,8 +172,8 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						  ({{$.AdminUserType}})
 						  <input type="hidden" name="userType" value="{{$.AdminUserType}}">
 						{{else if .OfficeUserID}}
-						  ({{$.PPMOfficeUserType}})
-						  <input type="hidden" name="userType" value="{{$.PPMOfficeUserType}}">
+
+						  <input type="hidden" name="userType" value="{{$.TOOOfficeUserType}}">
 						{{else}}
 						  ({{$.MilMoveUserType}})
 						  <input type="hidden" name="userType" value="{{$.MilMoveUserType}}">
@@ -191,15 +206,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					</p>
 				  </form>
 			  {{else if $.IsOfficeApp }}
-				  <form method="post" action="/devlocal-auth/new">
-					<p>
-					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
-					  <input type="hidden" name="userType" value="{{.PPMOfficeUserType}}">
-					  ` + gblocSelectHTML + `
-					  <button type="submit" data-hook="new-user-login-{{.PPMOfficeUserType}}">Create a New {{.PPMOfficeUserType}} User</button>
-					</p>
-				  </form>
-
 				  <form method="post" action="/devlocal-auth/new">
 					<p>
 					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
@@ -242,6 +248,15 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					  <input type="hidden" name="userType" value="{{.QaeCsrOfficeUserType}}">
 					  ` + gblocSelectHTML + `
 					  <button type="submit" data-hook="new-user-login-{{.QaeCsrOfficeUserType}}">Create a New {{.QaeCsrOfficeUserType}} User</button>
+					</p>
+				  </form>
+
+				<form method="post" action="/devlocal-auth/new">
+					<p>
+					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+					  <input type="hidden" name="userType" value="{{.MultiRoleOfficeUserType}}">
+					  ` + gblocSelectHTML + `
+					  <button type="submit" data-hook="new-user-login-{{.MultiRoleOfficeUserType}}">Create a New {{.MultiRoleOfficeUserType}} User</button>
 					</p>
 				  </form>
 
@@ -395,6 +410,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	if telephone == "" {
 		telephone = "333-333-3333"
 	}
+	userType := r.PostFormValue("userType")
 	email := r.PostFormValue("email")
 	if email == "" {
 		// Time alone doesn't guarantee uniqueness if a system is being automated
@@ -402,7 +418,14 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		now := time.Now()
 		guid, _ := uuid.NewV4()
 		nonce := strings.Split(guid.String(), "-")[4]
-		email = fmt.Sprintf("%s-%s@example.com", now.Format("20060102150405"), nonce)
+		prefix := now.Format("20060102150405")
+		i := strings.Index(userType, " office")
+		if i > 0 {
+			// turn e.g. Prime Simulator office into "prime-simulator"
+			re := regexp.MustCompile(`[^\w]+`)
+			prefix = re.ReplaceAllString(strings.ToLower(userType[0:i]), "-") + "-" + prefix
+		}
+		email = fmt.Sprintf("%s-%s@example.com", prefix, nonce)
 	}
 	gbloc := r.PostFormValue("gbloc")
 	if gbloc == "" {
@@ -416,7 +439,6 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		Active:        true,
 	}
 
-	userType := r.PostFormValue("userType")
 	verrs, err := appCtx.DB().ValidateAndCreate(&user)
 	if err != nil {
 		appCtx.Logger().Error("could not create user", zap.Error(err))
@@ -438,78 +460,6 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		if smVerrs.HasAny() || smErr != nil {
 			appCtx.Logger().Error("Error creating service member for user", zap.Error(smErr))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		}
-	case PPMOfficeUserType:
-		// Now create the Truss JPPSO
-		address := models.Address{
-			StreetAddress1: "1333 Minna St",
-			City:           "San Francisco",
-			State:          "CA",
-			PostalCode:     "94115",
-		}
-
-		verrs, err := appCtx.DB().ValidateAndSave(&address)
-		if err != nil {
-			appCtx.Logger().Error("could not create address", zap.Error(err))
-		}
-		if verrs.HasAny() {
-			appCtx.Logger().Error("validation errors creating address", zap.Stringer("errors", verrs))
-		}
-
-		role := roles.Role{}
-		err = appCtx.DB().Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&role)
-		if err != nil {
-			appCtx.Logger().Error("could not fetch role ppm_office_users", zap.Error(err))
-		}
-
-		usersRole := models.UsersRoles{
-			UserID: user.ID,
-			RoleID: role.ID,
-		}
-
-		verrs, err = appCtx.DB().ValidateAndSave(&usersRole)
-		if err != nil {
-			appCtx.Logger().Error("could not create user role", zap.Error(err))
-		}
-		if verrs.HasAny() {
-			appCtx.Logger().Error("validation errors creating user role", zap.Stringer("errors", verrs))
-		}
-
-		office := models.TransportationOffice{
-			Name:      "Truss",
-			AddressID: address.ID,
-			Latitude:  37.7678355,
-			Longitude: -122.4199298,
-			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
-			Gbloc:     gbloc,
-		}
-
-		verrs, err = appCtx.DB().ValidateAndSave(&office)
-		if err != nil {
-			appCtx.Logger().Error("could not create office", zap.Error(err))
-		}
-		if verrs.HasAny() {
-			appCtx.Logger().Error("validation errors creating office", zap.Stringer("errors", verrs))
-		}
-
-		officeUser := models.OfficeUser{
-			FirstName:              firstName,
-			LastName:               lastName,
-			Telephone:              telephone,
-			TransportationOfficeID: office.ID,
-			Email:                  email,
-			Active:                 true,
-		}
-		if user.ID != uuid.Nil {
-			officeUser.UserID = &user.ID
-		}
-
-		verrs, err = appCtx.DB().ValidateAndSave(&officeUser)
-		if err != nil {
-			appCtx.Logger().Error("could not create office user", zap.Error(err))
-		}
-		if verrs.HasAny() {
-			appCtx.Logger().Error("validation errors creating office user", zap.Stringer("errors", verrs))
 		}
 	case TOOOfficeUserType:
 		// Now create the Truss JPPSO
@@ -868,6 +818,85 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		if verrs.HasAny() {
 			appCtx.Logger().Error("validation errors creating office user", zap.Stringer("errors", verrs))
 		}
+	case MultiRoleOfficeUserType:
+		// Now create the Truss JPPSO
+		address := models.Address{
+			StreetAddress1: "1333 Minna St",
+			City:           "San Francisco",
+			State:          "CA",
+			PostalCode:     "94115",
+		}
+
+		verrs, err := appCtx.DB().ValidateAndSave(&address)
+		if err != nil {
+			appCtx.Logger().Error("could not create address", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			appCtx.Logger().Error("validation errors creating address", zap.Stringer("errors", verrs))
+		}
+
+		officeUserRoleTypes := []roles.RoleType{roles.RoleTypeTOO,
+			roles.RoleTypeTIO,
+			roles.RoleTypeServicesCounselor,
+			roles.RoleTypePrimeSimulator,
+		}
+		var userRoles roles.Roles
+		err = appCtx.DB().Where("role_type IN (?)", officeUserRoleTypes).All(&userRoles)
+		if err != nil {
+			appCtx.Logger().Error("could not fetch multi user roles", zap.Error(err))
+		}
+
+		for i := range userRoles {
+			usersRole := models.UsersRoles{
+				UserID: user.ID,
+				RoleID: userRoles[i].ID,
+			}
+
+			verrs, err = appCtx.DB().ValidateAndSave(&usersRole)
+			if err != nil {
+				appCtx.Logger().Error("could not create user role", zap.Error(err))
+			}
+			if verrs.HasAny() {
+				appCtx.Logger().Error("validation errors creating user role", zap.Stringer("errors", verrs))
+			}
+		}
+
+		office := models.TransportationOffice{
+			Name:      "Truss",
+			AddressID: address.ID,
+			Latitude:  37.7678355,
+			Longitude: -122.4199298,
+			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
+			Gbloc:     gbloc,
+		}
+
+		verrs, err = appCtx.DB().ValidateAndSave(&office)
+		if err != nil {
+			appCtx.Logger().Error("could not create office", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			appCtx.Logger().Error("validation errors creating office", zap.Stringer("errors", verrs))
+		}
+
+		officeUser := models.OfficeUser{
+			FirstName:              firstName,
+			LastName:               lastName,
+			Telephone:              telephone,
+			TransportationOfficeID: office.ID,
+			Email:                  email,
+			Active:                 true,
+		}
+		if user.ID != uuid.Nil {
+			officeUser.UserID = &user.ID
+		}
+
+		verrs, err = appCtx.DB().ValidateAndSave(&officeUser)
+		if err != nil {
+			appCtx.Logger().Error("could not create office user", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			appCtx.Logger().Error("validation errors creating office user", zap.Stringer("errors", verrs))
+		}
 	case AdminUserType:
 
 		adminUser := models.AdminUser{
@@ -919,7 +948,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 
 	// Keep the logic for redirection separate from setting the session user ids
 	switch userType {
-	case PPMOfficeUserType, TOOOfficeUserType, TIOOfficeUserType, ServicesCounselorOfficeUserType, PrimeSimulatorOfficeUserType, QaeCsrOfficeUserType:
+	case TOOOfficeUserType, TIOOfficeUserType, ServicesCounselorOfficeUserType, PrimeSimulatorOfficeUserType, QaeCsrOfficeUserType, MultiRoleOfficeUserType:
 		session.ApplicationName = auth.OfficeApp
 		session.Hostname = h.AppNames().OfficeServername
 		active = userIdentity.Active || (userIdentity.OfficeActive != nil && *userIdentity.OfficeActive)
@@ -1007,7 +1036,7 @@ func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http
 }
 
 func isOfficeUser(userType string) bool {
-	if userType == PPMOfficeUserType || userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType || userType == QaeCsrOfficeUserType {
+	if userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType || userType == QaeCsrOfficeUserType {
 		return true
 	}
 	return false

@@ -6,7 +6,7 @@ import { act } from 'react-dom/test-utils';
 
 import ServiceInfoForm from './ServiceInfoForm';
 
-jest.mock('components/DutyLocationSearchBox/api', () => ({
+jest.mock('components/LocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
     Promise.resolve({
       city: 'Test City',
@@ -51,7 +51,7 @@ jest.mock('components/DutyLocationSearchBox/api', () => ({
       {
         address: {
           city: 'Test City',
-          id: '00000000-0000-0000-0000-000000000010',
+          id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
           postalCode: '12345',
           state: 'NY',
           streetAddress1: '123 Main St',
@@ -178,8 +178,8 @@ describe('ServiceInfoForm', () => {
     render(<ServiceInfoForm {...testProps} />);
 
     const dodInput = await screen.findByLabelText('DoD ID number');
-    userEvent.type(dodInput, 'not a valid ID number');
-    userEvent.tab();
+    await userEvent.type(dodInput, 'not a valid ID number');
+    await userEvent.tab();
 
     expect(dodInput).not.toBeValid();
     expect(await screen.findByText('Enter a 10-digit DOD ID number')).toBeInTheDocument();
@@ -212,9 +212,16 @@ describe('ServiceInfoForm', () => {
 
   it('shows an error message if trying to submit an invalid form', async () => {
     render(<ServiceInfoForm {...testProps} />);
-    const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    userEvent.click(submitBtn);
+    // Touch required fields to show validation errors
+    await userEvent.click(screen.getByLabelText('First name'));
+    await userEvent.click(screen.getByLabelText('Last name'));
+    await userEvent.click(screen.getByLabelText('Branch of service'));
+    await userEvent.click(screen.getByLabelText('DoD ID number'));
+    await userEvent.click(screen.getByLabelText('Rank'));
+
+    const submitBtn = screen.getByRole('button', { name: 'Save' });
+    await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(screen.getAllByText('Required').length).toBe(5);
@@ -226,11 +233,11 @@ describe('ServiceInfoForm', () => {
     render(<ServiceInfoForm {...testProps} />);
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    userEvent.type(screen.getByLabelText('First name'), 'Leo');
-    userEvent.type(screen.getByLabelText('Last name'), 'Spaceman');
-    userEvent.selectOptions(screen.getByLabelText('Branch of service'), ['NAVY']);
-    userEvent.type(screen.getByLabelText('DoD ID number'), '1234567890');
-    userEvent.selectOptions(screen.getByLabelText('Rank'), ['E_5']);
+    await userEvent.type(screen.getByLabelText('First name'), 'Leo');
+    await userEvent.type(screen.getByLabelText('Last name'), 'Spaceman');
+    await userEvent.selectOptions(screen.getByLabelText('Branch of service'), ['NAVY']);
+    await userEvent.type(screen.getByLabelText('DoD ID number'), '1234567890');
+    await userEvent.selectOptions(screen.getByLabelText('Rank'), ['E_5']);
     fireEvent.change(screen.getByLabelText('Current duty location'), { target: { value: 'AFB' } });
     await act(() => selectEvent.select(screen.getByLabelText('Current duty location'), /Luke/));
 
@@ -238,7 +245,7 @@ describe('ServiceInfoForm', () => {
       current_location: 'Luke AFB',
     });
 
-    userEvent.click(submitBtn);
+    await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalledWith(
@@ -274,7 +281,7 @@ describe('ServiceInfoForm', () => {
     render(<ServiceInfoForm {...testProps} onCancel={onCancel} />);
     const cancelBtn = screen.getByRole('button', { name: 'Cancel' });
 
-    userEvent.click(cancelBtn);
+    await userEvent.click(cancelBtn);
 
     await waitFor(() => {
       expect(onCancel).toHaveBeenCalled();

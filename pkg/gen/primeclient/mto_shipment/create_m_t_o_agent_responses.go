@@ -115,6 +115,11 @@ func (o *CreateMTOAgentOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the create m t o agent o k response
+func (o *CreateMTOAgentOK) Code() int {
+	return 200
+}
+
 func (o *CreateMTOAgentOK) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentOK  %+v", 200, o.Payload)
 }
@@ -176,6 +181,11 @@ func (o *CreateMTOAgentBadRequest) IsServerError() bool {
 // IsCode returns true when this create m t o agent bad request response a status code equal to that given
 func (o *CreateMTOAgentBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the create m t o agent bad request response
+func (o *CreateMTOAgentBadRequest) Code() int {
+	return 400
 }
 
 func (o *CreateMTOAgentBadRequest) Error() string {
@@ -241,6 +251,11 @@ func (o *CreateMTOAgentUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the create m t o agent unauthorized response
+func (o *CreateMTOAgentUnauthorized) Code() int {
+	return 401
+}
+
 func (o *CreateMTOAgentUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentUnauthorized  %+v", 401, o.Payload)
 }
@@ -302,6 +317,11 @@ func (o *CreateMTOAgentForbidden) IsServerError() bool {
 // IsCode returns true when this create m t o agent forbidden response a status code equal to that given
 func (o *CreateMTOAgentForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the create m t o agent forbidden response
+func (o *CreateMTOAgentForbidden) Code() int {
+	return 403
 }
 
 func (o *CreateMTOAgentForbidden) Error() string {
@@ -367,6 +387,11 @@ func (o *CreateMTOAgentNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the create m t o agent not found response
+func (o *CreateMTOAgentNotFound) Code() int {
+	return 404
+}
+
 func (o *CreateMTOAgentNotFound) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentNotFound  %+v", 404, o.Payload)
 }
@@ -428,6 +453,11 @@ func (o *CreateMTOAgentConflict) IsServerError() bool {
 // IsCode returns true when this create m t o agent conflict response a status code equal to that given
 func (o *CreateMTOAgentConflict) IsCode(code int) bool {
 	return code == 409
+}
+
+// Code gets the status code for the create m t o agent conflict response
+func (o *CreateMTOAgentConflict) Code() int {
+	return 409
 }
 
 func (o *CreateMTOAgentConflict) Error() string {
@@ -493,6 +523,11 @@ func (o *CreateMTOAgentUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the create m t o agent unprocessable entity response
+func (o *CreateMTOAgentUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *CreateMTOAgentUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -554,6 +589,11 @@ func (o *CreateMTOAgentInternalServerError) IsServerError() bool {
 // IsCode returns true when this create m t o agent internal server error response a status code equal to that given
 func (o *CreateMTOAgentInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the create m t o agent internal server error response
+func (o *CreateMTOAgentInternalServerError) Code() int {
+	return 500
 }
 
 func (o *CreateMTOAgentInternalServerError) Error() string {

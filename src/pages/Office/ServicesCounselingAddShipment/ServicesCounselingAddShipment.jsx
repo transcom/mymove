@@ -1,7 +1,7 @@
 import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { queryCache, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
@@ -30,11 +30,12 @@ const ServicesCounselingAddShipment = ({ match }) => {
 
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
-  const [mutateMTOShipments] = useMutation(createMTOShipment, {
+  const queryClient = useQueryClient();
+  const { mutate: mutateMTOShipments } = useMutation(createMTOShipment, {
     onSuccess: (newMTOShipment) => {
       mtoShipments.push(newMTOShipment);
-      queryCache.setQueryData([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID]);
+      queryClient.setQueryData([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID]);
       return newMTOShipment;
     },
   });
@@ -73,13 +74,14 @@ const ServicesCounselingAddShipment = ({ match }) => {
                   originDutyLocationAddress={order.originDutyLocation?.address}
                   newDutyLocationAddress={order.destinationDutyLocation?.address}
                   shipmentType={shipmentType}
-                  serviceMember={{ weightAllotment }}
+                  serviceMember={{ weightAllotment, agency: customer.agency }}
                   moveTaskOrderID={move.id}
                   mtoShipments={mtoShipments}
                   TACs={TACs}
                   SACs={SACs}
                   userRole={roleTypes.SERVICES_COUNSELOR}
                   displayDestinationType
+                  move={move}
                 />
               </Grid>
             </Grid>

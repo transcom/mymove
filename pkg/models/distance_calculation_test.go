@@ -4,14 +4,26 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) Test_DistanceCalculationCreate() {
-	address1 := testdatagen.MakeStubbedAddress(suite.DB())
-	address2 := testdatagen.MakeStubbedAddress(suite.DB())
+	address1 := factory.BuildAddress(nil, []factory.Customization{
+		{
+			Model: models.Address{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		},
+	}, nil)
+	address2 := factory.BuildAddress(nil, []factory.Customization{
+		{
+			Model: models.Address{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		},
+	}, nil)
 
 	distanceCalculation := models.DistanceCalculation{
 		OriginAddress:        address1,
@@ -40,8 +52,20 @@ func (suite *ModelSuite) Test_DistanceCalculationValidations() {
 }
 
 func (suite *ModelSuite) Test_NewDistanceCalculationCallsPlanner() {
-	address1 := testdatagen.MakeStubbedAddress(suite.DB())
-	address2 := testdatagen.MakeStubbedAddress(suite.DB())
+	address1 := factory.BuildAddress(nil, []factory.Customization{
+		{
+			Model: models.Address{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		},
+	}, nil)
+	address2 := factory.BuildAddress(nil, []factory.Customization{
+		{
+			Model: models.Address{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		},
+	}, nil)
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),

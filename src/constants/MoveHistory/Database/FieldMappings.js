@@ -34,7 +34,7 @@ export default {
   has_dependents: 'Dependents included',
   pro_gear_weight: 'Pro-gear',
   pro_gear_weight_spouse: 'Spouse pro-gear',
-  required_medical_equipment_weight: 'RME',
+  required_medical_equipment_weight: 'Required medical equipment',
   organizational_clothing_and_individual_equipment: 'OCIE',
   requested_pickup_date: 'Requested pickup date',
   grade: 'Rank',

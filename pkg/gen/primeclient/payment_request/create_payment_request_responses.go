@@ -115,6 +115,11 @@ func (o *CreatePaymentRequestCreated) IsCode(code int) bool {
 	return code == 201
 }
 
+// Code gets the status code for the create payment request created response
+func (o *CreatePaymentRequestCreated) Code() int {
+	return 201
+}
+
 func (o *CreatePaymentRequestCreated) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestCreated  %+v", 201, o.Payload)
 }
@@ -176,6 +181,11 @@ func (o *CreatePaymentRequestBadRequest) IsServerError() bool {
 // IsCode returns true when this create payment request bad request response a status code equal to that given
 func (o *CreatePaymentRequestBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the create payment request bad request response
+func (o *CreatePaymentRequestBadRequest) Code() int {
+	return 400
 }
 
 func (o *CreatePaymentRequestBadRequest) Error() string {
@@ -241,6 +251,11 @@ func (o *CreatePaymentRequestUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the create payment request unauthorized response
+func (o *CreatePaymentRequestUnauthorized) Code() int {
+	return 401
+}
+
 func (o *CreatePaymentRequestUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestUnauthorized  %+v", 401, o.Payload)
 }
@@ -302,6 +317,11 @@ func (o *CreatePaymentRequestForbidden) IsServerError() bool {
 // IsCode returns true when this create payment request forbidden response a status code equal to that given
 func (o *CreatePaymentRequestForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the create payment request forbidden response
+func (o *CreatePaymentRequestForbidden) Code() int {
+	return 403
 }
 
 func (o *CreatePaymentRequestForbidden) Error() string {
@@ -367,6 +387,11 @@ func (o *CreatePaymentRequestNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the create payment request not found response
+func (o *CreatePaymentRequestNotFound) Code() int {
+	return 404
+}
+
 func (o *CreatePaymentRequestNotFound) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestNotFound  %+v", 404, o.Payload)
 }
@@ -428,6 +453,11 @@ func (o *CreatePaymentRequestConflict) IsServerError() bool {
 // IsCode returns true when this create payment request conflict response a status code equal to that given
 func (o *CreatePaymentRequestConflict) IsCode(code int) bool {
 	return code == 409
+}
+
+// Code gets the status code for the create payment request conflict response
+func (o *CreatePaymentRequestConflict) Code() int {
+	return 409
 }
 
 func (o *CreatePaymentRequestConflict) Error() string {
@@ -493,6 +523,11 @@ func (o *CreatePaymentRequestUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the create payment request unprocessable entity response
+func (o *CreatePaymentRequestUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *CreatePaymentRequestUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -554,6 +589,11 @@ func (o *CreatePaymentRequestInternalServerError) IsServerError() bool {
 // IsCode returns true when this create payment request internal server error response a status code equal to that given
 func (o *CreatePaymentRequestInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the create payment request internal server error response
+func (o *CreatePaymentRequestInternalServerError) Code() int {
+	return 500
 }
 
 func (o *CreatePaymentRequestInternalServerError) Error() string {

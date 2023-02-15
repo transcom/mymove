@@ -44,6 +44,7 @@ type MoveRouter interface {
 	ApproveOrRequestApproval(appCtx appcontext.AppContext, move models.Move) (*models.Move, error)
 	Cancel(appCtx appcontext.AppContext, reason string, move *models.Move) error
 	CompleteServiceCounseling(appCtx appcontext.AppContext, move *models.Move) error
+	RouteAfterAmendingOrders(appCtx appcontext.AppContext, move *models.Move) error
 	SendToOfficeUser(appCtx appcontext.AppContext, move *models.Move) error
 	Submit(appCtx appcontext.AppContext, move *models.Move, newSignedCertification *models.SignedCertification) error
 }
@@ -89,4 +90,8 @@ type SearchMovesParams struct {
 	PerPage               int64
 	Sort                  *string
 	Order                 *string
+}
+
+type MoveCloseoutOfficeUpdater interface {
+	UpdateCloseoutOffice(appCtx appcontext.AppContext, moveLocator string, closeoutOfficeID uuid.UUID, eTag string) (*models.Move, error)
 }

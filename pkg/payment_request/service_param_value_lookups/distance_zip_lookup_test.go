@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -18,16 +19,20 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	suite.Run("Calculate transit zip distance", func() {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-					Address: models.Address{
-						PostalCode: "33607",
+				PickupAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							PostalCode: "33607",
+						},
 					},
-				}),
-				DestinationAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-					Address: models.Address{
-						PostalCode: "90210",
+				}, nil),
+				DestinationAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							PostalCode: "90210",
+						},
 					},
-				}),
+				}, nil),
 			}),
 		})
 
@@ -143,16 +148,20 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	suite.Run("Sucessfully updates mtoShipment distance when the pickup and destination zips are the same", func() {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-					Address: models.Address{
-						PostalCode: "90211",
+				PickupAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							PostalCode: "90211",
+						},
 					},
-				}),
-				DestinationAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-					Address: models.Address{
-						PostalCode: "90210",
+				}, nil),
+				DestinationAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							PostalCode: "90210",
+						},
 					},
-				}),
+				}, nil),
 			}),
 		})
 
@@ -181,16 +190,20 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	suite.Run("Calculate zip distance with param cache", func() {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-					Address: models.Address{
-						PostalCode: "33607",
+				PickupAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							PostalCode: "33607",
+						},
 					},
-				}),
-				DestinationAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-					Address: models.Address{
-						PostalCode: "90210",
+				}, nil),
+				DestinationAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							PostalCode: "90210",
+						},
 					},
-				}),
+				}, nil),
 			}),
 		})
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
@@ -262,16 +275,20 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	suite.Run("returns error if the pickup zipcode isn't at least 5 digits", func() {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-					Address: models.Address{
-						PostalCode: "33",
+				PickupAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							PostalCode: "33",
+						},
 					},
-				}),
-				DestinationAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-					Address: models.Address{
-						PostalCode: "90103",
+				}, nil),
+				DestinationAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							PostalCode: "90103",
+						},
 					},
-				}),
+				}, nil),
 			}),
 		})
 
@@ -291,16 +308,20 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	suite.Run("returns error if the destination zipcode isn't at least 5 digits", func() {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-					Address: models.Address{
-						PostalCode: "33607",
+				PickupAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							PostalCode: "33607",
+						},
 					},
-				}),
-				DestinationAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-					Address: models.Address{
-						PostalCode: "901",
+				}, nil),
+				DestinationAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							PostalCode: "901",
+						},
 					},
-				}),
+				}, nil),
 			}),
 		})
 
@@ -319,8 +340,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 
 	suite.Run("returns a not found error if the service item shipment id doesn't exist", func() {
 		distanceZipLookup := DistanceZipLookup{
-			PickupAddress:      testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{Stub: true}),
-			DestinationAddress: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true}),
+			PickupAddress:      factory.BuildAddress(nil, nil, nil),
+			DestinationAddress: factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2}),
 		}
 
 		mtoShipmentID := uuid.Must(uuid.NewV4())

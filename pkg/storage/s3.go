@@ -10,6 +10,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 // S3 implements the file storage API using S3.
@@ -114,9 +116,10 @@ func (s *S3) PresignedURL(key string, contentType string) (string, error) {
 	namespacedKey := path.Join(s.keyNamespace, key)
 
 	req, _ := s.client.GetObjectRequest(&s3.GetObjectInput{
-		Bucket:              &s.bucket,
-		Key:                 &namespacedKey,
-		ResponseContentType: &contentType,
+		Bucket:                     &s.bucket,
+		Key:                        &namespacedKey,
+		ResponseContentType:        &contentType,
+		ResponseContentDisposition: models.StringPointer("attachment"),
 	})
 	url, err := req.Presign(15 * time.Minute)
 	if err != nil {

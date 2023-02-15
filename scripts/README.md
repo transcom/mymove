@@ -99,6 +99,7 @@ These scripts are primarily used for CircleCI workflows.
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `check-deployed-commit`            | checks that the deployed commit and given commit match.                                                 |
 | `check-generated-code`             | checks that the generated code has not changed                                                          |
+| `check-tls-pair`                   | checks that the TLS CERT and KEY match using openssl                                                    |
 | `circleci-announce-broken-branch`  | announce that a branch is broken                                                                        |
 | `compare-deployed-commit`          | checks that the given commit is ahead of the currently deployed commit                                  |
 | `do-exclusively`                   | CircleCI's current recommendation for roughly serializing a subset of build commands for a given branch |
@@ -148,12 +149,12 @@ This subset of development scripts is used for testing
 
 | Script Name                           | Description                                                                                      |
 | ------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `ensure-go-test-coverage`              | Parse the go test coverage to ensure coverage increases                                                          |
-| `ensure-js-test-coverage`              | Parse the js test coverage to ensure coverage increases                                                          |
-| `run-e2e-test`                        | Runs cypress tests with interactive GUI                                                          |
-| `run-e2e-test-docker`                 | Runs cypress tests entirely inside docker containers like in CircleCI                            |
-| `run-e2e-mtls-test-docker`            | Runs integration tests for mtls endpoints inside docker containers like in CircleCI              |
-| `run-server-test`                     | Run golang server tests                                                                          |
+| `ensure-go-test-coverage`              | Parse the go test coverage to ensure coverage increases                                         |
+| `ensure-js-test-coverage`              | Parse the js test coverage to ensure coverage increases                                         |
+| `ensure-spectral-lint`                 | Parse the spectral lint output to ensure error/warning counts decrease                          |
+| `run-e2e-mtls-test`                    | Runs playwright integration tests                                                               |
+| `run-e2e-test`                         | Runs integration tests for mtls endpoints                                                       |
+| `run-server-test`                      | Run golang server tests                                                                         |
 
 ### Secure Migrations
 

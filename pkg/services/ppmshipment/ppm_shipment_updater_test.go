@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
@@ -16,6 +17,8 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
+
+const dateOnly = "2006-01-02"
 
 func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
@@ -30,6 +33,41 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	// setUpForTests - Sets up objects/mocks that need to be set up on a per-test basis.
 	setUpForTests := func(estimatedIncentiveAmount *unit.Cents, sitEstimatedCost *unit.Cents, estimatedIncentiveError error) (subtestData updateSubtestData) {
 		ppmEstimator := mocks.PPMEstimator{}
+		ppmEstimator.
+			On(
+				"FinalIncentiveWithDefaultChecks",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("models.PPMShipment"),
+				mock.AnythingOfType("*models.PPMShipment"),
+			).
+			Return(nil, nil)
+
+		ppmEstimator.
+			On(
+				"EstimateIncentiveWithDefaultChecks",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("models.PPMShipment"),
+				mock.AnythingOfType("*models.PPMShipment"),
+			).
+			Return(estimatedIncentiveAmount, sitEstimatedCost, estimatedIncentiveError)
+
+		addressCreator := address.NewAddressCreator()
+		addressUpdater := address.NewAddressUpdater()
+		subtestData.ppmShipmentUpdater = NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+
+		return subtestData
+	}
+
+	setUpForFinalIncentiveTests := func(finalIncentiveAmount *unit.Cents, finalIncentiveError error, estimatedIncentiveAmount *unit.Cents, sitEstimatedCost *unit.Cents, estimatedIncentiveError error) (subtestData updateSubtestData) {
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmEstimator.
+			On(
+				"FinalIncentiveWithDefaultChecks",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("models.PPMShipment"),
+				mock.AnythingOfType("*models.PPMShipment"),
+			).
+			Return(finalIncentiveAmount, finalIncentiveError)
 
 		ppmEstimator.
 			On(
@@ -73,7 +111,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that should now be updated
-		newPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(newPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(newPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(newPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(newPPM.SITExpected, updatedPPM.SITExpected)
@@ -117,7 +155,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
 
 		// Fields that should now be updated
-		newPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(newPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(newPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(newPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(newPPM.SITExpected, updatedPPM.SITExpected)
@@ -141,7 +179,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -176,7 +214,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -206,7 +244,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -241,7 +279,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -284,7 +322,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -324,7 +362,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -359,7 +397,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -397,7 +435,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -410,47 +448,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		// Fields that should now be updated
 		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
 		suite.Equal(*newPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
-	})
-
-	suite.Run("Can successfully update a PPMShipment - office user rejects requested advance", func() {
-		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-			OfficeUserID: uuid.Must(uuid.NewV4()),
-		})
-		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				EstimatedIncentive:     fakeEstimatedIncentive,
-				HasRequestedAdvance:    models.BoolPointer(true),
-				AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
-			},
-		})
-
-		newPPM := models.PPMShipment{
-			HasRequestedAdvance:    models.BoolPointer(false),
-			AdvanceAmountRequested: nil,
-		}
-
-		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
-
-		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
-
-		suite.NilOrNoVerrs(err)
-
-		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
-		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
-		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
-		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
-		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
-		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
-		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
-		suite.Equal(*originalPPM.SpouseProGearWeight, *updatedPPM.SpouseProGearWeight)
-		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
-
-		// Fields that should now be updated
-		rejected := models.PPMAdvanceStatusRejected
-		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
-		suite.Nil(updatedPPM.AdvanceAmountRequested)
-		suite.Equal(&rejected, updatedPPM.AdvanceStatus)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - office user edits requested advance", func() {
@@ -477,7 +474,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -494,7 +491,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(&edited, updatedPPM.AdvanceStatus)
 	})
 
-	suite.Run("Can successfully update a PPMShipment - office user approves requested advance", func() {
+	suite.Run("Can successfully update a PPMShipment - office user approves advance request", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: uuid.Must(uuid.NewV4()),
 		})
@@ -506,9 +503,12 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			},
 		})
 
+		approved := models.PPMAdvanceStatusApproved
+
 		newPPM := models.PPMShipment{
 			HasRequestedAdvance:    models.BoolPointer(true),
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+			AdvanceStatus:          &approved,
 		}
 
 		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
@@ -518,7 +518,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -529,14 +529,58 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
 
 		// Fields that should now be updated
-		approved := models.PPMAdvanceStatusApproved
 		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
 		suite.Equal(*newPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
 		suite.Equal(&approved, updatedPPM.AdvanceStatus)
 	})
 
+	suite.Run("Can successfully update a PPMShipment - office user rejects advance request", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				EstimatedIncentive:     fakeEstimatedIncentive,
+				HasRequestedAdvance:    models.BoolPointer(true),
+				AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+			},
+		})
+
+		rejected := models.PPMAdvanceStatusRejected
+
+		newPPM := models.PPMShipment{
+			HasRequestedAdvance:    models.BoolPointer(true),
+			AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+			AdvanceStatus:          &rejected,
+		}
+
+		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Fields that shouldn't have changed
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
+		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
+		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
+		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
+		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
+		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
+		suite.Equal(*originalPPM.SpouseProGearWeight, *updatedPPM.SpouseProGearWeight)
+		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
+
+		// Fields that should now be updated
+		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
+		suite.Equal(*newPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
+		suite.Equal(&rejected, updatedPPM.AdvanceStatus)
+	})
+
 	suite.Run("Can successfully update a PPMShipment - edit advance - advance requested no to yes", func() {
-		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
 
 		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
@@ -546,9 +590,12 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			},
 		})
 
+		approved := models.PPMAdvanceStatusApproved
+
 		newPPM := models.PPMShipment{
 			HasRequestedAdvance:    models.BoolPointer(true),
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+			AdvanceStatus:          &approved,
 		}
 
 		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
@@ -558,7 +605,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -569,12 +616,16 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
 
 		// Fields that should now be updated
+		edited := models.PPMAdvanceStatusEdited
 		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
 		suite.Equal(*newPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
+		suite.Equal(&edited, updatedPPM.AdvanceStatus)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit advance - advance requested yes to no", func() {
-		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
 
 		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
@@ -595,7 +646,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
@@ -606,8 +657,10 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
 
 		// Fields that should now be updated
+		edited := models.PPMAdvanceStatusEdited
 		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
 		suite.Nil(updatedPPM.AdvanceAmountRequested)
+		suite.Equal(&edited, updatedPPM.AdvanceStatus)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit SIT - yes to no", func() {
@@ -638,7 +691,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SecondaryPickupPostalCode, updatedPPM.SecondaryPickupPostalCode)
@@ -687,7 +740,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 
 		// Fields that shouldn't have changed
-		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SecondaryPickupPostalCode, updatedPPM.SecondaryPickupPostalCode)
@@ -708,6 +761,32 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*newFakeSITEstimatedCost, *updatedPPM.SITEstimatedCost)
 	})
 
+	suite.Run("Can successfully update a PPMShipment - final incentive", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		subtestData := setUpForFinalIncentiveTests(nil, nil, nil, nil, nil)
+
+		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				ActualMoveDate:              models.TimePointer(testdatagen.NextValidMoveDate),
+				ActualPickupPostalCode:      models.StringPointer("79912"),
+				ActualDestinationPostalCode: models.StringPointer("90909"),
+				EstimatedWeight:             models.PoundPointer(unit.Pound(5000)),
+			},
+		})
+
+		newPPM := originalPPM
+
+		newPPM.ActualDestinationPostalCode = models.StringPointer("90210")
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Fields that should now be updated
+		suite.Equal(newPPM.FinalIncentive, updatedPPM.FinalIncentive)
+	})
+
 	suite.Run("Can't update if Shipment can't be found", func() {
 		badMTOShipmentID := uuid.Must(uuid.NewV4())
 
@@ -719,7 +798,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(fmt.Sprintf("ID: %s not found while looking for PPMShipment", badMTOShipmentID.String()), err.Error())
+		suite.Equal(fmt.Sprintf("ID: %s not found while looking for PPMShipment by MTO ShipmentID", badMTOShipmentID.String()), err.Error())
 	})
 
 	suite.Run("Can't update if there is invalid input", func() {
@@ -841,7 +920,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		subtestData := setUpForTests(fakeEstimatedIncentive, nil, nil)
 
-		address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+		address := factory.BuildAddress(appCtx.DB(), nil, nil)
 		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
 				W2Address:   &address,

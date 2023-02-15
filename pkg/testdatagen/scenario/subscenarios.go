@@ -8,8 +8,10 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -55,13 +57,6 @@ func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyLocati
 	}
 }
 
-func subScenarioAdditionalPPMUsers(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
-	return func() {
-		// Create additional PPM users for mymove tests
-		createPPMUsers(appCtx, userUploader)
-	}
-}
-
 func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
 	return func() {
 		createTXO(appCtx)
@@ -80,10 +75,21 @@ func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *upload
 func subScenarioPPMCloseOut(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
 	return func() {
 		createServicesCounselor(appCtx)
+		createServicesCounselorForCloseoutWithGbloc(appCtx, uuid.Must(uuid.FromString("8bed04b0-9c64-4fb2-bc1a-65223319f109")), "ppm.processing.navy@office.mil", "NAVY")
+		createServicesCounselorForCloseoutWithGbloc(appCtx, uuid.Must(uuid.FromString("96b45e64-a501-49ce-9f8d-975bcb7b417c")), "ppm.processing.coastguard@office.mil", "USCG")
+		createServicesCounselorForCloseoutWithGbloc(appCtx, uuid.Must(uuid.FromString("f38cb4ed-fa1f-4f92-a52d-9695ba8cc85c")), "ppm.processing.marinecorps@office.mil", "TVCB")
 
 		// PPM Closeout
 		createMovesForEachBranch(appCtx, userUploader)
-		createMoveWithCloseoutOffice(appCtx, userUploader)
+		CreateMoveWithCloseoutOffice(appCtx, MoveCreatorInfo{
+			UserID:      uuid.Must(uuid.NewV4()),
+			Email:       "closeoutoffice@ppm.closeout",
+			SmID:        uuid.Must(uuid.NewV4()),
+			FirstName:   "CLOSEOUT",
+			LastName:    "OFFICE",
+			MoveID:      uuid.Must(uuid.NewV4()),
+			MoveLocator: "CLSOFF",
+		}, userUploader)
 	}
 }
 
@@ -106,9 +112,40 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
 		createMoveWithPPM(appCtx, userUploader, moveRouter)
 		createNeedsServicesCounselingWithoutCompletedOrders(appCtx, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION, models.MTOShipmentTypePPM, nil, "SCPPM1")
-		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
-		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMADD")
-		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSCF")
+
+		CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter,
+			MoveCreatorInfo{
+				UserID:      uuid.Must(uuid.NewV4()),
+				Email:       "complete@ppm.submitted",
+				FirstName:   "PPMSC",
+				LastName:    "Submitted",
+				SmID:        uuid.Must(uuid.NewV4()),
+				MoveLocator: "PPMSC1",
+				MoveID:      uuid.Must(uuid.NewV4()),
+			},
+		)
+		CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter,
+			MoveCreatorInfo{
+				UserID:      uuid.Must(uuid.NewV4()),
+				Email:       "complete@ppm.submitted",
+				FirstName:   "PPMSC",
+				LastName:    "Submitted",
+				SmID:        uuid.Must(uuid.NewV4()),
+				MoveLocator: "PPMADD",
+				MoveID:      uuid.Must(uuid.NewV4()),
+			},
+		)
+		CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter,
+			MoveCreatorInfo{
+				UserID:      uuid.Must(uuid.NewV4()),
+				Email:       "complete@ppm.submitted",
+				FirstName:   "PPMSC",
+				LastName:    "Submitted",
+				SmID:        uuid.Must(uuid.NewV4()),
+				MoveLocator: "PPMSCF",
+				MoveID:      uuid.Must(uuid.NewV4()),
+			},
+		)
 		createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx, userUploader, moveRouter, "PPMSIT")
 		// Post-onboarding
 		createApprovedMoveWithPPM(appCtx, userUploader)
@@ -125,6 +162,7 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)
 		createMoveWithPPMShipmentReadyForFinalCloseout(appCtx, userUploader)
 		createApprovedMoveWithPPMCloseoutComplete(appCtx, userUploader)
+		createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx, userUploader)
 	}
 }
 
@@ -152,21 +190,21 @@ func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader
 		other := models.DestinationTypeOtherThanAuthorized
 
 		//PCOS - one with nil dest type, 2 others with PLEAD status
-		createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "NODEST")
-		createNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD1")
-		createNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD2")
+		CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "NODEST")
+		CreateNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD1")
+		CreateNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD2")
 
 		//Retirees
-		createNeedsServicesCounseling(appCtx, retirement, hhg, &hor, "RETIR3")
-		createNeedsServicesCounseling(appCtx, retirement, nts, &hos, "RETIR4")
-		createNeedsServicesCounseling(appCtx, retirement, ntsR, &other, "RETIR5")
-		createNeedsServicesCounseling(appCtx, retirement, hhg, &plead, "RETIR6")
+		CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hor, "RETIR3")
+		CreateNeedsServicesCounseling(appCtx, retirement, nts, &hos, "RETIR4")
+		CreateNeedsServicesCounseling(appCtx, retirement, ntsR, &other, "RETIR5")
+		CreateNeedsServicesCounseling(appCtx, retirement, hhg, &plead, "RETIR6")
 
 		//Separatees
-		createNeedsServicesCounseling(appCtx, separation, hhg, &hor, "SEPAR3")
-		createNeedsServicesCounseling(appCtx, separation, nts, &hos, "SEPAR4")
-		createNeedsServicesCounseling(appCtx, separation, ntsR, &other, "SEPAR5")
-		createNeedsServicesCounseling(appCtx, separation, ntsR, &plead, "SEPAR6")
+		CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, "SEPAR3")
+		CreateNeedsServicesCounseling(appCtx, separation, nts, &hos, "SEPAR4")
+		CreateNeedsServicesCounseling(appCtx, separation, ntsR, &other, "SEPAR5")
+		CreateNeedsServicesCounseling(appCtx, separation, ntsR, &plead, "SEPAR6")
 
 		//USMC
 		createHHGNeedsServicesCounselingUSMC(appCtx, userUploader)
@@ -199,7 +237,7 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 			Status:          models.MTOShipmentStatusSubmitted,
 		}})
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
 			CustomerSupportRemark: models.CustomerSupportRemark{
 				Content: "This is a customer support remark. It can have text content like this." +
@@ -214,7 +252,7 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 				MoveID:       remarkMove.ID,
 			},
 		})
-		officeUser2 := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
+		officeUser2 := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
 			CustomerSupportRemark: models.CustomerSupportRemark{
 				Content:      "The customer mentioned that there was some damage done to their grandfather clock.",
@@ -243,6 +281,19 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 				},
 			},
 		)
+		// Make a transportation office to use as the closeout office
+		closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{Name: "Los Angeles AFB"},
+			},
+		}, nil)
+
+		if *move.Orders.ServiceMember.Affiliation == models.AffiliationARMY || *move.Orders.ServiceMember.Affiliation == models.AffiliationAIRFORCE {
+			move.CloseoutOffice = &closeoutOffice
+			move.CloseoutOfficeID = &closeoutOffice.ID
+			testdatagen.MustSave(appCtx.DB(), &move)
+		}
+
 		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{MTOShipment: models.MTOShipment{
 			MoveTaskOrderID:       move.ID,
 			Status:                models.MTOShipmentStatusSubmitted,
@@ -250,12 +301,7 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 		}})
 		testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{Move: move})
 
-		storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(), testdatagen.Assertions{
-			StorageFacility: models.StorageFacility{
-				FacilityName: "Storage R Us",
-			},
-		})
-
+		storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
 		ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
@@ -275,22 +321,26 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 		dataReviewInspection := models.EvaluationReportInspectionTypeDataReview
 		physicalInspection := models.EvaluationReportInspectionTypePhysical
 		virtualInspection := models.EvaluationReportInspectionTypeVirtual
+		inspectionTime := time.Now().AddDate(0, 0, -4)
+		timeDepart := inspectionTime.Add(time.Hour * 1)
+		evalStart := inspectionTime.Add(time.Hour * 3)
+		evalEnd := inspectionTime.Add(time.Hour * 5)
 
 		remark := "this is a submitted counseling report"
 		location := models.EvaluationReportLocationTypeOrigin
 		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
-				SubmittedAt:             &submittedTime,
-				InspectionDate:          &submittedTime,
-				InspectionType:          &dataReviewInspection,
-				Location:                &location,
-				EvaluationLengthMinutes: swag.Int(45),
-				ViolationsObserved:      swag.Bool(false),
-				Remarks:                 &remark,
+				SubmittedAt:        &submittedTime,
+				InspectionDate:     &submittedTime,
+				InspectionType:     &dataReviewInspection,
+				Location:           &location,
+				ViolationsObserved: swag.Bool(false),
+				Remarks:            &remark,
 			},
 			Move:       move,
 			OfficeUser: officeUser,
 		})
+
 		remark1 := "this is a draft counseling report"
 		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
@@ -299,17 +349,17 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 			Move:       move,
 			OfficeUser: officeUser,
 		})
+
 		location = models.EvaluationReportLocationTypeDestination
 		remark2 := "this is a submitted shipment report"
 		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
-				SubmittedAt:             &submittedTime,
-				InspectionDate:          &submittedTime,
-				InspectionType:          &virtualInspection,
-				EvaluationLengthMinutes: swag.Int(45),
-				Location:                &location,
-				ViolationsObserved:      swag.Bool(true),
-				Remarks:                 &remark2,
+				SubmittedAt:        &submittedTime,
+				InspectionDate:     &submittedTime,
+				InspectionType:     &virtualInspection,
+				Location:           &location,
+				ViolationsObserved: swag.Bool(true),
+				Remarks:            &remark2,
 			},
 			Move:        move,
 			OfficeUser:  officeUser,
@@ -325,20 +375,39 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 			MTOShipment: shipment,
 		})
 
+		location = models.EvaluationReportLocationTypeOrigin
+		remark4 := "this is a report with eval times recorded"
+		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
+			EvaluationReport: models.EvaluationReport{
+				Remarks:            &remark4,
+				InspectionDate:     &submittedTime,
+				InspectionType:     &physicalInspection,
+				TimeDepart:         &timeDepart,
+				EvalStart:          &evalStart,
+				EvalEnd:            &evalEnd,
+				Location:           &location,
+				ViolationsObserved: swag.Bool(true),
+			},
+			Move:        move,
+			OfficeUser:  officeUser,
+			MTOShipment: shipment,
+		})
+
 		location = models.EvaluationReportLocationTypeOther
 		locationDescription := "Route 66 at crash inspection site 3"
 		remark = "this is a submitted NTS shipment report"
 		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
-				SubmittedAt:             &submittedTime,
-				InspectionDate:          &submittedTime,
-				InspectionType:          &physicalInspection,
-				TravelTimeMinutes:       swag.Int(60),
-				EvaluationLengthMinutes: swag.Int(45),
-				Location:                &location,
-				LocationDescription:     &locationDescription,
-				ViolationsObserved:      swag.Bool(true),
-				Remarks:                 &remark,
+				SubmittedAt:         &submittedTime,
+				InspectionDate:      &submittedTime,
+				InspectionType:      &physicalInspection,
+				TimeDepart:          &timeDepart,
+				EvalStart:           &evalStart,
+				EvalEnd:             &evalEnd,
+				Location:            &location,
+				LocationDescription: &locationDescription,
+				ViolationsObserved:  swag.Bool(true),
+				Remarks:             &remark,
 			},
 			Move:        move,
 			OfficeUser:  officeUser,
@@ -385,7 +454,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		separation := internalmessages.OrdersTypeSEPARATION
 
 		//Retiree, HOR, HHG
-		createMoveWithOptions(appCtx, testdatagen.Assertions{
+		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
 			},
@@ -404,7 +473,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 
 		//Retiree, HOS, NTS
 		ntsMoveType := models.SelectedMoveTypeNTS
-		createMoveWithOptions(appCtx, testdatagen.Assertions{
+		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
 			},
@@ -425,7 +494,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 
 		//Retiree, HOS, NTSR
 		ntsrMoveType := models.SelectedMoveTypeNTSR
-		createMoveWithOptions(appCtx, testdatagen.Assertions{
+		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
 			},
@@ -445,7 +514,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		})
 
 		//Separatee, HOS, hhg
-		createMoveWithOptions(appCtx, testdatagen.Assertions{
+		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: separation,
 			},
@@ -558,25 +627,25 @@ func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.
 
 		createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSHHG")
 		createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSRHG")
-		createNeedsServicesCounselingMinimalNTSR(appCtx, pcos, "NTSRMN")
+		CreateNeedsServicesCounselingMinimalNTSR(appCtx, pcos, "NTSRMN")
 
 		// Create a move with an HHG and NTS prime-handled shipment
-		createMoveWithHHGAndNTSShipments(appCtx, "PRINTS", false)
+		CreateMoveWithHHGAndNTSShipments(appCtx, "PRINTS", false)
 
 		// Create a move with an HHG and NTS external vendor-handled shipment
-		createMoveWithHHGAndNTSShipments(appCtx, "PRXNTS", true)
+		CreateMoveWithHHGAndNTSShipments(appCtx, "PRXNTS", true)
 
 		// Create a move with only NTS external vendor-handled shipment
-		createMoveWithNTSShipment(appCtx, "EXTNTS", true)
+		CreateMoveWithNTSShipment(appCtx, "EXTNTS", true)
 
 		// Create a move with only an NTS external vendor-handled shipment
-		createMoveWithNTSShipment(appCtx, "NTSNTS", true)
+		CreateMoveWithNTSShipment(appCtx, "NTSNTS", true)
 
 		// Create a move with an HHG and NTS-release prime-handled shipment
-		createMoveWithHHGAndNTSRShipments(appCtx, "PRINTR", false)
+		CreateMoveWithHHGAndNTSRShipments(appCtx, "PRINTR", false)
 
 		// Create a move with an HHG and NTS-release external vendor-handled shipment
-		createMoveWithHHGAndNTSRShipments(appCtx, "PRXNTR", true)
+		CreateMoveWithHHGAndNTSRShipments(appCtx, "PRXNTR", true)
 
 		// Create a move with only an NTS-release external vendor-handled shipment
 		createMoveWithNTSRShipment(appCtx, "EXTNTR", true)

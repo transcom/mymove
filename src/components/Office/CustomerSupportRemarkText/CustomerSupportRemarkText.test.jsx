@@ -28,19 +28,34 @@ beforeEach(() => {
 
 describe('CustomerSupportRemarkText', () => {
   it('can render successfully', () => {
-    render(<CustomerSupportRemarkText customerSupportRemark={customerSupportRemark} />);
+    render(
+      <MockProviders>
+        <CustomerSupportRemarkText customerSupportRemark={customerSupportRemark} />
+      </MockProviders>,
+    );
+
     expect(screen.getByText('This is a remark.')).toBeInTheDocument();
   });
 
   it('renders edited text if a remark has been edited', () => {
     const editedRemark = { ...customerSupportRemark, updatedAt: '2020-06-13:T13:45:03.49593Z' };
 
-    render(<CustomerSupportRemarkText customerSupportRemark={editedRemark} />);
+    render(
+      <MockProviders>
+        <CustomerSupportRemarkText customerSupportRemark={editedRemark} />
+      </MockProviders>,
+    );
+
     expect(screen.getByText('(edited)')).toBeInTheDocument();
   });
 
   it('does not render edited text if a remark has been edited', () => {
-    render(<CustomerSupportRemarkText customerSupportRemark={customerSupportRemark} />);
+    render(
+      <MockProviders>
+        <CustomerSupportRemarkText customerSupportRemark={customerSupportRemark} />
+      </MockProviders>,
+    );
+
     expect(screen.queryByText('(edited)')).not.toBeInTheDocument();
   });
 
@@ -50,7 +65,12 @@ describe('CustomerSupportRemarkText', () => {
       content:
         'This is a really long remark that will need a see more button to view it all. This is a really long remark that will need a see more button to view it all. This is a really long remark that will need a see more button to view it all. This is a really long remark that will need a see more button to view it all. This is a really long remark that will need a see more button to view it all. This is a really long remark that will need a see more button to view it all. This is a really long remark that will need a see more button to view it all.',
     };
-    render(<CustomerSupportRemarkText customerSupportRemark={longTextRemark} />);
+    render(
+      <MockProviders>
+        <CustomerSupportRemarkText customerSupportRemark={longTextRemark} />
+      </MockProviders>,
+    );
+
     expect(screen.getByText('(see more)')).toBeInTheDocument();
   });
 
@@ -59,7 +79,12 @@ describe('CustomerSupportRemarkText', () => {
       ...customerSupportRemark,
       content: 'This is a short remark',
     };
-    render(<CustomerSupportRemarkText customerSupportRemark={longTextRemark} />);
+    render(
+      <MockProviders>
+        <CustomerSupportRemarkText customerSupportRemark={longTextRemark} />
+      </MockProviders>,
+    );
+
     expect(screen.queryByText('(see more)')).not.toBeInTheDocument();
   });
 
@@ -98,7 +123,7 @@ describe('CustomerSupportRemarkText', () => {
     expect(screen.queryByTestId('edit-remark-textarea')).not.toBeInTheDocument();
 
     // Open editing of the remark
-    userEvent.click(screen.getByText('Edit'));
+    await userEvent.click(screen.getByText('Edit'));
 
     expect(screen.getByText('Save')).toBeInTheDocument();
     expect(screen.getByText('Cancel')).toBeInTheDocument();

@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
-import { queryCache, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as Yup from 'yup';
 
@@ -38,7 +38,7 @@ const validationSchema = Yup.object({
     .transform((value) => (Number.isNaN(value) ? 0 : value))
     .notRequired(),
   requiredMedicalEquipmentWeight: Yup.number()
-    .min(0, 'RME weight must be greater than or equal to 0')
+    .min(0, 'Required medical equipment weight must be greater than or equal to 0')
     .transform((value) => (Number.isNaN(value) ? 0 : value))
     .notRequired(),
   storageInTransit: Yup.number()
@@ -57,16 +57,17 @@ const MoveAllowances = () => {
   const handleClose = () => {
     history.push(`/moves/${moveCode}/details`);
   };
+  const queryClient = useQueryClient();
 
-  const [mutateOrders] = useMutation(updateAllowance, {
+  const { mutate: mutateOrders } = useMutation(updateAllowance, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
-      queryCache.setQueryData([ORDERS, variables.orderID], {
+      queryClient.setQueryData([ORDERS, variables.orderID], {
         orders: {
           [`${variables.orderID}`]: updatedOrder,
         },
       });
-      queryCache.invalidateQueries([ORDERS, variables.orderID]);
+      queryClient.invalidateQueries([ORDERS, variables.orderID]);
       handleClose();
     },
     onError: (error) => {

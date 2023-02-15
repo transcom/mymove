@@ -9,9 +9,11 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	movingexpenseops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -161,5 +163,83 @@ func (h UpdateMovingExpenseHandler) Handle(params movingexpenseops.UpdateMovingE
 			}
 			returnPayload := payloads.MovingExpense(h.FileStorer(), updateMovingExpense)
 			return movingexpenseops.NewUpdateMovingExpenseOK().WithPayload(returnPayload), nil
+		})
+}
+
+// DeleteMovingExpenseHandler
+type DeleteMovingExpenseHandler struct {
+	handlers.HandlerConfig
+	movingExpenseDeleter services.MovingExpenseDeleter
+}
+
+// Handle deletes a moving expense
+func (h DeleteMovingExpenseHandler) Handle(params movingexpenseops.DeleteMovingExpenseParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if appCtx.Session() == nil {
+				noSessionErr := apperror.NewSessionError("No user session")
+				appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(noSessionErr))
+				return movingexpenseops.NewDeleteMovingExpenseUnauthorized(), noSessionErr
+			}
+
+			if !appCtx.Session().IsMilApp() || appCtx.Session().ServiceMemberID == uuid.Nil {
+				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
+				appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(noServiceMemberIDErr))
+				return movingexpenseops.NewDeleteMovingExpenseForbidden(), noServiceMemberIDErr
+			}
+
+			// Make sure the service member is not modifying another service member's PPM
+			ppmID := uuid.FromStringOrNil(params.PpmShipmentID.String())
+			var ppmShipment models.PPMShipment
+			err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
+				EagerPreload(
+					"Shipment.MoveTaskOrder.Orders",
+					"MovingExpenses",
+				).
+				Find(&ppmShipment, ppmID)
+			if err != nil {
+				if err == sql.ErrNoRows {
+					return movingexpenseops.NewDeleteMovingExpenseNotFound(), err
+				}
+				return movingexpenseops.NewDeleteMovingExpenseInternalServerError(), err
+			}
+			if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
+				wrongServiceMemberIDErr := apperror.NewSessionError("Attempted delete by wrong service member")
+				appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(wrongServiceMemberIDErr))
+				return movingexpenseops.NewDeleteMovingExpenseForbidden(), wrongServiceMemberIDErr
+			}
+
+			movingExpenseID := uuid.FromStringOrNil(params.MovingExpenseID.String())
+			found := false
+			for _, lineItem := range ppmShipment.MovingExpenses {
+				if lineItem.ID == movingExpenseID {
+					found = true
+					break
+				}
+			}
+			if !found {
+				mismatchedPPMShipmentAndMovingExpenseIDErr := apperror.NewSessionError("Moving expense does not exist on ppm shipment")
+				appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(mismatchedPPMShipmentAndMovingExpenseIDErr))
+				return movingexpenseops.NewDeleteMovingExpenseNotFound(), mismatchedPPMShipmentAndMovingExpenseIDErr
+			}
+			err = h.movingExpenseDeleter.DeleteMovingExpense(appCtx, movingExpenseID)
+			if err != nil {
+				appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(err))
+
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return movingexpenseops.NewDeleteMovingExpenseNotFound(), err
+				case apperror.ConflictError:
+					return movingexpenseops.NewDeleteMovingExpenseConflict(), err
+				case apperror.ForbiddenError:
+					return movingexpenseops.NewDeleteMovingExpenseForbidden(), err
+				case apperror.UnprocessableEntityError:
+					return movingexpenseops.NewDeleteMovingExpenseUnprocessableEntity(), err
+				default:
+					return movingexpenseops.NewDeleteMovingExpenseInternalServerError(), err
+				}
+			}
+
+			return movingexpenseops.NewDeleteMovingExpenseNoContent(), nil
 		})
 }

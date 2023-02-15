@@ -89,7 +89,7 @@ endif
 
 .PHONY: check_go_version
 check_go_version: .check_go_version.stamp ## Check that the correct Golang version is installed
-.check_go_version.stamp: scripts/check-go-version
+.check_go_version.stamp: scripts/check-go-version .go-version
 	scripts/check-go-version
 	touch .check_go_version.stamp
 
@@ -105,7 +105,7 @@ endif
 
 .PHONY: check_node_version
 check_node_version: .check_node_version.stamp ## Check that the correct Node version is installed
-.check_node_version.stamp: scripts/check-node-version
+.check_node_version.stamp: scripts/check-node-version .node-version
 	scripts/check-node-version
 	touch .check_node_version.stamp
 
@@ -153,22 +153,27 @@ client_deps_update: .check_node_version.stamp ## Update client dependencies
 	yarn upgrade
 
 .PHONY: client_deps
-client_deps: .check_hosts.stamp .check_node_version.stamp .client_deps.stamp ## Install client dependencies
-.client_deps.stamp: yarn.lock
+client_deps: .check_hosts.stamp .client_deps.stamp ## Install client dependencies
+.client_deps.stamp: yarn.lock .check_node_version.stamp
 	yarn install
 	scripts/copy-swagger-ui
 	touch .client_deps.stamp
 
-.client_build.stamp: .check_node_version.stamp $(shell find src -type f)
+.client_build.stamp: .client_deps.stamp $(shell find src -type f)
 	yarn build
 	touch .client_build.stamp
 
 .PHONY: client_build
-client_build: .client_deps.stamp .client_build.stamp ## Build the client
+client_build: .client_build.stamp ## Build the client
 
-build/index.html: ## milmove serve requires this file to boot, but it isn't used during local development
+build/index.html: build/downloads ## milmove serve requires this file to boot, but it isn't used during local development
 	mkdir -p build
 	touch build/index.html
+
+build/downloads: public/downloads
+	mkdir -p build
+	rm -rf build/downloads
+	cp -r public/downloads build/downloads
 
 .PHONY: client_run
 client_run: .client_deps.stamp ## Run MilMove Service Member client
@@ -266,28 +271,28 @@ bin/iws: cmd/iws
 
 PKG_GOSRC := $(shell find pkg -name '*.go')
 
-bin/milmove: $(shell find cmd/milmove -name '*.go') $(PKG_GOSRC)
+bin/milmove: $(shell find cmd/milmove -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
-bin/milmove-tasks: $(shell find cmd/milmove-tasks -name '*.go') $(PKG_GOSRC)
+bin/milmove-tasks: $(shell find cmd/milmove-tasks -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin/prime-api-client: $(shell find cmd/prime-api-client -name '*.go') $(PKG_GOSRC)
+bin/prime-api-client: $(shell find cmd/prime-api-client -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/prime-api-client ./cmd/prime-api-client
 
-bin/webhook-client: $(shell find cmd/webhook-client -name '*.go') $(PKG_GOSRC)
+bin/webhook-client: $(shell find cmd/webhook-client -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/webhook-client ./cmd/webhook-client
 
-bin/read-alb-logs: $(shell find cmd/read-alb-logs -name '*.go') $(PKG_GOSRC)
+bin/read-alb-logs: $(shell find cmd/read-alb-logs -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
 
-bin/send-to-gex: $(shell find cmd/send-to-gex -name '*.go') $(PKG_GOSRC)
+bin/send-to-gex: $(shell find cmd/send-to-gex -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send-to-gex
 
-bin/tls-checker: $(shell find cmd/tls-checker -name '*.go') $(PKG_GOSRC)
+bin/tls-checker: $(shell find cmd/tls-checker -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
-bin/generate-payment-request-edi: $(shell find cmd/generate-payment-request-edi -name '*.go') $(PKG_GOSRC)
+bin/generate-payment-request-edi: $(shell find cmd/generate-payment-request-edi -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-payment-request-edi ./cmd/generate-payment-request-edi
 
 #
@@ -310,7 +315,7 @@ SWAGGER_AUTOREBUILD=1
 endif
 SWAGGER_FILES = $(shell find swagger swagger-def -type f)
 .swagger_build.stamp: $(SWAGGER_FILES)
-ifndef SWAGGER_AUTOREBUILD
+ifeq ($(SWAGGER_AUTOREBUILD),0)
 ifneq ("$(shell find swagger -type f -name '*.yaml' -newer .swagger_build.stamp)","")
 	@echo "Unexpected changes found in swagger build files. Code may be overwritten."
 	@read -p "Continue with rebuild? [y/N] : " ANS && test "$${ANS}" == "y" || (echo "Exiting rebuild."; false)
@@ -386,37 +391,6 @@ build_tools: bin/gin \
 
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client
-
-# acceptance_test runs a few acceptance tests against a local or remote environment.
-# This can help identify potential errors before deploying a container.
-.PHONY: acceptance_test
-acceptance_test: bin/rds-ca-2019-root.pem bin/rds-ca-rsa4096-g1.pem ## Run acceptance tests
-ifndef TEST_ACC_ENV
-	@echo "Running acceptance tests for webserver using local environment."
-	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
-	TEST_ACC_CWD=$(PWD) \
-	SERVE_ADMIN=true \
-	SERVE_ORDERS=true \
-	SERVE_API_INTERNAL=true \
-	SERVE_API_GHC=true \
-	MUTUAL_TLS_ENABLED=true \
-	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
-else
-ifndef CIRCLECI
-	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
-	TEST_ACC_CWD=$(PWD) \
-	DISABLE_AWS_VAULT_WRAPPER=1 \
-	aws-vault exec $(AWS_PROFILE) -- \
-	chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
-	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
-else
-	go build -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber/v2
-	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
-	TEST_ACC_CWD=$(PWD) \
-	bin/chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
-	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
-endif
-endif
 
 .PHONY: mocks_generate
 mocks_generate: bin/mockery ## Generate mockery mocks for tests
@@ -549,6 +523,9 @@ db_dev_run: db_dev_start db_dev_create ## Run Dev DB (start and create)
 .PHONY: db_dev_reset
 db_dev_reset: db_dev_destroy db_dev_run ## Reset Dev DB (destroy and run)
 
+.PHONY: db_dev_init
+db_dev_init: db_dev_reset db_dev_migrate ## Init Dev DB (destroy, run, migrate)
+
 .PHONY: db_dev_migrate_standalone ## Migrate Dev DB directly
 db_dev_migrate_standalone: bin/milmove
 	@echo "Migrating the ${DB_NAME_DEV} database..."
@@ -569,7 +546,7 @@ db_dev_fresh: check_app db_dev_reset db_dev_migrate ## Recreate dev db from scra
 .PHONY: db_dev_truncate
 db_dev_truncate: ## Truncate dev db
 	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users, uploads, webhook_subscriptions, traffic_distribution_lists, storage_facilities CASCADE'
 
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: check_app db_dev_migrate db_dev_truncate ## Migrate dev db and populate with devseed data
@@ -700,11 +677,6 @@ db_test_truncate:
 	@echo "Truncating ${DB_NAME_TEST} database..."
 	DB_PORT=$(DB_PORT_TEST) DB_NAME=$(DB_NAME_TEST) ./scripts/db-truncate
 
-.PHONY: db_e2e_test_truncate
-db_e2e_test_truncate:
-	@echo "Truncating ${DB_NAME_TEST} database for e2e tests..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE;'
-
 .PHONY: db_test_migrate_standalone
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
 ifndef CIRCLECI
@@ -737,53 +709,17 @@ db_test_psql: ## Open PostgreSQL shell for Test DB
 #
 
 .PHONY: e2e_test
-e2e_test: db_test_migrate db_e2e_up ## Run e2e (end-to-end) integration tests
+e2e_test: db_dev_run db_dev_truncate ## Run e2e (end-to-end) integration tests
 	$(AWS_VAULT) ./scripts/run-e2e-test
 
 .PHONY: e2e_test_fresh ## Build everything from scratch before running tests
-e2e_test_fresh: bin/gin server_generate server_build client_build db_e2e_init
+e2e_test_fresh: db_dev_init
 	$(AWS_VAULT) ./scripts/run-e2e-test
-
-.PHONY: e2e_mtls_test_docker
-e2e_mtls_test_docker: ## Run e2e (end-to-end) integration tests with docker
-	$(AWS_VAULT) ./scripts/run-e2e-mtls-test-docker
-
-.PHONY: e2e_test_docker
-e2e_test_docker: ## Run e2e (end-to-end) integration tests with docker
-	$(AWS_VAULT) ./scripts/run-e2e-test-docker
-
-.PHONY: e2e_test_docker_mymove
-e2e_test_docker_mymove: ## Run e2e (end-to-end) Service Member integration tests with docker
-	$(AWS_VAULT) SPECS=cypress/integration/mymove/**/* ./scripts/run-e2e-test-docker
-
-.PHONY: e2e_test_docker_office
-e2e_test_docker_office: ## Run e2e (end-to-end) Office integration tests with docker
-	$(AWS_VAULT) SPECS=cypress/integration/office/**/* ./scripts/run-e2e-test-docker
-
-.PHONY: e2e_test_docker_api
-e2e_test_docker_api: ## Run e2e (end-to-end) API integration tests with docker
-	$(AWS_VAULT) SPECS=cypress/integration/api/**/* ./scripts/run-e2e-test-docker
 
 .PHONY: e2e_clean
-e2e_clean: ## Clean e2e (end-to-end) files and docker images
+e2e_clean: ## Clean e2e (end-to-end) files
 	rm -f .*_linux.stamp
-	rm -rf cypress/results
-	rm -rf cypress/screenshots
-	rm -rf cypress/videos
-	rm -rf cypress/reports
-	docker rm -f cypress || true
-
-.PHONY: db_e2e_up
-db_e2e_up: check_app bin/generate-test-data db_e2e_test_truncate ## Truncate Test DB and Generate e2e (end-to-end) data
-	@echo "Populate the ${DB_NAME_TEST} database..."
-	DB_PORT=$(DB_PORT_TEST) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="test"
-
-.PHONY: rerun_e2e_tests_with_new_data
-rerun_e2e_tests_with_new_data: db_e2e_up
-	$(AWS_VAULT) ./scripts/run-e2e-test
-
-.PHONY: db_e2e_init
-db_e2e_init: db_test_reset db_test_migrate redis_reset db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
+	rm -rf playwright-report
 
 .PHONY: db_dev_e2e_backup
 db_dev_e2e_backup: ## Backup Dev DB as 'e2e_dev'
@@ -796,19 +732,6 @@ db_dev_e2e_restore: ## Restore Dev DB from 'e2e_dev'
 .PHONY: db_dev_e2e_cleanup
 db_dev_e2e_cleanup: ## Clean up Dev DB backup `e2e_dev`
 	./scripts/db-cleanup e2e_dev
-
-.PHONY: db_test_e2e_backup
-db_test_e2e_backup: ## Backup Test DB as 'e2e_test'
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) ./scripts/db-backup e2e_test
-
-.PHONY: db_test_e2e_restore
-db_test_e2e_restore: ## Restore Test DB from 'e2e_test'
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) ./scripts/db-restore e2e_test
-
-.PHONY: db_test_e2e_cleanup
-db_test_e2e_cleanup: ## Clean up Test DB backup `e2e_test`
-	./scripts/db-cleanup e2e_test
-
 
 #
 # ----- END E2E TARGETS -----
@@ -1125,7 +1048,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-94a41a022a48dab1c05b932734b472922260f3c0 bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-314bd6870544a433eacfe83cf3039d549d13be41 bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images
@@ -1150,12 +1073,13 @@ clean_server:
 	rm -f bin/milmove
 
 .PHONY: clean
+# yarn clean removes node_modules
 clean: ## Clean all generated files
 	rm -f .*.stamp
 	rm -f coverage.out
 	rm -rf ./bin
 	rm -rf ./build
-	rm -rf ./node_modules
+	yarn clean
 	rm -rf ./public/swagger-ui/*.{css,js,png}
 	rm -rf ./tmp/secure_migrations
 	rm -rf ./tmp/storage

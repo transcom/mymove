@@ -6,6 +6,8 @@ import { generatePath } from 'react-router';
 
 import styles from './RequestedShipments.module.scss';
 
+import { hasCounseling, hasMoveManagement } from 'utils/serviceItems';
+import { isPPMOnly } from 'utils/shipments';
 import ShipmentApprovalPreview from 'components/Office/ShipmentApprovalPreview/ShipmentApprovalPreview';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { tooRoutes } from 'constants/routes';
@@ -15,8 +17,9 @@ import Restricted from 'components/Restricted/Restricted';
 import { serviceItemCodes } from 'content/serviceItems';
 import { shipmentTypeLabels } from 'content/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
-import { MoveTaskOrderShape, OrdersInfoShape } from 'types/order';
+import { MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import { ShipmentShape } from 'types/shipment';
+import { fieldValidationShape } from 'utils/displayFlags';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
@@ -44,6 +47,7 @@ const SubmittedRequestedShipments = ({
   moveCode,
   errorIfMissing,
   displayDestinationType,
+  mtoServiceItems,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
@@ -87,63 +91,51 @@ const SubmittedRequestedShipments = ({
         serviceCodeCS: values.counselingFee,
       };
 
-      // The MTO has not yet been approved so resolve before updating the shipment statuses and creating accessorial service items
-      if (!moveTaskOrder.availableToPrimeAt) {
-        approveMTO({
+      approveMTO(
+        {
           moveTaskOrderID: moveTaskOrder.id,
           ifMatchETag: moveTaskOrder.eTag,
           mtoApprovalServiceItemCodes,
           normalize: false,
-        })
-          .then(() => {
-            Promise.all(
-              filteredShipments.map((shipment) =>
-                approveMTOShipment({
-                  shipmentID: shipment.id,
-                  operationPath: 'shipment.approveShipment',
-                  ifMatchETag: shipment.eTag,
-                  normalize: false,
+        },
+        {
+          onSuccess: async () => {
+            try {
+              await Promise.all(
+                filteredShipments.map((shipment) => {
+                  let operationPath = 'shipment.approveShipment';
+
+                  if (shipment.approvedDate) {
+                    operationPath = 'shipment.approveShipmentDiversion';
+                  }
+                  return approveMTOShipment(
+                    {
+                      shipmentID: shipment.id,
+                      operationPath,
+                      ifMatchETag: shipment.eTag,
+                      normalize: false,
+                    },
+                    {
+                      onError: () => {
+                        // TODO: Decide if we want to display an error notice, log error event, or retry
+                        setSubmitting(false);
+                      },
+                    },
+                  );
                 }),
-              ),
-            )
-              .then(() => {
-                handleAfterSuccess('mto', { showMTOpostedMessage: true });
-              })
-              .catch(() => {
-                // TODO: Decide if we want to display an error notice, log error event, or retry
-                setSubmitting(false);
-              });
-          })
-          .catch(() => {
-            // TODO: Decide if we want to display an error notice, log error event, or retry
-            setSubmitting(false);
-          });
-      } else {
-        // The MTO was previously approved along with at least one shipment, only update the new shipment statuses
-        Promise.all(
-          filteredShipments.map((shipment) => {
-            let operationPath = 'shipment.approveShipment';
-
-            if (shipment.approvedDate) {
-              operationPath = 'shipment.approveShipmentDiversion';
+              );
+              handleAfterSuccess('mto', { showMTOpostedMessage: true });
+            } catch {
+              setSubmitting(false);
             }
-
-            return approveMTOShipment({
-              shipmentID: shipment.id,
-              operationPath,
-              ifMatchETag: shipment.eTag,
-              normalize: false,
-            });
-          }),
-        )
-          .then(() => {
-            handleAfterSuccess('mto');
-          })
-          .catch(() => {
+          },
+          onError: () => {
             // TODO: Decide if we want to display an error notice, log error event, or retry
             setSubmitting(false);
-          });
-      }
+          },
+        },
+      );
+      //
     },
   });
 
@@ -160,13 +152,22 @@ const SubmittedRequestedShipments = ({
       (formik.values.counselingFee || formik.values.shipmentManagementFee) &&
       !missingRequiredOrdersInfo;
 
-  // on a move with only External Vendor shipments enable button if a a service item is selected
+  // on a move with only External Vendor shipments enable button if a service item is selected
   const externalVendorShipmentsOnly = formik.values.counselingFee || formik.values.shipmentManagementFee;
 
   // Check that there are Prime-handled shipments before determining if the button should be enabled
   const isButtonEnabled = filterPrimeShipments.length > 0 ? primeShipmentsForApproval : externalVendorShipmentsOnly;
 
   const dutyLocationPostal = { postalCode: ordersInfo.newDutyLocation?.address?.postalCode };
+
+  // Hide counseling line item if prime counseling is already in the service items or if service counseling has been applied
+  const hideCounselingCheckbox = hasCounseling(mtoServiceItems) || moveTaskOrder?.serviceCounselingCompletedAt;
+
+  // Hide move management line item if it is already in the service items or for PPM only moves
+  const hideMoveManagementCheckbox = hasMoveManagement(mtoServiceItems) || isPPMOnly(mtoShipments);
+
+  // If we are hiding both counseling and move management then hide the entire service item form
+  const hideAddServiceItemsForm = hideCounselingCheckbox && hideMoveManagementCheckbox;
 
   return (
     <div className={styles.RequestedShipments} data-testid="requested-shipments">
@@ -221,17 +222,20 @@ const SubmittedRequestedShipments = ({
 
         <Restricted to={permissionTypes.updateShipment}>
           <div className={styles.serviceItems}>
-            {!moveTaskOrder.availableToPrimeAt && (
+            {!hideAddServiceItemsForm && (
               <>
                 <h2>Add service items to this move</h2>
                 <Fieldset legend="MTO service items" legendsronly="true" id="input-type-fieldset">
-                  <Checkbox
-                    id="shipmentManagementFee"
-                    label={serviceItemCodes.MS}
-                    name="shipmentManagementFee"
-                    onChange={formik.handleChange}
-                  />
-                  {moveTaskOrder.serviceCounselingCompletedAt ? (
+                  {!hideMoveManagementCheckbox && (
+                    <Checkbox
+                      id="shipmentManagementFee"
+                      label={serviceItemCodes.MS}
+                      name="shipmentManagementFee"
+                      onChange={formik.handleChange}
+                      data-testid="shipmentManagementFee"
+                    />
+                  )}
+                  {hideCounselingCheckbox ? (
                     <p className={styles.serviceCounselingCompleted} data-testid="services-counseling-completed-text">
                       The customer has received counseling for this move.
                     </p>
@@ -241,6 +245,7 @@ const SubmittedRequestedShipments = ({
                       label={serviceItemCodes.CS}
                       name="counselingFee"
                       onChange={formik.handleChange}
+                      data-testid="counselingFee"
                     />
                   )}
                 </Fieldset>
@@ -296,8 +301,9 @@ SubmittedRequestedShipments.propTypes = {
   missingRequiredOrdersInfo: PropTypes.bool,
   moveCode: PropTypes.string.isRequired,
   handleAfterSuccess: PropTypes.func,
-  errorIfMissing: PropTypes.shape({}),
+  errorIfMissing: PropTypes.objectOf(PropTypes.arrayOf(fieldValidationShape)),
   displayDestinationType: PropTypes.bool,
+  mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
 };
 
 SubmittedRequestedShipments.defaultProps = {
@@ -308,6 +314,7 @@ SubmittedRequestedShipments.defaultProps = {
   handleAfterSuccess: () => {},
   errorIfMissing: {},
   displayDestinationType: false,
+  mtoServiceItems: [],
 };
 
 export default SubmittedRequestedShipments;

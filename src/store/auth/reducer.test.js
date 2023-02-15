@@ -43,9 +43,6 @@ describe('authReducer', () => {
             roleType: roleTypes.CUSTOMER,
           },
           {
-            roleType: roleTypes.PPM,
-          },
-          {
             roleType: roleTypes.TOO,
           },
         ],
@@ -54,7 +51,7 @@ describe('authReducer', () => {
 
     expect(authReducer(initialState, action)).toEqual({
       ...initialState,
-      activeRole: roleTypes.PPM,
+      activeRole: roleTypes.TOO,
       hasSucceeded: true,
       hasErrored: false,
       isLoading: false,
@@ -78,9 +75,6 @@ describe('authReducer', () => {
         roles: [
           {
             roleType: roleTypes.CUSTOMER,
-          },
-          {
-            roleType: roleTypes.PPM,
           },
           {
             roleType: roleTypes.TOO,

@@ -137,28 +137,39 @@ func isValidForSubmission(evaluationReport models.EvaluationReport) error {
 			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without an Inspection Type.",
 				evaluationReport.ID))
 	}
-	// Travel time required when inspection type is physical
-	if *evaluationReport.InspectionType == models.EvaluationReportInspectionTypePhysical && evaluationReport.TravelTimeMinutes == nil {
+
+	// Physical evaluations must have time depart recorded
+	if *evaluationReport.InspectionType == models.EvaluationReportInspectionTypePhysical && evaluationReport.TimeDepart == nil {
 		return errors.Wrap(models.ErrInvalidTransition,
-			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without travel time if the location is physical.",
+			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without departure time if the location is physical.",
 				evaluationReport.ID))
 	}
+
+	// Required field evaluation start
+	if evaluationReport.EvalStart == nil {
+		return errors.Wrap(models.ErrInvalidTransition,
+			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without an evaluation start time.",
+				evaluationReport.ID))
+	}
+
+	// Required field evaluation end time
+	if evaluationReport.EvalEnd == nil {
+		return errors.Wrap(models.ErrInvalidTransition,
+			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without an evaluation end time.",
+				evaluationReport.ID))
+	}
+
 	// Required field location
 	if evaluationReport.Location == nil {
 		return errors.Wrap(models.ErrInvalidTransition,
 			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without a location.",
 				evaluationReport.ID))
 	}
+
 	// LocationDescription is required when Location is Other
 	if *evaluationReport.Location == models.EvaluationReportLocationTypeOther && evaluationReport.LocationDescription == nil {
 		return errors.Wrap(models.ErrInvalidTransition,
 			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without location description if the location is other.",
-				evaluationReport.ID))
-	}
-	// Required field EvaluationLengthMinutes
-	if evaluationReport.EvaluationLengthMinutes == nil {
-		return errors.Wrap(models.ErrInvalidTransition,
-			fmt.Sprintf("Evaluation report with ID %s cannot be submitted without an evaluation length.",
 				evaluationReport.ID))
 	}
 	// Required field ViolationsObserved

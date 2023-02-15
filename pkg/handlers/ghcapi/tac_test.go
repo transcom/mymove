@@ -5,6 +5,9 @@ import (
 	"net/http/httptest"
 	"strings"
 
+	"github.com/go-openapi/strfmt"
+
+	"github.com/transcom/mymove/pkg/factory"
 	tacop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -12,7 +15,7 @@ import (
 func (suite *HandlerSuite) TestTacValidation() {
 
 	suite.Run("TAC validation", func() {
-		user := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		user := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		transportationAccountingCode := testdatagen.MakeDefaultTransportationAccountingCode(suite.DB())
 		tests := []struct {
 			tacCode string
@@ -32,11 +35,17 @@ func (suite *HandlerSuite) TestTacValidation() {
 			}
 			handlerConfig := suite.HandlerConfig()
 			handler := TacValidationHandler{handlerConfig}
+
+			// Validate incoming payload: no body to validate
+
 			response := handler.Handle(params)
 
-			suite.Assertions.IsType(&tacop.TacValidationOK{}, response)
-
+			suite.IsType(&tacop.TacValidationOK{}, response)
 			okResponse := response.(*tacop.TacValidationOK)
+
+			// Validate outgoing payload
+			suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
 			suite.Equal(tc.isValid, *okResponse.Payload.IsValid,
 				"Expected %v validation to return %v, got %v", tc.tacCode, tc.isValid, *okResponse.Payload.IsValid)
 		}
@@ -52,9 +61,16 @@ func (suite *HandlerSuite) TestTacValidation() {
 		}
 		handlerConfig := suite.HandlerConfig()
 		handler := TacValidationHandler{handlerConfig}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
-		suite.Assertions.IsType(&tacop.TacValidationUnauthorized{}, response)
+		suite.IsType(&tacop.TacValidationUnauthorized{}, response)
+		payload := response.(*tacop.TacValidationUnauthorized).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("Unauthorized user for TAC validation is forbidden", func() {
@@ -69,8 +85,15 @@ func (suite *HandlerSuite) TestTacValidation() {
 		}
 		handlerConfig := suite.HandlerConfig()
 		handler := TacValidationHandler{handlerConfig}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
-		suite.Assertions.IsType(&tacop.TacValidationForbidden{}, response)
+		suite.IsType(&tacop.TacValidationForbidden{}, response)
+		payload := response.(*tacop.TacValidationForbidden).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }

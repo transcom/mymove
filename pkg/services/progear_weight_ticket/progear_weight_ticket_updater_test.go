@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
+func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 	setupForTest := func(appCtx appcontext.AppContext, overrides *models.ProgearWeightTicket, hasdocFiles bool) *models.ProgearWeightTicket {
 		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())

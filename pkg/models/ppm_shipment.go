@@ -1,14 +1,10 @@
 package models
 
 import (
-	"database/sql"
 	"time"
 
-	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -71,6 +67,14 @@ var AllowedPPMDocumentStatuses = []string{
 	string(PPMDocumentStatusRejected),
 }
 
+// PPMDocuments is a collection of the different PPMShipment documents. This type exists mainly to make it easier to
+// work with the group of documents as a whole when we don't actually retrieve the PPM Shipment itself.
+type PPMDocuments struct {
+	WeightTickets
+	MovingExpenses
+	ProgearExpenses ProgearWeightTickets
+}
+
 // PPMShipment is the portion of a move that a service member performs themselves
 type PPMShipment struct {
 	ID                             uuid.UUID            `json:"id" db:"id"`
@@ -123,22 +127,4 @@ type PPMShipments []PPMShipment
 // TableName overrides the table name used by Pop. By default it tries using the name `ppmshipments`.
 func (p PPMShipment) TableName() string {
 	return "ppm_shipments"
-}
-
-func FetchPPMShipmentFromMTOShipmentID(db *pop.Connection, mtoShipmentID uuid.UUID) (*PPMShipment, error) {
-	var ppmShipment PPMShipment
-
-	err := db.Scope(utilities.ExcludeDeletedScope()).EagerPreload("Shipment", "W2Address").
-		Where("ppm_shipments.shipment_id = ?", mtoShipmentID).
-		First(&ppmShipment)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(mtoShipmentID, "while looking for PPMShipment")
-		default:
-			return nil, apperror.NewQueryError("PPMShipment", err, "")
-		}
-	}
-	return &ppmShipment, nil
 }

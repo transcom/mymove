@@ -20,3 +20,10 @@ type MovingExpenseCreator interface {
 type MovingExpenseUpdater interface {
 	UpdateMovingExpense(appCtx appcontext.AppContext, movingExpense models.MovingExpense, eTag string) (*models.MovingExpense, error)
 }
+
+// MovingExpenseDeleter deletes a MovingExpense
+//
+//go:generate mockery --name MovingExpenseDeleter --disable-version-string
+type MovingExpenseDeleter interface {
+	DeleteMovingExpense(appCtx appcontext.AppContext, movingExpenseID uuid.UUID) error
+}

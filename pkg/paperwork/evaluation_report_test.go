@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -14,27 +15,31 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 	suite.Run("FormatValuesInspectionInformation other location", func() {
 		testDate := time.Date(2022, 10, 4, 0, 0, 0, 0, time.UTC)
 		inspectionType := models.EvaluationReportInspectionTypePhysical
-		testDurationMinutes := 60
-		location := models.EvaluationReportLocationTypeOther
-		locationDescription := "other location"
+		location := models.EvaluationReportLocationTypeOrigin
+		timeDepart := time.Now().AddDate(0, 0, -4)
+		evalStart := timeDepart.Add(time.Hour * 2)
+		evalEnd := evalStart.Add(time.Minute * 45)
+
 		report := models.EvaluationReport{
-			InspectionDate:          &testDate,
-			InspectionType:          &inspectionType,
-			TravelTimeMinutes:       &testDurationMinutes,
-			Location:                &location,
-			LocationDescription:     &locationDescription,
-			EvaluationLengthMinutes: &testDurationMinutes,
-			ViolationsObserved:      swag.Bool(false),
-			Remarks:                 swag.String("remarks"),
-			UpdatedAt:               time.Time{},
+			InspectionDate:     &testDate,
+			InspectionType:     &inspectionType,
+			Location:           &location,
+			TimeDepart:         &timeDepart,
+			EvalStart:          &evalStart,
+			EvalEnd:            &evalEnd,
+			ViolationsObserved: swag.Bool(false),
+			Remarks:            swag.String("remarks"),
+			UpdatedAt:          time.Time{},
 		}
+
 		values := FormatValuesInspectionInformation(report)
+
 		suite.Equal("04 October 2022", values.DateOfInspection)
 		suite.Equal("Physical", values.EvaluationType)
-		suite.Equal("1 hr 0 min", values.TravelTimeToEvaluation)
-		suite.Equal("Other\nother location", values.EvaluationLocation)
-		//suite.Equal("04 October 2022", values.ObservedPickupDate)
-		suite.Equal("1 hr 0 min", values.EvaluationLength)
+		suite.Equal("Origin", values.EvaluationLocation)
+		suite.Equal(timeDepart.Format(timeFormat), values.TimeDepart)
+		suite.Equal(evalStart.Format(timeFormat), values.EvalStart)
+		suite.Equal(evalEnd.Format(timeFormat), values.EvalEnd)
 		suite.Equal("remarks", values.QAERemarks)
 		suite.Equal("No", values.ViolationsObserved)
 
@@ -46,28 +51,23 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 	suite.Run("FormatValuesInspectionInformation violations", func() {
 		testDate := time.Date(2022, 10, 4, 0, 0, 0, 0, time.UTC)
 		inspectionType := models.EvaluationReportInspectionTypePhysical
-		testDurationMinutes := 60
 		location := models.EvaluationReportLocationTypeOther
 		locationDescription := "other location"
 		report := models.EvaluationReport{
-			InspectionDate:          &testDate,
-			InspectionType:          &inspectionType,
-			TravelTimeMinutes:       &testDurationMinutes,
-			Location:                &location,
-			LocationDescription:     &locationDescription,
-			EvaluationLengthMinutes: &testDurationMinutes,
-			ViolationsObserved:      swag.Bool(true),
-			Remarks:                 swag.String("remarks"),
-			SeriousIncident:         swag.Bool(true),
-			SeriousIncidentDesc:     swag.String("serious incident"),
-			UpdatedAt:               time.Time{},
+			InspectionDate:      &testDate,
+			InspectionType:      &inspectionType,
+			Location:            &location,
+			LocationDescription: &locationDescription,
+			ViolationsObserved:  swag.Bool(true),
+			Remarks:             swag.String("remarks"),
+			SeriousIncident:     swag.Bool(true),
+			SeriousIncidentDesc: swag.String("serious incident"),
+			UpdatedAt:           time.Time{},
 		}
 		values := FormatValuesInspectionInformation(report)
 		suite.Equal("04 October 2022", values.DateOfInspection)
 		suite.Equal("Physical", values.EvaluationType)
-		suite.Equal("1 hr 0 min", values.TravelTimeToEvaluation)
 		suite.Equal("Other\nother location", values.EvaluationLocation)
-		suite.Equal("1 hr 0 min", values.EvaluationLength)
 		suite.Equal("remarks", values.QAERemarks)
 		suite.Equal("Yes\nViolations are listed on a subsequent page", values.ViolationsObserved)
 
@@ -79,7 +79,7 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 
 func (suite *PaperworkSuite) TestFormatValuesShipment() {
 	suite.Run("storage facility with phone and email", func() {
-		storageFacility := testdatagen.MakeDefaultStorageFacility(suite.DB())
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{
 			StorageFacility: storageFacility,
 			MTOShipment:     models.MTOShipment{StorageFacility: &storageFacility},
@@ -91,7 +91,7 @@ func (suite *PaperworkSuite) TestFormatValuesShipment() {
 	})
 
 	suite.Run("storage facility with no phone number should not panic", func() {
-		storageFacility := testdatagen.MakeDefaultStorageFacility(suite.DB())
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 		storageFacility.Phone = nil
 		suite.MustSave(&storageFacility)
 		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{
@@ -104,7 +104,7 @@ func (suite *PaperworkSuite) TestFormatValuesShipment() {
 	})
 
 	suite.Run("storage facility with no email should not panic", func() {
-		storageFacility := testdatagen.MakeDefaultStorageFacility(suite.DB())
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 		storageFacility.Email = nil
 		suite.MustSave(&storageFacility)
 		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{

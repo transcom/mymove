@@ -695,6 +695,9 @@ func init() {
             "required": true
           },
           {
+            "$ref": "#/parameters/ifMatch"
+          },
+          {
             "name": "patchMovePayload",
             "in": "body",
             "required": true,
@@ -704,7 +707,7 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
+          "200": {
             "description": "updated instance of move",
             "schema": {
               "$ref": "#/definitions/MovePayload"
@@ -720,7 +723,13 @@ func init() {
             "description": "user is not authorized"
           },
           "404": {
-            "description": "move is not found"
+            "description": "move or closeout office is not found"
+          },
+          "412": {
+            "description": "precondition failed"
+          },
+          "422": {
+            "description": "unprocessable entity"
           },
           "500": {
             "description": "internal server error"
@@ -2302,6 +2311,56 @@ func init() {
       }
     },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
+      "delete": {
+        "description": "Removes a single moving expense receipt from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a moving expense by ID",
+        "operationId": "deleteMovingExpense",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the moving expense to be deleted",
+            "name": "movingExpenseId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the moving expense"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "patch": {
         "description": "Any fields sent in this request will be set on the moving expense referenced",
         "tags": [
@@ -2410,6 +2469,56 @@ func init() {
       ]
     },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
+      "delete": {
+        "description": "Removes a single pro-gear weight ticket set from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a pro-gear weight line item by ID",
+        "operationId": "deleteProGearWeightTicket",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the pro-gear weight ticket to be deleted",
+            "name": "proGearWeightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the pro-gear weight ticket"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
         "consumes": [
@@ -2716,6 +2825,56 @@ func init() {
       }
     },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
+      "delete": {
+        "description": "Removes a single weight ticket from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database. This may change the PPM shipment's final\nincentive.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a weight ticket by ID",
+        "operationId": "deleteWeightTicket",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the weight ticket to be deleted",
+            "name": "weightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the weight ticket"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "patch": {
         "description": "Updates a weight ticket document with the new information",
         "tags": [
@@ -3178,6 +3337,52 @@ func init() {
           },
           "500": {
             "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/transportation-offices": {
+      "get": {
+        "description": "Returns the transportation offices matching the search query",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportation_offices"
+        ],
+        "summary": "Returns the transportation offices matching the search query",
+        "operationId": "getTransportationOffices",
+        "parameters": [
+          {
+            "minLength": 2,
+            "type": "string",
+            "description": "Search string for transportation offices",
+            "name": "search",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffices"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -4908,7 +5113,8 @@ func init() {
         "orders_id",
         "locator",
         "created_at",
-        "updated_at"
+        "updated_at",
+        "eTag"
       ],
       "properties": {
         "cancel_reason": {
@@ -4916,9 +5122,15 @@ func init() {
           "x-nullable": true,
           "example": "Change of orders"
         },
+        "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -5571,13 +5783,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",
@@ -5898,11 +6112,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "weightTickets": {
-          "description": "All weight ticket documentation records belonging to vehicles of this PPM shipment",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/WeightTicket"
-          }
+          "$ref": "#/definitions/WeightTickets"
         }
       },
       "x-nullable": true
@@ -5954,9 +6164,14 @@ func init() {
     },
     "PatchMovePayload": {
       "type": "object",
+      "required": [
+        "closeoutOfficeId"
+      ],
       "properties": {
-        "selected_move_type": {
-          "$ref": "#/definitions/SelectedMoveType"
+        "closeoutOfficeId": {
+          "description": "The transportation office that will handle the PPM shipment's closeout approvals for Army and Air Force service members",
+          "type": "string",
+          "format": "uuid"
         }
       }
     },
@@ -7146,6 +7361,12 @@ func init() {
         }
       }
     },
+    "TransportationOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TransportationOffice"
+      }
+    },
     "UpdateMovingExpense": {
       "type": "object",
       "required": [
@@ -7832,6 +8053,14 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    },
+    "WeightTickets": {
+      "description": "All weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WeightTicket"
+      },
+      "x-omitempty": false
     }
   },
   "parameters": {
@@ -7918,7 +8147,66 @@ func init() {
         "$ref": "#/definitions/ValidationError"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "responses"
+    },
+    {
+      "name": "orders"
+    },
+    {
+      "name": "certification"
+    },
+    {
+      "name": "moves"
+    },
+    {
+      "name": "office"
+    },
+    {
+      "name": "documents"
+    },
+    {
+      "name": "uploads"
+    },
+    {
+      "name": "service_members"
+    },
+    {
+      "name": "backup_contacts"
+    },
+    {
+      "name": "duty_locations"
+    },
+    {
+      "name": "transportation_offices"
+    },
+    {
+      "name": "queues"
+    },
+    {
+      "name": "entitlements"
+    },
+    {
+      "name": "calendar"
+    },
+    {
+      "name": "move_docs"
+    },
+    {
+      "name": "ppm"
+    },
+    {
+      "name": "postal_codes"
+    },
+    {
+      "name": "addresses"
+    },
+    {
+      "name": "mtoShipment"
+    }
+  ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "consumes": [
@@ -8598,6 +8886,13 @@ func init() {
             "required": true
           },
           {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
             "name": "patchMovePayload",
             "in": "body",
             "required": true,
@@ -8607,7 +8902,7 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
+          "200": {
             "description": "updated instance of move",
             "schema": {
               "$ref": "#/definitions/MovePayload"
@@ -8623,7 +8918,13 @@ func init() {
             "description": "user is not authorized"
           },
           "404": {
-            "description": "move is not found"
+            "description": "move or closeout office is not found"
+          },
+          "412": {
+            "description": "precondition failed"
+          },
+          "422": {
+            "description": "unprocessable entity"
           },
           "500": {
             "description": "internal server error"
@@ -10294,6 +10595,82 @@ func init() {
       }
     },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
+      "delete": {
+        "description": "Removes a single moving expense receipt from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a moving expense by ID",
+        "operationId": "deleteMovingExpense",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the moving expense to be deleted",
+            "name": "movingExpenseId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the moving expense"
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "patch": {
         "description": "Any fields sent in this request will be set on the moving expense referenced",
         "tags": [
@@ -10463,6 +10840,82 @@ func init() {
       ]
     },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
+      "delete": {
+        "description": "Removes a single pro-gear weight ticket set from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a pro-gear weight line item by ID",
+        "operationId": "deleteProGearWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the pro-gear weight ticket to be deleted",
+            "name": "proGearWeightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the pro-gear weight ticket"
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
         "consumes": [
@@ -10898,6 +11351,82 @@ func init() {
       }
     },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
+      "delete": {
+        "description": "Removes a single weight ticket from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database. This may change the PPM shipment's final\nincentive.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a weight ticket by ID",
+        "operationId": "deleteWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the weight ticket to be deleted",
+            "name": "weightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the weight ticket"
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "patch": {
         "description": "Updates a weight ticket document with the new information",
         "tags": [
@@ -11395,6 +11924,67 @@ func init() {
           },
           "500": {
             "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/transportation-offices": {
+      "get": {
+        "description": "Returns the transportation offices matching the search query",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportation_offices"
+        ],
+        "summary": "Returns the transportation offices matching the search query",
+        "operationId": "getTransportationOffices",
+        "parameters": [
+          {
+            "minLength": 2,
+            "type": "string",
+            "description": "Search string for transportation offices",
+            "name": "search",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffices"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       }
@@ -13142,7 +13732,8 @@ func init() {
         "orders_id",
         "locator",
         "created_at",
-        "updated_at"
+        "updated_at",
+        "eTag"
       ],
       "properties": {
         "cancel_reason": {
@@ -13150,9 +13741,15 @@ func init() {
           "x-nullable": true,
           "example": "Change of orders"
         },
+        "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -13805,13 +14402,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",
@@ -14132,11 +14731,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "weightTickets": {
-          "description": "All weight ticket documentation records belonging to vehicles of this PPM shipment",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/WeightTicket"
-          }
+          "$ref": "#/definitions/WeightTickets"
         }
       },
       "x-nullable": true
@@ -14188,9 +14783,14 @@ func init() {
     },
     "PatchMovePayload": {
       "type": "object",
+      "required": [
+        "closeoutOfficeId"
+      ],
       "properties": {
-        "selected_move_type": {
-          "$ref": "#/definitions/SelectedMoveType"
+        "closeoutOfficeId": {
+          "description": "The transportation office that will handle the PPM shipment's closeout approvals for Army and Air Force service members",
+          "type": "string",
+          "format": "uuid"
         }
       }
     },
@@ -15385,6 +15985,12 @@ func init() {
         }
       }
     },
+    "TransportationOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TransportationOffice"
+      }
+    },
     "UpdateMovingExpense": {
       "type": "object",
       "required": [
@@ -16082,6 +16688,14 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    },
+    "WeightTickets": {
+      "description": "All weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WeightTicket"
+      },
+      "x-omitempty": false
     }
   },
   "parameters": {
@@ -16168,6 +16782,65 @@ func init() {
         "$ref": "#/definitions/ValidationError"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "responses"
+    },
+    {
+      "name": "orders"
+    },
+    {
+      "name": "certification"
+    },
+    {
+      "name": "moves"
+    },
+    {
+      "name": "office"
+    },
+    {
+      "name": "documents"
+    },
+    {
+      "name": "uploads"
+    },
+    {
+      "name": "service_members"
+    },
+    {
+      "name": "backup_contacts"
+    },
+    {
+      "name": "duty_locations"
+    },
+    {
+      "name": "transportation_offices"
+    },
+    {
+      "name": "queues"
+    },
+    {
+      "name": "entitlements"
+    },
+    {
+      "name": "calendar"
+    },
+    {
+      "name": "move_docs"
+    },
+    {
+      "name": "ppm"
+    },
+    {
+      "name": "postal_codes"
+    },
+    {
+      "name": "addresses"
+    },
+    {
+      "name": "mtoShipment"
+    }
+  ]
 }`))
 }

@@ -15,6 +15,8 @@ const (
 	TLSPortFlag string = "tls-port"
 	// NoTLSPortFlag is the No TLS Port Flag
 	NoTLSPortFlag string = "no-tls-port"
+	// HealthPortFlag is the port that the health listener uses
+	HealthPortFlag = "health-port"
 
 	// MutualTLSPort is the default port for mTLS traffic
 	MutualTLSPort int = 9443
@@ -22,6 +24,8 @@ const (
 	TLSPort int = 8443
 	// NoTLSPort is the default port in develompent for HTTP traffic
 	NoTLSPort int = 8080
+	// HealthPort is the default port for the health listener
+	HealthPort int = 8765
 )
 
 type errInvalidPort struct {
@@ -37,6 +41,7 @@ func InitPortFlags(flag *pflag.FlagSet) {
 	flag.Int(MutualTLSPortFlag, MutualTLSPort, "The `port` for the mutual TLS listener.")
 	flag.Int(TLSPortFlag, TLSPort, "the `port` for the server side TLS listener.")
 	flag.Int(NoTLSPortFlag, NoTLSPort, "the `port` for the listener not requiring any TLS.")
+	flag.Int(HealthPortFlag, HealthPort, "the `port` for the health check listener.")
 }
 
 // CheckPorts validates the Port command line flags
@@ -45,6 +50,7 @@ func CheckPorts(v *viper.Viper) error {
 		MutualTLSPortFlag,
 		TLSPortFlag,
 		NoTLSPortFlag,
+		HealthPortFlag,
 	}
 
 	for _, c := range portVars {

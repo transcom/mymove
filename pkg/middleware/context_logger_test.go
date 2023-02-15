@@ -6,10 +6,8 @@ import (
 	"net/http/httptest"
 	"strings"
 
-	//"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	//"go.uber.org/zap/zaptest"
 )
 
 func (suite *testSuite) TestContextLoggerWithoutTrace() {

@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -1081,30 +1082,34 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	//
 
 	// Make storage facility and destination addresses
-	storageFacilityAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "235 Prospect Valley Road SE",
-			City:           "Augusta",
-			State:          "GA",
-			PostalCode:     testStorageFacilityZip,
+	storageFacilityAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "235 Prospect Valley Road SE",
+				City:           "Augusta",
+				State:          "GA",
+				PostalCode:     testStorageFacilityZip,
+			},
 		},
-	})
-	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "17 8th St",
-			City:           "San Antonio",
-			State:          "TX",
-			PostalCode:     testDestinationZip,
+	}, nil)
+	destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "17 8th St",
+				City:           "San Antonio",
+				State:          "TX",
+				PostalCode:     testDestinationZip,
+			},
 		},
-	})
+	}, nil)
 
 	// Make a storage facility
-	storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
-		StorageFacility: models.StorageFacility{
-			Address: storageFacilityAddress,
+	storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
+		{
+			Model:    storageFacilityAddress,
+			LinkOnly: true,
 		},
-	})
-
+	}, nil)
 	// Contract year, service area, rate area, zip3
 	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
 		ReContractYear: models.ReContractYear{

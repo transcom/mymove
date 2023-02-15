@@ -4,13 +4,14 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestCreateMoveWithPPMShow() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
-	testdatagen.MakeDefaultContractor(suite.DB())
+	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: orders,
@@ -35,7 +36,7 @@ func (suite *ModelSuite) TestCreateMoveWithPPMShow() {
 
 func (suite *ModelSuite) TestCreateMoveWithPPMNoShow() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
-	testdatagen.MakeDefaultContractor(suite.DB())
+	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: orders,
@@ -61,7 +62,7 @@ func (suite *ModelSuite) TestCreateMoveWithPPMNoShow() {
 
 func (suite *ModelSuite) TestCreateNewMoveWithNoPPMShow() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
-	testdatagen.MakeDefaultContractor(suite.DB())
+	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	moveOptions := MoveOptions{
 		Show: swag.Bool(true),

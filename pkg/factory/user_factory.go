@@ -1,6 +1,9 @@
 package factory
 
 import (
+	"database/sql"
+	"log"
+
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -8,9 +11,11 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-// UserMaker is the base maker function to create a user
-// customs is a slice that will be modified by setupCustomizations.
-// db can be set to nil to create a stubbed model that is not stored in DB.
+// BuildUser creates a User
+// It does not create Roles or UsersRoles. To create a User associated with certain roles, use BuildUserAndUsersRoles
+// Params:
+// - customs is a slice that will be modified by the factory
+// - db can be set to nil to create a stubbed model that is not stored in DB.
 func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) models.User {
 	customs = setupCustomizations(customs, traits)
 
@@ -18,10 +23,12 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 	var cUser models.User
 	if result := findValidCustomization(customs, User); result != nil {
 		cUser = result.Model.(models.User)
+		if result.LinkOnly {
+			return cUser
+		}
 	}
 
 	// create user
-	// MYTODO: Add forceUUID functionality
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	user := models.User{
 		LoginGovUUID:  &loginGovUUID,
@@ -38,6 +45,73 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 	}
 
 	return user
+}
+
+// BuildUserAndUsersRoles creates a User
+//   - If the user has Roles in the customizations, Roles and UsersRoles will also be created
+//
+// Params:
+// - customs is a slice that will be modified by the factory
+// - db can be set to nil to create a stubbed model that is not stored in DB, but Roles and UsersRoles won't be created
+func BuildUserAndUsersRoles(db *pop.Connection, customs []Customization, traits []Trait) models.User {
+
+	user := BuildUser(db, customs, nil)
+	if db != nil {
+		for _, userRole := range user.Roles {
+			// make sure role exists
+			role := FetchOrBuildRoleByRoleType(db, userRole.RoleType)
+			BuildUsersRoles(db, []Customization{
+				{
+					Model: models.UsersRoles{
+						UserID: user.ID,
+						RoleID: role.ID,
+					},
+				},
+			}, nil)
+		}
+
+		// Find the user and eager load roles so user is returned with associated roles
+		if user.Roles != nil {
+			err := db.Eager("Roles").Where("id=$1", user.ID).First(&user)
+			if err != nil && err != sql.ErrNoRows {
+				log.Panic(err)
+			}
+		}
+	}
+	return user
+}
+
+// BuildUsersRoles creates UsersRoles and ties roles to the user
+// Params:
+// - customs is a slice that will be modified by the factory
+//   - UserID and RoleID are required to be in customs
+//
+// - db can be set to nil to create a stubbed model that is not stored in DB.
+func BuildUsersRoles(db *pop.Connection, customs []Customization, traits []Trait) models.UsersRoles {
+	customs = setupCustomizations(customs, traits)
+
+	// Find role assertion and convert to model UsersRoles
+	var cUsersRoles models.UsersRoles
+	if result := findValidCustomization(customs, UsersRoles); result != nil {
+		cUsersRoles = result.Model.(models.UsersRoles)
+		if result.LinkOnly {
+			return cUsersRoles
+		}
+	}
+
+	// create UsersRoles
+	usersRoles := models.UsersRoles{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+
+	// Overwrite values with those from assertions
+	testdatagen.MergeModels(&usersRoles, cUsersRoles)
+
+	if db != nil {
+		mustCreate(db, &usersRoles)
+	}
+
+	return usersRoles
 }
 
 // BuildDefaultUser creates an active user

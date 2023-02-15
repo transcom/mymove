@@ -20,7 +20,9 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -61,8 +63,8 @@ func (suite *QueryBuilderSuite) TestFetchOne() {
 
 	suite.Run("fetches one with filter", func() {
 		// create extra record to make sure we filter
-		user := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		user2 := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		filters := []services.QueryFilter{
 			NewQueryFilter("id", equals, user.ID.String()),
 		}
@@ -141,8 +143,8 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		// Mocked: None
 		// Set up: Create 2 users, fetch based on first ID, fetch based on second ID
 		// Expected outcome: Each search returns the single matching record
-		user := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		user2 := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		filters := []services.QueryFilter{
 			NewQueryFilter("id", equals, user2.ID.String()),
@@ -174,8 +176,8 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		//			than that recorded for first user
 		// Expected outcome: Fetch returns the single matching record
 
-		user := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		user2 := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		filters := []services.QueryFilter{
 			NewQueryFilter("created_at", greaterThan, user.CreatedAt),
@@ -194,12 +196,12 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		// Mocked: None
 		// Set up: Create 2 users, search for all users with email including something.com
 		// Expected outcome: Expect to find 1 of the 2 users
-		testdatagen.MakeDefaultOfficeUser(suite.DB())
-		testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-			OfficeUser: models.OfficeUser{
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{Model: models.OfficeUser{
 				Email: "email@something.com",
-			},
-		})
+			}},
+		}, nil)
 
 		search := fmt.Sprintf("%%%s%%", "something.com")
 		filters := []services.QueryFilter{
@@ -218,8 +220,8 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		// Mocked: None
 		// Set up: Create 2 users, search with sort order by created_at, descending
 		// Expected outcome: Expect that they will be returned sorted by created_at
-		testdatagen.MakeDefaultOfficeUser(suite.DB())
-		testdatagen.MakeDefaultOfficeUser(suite.DB())
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		filters := []services.QueryFilter{}
 		order, sort := "created_at", false
@@ -245,8 +247,8 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		order, sort := "created_at", true
 		ordering := NewQueryOrder(&order, &sort)
 
-		testdatagen.MakeDefaultOfficeUser(suite.DB())
-		testdatagen.MakeDefaultOfficeUser(suite.DB())
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		var actualUsers models.OfficeUsers
 
@@ -264,8 +266,8 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		// Set up: Create 2 users, search for a fake column
 		// Expected outcome: Expect an error related to the fake column
 
-		user := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		testdatagen.MakeDefaultOfficeUser(suite.DB())
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		var actualUsers models.OfficeUsers
 		filters := []services.QueryFilter{
@@ -285,8 +287,8 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		// Set up: Create 2 users, search for users using invalid id *
 		// Expected outcome: Expect error about the invalid id
 
-		user := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		testdatagen.MakeDefaultOfficeUser(suite.DB())
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		var actualUsers models.OfficeUsers
 		filters := []services.QueryFilter{
@@ -346,8 +348,8 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 func (suite *QueryBuilderSuite) TestFetchManyAssociations() {
 	setupTestData := func() {
 		// Create two default duty locations (with address and transportation office)
-		testdatagen.MakeDefaultDutyLocation(suite.DB())
-		testdatagen.MakeDefaultDutyLocation(suite.DB())
+		factory.BuildDutyLocation(suite.DB(), nil, nil)
+		factory.BuildDutyLocation(suite.DB(), nil, nil)
 	}
 	builder := NewQueryBuilder()
 
@@ -422,8 +424,8 @@ func (suite *QueryBuilderSuite) TestCount() {
 	builder := NewQueryBuilder()
 
 	suite.Run("counts with uuid filter", func() {
-		user := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		user2 := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		filters := []services.QueryFilter{
 			NewQueryFilter("id", equals, user2.ID.String()),
 		}
@@ -445,8 +447,8 @@ func (suite *QueryBuilderSuite) TestCount() {
 	})
 
 	suite.Run("counts with time filter", func() {
-		user := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		testdatagen.MakeDefaultOfficeUser(suite.DB())
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 		filters := []services.QueryFilter{
 			NewQueryFilter("created_at", greaterThan, user.CreatedAt),
 		}
@@ -457,7 +459,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 	})
 
 	suite.Run("fails with invalid column", func() {
-		user := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		filters := []services.QueryFilter{
 			NewQueryFilter("fake_column", equals, user.ID.String()),
@@ -516,7 +518,7 @@ func (suite *QueryBuilderSuite) TestCreateOne() {
 	builder := NewQueryBuilder()
 
 	suite.Run("Successfully creates a record", func() {
-		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+		transportationOffice := factory.BuildDefaultTransportationOffice(suite.DB())
 		userInfo := models.OfficeUser{
 			LastName:               "Spaceman",
 			FirstName:              "Leo",
@@ -542,7 +544,7 @@ func (suite *QueryBuilderSuite) TestTransaction() {
 	builder := NewQueryBuilder()
 
 	suite.Run("Successfully creates a record in a transaction", func() {
-		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+		transportationOffice := factory.BuildDefaultTransportationOffice(suite.DB())
 		userInfo := models.OfficeUser{
 			LastName:               "Spaceman",
 			FirstName:              "Leo",
@@ -567,7 +569,7 @@ func (suite *QueryBuilderSuite) TestTransaction() {
 	})
 
 	suite.Run("Unsuccessfully creates a record in a transaction", func() {
-		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+		transportationOffice := factory.BuildDefaultTransportationOffice(suite.DB())
 		testUser := models.OfficeUser{
 			LastName:               "Spaceman",
 			FirstName:              "Leo",
@@ -600,7 +602,7 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 	builder := NewQueryBuilder()
 
 	setupTestData := func() models.TransportationOffice {
-		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+		transportationOffice := factory.BuildDefaultTransportationOffice(suite.DB())
 		userInfo := models.OfficeUser{
 			LastName:               "Spaceman",
 			FirstName:              "Leo",

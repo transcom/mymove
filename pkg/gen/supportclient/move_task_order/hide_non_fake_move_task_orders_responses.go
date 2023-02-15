@@ -121,6 +121,11 @@ func (o *HideNonFakeMoveTaskOrdersOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the hide non fake move task orders o k response
+func (o *HideNonFakeMoveTaskOrdersOK) Code() int {
+	return 200
+}
+
 func (o *HideNonFakeMoveTaskOrdersOK) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersOK  %+v", 200, o.Payload)
 }
@@ -182,6 +187,11 @@ func (o *HideNonFakeMoveTaskOrdersBadRequest) IsServerError() bool {
 // IsCode returns true when this hide non fake move task orders bad request response a status code equal to that given
 func (o *HideNonFakeMoveTaskOrdersBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the hide non fake move task orders bad request response
+func (o *HideNonFakeMoveTaskOrdersBadRequest) Code() int {
+	return 400
 }
 
 func (o *HideNonFakeMoveTaskOrdersBadRequest) Error() string {
@@ -247,6 +257,11 @@ func (o *HideNonFakeMoveTaskOrdersUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the hide non fake move task orders unauthorized response
+func (o *HideNonFakeMoveTaskOrdersUnauthorized) Code() int {
+	return 401
+}
+
 func (o *HideNonFakeMoveTaskOrdersUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersUnauthorized  %+v", 401, o.Payload)
 }
@@ -308,6 +323,11 @@ func (o *HideNonFakeMoveTaskOrdersForbidden) IsServerError() bool {
 // IsCode returns true when this hide non fake move task orders forbidden response a status code equal to that given
 func (o *HideNonFakeMoveTaskOrdersForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the hide non fake move task orders forbidden response
+func (o *HideNonFakeMoveTaskOrdersForbidden) Code() int {
+	return 403
 }
 
 func (o *HideNonFakeMoveTaskOrdersForbidden) Error() string {
@@ -373,6 +393,11 @@ func (o *HideNonFakeMoveTaskOrdersNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the hide non fake move task orders not found response
+func (o *HideNonFakeMoveTaskOrdersNotFound) Code() int {
+	return 404
+}
+
 func (o *HideNonFakeMoveTaskOrdersNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersNotFound  %+v", 404, o.Payload)
 }
@@ -434,6 +459,11 @@ func (o *HideNonFakeMoveTaskOrdersConflict) IsServerError() bool {
 // IsCode returns true when this hide non fake move task orders conflict response a status code equal to that given
 func (o *HideNonFakeMoveTaskOrdersConflict) IsCode(code int) bool {
 	return code == 409
+}
+
+// Code gets the status code for the hide non fake move task orders conflict response
+func (o *HideNonFakeMoveTaskOrdersConflict) Code() int {
+	return 409
 }
 
 func (o *HideNonFakeMoveTaskOrdersConflict) Error() string {
@@ -499,6 +529,11 @@ func (o *HideNonFakeMoveTaskOrdersPreconditionFailed) IsCode(code int) bool {
 	return code == 412
 }
 
+// Code gets the status code for the hide non fake move task orders precondition failed response
+func (o *HideNonFakeMoveTaskOrdersPreconditionFailed) Code() int {
+	return 412
+}
+
 func (o *HideNonFakeMoveTaskOrdersPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersPreconditionFailed  %+v", 412, o.Payload)
 }
@@ -562,6 +597,11 @@ func (o *HideNonFakeMoveTaskOrdersUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the hide non fake move task orders unprocessable entity response
+func (o *HideNonFakeMoveTaskOrdersUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *HideNonFakeMoveTaskOrdersUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -623,6 +663,11 @@ func (o *HideNonFakeMoveTaskOrdersInternalServerError) IsServerError() bool {
 // IsCode returns true when this hide non fake move task orders internal server error response a status code equal to that given
 func (o *HideNonFakeMoveTaskOrdersInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the hide non fake move task orders internal server error response
+func (o *HideNonFakeMoveTaskOrdersInternalServerError) Code() int {
+	return 500
 }
 
 func (o *HideNonFakeMoveTaskOrdersInternalServerError) Error() string {

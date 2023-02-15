@@ -11,12 +11,15 @@ import {
   diversionInfo,
   cancelledInfo,
   ppmInfo,
+  ppmInfoMultiple,
+  ppmInfoMultiple2,
 } from './ShipmentDisplayTestData';
 
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+import ppmDocumentStatus from 'constants/ppms';
 
 export default {
   title: 'Office Components/Shipment Display',
@@ -100,7 +103,7 @@ export const NTSShipmentMissingInfoAsTOO = () => (
       ordersLOA={ordersLOA}
       isSubmitted
       warnIfMissing={[]}
-      errorIfMissing={['storageFacility', 'serviceOrderNumber', 'tacType']}
+      errorIfMissing={[{ fieldName: 'storageFacility' }, { fieldName: 'serviceOrderNumber' }, { fieldName: 'tacType' }]}
       showWhenCollapsed={['tacType']}
       editURL="/"
     />
@@ -115,7 +118,7 @@ export const NTSShipmentMissingInfoAsSC = () => (
       shipmentId={ntsMissingInfo.shipmentId}
       ordersLOA={ordersLOA}
       isSubmitted
-      warnIfMissing={['counselorRemarks', 'tacType', 'sacType']}
+      warnIfMissing={[{ fieldName: 'counselorRemarks' }, { fieldName: 'tacType' }, { fieldName: 'sacType' }]}
       errorIfMissing={[]}
       showWhenCollapsed={['counselorRemarks']}
       editURL="/"
@@ -172,7 +175,12 @@ export const NTSReleaseShipmentMissingInfoAsTOO = () => (
       ordersLOA={ordersLOA}
       isSubmitted
       warnIfMissing={[]}
-      errorIfMissing={['storageFacility', 'ntsRecordedWeight', 'serviceOrderNumber', 'tacType']}
+      errorIfMissing={[
+        { fieldName: 'storageFacility' },
+        { fieldName: 'ntsRecordedWeight' },
+        { fieldName: 'serviceOrderNumber' },
+        { fieldName: 'tacType' },
+      ]}
       showWhenCollapsed={['tacType', 'ntsRecordedWeight', 'serviceOrderNumber']}
       editURL="/"
     />
@@ -187,8 +195,14 @@ export const NTSReleaseShipmentMissingInfoAsSC = () => (
       shipmentId={ntsReleaseMissingInfo.shipmentId}
       ordersLOA={ordersLOA}
       isSubmitted
-      warnIfMissing={['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType']}
-      errorIfMissing={['storageFacility']}
+      warnIfMissing={[
+        { fieldName: 'ntsRecordedWeight' },
+        { fieldName: 'serviceOrderNumber' },
+        { fieldName: 'counselorRemarks' },
+        { fieldName: 'tacType' },
+        { fieldName: 'sacType' },
+      ]}
+      errorIfMissing={[{ fieldName: 'storageFacility' }]}
       showWhenCollapsed={['counselorRemarks']}
       editURL="/"
     />
@@ -251,7 +265,7 @@ export const PPMShipmentServiceCounselor = () => (
       shipmentType={SHIPMENT_OPTIONS.PPM}
       isSubmitted
       allowApproval={false}
-      warnIfMissing={['counselorRemarks']}
+      warnIfMissing={[{ fieldName: 'counselorRemarks' }]}
     />
   </div>
 );
@@ -264,8 +278,49 @@ export const PPMShipmentWithCounselorRemarks = () => (
       ordersLOA={ordersLOA}
       isSubmitted
       allowApproval={false}
-      warnIfMissing={['counselorRemarks']}
+      warnIfMissing={[{ fieldName: 'counselorRemarks' }]}
     />
+  </div>
+);
+
+export const PPMShipmentServiceCounselorWithReviewButton = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay
+      displayInfo={ppmInfo}
+      ordersLOA={ordersLOA}
+      shipmentType={SHIPMENT_OPTIONS.PPM}
+      isSubmitted
+      allowApproval={false}
+      warnIfMissing={[{ fieldName: 'counselorRemarks' }]}
+      reviewURL="/"
+    />
+  </div>
+);
+
+export const MultiplePPMShipmentsServiceCounselorWithReviewButton = () => (
+  <div className="shipmentCards_shipmentCards__ok-yC">
+    <div style={{ padding: '20px' }}>
+      <ShipmentDisplay
+        displayInfo={ppmInfoMultiple}
+        ordersLOA={ordersLOA}
+        shipmentType={SHIPMENT_OPTIONS.PPM}
+        isSubmitted
+        allowApproval={false}
+        warnIfMissing={[{ fieldName: 'counselorRemarks' }]}
+        reviewURL="/"
+      />
+    </div>
+    <div style={{ padding: '20px' }}>
+      <ShipmentDisplay
+        displayInfo={ppmInfoMultiple2}
+        ordersLOA={ordersLOA}
+        shipmentType={SHIPMENT_OPTIONS.PPM}
+        isSubmitted
+        allowApproval={false}
+        warnIfMissing={[{ fieldName: 'counselorRemarks' }]}
+        reviewURL="/"
+      />
+    </div>
   </div>
 );
 
@@ -331,7 +386,7 @@ export const NTSShipmentMissingInfoAsTOOReadOnly = () => (
       ordersLOA={ordersLOA}
       isSubmitted
       warnIfMissing={[]}
-      errorIfMissing={['storageFacility', 'serviceOrderNumber', 'tacType']}
+      errorIfMissing={[{ fieldName: 'storageFacility' }, { fieldName: 'serviceOrderNumber' }, { fieldName: 'tacType' }]}
       showWhenCollapsed={['tacType']}
       editURL="/"
     />
@@ -346,7 +401,7 @@ export const NTSShipmentMissingInfoAsSCReadOnly = () => (
       shipmentId={ntsMissingInfo.shipmentId}
       ordersLOA={ordersLOA}
       isSubmitted
-      warnIfMissing={['counselorRemarks', 'tacType', 'sacType']}
+      warnIfMissing={[{ fieldName: 'counselorRemarks' }, { fieldName: 'tacType' }, { fieldName: 'sacType' }]}
       errorIfMissing={[]}
       showWhenCollapsed={['counselorRemarks']}
       editURL="/"
@@ -403,7 +458,12 @@ export const NTSReleaseShipmentMissingInfoAsTOOReadOnly = () => (
       ordersLOA={ordersLOA}
       isSubmitted
       warnIfMissing={[]}
-      errorIfMissing={['storageFacility', 'ntsRecordedWeight', 'serviceOrderNumber', 'tacType']}
+      errorIfMissing={[
+        { fieldName: 'storageFacility' },
+        { fieldName: 'ntsRecordedWeight' },
+        { fieldName: 'serviceOrderNumber' },
+        { fieldName: 'tacType' },
+      ]}
       showWhenCollapsed={['tacType', 'ntsRecordedWeight', 'serviceOrderNumber']}
       editURL="/"
     />
@@ -418,8 +478,14 @@ export const NTSReleaseShipmentMissingInfoAsSCReadOnly = () => (
       shipmentId={ntsReleaseMissingInfo.shipmentId}
       ordersLOA={ordersLOA}
       isSubmitted
-      warnIfMissing={['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType']}
-      errorIfMissing={['storageFacility']}
+      warnIfMissing={[
+        { fieldName: 'ntsRecordedWeight' },
+        { fieldName: 'serviceOrderNumber' },
+        { fieldName: 'counselorRemarks' },
+        { fieldName: 'tacType' },
+        { fieldName: 'sacType' },
+      ]}
+      errorIfMissing={[{ fieldName: 'storageFacility' }]}
       showWhenCollapsed={['counselorRemarks']}
       editURL="/"
     />
@@ -482,7 +548,7 @@ export const PPMShipmentServiceCounselorReadOnly = () => (
       shipmentType={SHIPMENT_OPTIONS.PPM}
       isSubmitted
       allowApproval={false}
-      warnIfMissing={['counselorRemarks']}
+      warnIfMissing={[{ fieldName: 'counselorRemarks' }]}
     />
   </div>
 );
@@ -495,7 +561,49 @@ export const PPMShipmentWithCounselorRemarksReadOnly = () => (
       ordersLOA={ordersLOA}
       isSubmitted
       allowApproval={false}
-      warnIfMissing={['counselorRemarks']}
+      warnIfMissing={[{ fieldName: 'counselorRemarks' }]}
+    />
+  </div>
+);
+
+export const PPMShipmentServiceCounselorApproved = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay
+      displayInfo={{ ...ppmInfo, ppmDocumentStatus: ppmDocumentStatus.APPROVED }}
+      ordersLOA={ordersLOA}
+      shipmentType={SHIPMENT_OPTIONS.PPM}
+      isSubmitted
+      allowApproval={false}
+      warnIfMissing={[{ fieldName: 'counselorRemarks' }]}
+      reviewURL="/"
+    />
+  </div>
+);
+
+export const PPMShipmentServiceCounselorRejected = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay
+      displayInfo={{ ...ppmInfo, ppmDocumentStatus: ppmDocumentStatus.REJECTED }}
+      ordersLOA={ordersLOA}
+      shipmentType={SHIPMENT_OPTIONS.PPM}
+      isSubmitted
+      allowApproval={false}
+      warnIfMissing={[{ fieldName: 'counselorRemarks' }]}
+      reviewURL="/"
+    />
+  </div>
+);
+
+export const PPMShipmentServiceCounselorExcluded = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay
+      displayInfo={{ ...ppmInfo, ppmDocumentStatus: ppmDocumentStatus.EXCLUDED }}
+      ordersLOA={ordersLOA}
+      shipmentType={SHIPMENT_OPTIONS.PPM}
+      isSubmitted
+      allowApproval={false}
+      warnIfMissing={[{ fieldName: 'counselorRemarks' }]}
+      reviewURL="/"
     />
   </div>
 );

@@ -114,7 +114,7 @@ describe('Summary page', () => {
       );
     });
 
-    it('displays a button that opens a modal', () => {
+    it('displays a button that opens a modal', async () => {
       renderWithRouter(<Summary {...testProps} />);
 
       expect(
@@ -122,7 +122,7 @@ describe('Summary page', () => {
       ).not.toBeInTheDocument();
 
       expect(screen.getByTitle('Help with adding shipments')).toBeInTheDocument();
-      userEvent.click(screen.getByTitle('Help with adding shipments'));
+      await userEvent.click(screen.getByTitle('Help with adding shipments'));
 
       expect(
         screen.getByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),

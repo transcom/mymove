@@ -49,7 +49,7 @@ type PPMShipment struct {
 	AdvanceAmountRequested *int64 `json:"advanceAmountRequested"`
 
 	// advance status
-	AdvanceStatus PPMAdvanceStatus `json:"advanceStatus,omitempty"`
+	AdvanceStatus *PPMAdvanceStatus `json:"advanceStatus,omitempty"`
 
 	// The timestamp of when the shipment was approved and the service member can begin their move.
 	// Format: date-time
@@ -203,8 +203,8 @@ type PPMShipment struct {
 	// w2 address
 	W2Address *Address `json:"w2Address,omitempty"`
 
-	// All weight ticket documentation records belonging to vehicles of this PPM shipment
-	WeightTickets []*WeightTicket `json:"weightTickets"`
+	// weight tickets
+	WeightTickets WeightTickets `json:"weightTickets"`
 }
 
 // Validate validates this p p m shipment
@@ -366,13 +366,15 @@ func (m *PPMShipment) validateAdvanceStatus(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.AdvanceStatus.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("advanceStatus")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("advanceStatus")
+	if m.AdvanceStatus != nil {
+		if err := m.AdvanceStatus.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("advanceStatus")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("advanceStatus")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -702,22 +704,13 @@ func (m *PPMShipment) validateWeightTickets(formats strfmt.Registry) error {
 		return nil
 	}
 
-	for i := 0; i < len(m.WeightTickets); i++ {
-		if swag.IsZero(m.WeightTickets[i]) { // not required
-			continue
+	if err := m.WeightTickets.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("weightTickets")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("weightTickets")
 		}
-
-		if m.WeightTickets[i] != nil {
-			if err := m.WeightTickets[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("weightTickets" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("weightTickets" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
+		return err
 	}
 
 	return nil
@@ -791,13 +784,15 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 
 func (m *PPMShipment) contextValidateAdvanceStatus(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.AdvanceStatus.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("advanceStatus")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("advanceStatus")
+	if m.AdvanceStatus != nil {
+		if err := m.AdvanceStatus.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("advanceStatus")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("advanceStatus")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -961,19 +956,13 @@ func (m *PPMShipment) contextValidateW2Address(ctx context.Context, formats strf
 
 func (m *PPMShipment) contextValidateWeightTickets(ctx context.Context, formats strfmt.Registry) error {
 
-	for i := 0; i < len(m.WeightTickets); i++ {
-
-		if m.WeightTickets[i] != nil {
-			if err := m.WeightTickets[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("weightTickets" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("weightTickets" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
+	if err := m.WeightTickets.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("weightTickets")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("weightTickets")
 		}
-
+		return err
 	}
 
 	return nil

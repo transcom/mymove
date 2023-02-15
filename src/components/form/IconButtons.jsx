@@ -34,3 +34,18 @@ export const DocsButton = ({ label, ...props }) => (
 DocsButton.propTypes = {
   label: PropTypes.string.isRequired,
 };
+
+export const ReviewButton = ({ label, ...props }) => (
+  /* eslint-disable-next-line react/jsx-props-no-spreading */
+  <Button {...props}>
+    <span>{label}</span>
+  </Button>
+);
+
+ReviewButton.defaultProps = {
+  label: 'Review Documents',
+};
+
+ReviewButton.propTypes = {
+  label: PropTypes.string,
+};

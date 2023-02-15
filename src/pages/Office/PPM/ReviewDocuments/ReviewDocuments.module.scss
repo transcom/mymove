@@ -1,0 +1,29 @@
+@import 'shared/styles/colors.scss';
+@import 'shared/styles/_mixins.scss';
+
+.ReviewDocuments {
+  display: flex;
+  flex-basis: 0;
+  flex-grow: 1;
+  flex-shrink: 1;
+  overflow: auto;
+}
+
+.embed {
+  flex-grow: 1;
+}
+
+.sidebar {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebarBody {
+  background-color: $base-lightest;
+  flex-basis: auto;
+}
+
+.footer {
+  justify-self: flex-end;
+}

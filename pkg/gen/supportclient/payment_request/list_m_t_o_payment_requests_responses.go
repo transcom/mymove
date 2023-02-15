@@ -103,6 +103,11 @@ func (o *ListMTOPaymentRequestsOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the list m t o payment requests o k response
+func (o *ListMTOPaymentRequestsOK) Code() int {
+	return 200
+}
+
 func (o *ListMTOPaymentRequestsOK) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsOK  %+v", 200, o.Payload)
 }
@@ -162,6 +167,11 @@ func (o *ListMTOPaymentRequestsBadRequest) IsServerError() bool {
 // IsCode returns true when this list m t o payment requests bad request response a status code equal to that given
 func (o *ListMTOPaymentRequestsBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the list m t o payment requests bad request response
+func (o *ListMTOPaymentRequestsBadRequest) Code() int {
+	return 400
 }
 
 func (o *ListMTOPaymentRequestsBadRequest) Error() string {
@@ -227,6 +237,11 @@ func (o *ListMTOPaymentRequestsUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the list m t o payment requests unauthorized response
+func (o *ListMTOPaymentRequestsUnauthorized) Code() int {
+	return 401
+}
+
 func (o *ListMTOPaymentRequestsUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsUnauthorized  %+v", 401, o.Payload)
 }
@@ -288,6 +303,11 @@ func (o *ListMTOPaymentRequestsForbidden) IsServerError() bool {
 // IsCode returns true when this list m t o payment requests forbidden response a status code equal to that given
 func (o *ListMTOPaymentRequestsForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the list m t o payment requests forbidden response
+func (o *ListMTOPaymentRequestsForbidden) Code() int {
+	return 403
 }
 
 func (o *ListMTOPaymentRequestsForbidden) Error() string {
@@ -353,6 +373,11 @@ func (o *ListMTOPaymentRequestsNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the list m t o payment requests not found response
+func (o *ListMTOPaymentRequestsNotFound) Code() int {
+	return 404
+}
+
 func (o *ListMTOPaymentRequestsNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsNotFound  %+v", 404, o.Payload)
 }
@@ -414,6 +439,11 @@ func (o *ListMTOPaymentRequestsInternalServerError) IsServerError() bool {
 // IsCode returns true when this list m t o payment requests internal server error response a status code equal to that given
 func (o *ListMTOPaymentRequestsInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the list m t o payment requests internal server error response
+func (o *ListMTOPaymentRequestsInternalServerError) Code() int {
+	return 500
 }
 
 func (o *ListMTOPaymentRequestsInternalServerError) Error() string {

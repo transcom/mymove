@@ -35,9 +35,16 @@ func (suite *HandlerSuite) TestGetReportViolationByIDHandler() {
 			HTTPRequest: request,
 			ReportID:    strfmt.UUID(reportViolation.ReportID.String()),
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
 		suite.IsType(&reportViolationop.GetReportViolationsByReportIDOK{}, response)
+		payload := response.(*reportViolationop.GetReportViolationsByReportIDOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	// 404 response
@@ -62,11 +69,19 @@ func (suite *HandlerSuite) TestGetReportViolationByIDHandler() {
 			HTTPRequest: request,
 			ReportID:    strfmt.UUID(badID.String()),
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
 		suite.IsType(&reportViolationop.GetReportViolationsByReportIDInternalServerError{}, response)
+		payload := response.(*reportViolationop.GetReportViolationsByReportIDInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
+
 func (suite *HandlerSuite) TestAssociateReportViolationsHandler() {
 	suite.Run("Successful POST", func() {
 
@@ -95,9 +110,14 @@ func (suite *HandlerSuite) TestAssociateReportViolationsHandler() {
 			mock.AnythingOfType("uuid.UUID"),
 		).Return(nil).Once()
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
-		suite.Assertions.IsType(&reportViolationop.AssociateReportViolationsNoContent{}, response)
+		suite.IsType(&reportViolationop.AssociateReportViolationsNoContent{}, response)
+
+		// Validate outgoing payload: no payload
 	})
 
 	suite.Run("Unsuccessful POST", func() {
@@ -127,8 +147,15 @@ func (suite *HandlerSuite) TestAssociateReportViolationsHandler() {
 			mock.AnythingOfType("uuid.UUID"),
 		).Return(fmt.Errorf("error")).Once()
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
-		suite.Assertions.IsType(&reportViolationop.AssociateReportViolationsInternalServerError{}, response)
+		suite.IsType(&reportViolationop.AssociateReportViolationsInternalServerError{}, response)
+		payload := response.(*reportViolationop.AssociateReportViolationsInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }

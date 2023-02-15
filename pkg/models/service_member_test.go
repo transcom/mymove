@@ -42,14 +42,27 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	lastName := "sally"
 	telephone := "510 555-5555"
 	email := "bobsally@gmail.com"
-	fakeAddress := testdatagen.MakeStubbedAddress(suite.DB())
-	fakeBackupAddress := testdatagen.MakeStubbedAddress(suite.DB())
-	location := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		DutyLocation: DutyLocation{
-			ID: uuid.Must(uuid.NewV4()),
+	fakeAddress := factory.BuildAddress(nil, []factory.Customization{
+		{
+			Model: Address{
+				ID: uuid.Must(uuid.NewV4()),
+			},
 		},
-		Stub: true,
-	})
+	}, nil)
+	fakeBackupAddress := factory.BuildAddress(nil, []factory.Customization{
+		{
+			Model: Address{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		},
+	}, nil)
+	location := factory.BuildDutyLocation(nil, []factory.Customization{
+		{
+			Model: DutyLocation{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		},
+	}, nil)
 
 	serviceMember := ServiceMember{
 		ID:                     uuid.Must(uuid.NewV4()),
@@ -90,7 +103,7 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 	user2 := factory.BuildDefaultUser(suite.DB())
 
 	firstName := "Oliver"
-	resAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	resAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	sm := ServiceMember{
 		User:                 user1,
 		UserID:               user1.ID,
@@ -132,7 +145,7 @@ func (suite *ModelSuite) TestFetchServiceMemberNotForUser() {
 	user1 := factory.BuildDefaultUser(suite.DB())
 
 	firstName := "Nino"
-	resAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	resAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	sm := ServiceMember{
 		User:                 user1,
 		UserID:               user1.ID,
@@ -156,8 +169,8 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 
 		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-		dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
-		dutyLocation2 := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
+		dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+		dutyLocation2 := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 		issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 		reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 		ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION

@@ -118,7 +118,7 @@ describe.each([
   it(`renders ${testId} as missing and always shows when collapsed`, () => {
     render(
       <NTSShipmentInfoList
-        errorIfMissing={[shipmentField]}
+        errorIfMissing={[{ fieldName: shipmentField }]}
         shipment={{
           pickupAddress: {
             streetAddress1: '441 SW Rio de la Plata Drive',
@@ -137,7 +137,7 @@ describe.each([
   it(`renders ${testId} with a warning and always shows when collapsed`, () => {
     render(
       <NTSShipmentInfoList
-        warnIfMissing={[shipmentField]}
+        warnIfMissing={[{ fieldName: shipmentField }]}
         shipment={{
           pickupAddress: {
             streetAddress1: '441 SW Rio de la Plata Drive',

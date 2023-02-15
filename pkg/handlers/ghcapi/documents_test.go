@@ -36,6 +36,9 @@ func (suite *HandlerSuite) TestGetDocumentHandler() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := GetDocumentHandler{handlerConfig}
+
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 
 	showResponse, ok := response.(*documentop.GetDocumentOK)
@@ -43,6 +46,9 @@ func (suite *HandlerSuite) TestGetDocumentHandler() {
 		suite.Fail("Request failed: %#v", response)
 	}
 	documentPayload := showResponse.Payload
+
+	// Validate outgoing payload
+	suite.NoError(documentPayload.Validate(strfmt.Default))
 
 	responseDocumentUUID := documentPayload.ID.String()
 	if responseDocumentUUID != documentID.String() {
