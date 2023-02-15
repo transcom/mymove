@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -132,6 +133,33 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		suite.Equal(order.UploadedOrdersID, goodOrder.UploadedOrdersID)
 	})
 
+	suite.Run("check for closeout office", func() {
+		closeoutOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: Move{
+				CloseoutOffice: &closeoutOffice,
+			},
+		})
+		orders := move.Orders
+		orders.Moves = append(orders.Moves, move)
+
+		// User is authorized to fetch order
+		session := &auth.Session{
+			ApplicationName: auth.MilApp,
+			UserID:          orders.ServiceMember.UserID,
+			ServiceMemberID: orders.ServiceMemberID,
+		}
+
+		goodOrder, err := FetchOrderForUser(suite.DB(), session, orders.ID)
+
+		suite.NoError(err)
+		suite.Equal(orders.Moves[0].CloseoutOffice.ID, goodOrder.Moves[0].CloseoutOffice.ID)
+		suite.Equal(orders.Moves[0].CloseoutOffice.Name, goodOrder.Moves[0].CloseoutOffice.Name)
+		suite.Equal(orders.Moves[0].CloseoutOffice.Address.ID, goodOrder.Moves[0].CloseoutOffice.Address.ID)
+		suite.Equal(orders.Moves[0].CloseoutOffice.Gbloc, goodOrder.Moves[0].CloseoutOffice.Gbloc)
+
+	})
+
 	suite.Run("fetch not found due to bad id", func() {
 		sm := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{})
 		session := &auth.Session{
@@ -213,7 +241,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 func (suite *ModelSuite) TestFetchOrderNotForUser() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -258,7 +286,7 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 func (suite *ModelSuite) TestOrderStateMachine() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION

@@ -18,6 +18,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/route/mocks"
@@ -96,8 +97,8 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAllWeight
 
 func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithEstimatedWeightForPPM(estimatedWeight *unit.Pound, originalWeight *unit.Pound, code models.ReServiceCode) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
-	destAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	destAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
 		testdatagen.Assertions{
 			Move: move,
@@ -358,17 +359,21 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 
 		// NTS should have a pickup address and storage facility address.
 		pickupPostalCode := "29212"
-		pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				PostalCode: pickupPostalCode,
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: pickupPostalCode,
+				},
 			},
-		})
+		}, nil)
 		storageFacilityPostalCode := "30907"
-		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				PostalCode: storageFacilityPostalCode,
+		storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: storageFacilityPostalCode,
+				},
 			},
-		})
+		}, nil)
 		ntsServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			Move:      move,
 			ReService: reService,
@@ -391,11 +396,13 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 
 		// NTS-Release should have a storage facility address and destination address.
 		destinationPostalCode := "29440"
-		destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				PostalCode: destinationPostalCode,
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: destinationPostalCode,
+				},
 			},
-		})
+		}, nil)
 		ntsrServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			Move:      move,
 			ReService: reService,
@@ -418,7 +425,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("SITDestinationAddress is looked up for destination sit", func() {
-		sitFinalDestAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
+		sitFinalDestAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		testData := []models.MTOServiceItem{
 			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 				ReService: models.ReService{

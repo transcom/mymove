@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -20,16 +21,20 @@ func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
 
 	setupTestData := func() {
 
-		originAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				PostalCode: "35007",
+		originAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "35007",
+				},
 			},
-		})
-		destAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				PostalCode: "45007",
+		}, nil)
+		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "45007",
+				},
 			},
-		})
+		}, nil)
 
 		mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -104,9 +109,11 @@ func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
 	suite.Run("lookup origin ServicesSchedule not found", func() {
 		setupTestData()
 
-		pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{PostalCode: "00000"},
-		})
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{PostalCode: "00000"},
+			},
+		}, nil)
 
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -132,9 +139,11 @@ func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
 	suite.Run("lookup dest ServicesSchedule not found", func() {
 		setupTestData()
 
-		destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{PostalCode: "00100"},
-		})
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{PostalCode: "00100"},
+			},
+		}, nil)
 
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{

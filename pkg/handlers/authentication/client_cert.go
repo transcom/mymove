@@ -6,12 +6,12 @@ import (
 	"encoding/hex"
 	"net/http"
 
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/audit"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/services/user"
 )
 
 type authClientCertKey string
@@ -30,19 +30,15 @@ func ClientCertFromRequestContext(r *http.Request) *models.ClientCert {
 
 // ClientCertFromContext gets the reference to the ClientCert stored in the request.Context()
 func ClientCertFromContext(ctx context.Context) *models.ClientCert {
+
+	logger := logging.FromContext(ctx)
+
 	if clientCert, ok := ctx.Value(clientCertContextKey).(*models.ClientCert); ok {
+		logger.Info("The client cert key was found in the context")
 		return clientCert
 	}
-	return nil
-}
 
-// SetMockSessionInContext returns a copy of the request's Context() with a mock session containing the user id of the user
-// linked to the client certificate data. This user id is used for auditing purposes.
-func SetMockSessionInContext(ctx context.Context, user models.User) context.Context {
-	mockSession := auth.Session{
-		UserID: user.ID,
-	}
-	return auth.SetSessionInContext(ctx, &mockSession)
+	return nil
 }
 
 // ClientCertMiddleware enforces that the incoming request includes a known client certificate, and stores the fetched permissions in the session
@@ -64,18 +60,23 @@ func ClientCertMiddleware(appCtx appcontext.AppContext) func(next http.Handler) 
 			clientCert, err := models.FetchClientCert(newAppCtx.DB(), hashString)
 			if err != nil {
 				// This is not a known client certificate at all
-				newAppCtx.Logger().Info("Unknown / unregistered client certificate")
+				newAppCtx.Logger().Info(
+					"Unknown / unregistered client certificate",
+					zap.String("SHA256_hash_string", hashString),
+				)
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
+
+			// If we get here, we know the client certificate is valid so we're
+			// logging the SHA256_hash_string
+			newAppCtx.Logger().Info(
+				"Known / registered client certificate",
+				zap.String("SHA256_hash_string", hashString),
+			)
+
 			ctx := SetClientCertInRequestContext(r, clientCert)
-			user, err := user.NewUserFetcher(query.NewQueryBuilder()).FetchUser(newAppCtx, []services.QueryFilter{query.NewQueryFilter("id", "=", clientCert.UserID)})
-			if err != nil {
-				newAppCtx.Logger().Info("Client certificate not linked to user")
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
-			}
-			ctx = SetMockSessionInContext(ctx, user)
+			ctx = audit.WithAuditUserID(ctx, clientCert.UserID)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
@@ -113,13 +114,7 @@ func DevlocalClientCertMiddleware(appCtx appcontext.AppContext) func(next http.H
 				return
 			}
 			ctx := SetClientCertInRequestContext(r, clientCert)
-			user, err := user.NewUserFetcher(query.NewQueryBuilder()).FetchUser(newAppCtx, []services.QueryFilter{query.NewQueryFilter("id", "=", clientCert.UserID)})
-			if err != nil {
-				newAppCtx.Logger().Info("Client certificate not linked to user")
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
-			}
-			ctx = SetMockSessionInContext(ctx, user)
+			ctx = audit.WithAuditUserID(ctx, clientCert.UserID)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}

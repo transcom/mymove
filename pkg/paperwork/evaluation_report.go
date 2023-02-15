@@ -10,6 +10,7 @@ import (
 const (
 	controlledUnclassifiedInformationText = "CONTROLLED UNCLASSIFIED INFORMATION"
 	dateFormat                            = "02 January 2006"
+	timeFormat                            = "15:04"
 )
 
 // The following data structures are set up for EvaluationReportFormFiller.subsection
@@ -37,39 +38,46 @@ var KPIFieldLabels = map[string]string{
 }
 
 type InspectionInformationValues struct {
-	DateOfInspection           string
-	ReportSubmission           string
-	EvaluationType             string
-	TravelTimeToEvaluation     string
-	EvaluationLocation         string
-	ObservedPickupDate         string
-	ObservedDeliveryDate       string
-	EvaluationLength           string
-	QAERemarks                 string
-	ViolationsObserved         string
-	SeriousIncident            string
-	SeriousIncidentDescription string
+	DateOfInspection                   string
+	ReportSubmission                   string
+	EvaluationType                     string
+	TimeDepart                         string
+	EvalStart                          string
+	EvalEnd                            string
+	EvaluationLocation                 string
+	ObservedShipmentDeliveryDate       string
+	ObservedShipmentPhysicalPickupDate string
+	ObservedPickupDate                 string
+	ObservedDeliveryDate               string
+	QAERemarks                         string
+	ViolationsObserved                 string
+	SeriousIncident                    string
+	SeriousIncidentDescription         string
 }
 
 var InspectionInformationFields = []string{
 	"DateOfInspection",
 	"ReportSubmission",
 	"EvaluationType",
-	"TravelTimeToEvaluation",
+	"ObservedShipmentDeliveryDate",
+	"ObservedShipmentPhysicalPickupDate",
+	"TimeDepart",
+	"EvalStart",
+	"EvalEnd",
 	"EvaluationLocation",
-	"ObservedPickupDate",
-	"ObservedDeliveryDate",
-	"EvaluationLength",
 }
 var InspectionInformationFieldLabels = map[string]string{
-	"DateOfInspection":       "Date of inspection",
-	"ReportSubmission":       "Report submission",
-	"EvaluationType":         "Evaluation type",
-	"TravelTimeToEvaluation": "Travel time to evaluation",
-	"EvaluationLocation":     "Evaluation location",
-	"ObservedPickupDate":     "Observed pickup date",
-	"ObservedDeliveryDate":   "Observed delivery date",
-	"EvaluationLength":       "Evaluation length",
+	"ObservedShipmentPhysicalPickupDate": "Observed pickup date",
+	"ObservedShipmentDeliveryDate":       "Observed delivery date",
+	"DateOfInspection":                   "Date of inspection",
+	"ReportSubmission":                   "Report submission",
+	"EvaluationType":                     "Evaluation type",
+	"TimeDepart":                         "Time departed for evaluation",
+	"EvalStart":                          "Time evaluation started",
+	"EvalEnd":                            "Time evaluation ended",
+	"EvaluationLocation":                 "Evaluation location",
+	"ObservedPickupDate":                 "Observed pickup date",
+	"ObservedDeliveryDate":               "Observed delivery date",
 }
 
 var ViolationsFields = []string{
@@ -267,24 +275,31 @@ func FormatValuesInspectionInformation(report models.EvaluationReport) Inspectio
 	if report.InspectionType != nil {
 		inspectionInfo.EvaluationType = formatEnum(string(*report.InspectionType))
 	}
-	if report.TravelTimeMinutes != nil {
-		inspectionInfo.TravelTimeToEvaluation = formatDuration(*report.TravelTimeMinutes)
+
+	if report.TimeDepart != nil {
+		inspectionInfo.TimeDepart = report.TimeDepart.Format(timeFormat)
+	}
+
+	if report.EvalStart != nil {
+		inspectionInfo.EvalStart = report.EvalStart.Format(timeFormat)
+	}
+
+	if report.EvalEnd != nil {
+		inspectionInfo.EvalEnd = report.EvalEnd.Format(timeFormat)
 	}
 	if report.Location != nil {
 		inspectionInfo.EvaluationLocation = formatEnum(string(*report.Location))
 		if *report.Location == models.EvaluationReportLocationTypeOther && report.LocationDescription != nil {
 			inspectionInfo.EvaluationLocation += "\n" + *report.LocationDescription
 		}
-		if report.ObservedDate != nil {
-			if *report.Location == models.EvaluationReportLocationTypeOrigin {
-				inspectionInfo.ObservedPickupDate = report.ObservedDate.Format(dateFormat)
-			} else if *report.Location == models.EvaluationReportLocationTypeDestination {
-				inspectionInfo.ObservedDeliveryDate = report.ObservedDate.Format(dateFormat)
-			}
-		}
 	}
-	if report.EvaluationLengthMinutes != nil {
-		inspectionInfo.EvaluationLength = formatDuration(*report.EvaluationLengthMinutes)
+
+	if report.ObservedShipmentDeliveryDate != nil {
+		inspectionInfo.ObservedShipmentDeliveryDate = report.ObservedShipmentDeliveryDate.Format(dateFormat)
+	}
+
+	if report.ObservedShipmentPhysicalPickupDate != nil {
+		inspectionInfo.ObservedShipmentPhysicalPickupDate = report.ObservedShipmentPhysicalPickupDate.Format(dateFormat)
 	}
 	if report.Remarks != nil {
 		inspectionInfo.QAERemarks = *report.Remarks
@@ -301,12 +316,6 @@ func FormatValuesInspectionInformation(report models.EvaluationReport) Inspectio
 		}
 	}
 	return inspectionInfo
-}
-
-func formatDuration(minutes int) string {
-	hours := minutes / 60
-	remainingMinutes := minutes % 60
-	return fmt.Sprintf("%d hr %d min", hours, remainingMinutes)
 }
 
 func formatEnum(e string) string {

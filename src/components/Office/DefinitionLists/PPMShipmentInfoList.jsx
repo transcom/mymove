@@ -8,7 +8,11 @@ import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatWeight } from 'utils/formatters';
-import { setFlagStyles, setDisplayFlags, getDisplayFlags } from 'utils/displayFlags';
+import { setFlagStyles, setDisplayFlags, getDisplayFlags, fieldValidationShape } from 'utils/displayFlags';
+import { ADVANCE_STATUSES } from 'constants/ppms';
+import affiliation from 'content/serviceMemberAgencies';
+import { permissionTypes } from 'constants/permissions';
+import Restricted from 'components/Restricted/Restricted';
 
 const PPMShipmentInfoList = ({
   className,
@@ -22,6 +26,7 @@ const PPMShipmentInfoList = ({
   const {
     hasRequestedAdvance,
     advanceAmountRequested,
+    advanceStatus,
     destinationPostalCode,
     estimatedIncentive,
     estimatedWeight,
@@ -34,11 +39,30 @@ const PPMShipmentInfoList = ({
     spouseProGearWeight,
   } = shipment.ppmShipment || {};
 
+  const { closeoutOffice, agency } = shipment;
+  const ppmShipmentInfo = { ...shipment.ppmShipment, ...shipment };
+  let closeoutDisplay;
+
+  switch (agency) {
+    case affiliation.MARINES:
+      closeoutDisplay = 'TVCB';
+      break;
+    case affiliation.NAVY:
+      closeoutDisplay = 'NAVY';
+      break;
+    case affiliation.COAST_GUARD:
+      closeoutDisplay = 'USCG';
+      break;
+    default:
+      closeoutDisplay = closeoutOffice || '-';
+      break;
+  }
   setFlagStyles({
     row: styles.row,
     warning: shipmentDefinitionListsStyles.warning,
+    missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
   });
-  setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
+  setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, ppmShipmentInfo);
 
   const showElement = (elementFlags) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
@@ -85,6 +109,14 @@ const PPMShipmentInfoList = ({
     <div className={secondDestinationZIPElementFlags.classes}>
       <dt>Second destination ZIP</dt>
       <dd data-testid="secondDestinationZIP">{secondaryDestinationPostalCode}</dd>
+    </div>
+  );
+
+  const closeoutOfficeElementFlags = getDisplayFlags('closeoutOffice');
+  const closeoutOfficeElement = (
+    <div className={closeoutOfficeElementFlags.classes}>
+      <dt>Closeout office</dt>
+      <dd data-testid="closeout">{closeoutDisplay}</dd>
     </div>
   );
 
@@ -140,6 +172,16 @@ const PPMShipmentInfoList = ({
     </div>
   );
 
+  const advanceStatusElementFlags = getDisplayFlags('advanceStatus');
+  const advanceStatusElement = (
+    <div className={advanceStatusElementFlags.classes}>
+      <dt>Advance request status</dt>
+      <dd data-testid="advanceRequestStatus">
+        {ADVANCE_STATUSES[advanceStatus] ? ADVANCE_STATUSES[advanceStatus].displayValue : `Review required`}
+      </dd>
+    </div>
+  );
+
   const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
   const counselorRemarksElement = (
     <div className={counselorRemarksElementFlags.classes}>
@@ -164,12 +206,14 @@ const PPMShipmentInfoList = ({
       {showElement(secondOriginZIPElementFlags) && secondOriginZIPElement}
       {destinationZIPElement}
       {showElement(secondDestinationZIPElementFlags) && secondDestinationZIPElement}
+      <Restricted to={permissionTypes.viewCloseoutOffice}>{closeoutOfficeElement}</Restricted>
       {sitPlannedElement}
       {estimatedWeightElement}
       {showElement(proGearWeightElementFlags) && proGearWeightElement}
       {showElement(spouseProGearElementFlags) && spouseProGearElement}
       {showElement(estimatedIncentiveElementFlags) && estimatedIncentiveElement}
       {hasRequestedAdvanceElement}
+      {hasRequestedAdvance === true && advanceStatusElement}
       {counselorRemarksElement}
     </dl>
   );
@@ -214,8 +258,8 @@ const PPMShipmentInfoList = ({
 PPMShipmentInfoList.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
-  warnIfMissing: PropTypes.arrayOf(PropTypes.string),
-  errorIfMissing: PropTypes.arrayOf(PropTypes.string),
+  warnIfMissing: PropTypes.arrayOf(fieldValidationShape),
+  errorIfMissing: PropTypes.arrayOf(fieldValidationShape),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
   isExpanded: PropTypes.bool,
   isForEvaluationReport: PropTypes.bool,

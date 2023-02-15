@@ -4,22 +4,31 @@ import userEvent from '@testing-library/user-event';
 
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
+import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
+
+const serviceMember = {
+  serviceMember: {
+    id: '123',
+    current_location: {
+      name: 'Fort Drum',
+    },
+    residential_address: {
+      postalCode: '90210',
+    },
+    affiliation: SERVICE_MEMBER_AGENCIES.ARMY,
+  },
+};
 
 const defaultProps = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
-  serviceMember: {
-    id: '123',
-    residential_address: {
-      postalCode: '90210',
-    },
-  },
   destinationDutyLocation: {
     address: {
       postalCode: '94611',
     },
   },
   postalCodeValidator: jest.fn(),
+  ...serviceMember,
 };
 
 const mtoShipmentProps = {
@@ -54,6 +63,8 @@ describe('DateAndLocationForm component', () => {
       expect(screen.getAllByLabelText('ZIP')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Yes')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[1]).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByRole('heading', { level: 2, name: 'Closeout Office' })).toBeInTheDocument();
+      expect(screen.getByLabelText('Which closeout office should review your PPM?')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Storage' })).toBeInTheDocument();
       expect(screen.getAllByLabelText('Yes')[2]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[2]).toBeInstanceOf(HTMLInputElement);
@@ -68,7 +79,7 @@ describe('DateAndLocationForm component', () => {
       const useCurrentZip = await screen.getByText('Use my current ZIP (90210)');
       const originZip = screen.getAllByLabelText('ZIP')[0];
       expect(originZip.value).toBe('');
-      userEvent.click(useCurrentZip);
+      await userEvent.click(useCurrentZip);
       await waitFor(() => {
         expect(originZip.value).toBe(defaultProps.serviceMember.residential_address.postalCode);
       });
@@ -79,11 +90,11 @@ describe('DateAndLocationForm component', () => {
       const useCurrentZip = await screen.getByText('Use my current ZIP (90210)');
       const originZip = screen.getAllByLabelText('ZIP')[0];
       expect(originZip.value).toBe('');
-      userEvent.click(useCurrentZip);
+      await userEvent.click(useCurrentZip);
       await waitFor(() => {
         expect(originZip.value).toBe(defaultProps.serviceMember.residential_address.postalCode);
       });
-      userEvent.click(useCurrentZip);
+      await userEvent.click(useCurrentZip);
       await waitFor(() => {
         expect(originZip.value).toBe('');
       });
@@ -93,7 +104,7 @@ describe('DateAndLocationForm component', () => {
       render(<DateAndLocationForm {...defaultProps} />);
       const hasSecondaryPickupPostalCode = await screen.getAllByLabelText('Yes')[0];
       expect(screen.queryByLabelText('Second ZIP')).toBeNull();
-      userEvent.click(hasSecondaryPickupPostalCode);
+      await userEvent.click(hasSecondaryPickupPostalCode);
 
       await waitFor(() => {
         expect(screen.queryByLabelText('Second ZIP')).toBeInstanceOf(HTMLInputElement);
@@ -105,7 +116,7 @@ describe('DateAndLocationForm component', () => {
       const useDestinationZip = await screen.getByText('Use the ZIP for my new duty location (94611)');
       const destinationZip = screen.getAllByLabelText('ZIP')[1];
       expect(destinationZip.value).toBe('');
-      userEvent.click(useDestinationZip);
+      await userEvent.click(useDestinationZip);
       await waitFor(() => {
         expect(destinationZip.value).toBe(defaultProps.destinationDutyLocation?.address?.postalCode);
       });
@@ -116,12 +127,12 @@ describe('DateAndLocationForm component', () => {
       const useDestinationZip = await screen.getByText('Use the ZIP for my new duty location (94611)');
       const destinationZip = screen.getAllByLabelText('ZIP')[1];
       expect(destinationZip.value).toBe('');
-      userEvent.click(useDestinationZip);
+      await userEvent.click(useDestinationZip);
       await waitFor(() => {
         expect(destinationZip.value).toBe(defaultProps.destinationDutyLocation?.address?.postalCode);
       });
 
-      userEvent.click(useDestinationZip);
+      await userEvent.click(useDestinationZip);
       await waitFor(() => {
         expect(destinationZip.value).toBe('');
       });
@@ -131,11 +142,47 @@ describe('DateAndLocationForm component', () => {
       render(<DateAndLocationForm {...defaultProps} />);
       const hasSecondaryDestinationPostalCode = await screen.getAllByLabelText('Yes')[0];
       expect(screen.queryByLabelText('Second ZIP')).toBeNull();
-      userEvent.click(hasSecondaryDestinationPostalCode);
+      await userEvent.click(hasSecondaryDestinationPostalCode);
 
       await waitFor(() => {
         expect(screen.queryByLabelText('Second ZIP')).toBeInstanceOf(HTMLInputElement);
       });
+    });
+
+    it('displays the closeout office select when the service member is in the Army', async () => {
+      const armyServiceMember = {
+        ...defaultProps.serviceMember,
+        affiliation: SERVICE_MEMBER_AGENCIES.ARMY,
+      };
+      render(<DateAndLocationForm {...defaultProps} serviceMember={armyServiceMember} />);
+
+      expect(screen.getByText('Closeout Office')).toBeInTheDocument();
+      expect(screen.getByLabelText('Which closeout office should review your PPM?')).toBeInTheDocument();
+      expect(screen.getByText('Start typing a closeout office...')).toBeInTheDocument();
+    });
+
+    it('displays the closeout office select when the service member is in the Air Force', async () => {
+      const airForceServiceMember = {
+        ...defaultProps.serviceMember,
+        affiliation: SERVICE_MEMBER_AGENCIES.AIR_FORCE,
+      };
+      render(<DateAndLocationForm {...defaultProps} serviceMember={airForceServiceMember} />);
+
+      expect(screen.getByText('Closeout Office')).toBeInTheDocument();
+      expect(screen.getByLabelText('Which closeout office should review your PPM?')).toBeInTheDocument();
+      expect(screen.getByText('Start typing a closeout office...')).toBeInTheDocument();
+    });
+
+    it('does not display the closeout office select when the service member is not in the Army/Air-Force', async () => {
+      const navyServiceMember = {
+        ...defaultProps.serviceMember,
+        affiliation: SERVICE_MEMBER_AGENCIES.NAVY,
+      };
+
+      render(<DateAndLocationForm {...defaultProps} serviceMember={navyServiceMember} />);
+      expect(screen.queryByText('Closeout Office')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Which closeout office should review your PPM?')).not.toBeInTheDocument();
+      expect(screen.queryByText('Start typing a closeout office...')).not.toBeInTheDocument();
     });
   });
 
@@ -151,6 +198,7 @@ describe('DateAndLocationForm component', () => {
       );
       expect(screen.getAllByLabelText('Yes')[1].value).toBe('true');
       expect(screen.getAllByLabelText('Yes')[2].value).toBe('true');
+      expect(screen.getByText('Start typing a closeout office...')).toBeInTheDocument();
     });
   });
 
@@ -229,12 +277,23 @@ describe('DateAndLocationForm component', () => {
 
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '1 January 2022');
 
+      const zipInputs = screen.getAllByRole('textbox', { name: 'ZIP' });
+      expect(zipInputs.length).toBe(2);
+      await userEvent.click(zipInputs[0]);
+      await userEvent.click(zipInputs[1]);
+
+      const secondZipInputs = screen.getAllByRole('textbox', { name: 'Second ZIP' });
+      expect(secondZipInputs.length).toBe(2);
+      await userEvent.click(secondZipInputs[0]);
+      await userEvent.click(secondZipInputs[1]);
+
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
 
         const requiredAlerts = screen.getAllByRole('alert');
+        expect(requiredAlerts.length).toBe(5);
 
         // origin ZIP
         expect(requiredAlerts[0]).toHaveTextContent('Enter a 5-digit ZIP code');
@@ -267,18 +326,18 @@ describe('DateAndLocationForm component', () => {
       render(<DateAndLocationForm {...validatorProps} />);
       const primaryZIPs = screen.getAllByLabelText('ZIP');
 
-      userEvent.type(primaryZIPs[0], '12345');
+      await userEvent.type(primaryZIPs[0], '12345');
 
-      userEvent.type(primaryZIPs[1], '67890');
+      await userEvent.type(primaryZIPs[1], '67890');
 
       const inputHasSecondaryZIP = screen.getAllByLabelText('Yes');
 
-      userEvent.click(inputHasSecondaryZIP[0]);
-      userEvent.click(inputHasSecondaryZIP[1]);
+      await userEvent.click(inputHasSecondaryZIP[0]);
+      await userEvent.click(inputHasSecondaryZIP[1]);
 
       const secondaryZIPs = screen.getAllByLabelText('Second ZIP');
-      userEvent.type(secondaryZIPs[0], '11111');
-      userEvent.type(secondaryZIPs[1], '22222');
+      await userEvent.type(secondaryZIPs[0], '11111');
+      await userEvent.type(secondaryZIPs[1], '22222');
 
       await waitFor(async () => {
         expect(validatorProps.postalCodeValidator).toHaveBeenCalledWith(
@@ -314,7 +373,7 @@ describe('DateAndLocationForm component', () => {
       render(<DateAndLocationForm {...postalCodeValidatorFailure} />);
 
       const primaryZIPs = screen.getAllByLabelText('ZIP');
-      userEvent.type(primaryZIPs[0], '99999');
+      await userEvent.type(primaryZIPs[0], '99999');
 
       await waitFor(() => {
         expect(postalCodeValidatorFailure.postalCodeValidator).toHaveBeenCalledWith(

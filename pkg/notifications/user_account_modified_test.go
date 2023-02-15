@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/factory"
 )
 
 func (suite *NotificationSuite) TestUserAccountModified() {
@@ -18,9 +18,9 @@ func (suite *NotificationSuite) TestUserAccountModified() {
 	sysAdminEmail := "admin@test.com"
 
 	suite.Run("Create emails for all possible actions", func() {
-		modifiedUser := testdatagen.MakeStubbedUser(suite.DB())
+		modifiedUser := factory.BuildUser(nil, nil, nil)
 
-		responsibleUser := testdatagen.MakeStubbedUser(suite.DB())
+		responsibleUser := factory.BuildUser(nil, nil, nil)
 		session := auth.Session{
 			UserID:   responsibleUser.ID,
 			Hostname: "adminlocal",
@@ -84,7 +84,7 @@ func (suite *NotificationSuite) TestUserAccountModified() {
 	suite.Run("Success - User account creation with no user in session", func() {
 		// Test case:   If a user just created their account, their userID information might not be in the session yet.
 		// Expectation: The email should use the modified user ID as the responsible user ID as well.
-		modifiedUser := testdatagen.MakeStubbedUser(suite.DB())
+		modifiedUser := factory.BuildUser(nil, nil, nil)
 		emptySessionCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		emailer, err := NewUserAccountCreated(emptySessionCtx, sysAdminEmail, modifiedUser.ID, modifiedUser.UpdatedAt)
@@ -104,7 +104,7 @@ func (suite *NotificationSuite) TestUserAccountModified() {
 	suite.Run("Fail - Session is nil", func() {
 		// Test case:   The session wasn't set in the AppContext, for some reason. Possibly dev error.
 		// Expectation: Initializing the UserAccountModified should return services.ContextError
-		modifiedUser := testdatagen.MakeStubbedUser(suite.DB())
+		modifiedUser := factory.BuildUser(nil, nil, nil)
 		nilSessionCtx := suite.AppContextForTest()
 
 		emailer, err := NewUserAccountCreated(nilSessionCtx, sysAdminEmail, modifiedUser.ID, modifiedUser.UpdatedAt)
@@ -115,7 +115,7 @@ func (suite *NotificationSuite) TestUserAccountModified() {
 }
 
 func (suite *NotificationSuite) TestUserAccountModifiedHTMLTemplateRender() {
-	modifiedUser := testdatagen.MakeStubbedUser(suite.DB())
+	modifiedUser := factory.BuildUser(nil, nil, nil)
 	appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 	emailer, err := NewUserAccountCreated(appCtx, "", modifiedUser.ID, modifiedUser.UpdatedAt)
@@ -157,7 +157,7 @@ func (suite *NotificationSuite) TestUserAccountModifiedHTMLTemplateRender() {
 }
 
 func (suite *NotificationSuite) TestUserAccountModifiedTextTemplateRender() {
-	modifiedUser := testdatagen.MakeStubbedUser(suite.DB())
+	modifiedUser := factory.BuildUser(nil, nil, nil)
 	appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 	emailer, err := NewUserAccountCreated(appCtx, "", modifiedUser.ID, modifiedUser.UpdatedAt)

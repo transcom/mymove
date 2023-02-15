@@ -5,6 +5,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import EvaluationViolations from './EvaluationViolations';
 
 import { useEvaluationReportShipmentListQueries, usePWSViolationsQueries } from 'hooks/queries';
+import { MockProviders } from 'testUtils';
 
 const mockMoveCode = 'A12345';
 const mockMoveId = '551dd01f-90cf-44d6-addb-ff919433dd61';
@@ -16,7 +17,8 @@ const mockEvaluationReport = {
   id: mockReportId,
   createdAt: '2022-09-07T15:17:37.484Z',
   eTag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
-  evaluationLengthMinutes: 240,
+  evalStart: '09:00',
+  evalEnd: '13:00',
   inspectionDate: '2022-09-08',
   inspectionType: 'DATA_REVIEW',
   location: mockMoveCode,
@@ -155,7 +157,11 @@ describe('EvaluationViolations', () => {
       reportViolations: [mockViolation],
     }));
 
-    render(<EvaluationViolations {...{ customerInfo }} />);
+    render(
+      <MockProviders>
+        <EvaluationViolations {...{ customerInfo }} />
+      </MockProviders>,
+    );
 
     await waitFor(() => {
       // Displays heading

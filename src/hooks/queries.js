@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 
 import {
   getPaymentRequest,
@@ -11,6 +11,7 @@ import {
   getDocument,
   getMovesQueue,
   getPaymentRequestsQueue,
+  getPPMDocuments,
   getServicesCounselingQueue,
   getMovePaymentRequests,
   getCustomer,
@@ -53,12 +54,13 @@ import {
   PWS_VIOLATIONS,
   REPORT_VIOLATIONS,
   MTO_SHIPMENT,
+  DOCUMENTS,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
 export const useUserQueries = () => {
-  const { data = {}, ...userQuery } = useQuery([USER, false], getLoggedInUserQueries);
-  const { isLoading, isError, isSuccess } = getQueriesStatus([userQuery]);
+  const { data = {}, ...userQuery } = useQuery([USER, false], ({ queryKey }) => getLoggedInUserQueries(...queryKey));
+  const { isLoading, isError, isSuccess } = userQuery;
 
   return {
     data,
@@ -69,21 +71,29 @@ export const useUserQueries = () => {
 };
 
 export const useTXOMoveInfoQueries = (moveCode) => {
-  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
   const orderId = move?.ordersId;
 
   // get orders
-  const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
-    enabled: !!orderId,
-  });
+  const { data: { orders } = {}, ...orderQuery } = useQuery(
+    [ORDERS, orderId],
+    ({ queryKey }) => getOrder(...queryKey),
+    {
+      enabled: !!orderId,
+    },
+  );
 
   // TODO - Need to refactor if we pass include customer in order payload
   // get customer
   const order = orders && Object.values(orders)[0];
   const customerId = order?.customerID;
-  const { data: { customer } = {}, ...customerQuery } = useQuery([CUSTOMER, customerId], getCustomer, {
-    enabled: !!customerId,
-  });
+  const { data: { customer } = {}, ...customerQuery } = useQuery(
+    [CUSTOMER, customerId],
+    ({ queryKey }) => getCustomer(...queryKey),
+    {
+      enabled: !!customerId,
+    },
+  );
   const customerData = customer && Object.values(customer)[0];
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, customerQuery]);
 
@@ -100,19 +110,23 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
   // get payment request by ID
   const { data: { paymentRequests, paymentServiceItems } = {}, ...paymentRequestQuery } = useQuery(
     [PAYMENT_REQUESTS, paymentRequestId],
-    getPaymentRequest,
+    ({ queryKey }) => getPaymentRequest(...queryKey),
   );
 
   const paymentRequest = paymentRequests && paymentRequests[`${paymentRequestId}`];
   const mtoID = paymentRequest?.moveTaskOrderID;
 
-  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
-    enabled: !!mtoID,
-  });
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery(
+    [MTO_SHIPMENTS, mtoID, false],
+    ({ queryKey }) => getMTOShipments(...queryKey),
+    {
+      enabled: !!mtoID,
+    },
+  );
 
   const { data: paymentSITBalances, ...shipmentsPaymentSITBalanceQuery } = useQuery(
     [SHIPMENTS_PAYMENT_SIT_BALANCE, paymentRequestId],
-    getShipmentsPaymentSITBalance,
+    ({ queryKey }) => getShipmentsPaymentSITBalance(...queryKey),
   );
 
   const shipmentsPaymentSITBalance = paymentSITBalances?.shipmentsPaymentSITBalance;
@@ -138,7 +152,7 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
 export const useCustomerSupportRemarksQueries = (moveCode) => {
   const { data: customerSupportRemarks, ...customerSupportRemarksQuery } = useQuery(
     [CUSTOMER_SUPPORT_REMARKS, moveCode],
-    getCustomerSupportRemarksForMove,
+    ({ queryKey }) => getCustomerSupportRemarksForMove(...queryKey),
   );
   const { isLoading, isError, isSuccess } = getQueriesStatus([customerSupportRemarksQuery]);
   return {
@@ -151,20 +165,28 @@ export const useCustomerSupportRemarksQueries = (moveCode) => {
 
 export const useEditShipmentQueries = (moveCode) => {
   // Get the orders info
-  const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+  const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
 
   const moveId = move?.id;
   const orderId = move?.ordersId;
 
-  const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
-    enabled: !!orderId,
-  });
+  const { data: { orders } = {}, ...orderQuery } = useQuery(
+    [ORDERS, orderId],
+    ({ queryKey }) => getOrder(...queryKey),
+    {
+      enabled: !!orderId,
+    },
+  );
 
   const order = Object.values(orders || {})?.[0];
 
-  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
-    enabled: !!moveId,
-  });
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery(
+    [MTO_SHIPMENTS, moveId, false],
+    ({ queryKey }) => getMTOShipments(...queryKey),
+    {
+      enabled: !!moveId,
+    },
+  );
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, mtoShipmentQuery]);
 
@@ -178,26 +200,57 @@ export const useEditShipmentQueries = (moveCode) => {
   };
 };
 
+export const usePPMShipmentDocsQueries = (shipmentId) => {
+  const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentId], ({ queryKey }) =>
+    getMTOShipmentByID(...queryKey),
+  );
+
+  const { data: documents, ...documentsQuery } = useQuery(
+    [DOCUMENTS, shipmentId],
+    ({ queryKey }) => getPPMDocuments(...queryKey),
+    {
+      enabled: !!shipmentId,
+    },
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, documentsQuery]);
+  return {
+    mtoShipment,
+    documents,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
 export const useMoveTaskOrderQueries = (moveCode) => {
-  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
   const orderId = move?.ordersId;
 
   // get orders
-  const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
-    enabled: !!orderId,
-  });
+  const { data: { orders } = {}, ...orderQuery } = useQuery(
+    [ORDERS, orderId],
+    ({ queryKey }) => getOrder(...queryKey),
+    {
+      enabled: !!orderId,
+    },
+  );
 
   const mtoID = move?.id;
 
   // get MTO shipments
-  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
-    enabled: !!mtoID,
-  });
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery(
+    [MTO_SHIPMENTS, mtoID, false],
+    ({ queryKey }) => getMTOShipments(...queryKey),
+    {
+      enabled: !!mtoID,
+    },
+  );
 
   // get MTO service items
   const { data: mtoServiceItems, ...mtoServiceItemQuery } = useQuery(
     [MTO_SERVICE_ITEMS, mtoID, false],
-    getMTOServiceItems,
+    ({ queryKey }) => getMTOServiceItems(...queryKey),
     { enabled: !!mtoID },
   );
 
@@ -221,14 +274,18 @@ export const useMoveTaskOrderQueries = (moveCode) => {
 
 export const useOrdersDocumentQueries = (moveCode) => {
   // Get the orders info so we can get the uploaded_orders_id (which is a document id)
-  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
 
   const orderId = move?.ordersId;
 
   // get orders
-  const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
-    enabled: !!orderId,
-  });
+  const { data: { orders } = {}, ...orderQuery } = useQuery(
+    [ORDERS, orderId],
+    ({ queryKey }) => getOrder(...queryKey),
+    {
+      enabled: !!orderId,
+    },
+  );
 
   const order = orders && orders[`${orderId}`];
   // eslint-disable-next-line camelcase
@@ -241,7 +298,7 @@ export const useOrdersDocumentQueries = (moveCode) => {
   const cacheTime = staleTime;
   const { data: { documents, upload } = {}, ...ordersDocumentsQuery } = useQuery(
     [ORDERS_DOCUMENTS, documentId],
-    getDocument,
+    ({ queryKey }) => getDocument(...queryKey),
     {
       enabled: !!documentId,
       staleTime,
@@ -251,7 +308,7 @@ export const useOrdersDocumentQueries = (moveCode) => {
   );
 
   const { data: { documents: amendedDocuments, upload: amendedUpload } = {}, ...amendedOrdersDocumentsQuery } =
-    useQuery([ORDERS_DOCUMENTS, amendedOrderDocumentId], getDocument, {
+    useQuery([ORDERS_DOCUMENTS, amendedOrderDocumentId], ({ queryKey }) => getDocument(...queryKey), {
       enabled: !!amendedOrderDocumentId,
       staleTime,
       cacheTime,
@@ -287,9 +344,9 @@ export const useMovesQueueQueries = ({
 }) => {
   const { data = {}, ...movesQueueQuery } = useQuery(
     [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
-    getMovesQueue,
+    ({ queryKey }) => getMovesQueue(...queryKey),
   );
-  const { isLoading, isError, isSuccess } = getQueriesStatus([movesQueueQuery]);
+  const { isLoading, isError, isSuccess } = movesQueueQuery;
   const { queueMoves, ...dataProps } = data;
   return {
     queueResult: { data: queueMoves, ...dataProps },
@@ -308,10 +365,10 @@ export const useServicesCounselingQueuePPMQueries = ({
 }) => {
   const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
     [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: true }],
-    getServicesCounselingPPMQueue,
+    ({ queryKey }) => getServicesCounselingPPMQueue(...queryKey),
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([servicesCounselingQueueQuery]);
+  const { isLoading, isError, isSuccess } = servicesCounselingQueueQuery;
   const { queueMoves, ...dataProps } = data;
   return {
     queueResult: { data: queueMoves, ...dataProps },
@@ -330,10 +387,10 @@ export const useServicesCounselingQueueQueries = ({
 }) => {
   const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
     [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false }],
-    getServicesCounselingQueue,
+    ({ queryKey }) => getServicesCounselingQueue(...queryKey),
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([servicesCounselingQueueQuery]);
+  const { isLoading, isError, isSuccess } = servicesCounselingQueueQuery;
   const { queueMoves, ...dataProps } = data;
   return {
     queueResult: { data: queueMoves, ...dataProps },
@@ -352,10 +409,10 @@ export const usePaymentRequestQueueQueries = ({
 }) => {
   const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
     [PAYMENT_REQUESTS_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
-    getPaymentRequestsQueue,
+    ({ queryKey }) => getPaymentRequestsQueue(...queryKey),
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestsQueueQuery]);
+  const { isLoading, isError, isSuccess } = paymentRequestsQueueQuery;
   const { queuePaymentRequests, ...dataProps } = data;
   return {
     queueResult: { data: queuePaymentRequests, ...dataProps },
@@ -367,22 +424,29 @@ export const usePaymentRequestQueueQueries = ({
 
 export const useMovePaymentRequestsQueries = (moveCode) => {
   // This queries for the payment request
-  const { data = [], ...movePaymentRequestsQuery } = useQuery(
-    [MOVE_PAYMENT_REQUESTS, moveCode],
-    getMovePaymentRequests,
+  const { data = [], ...movePaymentRequestsQuery } = useQuery([MOVE_PAYMENT_REQUESTS, moveCode], ({ queryKey }) =>
+    getMovePaymentRequests(...queryKey),
   );
-  const { data: move = {} } = useQuery([MOVES, moveCode], getMove);
+  const { data: move = {} } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
 
   const mtoID = data[0]?.moveTaskOrderID || move?.id;
 
-  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
-    enabled: !!mtoID,
-  });
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery(
+    [MTO_SHIPMENTS, mtoID, false],
+    ({ queryKey }) => getMTOShipments(...queryKey),
+    {
+      enabled: !!mtoID,
+    },
+  );
 
   const orderId = move?.ordersId;
-  const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
-    enabled: !!orderId,
-  });
+  const { data: { orders } = {}, ...orderQuery } = useQuery(
+    [ORDERS, orderId],
+    ({ queryKey }) => getOrder(...queryKey),
+    {
+      enabled: !!orderId,
+    },
+  );
 
   const order = Object.values(orders || {})?.[0];
 
@@ -403,15 +467,19 @@ export const useMovePaymentRequestsQueries = (moveCode) => {
 export const useEvaluationReportShipmentListQueries = (reportID) => {
   const { data: evaluationReport = {}, ...viewEvaluationReportQuery } = useQuery(
     [EVALUATION_REPORT, reportID],
-    getEvaluationReportByID,
+    ({ queryKey }) => getEvaluationReportByID(...queryKey),
   );
   const moveId = evaluationReport?.moveID;
-  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
-    enabled: !!moveId,
-  });
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery(
+    [MTO_SHIPMENTS, moveId, false],
+    ({ queryKey }) => getMTOShipments(...queryKey),
+    {
+      enabled: !!moveId,
+    },
+  );
   const { data: reportViolations, ...reportViolationsQuery } = useQuery(
     [REPORT_VIOLATIONS, reportID],
-    getReportViolationsByReportID,
+    ({ queryKey }) => getReportViolationsByReportID(...queryKey),
     {
       enabled: !!reportID,
     },
@@ -441,13 +509,17 @@ export const useEvaluationReportQueries = (reportID) => {
 
   const shipmentID = evaluationReport?.shipmentID;
 
-  const { data: mtoShipment = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentID], getMTOShipmentByID, {
-    enabled: !!shipmentID,
-  });
+  const { data: mtoShipment = {}, ...mtoShipmentQuery } = useQuery(
+    [MTO_SHIPMENT, shipmentID],
+    ({ queryKey }) => getMTOShipmentByID(...queryKey),
+    {
+      enabled: !!shipmentID,
+    },
+  );
 
   const { data: reportViolations = [], ...reportViolationsQuery } = useQuery(
     [REPORT_VIOLATIONS, reportID],
-    getReportViolationsByReportID,
+    ({ queryKey }) => getReportViolationsByReportID(...queryKey),
     {
       enabled: !!reportID,
     },
@@ -470,22 +542,26 @@ export const useEvaluationReportQueries = (reportID) => {
 
 // Lookup all Evaluation Reports and associated move/shipment data
 export const useEvaluationReportsQueries = (moveCode) => {
-  const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+  const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
   const moveId = move?.id;
 
-  const { data: shipments, ...shipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
-    enabled: !!moveId,
-  });
+  const { data: shipments, ...shipmentQuery } = useQuery(
+    [MTO_SHIPMENTS, moveId, false],
+    ({ queryKey }) => getMTOShipments(...queryKey),
+    {
+      enabled: !!moveId,
+    },
+  );
   const { data: shipmentEvaluationReports, ...shipmentEvaluationReportsQuery } = useQuery(
     [SHIPMENT_EVALUATION_REPORTS, moveId],
-    getShipmentEvaluationReports,
+    ({ queryKey }) => getShipmentEvaluationReports(...queryKey),
     {
       enabled: !!moveId,
     },
   );
   const { data: counselingEvaluationReports, ...counselingEvaluationReportsQuery } = useQuery(
     [COUNSELING_EVALUATION_REPORTS, moveId],
-    getCounselingEvaluationReports,
+    ({ queryKey }) => getCounselingEvaluationReports(...queryKey),
     {
       enabled: !!moveId,
     },
@@ -509,7 +585,9 @@ export const useEvaluationReportsQueries = (moveCode) => {
 };
 
 export const usePWSViolationsQueries = () => {
-  const { data: violations = [], ...pwsViolationsQuery } = useQuery(PWS_VIOLATIONS, getPWSViolations);
+  const { data: violations = [], ...pwsViolationsQuery } = useQuery([PWS_VIOLATIONS], ({ queryKey }) =>
+    getPWSViolations(...queryKey),
+  );
 
   return {
     violations,
@@ -519,31 +597,51 @@ export const usePWSViolationsQueries = () => {
 
 export const useMoveDetailsQueries = (moveCode) => {
   // Get the orders info so we can get the uploaded_orders_id (which is a document id)
-  const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+  const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
 
   const moveId = move?.id;
   const orderId = move?.ordersId;
 
-  const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
-    enabled: !!orderId,
-  });
+  const { data: { orders } = {}, ...orderQuery } = useQuery(
+    [ORDERS, orderId],
+    ({ queryKey }) => getOrder(...queryKey),
+    {
+      enabled: !!orderId,
+    },
+  );
 
   const order = Object.values(orders || {})?.[0];
 
-  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
-    enabled: !!moveId,
-  });
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery(
+    [MTO_SHIPMENTS, moveId, false],
+    ({ queryKey }) => getMTOShipments(...queryKey),
+    {
+      enabled: !!moveId,
+    },
+  );
+
+  const customerId = order?.customerID;
+  const { data: { customer } = {}, ...customerQuery } = useQuery(
+    [CUSTOMER, customerId],
+    ({ queryKey }) => getCustomer(...queryKey),
+    {
+      enabled: !!customerId,
+    },
+  );
+  const customerData = customer && Object.values(customer)[0];
+  const closeoutOffice = move.closeoutOffice && move.closeoutOffice.name;
 
   // Must account for basic service items here not tied to a shipment
   const { data: mtoServiceItems, ...mtoServiceItemQuery } = useQuery(
     [MTO_SERVICE_ITEMS, moveId, false],
-    getMTOServiceItems,
+    ({ queryKey }) => getMTOServiceItems(...queryKey),
     { enabled: !!moveId },
   );
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
     orderQuery,
+    customerQuery,
     mtoShipmentQuery,
     mtoServiceItemQuery,
   ]);
@@ -551,6 +649,8 @@ export const useMoveDetailsQueries = (moveCode) => {
   return {
     move,
     order,
+    customerData,
+    closeoutOffice,
     mtoShipments,
     mtoServiceItems,
     isLoading,
@@ -562,7 +662,7 @@ export const useMoveDetailsQueries = (moveCode) => {
 export const usePrimeSimulatorAvailableMovesQueries = () => {
   const { data = {}, ...primeSimulatorAvailableMovesQuery } = useQuery(
     [PRIME_SIMULATOR_AVAILABLE_MOVES, {}],
-    getPrimeSimulatorAvailableMoves,
+    ({ queryKey }) => getPrimeSimulatorAvailableMoves(...queryKey),
   );
   const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorAvailableMovesQuery]);
   // README: This queueResult is being artificially constructed rather than
@@ -588,7 +688,7 @@ export const usePrimeSimulatorAvailableMovesQueries = () => {
 export const usePrimeSimulatorGetMove = (moveCode) => {
   const { data: moveTaskOrder, ...primeSimulatorGetMoveQuery } = useQuery(
     [PRIME_SIMULATOR_MOVE, moveCode],
-    getPrimeSimulatorMove,
+    ({ queryKey }) => getPrimeSimulatorMove(...queryKey),
   );
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorGetMoveQuery]);
@@ -608,7 +708,7 @@ export const useGHCGetMoveHistory = ({
 }) => {
   const { data = {}, ...getGHCMoveHistoryQuery } = useQuery(
     [MOVE_HISTORY, { moveCode, currentPage, currentPageSize }],
-    getMoveHistory,
+    ({ queryKey }) => getMoveHistory(...queryKey),
   );
   const { isLoading, isError, isSuccess } = getQueriesStatus([getGHCMoveHistoryQuery]);
   const { historyRecords, ...dataProps } = data;
@@ -629,7 +729,7 @@ export const useQAECSRMoveSearchQueries = ({
 }) => {
   const queryResult = useQuery(
     [QAE_CSR_MOVE_SEARCH, { sort, order, filters, currentPage, currentPageSize }],
-    searchMoves,
+    ({ queryKey }) => searchMoves(...queryKey),
     {
       enabled: filters.length > 0,
     },

@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	customerops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -28,12 +29,18 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 		customerservice.NewCustomerFetcher(),
 	}
 
+	// Validate incoming payload: no body to validate
+
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
 
+	suite.Assertions.IsType(&customerops.GetCustomerOK{}, response)
 	getCustomerResponse := response.(*customerops.GetCustomerOK)
 	getCustomerPayload := getCustomerResponse.Payload
-	suite.Assertions.IsType(&customerops.GetCustomerOK{}, response)
+
+	// Validate outgoing payload
+	suite.NoError(getCustomerPayload.Validate(strfmt.Default))
+
 	suite.Equal(strfmt.UUID(customer.ID.String()), getCustomerPayload.ID)
 	suite.Equal(*customer.Edipi, getCustomerPayload.DodID)
 	suite.Equal(strfmt.UUID(customer.UserID.String()), getCustomerPayload.UserID)
@@ -44,7 +51,7 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 }
 
 func (suite *HandlerSuite) TestUpdateCustomerHandler() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeServicesCounselor,
 	})
@@ -52,7 +59,7 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 	body := &ghcmessages.UpdateCustomerPayload{
 		LastName:  "Newlastname",
 		FirstName: "Newfirstname",
-		Phone:     handlers.FmtString("123-455-3399"),
+		Phone:     handlers.FmtString("223-455-3399"),
 		BackupContact: &ghcmessages.BackupContact{
 			Name:  handlers.FmtString("New Backup Contact"),
 			Phone: handlers.FmtString("445-345-1212"),
@@ -81,14 +88,22 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 		handlerConfig,
 		customerservice.NewCustomerUpdater(),
 	}
+
+	// Validate incoming payload
+	suite.NoError(params.Body.Validate(strfmt.Default))
+
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
 
 	// TODO: test with actual updated customer?
 	// updatedCustomer, _ := models.FetchServiceMember(suite.DB(), customer.ID)
+	suite.Assertions.IsType(&customerops.UpdateCustomerOK{}, response)
 	updateCustomerResponse := response.(*customerops.UpdateCustomerOK)
 	updateCustomerPayload := updateCustomerResponse.Payload
-	suite.Assertions.IsType(&customerops.UpdateCustomerOK{}, response)
+
+	// Validate outgoing payload
+	suite.NoError(updateCustomerPayload.Validate(strfmt.Default))
+
 	suite.Equal(body.FirstName, updateCustomerPayload.FirstName)
 	suite.Equal(body.LastName, updateCustomerPayload.LastName)
 	suite.Equal(body.Phone, updateCustomerPayload.Phone)

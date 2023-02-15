@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -71,7 +72,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			},
 		})
 		oldProofOfServiceDocIDs = append(oldProofOfServiceDocIDs, proofOfServiceDoc.ID.String())
-		contractor := testdatagen.MakeDefaultContractor(suite.DB())
+		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
 			PrimeUpload: models.PrimeUpload{
 				ProofOfServiceDocID: proofOfServiceDoc.ID,
@@ -370,22 +371,26 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 
 func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, models.PaymentRequest) {
 	// Pickup/destination addresses
-	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "235 Prospect Valley Road SE",
-			City:           "Augusta",
-			State:          "GA",
-			PostalCode:     recalculateTestPickupZip,
+	pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "235 Prospect Valley Road SE",
+				City:           "Augusta",
+				State:          "GA",
+				PostalCode:     recalculateTestPickupZip,
+			},
 		},
-	})
-	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "17 8th St",
-			City:           "San Antonio",
-			State:          "TX",
-			PostalCode:     recalculateTestDestinationZip,
+	}, nil)
+	destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "17 8th St",
+				City:           "San Antonio",
+				State:          "TX",
+				PostalCode:     recalculateTestDestinationZip,
+			},
 		},
-	})
+	}, nil)
 
 	// Contract year, service area, rate area, zip3
 	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{

@@ -5,7 +5,7 @@ import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
-import { EditButton } from 'components/form/IconButtons';
+import { EditButton, ReviewButton } from 'components/form/IconButtons';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
@@ -14,10 +14,13 @@ import { AddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { OrdersLOAShape } from 'types/order';
 import { shipmentStatuses } from 'constants/shipments';
+import ppmDocumentStatus from 'constants/ppms';
 import { ShipmentStatusesOneOf } from 'types/shipment';
 import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import affiliation from 'content/serviceMemberAgencies';
+import { fieldValidationShape, objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 
 const ShipmentDisplay = ({
   shipmentType,
@@ -27,6 +30,7 @@ const ShipmentDisplay = ({
   isSubmitted,
   allowApproval,
   editURL,
+  reviewURL,
   ordersLOA,
   warnIfMissing,
   errorIfMissing,
@@ -39,7 +43,9 @@ const ShipmentDisplay = ({
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
 
-  const disableApproval = errorIfMissing.some((requiredInfo) => !displayInfo[requiredInfo]);
+  const disableApproval = errorIfMissing.some((requiredInfo) =>
+    objectIsMissingFieldWithCondition(displayInfo, requiredInfo),
+  );
 
   const handleExpandClick = () => {
     setIsExpanded((prev) => !prev);
@@ -60,7 +66,7 @@ const ShipmentDisplay = ({
                 data-testid="shipment-display-checkbox"
                 onChange={onChange}
                 name="shipments"
-                label=""
+                label="&nbsp;"
                 value={shipmentId}
                 aria-labelledby={`shipment-display-label-${shipmentId}`}
                 disabled={disableApproval}
@@ -71,7 +77,7 @@ const ShipmentDisplay = ({
           {allowApproval && !isSubmitted && (
             <FontAwesomeIcon icon={['far', 'circle-check']} className={styles.approved} />
           )}
-          <div className={styles.headingTagWrapper}>
+          <div className={classnames(styles.headingTagWrapper, styles.serviceCounselingShipments)}>
             <h3>
               <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
             </h3>
@@ -82,6 +88,13 @@ const ShipmentDisplay = ({
               <Tag>cancellation requested</Tag>
             )}
             {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
+            {displayInfo.ppmDocumentStatus === ppmDocumentStatus.REJECTED && (
+              <Tag className={styles.ppmStatus}>sent to customer</Tag>
+            )}
+            {(displayInfo.ppmDocumentStatus === ppmDocumentStatus.APPROVED ||
+              displayInfo.ppmDocumentStatus === ppmDocumentStatus.EXCLUDED) && (
+              <Tag className={styles.ppmStatus}>packet ready for download</Tag>
+            )}
           </div>
 
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
@@ -108,6 +121,17 @@ const ShipmentDisplay = ({
               secondary
             />
           )}
+          {reviewURL && (
+            <ReviewButton
+              onClick={() => {
+                history.push(reviewURL);
+              }}
+              className={styles.editButton}
+              data-testid={reviewURL}
+              label="Review documents"
+              secondary
+            />
+          )}
         </Restricted>
       </ShipmentContainer>
     </div>
@@ -128,6 +152,8 @@ ShipmentDisplay.propTypes = {
   ]),
   displayInfo: PropTypes.oneOfType([
     PropTypes.shape({
+      agency: PropTypes.oneOf(Object.values(affiliation)),
+      closeoutOffice: PropTypes.string,
       heading: PropTypes.string.isRequired,
       isDiversion: PropTypes.bool,
       shipmentStatus: ShipmentStatusesOneOf,
@@ -177,9 +203,10 @@ ShipmentDisplay.propTypes = {
   ]).isRequired,
   allowApproval: PropTypes.bool,
   editURL: PropTypes.string,
+  reviewURL: PropTypes.string,
   ordersLOA: OrdersLOAShape,
-  warnIfMissing: PropTypes.arrayOf(PropTypes.string),
-  errorIfMissing: PropTypes.arrayOf(PropTypes.string),
+  warnIfMissing: PropTypes.arrayOf(fieldValidationShape),
+  errorIfMissing: PropTypes.arrayOf(fieldValidationShape),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
   neverShow: PropTypes.arrayOf(PropTypes.string),
 };
@@ -189,6 +216,7 @@ ShipmentDisplay.defaultProps = {
   shipmentType: SHIPMENT_OPTIONS.HHG,
   allowApproval: true,
   editURL: '',
+  reviewURL: '',
   ordersLOA: {
     tac: '',
     sac: '',

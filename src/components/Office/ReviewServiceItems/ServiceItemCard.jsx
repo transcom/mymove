@@ -19,6 +19,7 @@ import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { PaymentServiceItemParam, MTOServiceItemShape } from 'types/order';
 import { allowedServiceItemCalculations, SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import DaysInSITAllowance from 'components/Office/DaysInSITAllowance/DaysInSITAllowance';
+import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 
 const isAdditionalDaySIT = (mtoServiceItemCode) => {
   return mtoServiceItemCode === SERVICE_ITEM_CODES.DOASIT || mtoServiceItemCode === SERVICE_ITEM_CODES.DDASIT;
@@ -239,7 +240,11 @@ const ServiceItemCard = ({
                 </dl>
                 {toggleCalculations}
                 <Fieldset>
-                  <div className={classnames(styles.statusOption, { [styles.selected]: values.status === APPROVED })}>
+                  <div
+                    className={classnames(approveRejectStyles.statusOption, {
+                      [approveRejectStyles.selected]: values.status === APPROVED,
+                    })}
+                  >
                     <Radio
                       id={`approve-${id}`}
                       checked={values.status === APPROVED}
@@ -250,7 +255,11 @@ const ServiceItemCard = ({
                       data-testid="approveRadio"
                     />
                   </div>
-                  <div className={classnames(styles.statusOption, { [styles.selected]: values.status === DENIED })}>
+                  <div
+                    className={classnames(approveRejectStyles.statusOption, {
+                      [approveRejectStyles.selected]: values.status === DENIED,
+                    })}
+                  >
                     <Radio
                       id={`reject-${id}`}
                       checked={values.status === DENIED}
@@ -271,7 +280,7 @@ const ServiceItemCard = ({
                               type="button"
                               unstyled
                               data-testid="editReasonButton"
-                              className={styles.clearStatus}
+                              className={approveRejectStyles.clearStatus}
                               onClick={() => setCanEditRejection(true)}
                               aria-label="Edit reason button"
                             >
@@ -291,7 +300,7 @@ const ServiceItemCard = ({
                               onChange={handleChange}
                               value={values.rejectionReason}
                             />
-                            <div className={styles.rejectionButtonGroup}>
+                            <div className={approveRejectStyles.rejectionButtonGroup}>
                               <Button
                                 id="rejectionSaveButton"
                                 type="button"
@@ -323,7 +332,7 @@ const ServiceItemCard = ({
                       type="button"
                       unstyled
                       data-testid="clearStatusButton"
-                      className={styles.clearStatus}
+                      className={approveRejectStyles.clearStatus}
                       onClick={handleFormReset}
                       aria-label="Clear status"
                     >

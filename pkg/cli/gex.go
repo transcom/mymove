@@ -32,8 +32,7 @@ const (
 )
 
 var gexHostnames = []string{
-	"gexweba.daas.dla.mil",
-	"gexwebb.daas.dla.mil",
+	"gexb.gw.daas.dla.mil",
 }
 
 var gexPaths = []string{

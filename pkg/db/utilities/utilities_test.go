@@ -33,7 +33,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_NotModel() {
 
 	err := utilities.SoftDestroy(suite.DB(), &arbitaryFetcher)
 
-	suite.Equal("can only soft delete type model", err.Error())
+	suite.Equal("can only soft delete type model, got **mocks.AdminUserFetcher", err.Error())
 }
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithoutAssociations() {
@@ -42,7 +42,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithoutAssocia
 
 	err := utilities.SoftDestroy(suite.DB(), &user)
 
-	suite.Equal("this model does not have deleted_at field", err.Error())
+	suite.Equal("this model (*models.User) does not have deleted_at field", err.Error())
 }
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithoutAssociations() {
@@ -70,7 +70,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithAssociatio
 	suite.MustSave(&serviceMember)
 
 	err := utilities.SoftDestroy(suite.DB(), &serviceMember)
-	suite.Equal("this model does not have deleted_at field", err.Error())
+	suite.Equal("this model (*models.ServiceMember) does not have deleted_at field", err.Error())
 }
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasOneAssociations() {

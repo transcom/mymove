@@ -41,7 +41,7 @@ const TableQueue = ({
 
   const {
     queueResult: { totalCount = 0, data = [], page = 1, perPage = 20 },
-    isLoading,
+    isInitialLoading: isLoading,
     isError,
   } = useQueries({
     sort: id,
@@ -123,7 +123,9 @@ const TableQueue = ({
           className={styles.tableTabs}
           items={[
             <NavLink exact activeClassName="usa-current" to={servicesCounselingRoutes.QUEUE_COUNSELING_PATH}>
-              <span className="tab-title">Counseling</span>
+              <span data-testid="counseling-tab-link" className="tab-title">
+                Counseling
+              </span>
             </NavLink>,
             <NavLink exact activeClassName="usa-current" to={servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH}>
               <span data-testid="closeout-tab-link" className="tab-title">

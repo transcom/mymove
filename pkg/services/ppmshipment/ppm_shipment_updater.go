@@ -43,7 +43,7 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		return nil, nil
 	}
 
-	oldPPMShipment, err := models.FetchPPMShipmentFromMTOShipmentID(appCtx.DB(), mtoShipmentID)
+	oldPPMShipment, err := FindPPMShipmentByMTOID(appCtx, mtoShipmentID)
 	if err != nil {
 		return nil, err
 	}
@@ -67,26 +67,27 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 
 		if appCtx.Session() != nil {
 			if appCtx.Session().IsOfficeUser() {
-				rejected := models.PPMAdvanceStatusRejected
 				edited := models.PPMAdvanceStatusEdited
-				approved := models.PPMAdvanceStatusApproved
 				if oldPPMShipment.HasRequestedAdvance != nil && updatedPPMShipment.HasRequestedAdvance != nil {
 					if !*oldPPMShipment.HasRequestedAdvance && *updatedPPMShipment.HasRequestedAdvance {
 						updatedPPMShipment.AdvanceStatus = &edited
 					} else if *oldPPMShipment.HasRequestedAdvance && !*updatedPPMShipment.HasRequestedAdvance {
-						updatedPPMShipment.AdvanceStatus = &rejected
+						updatedPPMShipment.AdvanceStatus = &edited
 					}
 				}
 				if oldPPMShipment.AdvanceAmountRequested != nil && updatedPPMShipment.AdvanceAmountRequested != nil {
 					if *oldPPMShipment.AdvanceAmountRequested != *updatedPPMShipment.AdvanceAmountRequested {
 						updatedPPMShipment.AdvanceStatus = &edited
 					}
-					if *oldPPMShipment.AdvanceAmountRequested == *updatedPPMShipment.AdvanceAmountRequested && *oldPPMShipment.HasRequestedAdvance == *updatedPPMShipment.HasRequestedAdvance {
-						updatedPPMShipment.AdvanceStatus = &approved
-					}
 				}
 			}
 		}
+
+		finalIncentive, err := f.estimator.FinalIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
+		if err != nil {
+			return err
+		}
+		updatedPPMShipment.FinalIncentive = finalIncentive
 
 		if updatedPPMShipment.W2Address != nil {
 			var updatedAddress *models.Address

@@ -14,6 +14,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	mtoserviceitemops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -61,7 +62,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		// Do not create Address in the database (Assertions.Stub = true), because if the information is coming from the Prime
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
-		actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
+		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID:           mto.ID,
@@ -91,11 +92,22 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mtoChecker,
 		}
 
+		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(subtestData.params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
-
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+
+		// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
+		//   but those are not listed in the enum in the swagger file.  They aren't allowed for
+		//   incoming payloads, but are allowed for outgoing payloads, but the same payload spec
+		//   is used for both.  Need to figure out best way to resolve.
+		// Validate outgoing payload (each element of slice)
+		// for _, mtoServiceItem := range okResponse.Payload {
+		// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
+		// }
+
 		suite.NotZero(okResponse.Payload[0].ID())
 	})
 
@@ -114,12 +126,17 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mock.Anything,
 		).Return(nil, nil, err)
 
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(subtestData.params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemInternalServerError{}, response)
-
 		errResponse := response.(*mtoserviceitemops.CreateMTOServiceItemInternalServerError)
-		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
 
+		// Validate outgoing payload
+		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
+
+		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
 	})
 
 	suite.Run("POST failure - 422 Unprocessable Entity Error", func() {
@@ -131,15 +148,25 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mtoChecker,
 		}
 		// InvalidInputError should generate an UnprocessableEntity response
-		err := apperror.InvalidInputError{}
+		// Need verrs incorporated to satisfy swagger validation
+		verrs := validate.NewErrors()
+		verrs.Add("some key", "some value")
+		err := apperror.NewInvalidInputError(subtestData.mtoServiceItem.ID, nil, verrs, "some error")
 
 		mockCreator.On("CreateMTOServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(nil, nil, err)
 
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(subtestData.params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
+		errResponse := response.(*mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity)
+
+		// Validate outgoing payload
+		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("POST failure - 409 Conflict Error", func() {
@@ -158,8 +185,15 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mock.Anything,
 		).Return(nil, nil, err)
 
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(subtestData.params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemConflict{}, response)
+		errResponse := response.(*mtoserviceitemops.CreateMTOServiceItemConflict)
+
+		// Validate outgoing payload
+		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("POST failure - 404", func() {
@@ -177,8 +211,15 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mock.Anything,
 		).Return(nil, nil, err)
 
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(subtestData.params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
+		errResponse := response.(*mtoserviceitemops.CreateMTOServiceItemNotFound)
+
+		// Validate outgoing payload
+		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("POST failure - 404 - MTO is not available to Prime", func() {
@@ -200,10 +241,16 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			Body:        body,
 		}
 
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(paramsNotAvailable)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
-
 		typedResponse := response.(*mtoserviceitemops.CreateMTOServiceItemNotFound)
+
+		// Validate outgoing payload
+		suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
+
 		suite.Contains(*typedResponse.Payload.Detail, mtoNotAvailable.ID.String())
 	})
 
@@ -230,8 +277,15 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			Body:        body,
 		}
 
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(newParams)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
+		responsePayload := response.(*mtoserviceitemops.CreateMTOServiceItemNotFound).Payload
+
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("POST failure - 422 - Model validation errors", func() {
@@ -250,8 +304,15 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mock.Anything,
 		).Return(nil, verrs, nil)
 
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(subtestData.params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
+		responsePayload := response.(*mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("POST failure - 422 - modelType() not supported", func() {
@@ -281,8 +342,16 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			HTTPRequest: subtestData.params.HTTPRequest,
 			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
+
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
+		responsePayload := response.(*mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 }
 
@@ -355,11 +424,18 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
 		}
 
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
-
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+
+		// Validate outgoing payload (each element of slice)
+		for _, mtoServiceItem := range okResponse.Payload {
+			suite.NoError(mtoServiceItem.Validate(strfmt.Default))
+		}
+
 		suite.NotZero(okResponse.Payload[0].ID())
 	})
 
@@ -379,11 +455,18 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
 		}
 
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
-
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+
+		// Validate outgoing payload (each element of slice)
+		for _, mtoServiceItem := range okResponse.Payload {
+			suite.NoError(mtoServiceItem.Validate(strfmt.Default))
+		}
+
 		suite.NotZero(okResponse.Payload[0].ID())
 	})
 
@@ -410,8 +493,16 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 
 		var height int32
 		params.Body.(*primemessages.MTOServiceItemDomesticCrating).Crate.Height = &height
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
+		responsePayload := response.(*mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 }
 
@@ -479,10 +570,16 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		}
 
 		// CHECK RESULTS
+
+		// Validate incoming payload
 		suite.Error(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
+		responsePayload := response.(*mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity).Payload
 
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("POST Failure - Cannot create DOASIT without DOFSIT", func() {
@@ -510,10 +607,16 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		}
 
 		// CHECK RESULTS
+
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
+		responsePayload := response.(*mtoserviceitemops.CreateMTOServiceItemNotFound).Payload
 
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Successful POST - Create DOASIT with DOFSIT", func() {
@@ -530,6 +633,12 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 			},
 			Move:        subtestData.mto,
 			MTOShipment: subtestData.mtoShipment,
+			// These get copied over to the DOASIT as part of creation and are needed for the response to validate
+			MTOServiceItem: models.MTOServiceItem{
+				Reason:        swag.String("lorem ipsum"),
+				SITEntryDate:  swag.Time(time.Now()),
+				SITPostalCode: swag.String("00000"),
+			},
 		})
 
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOASIT
@@ -549,12 +658,19 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		}
 
 		// CHECK RESULTS
+
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+		responsePayload := response.(*mtoserviceitemops.CreateMTOServiceItemOK).Payload
 
+		// Validate outgoing payload (each element of slice)
+		for _, mtoServiceItem := range responsePayload {
+			suite.NoError(mtoServiceItem.Validate(strfmt.Default))
+		}
 	})
-
 }
 
 func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoAddress() {
@@ -616,10 +732,17 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 		}
 
 		// CHECK RESULTS
+
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
 		unprocessableEntity := response.(*mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity)
+
+		// Validate outgoing payload
+		suite.NoError(unprocessableEntity.Payload.Validate(strfmt.Default))
+
 		suite.Contains(*unprocessableEntity.Payload.Detail, "must have the sitHHGActualOrigin")
 	})
 
@@ -655,10 +778,10 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 
 		// Customer gets new pickup address
 
-		// Do not create the Address in the database (Assertions.Stub = true), because if the information is coming from the Prime
+		// Do not create the Address in the database (factory.BuildAddress(nil, nil, nil)), because if the information is coming from the Prime
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
-		subtestData.actualPickupAddress = testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
+		subtestData.actualPickupAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID:           mto.ID,
@@ -707,9 +830,22 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		}
 
 		// CHECK RESULTS
+
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+
+		// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
+		//   but those are not listed in the enum in the swagger file.  They aren't allowed for
+		//   incoming payloads, but are allowed for outgoing payloads, but the same payload spec
+		//   is used for both.  Need to figure out best way to resolve.
+		// Validate outgoing payload (each element of slice)
+		// for _, mtoServiceItem := range okResponse.Payload {
+		// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
+		// }
 
 		// Verify address was updated on MTO Shipment
 		var updatedMTOShipment models.MTOShipment
@@ -723,7 +859,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		suite.Equal(subtestData.actualPickupAddress.PostalCode, updatedMTOShipment.PickupAddress.PostalCode, "hhg actual zip is the same")
 
 		// Verify address on SIT service item
-		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
 		suite.NotZero(okResponse.Payload[0].ID())
 
 		foundDOFSIT := false
@@ -863,13 +998,16 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			Body:        payloads.MTOServiceItem(&mtoServiceItemDDFSIT),
 		}
 
-		// Run swagger validations
+		// Validate incoming payload
 		suite.NoError(paramsDDFSIT.Body.Validate(strfmt.Default))
 
 		// CHECK RESULTS
 		response := handler.Handle(paramsDDFSIT)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
+		responsePayload := response.(*mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity).Payload
 
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Successful POST - Integration Test", func() {
@@ -882,11 +1020,22 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			mtoChecker,
 		}
 
+		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(subtestData.params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
-
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+
+		// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
+		//   but those are not listed in the enum in the swagger file.  They aren't allowed for
+		//   incoming payloads, but are allowed for outgoing payloads, but the same payload spec
+		//   is used for both.  Need to figure out best way to resolve.
+		// Validate outgoing payload (each element of slice)
+		// for _, mtoServiceItem := range okResponse.Payload {
+		// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
+		// }
+
 		suite.NotZero(okResponse.Payload[0].ID())
 	})
 
@@ -904,9 +1053,21 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			mtoChecker,
 		}
 
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+
+		// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
+		//   but those are not listed in the enum in the swagger file.  They aren't allowed for
+		//   incoming payloads, but are allowed for outgoing payloads, but the same payload spec
+		//   is used for both.  Need to figure out best way to resolve.
+		// okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+		// Validate outgoing payload (each element of slice)
+		// for _, mtoServiceItem := range okResponse.Payload {
+		// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
+		// }
 
 		// now that the mto service item has been created, create a standalone
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDDASIT
@@ -914,13 +1075,20 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			HTTPRequest: subtestData.params.HTTPRequest,
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
 		}
+
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response = handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
-
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-		suite.NotZero(okResponse.Payload[0].ID())
 
+		// Validate outgoing payload (each element of slice)
+		for _, mtoServiceItem := range okResponse.Payload {
+			suite.NoError(mtoServiceItem.Validate(strfmt.Default))
+		}
+
+		suite.NotZero(okResponse.Payload[0].ID())
 	})
 
 	suite.Run("POST Failure - Cannot create DDASIT without DDFSIT", func() {
@@ -944,10 +1112,16 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		}
 
 		// CHECK RESULTS
+
+		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
+		responsePayload := response.(*mtoserviceitemops.CreateMTOServiceItemNotFound).Payload
 
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("POST failure - 422 Cannot create DDDSIT standalone", func() {
@@ -975,10 +1149,16 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		}
 
 		// CHECK RESULTS
+
+		// Validate incoming payload
 		suite.Error(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
+		responsePayload := response.(*mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity).Payload
 
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 }
 
@@ -1010,7 +1190,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			},
 		})
 
-		destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		addr := primemessages.Address{
 			StreetAddress1: &destinationAddress.StreetAddress1,
 			City:           &destinationAddress.City,
@@ -1057,13 +1237,22 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		//             Receive a success response with the SitDepartureDate updated
 
 		// CALL FUNCTION UNDER TEST
+
+		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := subtestData.handler.Handle(subtestData.params)
 
 		// CHECK RESULTS
 		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemOK{}, response)
 		r := response.(*mtoserviceitemops.UpdateMTOServiceItemOK)
 		resp1 := r.Payload
+
+		// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
+		//   but those are not listed in the enum in the swagger file for an MTO service item.
+		//   Need to figure out best way to resolve.
+		// Validate outgoing payload
+		// suite.NoError(resp1.Validate(strfmt.Default))
 
 		respPayload := resp1.(*primemessages.MTOServiceItemDestSIT)
 		suite.Equal(subtestData.reqPayload.ID(), respPayload.ID())
@@ -1073,7 +1262,6 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.PostalCode, respPayload.SitDestinationFinalAddress.PostalCode)
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.State, respPayload.SitDestinationFinalAddress.State)
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.Country, respPayload.SitDestinationFinalAddress.Country)
-
 	})
 
 	suite.Run("Failed PATCH - No DDDSIT found", func() {
@@ -1094,11 +1282,18 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		subtestData.reqPayload.SetID(strfmt.UUID(badUUID.String()))
 
 		// CALL FUNCTION UNDER TEST
+
+		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := subtestData.handler.Handle(subtestData.params)
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemNotFound{}, response)
+		responsePayload := response.(*mtoserviceitemops.UpdateMTOServiceItemNotFound).Payload
 
 		// CHECK RESULTS
-		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemNotFound{}, response)
+
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Failure 422 - Unprocessable Entity", func() {
@@ -1116,11 +1311,18 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		subtestData.reqPayload.SetID(strfmt.UUID(badUUID.String()))
 
 		// CALL FUNCTION UNDER TEST
+
+		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := subtestData.handler.Handle(subtestData.params)
 
 		// CHECK RESULTS
 		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemUnprocessableEntity{}, response)
+		responsePayload := response.(*mtoserviceitemops.UpdateMTOServiceItemUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Failed PATCH - Payment request created", func() {
@@ -1145,13 +1347,19 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		})
 
 		// CALL FUNCTION UNDER TEST
+
+		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := subtestData.handler.Handle(subtestData.params)
 
 		// CHECK RESULTS
 		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemConflict{}, response)
-	})
+		responsePayload := response.(*mtoserviceitemops.UpdateMTOServiceItemConflict).Payload
 
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
+	})
 }
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
@@ -1220,7 +1428,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		//             Receive a success response with the SitDepartureDate updated
 
 		// CALL FUNCTION UNDER TEST
+
+		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := subtestData.handler.Handle(subtestData.params)
 
 		// CHECK RESULTS
@@ -1228,10 +1439,14 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		r := response.(*mtoserviceitemops.UpdateMTOServiceItemOK)
 		resp1 := r.Payload
 
+		// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
+		//   but those are not listed in the enum in the swagger file for an MTO service item.
+		// Validate outgoing payload
+		// suite.NoError(resp1.Validate(strfmt.Default))
+
 		respPayload := resp1.(*primemessages.MTOServiceItemOriginSIT)
 		suite.Equal(subtestData.reqPayload.ID(), respPayload.ID())
 		suite.Equal(subtestData.reqPayload.SitDepartureDate.String(), respPayload.SitDepartureDate.String())
-
 	})
 
 	suite.Run("Failed PATCH - No DOPSIT found", func() {
@@ -1252,12 +1467,18 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		subtestData.reqPayload.SetID(strfmt.UUID(badUUID.String()))
 
 		// CALL FUNCTION UNDER TEST
+
+		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := subtestData.handler.Handle(subtestData.params)
 
 		// CHECK RESULTS
 		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemNotFound{}, response)
+		responsePayload := response.(*mtoserviceitemops.UpdateMTOServiceItemNotFound).Payload
 
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 	})
 
 	suite.Run("Failure 422 - Unprocessable Entity", func() {
@@ -1275,11 +1496,18 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		subtestData.reqPayload.SetID(strfmt.UUID(badUUID.String()))
 
 		// CALL FUNCTION UNDER TEST
+
+		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := subtestData.handler.Handle(subtestData.params)
 
 		// CHECK RESULTS
 		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemUnprocessableEntity{}, response)
+		responsePayload := response.(*mtoserviceitemops.UpdateMTOServiceItemUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
 
 		// return to good state for next test
 		subtestData.reqPayload.SetID(strfmt.UUID(subtestData.dopsit.ID.String()))
@@ -1307,11 +1535,17 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		})
 
 		// CALL FUNCTION UNDER TEST
+
+		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		response := subtestData.handler.Handle(subtestData.params)
 
 		// CHECK RESULTS
 		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemConflict{}, response)
-	})
+		responsePayload := response.(*mtoserviceitemops.UpdateMTOServiceItemConflict).Payload
 
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
+	})
 }

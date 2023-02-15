@@ -44,7 +44,6 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 
 	// sets the sub-scenarios
 	e.SubScenarios = map[string]func(){
-		"additional_ppm_users":         subScenarioAdditionalPPMUsers(appCtx, userUploader),
 		"diverted_shipments":           subScenarioDivertedShipments(appCtx, userUploader, allDutyLocations, originDutyLocationsInGBLOC),
 		"hhg_onboarding":               subScenarioHHGOnboarding(appCtx, userUploader),
 		"hhg_services_counseling":      subScenarioHHGServicesCounseling(appCtx, userUploader, allDutyLocations, originDutyLocationsInGBLOC),

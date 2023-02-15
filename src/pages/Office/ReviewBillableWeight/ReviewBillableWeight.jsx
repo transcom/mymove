@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Alert } from '@trussworks/react-uswds';
 import { useHistory, useParams } from 'react-router-dom';
 import { generatePath } from 'react-router';
-import { queryCache, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import DocumentViewerSidebar from '../DocumentViewerSidebar/DocumentViewerSidebar';
 
@@ -75,12 +75,13 @@ export default function ReviewBillableWeight() {
 
   const selectedShipment = filteredShipments ? filteredShipments[selectedShipmentIndex] : {};
 
-  const [mutateMTOShipment] = useMutation(updateMTOShipment, {
+  const queryClient = useQueryClient();
+  const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
       filteredShipments[filteredShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] =
         updatedMTOShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], filteredShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], filteredShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -88,16 +89,16 @@ export default function ReviewBillableWeight() {
     },
   });
 
-  const [mutateOrders] = useMutation(updateMaxBillableWeightAsTIO, {
+  const { mutate: mutateOrders } = useMutation(updateMaxBillableWeightAsTIO, {
     onSuccess: (data, variables) => {
-      queryCache.invalidateQueries([MOVES, moveCode]);
+      queryClient.invalidateQueries({ queryKey: [MOVES, moveCode] });
+      queryClient.invalidateQueries({ queryKey: [ORDERS, variables.orderID] });
       const updatedOrder = data.orders[variables.orderID];
-      queryCache.setQueryData([ORDERS, variables.orderID], {
+      queryClient.setQueryData([ORDERS, variables.orderID], {
         orders: {
           [`${variables.orderID}`]: updatedOrder,
         },
       });
-      queryCache.invalidateQueries([ORDERS, variables.orderID]);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -105,15 +106,15 @@ export default function ReviewBillableWeight() {
     },
   });
 
-  const [mutateMoves] = useMutation(updateTIORemarks, {
+  const { mutate: mutateMoves } = useMutation(updateTIORemarks, {
     onSuccess: (data, variables) => {
       const updatedMove = data.moves[variables.moveTaskOrderID];
-      queryCache.setQueryData([MOVES, variables.moveTaskOrderID], {
+      queryClient.setQueryData([MOVES, variables.moveTaskOrderID], {
         moves: {
           [`${variables.moveTaskOrderID}`]: updatedMove,
         },
       });
-      queryCache.invalidateQueries([MOVES, move.locator]);
+      queryClient.invalidateQueries([MOVES, move.locator]);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;

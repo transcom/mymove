@@ -86,7 +86,7 @@ const emptyAddressShape = {
   postalCode: '',
 };
 
-export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment = {} }) {
+export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment = {}, closeoutOffice = {} }) {
   const displayValues = {
     expectedDepartureDate: ppmShipment.expectedDepartureDate,
     pickupPostalCode: ppmShipment.pickupPostalCode || '',
@@ -107,8 +107,9 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
 
     estimatedIncentive: ppmShipment.estimatedIncentive,
     advanceRequested: ppmShipment.hasRequestedAdvance ?? false,
+    advanceStatus: ppmShipment.advanceStatus,
     advance: (ppmShipment.advanceAmountRequested / 100 || '').toString(),
-
+    closeoutOffice,
     counselorRemarks,
   };
 
@@ -249,6 +250,7 @@ export function formatPpmShipmentForAPI(formValues) {
     estimatedWeight: Number(formValues.estimatedWeight || '0'),
     hasProGear: !!formValues.hasProGear,
     hasRequestedAdvance: formValues.advanceRequested,
+    advanceStatus: formValues.advanceStatus,
   };
 
   if (formValues.hasProGear) {

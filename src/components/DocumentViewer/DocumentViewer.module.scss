@@ -17,15 +17,15 @@
     @include u-padding-x(1); // Additional padding is built into the buttons
     z-index: 98;
 
-    p {
+    .documentTitle {
       @include u-text('bold');
       color: $base-darkest;
       display: flex;
+      flex-grow: 1;
       min-width: 0;
 
       span:first-child {
         text-overflow: ellipsis;
-        flex-grow: 1;
         overflow: hidden;
         white-space: nowrap;
         padding-right: 3px;
@@ -35,6 +35,12 @@
         color: $base;
         white-space: nowrap;
       }
+    }
+
+    .downloadLink {
+      display: flex;
+      min-width: 145px;
+      justify-content: space-evenly;
     }
 
     button {

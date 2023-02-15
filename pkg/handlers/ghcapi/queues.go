@@ -46,6 +46,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				LastName:                params.LastName,
 				DestinationDutyLocation: params.DestinationDutyLocation,
 				OriginDutyLocation:      params.OriginDutyLocation,
+				RequestedMoveDate:       params.RequestedMoveDate,
 				Status:                  params.Status,
 				Page:                    params.Page,
 				PerPage:                 params.PerPage,
@@ -178,22 +179,28 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			}
 
 			ListOrderParams := services.ListOrderParams{
-				Branch:             params.Branch,
-				Locator:            params.Locator,
-				DodID:              params.DodID,
-				LastName:           params.LastName,
-				OriginDutyLocation: params.OriginDutyLocation,
-				OriginGBLOC:        params.OriginGBLOC,
-				SubmittedAt:        handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
-				RequestedMoveDate:  params.RequestedMoveDate,
-				Page:               params.Page,
-				PerPage:            params.PerPage,
-				Sort:               params.Sort,
-				Order:              params.Order,
-				NeedsPPMCloseout:   params.NeedsPPMCloseout,
+				Branch:                  params.Branch,
+				Locator:                 params.Locator,
+				DodID:                   params.DodID,
+				LastName:                params.LastName,
+				OriginDutyLocation:      params.OriginDutyLocation,
+				DestinationDutyLocation: params.DestinationDutyLocation,
+				OriginGBLOC:             params.OriginGBLOC,
+				SubmittedAt:             handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
+				RequestedMoveDate:       params.RequestedMoveDate,
+				Page:                    params.Page,
+				PerPage:                 params.PerPage,
+				Sort:                    params.Sort,
+				Order:                   params.Order,
+				NeedsPPMCloseout:        params.NeedsPPMCloseout,
+				PPMType:                 params.PpmType,
+				CloseoutInitiated:       handlers.FmtDateTimePtrToPopPtr(params.CloseoutInitiated),
+				CloseoutLocation:        params.CloseoutLocation,
 			}
 
-			if len(params.Status) == 0 {
+			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
+				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVED)}
+			} else if len(params.Status) == 0 {
 				ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
 			} else {
 				ListOrderParams.Status = params.Status

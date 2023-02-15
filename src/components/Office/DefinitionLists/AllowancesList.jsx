@@ -45,7 +45,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dd data-testid="spouseProgear">{formatWeight(info.spouseProgear)}</dd>
         </div>
         <div className={visualCuesStyle}>
-          <dt>RME</dt>
+          <dt>Required medical equipment</dt>
           <dd data-testid="rme">{formatWeight(info.requiredMedicalEquipmentWeight)}</dd>
         </div>
         <div className={visualCuesStyle}>

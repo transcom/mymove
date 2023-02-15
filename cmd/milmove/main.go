@@ -46,6 +46,16 @@ func main() {
 	initServeFlags(serveCommand.Flags())
 	root.AddCommand(serveCommand)
 
+	healthCommand := &cobra.Command{
+		Use:          "health",
+		Short:        "Checks the health of the MilMove server",
+		Long:         "Checks the health of the MilMove server",
+		RunE:         healthFunction,
+		SilenceUsage: true,
+	}
+	initServeFlags(healthCommand.Flags())
+	root.AddCommand(healthCommand)
+
 	migrateCommand := &cobra.Command{
 		Use:           "migrate",
 		Short:         "Runs MilMove migrations",

@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	webhooksubscriptionop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -173,7 +174,7 @@ func (suite *HandlerSuite) TestCreateWebhookSubscriptionHandler() {
 
 	// Actually test handler and creator on test database,
 	suite.Run("201 - Successful create", func() {
-		subscriber := testdatagen.MakeDefaultContractor(suite.DB())
+		subscriber := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		params := webhooksubscriptionop.CreateWebhookSubscriptionParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/webhook_subscriptions"),
 			WebhookSubscription: &adminmessages.CreateWebhookSubscription{

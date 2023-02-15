@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite MovingExpenseSuite) TestUpdateMovingExpense() {
+func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 
 	setupForTest := func(appCtx appcontext.AppContext, overrides *models.MovingExpense, hasDocumentUploads bool) *models.MovingExpense {
 		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
@@ -72,7 +72,7 @@ func (suite MovingExpenseSuite) TestUpdateMovingExpense() {
 			ID: uuid.Must(uuid.NewV4()),
 		}
 
-		updater := NewMovingExpenseUpdater()
+		updater := NewCustomerMovingExpenseUpdater()
 
 		updatedMovingExpense, err := updater.UpdateMovingExpense(suite.AppContextForTest(), notFoundMovingExpense, "")
 
@@ -93,7 +93,7 @@ func (suite MovingExpenseSuite) TestUpdateMovingExpense() {
 
 		originalMovingExpense := setupForTest(appCtx, nil, false)
 
-		updater := NewMovingExpenseUpdater()
+		updater := NewCustomerMovingExpenseUpdater()
 
 		updatedMovingExpense, updateErr := updater.UpdateMovingExpense(appCtx, *originalMovingExpense, "")
 
@@ -108,12 +108,49 @@ func (suite MovingExpenseSuite) TestUpdateMovingExpense() {
 		)
 	})
 
-	suite.Run("Successfully updates", func() {
+	suite.Run("Successfully updates as a customer", func() {
 		appCtx := suite.AppContextForTest()
 
 		originalMovingExpense := setupForTest(appCtx, nil, true)
 
-		updater := NewMovingExpenseUpdater()
+		updater := NewCustomerMovingExpenseUpdater()
+		contractedExpenseType := models.MovingExpenseReceiptTypeContractedExpense
+
+		expectedMovingExpense := &models.MovingExpense{
+			ID:                originalMovingExpense.ID,
+			MovingExpenseType: &contractedExpenseType,
+			Description:       models.StringPointer("Dumpster rental"),
+			PaidWithGTCC:      models.BoolPointer(true),
+			MissingReceipt:    models.BoolPointer(true),
+			Amount:            models.CentPointer(unit.Cents(67899)),
+			SITStartDate:      models.TimePointer(time.Now()),
+			SITEndDate:        models.TimePointer(time.Now()),
+		}
+
+		updatedMovingExpense, updateErr := updater.UpdateMovingExpense(appCtx, *expectedMovingExpense, etag.GenerateEtag(originalMovingExpense.UpdatedAt))
+
+		suite.Nil(updateErr)
+		suite.Equal(originalMovingExpense.ID, updatedMovingExpense.ID)
+		suite.Equal(originalMovingExpense.DocumentID, updatedMovingExpense.DocumentID)
+		// filters out the deleted upload
+		suite.Len(updatedMovingExpense.Document.UserUploads, 1)
+		suite.Equal(*expectedMovingExpense.MovingExpenseType, *updatedMovingExpense.MovingExpenseType)
+		suite.Equal(*expectedMovingExpense.Description, *updatedMovingExpense.Description)
+		suite.Equal(*expectedMovingExpense.PaidWithGTCC, *updatedMovingExpense.PaidWithGTCC)
+		suite.Equal(*expectedMovingExpense.Amount, *updatedMovingExpense.Amount)
+		suite.Equal(*expectedMovingExpense.MissingReceipt, *updatedMovingExpense.MissingReceipt)
+		// Only the storage type receipt should be able to set these fields, would we rather reject
+		// the update outright than fail silently?
+		suite.Nil(updatedMovingExpense.SITStartDate)
+		suite.Nil(updatedMovingExpense.SITEndDate)
+	})
+
+	suite.Run("Successfully updates as an office user", func() {
+		appCtx := suite.AppContextForTest()
+
+		originalMovingExpense := setupForTest(appCtx, nil, true)
+
+		updater := NewOfficeMovingExpenseUpdater()
 		contractedExpenseType := models.MovingExpenseReceiptTypeContractedExpense
 		rejectedStatus := models.PPMDocumentStatusRejected
 
@@ -144,11 +181,9 @@ func (suite MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.Equal(*expectedMovingExpense.MissingReceipt, *updatedMovingExpense.MissingReceipt)
 		suite.Equal(*expectedMovingExpense.Status, *updatedMovingExpense.Status)
 		suite.Equal(*expectedMovingExpense.Reason, *updatedMovingExpense.Reason)
-		// Only the storage type receipt should be able to set these fields, would we rather reject
-		// the update outright than fail silently?
+		// Only the storage type receipt should be able to set these fields
 		suite.Nil(updatedMovingExpense.SITStartDate)
 		suite.Nil(updatedMovingExpense.SITEndDate)
-
 	})
 
 	suite.Run("Successfully updates storage receipt type", func() {
@@ -156,7 +191,7 @@ func (suite MovingExpenseSuite) TestUpdateMovingExpense() {
 
 		originalMovingExpense := setupForTest(appCtx, nil, true)
 
-		updater := NewMovingExpenseUpdater()
+		updater := NewCustomerMovingExpenseUpdater()
 		storageExpenseType := models.MovingExpenseReceiptTypeStorage
 		storageStart := time.Now()
 		storageEnd := storageStart.Add(7 * time.Hour * 24)
@@ -198,7 +233,7 @@ func (suite MovingExpenseSuite) TestUpdateMovingExpense() {
 			SITEndDate:        models.TimePointer(time.Now()),
 		}, true)
 
-		updater := NewMovingExpenseUpdater()
+		updater := NewCustomerMovingExpenseUpdater()
 		packingReceiptType := models.MovingExpenseReceiptTypePackingMaterials
 
 		expectedMovingExpense := &models.MovingExpense{
@@ -235,7 +270,7 @@ func (suite MovingExpenseSuite) TestUpdateMovingExpense() {
 			Reason: models.StringPointer("Can't pump your own gas in New Jersey"),
 		}, true)
 
-		updater := NewMovingExpenseUpdater()
+		updater := NewOfficeMovingExpenseUpdater()
 		oilExpenseType := models.MovingExpenseReceiptTypeOil
 
 		approvedStatus := models.PPMDocumentStatusApproved
@@ -270,7 +305,7 @@ func (suite MovingExpenseSuite) TestUpdateMovingExpense() {
 
 		originalMovingExpense := setupForTest(appCtx, nil, false)
 
-		updater := NewMovingExpenseUpdater()
+		updater := NewCustomerMovingExpenseUpdater()
 		oilExpenseType := models.MovingExpenseReceiptTypeOil
 
 		approvedStatus := models.PPMDocumentStatusApproved
@@ -297,7 +332,7 @@ func (suite MovingExpenseSuite) TestUpdateMovingExpense() {
 
 		originalMovingExpense := setupForTest(appCtx, nil, true)
 
-		updater := NewMovingExpenseUpdater()
+		updater := NewOfficeMovingExpenseUpdater()
 		oilExpenseType := models.MovingExpenseReceiptTypeOil
 
 		excludedStatus := models.PPMDocumentStatusExcluded
@@ -316,6 +351,6 @@ func (suite MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.Nil(updatedMovingExpense)
 		suite.NotNil(updateErr)
 		suite.IsType(apperror.InvalidInputError{}, updateErr)
-		suite.ErrorContains(updateErr, "A reason must be provided when the status is EXCLUDED or REJECTED")
+		suite.ErrorContains(updateErr, "reason is mandatory if the status is Excluded or Rejected")
 	})
 }

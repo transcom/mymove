@@ -7,15 +7,15 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/factory"
 	postalcodesops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Valid() {
 	// create user
-	user := testdatagen.MakeStubbedUser(suite.DB())
+	user := factory.BuildUser(nil, nil, nil)
 
 	postalCode := "30813"
 	postalCodeTypeString := "Destination"
@@ -54,7 +54,7 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Valid() {
 
 func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Invalid() {
 	// create user
-	user := testdatagen.MakeStubbedUser(suite.DB())
+	user := factory.BuildUser(nil, nil, nil)
 
 	postalCode := "00000"
 	postalCodeTypeString := "Destination"

@@ -104,7 +104,7 @@ export class Summary extends Component {
   };
 
   renderShipments = () => {
-    const { currentMove, currentOrders, match } = this.props;
+    const { currentMove, currentOrders, match, serviceMember } = this.props;
     const { moveId } = match.params;
     const showEditAndDeleteBtn = currentMove.status === MOVE_STATUSES.DRAFT;
     let hhgShipmentNumber = 0;
@@ -118,6 +118,8 @@ export class Summary extends Component {
         return (
           <PPMShipmentCard
             key={shipment.id}
+            move={currentMove}
+            affiliation={serviceMember.affiliation}
             shipment={shipment}
             shipmentNumber={ppmShipmentNumber}
             showEditAndDeleteBtn={showEditAndDeleteBtn}

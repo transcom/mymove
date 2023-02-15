@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { DocsButton, EditButton } from './IconButtons';
+import { DocsButton, EditButton, ReviewButton } from './IconButtons';
 
 describe('DocsButton', () => {
   it('should render the button', () => {
@@ -37,6 +37,25 @@ describe('EditButton', () => {
   it('onClick works', async () => {
     const mockFn = jest.fn();
     render(<EditButton label="my edit button" onClick={mockFn} />);
+    await userEvent.click(screen.getByRole('button'));
+    await waitFor(() => {
+      expect(mockFn).toHaveBeenCalled();
+    });
+  });
+});
+
+describe('ReviewButton', () => {
+  it('should render the button', () => {
+    render(<ReviewButton label="this review button" />);
+    expect(screen.getByRole('button')).toHaveTextContent('this review button');
+  });
+  it('should pass props down', () => {
+    render(<ReviewButton label="this review button" className="sample-class" />);
+    expect(screen.getByRole('button')).toHaveClass('sample-class');
+  });
+  it('onClick works', async () => {
+    const mockFn = jest.fn();
+    render(<ReviewButton label="this review button" onClick={mockFn} />);
     await userEvent.click(screen.getByRole('button'));
     await waitFor(() => {
       expect(mockFn).toHaveBeenCalled();

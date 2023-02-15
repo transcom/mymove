@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -99,7 +100,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	})
 
 	suite.Run("moves with amended orders are set to APPROVALSREQUESTED status", func() {
-		// Under test: MoveRouter.Submit
+		// Under test: MoveRouter.RouteAfterAmendingOrders
 		// Set up: Submit an approved move with an orders record
 		// Expected outcome: move status updated to APPROVALSREQUESTED
 		document := testdatagen.MakeDefaultDocument(suite.DB())
@@ -115,19 +116,14 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			},
 			Order: order,
 		})
-		newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-			SignedCertification: models.SignedCertification{
-				MoveID: move.ID,
-			},
-			Stub: true,
-		})
-		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+
+		err := moveRouter.RouteAfterAmendingOrders(suite.AppContextForTest(), &move)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
 	})
 
 	suite.Run("moves with amended orders return an error if in CANCELLED status", func() {
-		// Under test: MoveRouter.Submit
+		// Under test: MoveRouter.RouteAfterAmendingOrders
 		// Set up: Create a CANCELLED move without an OrdersID
 		// Expected outcome: Error on ordersID
 		document := testdatagen.MakeDefaultDocument(suite.DB())
@@ -143,19 +139,14 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			},
 			Order: order,
 		})
-		newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-			SignedCertification: models.SignedCertification{
-				MoveID: move.ID,
-			},
-			Stub: true,
-		})
-		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+
+		err := moveRouter.RouteAfterAmendingOrders(suite.AppContextForTest(), &move)
 		suite.Error(err)
 		suite.Contains(err.Error(), fmt.Sprintf("The status for the move with ID %s can not be sent to 'Approvals Requested' if the status is cancelled.", move.ID))
 	})
 
 	suite.Run("moves with amended orders that already had amended orders go into the 'Approvals Requested' status and have a nil value for 'AmendedOrdersAcknowledgedAt", func() {
-		// Under test: MoveRouter.Submit
+		// Under test: MoveRouter.RouteAfterAmendingOrders
 		// Set up: Create a move amended orders acknowledged, then submit with amended orders
 		// Expected outcome: Status goes to APPROVALSREQUESTED and timestamp is cleared
 		document := testdatagen.MakeDefaultDocument(suite.DB())
@@ -174,13 +165,8 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			Order: order,
 		})
 		suite.NotNil(move.Orders.AmendedOrdersAcknowledgedAt)
-		newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-			SignedCertification: models.SignedCertification{
-				MoveID: move.ID,
-			},
-			Stub: true,
-		})
-		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+
+		err := moveRouter.RouteAfterAmendingOrders(suite.AppContextForTest(), &move)
 		suite.NoError(err)
 		var updatedOrders models.Order
 		err = suite.DB().Find(&updatedOrders, move.OrdersID)
@@ -225,11 +211,13 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		// Under test: MoveRouter.Submit
 		// Set up: Create a move that should go to services counselor, but doesn't have DRAFT or NEEDS SERVICE COUNSELING STATUS
 		// Expected outcome: Error
-		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-			DutyLocation: models.DutyLocation{
-				ProvidesServicesCounseling: true,
+		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
 			},
-		})
+		}, nil)
 		assertions := testdatagen.Assertions{
 			Order: models.Order{
 				OriginDutyLocation: &dutyLocation,
@@ -274,11 +262,13 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		}
 		for _, tt := range tests {
 			suite.Run(tt.desc, func() {
-				dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-					DutyLocation: models.DutyLocation{
-						ProvidesServicesCounseling: tt.ProvidesServicesCounseling,
+				dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+					{
+						Model: models.DutyLocation{
+							ProvidesServicesCounseling: tt.ProvidesServicesCounseling,
+						},
 					},
-				})
+				}, nil)
 
 				move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 					Order: models.Order{
@@ -340,11 +330,13 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		}
 		for _, tt := range tests {
 			suite.Run(tt.desc, func() {
-				dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-					DutyLocation: models.DutyLocation{
-						ProvidesServicesCounseling: tt.ProvidesServicesCounseling,
+				dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+					{
+						Model: models.DutyLocation{
+							ProvidesServicesCounseling: tt.ProvidesServicesCounseling,
+						},
 					},
-				})
+				}, nil)
 
 				move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 					Order: models.Order{

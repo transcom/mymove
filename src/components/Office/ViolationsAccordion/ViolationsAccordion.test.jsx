@@ -49,7 +49,7 @@ describe('ViolationsAccordion', () => {
     expect(screen.getByText(mockViolation.requirementSummary)).toBeInTheDocument();
   });
 
-  it('can expand and collapse the accordion to view requirement statement', () => {
+  it('can expand and collapse the accordion to view requirement statement', async () => {
     render(<ViolationsAccordion violations={[mockViolation]} />);
 
     // Requiremnt statement not shown initially, requires user to expand to view
@@ -60,7 +60,7 @@ describe('ViolationsAccordion', () => {
     expect(screen.queryByTestId('collapse-icon')).not.toBeInTheDocument();
 
     // Click expand
-    userEvent.click(screen.getByTestId('expand-icon'));
+    await userEvent.click(screen.getByTestId('expand-icon'));
 
     // Should now be showning the requirement statement
     expect(screen.getByText(mockViolation.requirementStatement)).toBeInTheDocument();
@@ -70,7 +70,7 @@ describe('ViolationsAccordion', () => {
     expect(screen.queryByTestId('expand-icon')).not.toBeInTheDocument();
 
     // Collapse section
-    userEvent.click(screen.getByTestId('collapse-icon'));
+    await userEvent.click(screen.getByTestId('collapse-icon'));
 
     // Requirments statement should no longer be shown and buttons reverted back
     expect(screen.queryByText(mockViolation.requirementStatement)).not.toBeInTheDocument();

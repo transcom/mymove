@@ -171,6 +171,16 @@ func TransportationOffice(office models.TransportationOffice) *internalmessages.
 	return payload
 }
 
+func TransportationOffices(transportationOffices models.TransportationOffices) internalmessages.TransportationOffices {
+	payload := make(internalmessages.TransportationOffices, len(transportationOffices))
+
+	for i, to := range transportationOffices {
+		transportationOffice := to
+		payload[i] = TransportationOffice(transportationOffice)
+	}
+	return payload
+}
+
 // OfficeUser internal payload
 func OfficeUser(officeUser *models.OfficeUser) *internalmessages.OfficeUser {
 	if officeUser == nil || officeUser.ID == uuid.Nil {

@@ -1,16 +1,19 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import ServicesCounselingQueue from './ServicesCounselingQueue';
 
-import { useUserQueries, useServicesCounselingQueueQueries } from 'hooks/queries';
+import { useUserQueries, useServicesCounselingQueueQueries, useServicesCounselingQueuePPMQueries } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
 import { MOVE_STATUSES } from 'shared/constants';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
+import { servicesCounselingRoutes } from 'constants/routes';
 
 jest.mock('hooks/queries', () => ({
   useUserQueries: jest.fn(),
   useServicesCounselingQueueQueries: jest.fn(),
+  useServicesCounselingQueuePPMQueries: jest.fn(),
 }));
 
 const serviceCounselorUser = {
@@ -18,6 +21,14 @@ const serviceCounselorUser = {
   isError: false,
   data: {
     office_user: { transportation_office: { gbloc: 'LKNQ' } },
+  },
+};
+
+const serviceCounselorUserForCloseout = {
+  isLoading: false,
+  isError: false,
+  data: {
+    office_user: { transportation_office: { gbloc: 'TVCB' } },
   },
 };
 
@@ -140,7 +151,7 @@ describe('ServicesCounselingQueue', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
     useServicesCounselingQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
     const wrapper = mount(
-      <MockProviders initialEntries={['/counseling/queue']}>
+      <MockProviders initialEntries={[servicesCounselingRoutes.DEFAULT_QUEUE_PATH]}>
         <ServicesCounselingQueue />
       </MockProviders>,
     );
@@ -162,7 +173,7 @@ describe('ServicesCounselingQueue', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
     useServicesCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
     const wrapper = mount(
-      <MockProviders initialEntries={['/counseling/queue']}>
+      <MockProviders initialEntries={[servicesCounselingRoutes.DEFAULT_QUEUE_PATH]}>
         <ServicesCounselingQueue />
       </MockProviders>,
     );
@@ -247,7 +258,7 @@ describe('ServicesCounselingQueue', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
     useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
     const wrapper = mount(
-      <MockProviders initialEntries={['/counseling/queue']}>
+      <MockProviders initialEntries={[servicesCounselingRoutes.DEFAULT_QUEUE_PATH]}>
         <ServicesCounselingQueue />
       </MockProviders>,
     );
@@ -267,6 +278,48 @@ describe('ServicesCounselingQueue', () => {
 
       const secondMove = moves.at(1);
       expect(secondMove.find('td.status').text()).toBe('Service counseling completed');
+    });
+  });
+
+  describe('service counseling tab routing', () => {
+    it.each([
+      ['counselor', servicesCounselingRoutes.DEFAULT_QUEUE_PATH, true, serviceCounselorUser],
+      ['counselor', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, true, serviceCounselorUser],
+      ['counselor', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, false, serviceCounselorUser],
+      ['closeout', servicesCounselingRoutes.DEFAULT_QUEUE_PATH, false, serviceCounselorUserForCloseout],
+      ['closeout', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, true, serviceCounselorUserForCloseout],
+      ['closeout', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, false, serviceCounselorUserForCloseout],
+    ])('a %s user accessing path "%s"', (userDescription, path, showsCounselingTab, user) => {
+      useUserQueries.mockReturnValue(user);
+      useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
+      useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
+      render(
+        <MockProviders initialEntries={[path]}>
+          <ServicesCounselingQueue />
+        </MockProviders>,
+      );
+
+      if (showsCounselingTab) {
+        // Make sure "Counseling" is the active tab.
+        const counselingActive = screen.getByText('Counseling', { selector: '.usa-current .tab-title' });
+        expect(counselingActive).toBeInTheDocument();
+
+        // Check for the "Counseling" columns.
+        expect(screen.getByText(/Status/)).toBeInTheDocument();
+        expect(screen.getByText(/Requested move date/)).toBeInTheDocument();
+        expect(screen.getByText(/Date submitted/)).toBeInTheDocument();
+        expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
+      } else {
+        // Make sure "PPM Closeout" is the active tab.
+        const ppmCloseoutActive = screen.getByText('PPM Closeout', { selector: '.usa-current .tab-title' });
+        expect(ppmCloseoutActive).toBeInTheDocument();
+
+        // Check for the "PPM Closeout" columns.
+        expect(screen.getByText(/Closeout initiated/)).toBeInTheDocument();
+        expect(screen.getByText(/PPM closeout location/)).toBeInTheDocument();
+        expect(screen.getByText(/Full or partial PPM/)).toBeInTheDocument();
+        expect(screen.getByText(/Destination duty location/)).toBeInTheDocument();
+      }
     });
   });
 });

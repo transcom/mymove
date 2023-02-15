@@ -8,7 +8,7 @@ import weightFields from 'constants/MoveHistory/Database/WeightFields';
 import { shipmentTypes } from 'constants/shipments';
 import { HistoryLogRecordShape } from 'constants/MoveHistory/UIDisplay/HistoryLogShape';
 import optionFields from 'constants/MoveHistory/Database/OptionFields';
-import { formatCustomerDate, formatWeight } from 'utils/formatters';
+import { formatCustomerDate, formatWeight, formatYesNoMoveHistoryValue } from 'utils/formatters';
 
 const retrieveTextToDisplay = (fieldName, value) => {
   const emptyValue = '—';
@@ -24,6 +24,8 @@ const retrieveTextToDisplay = (fieldName, value) => {
     displayValue = optionFields[displayValue];
   } else if (dateFields[fieldName]) {
     displayValue = formatCustomerDate(displayValue);
+  } else if (displayName === fieldMappings.dependents_authorized || displayName === fieldMappings.has_dependents) {
+    displayValue = formatYesNoMoveHistoryValue(displayValue);
   }
 
   if (!displayValue) {

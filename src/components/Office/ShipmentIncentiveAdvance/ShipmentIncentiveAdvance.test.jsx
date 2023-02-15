@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -22,6 +22,11 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
     expect(screen.getByLabelText('Yes')).not.toBeChecked();
 
     expect(screen.queryByLabelText('Amount requested')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Advance request status:')).not.toBeInTheDocument();
+    expect(screen.queryByText('Maximum advance:')).not.toBeInTheDocument();
+    expect(screen.queryByText('Review the advance (AOA) request:')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Reject')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Approve')).not.toBeInTheDocument();
   });
 
   it('should respond to user radio button input', async () => {
@@ -31,9 +36,16 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
       </Formik>,
     );
 
-    userEvent.click(screen.getByLabelText('Yes'));
+    await userEvent.click(screen.getByLabelText('Yes'));
 
-    expect(await screen.findByLabelText('Amount requested')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByLabelText('Amount requested')).toBeInTheDocument();
+      expect(screen.queryByText('Advance request status:')).toBeInTheDocument();
+      expect(screen.queryByText('Maximum advance: $0')).toBeInTheDocument();
+      expect(screen.queryByText('Review the advance (AOA) request:')).toBeInTheDocument();
+      expect(screen.queryByLabelText('Reject')).toBeInTheDocument();
+      expect(screen.queryByLabelText('Approve')).toBeInTheDocument();
+    });
   });
 
   it('should respond to props and form values', async () => {
@@ -46,11 +58,15 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
     });
 
     render(
-      <Formik validationSchema={validationSchema} initialValues={{ advanceRequested: 'true', advance: '7000' }}>
+      <Formik
+        validationSchema={validationSchema}
+        initialValues={{ advanceRequested: 'true', advance: '7000', advanceStatus: 'APPROVED' }}
+      >
         <ShipmentIncentiveAdvance estimatedIncentive={estimatedIncentive} />
       </Formik>,
     );
 
+    expect(screen.getByLabelText('Yes')).toBeChecked();
     expect(await screen.findByLabelText('Amount requested')).toHaveValue('7,000');
     expect(
       screen.getByText(
@@ -58,5 +74,7 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
       ),
     ).toBeInTheDocument();
     expect(screen.getByText('Maximum advance: $6,666')).toBeInTheDocument();
+    expect(screen.getByLabelText('Approve')).toBeInTheDocument();
+    expect(screen.getByLabelText('Approve')).toBeChecked();
   });
 });

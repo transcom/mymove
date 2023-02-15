@@ -17,7 +17,9 @@
     @include u-margin-y(0);
   }
 
-  p + dl, p + ul, h3 + ul {
+  p + dl,
+  p + ul,
+  h3 + ul {
     @include u-margin-y(0);
   }
 
@@ -28,7 +30,8 @@
       @include u-font-size('body', 'xs');
     }
 
-    dt, dd {
+    dt,
+    dd {
       display: inline;
     }
 
@@ -72,6 +75,34 @@
     ul {
       list-style-position: inside;
       @include u-padding-left(0);
+    }
+  }
+
+  /*
+   * Note: This is functionally re-implementing part of the <Grid> component from react-uswds
+   * because Storybook (and only Storybook) was experiencing a very strange bug where the non-@media
+   * "[grid-row=*]" selector was being added into the compiled CSS multiple times and resolved in an
+   * incorrect order. I tried to debug this for four days and couldn't resolve it.
+   */
+
+  .signatureField {
+    width: 100%;
+  }
+
+  .dateField {
+    width: 100%;
+  }
+
+  @include at-media(tablet) {
+    .signatureField {
+      display: inline-block;
+      width: calc((100% / 12) * 6);
+    }
+
+    .dateField {
+      display: inline-block;
+      width: calc((100% / 12) * 4);
+      margin-left: calc((100% / 12) * 1);
     }
   }
 }

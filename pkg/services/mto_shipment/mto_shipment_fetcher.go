@@ -63,6 +63,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 	// EagerPreload causes duplicate records because there are multiple relationships to the same table
 	for i := range shipments {
 		if shipments[i].ShipmentType == models.MTOShipmentTypePPM {
+			shipments[i].PPMShipment.WeightTickets = shipments[i].PPMShipment.WeightTickets.FilterDeleted()
 			for j := range shipments[i].PPMShipment.WeightTickets {
 				// variable for convenience still modifies original shipments object
 				weightTicket := &shipments[i].PPMShipment.WeightTickets[j]
@@ -86,6 +87,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 				weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightTicket.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
 			}
 
+			shipments[i].PPMShipment.MovingExpenses = shipments[i].PPMShipment.MovingExpenses.FilterDeleted()
 			for j := range shipments[i].PPMShipment.MovingExpenses {
 				movingExpense := &shipments[i].PPMShipment.MovingExpenses[j]
 
@@ -96,6 +98,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 				movingExpense.Document.UserUploads = movingExpense.Document.UserUploads.FilterDeleted()
 			}
 
+			shipments[i].PPMShipment.ProgearExpenses = shipments[i].PPMShipment.ProgearExpenses.FilterDeleted()
 			for j := range shipments[i].PPMShipment.ProgearExpenses {
 				progearWeightTicket := &shipments[i].PPMShipment.ProgearExpenses[j]
 

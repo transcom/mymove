@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -31,7 +32,7 @@ func TestSimplePopSuite(t *testing.T) {
 func (suite *SimplePopSuite) TestRunWithPreloadData() {
 	var address models.Address
 	suite.PreloadData(func() {
-		address = testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		address = factory.BuildAddress(suite.DB(), nil, nil)
 	})
 
 	suite.Run("PreloadData test records available in subtest", func() {
@@ -45,7 +46,7 @@ func (suite *SimplePopSuite) TestRunWithPreloadData() {
 	var address2 models.Address
 	suite.Run("Subtest record creation", func() {
 		// Create address to search for in the next test
-		address2 = testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+		address2 = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 	})
 
 	suite.Run("Subtest record not found", func() {
@@ -66,7 +67,7 @@ func (suite *SimplePopSuite) TestRunWithPreloadData() {
 }
 
 func (suite *SimplePopSuite) TestMultipleDBPanic() {
-	address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+	address := factory.BuildAddress(suite.DB(), nil, nil)
 
 	suite.Run("Trying to use db in main and subtest panics", func() {
 		panicFunc := func() {
@@ -82,7 +83,7 @@ func (suite *SimplePopSuite) TestRun() {
 	var address2 models.Address
 	suite.Run("Subtest record creation", func() {
 		// Create address to search for in the next test
-		address2 = testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+		address2 = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 	})
 
 	suite.Run("Subtest record not found", func() {

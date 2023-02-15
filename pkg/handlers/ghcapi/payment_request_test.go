@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -38,7 +39,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 			},
 		})
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 			RoleType: roles.RoleTypeTIO,
 		})
@@ -61,11 +62,18 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 			suite.HandlerConfig(),
 			paymentrequest.NewPaymentRequestFetcher(),
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
 		suite.IsType(&paymentrequestop.GetPaymentRequestOK{}, response)
 		okResponse := response.(*paymentrequestop.GetPaymentRequestOK)
 		payload := okResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		paymentServiceItemParamPayload := payload.ServiceItems[0].PaymentServiceItemParams[0]
 
 		suite.Equal(paymentRequest.ID.String(), payload.ID.String())
@@ -99,9 +107,16 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 			suite.HandlerConfig(),
 			paymentRequestFetcher,
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
 		suite.IsType(&paymentrequestop.GetPaymentRequestNotFound{}, response)
+		payload := response.(*paymentrequestop.GetPaymentRequestNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 }
 
@@ -111,7 +126,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 	var moveLocator string
 
 	setupTestData := func() (models.PaymentServiceItemParam, models.OfficeUser) {
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 		moveLocator = move.Locator
@@ -151,10 +166,17 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 			HandlerConfig:             handlerConfig,
 			PaymentRequestListFetcher: paymentrequest.NewPaymentRequestListFetcher(),
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
-		suite.Assertions.IsType(&paymentrequestop.GetPaymentRequestsForMoveOK{}, response)
+		suite.IsType(&paymentrequestop.GetPaymentRequestsForMoveOK{}, response)
 		paymentRequestsResponse := response.(*paymentrequestop.GetPaymentRequestsForMoveOK)
 		paymentRequestsPayload := paymentRequestsResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(paymentRequestsPayload.Validate(strfmt.Default))
+
 		paymentServiceItemParamPayload := paymentRequestsPayload[0].ServiceItems[0].PaymentServiceItemParams[0]
 
 		suite.Equal(1, len(paymentRequestsPayload))
@@ -188,10 +210,16 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 			HandlerConfig:             handlerConfig,
 			PaymentRequestListFetcher: paymentRequestListFetcher,
 		}
+
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&paymentrequestop.GetPaymentRequestNotFound{}, response)
-	})
+		payload := response.(*paymentrequestop.GetPaymentRequestNotFound).Payload
 
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
+	})
 }
 
 func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
@@ -199,7 +227,11 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	officeUserUUID, _ := uuid.NewV4()
 
 	setupTestData := func() models.OfficeUser {
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true, OfficeUser: models.OfficeUser{ID: officeUserUUID}})
+		officeUser := factory.BuildOfficeUser(nil, []factory.Customization{
+			{Model: models.OfficeUser{
+				ID: officeUserUUID,
+			}},
+		}, nil)
 		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 			RoleType: roles.RoleTypeTIO,
 		})
@@ -238,11 +270,17 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusOK(), response)
-
 		payload := response.(*paymentrequestop.UpdatePaymentRequestStatusOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.Equal(models.PaymentRequestStatusReviewed.String(), string(payload.Status))
 		suite.NotNil(payload.ReviewedAt)
 	})
@@ -270,11 +308,17 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.Logger().Error("")
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusOK(), response)
-
 		payload := response.(*paymentrequestop.UpdatePaymentRequestStatusOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.Equal(models.PaymentRequestStatusReviewedAllRejected.String(), string(payload.Status))
 		suite.NotNil(payload.ReviewedAt)
 	})
@@ -311,8 +355,15 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 				PaymentRequestFetcher:       paymentRequestFetcher,
 			}
 
+			// Validate incoming payload
+			suite.NoError(params.Body.Validate(strfmt.Default))
+
 			response := handler.Handle(params)
 			suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity(), response)
+			payload := response.(*paymentrequestop.UpdatePaymentRequestStatusUnprocessableEntity).Payload
+
+			// Validate outgoing payload
+			suite.NoError(payload.Validate(strfmt.Default))
 		}
 	})
 
@@ -351,9 +402,17 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusOK(), response)
+		payload := response.(*paymentrequestop.UpdatePaymentRequestStatusOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.HasWebhookNotification(availablePaymentRequestID, traceID)
 	})
 
@@ -382,10 +441,16 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), response)
+		payload := response.(*paymentrequestop.UpdatePaymentRequestStatusInternalServerError).Payload
 
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
 	})
 
 	suite.Run("unsuccessful status update of payment request, not found (404)", func() {
@@ -413,10 +478,16 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusNotFound(), response)
+		payload := response.(*paymentrequestop.UpdatePaymentRequestStatusNotFound).Payload
 
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("unsuccessful status update of payment request, precondition failed (412)", func() {
@@ -444,10 +515,16 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed(), response)
+		payload := response.(*paymentrequestop.UpdatePaymentRequestStatusPreconditionFailed).Payload
 
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("unsuccessful status update of payment request, validation errors (422)", func() {
@@ -475,17 +552,23 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
 
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity(), response)
-	})
+		payload := response.(*paymentrequestop.UpdatePaymentRequestStatusUnprocessableEntity).Payload
 
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
 }
 
 func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 
 	setupTestData := func() models.OfficeUser {
-		officeUserTIO := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		officeUserTIO := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
 		return officeUserTIO
 	}
 
@@ -645,11 +728,15 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 			ShipmentsPaymentSITBalance: paymentrequest.NewPaymentRequestShipmentsSITBalance(),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
 		suite.IsType(&paymentrequestop.GetShipmentsPaymentSITBalanceOK{}, response)
-
 		payload := response.(*paymentrequestop.GetShipmentsPaymentSITBalanceOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.NotNil(payload)
 		suite.Len(payload, 1)
@@ -680,8 +767,14 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 			ShipmentsPaymentSITBalance: paymentrequest.NewPaymentRequestShipmentsSITBalance(),
 		}
 
+		// Validate incoming payload: no body to validate
+
 		response := handler.Handle(params)
 
 		suite.IsType(&paymentrequestop.GetShipmentsPaymentSITBalanceNotFound{}, response)
+		payload := response.(*paymentrequestop.GetShipmentsPaymentSITBalanceNotFound).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }

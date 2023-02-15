@@ -30,6 +30,9 @@ type HandlerConfig interface {
 		*http.Request,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error),
 	) middleware.Responder
+	AuditableAppContextFromRequestBasicHandler(
+		handler AuditableAppContextBasicHandler,
+	) http.Handler
 	FileStorer() storage.FileStorer
 	NotificationSender() notifications.NotificationSender
 	Planner() route.Planner
@@ -139,17 +142,14 @@ func (c *Config) AuditableAppContextFromRequestWithErrors(
 	var resp middleware.Responder
 	appCtx := c.AppContextFromRequest(r)
 	err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		var userID uuid.UUID
-		if txnAppCtx.Session() != nil {
-			userID = txnAppCtx.Session().UserID
-		}
+		auditUserID := audit.RetrieveAuditUserIDFromContext(r.Context())
 		// not sure why, but using RawQuery("SET LOCAL foo = ?",
 		// thing) did not work
-		err := txnAppCtx.DB().RawQuery("SET LOCAL audit.current_user_id = '" + userID.String() + "'").Exec()
+		err := txnAppCtx.DB().RawQuery("SET LOCAL audit.current_user_id = '" + auditUserID.String() + "'").Exec()
 		if err != nil {
 			return err
 		}
-		eventName := audit.EventNameFromContext(r.Context())
+		eventName := audit.RetrieveEventNameFromContext(r.Context())
 		err = txnAppCtx.DB().RawQuery("SET LOCAL audit.current_event_name = '" + eventName + "'").Exec()
 		if err != nil {
 			return err
@@ -161,6 +161,37 @@ func (c *Config) AuditableAppContextFromRequestWithErrors(
 		return resp
 	}
 	return resp
+}
+
+type AuditableAppContextBasicHandler func(appCtx appcontext.AppContext, w http.ResponseWriter, r *http.Request) error
+
+// AuditableAppContextFromRequestBasicHandler creates a transaction and sets local
+// variables for use by the auditable trigger and also allows handlers to return errors.
+func (c *Config) AuditableAppContextFromRequestBasicHandler(
+	handler AuditableAppContextBasicHandler,
+) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		appCtx := c.AppContextFromRequest(r)
+		err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+			auditUserID := audit.RetrieveAuditUserIDFromContext(r.Context())
+			// not sure why, but using RawQuery("SET LOCAL foo = ?",
+			// thing) did not work
+			err := txnAppCtx.DB().RawQuery("SET LOCAL audit.current_user_id = '" + auditUserID.String() + "'").Exec()
+			if err != nil {
+				return err
+			}
+			eventName := audit.RetrieveEventNameFromContext(r.Context())
+			err = txnAppCtx.DB().RawQuery("SET LOCAL audit.current_event_name = '" + eventName + "'").Exec()
+			if err != nil {
+				return err
+			}
+
+			return handler(txnAppCtx, w, r)
+		})
+		if err != nil {
+			appCtx.Logger().Error("AuditableAppContextFromRequestBasicHandler", zap.Error(err))
+		}
+	})
 }
 
 func (c *Config) sessionFromRequest(r *http.Request) *auth.Session {

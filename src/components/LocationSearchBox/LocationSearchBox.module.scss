@@ -1,0 +1,21 @@
+@import 'shared/styles/_basics';
+.title {
+  @include u-margin-bottom(1);
+}
+
+.titleWithError {
+  font-weight: bold;
+}
+
+.dutyInputBoxError {
+  margin-left: 0px;
+  margin-top: 3px;
+  border: 3px solid #cd2026;
+  max-width: 32rem;
+}
+
+
+.hint.hint {
+  @include u-margin-top(0);
+  @include u-margin-bottom(1);
+}

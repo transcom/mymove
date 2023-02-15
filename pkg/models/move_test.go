@@ -19,6 +19,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -37,7 +38,7 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 
 func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
-	testdatagen.MakeDefaultContractor(suite.DB())
+	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	selectedMoveType := SelectedMoveTypeHHG
 
 	moveOptions := MoveOptions{
@@ -73,7 +74,7 @@ func (suite *ModelSuite) TestFetchMove() {
 	setupTestData := func() (*auth.Session, Order) {
 
 		order := testdatagen.MakeDefaultOrder(suite.DB())
-		testdatagen.MakeDefaultContractor(suite.DB())
+		factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 		session := &auth.Session{
 			UserID:          order.ServiceMember.UserID,
@@ -208,7 +209,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	// Given: A move with Orders with unacceptable status
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = ""
-	testdatagen.MakeDefaultContractor(suite.DB())
+	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
 	moveOptions := MoveOptions{
@@ -229,7 +230,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	// Given: A move with Orders with acceptable status
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = OrderStatusSUBMITTED
-	testdatagen.MakeDefaultContractor(suite.DB())
+	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
 	moveOptions := MoveOptions{
@@ -282,4 +283,26 @@ func (suite *ModelSuite) TestFetchMoveByOrderID() {
 		}
 		suite.Equal(move.ID, ts.resultID, "Wrong moveID: %s", ts.lookupID)
 	}
+}
+
+func (suite *ModelSuite) TestMoveIsPPMOnly() {
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	isPPMOnly := move.IsPPMOnly()
+	suite.False(isPPMOnly, "A move with no shipments will return false for isPPMOnly.")
+
+	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{
+		MTOShipment: MTOShipment{
+			ShipmentType: MTOShipmentTypePPM,
+		},
+	})
+	isPPMOnly = move.IsPPMOnly()
+	suite.True(isPPMOnly, "A move with only PPM shipments will return true for isPPMOnly")
+
+	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{
+		MTOShipment: MTOShipment{
+			ShipmentType: MTOShipmentTypeHHG,
+		},
+	})
+	isPPMOnly = move.IsPPMOnly()
+	suite.False(isPPMOnly, "A move with one PPM shipment and one HHG shipment will return false for isPPMOnly.")
 }
