@@ -45,7 +45,9 @@ INSERT INTO public.client_certs (
 	id,
 	sha256_digest,
 	subject,
+	user_id,
 	allow_orders_api,
+	allow_prime,
 	created_at,
 	updated_at,
 	allow_air_force_orders_read,
@@ -57,16 +59,16 @@ INSERT INTO public.client_certs (
 	allow_marine_corps_orders_read,
 	allow_marine_corps_orders_write,
 	allow_navy_orders_read,
-	allow_navy_orders_write,
-	allow_prime)
+	allow_navy_orders_write)
 VALUES (
 	'{{.ID}}',
 	'{{.Fingerprint}}',
 	'{{.Subject}}',
+	'{{.UserID}}',
+	true,
 	true,
 	now(),
 	now(),
-	true,
 	true,
 	true,
 	true,
@@ -248,9 +250,12 @@ func genCertsMigration(cmd *cobra.Command, args []string) error {
 		subject = v.GetString(SubjectFlag)
 	}
 
+	userID := v.GetString(UserIDFlag)
+
 	certsTemplate := CertsTemplate{
 		Fingerprint: fingerprint,
 		Subject:     subject,
+		UserID:      userID,
 	}
 
 	var t1 *template.Template
