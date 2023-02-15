@@ -4679,24 +4679,24 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 
 	lotNumber := "654321"
 
-	storageFacility := testdatagen.MakeStorageFacility(db, testdatagen.Assertions{
-		StorageFacility: models.StorageFacility{
-			Address: factory.BuildAddress(db, []factory.Customization{
-				{
-					Model: models.Address{
-						StreetAddress1: "1234 Over Here Street",
-						City:           "Houston",
-						State:          "TX",
-						PostalCode:     "77083",
-						Country:        models.StringPointer("US"),
-					},
-				},
-			}, nil),
-			Email:        swag.String("old@email.com"),
-			FacilityName: "Storage R Us",
-			LotNumber:    &lotNumber,
+	storageFacility := factory.BuildStorageFacility(db, []factory.Customization{
+		{
+			Model: models.StorageFacility{
+				Email:        models.StringPointer("old@email.com"),
+				FacilityName: "Storage R Us",
+				LotNumber:    &lotNumber,
+			},
 		},
-	})
+		{
+			Model: models.Address{
+				StreetAddress1: "1234 Over Here Street",
+				City:           "Houston",
+				State:          "TX",
+				PostalCode:     "77083",
+				Country:        models.StringPointer("US"),
+			},
+		},
+	}, nil)
 
 	tacType := models.LOATypeNTS
 	sacType := models.LOATypeNTS

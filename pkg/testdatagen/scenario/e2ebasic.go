@@ -3296,12 +3296,14 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 	}, nil)
 
 	// Create Storage Facility
-	storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			// KKFA GBLOC
-			PostalCode: "85005",
+	storageFacility := factory.BuildStorageFacility(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// KKFA GBLOC
+				PostalCode: "85005",
+			},
 		},
-	})
+	}, nil)
 
 	// Create NTS-R Shipment
 	tacType := models.LOATypeHHG
@@ -3812,11 +3814,8 @@ func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader
 	}, nil)
 
 	// Create Storage Facility
-	storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			// KKFA GBLOC
-			PostalCode: "85004",
-		},
+	storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, []factory.Trait{
+		factory.GetTraitStorageFacilityKKFA,
 	})
 
 	// Create NTS-R Shipment
