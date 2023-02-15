@@ -15,6 +15,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -30,7 +31,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 	suite.NoError(err)
 
 	setupTestData := func() {
-		contractor = testdatagen.MakeDefaultContractor(suite.DB())
+		contractor = factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 		fakeS3 = test.NewFakeS3Storage(true)
 		paymentRequestID, err := uuid.FromString("9b873071-149f-43c2-8971-e93348ebc5e3")
@@ -83,7 +84,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 	fakeS3 := test.NewFakeS3Storage(true)
 
 	setupTestData := func() {
-		contractor = testdatagen.MakeDefaultContractor(suite.DB())
+		contractor = factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		testdatagen.MakeDefaultPaymentRequest(suite.DB())
 	}
 

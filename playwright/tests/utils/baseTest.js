@@ -5,7 +5,11 @@
  */
 // @ts-check
 
-const { TestHarness } = require('./testharness');
+import * as path from 'path';
+
+import { expect } from '@playwright/test';
+
+import { TestHarness } from './testharness';
 
 /**
  * base test fixture for playwright
@@ -57,6 +61,22 @@ export class BaseTestPage {
   async signInAsUserWithId(userId) {
     await this.page.goto('/devlocal-auth/login');
     await this.page.locator(`button[value="${userId}"]`).click();
+  }
+
+  /**
+   * Use fileChooser to upload files
+   *
+   * @param {import('@playwright/test').Locator} locator
+   * @param {string} relativeFilePath path relative to playwright/fixtures
+   */
+  async uploadFileViaFilepond(locator, relativeFilePath) {
+    const filePath = path.join('playwright/fixtures', relativeFilePath);
+    const chooser = locator.getByText('choose from folder');
+    await expect(chooser).toBeVisible();
+    const fileChooserPromise = this.page.waitForEvent('filechooser');
+    await chooser.click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles(filePath);
   }
 }
 

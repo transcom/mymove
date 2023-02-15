@@ -2781,6 +2781,7 @@ paths:
             - status
             - originDutyLocation
             - destinationDutyLocation
+            - requestedMoveDate
           description: field that results should be sorted by
         - in: query
           name: order
@@ -2807,6 +2808,10 @@ paths:
         - in: query
           name: destinationDutyLocation
           type: string
+        - in: query
+          name: requestedMoveDate
+          type: string
+          description: filters the requested pickup date of a shipment on the move
         - in: query
           name: status
           type: array
@@ -4402,6 +4407,9 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+      advanceStatus:
+        $ref: '#/definitions/PPMAdvanceStatus'
+        x-nullable: true
   UpdateWeightTicket:
     type: object
     properties:
@@ -5911,6 +5919,10 @@ definitions:
   PPMAdvanceStatus:
     type: string
     title: PPM Advance Status
+    description: >-
+      Indicates whether an advance status has been accepted, rejected, or
+      edited.
+    x-nullable: true
     enum:
       - APPROVED
       - REJECTED
@@ -6882,6 +6894,12 @@ definitions:
     items:
       $ref: '#/definitions/ProGearWeightTicket'
     x-omitempty: false
+  MovingExpenses:
+    description: All moving expenses associated with a PPM shipment.
+    type: array
+    items:
+      $ref: '#/definitions/MovingExpense'
+    x-omitempty: false
   PPMDocuments:
     description: >-
       All documents associated with a PPM shipment, including weight tickets,
@@ -6895,7 +6913,7 @@ definitions:
       ProGearWeightTickets:
         $ref: '#/definitions/ProGearWeightTickets'
       MovingExpenses:
-        $ref: '#/definitions/ProGearWeightTickets'
+        $ref: '#/definitions/MovingExpenses'
   PPMDocumentStatus:
     description: Status of the PPM document.
     type: string

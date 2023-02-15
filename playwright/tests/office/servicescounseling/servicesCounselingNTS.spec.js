@@ -5,21 +5,15 @@
  */
 
 // @ts-check
-const { test, expect } = require('../../utils/officeTest');
-
-const { ServiceCounselorPage } = require('./servicesCounselingTestFixture');
+import { test, expect } from './servicesCounselingTestFixture';
 
 test.describe('Services counselor user', () => {
-  /** @type {ServiceCounselorPage} */
-  let scPage;
-  test.beforeEach(async ({ officePage }) => {
-    const move = await officePage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
-    await officePage.signInAsNewServicesCounselorUser();
-    scPage = new ServiceCounselorPage(officePage, move);
-    await scPage.navigateToMove();
+  test.beforeEach(async ({ scPage }) => {
+    const move = await scPage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
+    await scPage.navigateToMove(move.locator);
   });
 
-  test('Services Counselor can delete/remove an NTS shipment request', async ({ page }) => {
+  test('Services Counselor can delete/remove an NTS shipment request', async ({ page, scPage }) => {
     // this test is almost identical to the NTSR test
     await scPage.addNTSShipment();
 
@@ -40,7 +34,7 @@ test.describe('Services counselor user', () => {
     await expect(page.locator('[data-testid="ShipmentContainer"] .usa-button')).toHaveCount(1);
   });
 
-  test('Services Counselor can enter accounting codes and submit shipment', async ({ page }) => {
+  test('Services Counselor can enter accounting codes and submit shipment', async ({ page, scPage }) => {
     // this test is almost identical to the NTSR test
     await scPage.addNTSShipment();
     // edit the newly added NTS shipment

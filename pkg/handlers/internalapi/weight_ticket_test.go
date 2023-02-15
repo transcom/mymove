@@ -9,13 +9,16 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	weightticketops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // CREATE TEST
@@ -97,7 +100,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 
 		subtestData := makeCreateSubtestData(appCtx, false)
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		req := subtestData.params.HTTPRequest
 		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
@@ -312,5 +315,165 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		suite.IsType(&weightticketops.UpdateWeightTicketInternalServerError{}, response)
 		errResponse := response.(*weightticketops.UpdateWeightTicketInternalServerError)
 		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
+	})
+}
+
+//
+// DELETE test
+//
+
+func (suite *HandlerSuite) TestDeleteWeightTicketHandler() {
+	// Create Reusable objects
+	fetcher := weightticket.NewWeightTicketFetcher()
+	estimator := mocks.PPMEstimator{}
+	weightTicketDeleter := weightticket.NewWeightTicketDeleter(fetcher, &estimator)
+
+	type weightTicketDeleteSubtestData struct {
+		ppmShipment  models.PPMShipment
+		weightTicket models.WeightTicket
+		params       weightticketops.DeleteWeightTicketParams
+		handler      DeleteWeightTicketHandler
+	}
+	makeDeleteSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData weightTicketDeleteSubtestData) {
+		db := appCtx.DB()
+
+		// Fake data:
+		subtestData.weightTicket = testdatagen.MakeWeightTicket(db, testdatagen.Assertions{})
+		subtestData.ppmShipment = subtestData.weightTicket.PPMShipment
+		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/weight-ticket/%s", subtestData.ppmShipment.ID.String(), subtestData.weightTicket.ID.String())
+		req := httptest.NewRequest("DELETE", endpoint, nil)
+		if authenticateRequest {
+			req = suite.AuthenticateRequest(req, serviceMember)
+		}
+		subtestData.params = weightticketops.
+			DeleteWeightTicketParams{
+			HTTPRequest:    req,
+			PpmShipmentID:  *handlers.FmtUUID(subtestData.ppmShipment.ID),
+			WeightTicketID: *handlers.FmtUUID(subtestData.weightTicket.ID),
+		}
+
+		// Use createS3HandlerConfig for the HandlerConfig because we are required to upload a doc
+		subtestData.handler = DeleteWeightTicketHandler{
+			suite.createS3HandlerConfig(),
+			weightTicketDeleter,
+		}
+
+		return subtestData
+	}
+
+	suite.Run("Successfully Delete Weight Ticket - Integration Test", func() {
+		appCtx := suite.AppContextForTest()
+		mockIncentive := unit.Cents(100000)
+		estimator.On("FinalIncentiveWithDefaultChecks", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("models.PPMShipment"), mock.AnythingOfType("*models.PPMShipment")).Return(&mockIncentive, nil)
+
+		subtestData := makeDeleteSubtestData(appCtx, true)
+
+		params := subtestData.params
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&weightticketops.DeleteWeightTicketNoContent{}, response)
+	})
+
+	suite.Run("DELETE failure - 401 - permission denied - not authenticated", func() {
+		appCtx := suite.AppContextForTest()
+		subtestData := makeDeleteSubtestData(appCtx, false)
+		response := subtestData.handler.Handle(subtestData.params)
+
+		suite.IsType(&weightticketops.DeleteWeightTicketUnauthorized{}, response)
+	})
+
+	suite.Run("DELETE failure - 403 - permission denied - wrong application / user", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, false)
+
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
+		unauthorizedParams := subtestData.params
+		unauthorizedParams.HTTPRequest = unauthorizedReq
+
+		response := subtestData.handler.Handle(unauthorizedParams)
+
+		suite.IsType(&weightticketops.DeleteWeightTicketForbidden{}, response)
+	})
+
+	suite.Run("DELETE failure - 403 - permission denied - wrong service member user", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, false)
+
+		otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateRequest(req, otherServiceMember)
+		unauthorizedParams := subtestData.params
+		unauthorizedParams.HTTPRequest = unauthorizedReq
+
+		response := subtestData.handler.Handle(unauthorizedParams)
+
+		suite.IsType(&weightticketops.DeleteWeightTicketForbidden{}, response)
+	})
+	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and weight ticket ID don't match", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, false)
+		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+
+		otherPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{ServiceMemberID: serviceMember.ID},
+		})
+
+		subtestData.params.PpmShipmentID = *handlers.FmtUUID(otherPPMShipment.ID)
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateRequest(req, serviceMember)
+		unauthorizedParams := subtestData.params
+		unauthorizedParams.HTTPRequest = unauthorizedReq
+
+		response := subtestData.handler.Handle(unauthorizedParams)
+		// otherPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID matches serviceMember.ID
+		suite.IsType(&weightticketops.DeleteWeightTicketNotFound{}, response)
+	})
+
+	suite.Run("DELETE failure - 404- not found", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, true)
+		params := subtestData.params
+		// Wrong ID provided
+		uuidString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("e392b01d-3b23-45a9-8f98-e4d5b03c8a93"))
+		params.WeightTicketID = *uuidString
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&weightticketops.DeleteWeightTicketNotFound{}, response)
+	})
+
+	suite.Run("DELETE failure - 500 - server error", func() {
+		mockDeleter := mocks.WeightTicketDeleter{}
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, true)
+		params := subtestData.params
+
+		err := errors.New("ServerError")
+
+		mockDeleter.On("DeleteWeightTicket",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(err)
+
+		// Use createS3HandlerConfig for the HandlerConfig because we are required to upload a doc
+		handler := DeleteWeightTicketHandler{
+			suite.createS3HandlerConfig(),
+			&mockDeleter,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&weightticketops.DeleteWeightTicketInternalServerError{}, response)
 	})
 }

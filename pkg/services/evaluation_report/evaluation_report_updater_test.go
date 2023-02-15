@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -18,7 +19,7 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 
 	suite.Run("Successful submission", func() {
 		// Create office user
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		// Create a report
 		inspectionType := models.EvaluationReportInspectionTypeVirtual
 		location := models.EvaluationReportLocationTypeOrigin
@@ -47,7 +48,7 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 
 	suite.Run("Bad etag", func() {
 		// Create office user
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		// Create a report
 		inspectionType := models.EvaluationReportInspectionTypeVirtual
 		location := models.EvaluationReportLocationTypeOrigin
@@ -69,7 +70,7 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 
 	suite.Run("Missing inspection date", func() {
 		// Create office user
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		// Create a report
 		inspectionType := models.EvaluationReportInspectionTypeVirtual
 		location := models.EvaluationReportLocationTypeOrigin
@@ -97,7 +98,7 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 
 	suite.Run("Missing location description for other location", func() {
 		// Create office user
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		// Create a report
 		inspectionType := models.EvaluationReportInspectionTypeVirtual
 		location := models.EvaluationReportLocationTypeOther
@@ -125,7 +126,7 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 
 	suite.Run("Missing time depart for physical inspection", func() {
 		// Create office user
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		// Create a report
 		inspectionType := models.EvaluationReportInspectionTypePhysical
 		location := models.EvaluationReportLocationTypeOther

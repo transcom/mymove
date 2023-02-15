@@ -4,9 +4,9 @@
  * <https://playwright.dev/docs/test-fixtures>
  */
 // @ts-check
-const base = require('@playwright/test');
+import * as base from '@playwright/test';
 
-const { BaseTestPage } = require('./baseTest');
+import { BaseTestPage } from './baseTest';
 
 /**
  * devlocal auth user types
@@ -17,7 +17,7 @@ export const milmoveUserType = 'milmove';
  * CustomerPage
  * @extends BaseTestPage
  */
-class CustomerPage extends BaseTestPage {
+export class CustomerPage extends BaseTestPage {
   waitForPage = {
     localLogin: async () => {
       await base.expect(this.page.getByRole('heading', { name: 'Select an Existing User' })).toBeVisible();
@@ -88,6 +88,47 @@ class CustomerPage extends BaseTestPage {
   async navigateForward() {
     await this.page.getByTestId('wizardNextButton').click();
   }
+}
+
+/**
+ * set the viewport for mobile dimensions
+ */
+export function useMobileViewport() {
+  // https://playwright.dev/docs/emulation#viewport
+  base.test.use({ viewport: { width: 479, height: 875 } });
+}
+
+/**
+ * @typedef {Object} ViewportCallbackProps
+ * @property {string} viewportName
+ * @property {boolean} isMobile
+ */
+
+/**
+ * @callback forEachViewportCallback
+ * @param {ViewportCallbackProps} props
+ */
+
+/**
+ * @param {forEachViewportCallback} callbackfn
+ */
+export function forEachViewport(callbackfn) {
+  const viewportsString = process.env.PLAYWRIGHT_VIEWPORTS || 'desktop mobile';
+  const viewports = viewportsString.split(/\s+/);
+  // use forEach to avoid
+  // https://eslint.org/docs/latest/rules/no-loop-func
+  viewports.forEach(async (viewportName) => {
+    const isMobile = viewportName === 'mobile';
+    //
+    // https://playwright.dev/docs/test-parameterize
+    //
+    base.test.describe(`with ${viewportName} viewport`, async () => {
+      if (isMobile) {
+        useMobileViewport();
+      }
+      await callbackfn({ viewportName, isMobile });
+    });
+  });
 }
 
 /**

@@ -289,7 +289,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 
 	suite.Run("returns Audit History with session information", func() {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
-		fakeRole, _ := testdatagen.LookupOrMakeRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
+		fakeRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
 		fakeUser := factory.BuildUser(suite.DB(), nil, nil)
 		_ = testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
 			User: fakeUser,
@@ -297,13 +297,23 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 				RoleID: fakeRole.ID,
 			},
 		})
-		_ = testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-			OfficeUser: models.OfficeUser{
-				User:   fakeUser,
-				UserID: &fakeUser.ID,
+		factory.BuildUsersRoles(suite.DB(), []factory.Customization{
+			{Model: models.UsersRoles{
+				UserID: fakeUser.ID,
+				RoleID: fakeRole.ID,
 			},
-		})
-
+			}}, nil)
+		factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					UserID: &fakeUser.ID,
+				},
+			},
+			{
+				Model:    fakeUser,
+				LinkOnly: true,
+			},
+		}, nil)
 		_ = testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
 			User: fakeUser,
 			Move: models.Move{
@@ -699,8 +709,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			Move: approvedMove,
 		})
 
-		changeOldDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-		changeNewDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		changeOldDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		changeNewDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 
 		// Make sure we're testing for all the things that we can update on the Orders page
 		// README: This list of properties below here is taken from
@@ -1064,7 +1074,19 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 
 		var user models.User
 		if isOfficeUser {
-			officeUser := testdatagen.MakeOfficeUserWithRoleTypes(suite.DB(), roleTypes, assertions)
+			officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+				{
+					Model: models.OfficeUser{
+						FirstName: userFirstName,
+					},
+				},
+				{
+					Model: models.User{
+						ID: *userID,
+					},
+				},
+			}, nil)
+
 			user = officeUser.User
 		} else {
 			user = testdatagen.MakeUserWithRoleTypes(suite.DB(), roleTypes, assertions)

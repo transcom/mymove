@@ -2679,7 +2679,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, dodID, branch, locator, status, originDutyLocation, destinationDutyLocation]
+          enum: [lastName, dodID, branch, locator, status, originDutyLocation, destinationDutyLocation, requestedMoveDate]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -2704,6 +2704,10 @@ paths:
         - in: query
           name: destinationDutyLocation
           type: string
+        - in: query
+          name: requestedMoveDate
+          type: string
+          description: filters the requested pickup date of a shipment on the move
         - in: query
           name: status
           type: array
@@ -4256,6 +4260,9 @@ definitions:
           The amount request for an advance, or null if no advance is requested
         type: integer
         format: cents
+        x-nullable: true
+      advanceStatus:
+        $ref: 'definitions/PPMAdvanceStatus.yaml'
         x-nullable: true
   UpdateWeightTicket:
     type: object

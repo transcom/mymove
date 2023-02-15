@@ -23,14 +23,13 @@ import (
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 	setupTestData := func() models.OfficeUsers {
 		return models.OfficeUsers{
-			testdatagen.MakeDefaultOfficeUser(suite.DB()),
-			testdatagen.MakeDefaultOfficeUser(suite.DB()),
+			factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr}),
+			factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr}),
 		}
 	}
 
@@ -90,7 +89,7 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 		// Test:				GetOfficeUserHandler, Fetcher
 		// Set up:				Provide a valid req with the office user ID to the endpoint
 		// Expected Outcome:	The office user is returned and we get a 200 OK.
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		params := officeuserop.GetOfficeUserParams{
 			HTTPRequest:  suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/office_users/%s", officeUser.ID)),
 			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
@@ -185,7 +184,9 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		// Set up:				Add new Office User to the DB
 		// Expected Outcome:	The office user is not created and we get a 500 internal server error.
 		fakeTransportationOfficeID := "3b9c2975-4e54-40ea-a781-bab7d6e4a502"
-		officeUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
+			factory.GetTraitOfficeUserWithID,
+		})
 
 		params := officeuserop.CreateOfficeUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/office_users"),
@@ -233,13 +234,13 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 	}
 
 	setupTestData := func() models.OfficeUser {
-		return testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-			OfficeUser: models.OfficeUser{
-				TransportationOffice: models.TransportationOffice{
+		return factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
 					Name: "Random Office",
 				},
 			},
-		})
+		}, nil)
 	}
 
 	suite.Run("Office user is successfully updated", func() {

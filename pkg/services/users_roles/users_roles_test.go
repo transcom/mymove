@@ -3,13 +3,13 @@ package usersroles
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *UsersRolesServiceSuite) TestAssociateUserRoles() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	id1, _ := uuid.NewV4()
 	role1 := roles.Role{
 		ID:       id1,
@@ -45,7 +45,7 @@ func (suite *UsersRolesServiceSuite) TestAssociateUserRoles() {
 }
 
 func (suite *UsersRolesServiceSuite) TestAssociateUserRolesTwice() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	id1, _ := uuid.NewV4()
 	role1 := roles.Role{
 		ID:       id1,
@@ -79,7 +79,7 @@ func (suite *UsersRolesServiceSuite) TestAssociateUserRolesTwice() {
 }
 
 func (suite *UsersRolesServiceSuite) TestAssociateUserRolesRemove() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	id1, _ := uuid.NewV4()
 	role1 := roles.Role{
 		ID:       id1,
@@ -112,7 +112,7 @@ func (suite *UsersRolesServiceSuite) TestAssociateUserRolesRemove() {
 }
 
 func (suite *UsersRolesServiceSuite) TestAssociateUserRolesMultiple() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	id1, _ := uuid.NewV4()
 	role1 := roles.Role{
 		ID:       id1,
@@ -150,7 +150,7 @@ func (suite *UsersRolesServiceSuite) TestAssociateUserRolesMultiple() {
 }
 
 func (suite *UsersRolesServiceSuite) TestAssociateUserRolesRemoveAllRoles() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	id1, _ := uuid.NewV4()
 	role1 := roles.Role{
 		ID:       id1,

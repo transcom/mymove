@@ -5,8 +5,14 @@ import { object, text } from '@storybook/addon-knobs';
 import NTSRShipmentInfoList from './NTSRShipmentInfoList';
 
 const showWhenCollapsed = ['counselorRemarks'];
-const warnIfMissing = ['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
-const errorIfMissing = ['storageFacility'];
+const warnIfMissing = [
+  { fieldName: 'ntsRecordedWeight' },
+  { fieldName: 'serviceOrderNumber' },
+  { fieldName: 'counselorRemarks' },
+  { fieldName: 'tacType' },
+  { fieldName: 'sacType' },
+];
+const errorIfMissing = [{ fieldName: 'storageFacility' }];
 
 const shipment = {
   ntsRecordedWeight: 2000,

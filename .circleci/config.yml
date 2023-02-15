@@ -179,7 +179,9 @@ executors:
           password: $DOCKERHUB_PASSWORD
 
   milmove_playwright_tester:
-    resource_class: large
+    # maybe don't need xlarge, but getting many timeouts with large
+    # ahobson - 2023-02-07
+    resource_class: xlarge
     # use ~/project as that already exists in cimg/node and is owned
     # by circleci
     working_directory: ~/project
@@ -601,6 +603,7 @@ commands:
             DB_PORT: 5432
             DB_NAME: test_db
             DB_NAME_TEST: test_db
+            DTOD_USE_MOCK: true
             MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
@@ -609,76 +612,6 @@ commands:
             SERVER_REPORT: 1
             COVERAGE: 1
             SERVE_API_INTERNAL: true
-
-  # this custom step has some duplication with
-  # scripts/run-e2e-test-docker because we want to run some of the
-  # steps below in parallel
-  e2e_tests_cypress:
-    parameters:
-      spec_glob:
-        type: string
-      cypress_image:
-        type: string
-        default: *cypress
-    steps:
-      - setup_remote_docker:
-          version: 17.09.0-ce
-          docker_layer_caching: false
-      - run:
-          name: setup docker for server
-          command: |
-            docker version
-            docker network create e2e_cypress
-            docker build -t milmove_e2e:local -f Dockerfile.e2e .
-      - run:
-          background: true
-          name: run server
-          command: |
-            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)' >> $BASH_ENV
-            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
-            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-            echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
-            echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
-            source $BASH_ENV
-            docker-compose -f docker-compose.e2e.yml up
-      - run:
-          name: wait for server
-          # Use the cypress_image here to run dockerize so that the
-          # cypress image can be downloaded while the migrations, test
-          # data generation, and server startup happens in the
-          # background.
-          #
-          # Downloading this huge image takes ~2 minutes on circleci,
-          # so doing it in parallel with the server setup is a massive speedup.
-          command: |
-            docker run --network e2e_cypress << parameters.cypress_image >> dockerize -wait http://milmovelocal:4000 -timeout 5m
-      - run:
-          name: run e2e_test cypress
-          # the junit report from the mocha reporter doesn't seem to
-          # support the right attributes to support
-          # --split-by=timings, but it seems like filesize is a
-          # reasonable proxy for test time
-          command: |
-            SPECS=$(circleci tests glob "<< parameters.spec_glob >>" | circleci tests split --split-by=filesize | paste -s -d, -)
-            if [ -z "${SPECS}" ]; then
-              echo "CircleCI Parallelism greater than number of files in glob. Please adjust the number parallelism value to a lower number."
-              exit 1
-            fi
-            echo $SPECS
-            docker build -t cypress:local -f cypress/Dockerfile.cypress cypress
-            docker run --name cypress --network e2e_cypress -e CYPRESS_baseUrl="http://milmovelocal:4000" cypress:local run --spec "${SPECS}"
-      - run:
-          name: extract results
-          # always try to extract the artifacts so it can help us
-          # figure out why a test is failing
-          when: always
-          command: |
-            docker cp cypress:/home/circleci/cypress/results cypress/
-            docker cp cypress:/home/circleci/cypress/screenshots cypress/ 2>/dev/null || echo "No cypress screenshots copied"
-            docker cp cypress:/home/circleci/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
-            docker cp cypress:/home/circleci/cypress/reports cypress/ 2>/dev/null || echo "No cypress reports copied"
 
   # run playwright tests without using setup_remote_docker
   # the remote docker resources are not configurable and thus are
@@ -697,6 +630,8 @@ commands:
         # Instead, we run in a large instance with 1 worker and
         # increased parallelism as needed
         default: 1
+      path:
+        type: string
     steps:
       - attach_workspace:
           at: .
@@ -750,7 +685,7 @@ commands:
             make db_dev_create
             bin/milmove migrate
             # playwright tests DO NOT NEED SEED DATA
-            bin/milmove serve 2>&1 | tee server.log | fmt
+            bin/milmove serve 2>&1 | fmt
       - run:
           name: wait for server
           command: |
@@ -784,8 +719,6 @@ commands:
             zip -r complete-playwright-report.zip playwright-report
       - store_artifacts:
           path: complete-playwright-report.zip
-      - store_artifacts:
-          path: server.log
       - store_test_results:
           path: playwright-results.xml
 
@@ -794,34 +727,67 @@ commands:
   # steps below in parallel
   e2e_tests_mtls:
     steps:
-      - setup_remote_docker:
-          version: 17.09.0-ce
-          docker_layer_caching: false
+      - attach_workspace:
+          at: .
       - run:
-          name: setup docker for server
+          name: setup hosts
           command: |
-            docker network create e2e_mtls
-            docker build -t milmove_mtls:local -f Dockerfile.e2e .
+            # futz with /etc/hosts for running in circleci
+            echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
+            echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
+            echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
+            echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
       - run:
           background: true
           name: run server
+          environment:
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
           command: |
-            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
-            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
-            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-            echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
-            source $BASH_ENV
-            docker-compose -f docker-compose.mtls.yml up
+            export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)
+            export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
+            export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
+            export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)
+            export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+            export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
+            export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
+            # pull in review app settings here so we don't have to
+            # reproduce them
+            sed 's,^,export ,' config/env/review.app.env > server_env
+            source server_env
+
+            # now do a few overrides
+            export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
+            export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
+            export LOGIN_GOV_CALLBACK_PORT=4000
+            export LOGIN_GOV_CALLBACK_PROTOCOL=http
+            export SERVE_API_PRIME=false
+            export SERVE_API_SUPPORT=true
+            export SERVE_PRIME_SIMULATOR=true
+            export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
+            export DOD_CA_PACKAGE=$PWD/config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b
+            export HTTP_ADMIN_SERVER_NAME=adminlocal
+            export HTTP_MY_SERVER_NAME=milmovelocal
+            export HTTP_OFFICE_SERVER_NAME=officelocal
+            export HTTP_ORDERS_SERVER_NAME=orderslocal
+            export HTTP_PRIME_SERVER_NAME=primelocal
+            export ENVIRONMENT=test
+            export MUTUAL_TLS_ENABLED=1
+            export MUTUAL_TLS_PORT=9443
+            export SERVE_API_PRIME=1
+
+            make db_dev_create
+            bin/milmove migrate
+            # mtls tests DO NOT NEED SEED DATA
+            bin/milmove serve 2>&1 | fmt
+      - run:
+          name: wait for server
+          command: |
+            dockerize -wait http://milmovelocal:4000 -timeout 5m
       - run:
           name: run e2e mtls tests
           command: |
-            docker run \
-            --name prime_api_client \
-            --network e2e_mtls \
-            --entrypoint /scripts/run-e2e-mtls-test \
-            milmove_mtls:local
+            ./scripts/run-e2e-mtls-test
 
 jobs:
   # `pre_deps_golang` is used for caching Go module sources
@@ -950,6 +916,28 @@ jobs:
       - restore_cache:
           keys:
             - v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+      - restore_cache:
+          keys:
+          #
+          # https://circleci.com/docs/caching/#restoring-cache
+          #
+          # restore the latest version of the listing results in the
+          # cache
+          #
+          # To manually reset counts increment the version number of
+          # the cache e.g. go from v1-spectrial-lint- to
+          # v2-spectral-lint-
+          #
+          # Make sure you also update the key in the save_cache below
+          #
+          # The trailing hyphen in restore_cache seems important
+          # according to the page linked above
+            - v1-spectral-lint-
+      - run:
+          name: Save Baseline Spectral Lint
+          command: |
+            [ -d ~/transcom/mymove/spectral ] && cp -r ~/transcom/mymove/spectral /tmp/spectral_baseline || echo "Skipping saving baseline"
+            rm -rf ~/transcom/mymove/spectral
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Install Frozen YARN dependencies
@@ -982,136 +970,59 @@ jobs:
           name: Run DangerJS checks
           command: yarn danger ci --failOnErrors
       # `v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
+      - run:
+          name: Run spectral linter on all files
+          command: |
+            ./scripts/ensure-spectral-lint /tmp/spectral_baseline spectral
       - save_cache:
           key: v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
+      # only save the cache on default branch builds because we only want to
+      # change the baseline of test results on main builds
+      - when:
+          condition:
+            equal: [main, << pipeline.git.branch >>]
+          steps:
+            # Make sure this key prefix matches the one above in
+            # restore_cache
+            #
+            # Use the BuildNum to update the cache key so that the
+            # coverage cache is always updated
+            save_cache:
+              key: v1-spectral-lint-{{ .BuildNum }}
+              paths:
+                - ~/transcom/mymove/spectral
       - store_artifacts:
-          path: ~/transcom/mymove/tmp/test-results
-          destination: test-results
+          path: ~/transcom/mymove/spectral
       - announce_failure
 
   # separate the integration tests by site so that if there is a flaky
   # test, we only have to re-run part of the integration tests
   integration_tests_admin:
-    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 4 files here
-    parallelism: 4
-    executor: milmove_integration_tester
-    steps:
-      - attach_workspace:
-          at: .
-      - e2e_tests_cypress:
-          spec_glob: cypress/integration/admin/**/*.js
-      - store_artifacts:
-          path: cypress/reports
-          destination: reports
-      - store_artifacts:
-          path: cypress/videos
-          destination: videos
-      - store_artifacts:
-          path: cypress/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: cypress/results
-      - announce_failure
-
-  integration_tests_office:
-    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 12 files here
-    parallelism: 12
-    executor: milmove_integration_tester
-    steps:
-      - attach_workspace:
-          at: .
-      - e2e_tests_cypress:
-          spec_glob: cypress/integration/office/**/*.js
-      - store_artifacts:
-          path: cypress/reports
-          destination: reports
-      - store_artifacts:
-          path: cypress/videos
-          destination: videos
-      - store_artifacts:
-          path: cypress/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: cypress/results
-      - announce_failure
-
-  integration_tests_prime:
-    executor: milmove_integration_tester
-    steps:
-      - attach_workspace:
-          at: .
-      - e2e_tests_cypress:
-          spec_glob: cypress/integration/api/**/*.js
-      - store_artifacts:
-          path: cypress/reports
-          destination: reports
-      - store_artifacts:
-          path: cypress/videos
-          destination: videos
-      - store_artifacts:
-          path: cypress/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: cypress/results
-      - announce_failure
-
-  # reads integration tests in mymove dir, should eventually be removed when tests are in milmove dir
-  integration_tests_mymove:
-    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 8 files here
-    parallelism: 8
-    executor: milmove_integration_tester
-    steps:
-      - attach_workspace:
-          at: .
-      - e2e_tests_cypress:
-          spec_glob: cypress/integration/mymove/**/*.js
-      - store_artifacts:
-          path: cypress/reports
-          destination: reports
-      - store_artifacts:
-          path: cypress/videos
-          destination: videos
-      - store_artifacts:
-          path: cypress/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: cypress/results
-      - announce_failure
-
-  integration_tests_milmove:
-    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 6 files here
-    parallelism: 6
-    executor: milmove_integration_tester
-    steps:
-      - attach_workspace:
-          at: .
-      - e2e_tests_cypress:
-          spec_glob: cypress/integration/milmove/**/*.js
-      - store_artifacts:
-          path: cypress/reports
-          destination: reports
-      - store_artifacts:
-          path: cypress/videos
-          destination: videos
-      - store_artifacts:
-          path: cypress/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: cypress/results
-      - announce_failure
-
-  # integration_tests_playwright runs the integration tests using
-  # playwright. We are migrating away from cypress
-  integration_tests_playwright:
     executor: milmove_playwright_tester
     parallelism: 6
     steps:
-      - e2e_tests_playwright
-      # at some point
-      # - announce_failure
+      - e2e_tests_playwright:
+          path: playwright/tests/admin
+      - announce_failure
 
+  integration_tests_office:
+    executor: milmove_playwright_tester
+    parallelism: 6
+    steps:
+      - e2e_tests_playwright:
+          path: playwright/tests/office
+      - announce_failure
+
+  # reads integration tests in mymove dir, should eventually be removed when tests are in milmove dir
+  integration_tests_my:
+    executor: milmove_playwright_tester
+    parallelism: 6
+    steps:
+      - e2e_tests_playwright:
+          path: playwright/tests/my
+      - announce_failure
 
   # `integration_tests_devseed` runs the devseed data generation
   integration_tests_devseed:
@@ -1159,7 +1070,7 @@ jobs:
   # prime-api-client.
   #
   integration_tests_mtls:
-    executor: mymove_compiler
+    executor: mymove_tester
     steps:
       - attach_workspace:
           at: .
@@ -1378,8 +1289,6 @@ jobs:
             - Dockerfile.tools
             - Dockerfile.webhook_client
             - Dockerfile.webhook_client_dp3
-            - docker-compose.e2e.yml
-            - docker-compose.mtls.yml
             - bin
             - config
             - migrations
@@ -1985,27 +1894,7 @@ workflows:
             branches:
               ignore: *integration-ignore-branch
 
-      - integration_tests_prime:
-          requires:
-            - compile_app_server
-            - compile_app_client
-          # See comments at the top of this file for configuring/using
-          # this branch config
-          filters:
-            branches:
-              ignore: *integration-ignore-branch
-
-      - integration_tests_mymove:
-          requires:
-            - compile_app_server
-            - compile_app_client
-          # See comments at the top of this file for configuring/using
-          # this branch config
-          filters:
-            branches:
-              ignore: *integration-ignore-branch
-
-      - integration_tests_milmove:
+      - integration_tests_my:
           requires:
             - compile_app_server
             - compile_app_client
@@ -2024,25 +1913,14 @@ workflows:
             branches:
               ignore: *integration-ignore-branch
 
-      # not yet required, just testing
-      - integration_tests_playwright:
-          requires:
-            - compile_app_server
-            - compile_app_client
-          # See comments at the top of this file for configuring/using
-          # this branch config
-          filters:
-            branches:
-              ignore: *integration-ignore-branch
 
       - integration_tests:
           requires:
             - integration_tests_admin
             - integration_tests_office
-            - integration_tests_prime
-            - integration_tests_mymove
-            - integration_tests_milmove
+            - integration_tests_my
             - integration_tests_devseed
+            - integration_tests_mtls
           # See comments at the top of this file for configuring/using
           # this branch config
           filters:

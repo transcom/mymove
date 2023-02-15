@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	weightticketops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -53,7 +54,7 @@ func (suite *HandlerSuite) TestGetWeightTicketsHandlerUnit() {
 
 		req := httptest.NewRequest("GET", endpoint, nil)
 
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
@@ -205,7 +206,7 @@ func (suite *HandlerSuite) TestGetWeightTicketsHandlerIntegration() {
 
 		req := httptest.NewRequest("GET", endpoint, nil)
 
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
@@ -261,7 +262,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		subtestData.ppmShipment = testdatagen.MakePPMShipmentThatNeedsPaymentApproval(db, testdatagen.Assertions{})
 		subtestData.weightTicket = subtestData.ppmShipment.WeightTickets[0]
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/weight-ticket/%s", subtestData.ppmShipment.ID.String(), subtestData.weightTicket.ID.String())
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 
 		req := httptest.NewRequest("PATCH", endpoint, nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)

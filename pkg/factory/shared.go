@@ -36,20 +36,26 @@ type CustomType string
 var control CustomType = "Control"
 var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
+var Contractor CustomType = "Contractor"
+var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
 var ServiceMember CustomType = "ServiceMember"
+var Role CustomType = "Role"
 var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
 var User CustomType = "User"
+var UsersRoles CustomType = "UsersRoles"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
 	"models.Address":              Address,
 	"models.AdminUser":            AdminUser,
+	"models.Contractor":           Contractor,
+	"models.DutyLocation":         DutyLocation,
 	"models.Entitlement":          Entitlement,
 	"models.OfficePhoneLine":      OfficePhoneLine,
 	"models.OfficeUser":           OfficeUser,
@@ -59,6 +65,8 @@ var defaultTypesMap = map[string]CustomType{
 	"models.TransportationOffice": TransportationOffice,
 	"models.Upload":               Upload,
 	"models.User":                 User,
+	"models.UsersRoles":           UsersRoles,
+	"roles.Role":                  Role,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
@@ -70,6 +78,8 @@ type addressGroup struct {
 	DeliveryAddress          CustomType
 	SecondaryDeliveryAddress CustomType
 	ResidentialAddress       CustomType
+	DutyLocationAddress      CustomType
+	DutyLocationTOAddress    CustomType
 }
 
 // Addresses is the struct to access the various fields externally
@@ -78,6 +88,8 @@ var Addresses = addressGroup{
 	DeliveryAddress:          "DeliveryAddress",
 	SecondaryDeliveryAddress: "SecondaryDeliveryAddress",
 	ResidentialAddress:       "ResidentialAddress",
+	DutyLocationAddress:      "DutyLocationAddress",
+	DutyLocationTOAddress:    "DutyLocationTOAddress",
 }
 
 // dimensionGroup is a grouping of all the Dimension related fields
@@ -228,10 +240,13 @@ func isUnique(customs []Customization) error {
 }
 
 // findCustomWithIdx is a helper function to find a customization of a specific type and its index
+// Returns:
+//   - index of the found customization
+//   - pointer to the customization
 func findCustomWithIdx(customs []Customization, customType CustomType) (int, *Customization) {
-	for i, custom := range customs {
-		if custom.Type != nil && *custom.Type == customType {
-			return i, &custom
+	for i := 0; i < len(customs); i++ {
+		if customs[i].Type != nil && *customs[i].Type == customType {
+			return i, &customs[i]
 		}
 	}
 	return -1, nil

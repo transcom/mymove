@@ -1,23 +1,25 @@
-#! /usr/bin/env bash
+#!/bin/bash
 
-set -eu -o pipefail
+set -eux -o pipefail
 
-# Runs both the webserver and Cypress in parallel
-trap "kill %1" SIGINT
+# Setting REACT_APP_NODE_ENV to development enables the "Local Sign In" button
+export REACT_APP_NODE_ENV=development
+make client_build server_build
 
-CYPRESS_PORT=4000
-DB_ENV=test DB_PORT="$DB_PORT_TEST" LOGIN_GOV_CALLBACK_PORT="$CYPRESS_PORT" NO_TLS_ENABLED=1 NO_TLS_PORT="$CYPRESS_PORT" DTOD_USE_MOCK=1 \
-    ./bin/gin \
-    --build cmd/milmove \
-		--bin /bin/webserver_e2e \
-		--port 8090 --appPort 8091 \
-		--excludeDir vendor --excludeDir node_modules \
-    --immediate \
-		--buildArgs "-i" serve &
+export LOGIN_GOV_CALLBACK_PORT=8080
+export PLAYWRIGHT_MY_URL=http://milmovelocal:8080
+export PLAYWRIGHT_ADMIN_URL=http://adminlocal:8080
+export PLAYWRIGHT_OFFICE_URL=http://officelocal:8080
 
-# Run cypress with these NODE_OPTIONS for compatibility between our older cypress 8.x and node 18
-# (which uses openssl 3.x). This is a temporary fix until playwright replaces cypress.
-NODE_OPTIONS=--openssl-legacy-provider npx cypress open || true
 
-# Terminate the background webserver
-kill %1
+INTERFACE=localhost ./bin/milmove serve > tmp/e2e_server.log 2>&1 &
+server_pid=$!
+
+# Runs both the webserver and playwright in parallel
+function cleanup {
+  kill $server_pid
+}
+trap cleanup SIGINT
+trap cleanup exit
+
+yarn playwright test "$@"
