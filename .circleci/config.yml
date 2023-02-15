@@ -709,7 +709,8 @@ commands:
             --reporter=html,junit \
             --trace=on \
             --workers << parameters.workers >> \
-            --shard="${SHARD}/${CIRCLE_NODE_TOTAL}"
+            --shard="${SHARD}/${CIRCLE_NODE_TOTAL}" \
+            << parameters.path >>
       - store_artifacts:
           path: playwright-report
       - run:
