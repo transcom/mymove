@@ -33,12 +33,14 @@ fi
 # have info on this, so we'll just have to check both. It seems though, like if we move in the direction of using the
 # cask version of opensc, that one may only use the /usr/local/lib/opensc-pkcs11.so path.
 MODULE=
-if [ ! -r .nix-disable ] && [[ -f "${PKCS11MODULE}" ]]; then
+if [ ! -r .nix-disable ] && [[ -f "${PKCS11MODULE-}" ]]; then
   MODULE="${PKCS11MODULE}"
 elif [[ -f /usr/local/lib/opensc-pkcs11.so ]]; then
   MODULE=/usr/local/lib/opensc-pkcs11.so
 elif [[ -f /usr/local/lib/pkcs11/opensc-pkcs11.so ]]; then
   MODULE=/usr/local/lib/pkcs11/opensc-pkcs11.so
+elif [[ -f /Library/OpenSC/lib/pkcs11/opensc-pkcs11.so ]]; then
+  MODULE=/Library/OpenSC/lib/pkcs11/opensc-pkcs11.so
 fi
 
 readonly MODULE
