@@ -247,33 +247,33 @@ export const useReviewShipmentWeightsQuery = (moveCode) => {
   );
 
   // filter for ppm shipments to get their weight tickets
-  const ppmShipments = mtoShipments?.filter((shipment) => shipment?.ppmShipment) ?? [];
+  const shipmentIDs = mtoShipments?.map((shipment) => shipment.id) ?? [];
 
   // get weight tickets
-  const weightTicketsQueriesResults = useQueries({
-    queries: ppmShipments?.map((ppmShipment) => {
+  const ppmDocsQueriesResults = useQueries({
+    queries: shipmentIDs?.map((shipmentID) => {
       return {
-        queryKey: [WEIGHT_TICKETS, ppmShipment.ppmShipment.id],
-        queryFn: ({ queryKey }) => getWeightTickets(...queryKey),
-        enabled: !!ppmShipment,
+        queryKey: [DOCUMENTS, shipmentID],
+        queryFn: ({ queryKey }) => getPPMDocuments(...queryKey),
+        enabled: !!shipmentID,
       };
     }),
   });
 
-  const weightTickets = weightTicketsQueriesResults.map((result) => result.data);
+  const ppmDocs = ppmDocsQueriesResults.map((result) => result.data);
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
     orderQuery,
     mtoShipmentQuery,
-    ...weightTicketsQueriesResults,
+    ...ppmDocsQueriesResults,
   ]);
 
   return {
     move,
     orders,
     mtoShipments,
-    weightTickets,
+    ppmDocs,
     isLoading,
     isError,
     isSuccess,
