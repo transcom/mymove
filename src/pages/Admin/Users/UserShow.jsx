@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 const UserShowTitle = () => {
   const record = useRecordContext();
-  return <span>{`${record.loginGovEmail}`}</span>;
+  return <span>{`${record?.loginGovEmail}`}</span>;
 };
 
 UserShowTitle.propTypes = {
