@@ -688,7 +688,9 @@ describe('ShipmentForm component', () => {
         expect(mockSubmitHandler).toHaveBeenCalled();
       });
 
-      expect(await screen.findByText('A server error occurred editing the shipment details')).toBeInTheDocument();
+      expect(
+        await screen.findByText('Something went wrong, and your changes were not saved. Please try again.'),
+      ).toBeInTheDocument();
       expect(defaultProps.history.push).not.toHaveBeenCalled();
     });
 
