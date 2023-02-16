@@ -2552,37 +2552,37 @@ func init() {
   },
   "tags": [
     {
-      "name": "office_users"
-    },
-    {
-      "name": "webhook_subscriptions"
-    },
-    {
-      "name": "transportation_service_provider_performances"
-    },
-    {
       "name": "admin_users"
-    },
-    {
-      "name": "office"
     },
     {
       "name": "electronic_order"
     },
     {
-      "name": "upload"
-    },
-    {
-      "name": "organization"
+      "name": "move"
     },
     {
       "name": "notification"
     },
     {
-      "name": "move"
+      "name": "office"
+    },
+    {
+      "name": "office_users"
+    },
+    {
+      "name": "organization"
+    },
+    {
+      "name": "transportation_service_provider_performances"
+    },
+    {
+      "name": "upload"
     },
     {
       "name": "users"
+    },
+    {
+      "name": "webhook_subscriptions"
     }
   ]
 }`))
@@ -5126,37 +5126,37 @@ func init() {
   },
   "tags": [
     {
-      "name": "office_users"
-    },
-    {
-      "name": "webhook_subscriptions"
-    },
-    {
-      "name": "transportation_service_provider_performances"
-    },
-    {
       "name": "admin_users"
-    },
-    {
-      "name": "office"
     },
     {
       "name": "electronic_order"
     },
     {
-      "name": "upload"
-    },
-    {
-      "name": "organization"
+      "name": "move"
     },
     {
       "name": "notification"
     },
     {
-      "name": "move"
+      "name": "office"
+    },
+    {
+      "name": "office_users"
+    },
+    {
+      "name": "organization"
+    },
+    {
+      "name": "transportation_service_provider_performances"
+    },
+    {
+      "name": "upload"
     },
     {
       "name": "users"
+    },
+    {
+      "name": "webhook_subscriptions"
     }
   ]
 }`))

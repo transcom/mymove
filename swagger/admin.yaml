@@ -17,17 +17,17 @@ consumes:
 produces:
   - application/json
 tags:
-  - name: office_users
-  - name: webhook_subscriptions
-  - name: transportation_service_provider_performances
   - name: admin_users
-  - name: office
   - name: electronic_order
-  - name: upload
-  - name: organization
-  - name: notification
   - name: move
+  - name: notification
+  - name: office
+  - name: office_users
+  - name: organization
+  - name: transportation_service_provider_performances
+  - name: upload
   - name: users
+  - name: webhook_subscriptions
 definitions:
   ClientError:
     type: object
