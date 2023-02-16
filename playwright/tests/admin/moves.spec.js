@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, expect } = require('../utils/adminTest');
+import { test, expect } from '../utils/adminTest';
 
 test('Moves Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();

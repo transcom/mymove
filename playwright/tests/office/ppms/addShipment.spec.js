@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, expect } = require('./scPpmTestFixture');
+import { test, expect } from './scPpmTestFixture';
 
 test.describe('Services counselor user', () => {
   test.beforeEach(async ({ scPpmPage }) => {
@@ -45,7 +45,7 @@ test.describe('Services counselor user', () => {
     await scPpmPage.waitForLoading();
 
     // Confirm new shipment is visible
-    expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();
+    await expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();
     const shipmentContainer = page.locator('[data-testid="ShipmentContainer"]');
     // Verify unexpanded view
     await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('09 Jun 2022');

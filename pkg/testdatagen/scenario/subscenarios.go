@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -236,7 +237,7 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 			Status:          models.MTOShipmentStatusSubmitted,
 		}})
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
 			CustomerSupportRemark: models.CustomerSupportRemark{
 				Content: "This is a customer support remark. It can have text content like this." +
@@ -251,7 +252,7 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 				MoveID:       remarkMove.ID,
 			},
 		})
-		officeUser2 := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
+		officeUser2 := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
 			CustomerSupportRemark: models.CustomerSupportRemark{
 				Content:      "The customer mentioned that there was some damage done to their grandfather clock.",
@@ -300,12 +301,7 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 		}})
 		testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{Move: move})
 
-		storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(), testdatagen.Assertions{
-			StorageFacility: models.StorageFacility{
-				FacilityName: "Storage R Us",
-			},
-		})
-
+		storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
 		ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{

@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, forEachViewport } = require('./customerPpmTestFixture');
+import { test, forEachViewport } from './customerPpmTestFixture';
 
 const fullPPMShipmentFields = [
   ['Expected departure', '15 Mar 2020'],

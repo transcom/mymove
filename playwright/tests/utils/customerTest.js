@@ -4,9 +4,9 @@
  * <https://playwright.dev/docs/test-fixtures>
  */
 // @ts-check
-const base = require('@playwright/test');
+import * as base from '@playwright/test';
 
-const { BaseTestPage } = require('./baseTest');
+import { BaseTestPage } from './baseTest';
 
 /**
  * devlocal auth user types
@@ -112,7 +112,7 @@ export function useMobileViewport() {
 /**
  * @param {forEachViewportCallback} callbackfn
  */
-export async function forEachViewport(callbackfn) {
+export function forEachViewport(callbackfn) {
   const viewportsString = process.env.PLAYWRIGHT_VIEWPORTS || 'desktop mobile';
   const viewports = viewportsString.split(/\s+/);
   // use forEach to avoid

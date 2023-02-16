@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { expect, test: scTest, ServiceCounselorPage } = require('../servicescounseling/servicesCounselingTestFixture');
+import { expect, test as scTest, ServiceCounselorPage } from '../servicescounseling/servicesCounselingTestFixture';
 
 /**
  * PpmPage test fixture
