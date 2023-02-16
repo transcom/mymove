@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, expect } = require('../../utils/customerTest');
+import { test, expect } from '../../utils/customerTest';
 
 test('A customer can create, edit, and delete an NTS shipment', async ({ page, customerPage }) => {
   const move = await customerPage.testHarness.buildMoveWithOrders();

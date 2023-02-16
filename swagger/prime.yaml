@@ -65,6 +65,15 @@ tags:
       **WIP:** Add an external link to an article that explains the different
       types of service items in more detail.
   - name: paymentRequest
+    description: >
+      The contractor submits a **paymentRequest** to the TIO for approval in
+      order to be reimbursed for 1 or more
+
+      **mtoServiceItems** on a **moveTaskOrder**.
+
+
+      Proof of service documentation may be uploaded for each **mtoServiceItem**
+      in a **paymentRequest**.
 x-tagGroups:
   - name: Endpoints
     tags:
@@ -769,15 +778,7 @@ paths:
           name: body
           schema:
             $ref: '#/definitions/UpdateReweigh'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the
-            ETag header does not match the value of the resource on the server,
-            the server rejects the change with a `412 Precondition Failed`
-            error.
+        - $ref: '#/parameters/ifMatch'
       responses:
         '200':
           description: Successfully updated the reweigh.
@@ -1058,13 +1059,6 @@ paths:
 
         To create a service item, please use
         [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
-
-
-        ### Errors
-
-
-        Currently this is not implemented and will generated the NotImplemented
-        error.
       operationId: updateMTOServiceItem
       tags:
         - mtoServiceItem
@@ -1108,11 +1102,38 @@ paths:
   /payment-requests:
     post:
       summary: createPaymentRequest
-      description: |
+      description: >
         Creates a new instance of a paymentRequest.
+
         A newly created payment request is assigned the status `PENDING`.
+
         A move task order can have multiple payment requests, and
+
         a final payment request can be marked using boolean `isFinal`.
+
+
+        If a `PENDING` payment request is recalculated,
+
+        a new payment request is created and the original request is
+
+        marked with the status `DEPRECATED`.
+
+
+        **NOTE**: In order to create a payment request for most service items,
+
+        the shipment *must* be updated with the `PrimeActualWeight` value via
+        [updateMTOShipment](#operation/updateMTOShipment).
+
+        **Fuel Surcharge** service items require `ActualPickupDate` to be
+
+        updated on the shipment.
+
+
+        To create a paymentRequest for a SIT Delivery mtoServiceItem, the item
+        must
+
+        first have a final address set via
+        [updateMTOServiceItem](#operation/updateMTOServiceItem).
       operationId: createPaymentRequest
       tags:
         - paymentRequest
