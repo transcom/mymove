@@ -5,7 +5,7 @@ import { render, screen, queryByTestId, waitForElementToBeRemoved } from '@testi
 import ServicesCounselingMoveInfo from './ServicesCounselingMoveInfo';
 
 import { MockProviders } from 'testUtils';
-import { useMoveDetailsQueries, useGHCGetMoveHistory } from 'hooks/queries';
+import { useMoveDetailsQueries, useGHCGetMoveHistory, useReviewShipmentWeightsQuery } from 'hooks/queries';
 import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
 import MOVE_STATUSES from 'constants/moves';
 
@@ -42,6 +42,7 @@ jest.mock('hooks/queries', () => ({
   },
   useMoveDetailsQueries: jest.fn(),
   useGHCGetMoveHistory: jest.fn(),
+  useReviewShipmentWeightsQuery: jest.fn(),
 }));
 
 const newMoveDetailsQuery = {
@@ -325,6 +326,22 @@ describe('Services Counseling Move Info Container', () => {
 
       // Ensure we are showing the move history
       expect(await screen.getByRole('heading', { name: 'Move history (1)', level: 1 })).toBeInTheDocument();
+    });
+
+    it('should handle the Services Counseling Review Shipment Weights route', async () => {
+      useReviewShipmentWeightsQuery.mockReturnValue({});
+      render(
+        <MockProviders initialEntries={[`/counseling/moves/${testMoveCode}/review-shipment-weights`]}>
+          <ServicesCounselingMoveInfo />
+        </MockProviders>,
+      );
+
+      // Wait to finish loading
+      const loadingH2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      await waitForElementToBeRemoved(loadingH2);
+
+      // Ensure we are showing the move history
+      expect(await screen.getByRole('heading', { name: 'Review shipment weights', level: 1 })).toBeInTheDocument();
     });
   });
 });
