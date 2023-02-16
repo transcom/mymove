@@ -156,7 +156,9 @@ func verifyAdjustedNetWeightAndNetWeightRemarksAreValid() weightTicketValidator 
 				verrs.Add("AdjustedNetWeight", "Adjusted Net Weight must have a value of at least 0")
 			} else if newWeightTicket.FullWeight != nil && *newWeightTicket.AdjustedNetWeight >= *newWeightTicket.FullWeight {
 				verrs.Add("AdjustedNetWeight", "Adjusted Net Weight cannot be greater than or equal to the full weight")
-			} else if newWeightTicket.NetWeightRemarks == nil || *newWeightTicket.NetWeightRemarks == "" {
+			}
+
+			if newWeightTicket.NetWeightRemarks == nil || *newWeightTicket.NetWeightRemarks == "" {
 				verrs.Add("NetWeightRemarks", "Net Weight Remarks must exist when net weight is adjusted")
 			}
 		}
