@@ -104,6 +104,7 @@ export const qaeCSRRoutes = {
   EVALUATION_REPORTS_PATH: '/evaluation-reports',
   BASE_EVALUATION_REPORT_PATH: `${BASE_MOVES_PATH}/evaluation-reports/:reportId/*`,
   EVALUATION_REPORT_PATH: '/evaluation-reports/:reportId',
+  BASE_EVALUATION_VIOLATIONS_PATH: `${BASE_MOVES_PATH}/evaluation-reports/:reportId/violations`,
   EVALUATION_VIOLATIONS_PATH: '/evaluation-reports/:reportId/violations',
   BASE_CUSTOMER_SUPPORT_REMARKS_PATH: `${BASE_MOVES_PATH}/customer-support-remarks`,
   CUSTOMER_SUPPORT_REMARKS_PATH: 'customer-support-remarks',

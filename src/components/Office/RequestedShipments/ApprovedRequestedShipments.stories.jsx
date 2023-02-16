@@ -3,7 +3,7 @@ import React from 'react';
 import { shipments, ordersInfo, customerInfo, serviceItemsMSandCS } from './RequestedShipmentsTestData';
 import ApprovedRequestedShipments from './ApprovedRequestedShipments';
 
-import { MockProviders } from 'testUtils';
+import { MockProviders, MockRouting } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 
 export default {
@@ -13,7 +13,11 @@ export default {
     (Story, context) => {
       // Don't wrap with permissions for the read only tests
       if (context.name.includes('Read Only')) {
-        return <Story />;
+        return (
+          <MockRouting>
+            <Story />
+          </MockRouting>
+        );
       }
 
       // By default, show component with permissions
