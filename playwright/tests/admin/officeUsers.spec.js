@@ -69,9 +69,9 @@ test.describe('Office User Create Page', () => {
     await page.getByLabel('Transportation Office').locator('input').fill('JPPSO Testy McTest');
     // the autocomplete might return multiples because of concurrent
     // tests running that are adding offices
-    await page.getByRole('option', { name: 'JPPSOTestyMcTest' }).first().click();
+    await page.getByRole('option', { name: 'JPPSO Testy McTest' }).first().click();
 
-    await page.getByRole('link', { name: 'Save' }).click();
+    await page.getByRole('button', { name: 'Save' }).click();
     await adminPage.waitForAdminPageToLoad();
 
     // redirected to edit details page
@@ -96,15 +96,18 @@ test.describe('Office Users Show Page', () => {
     await adminPage.signInAsNewAdminUser();
 
     expect(page.url()).toContain('/system/office-users');
+    await adminPage.waitForAdminPageToLoad();
 
-    await page.locator('tr[resource="office-users"]').first().click();
+    // Click first office user row
+    await page.locator('tbody >> tr').first().click();
 
-    // check that the office user's name is shown in the page title
-    const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();
+    // Get first id field and check that it's in the URL
+    const id = await page.locator('.ra-field-id > span').first().textContent();
     expect(page.url()).toContain(id);
 
-    const firstName = await page.locator('label:has-text("First name") + div').textContent();
-    const lastName = await page.locator('label:has-text("Last name") + div').textContent();
+    // check that the office user's name is shown in the page title
+    const firstName = await page.locator('.ra-field-firstName > span').textContent();
+    const lastName = await page.locator('.ra-field-lastName > span').textContent();
 
     await expect(page.getByRole('heading', { name: `${firstName} ${lastName}` })).toBeVisible();
 

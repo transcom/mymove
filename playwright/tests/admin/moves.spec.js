@@ -32,7 +32,8 @@ test('Moves Details Show Page', async ({ page, adminPage }) => {
   await page.locator('span[reference="moves"]').first().click();
   await adminPage.waitForAdminPageToLoad();
 
-  const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();
+  // Get first id field and check that it's in the URL
+  const id = await page.locator('.ra-field-id > span').first().textContent();
   expect(page.url()).toContain(id);
   await expect(page.getByRole('heading', { name: `Move ID: ${id}` })).toBeVisible();
 
