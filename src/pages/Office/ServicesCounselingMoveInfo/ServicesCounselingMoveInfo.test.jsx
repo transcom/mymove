@@ -219,7 +219,7 @@ describe('Services Counseling Move Info Container', () => {
         </MockProviders>,
       );
 
-      const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      const h2 = screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
     });
 
@@ -232,7 +232,7 @@ describe('Services Counseling Move Info Container', () => {
         </MockProviders>,
       );
 
-      const errorMessage = await screen.getByText(/Something went wrong./);
+      const errorMessage = screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
     });
   });
@@ -258,7 +258,7 @@ describe('Services Counseling Move Info Container', () => {
         </MockProviders>,
       );
 
-      expect(await screen.getByRole('heading', { name: 'Kerry, Smith', level: 2 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Kerry, Smith', level: 2 })).toBeInTheDocument();
     });
 
     it('should render the system error when there is an error', () => {
@@ -302,7 +302,7 @@ describe('Services Counseling Move Info Container', () => {
       );
 
       // Ensure that the move details page has loaded
-      expect(await screen.getByRole('heading', { name: 'Move details', level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Move details', level: 1 })).toBeInTheDocument();
     });
 
     it('should redirect from move info root to the Services Counseling Move Details route', async () => {
@@ -314,7 +314,7 @@ describe('Services Counseling Move Info Container', () => {
       );
 
       // Ensure that the move details page has loaded after redirect
-      expect(await screen.getByRole('heading', { name: 'Move details', level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Move details', level: 1 })).toBeInTheDocument();
     });
 
     it('should handle the Services Counseling Move History route', async () => {
@@ -326,11 +326,11 @@ describe('Services Counseling Move Info Container', () => {
       );
 
       // Wait to finish loading
-      const loadingH2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      const loadingH2 = screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       await waitForElementToBeRemoved(loadingH2);
 
       // Ensure we are showing the move history
-      expect(await screen.getByRole('heading', { name: 'Move history (1)', level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Move history (1)', level: 1 })).toBeInTheDocument();
     });
 
     it('should handle the Services Counseling Review Shipment Weights route', async () => {
@@ -342,11 +342,11 @@ describe('Services Counseling Move Info Container', () => {
       );
 
       // Wait to finish loading
-      const loadingH2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      const loadingH2 = screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       await waitForElementToBeRemoved(loadingH2);
 
       // Ensure we are showing the move history
-      expect(await screen.getByRole('heading', { name: 'Review shipment weights', level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Review shipment weights', level: 1 })).toBeInTheDocument();
     });
   });
 });
