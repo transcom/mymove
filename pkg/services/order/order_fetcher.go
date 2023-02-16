@@ -457,7 +457,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 		"submittedAt":             "moves.submitted_at",
 		"originDutyLocation":      "origin_dl.name",
 		"destinationDutyLocation": "dest_dl.name",
-		"requestedMoveDate":       "min(mto_shipments.requested_pickup_date)",
+		"requestedMoveDate":       "case when coalesce(min(mto_shipments.requested_pickup_date), 'infinity') <= coalesce(min(ppm_shipments.expected_departure_date), 'infinity') THEN min(mto_shipments.requested_pickup_date) ELSE min(ppm_shipments.expected_departure_date) end",
 		"originGBLOC":             "origin_to.gbloc",
 		"ppmType":                 "moves.ppm_type",
 		"closeoutLocation":        "closeout_to.name",
