@@ -112,7 +112,7 @@ export const ReviewDocuments = () => {
   if (isError) return <SomethingWentWrong />;
 
   const onClose = () => {
-    navigate(`../${generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH)}`);
+    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
   };
 
   const onBack = () => {
@@ -136,7 +136,7 @@ export const ReviewDocuments = () => {
   };
 
   const onConfirmSuccess = () => {
-    navigate(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
   };
 
   const onError = () => {
@@ -153,7 +153,7 @@ export const ReviewDocuments = () => {
   const currentDocumentSet = documentSets[documentSetIndex];
   const disableBackButton = documentSetIndex === 0 && !showOverview;
 
-  const reviewShipmentWeightsURL = generatePath(servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH, {
+  const reviewShipmentWeightsURL = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, {
     moveCode,
     shipmentId,
   });
