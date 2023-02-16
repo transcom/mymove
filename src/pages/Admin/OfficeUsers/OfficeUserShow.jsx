@@ -14,7 +14,7 @@ import PropTypes from 'prop-types';
 
 const OfficeUserShowTitle = () => {
   const record = useRecordContext();
-  return <span>{`${record.firstName} ${record.lastName}`}</span>;
+  return <span>{`${record?.firstName} ${record?.lastName}`}</span>;
 };
 
 OfficeUserShowTitle.propTypes = {
