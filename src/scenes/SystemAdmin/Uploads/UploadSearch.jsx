@@ -32,7 +32,7 @@ export class UploadSearch extends Component {
         </Fragment>
       );
     } else {
-      return <Navigate to={`/uploads/${this.state.uploadID}/show`} replace />;
+      return <Navigate to={`/system/uploads/${this.state.uploadID}/show`} replace />;
     }
   }
 }
