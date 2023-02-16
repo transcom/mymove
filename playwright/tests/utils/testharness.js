@@ -295,6 +295,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build approved move with ppm progear
+   * @returns {Promise<Object>}
+   */
+  async buildApprovedMoveWithPPMWeightTicketOffice() {
+    return this.buildDefault('ApprovedMoveWithPPMWeightTicketOffice');
+  }
+
+  /**
    * Use testharness to build approved move with ppm moving expenses
    * @returns {Promise<Object>}
    */
