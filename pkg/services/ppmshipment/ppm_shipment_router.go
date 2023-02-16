@@ -124,7 +124,7 @@ func (p *ppmShipmentRouter) SubmitReviewedDocuments(_ appcontext.AppContext, ppm
 	if len(ppmDocuments.WeightTickets) >= 1 {
 		for _, weightTicket := range ppmDocuments.WeightTickets {
 			if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
-				numOfRejectedDocs += 1
+				numOfRejectedDocs++
 			}
 		}
 	}
@@ -132,7 +132,7 @@ func (p *ppmShipmentRouter) SubmitReviewedDocuments(_ appcontext.AppContext, ppm
 	if len(ppmDocuments.ProgearExpenses) >= 1 {
 		for _, progear := range ppmDocuments.ProgearExpenses {
 			if progear.Status != nil && *progear.Status == models.PPMDocumentStatusRejected {
-				numOfRejectedDocs += 1
+				numOfRejectedDocs++
 			}
 		}
 	}
@@ -140,7 +140,7 @@ func (p *ppmShipmentRouter) SubmitReviewedDocuments(_ appcontext.AppContext, ppm
 	if len(ppmDocuments.MovingExpenses) >= 1 {
 		for _, movingExpenses := range ppmDocuments.MovingExpenses {
 			if movingExpenses.Status != nil && *movingExpenses.Status == models.PPMDocumentStatusRejected {
-				numOfRejectedDocs += 1
+				numOfRejectedDocs++
 			}
 		}
 	}
