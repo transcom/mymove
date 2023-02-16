@@ -94,6 +94,8 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		suite.Equal(subtestData.weightTicket.ID.String(), updatedWeightTicket.ID.String())
 		suite.Equal(params.UpdateWeightTicketPayload.FullWeight, updatedWeightTicket.FullWeight)
 		suite.Equal(params.UpdateWeightTicketPayload.EmptyWeight, updatedWeightTicket.EmptyWeight)
+		suite.Equal(params.UpdateWeightTicketPayload.AdjustedNetWeight, updatedWeightTicket.AdjustedNetWeight)
+		suite.Equal(params.UpdateWeightTicketPayload.NetWeightRemarks, *updatedWeightTicket.NetWeightRemarks)
 	})
 
 	suite.Run("PATCH failure - 404- not found", func() {

@@ -223,6 +223,8 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		updatedWeightTicket := response.(*weightticketops.UpdateWeightTicketOK).Payload
 		suite.Equal(subtestData.weightTicket.ID.String(), updatedWeightTicket.ID.String())
 		suite.Equal(params.UpdateWeightTicketPayload.VehicleDescription, *updatedWeightTicket.VehicleDescription)
+		suite.Equal(params.UpdateWeightTicketPayload.AdjustedNetWeight, updatedWeightTicket.AdjustedNetWeight)
+		suite.Equal(params.UpdateWeightTicketPayload.NetWeightRemarks, *updatedWeightTicket.NetWeightRemarks)
 	})
 
 	suite.Run("PATCH failure -400 - nil body", func() {
