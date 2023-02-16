@@ -450,7 +450,7 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 		})
 	})
 
-	suite.Run("verifyAdjustedNetWeightandNetWeightRemarksAreValid", func() {
+	suite.Run("verifyAdjustedNetWeightAndNetWeightRemarksAreValid", func() {
 		suite.Run("Success", func() {
 			validWeightTicketTestCases := map[string]models.WeightTicket{
 				"Net weight is adjusted with accompanying remarks": {
@@ -464,7 +464,7 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 				validWeightTicket := validWeightTicket
 
 				suite.Run(name, func() {
-					err := verifyAdjustedNetWeightandNetWeightRemarksAreValid().Validate(
+					err := verifyAdjustedNetWeightAndNetWeightRemarksAreValid().Validate(
 						suite.AppContextForTest(),
 						&validWeightTicket,
 						nil,
@@ -512,7 +512,7 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 				invalidWeightTicketTestCase := invalidWeightTicketTestCase
 
 				suite.Run(name, func() {
-					err := verifyAdjustedNetWeightandNetWeightRemarksAreValid().Validate(
+					err := verifyAdjustedNetWeightAndNetWeightRemarksAreValid().Validate(
 						suite.AppContextForTest(),
 						&invalidWeightTicketTestCase.newWeightTicket,
 						nil,

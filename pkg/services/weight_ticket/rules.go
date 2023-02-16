@@ -147,7 +147,7 @@ func verifyReasonAndStatusAreValid() weightTicketValidator {
 	})
 }
 
-func verifyAdjustedNetWeightandNetWeightRemarksAreValid() weightTicketValidator {
+func verifyAdjustedNetWeightAndNetWeightRemarksAreValid() weightTicketValidator {
 	return weightTicketValidatorFunc(func(_ appcontext.AppContext, newWeightTicket *models.WeightTicket, originalWeightTicket *models.WeightTicket) error {
 		verrs := validate.NewErrors()
 
@@ -186,6 +186,6 @@ func basicChecksForOffice() []weightTicketValidator {
 		checkID(),
 		checkRequiredFields(),
 		verifyReasonAndStatusAreValid(),
-		verifyAdjustedNetWeightandNetWeightRemarksAreValid(),
+		verifyAdjustedNetWeightAndNetWeightRemarksAreValid(),
 	}
 }
