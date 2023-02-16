@@ -61,15 +61,16 @@ test('Admin Users Show Page', async ({ page, adminPage }) => {
   await adminPage.waitForAdminPageToLoad();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
-  // click on first row
-  await page.locator('tr[resource="admin-users"]').first().click();
+  // Click first office user row
+  await page.locator('tbody >> tr').first().click();
   await adminPage.waitForAdminPageToLoad();
 
-  const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();
+  // Get first id field and check that it's in the URL
+  const id = await page.locator('.ra-field-id > span').first().textContent();
   expect(page.url()).toContain(id);
 
-  const firstName = await page.locator('label:has-text("First name") + div').textContent();
-  const lastName = await page.locator('label:has-text("Last name") + div').textContent();
+  const firstName = await page.locator('.ra-field-firstName > span').textContent();
+  const lastName = await page.locator('.ra-field-lastName > span').textContent();
 
   await expect(page.getByRole('heading', { name: `${firstName} ${lastName}` })).toBeVisible();
 
