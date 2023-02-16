@@ -52,7 +52,7 @@ func (p *ppmShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.A
 	}
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		err = p.PPMShipmentRouter.SubmitReviewedDocuments(txnAppCtx, &updatedPPMShipment, ppmDocuments)
+		err = p.PPMShipmentRouter.SubmitReviewedDocuments(txnAppCtx, &updatedPPMShipment, *ppmDocuments)
 
 		if err != nil {
 			return err

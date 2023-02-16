@@ -118,6 +118,8 @@ func (p *ppmShipmentRouter) SubmitCloseOutDocumentation(_ appcontext.AppContext,
 
 // SubmitReviewedDocuments sets the PPM shipment status to the PAYMENT_APPROVED if all docs approved otherwise WAITING_ON_CUSTOMER
 func (p *ppmShipmentRouter) SubmitReviewedDocuments(_ appcontext.AppContext, ppmShipment *models.PPMShipment, ppmDocuments models.PPMDocuments) error {
+	// IS there a status the PPM should be in before proceeding
+	// Otherwise TODO - remove the err returned from this func
 	numOfRejectedDocs := 0
 	if len(ppmDocuments.WeightTickets) >= 1 {
 		for _, weightTicket := range ppmDocuments.WeightTickets {
