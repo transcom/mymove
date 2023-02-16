@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { generatePath } from 'react-router-dom';
+import { generatePath, MemoryRouter } from 'react-router-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient } from '@tanstack/react-query';
@@ -14,11 +14,17 @@ import { permissionTypes } from 'constants/permissions';
 import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { formatDate } from 'shared/dates';
-import { MockProviders, renderWithRouter } from 'testUtils';
+import { MockProviders, MockRouting, ReactQueryWrapper } from 'testUtils';
 import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
 
 const mockRequestedMoveCode = 'LR4T8V';
 const mockRoutingParams = { moveCode: mockRequestedMoveCode };
+
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 jest.mock('hooks/queries', () => ({
   useMoveDetailsQueries: jest.fn(),
@@ -748,38 +754,39 @@ describe('MoveDetails page', () => {
       ])('shows the "%s" link as expected: %s', async (linkText, route) => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
 
-        const { history } = renderWithRouter(<ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />, {
-          route: detailsURL,
-        });
+        render(
+          <ReactQueryWrapper>
+            <MockRouting>
+              <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
+            </MockRouting>
+          </ReactQueryWrapper>,
+        );
 
         const link = await screen.findByRole('link', { name: linkText });
-
         expect(link).toBeInTheDocument();
 
-        await userEvent.click(link);
-
-        const path = generatePath(route, {
+        const path = `/${generatePath(route, {
           moveCode: mockRequestedMoveCode,
-        });
-
-        await waitFor(() => {
-          expect(history.location.pathname).toEqual(path);
-        });
+        })}`;
+        expect(link).toHaveAttribute('href', path);
       });
 
       describe('shows the dropdown and navigates to each option', () => {
         it.each([[SHIPMENT_OPTIONS_URL.HHG], [SHIPMENT_OPTIONS_URL.NTS], [SHIPMENT_OPTIONS_URL.NTSrelease]])(
           'selects the %s option and navigates to the matching form for that shipment type',
           async (shipmentType) => {
-            const { history } = renderWithRouter(
-              <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />,
-              { route: detailsURL },
+            render(
+              <ReactQueryWrapper>
+                <MemoryRouter initialEntries={[`/new-${shipmentType}`]}>
+                  <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />,
+                </MemoryRouter>
+              </ReactQueryWrapper>,
             );
 
-            const path = generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
+            const path = `../${generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
               moveCode: mockRequestedMoveCode,
               shipmentType,
-            });
+            })}`;
 
             const buttonDropdown = await screen.findByRole('combobox');
 
@@ -788,7 +795,7 @@ describe('MoveDetails page', () => {
             await userEvent.selectOptions(buttonDropdown, shipmentType);
 
             await waitFor(() => {
-              expect(history.location.pathname).toEqual(path);
+              expect(mockNavigate).toHaveBeenCalledWith(path);
             });
           },
         );
