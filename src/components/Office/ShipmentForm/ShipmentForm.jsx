@@ -360,8 +360,7 @@ const ShipmentForm = (props) => {
           onUpdate('success');
         },
         onError: () => {
-          history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
-          onUpdate('error');
+          setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
         },
       });
     }
@@ -372,7 +371,7 @@ const ShipmentForm = (props) => {
           history.push(moveDetailsPath);
         },
         onError: () => {
-          setErrorMessage('A server error occurred editing the shipment details');
+          setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
         },
       });
     }
