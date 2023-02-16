@@ -395,3 +395,98 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 		})
 	}
 }
+
+func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
+	mtoShipmentRouterMethodToMock := ""
+
+	suite.Run("Update PPMShipment Status to WAITING_ON_CUSTOMER when there are rejected weight tickets", func() {
+		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		rejected := models.PPMDocumentStatusRejected
+		weightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+			WeightTicket: models.WeightTicket{
+				Status: &rejected,
+			},
+		})
+		movingExpense := testdatagen.MakeDefaultMovingExpense(suite.DB())
+		progear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
+
+		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
+		docs := models.PPMDocuments{
+			WeightTickets:   models.WeightTickets{weightTicket},
+			MovingExpenses:  models.MovingExpenses{movingExpense},
+			ProgearExpenses: models.ProgearWeightTickets{progear},
+		}
+		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment, docs)
+
+		if suite.NoError(err) {
+			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
+		}
+	})
+
+	suite.Run("Update PPMShipment Status to WAITING_ON_CUSTOMER when there are rejected  progear weight tickets", func() {
+		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		rejected := models.PPMDocumentStatusRejected
+		progear := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
+			ProgearWeightTicket: models.ProgearWeightTicket{
+				Status: &rejected,
+			},
+		})
+		movingExpense := testdatagen.MakeDefaultMovingExpense(suite.DB())
+		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
+
+		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
+		docs := models.PPMDocuments{
+			WeightTickets:   models.WeightTickets{weightTicket},
+			MovingExpenses:  models.MovingExpenses{movingExpense},
+			ProgearExpenses: models.ProgearWeightTickets{progear},
+		}
+		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment, docs)
+
+		if suite.NoError(err) {
+			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
+		}
+	})
+
+	suite.Run("Update PPMShipment Status to WAITING_ON_CUSTOMER when there are rejected  moving expenses", func() {
+		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		rejected := models.PPMDocumentStatusRejected
+		movingExpense := testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
+			MovingExpense: models.MovingExpense{
+				Status: &rejected,
+			},
+		})
+		progear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
+		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
+
+		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
+		docs := models.PPMDocuments{
+			WeightTickets:   models.WeightTickets{weightTicket},
+			MovingExpenses:  models.MovingExpenses{movingExpense},
+			ProgearExpenses: models.ProgearWeightTickets{progear},
+		}
+		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment, docs)
+
+		if suite.NoError(err) {
+			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
+		}
+	})
+
+	suite.Run("Update PPMShipment Status to PAYMENT_APPROVED when there are no rejected PPM Documents", func() {
+		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		movingExpense := testdatagen.MakeDefaultMovingExpense(suite.DB())
+		progear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
+		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
+
+		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
+		docs := models.PPMDocuments{
+			WeightTickets:   models.WeightTickets{weightTicket},
+			MovingExpenses:  models.MovingExpenses{movingExpense},
+			ProgearExpenses: models.ProgearWeightTickets{progear},
+		}
+		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment, docs)
+
+		if suite.NoError(err) {
+			suite.Equal(models.PPMShipmentStatusPaymentApproved, ppmShipment.Status)
+		}
+	})
+}
