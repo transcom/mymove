@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@trussworks/react-uswds';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import styles from './ReviewDocuments.module.scss';
 
@@ -101,7 +101,7 @@ export const ReviewDocuments = () => {
   if (isError) return <SomethingWentWrong />;
 
   const onClose = () => {
-    navigate(`../${generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH)}`);
+    navigate(`../${servicesCounselingRoutes.MOVE_VIEW_PATH}`);
   };
 
   const onBack = () => {
@@ -131,7 +131,7 @@ export const ReviewDocuments = () => {
   };
 
   const onConfirmSuccess = () => {
-    navigate(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+    navigate(`../${servicesCounselingRoutes.MOVE_VIEW_PATH}`);
   };
 
   const onError = () => {
