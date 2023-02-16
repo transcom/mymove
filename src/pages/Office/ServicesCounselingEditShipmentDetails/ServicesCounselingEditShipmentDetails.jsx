@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useHistory, useParams } from 'react-router-dom';
-import { generatePath } from 'react-router';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { queryCache, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
@@ -14,56 +13,19 @@ import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { updateMTOShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
-import { servicesCounselingRoutes } from 'constants/routes';
+import { updateMTOShipment } from 'services/ghcApi';
 import { roleTypes } from 'constants/userRoles';
 
-// updateMTOShipmentWrapper allows us to pass in the closeout office and include it
-// with the results from updating the shipment, which allows us to chain on the closeout office
-// update.
-function updateMTOShipmentWrapper({ shipment, closeoutOffice }) {
-  return updateMTOShipment(shipment).then((newShipment) => {
-    return { newShipment, closeoutOffice };
-  });
-}
 const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage }) => {
   const { moveCode, shipmentId } = useParams();
   const history = useHistory();
+  const queryClient = useQueryClient();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
-  const [mutateMTOShipment] = useMutation(updateMTOShipmentWrapper, {
-    onSuccess: (result) => {
-      // if we have a closeout office, we must be on the first page of creating a PPM shipment,
-      // so we should update the closeout office and redirect to the advance page
-      if (result.closeoutOffice) {
-        updateMoveCloseoutOffice({
-          locator: moveCode,
-          ifMatchETag: move.eTag,
-          body: { closeoutOfficeId: result.closeoutOffice.id },
-        })
-          .then(() => {
-            mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === result.newShipment.id)] =
-              result.newShipment;
-            queryCache.setQueryData([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID, false], mtoShipments);
-            queryCache.invalidateQueries([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID]);
-            onUpdate('success');
-          })
-          .catch(() => {
-            onUpdate('error');
-            history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
-          });
-      } else {
-        // if we don't have a closeout office, we're either on the advance page for a PPM, or the first
-        // page for another type of shipment. In either case, we're done now and can head back to the move view
-        mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === result.newShipment.id)] = result.newShipment;
-        queryCache.setQueryData([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID, false], mtoShipments);
-        queryCache.invalidateQueries([MTO_SHIPMENTS, result.newShipment.moveTaskOrderID]);
-        history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
-        onUpdate('success');
-      }
-    },
-    onError: () => {
-      history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
-      onUpdate('error');
+  const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
+    onSuccess: (updatedMTOShipment) => {
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
     },
   });
 
@@ -95,6 +57,7 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
                 match={match}
                 history={history}
                 submitHandler={mutateMTOShipment}
+                onUpdate={onUpdate}
                 isCreatePage={false}
                 isForServicesCounseling
                 currentResidence={customer.current_address}

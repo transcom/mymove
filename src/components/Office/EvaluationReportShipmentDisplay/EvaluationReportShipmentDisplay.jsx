@@ -16,6 +16,7 @@ import { shipmentStatuses } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
 import { formatAddress, retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
 import { formatShortIDWithPound } from 'utils/formatters';
+import { fieldValidationShape } from 'utils/displayFlags';
 
 const EvaluationReportShipmentDisplay = ({
   shipmentType,
@@ -172,8 +173,8 @@ EvaluationReportShipmentDisplay.propTypes = {
   ]).isRequired,
   allowApproval: PropTypes.bool,
   ordersLOA: OrdersLOAShape,
-  warnIfMissing: PropTypes.arrayOf(PropTypes.string),
-  errorIfMissing: PropTypes.arrayOf(PropTypes.string),
+  warnIfMissing: PropTypes.arrayOf(fieldValidationShape),
+  errorIfMissing: PropTypes.arrayOf(fieldValidationShape),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
   neverShow: PropTypes.arrayOf(PropTypes.string),
 };

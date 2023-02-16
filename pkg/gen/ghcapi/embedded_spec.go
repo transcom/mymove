@@ -2937,47 +2937,6 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/weight-tickets": {
-      "get": {
-        "description": "Retrieves all of the weight tickets and associated uploads for each document for the specified PPM shipment. This\nexcludes any deleted weight tickets or uploads.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Gets all the weight tickets for a PPM shipment",
-        "operationId": "getWeightTickets",
-        "responses": {
-          "200": {
-            "description": "All weight tickets and associated uploads for the specified PPM shipment.",
-            "schema": {
-              "$ref": "#/definitions/WeightTickets"
-            }
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "$ref": "#/parameters/ppmShipmentId"
-        }
-      ]
-    },
     "/pws-violations": {
       "get": {
         "description": "Fetch the possible PWS violations for an evaluation report",
@@ -6921,13 +6880,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatus": {
       "description": "Status of the PPM document.",
@@ -8700,6 +8661,10 @@ func init() {
           "type": "integer",
           "format": "cents",
           "x-nullable": true
+        },
+        "advanceStatus": {
+          "x-nullable": true,
+          "$ref": "#/definitions/PPMAdvanceStatus"
         },
         "destinationPostalCode": {
           "type": "string",
@@ -13105,64 +13070,6 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/weight-tickets": {
-      "get": {
-        "description": "Retrieves all of the weight tickets and associated uploads for each document for the specified PPM shipment. This\nexcludes any deleted weight tickets or uploads.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Gets all the weight tickets for a PPM shipment",
-        "operationId": "getWeightTickets",
-        "responses": {
-          "200": {
-            "description": "All weight tickets and associated uploads for the specified PPM shipment.",
-            "schema": {
-              "$ref": "#/definitions/WeightTickets"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "UUID of the PPM shipment",
-          "name": "ppmShipmentId",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/pws-violations": {
       "get": {
         "description": "Fetch the possible PWS violations for an evaluation report",
@@ -17404,13 +17311,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatus": {
       "description": "Status of the PPM document.",
@@ -19191,6 +19100,10 @@ func init() {
           "type": "integer",
           "format": "cents",
           "x-nullable": true
+        },
+        "advanceStatus": {
+          "x-nullable": true,
+          "$ref": "#/definitions/PPMAdvanceStatus"
         },
         "destinationPostalCode": {
           "type": "string",

@@ -76,43 +76,6 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/main/do
   }
 };
 
-const cypressUpdateChecks = async () => {
-  // load all modified and new files
-  const allFiles = danger.git.modified_files.concat(danger.git.created_files);
-
-  // check if relevant package.jsons have changed
-  const rootPackageFile = 'package.json';
-  const rootPackageChanged = allFiles.includes(rootPackageFile);
-  const cypressPackageNames = [
-    '"cypress":',
-    '"cypress-audit":',
-    '"cypress-multi-reporters":',
-    '"cypress-wait-until":',
-    '"mocha":',
-    '"mocha-junit-reporter":',
-    '"moment":',
-  ];
-
-  let hasRootCypressDepChanged = false;
-
-  // if root changed, check for cypress in diff
-  if (rootPackageChanged) {
-    const rootPackageDiff = await danger.git.diffForFile(rootPackageFile);
-    cypressPackageNames.forEach((cypressPackageName) => {
-      if (hasRootCypressDepChanged || (rootPackageDiff && rootPackageDiff.diff.includes(cypressPackageName))) {
-        hasRootCypressDepChanged = true;
-      }
-    });
-  }
-
-  if (hasRootCypressDepChanged) {
-    warn(
-      `It looks like you updated the Cypress package dependency in one of two required places.
-Please update it in both the root package.json and the [circleci-docker/milmove-cypress/](https://github.com/transcom/circleci-docker) folder's separate package.json`,
-    );
-  }
-};
-
 const checkYarnAudit = () => {
   const result = child.spawnSync('yarn', ['audit', '--groups=dependencies', '--level=high', '--json']);
   const output = result.stdout.toString().split('\n');
@@ -156,5 +119,4 @@ if (!danger.github || (danger.github && danger.github.pr.user.login !== 'dependa
   githubChecks();
   fileChecks();
   checkYarnAudit();
-  cypressUpdateChecks();
 }

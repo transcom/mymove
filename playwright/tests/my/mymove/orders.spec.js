@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, expect } = require('../../utils/customerTest');
+import { test, expect } from '../../utils/customerTest';
 
 /**
  * @param {import('@playwright/test').Page} page
@@ -62,7 +62,7 @@ test('orders entry will accept orders information', async ({ page, customerPage 
 
   expect(page.url()).toContain('/orders/upload');
 
-  setFeatureFlag(page, 'ppmPaymentRequest=false', '/ppm');
+  await setFeatureFlag(page, 'ppmPaymentRequest=false', '/ppm');
   await expect(page.getByText('NAS Fort Worth (from Yuma AFB)')).toBeVisible();
   await expect(page.locator('[data-testid="move-header-weight-estimate"]')).toHaveText('5,000 lbs');
 

@@ -41,10 +41,6 @@ This endpoint supports different body definitions. In the modelType field below,
 	to the service item you wish to update and the documentation will update with the new definition.
 
 To create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
-
-### Errors
-
-Currently this is not implemented and will generated the NotImplemented error.
 */
 type UpdateMTOServiceItem struct {
 	Context *middleware.Context

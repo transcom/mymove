@@ -4,6 +4,8 @@ import { act } from 'react-dom/test-utils';
 
 import ReviewWeightTicket from './ReviewWeightTicket';
 
+import { MockProviders } from 'testUtils';
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -63,7 +65,11 @@ const claimableTrailerProps = {
 describe('ReviewWeightTicket component', () => {
   describe('displays form', () => {
     it('renders blank form on load with defaults', async () => {
-      render(<ReviewWeightTicket {...defaultProps} />);
+      render(
+        <MockProviders>
+          <ReviewWeightTicket {...defaultProps} />;
+        </MockProviders>,
+      );
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 3, name: 'Trip 1' })).toBeInTheDocument();
@@ -83,7 +89,11 @@ describe('ReviewWeightTicket component', () => {
     });
 
     it('populates edit form with existing weight ticket values', async () => {
-      render(<ReviewWeightTicket {...defaultProps} {...weightTicketRequiredProps} />);
+      render(
+        <MockProviders>
+          <ReviewWeightTicket {...defaultProps} {...weightTicketRequiredProps} />
+        </MockProviders>,
+      );
 
       await waitFor(() => {
         expect(screen.getByText('Kia Forte')).toBeInTheDocument();
@@ -95,7 +105,11 @@ describe('ReviewWeightTicket component', () => {
     });
 
     it('populates edit form when weight ticket is missing', async () => {
-      render(<ReviewWeightTicket {...defaultProps} {...missingWeightTicketProps} />);
+      render(
+        <MockProviders>
+          <ReviewWeightTicket {...defaultProps} {...missingWeightTicketProps} />
+        </MockProviders>,
+      );
       await waitFor(() => {
         expect(screen.getByLabelText('Empty weight', { description: 'Constructed weight' })).toBeInTheDocument();
       });
@@ -103,7 +117,11 @@ describe('ReviewWeightTicket component', () => {
     });
 
     it('toggles the reason field when Reject is selected', async () => {
-      render(<ReviewWeightTicket {...defaultProps} {...weightTicketRequiredProps} />);
+      render(
+        <MockProviders>
+          <ReviewWeightTicket {...defaultProps} {...weightTicketRequiredProps} />
+        </MockProviders>,
+      );
       await waitFor(() => {
         expect(screen.getByLabelText('Reject')).toBeInstanceOf(HTMLInputElement);
       });
@@ -118,7 +136,11 @@ describe('ReviewWeightTicket component', () => {
     });
 
     it('notifies the user when a trailer is claimable, and disables approval', async () => {
-      render(<ReviewWeightTicket {...defaultProps} {...ownsTrailerProps} />);
+      render(
+        <MockProviders>
+          <ReviewWeightTicket {...defaultProps} {...ownsTrailerProps} />
+        </MockProviders>,
+      );
       await waitFor(() => {
         expect(screen.queryByText("Is the trailer's weight claimable?")).toBeInTheDocument();
       });
@@ -132,7 +154,11 @@ describe('ReviewWeightTicket component', () => {
     });
 
     it('notifies the user when a trailer is claimable after toggling ownership', async () => {
-      render(<ReviewWeightTicket {...defaultProps} {...claimableTrailerProps} />);
+      render(
+        <MockProviders>
+          <ReviewWeightTicket {...defaultProps} {...claimableTrailerProps} />
+        </MockProviders>,
+      );
       await waitFor(() => {
         expect(screen.queryByText("Is the trailer's weight claimable?")).toBeInTheDocument();
       });
@@ -146,7 +172,11 @@ describe('ReviewWeightTicket component', () => {
     });
 
     it('reenables approval after disabling it and updating weight claimable field', async () => {
-      render(<ReviewWeightTicket {...defaultProps} {...claimableTrailerProps} />);
+      render(
+        <MockProviders>
+          <ReviewWeightTicket {...defaultProps} {...claimableTrailerProps} />
+        </MockProviders>,
+      );
       await waitFor(() => {
         expect(screen.queryByText("Is the trailer's weight claimable?")).toBeInTheDocument();
       });
@@ -159,7 +189,11 @@ describe('ReviewWeightTicket component', () => {
     });
     describe('shows an error when submitting', () => {
       it('without a status selected', async () => {
-        render(<ReviewWeightTicket {...defaultProps} {...claimableTrailerProps} />);
+        render(
+          <MockProviders>
+            <ReviewWeightTicket {...defaultProps} {...claimableTrailerProps} />
+          </MockProviders>,
+        );
         await waitFor(async () => {
           const form = screen.getByRole('form');
           expect(form).toBeInTheDocument();
@@ -168,7 +202,11 @@ describe('ReviewWeightTicket component', () => {
         });
       });
       it('with Rejected but no reason selected', async () => {
-        render(<ReviewWeightTicket {...defaultProps} {...claimableTrailerProps} />);
+        render(
+          <MockProviders>
+            <ReviewWeightTicket {...defaultProps} {...claimableTrailerProps} />
+          </MockProviders>,
+        );
         await waitFor(async () => {
           const form = screen.getByRole('form');
           expect(form).toBeInTheDocument();

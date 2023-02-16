@@ -172,7 +172,7 @@ build/index.html: build/downloads ## milmove serve requires this file to boot, b
 
 build/downloads: public/downloads
 	mkdir -p build
-	rm -r build/downloads
+	rm -rf build/downloads
 	cp -r public/downloads build/downloads
 
 .PHONY: client_run
@@ -523,6 +523,9 @@ db_dev_run: db_dev_start db_dev_create ## Run Dev DB (start and create)
 .PHONY: db_dev_reset
 db_dev_reset: db_dev_destroy db_dev_run ## Reset Dev DB (destroy and run)
 
+.PHONY: db_dev_init
+db_dev_init: db_dev_reset db_dev_migrate ## Init Dev DB (destroy, run, migrate)
+
 .PHONY: db_dev_migrate_standalone ## Migrate Dev DB directly
 db_dev_migrate_standalone: bin/milmove
 	@echo "Migrating the ${DB_NAME_DEV} database..."
@@ -674,11 +677,6 @@ db_test_truncate:
 	@echo "Truncating ${DB_NAME_TEST} database..."
 	DB_PORT=$(DB_PORT_TEST) DB_NAME=$(DB_NAME_TEST) ./scripts/db-truncate
 
-.PHONY: db_e2e_test_truncate
-db_e2e_test_truncate:
-	@echo "Truncating ${DB_NAME_TEST} database for e2e tests..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE;'
-
 .PHONY: db_test_migrate_standalone
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
 ifndef CIRCLECI
@@ -711,53 +709,17 @@ db_test_psql: ## Open PostgreSQL shell for Test DB
 #
 
 .PHONY: e2e_test
-e2e_test: db_test_migrate db_e2e_up ## Run e2e (end-to-end) integration tests
+e2e_test: db_dev_run db_dev_truncate ## Run e2e (end-to-end) integration tests
 	$(AWS_VAULT) ./scripts/run-e2e-test
 
 .PHONY: e2e_test_fresh ## Build everything from scratch before running tests
-e2e_test_fresh: bin/gin server_generate server_build client_build db_e2e_init
+e2e_test_fresh: db_dev_init
 	$(AWS_VAULT) ./scripts/run-e2e-test
-
-.PHONY: e2e_mtls_test_docker
-e2e_mtls_test_docker: ## Run e2e (end-to-end) integration tests with docker
-	$(AWS_VAULT) ./scripts/run-e2e-mtls-test-docker
-
-.PHONY: e2e_test_docker
-e2e_test_docker: ## Run e2e (end-to-end) integration tests with docker
-	$(AWS_VAULT) ./scripts/run-e2e-test-docker
-
-.PHONY: e2e_test_docker_mymove
-e2e_test_docker_mymove: ## Run e2e (end-to-end) Service Member integration tests with docker
-	$(AWS_VAULT) SPECS=cypress/integration/mymove/**/* ./scripts/run-e2e-test-docker
-
-.PHONY: e2e_test_docker_office
-e2e_test_docker_office: ## Run e2e (end-to-end) Office integration tests with docker
-	$(AWS_VAULT) SPECS=cypress/integration/office/**/* ./scripts/run-e2e-test-docker
-
-.PHONY: e2e_test_docker_api
-e2e_test_docker_api: ## Run e2e (end-to-end) API integration tests with docker
-	$(AWS_VAULT) SPECS=cypress/integration/api/**/* ./scripts/run-e2e-test-docker
 
 .PHONY: e2e_clean
-e2e_clean: ## Clean e2e (end-to-end) files and docker images
+e2e_clean: ## Clean e2e (end-to-end) files
 	rm -f .*_linux.stamp
-	rm -rf cypress/results
-	rm -rf cypress/screenshots
-	rm -rf cypress/videos
-	rm -rf cypress/reports
-	docker rm -f cypress || true
-
-.PHONY: db_e2e_up
-db_e2e_up: check_app bin/generate-test-data db_e2e_test_truncate ## Truncate Test DB and Generate e2e (end-to-end) data
-	@echo "Populate the ${DB_NAME_TEST} database..."
-	DB_PORT=$(DB_PORT_TEST) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="test"
-
-.PHONY: rerun_e2e_tests_with_new_data
-rerun_e2e_tests_with_new_data: db_e2e_up
-	$(AWS_VAULT) ./scripts/run-e2e-test
-
-.PHONY: db_e2e_init
-db_e2e_init: db_test_reset db_test_migrate redis_reset db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
+	rm -rf playwright-report
 
 .PHONY: db_dev_e2e_backup
 db_dev_e2e_backup: ## Backup Dev DB as 'e2e_dev'
@@ -770,19 +732,6 @@ db_dev_e2e_restore: ## Restore Dev DB from 'e2e_dev'
 .PHONY: db_dev_e2e_cleanup
 db_dev_e2e_cleanup: ## Clean up Dev DB backup `e2e_dev`
 	./scripts/db-cleanup e2e_dev
-
-.PHONY: db_test_e2e_backup
-db_test_e2e_backup: ## Backup Test DB as 'e2e_test'
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) ./scripts/db-backup e2e_test
-
-.PHONY: db_test_e2e_restore
-db_test_e2e_restore: ## Restore Test DB from 'e2e_test'
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) ./scripts/db-restore e2e_test
-
-.PHONY: db_test_e2e_cleanup
-db_test_e2e_cleanup: ## Clean up Test DB backup `e2e_test`
-	./scripts/db-cleanup e2e_test
-
 
 #
 # ----- END E2E TARGETS -----
@@ -1099,7 +1048,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-6109bfb5e9650a79bd94bff6453ed726635a4dc2 bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-314bd6870544a433eacfe83cf3039d549d13be41 bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images
@@ -1124,12 +1073,13 @@ clean_server:
 	rm -f bin/milmove
 
 .PHONY: clean
+# yarn clean removes node_modules
 clean: ## Clean all generated files
 	rm -f .*.stamp
 	rm -f coverage.out
 	rm -rf ./bin
 	rm -rf ./build
-	rm -rf ./node_modules
+	yarn clean
 	rm -rf ./public/swagger-ui/*.{css,js,png}
 	rm -rf ./tmp/secure_migrations
 	rm -rf ./tmp/storage
