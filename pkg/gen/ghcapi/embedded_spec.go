@@ -2937,47 +2937,6 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/weight-tickets": {
-      "get": {
-        "description": "Retrieves all of the weight tickets and associated uploads for each document for the specified PPM shipment. This\nexcludes any deleted weight tickets or uploads.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Gets all the weight tickets for a PPM shipment",
-        "operationId": "getWeightTickets",
-        "responses": {
-          "200": {
-            "description": "All weight tickets and associated uploads for the specified PPM shipment.",
-            "schema": {
-              "$ref": "#/definitions/WeightTickets"
-            }
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "$ref": "#/parameters/ppmShipmentId"
-        }
-      ]
-    },
     "/pws-violations": {
       "get": {
         "description": "Fetch the possible PWS violations for an evaluation report",
@@ -8944,6 +8903,10 @@ func init() {
     "UpdateWeightTicket": {
       "type": "object",
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer"
+        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer"
@@ -8951,6 +8914,10 @@ func init() {
         "fullWeight": {
           "description": "The weight of the vehicle when full.",
           "type": "integer"
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string"
         },
         "ownsTrailer": {
           "description": "Indicates if the customer used a trailer they own for the move.",
@@ -9066,6 +9033,12 @@ func init() {
         "proofOfTrailerOwnershipDocumentId"
       ],
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -9137,6 +9110,12 @@ func init() {
         "missingFullWeightTicket": {
           "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -13111,64 +13090,6 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/weight-tickets": {
-      "get": {
-        "description": "Retrieves all of the weight tickets and associated uploads for each document for the specified PPM shipment. This\nexcludes any deleted weight tickets or uploads.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Gets all the weight tickets for a PPM shipment",
-        "operationId": "getWeightTickets",
-        "responses": {
-          "200": {
-            "description": "All weight tickets and associated uploads for the specified PPM shipment.",
-            "schema": {
-              "$ref": "#/definitions/WeightTickets"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "UUID of the PPM shipment",
-          "name": "ppmShipmentId",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/pws-violations": {
       "get": {
         "description": "Fetch the possible PWS violations for an evaluation report",
@@ -19442,6 +19363,11 @@ func init() {
     "UpdateWeightTicket": {
       "type": "object",
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "minimum": 0
+        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer",
@@ -19451,6 +19377,10 @@ func init() {
           "description": "The weight of the vehicle when full.",
           "type": "integer",
           "minimum": 0
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string"
         },
         "ownsTrailer": {
           "description": "Indicates if the customer used a trailer they own for the move.",
@@ -19569,6 +19499,13 @@ func init() {
         "proofOfTrailerOwnershipDocumentId"
       ],
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -19642,6 +19579,12 @@ func init() {
         "missingFullWeightTicket": {
           "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
