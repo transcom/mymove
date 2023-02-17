@@ -473,5 +473,39 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         expect(onUpdateMock).toHaveBeenCalledWith('success');
       });
     });
+
+    it('displays error when the save button is clicked and the closeout office update is unsuccessful', async () => {
+      // don't freak out when we get a console.error
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
+      updateMTOShipment.mockImplementation(() => Promise.resolve({}));
+      updateMoveCloseoutOffice.mockImplementation(() => Promise.reject(new Error('something went wrong')));
+      validatePostalCode.mockImplementation(() => Promise.resolve(false));
+      const onUpdateMock = jest.fn();
+      render(
+        <MockProviders>
+          <ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('1,111');
+      });
+      await userEvent.type(screen.getByLabelText('Closeout location'), 'Altus');
+      await userEvent.click(await screen.findByText('Altus'));
+
+      const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
+      expect(saveButton).not.toBeDisabled();
+
+      await userEvent.click(saveButton);
+      await waitFor(() => {
+        expect(
+          screen.getByText('Something went wrong, and your changes were not saved. Please try again.'),
+        ).toBeVisible();
+        expect(mockPush).not.toHaveBeenCalled();
+        expect(onUpdateMock).not.toHaveBeenCalled();
+      });
+    });
   });
 });
