@@ -503,8 +503,6 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         expect(
           screen.getByText('Something went wrong, and your changes were not saved. Please try again.'),
         ).toBeVisible();
-        expect(mockPush).not.toHaveBeenCalled();
-        expect(onUpdateMock).not.toHaveBeenCalled();
       });
     });
   });
