@@ -212,6 +212,7 @@ const ShipmentForm = (props) => {
                     onSuccess: () => {
                       actions.setSubmitting(false);
                       history.push(advancePath);
+                      setErrorMessage(null);
                       onUpdate('success');
                     },
                     onError: () => {
@@ -259,6 +260,7 @@ const ShipmentForm = (props) => {
                     shipmentId: mtoShipment.id,
                   });
                   actions.setSubmitting(false);
+                  setErrorMessage(null);
                   history.push(advancePath);
                   onUpdate('success');
                 },
