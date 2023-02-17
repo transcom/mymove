@@ -184,9 +184,11 @@ definitions:
       createdAt:
         type: string
         format: date-time
+        readOnly: true
       updatedAt:
         type: string
         format: date-time
+        readOnly: true
     required:
       - id
       - firstName
@@ -290,10 +292,12 @@ definitions:
         type: string
         format: date-time
         title: Created at
+        readOnly: true
       updatedAt:
         type: string
         format: date-time
         title: Updated at
+        readOnly: true
   ElectronicOrders:
     type: array
     items:
@@ -347,9 +351,11 @@ definitions:
       createdAt:
         type: string
         format: date-time
+        readOnly: true
       updatedAt:
         type: string
         format: date-time
+        readOnly: true
     required:
       - id
       - ordersId
@@ -409,6 +415,7 @@ definitions:
       createdAt:
         type: string
         format: date-time
+        readOnly: true
   Notifications:
     type: array
     items:
@@ -449,9 +456,11 @@ definitions:
       createdAt:
         type: string
         format: date-time
+        readOnly: true
       updatedAt:
         type: string
         format: date-time
+        readOnly: true
     required:
       - id
       - firstName
@@ -574,10 +583,12 @@ definitions:
         type: string
         format: date-time
         title: Created at
+        readOnly: true
       updatedAt:
         type: string
         format: date-time
         title: Updated at
+        readOnly: true
   Organizations:
     type: array
     items:
@@ -598,9 +609,11 @@ definitions:
       createdAt:
         type: string
         format: date-time
+        readOnly: true
       updatedAt:
         type: string
         format: date-time
+        readOnly: true
     required:
       - id
       - roleType
@@ -666,9 +679,11 @@ definitions:
       createdAt:
         type: string
         format: date-time
+        readOnly: true
       updatedAt:
         type: string
         format: date-time
+        readOnly: true
     required:
       - id
       - name
@@ -725,9 +740,11 @@ definitions:
       createdAt:
         type: string
         format: date-time
+        readOnly: true
       updatedAt:
         type: string
         format: date-time
+        readOnly: true
     required:
       - id
       - trafficDistributionListId
@@ -753,6 +770,7 @@ definitions:
         type: string
         format: date-time
         title: Created at
+        readOnly: true
       filename:
         type: string
       size:
@@ -827,9 +845,11 @@ definitions:
       createdAt:
         type: string
         format: date-time
+        readOnly: true
       updatedAt:
         type: string
         format: date-time
+        readOnly: true
       currentAdminSessionId:
         type: string
         example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
@@ -913,9 +933,11 @@ definitions:
       createdAt:
         type: string
         format: date-time
+        readOnly: true
       updatedAt:
         type: string
         format: date-time
+        readOnly: true
       eTag:
         type: string
         readOnly: true
