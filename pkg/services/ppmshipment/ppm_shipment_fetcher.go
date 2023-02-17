@@ -97,7 +97,12 @@ func FindPPMShipment(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShi
 
 func loadPPMAssociations(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error {
 	for i := range ppmShipment.WeightTickets {
-		if weightTicket := &ppmShipment.WeightTickets[i]; weightTicket.DeletedAt == nil {
+
+		weightTicket := &ppmShipment.WeightTickets[i]
+		weightTicket.EmptyDocument.UserUploads = weightTicket.EmptyDocument.UserUploads.FilterDeleted()
+		weightTicket.FullDocument.UserUploads = weightTicket.FullDocument.UserUploads.FilterDeleted()
+		weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightTicket.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
+		if weightTicket.DeletedAt == nil {
 			err := appCtx.DB().Load(weightTicket,
 				"EmptyDocument.UserUploads.Upload",
 				"FullDocument.UserUploads.Upload",
@@ -107,9 +112,6 @@ func loadPPMAssociations(appCtx appcontext.AppContext, ppmShipment *models.PPMSh
 				return apperror.NewQueryError("WeightTicket", err, "failed to load WeightTicket document uploads")
 			}
 
-			weightTicket.EmptyDocument.UserUploads = weightTicket.EmptyDocument.UserUploads.FilterDeleted()
-			weightTicket.FullDocument.UserUploads = weightTicket.FullDocument.UserUploads.FilterDeleted()
-			weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightTicket.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
 		}
 	}
 
