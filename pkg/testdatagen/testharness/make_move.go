@@ -2454,7 +2454,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext) mo
 	return *newmove
 }
 
-func MakeApprovedMoveWithPPMPWeightTicketOffice(appCtx appcontext.AppContext) models.Move {
+func MakeApprovedMoveWithPPMWeightTicketOffice(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 
 	userInfo := newUserInfo("customer")
@@ -2498,6 +2498,7 @@ func MakeApprovedMoveWithPPMPWeightTicketOffice(appCtx appcontext.AppContext) mo
 		PPMShipment:   shipment,
 		ServiceMember: move.Orders.ServiceMember,
 	}
+
 	testdatagen.MakeWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
 
 	// re-fetch the move so that we ensure we have exactly what is in

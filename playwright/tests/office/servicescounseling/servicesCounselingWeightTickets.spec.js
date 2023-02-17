@@ -10,9 +10,13 @@ test('A service counselor can approve/reject weight tickets', async ({ page, scP
   await page.getByRole('button', { name: 'Review documents' }).click();
   await scPage.waitForPage.reviewDocuments();
 
-  // Click "Accept" on the weight ticket, then save (and navigate back to the move details page)
+  // Click "Accept" on the weight ticket, then proceed
   await page.getByText('Accept').click();
   await page.getByRole('button', { name: 'Continue' }).click();
+  await scPage.waitForPage.reviewDocumentsConfirmation();
+
+  // Click "Confirm" on confirmation page, returning to move details page
+  await page.getByRole('button', { name: 'Confirm' }).click();
   await scPage.waitForPage.moveDetails();
 
   // Return to the weight ticket and verify that it's approved
@@ -24,6 +28,8 @@ test('A service counselor can approve/reject weight tickets', async ({ page, scP
   await page.getByText('Reject').click();
   await page.getByLabel('Reason').fill('Justification for rejection');
   await page.getByRole('button', { name: 'Continue' }).click();
+  await scPage.waitForPage.reviewDocumentsConfirmation();
+  await page.getByRole('button', { name: 'Confirm' }).click();
   await scPage.waitForPage.moveDetails();
 
   // Return to the weight ticket and verify that it's been edited

@@ -119,7 +119,7 @@ var actionDispatcher = map[string]actionFunc{
 		return MakeApprovedMoveWithPPMProgearWeightTicket(appCtx)
 	},
 	"ApprovedMoveWithPPMWeightTicketOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeApprovedMoveWithPPMPWeightTicketOffice(appCtx)
+		return MakeApprovedMoveWithPPMWeightTicketOffice(appCtx)
 	},
 	"ApprovedMoveWithPPMMovingExpense": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMMovingExpense(appCtx)
