@@ -6,8 +6,10 @@
 set -e -o pipefail
 # Function to convert DER-encoded p7b files to PEM format
 function convert_der_p7b_to_pem() {
-  local input_file="$1"
-  local output_file="tmp_certs/$(basename "${input_file%.p7b}.pem")"
+  local input_file
+  input_file="$1"
+  local output_file
+  output_file="tmp_certs/$(basename "${input_file%.p7b}.pem")"
 
   # Check if the input file is DER-encoded
   if ! openssl pkcs7 -inform DER -in "$input_file" -print_certs > /dev/null 2>&1; then
@@ -22,9 +24,10 @@ function convert_der_p7b_to_pem() {
 
 # Function to verify and convert any cer or crt files to PEM format
 function verify_and_convert_cer_crt_to_pem() {
-  local input_file="$1"
-  local output_file="tmp_certs/$(basename "${input_file%.cer}.pem")"
-  output_file="${output_file%.crt}.pem"
+  local input_file
+  input_file="$1"
+  local output_file
+  output_file="tmp_certs/$(basename "${input_file%.cer}.pem")"
 
   # Check if the input file is in PEM format
   if openssl x509 -in "$input_file" -noout > /dev/null 2>&1; then
