@@ -419,7 +419,10 @@ describe('Review page', () => {
 
     const weightTicket = mockMTOShipmentWithWeightTicket.ppmShipment.weightTickets[0];
     await waitFor(() => {
-      expect(mockDeleteWeightTicket).toHaveBeenCalledWith(weightTicket.id, weightTicket.eTag);
+      expect(mockDeleteWeightTicket).toHaveBeenCalledWith(
+        mockMTOShipmentWithWeightTicket.ppmShipment.id,
+        weightTicket.id,
+      );
     });
   });
 
@@ -439,7 +442,10 @@ describe('Review page', () => {
 
     const proGearWeightTicket = mockMTOShipmentWithProGear.ppmShipment.proGearWeightTickets[0];
     await waitFor(() => {
-      expect(mockDeleteProGearWeightTicket).toHaveBeenCalledWith(proGearWeightTicket.id, proGearWeightTicket.eTag);
+      expect(mockDeleteProGearWeightTicket).toHaveBeenCalledWith(
+        mockMTOShipmentWithWeightTicket.ppmShipment.id,
+        proGearWeightTicket.id,
+      );
     });
   });
 
@@ -459,7 +465,10 @@ describe('Review page', () => {
 
     const movingExpense = mockMTOShipmentWithExpenses.ppmShipment.movingExpenses[0];
     await waitFor(() => {
-      expect(mockDeleteMovingExpense).toHaveBeenCalledWith(movingExpense.id, movingExpense.eTag);
+      expect(mockDeleteMovingExpense).toHaveBeenCalledWith(
+        mockMTOShipmentWithWeightTicket.ppmShipment.id,
+        movingExpense.id,
+      );
     });
   });
 });
