@@ -53,7 +53,7 @@ const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
             <Button
               className="usa-button--destructive"
               type="submit"
-              onClick={() => onSubmit(itemToDelete.itemType, itemToDelete.itemId, itemToDelete.itemETag)}
+              onClick={() => onSubmit(itemToDelete.itemType, itemToDelete.itemId, itemToDelete.itemNumber)}
             >
               Yes, Delete
             </Button>
@@ -101,7 +101,7 @@ const Review = () => {
     setIsDeleteModalVisible(true);
   };
 
-  const onDeleteSubmit = (itemType, itemId) => {
+  const onDeleteSubmit = (itemType, itemId, itemNumber) => {
     if (itemType === 'weightTicket') {
       deleteWeightTicket(mtoShipment.ppmShipment.id, itemId)
         .then(() => {
@@ -110,8 +110,10 @@ const Review = () => {
             dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
           );
         })
-        .then(() => setAlert({ type: 'success' }))
-        .catch(() => setAlert({ type: 'error' }));
+        .then(() => setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }))
+        .catch(() =>
+          setAlert({ type: 'error', message: `Something went wrong deleting ${itemNumber}. Please try again.` }),
+        );
     }
     if (itemType === 'proGear') {
       deleteProGearWeightTicket(mtoShipment.ppmShipment.id, itemId)
@@ -121,8 +123,10 @@ const Review = () => {
             dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
           );
         })
-        .then(() => setAlert({ type: 'success' }))
-        .catch(() => setAlert({ type: 'error' }));
+        .then(() => setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }))
+        .catch(() =>
+          setAlert({ type: 'error', message: `Something went wrong deleting ${itemNumber}. Please try again.` }),
+        );
     }
     if (itemType === 'expense') {
       deleteMovingExpense(mtoShipment.ppmShipment.id, itemId)
@@ -132,8 +136,10 @@ const Review = () => {
             dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
           );
         })
-        .then(() => setAlert({ type: 'success' }))
-        .catch(() => setAlert({ type: 'error' }));
+        .then(() => setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }))
+        .catch(() =>
+          setAlert({ type: 'error', message: `Something went wrong deleting ${itemNumber}. Please try again.` }),
+        );
     }
   };
 
@@ -175,18 +181,6 @@ const Review = () => {
 
   const expensesTotal = calculateTotalMovingExpensesAmount(expenses);
 
-  const setAlertMessage = (alertType, itemNumber) => {
-    let message = '';
-    if (alertType === 'success') {
-      message = `${itemNumber} successfully deleted.`;
-    }
-
-    if (alertType === 'error') {
-      message = `Something went wrong deleting ${itemNumber}. Please try again.`;
-    }
-    return message;
-  };
-
   return (
     <div className={classnames(ppmPageStyles.ppmPageStyle, styles.PPMReview)}>
       <GridContainer>
@@ -199,7 +193,7 @@ const Review = () => {
                 itemToDelete={itemToDelete}
               />
             )}
-            {alert && <Alert type={alert.type}> {setAlertMessage(alert.type, itemToDelete.itemNumber)} </Alert>}
+            {alert && <Alert type={alert.type}>{alert.message}</Alert>}
             {!canAdvance && (
               <>
                 <Alert type="error">
