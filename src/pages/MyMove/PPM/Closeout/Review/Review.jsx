@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { GridContainer, Grid, Button } from '@trussworks/react-uswds';
 import { Link, useParams, generatePath } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import classnames from 'classnames';
 
 import styles from './Review.module.scss';
@@ -27,9 +27,15 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { formatCents, formatWeight } from 'utils/formatters';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
-import { deleteWeightTicket, deleteProGearWeightTicket, deleteMovingExpense } from 'services/internalApi';
+import {
+  deleteWeightTicket,
+  deleteProGearWeightTicket,
+  deleteMovingExpense,
+  getMTOShipmentsForMove,
+} from 'services/internalApi';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import { hasCompletedAllWeightTickets, hasCompletedAllExpenses, hasCompletedAllProGear } from 'utils/shipments';
+import { updateMTOShipment } from 'store/entities/actions';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
   const deleteDetailMessage = <p>You are about to delete {itemToDelete.itemNumber}. This cannot be undone.</p>;
@@ -64,12 +70,14 @@ const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
 const Review = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [itemToDelete, setItemToDelete] = useState();
+  const [alert, setAlert] = useState(null);
   const { moveId, mtoShipmentId } = useParams();
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
   const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
   const proGear = mtoShipment?.ppmShipment?.proGearWeightTickets;
   const expenses = mtoShipment?.ppmShipment?.movingExpenses;
+  const dispatch = useDispatch();
 
   if (!mtoShipment) {
     return <LoadingPlaceholder />;
@@ -96,14 +104,36 @@ const Review = () => {
   const onDeleteSubmit = (itemType, itemId) => {
     if (itemType === 'weightTicket') {
       deleteWeightTicket(mtoShipment.ppmShipment.id, itemId)
-        .then(() => setIsDeleteModalVisible(false))
-        .catch(() => {});
+        .then(() => {
+          setIsDeleteModalVisible(false);
+          getMTOShipmentsForMove(mtoShipment.moveTaskOrderID).then((moveResponse) =>
+            dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
+          );
+        })
+        .then(() => setAlert({ type: 'success' }))
+        .catch(() => setAlert({ type: 'error' }));
     }
     if (itemType === 'proGear') {
-      deleteProGearWeightTicket(mtoShipment.ppmShipment.id, itemId).then(() => setIsDeleteModalVisible(false));
+      deleteProGearWeightTicket(mtoShipment.ppmShipment.id, itemId)
+        .then(() => {
+          setIsDeleteModalVisible(false);
+          getMTOShipmentsForMove(mtoShipment.moveTaskOrderID).then((moveResponse) =>
+            dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
+          );
+        })
+        .then(() => setAlert({ type: 'success' }))
+        .catch(() => setAlert({ type: 'error' }));
     }
     if (itemType === 'expense') {
-      deleteMovingExpense(mtoShipment.ppmShipment.id, itemId).then(() => setIsDeleteModalVisible(false));
+      deleteMovingExpense(mtoShipment.ppmShipment.id, itemId)
+        .then(() => {
+          setIsDeleteModalVisible(false);
+          getMTOShipmentsForMove(mtoShipment.moveTaskOrderID).then((moveResponse) =>
+            dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
+          );
+        })
+        .then(() => setAlert({ type: 'success' }))
+        .catch(() => setAlert({ type: 'error' }));
     }
   };
 
@@ -145,6 +175,18 @@ const Review = () => {
 
   const expensesTotal = calculateTotalMovingExpensesAmount(expenses);
 
+  const setAlertMessage = (alertType, itemNumber) => {
+    let message = '';
+    if (alertType === 'success') {
+      message = `${itemNumber} successfully deleted.`;
+    }
+
+    if (alertType === 'error') {
+      message = `Something went wrong deleting ${itemNumber}. Please try again.`;
+    }
+    return message;
+  };
+
   return (
     <div className={classnames(ppmPageStyles.ppmPageStyle, styles.PPMReview)}>
       <GridContainer>
@@ -157,6 +199,7 @@ const Review = () => {
                 itemToDelete={itemToDelete}
               />
             )}
+            {alert && <Alert type={alert.type}> {setAlertMessage(alert.type, itemToDelete.itemNumber)} </Alert>}
             {!canAdvance && (
               <>
                 <Alert type="error">
