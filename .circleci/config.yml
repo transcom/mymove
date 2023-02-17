@@ -13,10 +13,10 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-6109bfb5e9650a79bd94bff6453ed726635a4dc2
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-314bd6870544a433eacfe83cf3039d549d13be41
 
   # the cypress image to use
-  cypress: &cypress milmove/circleci-docker:milmove-cypress-6109bfb5e9650a79bd94bff6453ed726635a4dc2
+  cypress: &cypress milmove/circleci-docker:milmove-cypress-314bd6870544a433eacfe83cf3039d549d13be41
 
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
@@ -681,6 +681,8 @@ commands:
             export HTTP_ORDERS_SERVER_NAME=orderslocal
             export HTTP_PRIME_SERVER_NAME=primelocal
             export ENVIRONMENT=test
+            # disable for speed, playwright tests can fail otherwise
+            export DB_DEBUG=false
 
             make db_dev_create
             bin/milmove migrate
@@ -709,7 +711,8 @@ commands:
             --reporter=html,junit \
             --trace=on \
             --workers << parameters.workers >> \
-            --shard="${SHARD}/${CIRCLE_NODE_TOTAL}"
+            --shard="${SHARD}/${CIRCLE_NODE_TOTAL}" \
+            << parameters.path >>
       - store_artifacts:
           path: playwright-report
       - run:

@@ -137,6 +137,8 @@ export const WeightTicketShape = shape({
   proofOfTrailerOwnershipDocument: DocumentShape,
   reason: string,
   status: string,
+  adjustedNetWeight: number,
+  netWeightRemarks: string,
 });
 
 export const ExpenseShape = shape({

@@ -273,6 +273,8 @@ func WeightTicketModelFromUpdate(weightTicket *internalmessages.UpdateWeightTick
 		MissingFullWeightTicket:  handlers.FmtBool(weightTicket.MissingFullWeightTicket),
 		OwnsTrailer:              handlers.FmtBool(weightTicket.OwnsTrailer),
 		TrailerMeetsCriteria:     handlers.FmtBool(weightTicket.TrailerMeetsCriteria),
+		AdjustedNetWeight:        handlers.PoundPtrFromInt64Ptr(weightTicket.AdjustedNetWeight),
+		NetWeightRemarks:         handlers.FmtString(weightTicket.NetWeightRemarks),
 	}
 	return model
 }
