@@ -52,38 +52,3 @@ func (f *weightTicketFetcher) GetWeightTicket(appCtx appcontext.AppContext, weig
 
 	return &weightTicket, nil
 }
-
-// ListWeightTickets fetches all WeightTickets for a given move, excluding deleted weight tickets. The returned weight
-// tickets will include uploads, without any deleted uploads.
-func (f *weightTicketFetcher) ListWeightTickets(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (models.WeightTickets, error) {
-	var weightTickets models.WeightTickets
-
-	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
-		EagerPreload(
-			"EmptyDocument.UserUploads.Upload",
-			"FullDocument.UserUploads.Upload",
-			"ProofOfTrailerOwnershipDocument.UserUploads.Upload",
-		).
-		Where("ppm_shipment_id = ?", ppmShipmentID).
-		All(&weightTickets)
-
-	if err != nil {
-		return nil, apperror.NewQueryError("WeightTicket", err, "unable to find WeightTickets")
-	}
-
-	if weightTickets == nil {
-		return weightTickets, nil
-	}
-
-	if appCtx.Session().IsMilApp() && weightTickets[0].EmptyDocument.ServiceMemberID != appCtx.Session().ServiceMemberID {
-		return nil, apperror.NewForbiddenError("not authorized to access weight tickets")
-	}
-
-	for i := range weightTickets {
-		weightTickets[i].EmptyDocument.UserUploads = weightTickets[i].EmptyDocument.UserUploads.FilterDeleted()
-		weightTickets[i].FullDocument.UserUploads = weightTickets[i].FullDocument.UserUploads.FilterDeleted()
-		weightTickets[i].ProofOfTrailerOwnershipDocument.UserUploads = weightTickets[i].ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
-	}
-
-	return weightTickets, nil
-}

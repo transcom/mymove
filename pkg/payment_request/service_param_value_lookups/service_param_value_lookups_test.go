@@ -367,11 +367,13 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			},
 		}, nil)
 		storageFacilityPostalCode := "30907"
-		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				PostalCode: storageFacilityPostalCode,
+		storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: storageFacilityPostalCode,
+				},
 			},
-		})
+		}, nil)
 		ntsServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			Move:      move,
 			ReService: reService,

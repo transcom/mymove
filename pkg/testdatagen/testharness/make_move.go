@@ -712,13 +712,9 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 	})
 
 	// Create Storage Facility
-	storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			// KKFA GBLOC
-			PostalCode: "85004",
-		},
+	storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, []factory.Trait{
+		factory.GetTraitStorageFacilityKKFA,
 	})
-
 	// Create NTS-R Shipment
 	tacType := models.LOATypeHHG
 	serviceOrderNumber := testdatagen.MakeRandomNumberString(4)
@@ -1245,13 +1241,14 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 	})
 
 	// Create Storage Facility
-	storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			// KKFA GBLOC
-			PostalCode: "85005",
+	storageFacility := factory.BuildStorageFacility(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// KKFA GBLOC
+				PostalCode: "85005",
+			},
 		},
-	})
-
+	}, nil)
 	// Create NTS-R Shipment
 	tacType := models.LOATypeHHG
 	sacType := models.LOATypeNTS
@@ -1845,8 +1842,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 		}
 	}
 
-	storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(),
-		testdatagen.Assertions{})
+	storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
 
 	updatedShipment := updatedShipments[1]
 
@@ -1950,8 +1946,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 		}
 	}
 
-	storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(),
-		testdatagen.Assertions{})
+	storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
 
 	updatedShipment := updatedShipments[1]
 
