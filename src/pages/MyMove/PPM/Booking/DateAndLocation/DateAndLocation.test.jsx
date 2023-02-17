@@ -1,7 +1,7 @@
 import React from 'react';
-import { render, waitFor, screen, fireEvent } from '@testing-library/react';
+import { waitFor, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { generatePath, MemoryRouter } from 'react-router';
+import { generatePath } from 'react-router';
 import selectEvent from 'react-select-event';
 import { act } from 'react-dom/test-utils';
 
@@ -78,7 +78,7 @@ jest.mock('utils/validation', () => ({
 const mockDispatch = jest.fn();
 jest.mock('react-redux', () => ({
   ...jest.requireActual('react-redux'),
-  useDispatch: jest.fn().mockImplementation(() => mockDispatch),
+  useDispatch: () => mockDispatch,
 }));
 
 const serviceMember = {
@@ -129,7 +129,7 @@ const fullShipmentProps = {
 };
 
 beforeEach(() => {
-  jest.resetAllMocks();
+  jest.clearAllMocks();
 });
 
 const renderDateAndLocation = (props) => {
@@ -285,9 +285,7 @@ describe('DateAndLocation component', () => {
       patchMove.mockResolvedValueOnce(mockMove);
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
 
-      render(<DateAndLocation {...defaultProps} serviceMember={armyServiceMember} move={mockMove} />, {
-        wrapper: MemoryRouter,
-      });
+      renderDateAndLocation({ serviceMember: armyServiceMember, move: mockMove });
 
       // Fill in form
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
@@ -329,9 +327,7 @@ describe('DateAndLocation component', () => {
     it('does not call patch move when there is not a closeout office (not Army/Air Force)', async () => {
       createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
 
-      render(<DateAndLocation {...defaultProps} serviceMember={navyServiceMember} />, {
-        wrapper: MemoryRouter,
-      });
+      renderDateAndLocation({ serviceMember: navyServiceMember });
 
       // Fill in form
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
@@ -370,9 +366,7 @@ describe('DateAndLocation component', () => {
       createMTOShipment.mockRejectedValueOnce('fatal error');
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
 
-      render(<DateAndLocation {...defaultProps} serviceMember={armyServiceMember} move={mockMove} />, {
-        wrapper: MemoryRouter,
-      });
+      renderDateAndLocation({ serviceMember: armyServiceMember, move: mockMove });
 
       // Fill in form
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
@@ -411,9 +405,7 @@ describe('DateAndLocation component', () => {
       patchMove.mockRejectedValueOnce('fatal error');
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
 
-      render(<DateAndLocation {...defaultProps} serviceMember={armyServiceMember} move={mockMove} />, {
-        wrapper: MemoryRouter,
-      });
+      renderDateAndLocation({ serviceMember: armyServiceMember, move: mockMove });
 
       // Fill in form
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
@@ -570,17 +562,14 @@ describe('DateAndLocation component', () => {
       patchMove.mockResolvedValueOnce(mockMove);
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
 
-      render(
-        <DateAndLocation
-          {...fullShipmentProps}
-          serviceMember={armyServiceMember}
-          move={{
-            ...mockMove,
-            closeout_office: mockCloseoutOffice,
-          }}
-        />,
-        { wrapper: MemoryRouter },
-      );
+      renderDateAndLocation({
+        ...fullShipmentProps,
+        serviceMember: armyServiceMember,
+        move: {
+          ...mockMove,
+          closeout_office: mockCloseoutOffice,
+        },
+      });
 
       // Submit form
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
@@ -609,9 +598,7 @@ describe('DateAndLocation component', () => {
     it('does not call patch move when there is not a closeout office (not Army/Air Force)', async () => {
       patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
 
-      render(<DateAndLocation {...fullShipmentProps} serviceMember={navyServiceMember} move={mockMove} />, {
-        wrapper: MemoryRouter,
-      });
+      renderDateAndLocation({ ...fullShipmentProps, serviceMember: navyServiceMember, move: mockMove });
 
       // Submit form
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
@@ -640,17 +627,14 @@ describe('DateAndLocation component', () => {
     it('does not patch the move when patch shipment fails', async () => {
       patchMTOShipment.mockRejectedValueOnce('fatal error');
 
-      render(
-        <DateAndLocation
-          {...fullShipmentProps}
-          serviceMember={armyServiceMember}
-          move={{
-            ...mockMove,
-            closeout_office: mockCloseoutOffice,
-          }}
-        />,
-        { wrapper: MemoryRouter },
-      );
+      renderDateAndLocation({
+        ...fullShipmentProps,
+        serviceMember: armyServiceMember,
+        move: {
+          ...mockMove,
+          closeout_office: mockCloseoutOffice,
+        },
+      });
 
       // Submit form
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
@@ -678,17 +662,14 @@ describe('DateAndLocation component', () => {
       patchMove.mockRejectedValueOnce('fatal error');
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
 
-      render(
-        <DateAndLocation
-          {...fullShipmentProps}
-          serviceMember={armyServiceMember}
-          move={{
-            ...mockMove,
-            closeout_office: mockCloseoutOffice,
-          }}
-        />,
-        { wrapper: MemoryRouter },
-      );
+      renderDateAndLocation({
+        ...fullShipmentProps,
+        serviceMember: armyServiceMember,
+        move: {
+          ...mockMove,
+          closeout_office: mockCloseoutOffice,
+        },
+      });
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
