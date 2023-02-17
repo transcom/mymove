@@ -171,7 +171,7 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 	suite.Run("Successful create", func() {
 		params := adminuserop.CreateAdminUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/admin_users"),
-			AdminUser: &adminmessages.AdminUserCreatePayload{
+			AdminUser: &adminmessages.AdminUserCreate{
 				FirstName:      adminUser.FirstName,
 				LastName:       adminUser.LastName,
 				OrganizationID: strfmt.UUID(adminUser.OrganizationID.String()),
@@ -197,7 +197,7 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 	suite.Run("Failed create", func() {
 		params := adminuserop.CreateAdminUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/admin_users"),
-			AdminUser: &adminmessages.AdminUserCreatePayload{
+			AdminUser: &adminmessages.AdminUserCreate{
 				FirstName:      adminUser.FirstName,
 				LastName:       adminUser.LastName,
 				OrganizationID: strfmt.UUID(adminUser.OrganizationID.String()),
@@ -230,7 +230,7 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 	suite.Run("Successful update", func() {
 		params := adminuserop.UpdateAdminUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/admin_users/%s", adminUserID)),
-			AdminUser: &adminmessages.AdminUserUpdatePayload{
+			AdminUser: &adminmessages.AdminUserUpdate{
 				FirstName: &adminUser.FirstName,
 				LastName:  &adminUser.LastName,
 			},
@@ -261,7 +261,7 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 		// Expected outcome: The handler should see the validation errors and also return an error
 		params := adminuserop.UpdateAdminUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/admin_users/%s", adminUserID)),
-			AdminUser: &adminmessages.AdminUserUpdatePayload{
+			AdminUser: &adminmessages.AdminUserUpdate{
 				FirstName: &adminUser.FirstName,
 				LastName:  &adminUser.LastName,
 			},

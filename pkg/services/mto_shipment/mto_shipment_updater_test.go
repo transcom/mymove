@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	notificationMocks "github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/route/mocks"
@@ -367,7 +368,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			CustomerRemarks:          &customerRemarks,
 			CounselorRemarks:         &counselorRemarks,
 		}
-		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
@@ -505,7 +506,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 				Status: models.MTOShipmentStatusSubmitted,
 			},
 		})
-		storageFacility := testdatagen.MakeDefaultStorageFacility(suite.DB())
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 
 		updatedShipment := models.MTOShipment{
 			ID:              shipment.ID,
@@ -513,7 +514,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
-		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
@@ -531,22 +532,22 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		setupTestData()
 
 		// Create initial shipment data
-		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
-			StorageFacility: models.StorageFacility{
-				Address: factory.BuildAddress(suite.DB(), []factory.Customization{
-					{
-						Model: models.Address{
-							StreetAddress1: "1234 Over Here Street",
-							City:           "Houston",
-							State:          "TX",
-							PostalCode:     "77083",
-							Country:        models.StringPointer("US"),
-						},
-					},
-				}, nil),
-				Email: swag.String("old@email.com"),
+		storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
+			{
+				Model: models.StorageFacility{
+					Email: models.StringPointer("old@email.com"),
+				},
 			},
-		})
+			{
+				Model: models.Address{
+					StreetAddress1: "1234 Over Here Street",
+					City:           "Houston",
+					State:          "TX",
+					PostalCode:     "77083",
+					Country:        models.StringPointer("US"),
+				},
+			},
+		}, nil)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				StorageFacility: &storageFacility,
@@ -575,7 +576,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
-		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
@@ -605,7 +606,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			NTSRecordedWeight: &ntsRecorededWeight,
 		}
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
-		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
@@ -635,7 +636,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			NTSRecordedWeight: &ntsRecorededWeight,
 		}
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
-		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
@@ -1024,7 +1025,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
-		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{})
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 
 		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: mto,
@@ -1726,7 +1727,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 			SACType: &nullLOAType,
 		}
 
-		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
@@ -1760,7 +1761,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 			TACType: &hhgLOAType,
 		}
 
-		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,

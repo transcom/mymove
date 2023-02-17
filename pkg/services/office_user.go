@@ -42,5 +42,5 @@ type OfficeUserCreator interface {
 //
 //go:generate mockery --name OfficeUserUpdater --disable-version-string
 type OfficeUserUpdater interface {
-	UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdatePayload) (*models.OfficeUser, *validate.Errors, error)
+	UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate) (*models.OfficeUser, *validate.Errors, error)
 }

@@ -2,6 +2,7 @@ package testharness
 
 import (
 	"errors"
+	"sort"
 
 	"go.uber.org/zap"
 
@@ -129,6 +130,15 @@ var actionDispatcher = map[string]actionFunc{
 	"WebhookSubscription": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return testdatagen.MakeWebhookSubscription(appCtx.DB(), testdatagen.Assertions{})
 	},
+}
+
+func Actions() []string {
+	actions := make([]string, 0, len(actionDispatcher))
+	for k := range actionDispatcher {
+		actions = append(actions, k)
+	}
+	sort.Strings(actions)
+	return actions
 }
 
 func Dispatch(appCtx appcontext.AppContext, action string) (testHarnessResponse, error) {

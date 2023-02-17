@@ -21,7 +21,7 @@ docker_installed_outside_of_brew() {
 }
 
 # if nix is in use
-if [ ! -r .nix-disable ] && [ -f ~/.nix-profile/bin/nix-env ]; then
+if [ ! -r .nix-disable ] && [ -x "$(command -v nix-env)" ]; then
   nix_dir="nix"
   # add the nix files so that if they change, direnv needs to be reloaded
   config_hash=$(nix-hash "${nix_dir}")
