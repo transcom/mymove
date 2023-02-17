@@ -13,7 +13,7 @@ func (suite *AdminUserServiceSuite) TestUpdateAdminUser() {
 	newUUID, _ := uuid.NewV4()
 
 	firstName := "Leo"
-	payload := &adminmessages.AdminUserUpdatePayload{
+	payload := &adminmessages.AdminUserUpdate{
 		FirstName: &firstName,
 	}
 

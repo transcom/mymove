@@ -26,7 +26,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 		transportationOffice := factory.BuildDefaultTransportationOffice(suite.DB())
 
 		firstName := "Lea"
-		payload := &adminmessages.OfficeUserUpdatePayload{
+		payload := &adminmessages.OfficeUserUpdate{
 			FirstName:              &firstName,
 			TransportationOfficeID: strfmt.UUID(transportationOffice.ID.String()),
 		}
@@ -43,7 +43,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 
 	// Bad office user ID
 	suite.Run("If we are provided an office user that doesn't exist, the create should fail", func() {
-		payload := &adminmessages.OfficeUserUpdatePayload{}
+		payload := &adminmessages.OfficeUserUpdate{}
 
 		_, _, err := updater.UpdateOfficeUser(suite.AppContextForTest(), uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"), payload)
 		suite.Error(err)
@@ -53,7 +53,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 	// Bad transportation office ID
 	suite.Run("If we are provided a transportation office that doesn't exist, the create should fail", func() {
 		officeUser := setupTestData()
-		payload := &adminmessages.OfficeUserUpdatePayload{
+		payload := &adminmessages.OfficeUserUpdate{
 			TransportationOfficeID: strfmt.UUID("00000000-0000-0000-0000-000000000001"),
 		}
 
