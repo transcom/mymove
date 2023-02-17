@@ -15,7 +15,7 @@ type adminUserUpdater struct {
 	builder adminUserQueryBuilder
 }
 
-func (o *adminUserUpdater) UpdateAdminUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.AdminUserUpdatePayload) (*models.AdminUser, *validate.Errors, error) {
+func (o *adminUserUpdater) UpdateAdminUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.AdminUserUpdate) (*models.AdminUser, *validate.Errors, error) {
 	var foundUser models.AdminUser
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	err := o.builder.FetchOne(appCtx, &foundUser, filters)

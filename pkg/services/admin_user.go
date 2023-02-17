@@ -35,5 +35,5 @@ type AdminUserCreator interface {
 //
 //go:generate mockery --name AdminUserUpdater --disable-version-string
 type AdminUserUpdater interface {
-	UpdateAdminUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.AdminUserUpdatePayload) (*models.AdminUser, *validate.Errors, error)
+	UpdateAdminUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.AdminUserUpdate) (*models.AdminUser, *validate.Errors, error)
 }
