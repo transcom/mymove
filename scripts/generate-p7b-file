@@ -1,5 +1,9 @@
 #! /usr/bin/env bash
+# The purpose of this function is to create a p7b file from a collection of certificate files that get passed in
+## Usage:
+## ./scripts/generate-p7b-file <YOUR/DESIRED/OUTPUT/PATH/FILENAME>.p7b cert1.pem cert2.pem cert3.p7b cert4.der.p7b cert5.cer cert6.crt
 
+set -e -o pipefail
 # Function to convert DER-encoded p7b files to PEM format
 function convert_der_p7b_to_pem() {
   local input_file="$1"
@@ -43,7 +47,7 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
-# Create a temporary directory for generated files
+# Create a temporary directory for generated files. I called it tmp_certs to avoid collision with tmp
 mkdir -p tmp_certs
 
 # Extract the output file and remove it from the argument list
@@ -64,8 +68,10 @@ for file in "$@"; do
   fi
 done
 
+# concatenate all the files into one merged pem
 cat tmp_certs/*.pem > tmp_certs/merged.pem
-# Package all of the files into one p7b file
+
+# convert to p7b
 openssl crl2pkcs7 -nocrl -certfile tmp_certs/merged.pem -outform DER -out "$output_file"
 
 # Clean up any temporary files
