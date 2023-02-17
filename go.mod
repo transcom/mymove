@@ -47,7 +47,7 @@ require (
 	github.com/luna-duclos/instrumentedsql v1.1.3
 	github.com/markbates/goth v1.76.0
 	github.com/namsral/flag v1.7.4-pre
-	github.com/pdfcpu/pdfcpu v0.2.5
+	github.com/pdfcpu/pdfcpu v0.3.13
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.5
 	github.com/pterm/pterm v0.12.54
@@ -139,8 +139,8 @@ require (
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.14.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/hhrutter/lzw v0.0.0-20190827003112-58b82c5a41cc // indirect
-	github.com/hhrutter/tiff v0.0.0-20190827003322-d08e2ad45835 // indirect
+	github.com/hhrutter/lzw v0.0.0-20190829144645-6f07a24e8650 // indirect
+	github.com/hhrutter/tiff v0.0.0-20190829141212-736cae8d0bc7 // indirect
 	github.com/huandu/xstrings v1.3.3 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
@@ -202,7 +202,7 @@ require (
 	go.opentelemetry.io/proto/otlp v0.19.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
-	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
+	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb // indirect
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
