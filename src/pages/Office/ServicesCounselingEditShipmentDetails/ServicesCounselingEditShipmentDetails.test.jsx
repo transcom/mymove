@@ -290,15 +290,14 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     });
   });
 
-  it('calls props.onUpdate with error and routes to move details when the save button is clicked and the shipment update is unsuccessful', async () => {
+  it('stays on edit shipment form and displays error when the save button is clicked and the shipment update is unsuccessful', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
     updateMTOShipment.mockImplementation(() => Promise.reject(new Error('something went wrong')));
     useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-    const onUpdateMock = jest.fn();
 
     render(
       <MockProviders>
-        <ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />)
+        <ServicesCounselingEditShipmentDetails {...props} />)
       </MockProviders>,
     );
 
@@ -309,8 +308,9 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     await userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
-      expect(onUpdateMock).toHaveBeenCalledWith('error');
+      expect(
+        screen.getByText('Something went wrong, and your changes were not saved. Please try again.'),
+      ).toBeVisible();
     });
   });
 
