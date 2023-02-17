@@ -71,22 +71,20 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	})
 
 	suite.Run("MTO status is updated successfully with facility info", func() {
-		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
-			StorageFacility: models.StorageFacility{
-				Address: factory.BuildAddress(suite.DB(), []factory.Customization{
-					{
-						Model: models.Address{
-							StreetAddress1: "1234 Over Here Street",
-							City:           "Houston",
-							State:          "TX",
-							PostalCode:     "77083",
-							Country:        models.StringPointer("US"),
-						},
-					},
-				}, nil),
-				Email: swag.String("old@email.com"),
+		storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
+			{Model: models.StorageFacility{
+				Email: models.StringPointer("old@email.com"),
+			}},
+			{
+				Model: models.Address{
+					StreetAddress1: "1234 Over Here Street",
+					City:           "Houston",
+					State:          "TX",
+					PostalCode:     "77083",
+					Country:        models.StringPointer("US"),
+				},
 			},
-		})
+		}, nil)
 
 		expectedMTOWithFacility := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{

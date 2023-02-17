@@ -39,7 +39,7 @@ type UpdateMoveParams struct {
 	  Required: true
 	  In: body
 	*/
-	Move *adminmessages.MoveUpdatePayload
+	Move *adminmessages.MoveUpdate
 	/*
 	  Required: true
 	  In: path
@@ -58,7 +58,7 @@ func (o *UpdateMoveParams) BindRequest(r *http.Request, route *middleware.Matche
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body adminmessages.MoveUpdatePayload
+		var body adminmessages.MoveUpdate
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("move", "body", ""))

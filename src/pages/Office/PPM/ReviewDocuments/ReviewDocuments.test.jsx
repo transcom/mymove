@@ -99,16 +99,20 @@ const usePPMShipmentDocsQueriesReturnValue = {
       advanceAmountReceived: 340000,
     },
   },
-  weightTickets: [
-    {
-      ...ticketDocuments,
-      id: '321',
-      missingFullWeightTicket: false,
-      missingEmptyWeightTicket: false,
-      ppmShipmentId: '123',
-      vehicleDescription: '2022 Honda CR-V Hybrid',
-    },
-  ],
+  documents: {
+    MovingExpenses: [],
+    ProGearWeightTickets: [],
+    WeightTickets: [
+      {
+        ...ticketDocuments,
+        id: '321',
+        missingFullWeightTicket: false,
+        missingEmptyWeightTicket: false,
+        ppmShipmentId: '123',
+        vehicleDescription: '2022 Honda CR-V Hybrid',
+      },
+    ],
+  },
 };
 
 const rejectedPayload = {
@@ -130,12 +134,14 @@ const rejectedPayload = {
 
 const usePPMShipmentDocsQueriesReturnValueMultiple = {
   ...usePPMShipmentDocsQueriesReturnValue,
-  weightTickets: [
+  WeightTickets: [
     {
       ...ticketDocuments,
     },
     { ...ticketDocuments },
   ],
+  MovingExpenses: [],
+  ProGearWeightTickets: [],
 };
 
 const requiredProps = {
@@ -191,7 +197,7 @@ describe('ReviewDocuments', () => {
           </MockProviders>,
         );
       });
-      const docs = screen.getByText(/Documents/);
+      const docs = screen.getByText(/documents/);
       expect(docs).toBeInTheDocument();
       expect(screen.getAllByText('test.pdf').length).toBe(2);
       expect(screen.getByText('test.xls')).toBeInTheDocument();
@@ -224,6 +230,10 @@ describe('ReviewDocuments', () => {
       await userEvent.click(getByRole('button', { name: 'Continue' }));
       expect(queryByText('Reviewing this weight ticket is required')).not.toBeInTheDocument();
       expect(mockPatchWeightTicket).toHaveBeenCalledWith(rejectedPayload);
+      await waitFor(() => {
+        expect(getByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
+      });
+      await userEvent.click(getByRole('button', { name: 'Confirm' }));
       expect(mockPush).toHaveBeenCalled();
     });
     it('renders and handles the Close button', async () => {

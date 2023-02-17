@@ -106,6 +106,8 @@ func mergeWeightTicket(weightTicket models.WeightTicket, originalWeightTicket mo
 	mergedWeightTicket.MissingFullWeightTicket = services.SetNoNilOptionalBoolField(weightTicket.MissingFullWeightTicket, mergedWeightTicket.MissingFullWeightTicket)
 	mergedWeightTicket.OwnsTrailer = services.SetNoNilOptionalBoolField(weightTicket.OwnsTrailer, mergedWeightTicket.OwnsTrailer)
 	mergedWeightTicket.TrailerMeetsCriteria = services.SetNoNilOptionalBoolField(weightTicket.TrailerMeetsCriteria, mergedWeightTicket.TrailerMeetsCriteria)
+	mergedWeightTicket.AdjustedNetWeight = services.SetNoNilOptionalPoundField(weightTicket.AdjustedNetWeight, mergedWeightTicket.AdjustedNetWeight)
+	mergedWeightTicket.NetWeightRemarks = services.SetOptionalStringField(weightTicket.NetWeightRemarks, mergedWeightTicket.NetWeightRemarks)
 	mergedWeightTicket.Reason = services.SetOptionalStringField(weightTicket.Reason, mergedWeightTicket.Reason)
 	status := services.SetOptionalStringField((*string)(weightTicket.Status), (*string)(mergedWeightTicket.Status))
 	if status != nil {

@@ -19,6 +19,10 @@ import (
 // swagger:model WeightTicket
 type WeightTicket struct {
 
+	// Indicates the adjusted net weight of the vehicle
+	// Minimum: 0
+	AdjustedNetWeight *int64 `json:"adjustedNetWeight"`
+
 	// created at
 	// Required: true
 	// Read Only: true
@@ -70,6 +74,9 @@ type WeightTicket struct {
 	// Indicates if the customer is missing a weight ticket for the vehicle weight when full.
 	MissingFullWeightTicket *bool `json:"missingFullWeightTicket"`
 
+	// Remarks explaining any edits made to the net weight
+	NetWeightRemarks *string `json:"netWeightRemarks"`
+
 	// Indicates if the customer used a trailer they own for the move.
 	OwnsTrailer *bool `json:"ownsTrailer"`
 
@@ -113,6 +120,10 @@ type WeightTicket struct {
 // Validate validates this weight ticket
 func (m *WeightTicket) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateAdjustedNetWeight(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
@@ -173,6 +184,18 @@ func (m *WeightTicket) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *WeightTicket) validateAdjustedNetWeight(formats strfmt.Registry) error {
+	if swag.IsZero(m.AdjustedNetWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("adjustedNetWeight", "body", *m.AdjustedNetWeight, 0, false); err != nil {
+		return err
+	}
+
 	return nil
 }
 
