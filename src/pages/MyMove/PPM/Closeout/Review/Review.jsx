@@ -67,6 +67,19 @@ const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
   );
 };
 
+function deleteLineItem(ppmShipmentId, itemType, itemId) {
+  if (itemType === 'weightTicket') {
+    return deleteWeightTicket(ppmShipmentId, itemId);
+  }
+  if (itemType === 'proGear') {
+    return deleteProGearWeightTicket(ppmShipmentId, itemId);
+  }
+  if (itemType === 'expense') {
+    return deleteMovingExpense(ppmShipmentId, itemId);
+  }
+  return Promise.reject();
+}
+
 const Review = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [itemToDelete, setItemToDelete] = useState();
@@ -102,45 +115,18 @@ const Review = () => {
   };
 
   const onDeleteSubmit = (itemType, itemId, itemNumber) => {
-    if (itemType === 'weightTicket') {
-      deleteWeightTicket(mtoShipment.ppmShipment.id, itemId)
-        .then(() => {
-          setIsDeleteModalVisible(false);
-          getMTOShipmentsForMove(mtoShipment.moveTaskOrderID).then((moveResponse) =>
-            dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
-          );
-        })
-        .then(() => setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }))
-        .catch(() =>
-          setAlert({ type: 'error', message: `Something went wrong deleting ${itemNumber}. Please try again.` }),
+    deleteLineItem(mtoShipment.ppmShipment.id, itemType, itemId)
+      .then(() => {
+        setIsDeleteModalVisible(false);
+        getMTOShipmentsForMove(mtoShipment.moveTaskOrderID).then((moveResponse) =>
+          dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
         );
-    }
-    if (itemType === 'proGear') {
-      deleteProGearWeightTicket(mtoShipment.ppmShipment.id, itemId)
-        .then(() => {
-          setIsDeleteModalVisible(false);
-          getMTOShipmentsForMove(mtoShipment.moveTaskOrderID).then((moveResponse) =>
-            dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
-          );
-        })
-        .then(() => setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }))
-        .catch(() =>
-          setAlert({ type: 'error', message: `Something went wrong deleting ${itemNumber}. Please try again.` }),
-        );
-    }
-    if (itemType === 'expense') {
-      deleteMovingExpense(mtoShipment.ppmShipment.id, itemId)
-        .then(() => {
-          setIsDeleteModalVisible(false);
-          getMTOShipmentsForMove(mtoShipment.moveTaskOrderID).then((moveResponse) =>
-            dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
-          );
-        })
-        .then(() => setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }))
-        .catch(() =>
-          setAlert({ type: 'error', message: `Something went wrong deleting ${itemNumber}. Please try again.` }),
-        );
-    }
+      })
+      .then(() => setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }))
+      .catch(() => {
+        setIsDeleteModalVisible(false);
+        setAlert({ type: 'error', message: `Something went wrong deleting ${itemNumber}. Please try again.` });
+      });
   };
 
   const aboutYourPPM = formatAboutYourPPMItem(mtoShipment?.ppmShipment, customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
