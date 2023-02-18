@@ -10,7 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-var defaultSericeItemParamKey = models.ServiceItemParamNameWeightEstimated
+var defaultServiceItemParamKey = models.ServiceItemParamNameWeightEstimated
 
 // BuildServiceItemParamKey creates a single ServiceItemParamKey
 //
@@ -36,7 +36,7 @@ func BuildServiceItemParamKey(db *pop.Connection, customs []Customization, trait
 	}
 
 	serviceItemParamKey := models.ServiceItemParamKey{
-		Key:         defaultSericeItemParamKey,
+		Key:         defaultServiceItemParamKey,
 		Description: "test name weight estimated description",
 		Type:        models.ServiceItemParamTypeInteger,
 		Origin:      models.ServiceItemParamOriginPrime,
@@ -63,7 +63,7 @@ func FetchOrBuildServiceItemParamKey(db *pop.Connection, customs []Customization
 	customs = setupCustomizations(customs, traits)
 
 	var existingServiceItemParamKeys models.ServiceItemParamKeys
-	key := defaultSericeItemParamKey
+	key := defaultServiceItemParamKey
 
 	var cServiceItemParamKey models.ServiceItemParamKey
 	if result := findValidCustomization(customs, ServiceItemParamKey); result != nil {

@@ -103,4 +103,24 @@ func (suite *FactorySuite) TestBuildServiceItemParamKey() {
 		suite.Equal(defaultType, serviceItemParamKey.Type)
 		suite.Equal(defaultOrigin, serviceItemParamKey.Origin)
 	})
+
+	suite.Run("Two service item param keys should not be created", func() {
+		// Under test:      FetchOrBuildServiceItemParamKey
+		// Set up:          Create a service item param key with no customized state or traits
+		// Expected outcome:Only 1 service item param key should be created
+		defaultKey := models.ServiceItemParamNameWeightEstimated
+		count, potentialErr := suite.DB().Where(`key=$1`, defaultKey).Count(&models.ServiceItemParamKeys{})
+		suite.NoError(potentialErr)
+		suite.Zero(count)
+
+		firstServiceItemParamKey := FetchOrBuildServiceItemParamKey(suite.DB(), nil, nil)
+
+		secondServiceItemParamKey := FetchOrBuildServiceItemParamKey(suite.DB(), nil, nil)
+
+		suite.Equal(firstServiceItemParamKey.ID, secondServiceItemParamKey.ID)
+
+		existingServiceItemParamKeyCount, err := suite.DB().Where(`key=$1`, defaultKey).Count(&models.ServiceItemParamKeys{})
+		suite.NoError(err)
+		suite.Equal(1, existingServiceItemParamKeyCount)
+	})
 }
