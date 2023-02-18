@@ -288,5 +288,46 @@ describe('ReviewDocuments', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Back' }));
       expect(screen.getByRole('heading', { level: 2, text: '1 of 4 Document Sets' }));
     });
+
+    it('only shows uploads for the document set being reviewed', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
+
+      render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
+
+      const docMenuButton = await screen.findByRole('button', { name: /open menu/i });
+      expect(docMenuButton).toBeInTheDocument();
+
+      // We don't really have a great way to grab the list of uploads so we'll grab the parent element and go from there
+      const docViewer = screen.getByTestId('DocViewerMenu');
+
+      await userEvent.click(docMenuButton);
+
+      expect(docViewer).not.toHaveClass('collapsed');
+
+      const uploadList = within(docViewer).getByRole('list');
+      expect(uploadList).toBeInTheDocument();
+
+      expect(within(uploadList).getAllByRole('listitem').length).toBe(2);
+      expect(within(uploadList).getByRole('button', { name: /emptyWeightTicket\.pdf.*/i })).toBeInTheDocument();
+      expect(within(uploadList).getByRole('button', { name: /fullWeightTicket\.xls.*/i })).toBeInTheDocument();
+      expect(within(uploadList).queryByRole('button', { name: /progearWeightTicket\.pdf.*/i })).not.toBeInTheDocument();
+      expect(within(uploadList).queryByRole('button', { name: /movingExpense\.jpg.*/i })).not.toBeInTheDocument();
+
+      expect(screen.getByRole('heading', { level: 2, name: '1 of 3 Document Sets' })).toBeInTheDocument();
+    });
+
+    // TODO: This test doesn't reflect what we actually want to do, but it does reflect what we're doing right now and
+    //  ensures the app doesn't fail. As we implement the progear and moving expenses, we can update this test to
+    //  reflect the actual behavior, or remove it in favor of other ones.
+    it('handles moving from weight tickets the summary page when there are multiple types of documents', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
+
+      render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
+
+      await userEvent.click(screen.getByLabelText('Accept'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
+    });
   });
 });
