@@ -53,7 +53,7 @@ const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
             <Button
               className="usa-button--destructive"
               type="submit"
-              onClick={() => onSubmit(itemToDelete.itemType, itemToDelete.itemId, itemToDelete.itemETag)}
+              onClick={() => onSubmit(itemToDelete.itemType, itemToDelete.itemId, itemToDelete.itemNumber)}
             >
               Yes, Delete
             </Button>
@@ -66,6 +66,19 @@ const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
     </div>
   );
 };
+
+function deleteLineItem(ppmShipmentId, itemType, itemId) {
+  if (itemType === 'weightTicket') {
+    return deleteWeightTicket(ppmShipmentId, itemId);
+  }
+  if (itemType === 'proGear') {
+    return deleteProGearWeightTicket(ppmShipmentId, itemId);
+  }
+  if (itemType === 'expense') {
+    return deleteMovingExpense(ppmShipmentId, itemId);
+  }
+  return Promise.reject();
+}
 
 const Review = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -101,40 +114,19 @@ const Review = () => {
     setIsDeleteModalVisible(true);
   };
 
-  const onDeleteSubmit = (itemType, itemId) => {
-    if (itemType === 'weightTicket') {
-      deleteWeightTicket(mtoShipment.ppmShipment.id, itemId)
-        .then(() => {
-          setIsDeleteModalVisible(false);
-          getMTOShipmentsForMove(mtoShipment.moveTaskOrderID).then((moveResponse) =>
-            dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
-          );
-        })
-        .then(() => setAlert({ type: 'success' }))
-        .catch(() => setAlert({ type: 'error' }));
-    }
-    if (itemType === 'proGear') {
-      deleteProGearWeightTicket(mtoShipment.ppmShipment.id, itemId)
-        .then(() => {
-          setIsDeleteModalVisible(false);
-          getMTOShipmentsForMove(mtoShipment.moveTaskOrderID).then((moveResponse) =>
-            dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
-          );
-        })
-        .then(() => setAlert({ type: 'success' }))
-        .catch(() => setAlert({ type: 'error' }));
-    }
-    if (itemType === 'expense') {
-      deleteMovingExpense(mtoShipment.ppmShipment.id, itemId)
-        .then(() => {
-          setIsDeleteModalVisible(false);
-          getMTOShipmentsForMove(mtoShipment.moveTaskOrderID).then((moveResponse) =>
-            dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
-          );
-        })
-        .then(() => setAlert({ type: 'success' }))
-        .catch(() => setAlert({ type: 'error' }));
-    }
+  const onDeleteSubmit = (itemType, itemId, itemNumber) => {
+    deleteLineItem(mtoShipment.ppmShipment.id, itemType, itemId)
+      .then(() => {
+        setIsDeleteModalVisible(false);
+        getMTOShipmentsForMove(mtoShipment.moveTaskOrderID).then((moveResponse) =>
+          dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
+        );
+      })
+      .then(() => setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }))
+      .catch(() => {
+        setIsDeleteModalVisible(false);
+        setAlert({ type: 'error', message: `Something went wrong deleting ${itemNumber}. Please try again.` });
+      });
   };
 
   const aboutYourPPM = formatAboutYourPPMItem(mtoShipment?.ppmShipment, customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
@@ -175,18 +167,6 @@ const Review = () => {
 
   const expensesTotal = calculateTotalMovingExpensesAmount(expenses);
 
-  const setAlertMessage = (alertType, itemNumber) => {
-    let message = '';
-    if (alertType === 'success') {
-      message = `${itemNumber} successfully deleted.`;
-    }
-
-    if (alertType === 'error') {
-      message = `Something went wrong deleting ${itemNumber}. Please try again.`;
-    }
-    return message;
-  };
-
   return (
     <div className={classnames(ppmPageStyles.ppmPageStyle, styles.PPMReview)}>
       <GridContainer>
@@ -199,12 +179,7 @@ const Review = () => {
                 itemToDelete={itemToDelete}
               />
             )}
-            {alert && (
-              <>
-                <Alert type={alert.type}> {setAlertMessage(alert.type, itemToDelete.itemNumber)} </Alert>
-                <br />
-              </>
-            )}
+            {alert && <Alert type={alert.type}>{alert.message}</Alert>}
             {!canAdvance && (
               <>
                 <Alert type="error">
