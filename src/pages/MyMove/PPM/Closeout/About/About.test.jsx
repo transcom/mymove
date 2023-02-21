@@ -111,6 +111,11 @@ jest.mock('store/entities/selectors', () => ({
   selectMTOShipmentById: jest.fn(() => mockMTOShipment),
 }));
 
+jest.mock('services/internalApi', () => ({
+  ...jest.requireActual('services/internalApi'),
+  getMTOShipmentsForMove: jest.fn(() => mockMTOShipment),
+}));
+
 jest.mock('utils/validation', () => ({
   ...jest.requireActual('utils/validation'),
   validatePostalCode: jest.fn(),
