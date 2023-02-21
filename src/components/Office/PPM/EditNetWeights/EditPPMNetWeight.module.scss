@@ -1,0 +1,99 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+
+.calculations {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  grid-template-rows: auto;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+  line-height: 18px;
+  font-size: 13px;
+  .value {
+    display: inline-block;
+  }
+  .label {
+    color: $base;
+  }
+}
+
+
+.divider{
+    color: $base-dark;
+}
+
+.fieldset {
+  padding: 0;
+  :global(.usa-label) {
+    color: $base-darker;
+    @include u-margin-top(3);
+  }
+  :global(.usa-textarea) {
+    height: 96px;
+  }
+}
+
+.weightLabel {
+  margin: 0;
+}
+
+.weightInput {
+  display: inline-block;
+  margin-top: 0;
+  width: 96px;
+  border: 1px solid #1b1b1b;
+  appearance: none; // removes up and down arrow for number inputs on firefox
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    appearance: none; // removes up and down arrow for number inputs on all other browsers
+  }
+}
+
+.warnings {
+  background: #ffbe2e;
+  width: 4px;
+  margin-right: 16px;
+}
+
+.errorMessage {
+    margin-top: 0;
+    color: #b50909;
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+.errors {
+    background:  #b50909;
+    width: 4px;
+    margin-right: 16px;
+  }
+
+.wrapper {
+  @include u-margin-top(2);
+}
+.header {
+  @include u-margin-bottom(0.5);
+  color: $base-darker;
+  font-weight: bold;
+  font-size: 17px;
+}
+
+h4 {
+  margin-top: 2rem;
+}
+
+h5 {
+  margin-top: 0;
+}
+
+.netWeightContainer {
+  display: flex;
+  margin-top: 20px;
+}
+.editButton {
+    width: fit-content;
+    @include u-margin-top(2);
+  }
