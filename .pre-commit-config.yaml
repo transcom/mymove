@@ -54,7 +54,7 @@ repos:
     hooks:
       - id: golangci-lint
         language: golang
-        language_version: 1.19.3
+        language_version: system
         entry: bash -c 'exec golangci-lint run ${GOLANGCI_LINT_VERBOSE} -j=${GOLANGCI_LINT_CONCURRENCY:-1}' # custom bash so we can override concurrency for faster dev runs
 
   - repo: local
