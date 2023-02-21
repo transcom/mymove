@@ -1,42 +1,23 @@
-/**
- * Semi-automated converted from a cypress test, and thus may contain
- * non best-practices, in particular: heavy use of `page.locator`
- * instead of `page.getBy*`.
- */
-
 // @ts-check
 import { test, expect } from '../../utils/customerTest';
 
-/**
- * @param {import('@playwright/test').Page} page
- * @param {string} flagVal
- */
-async function setFeatureFlag(page, flagVal, url = '/queues/new') {
-  await page.goto(`${url}?flag:${flagVal}`);
-}
-
-test('orders entry will accept orders information', async ({ page, customerPage }) => {
+test('Users can upload orders', async ({ page, customerPage }) => {
+  // Generate a new onboarded user and log in
   const user = await customerPage.testHarness.buildNeedsOrdersUser();
   const userId = user.id;
   await customerPage.signInAsExistingCustomer(userId);
 
-  await expect(page.getByText('Next step: Add your orders')).toBeVisible();
-  await expect(page.getByText('Profile complete')).toBeVisible();
-  await expect(page.getByText('Upload orders')).toBeVisible();
-
+  // Navigate to add orders
+  await customerPage.waitForPage.home();
   await page.getByRole('button', { name: 'Add orders' }).click();
-  expect(page.url()).toContain('/orders/info');
+  await customerPage.waitForPage.ordersDetails();
 
-  await page.locator('select[name="orders_type"]').selectOption('SEPARATION');
-  await page.locator('select[name="orders_type"]').selectOption('RETIREMENT');
-  await page.locator('select[name="orders_type"]').selectOption('PERMANENT_CHANGE_OF_STATION');
-
-  await page.locator('input[name="issue_date"]').click();
-  await page.locator('input[name="issue_date"]').type('6/2/2018');
-  await page.locator('input[name="issue_date"]').blur();
-
-  await page.locator('input[name="report_by_date"]').type('8/9/2018');
-  await page.locator('input[name="report_by_date"]').blur();
+  // Fill in orders details
+  await page.getByTestId('dropdown').selectOption('PERMANENT_CHANGE_OF_STATION');
+  await page.getByLabel('Orders date').fill('6/2/2018');
+  await page.getByLabel('Orders date').blur();
+  await page.getByLabel('Report by date').fill('8/9/2018');
+  await page.getByLabel('Report by date').blur();
 
   // UGH
   // because of the styling of this input item, we cannot use a
@@ -48,24 +29,24 @@ test('orders entry will accept orders information', async ({ page, customerPage 
   //
   await page.locator('div:has(label:has-text("Are dependents")) >> div.usa-radio').getByText('No').click();
 
-  // Choosing same current and destination duty location should block you from progressing and give an error
+  // Verify that a user can't use the same duty location
   await customerPage.selectDutyLocation('Yuma AFB', 'new_duty_location');
-  await expect(page.locator('.usa-error-message')).toContainText(
-    'You entered the same duty location for your origin and destination. Please change one of them.',
-  );
-  await expect(page.locator('button[data-testid="wizardNextButton"]')).toBeDisabled();
+  await expect(
+    page.getByText('You entered the same duty location for your origin and destination. Please change one of them.'),
+  ).toBeVisible();
 
+  // Change to a different destination duty location, then proceed to next page
   await customerPage.selectDutyLocation('NAS Fort Worth JRB', 'new_duty_location');
+  await customerPage.navigateForward();
+  await customerPage.waitForPage.ordersUpload();
 
-  await page.getByRole('button', { name: 'Next' }).click();
-  await expect(page.getByText('Upload your orders')).toBeVisible();
+  // Upload an orders document, then submit
+  // Annoyingly, there's no test IDs or labeling text for this control, so the only way to access it is .locator
+  const filepondContainer = page.locator('.filepond--wrapper');
+  await customerPage.uploadFileViaFilepond(filepondContainer, 'sampleWeightTicket.jpg');
+  await customerPage.navigateForward();
 
-  expect(page.url()).toContain('/orders/upload');
-
-  await setFeatureFlag(page, 'ppmPaymentRequest=false', '/ppm');
-  await expect(page.getByText('NAS Fort Worth (from Yuma AFB)')).toBeVisible();
-  await expect(page.locator('[data-testid="move-header-weight-estimate"]')).toHaveText('5,000 lbs');
-
-  await page.getByText('Continue Move Setup').click();
-  expect(page.url()).toContain('/orders/upload');
+  // Verify that we're on the home page and that orders have been uploaded
+  await customerPage.waitForPage.home();
+  await expect(page.getByText('Orders uploaded')).toBeVisible();
 });

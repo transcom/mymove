@@ -71,10 +71,10 @@ export class BaseTestPage {
    */
   async uploadFileViaFilepond(locator, relativeFilePath) {
     const filePath = path.join('playwright/fixtures', relativeFilePath);
-    const chooser = locator.getByText('choose from folder');
-    await expect(chooser).toBeVisible();
+    const actionLink = locator.locator('.filepond--label-action');
+    await expect(actionLink).toBeVisible();
     const fileChooserPromise = this.page.waitForEvent('filechooser');
-    await chooser.click();
+    await actionLink.click();
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(filePath);
   }

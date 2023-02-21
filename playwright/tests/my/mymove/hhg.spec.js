@@ -24,6 +24,7 @@ test('A customer can create, edit, and delete an HHG shipment', async ({ page, c
   await page.getByLabel('Preferred pickup date').blur();
   await page.getByText('Use my current address').click();
   await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
+  await page.getByLabel('Preferred delivery date').blur();
   await page.getByTestId('remarks').fill('Grandfather antique clock');
   await customerPage.navigateForward();
 

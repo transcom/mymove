@@ -47,7 +47,13 @@ export class CustomerPage extends BaseTestPage {
       await base.expect(this.page.getByRole('heading', { name: 'Backup contact' })).toBeVisible();
     },
     home: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Leo Spacemen', level: 2 })).toBeVisible();
+      await base.expect(this.page.getByTestId('stepContainer1').getByText('Profile complete')).toBeVisible();
+    },
+    ordersDetails: async () => {
+      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Tell us about your move orders');
+    },
+    ordersUpload: async () => {
+      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Upload your orders');
     },
     aboutShipments: async () => {
       await base
