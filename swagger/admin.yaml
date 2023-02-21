@@ -201,7 +201,7 @@ definitions:
       - active
       - createdAt
       - updatedAt
-  AdminUserCreatePayload:
+  AdminUserCreate:
     type: object
     properties:
       email:
@@ -218,7 +218,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-  AdminUserUpdatePayload:
+  AdminUserUpdate:
     type: object
     properties:
       firstName:
@@ -380,7 +380,7 @@ definitions:
       SUBMITTED: Submitted
       APPROVED: Approved
       CANCELED: Canceled
-  MoveUpdatePayload:
+  MoveUpdate:
     type: object
     required:
       - show
@@ -471,7 +471,7 @@ definitions:
       - roles
       - createdAt
       - updatedAt
-  OfficeUserCreatePayload:
+  OfficeUserCreate:
     type: object
     properties:
       email:
@@ -502,7 +502,7 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/OfficeUserRole'
-  OfficeUserUpdatePayload:
+  OfficeUserUpdate:
     type: object
     properties:
       firstName:
@@ -858,7 +858,7 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/User'
-  UserUpdatePayload:
+  UserUpdate:
     type: object
     properties:
       revokeAdminSession:
@@ -997,7 +997,7 @@ paths:
           name: officeUser
           description: Office user information
           schema:
-            $ref: '#/definitions/OfficeUserCreatePayload'
+            $ref: '#/definitions/OfficeUserCreate'
       responses:
         '201':
           description: Successfully created Office User
@@ -1051,7 +1051,7 @@ paths:
           description: Office user information
           required: true
           schema:
-            $ref: '#/definitions/OfficeUserUpdatePayload'
+            $ref: '#/definitions/OfficeUserUpdate'
       responses:
         '200':
           description: Successfully updated Office User
@@ -1184,7 +1184,7 @@ paths:
           name: adminUser
           description: Admin user information
           schema:
-            $ref: '#/definitions/AdminUserCreatePayload'
+            $ref: '#/definitions/AdminUserCreate'
       responses:
         '201':
           description: Successfully created Admin User
@@ -1240,7 +1240,7 @@ paths:
           description: Admin user information
           required: true
           schema:
-            $ref: '#/definitions/AdminUserUpdatePayload'
+            $ref: '#/definitions/AdminUserUpdate'
       responses:
         '200':
           description: Successfully updated Admin User
@@ -1563,7 +1563,7 @@ paths:
           description: Move information
           required: true
           schema:
-            $ref: '#/definitions/MoveUpdatePayload'
+            $ref: '#/definitions/MoveUpdate'
       responses:
         '200':
           description: Successfully updated the Mov
@@ -1663,7 +1663,7 @@ paths:
           description: User information
           required: true
           schema:
-            $ref: '#/definitions/UserUpdatePayload'
+            $ref: '#/definitions/UserUpdate'
       responses:
         '200':
           description: Successfully updated User

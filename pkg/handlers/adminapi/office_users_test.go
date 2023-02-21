@@ -149,7 +149,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 
 		params := officeuserop.CreateOfficeUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/office_users"),
-			OfficeUser: &adminmessages.OfficeUserCreatePayload{
+			OfficeUser: &adminmessages.OfficeUserCreate{
 				FirstName: "Sam",
 				LastName:  "Cook",
 				Telephone: "555-555-5555",
@@ -190,7 +190,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 
 		params := officeuserop.CreateOfficeUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/office_users"),
-			OfficeUser: &adminmessages.OfficeUserCreatePayload{
+			OfficeUser: &adminmessages.OfficeUserCreate{
 				FirstName: officeUser.FirstName,
 				LastName:  officeUser.LastName,
 				Telephone: officeUser.Telephone,
@@ -250,7 +250,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		middleInitials := "RB"
 		telephone := "865-555-5309"
 
-		officeUserUpdates := &adminmessages.OfficeUserUpdatePayload{
+		officeUserUpdates := &adminmessages.OfficeUserUpdate{
 			FirstName:              &firstName,
 			MiddleInitials:         &middleInitials,
 			Telephone:              &telephone,
@@ -290,7 +290,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 
 	suite.Run("Update fails due to bad Transportation Office", func() {
 		officeUser := setupTestData()
-		officeUserUpdates := &adminmessages.OfficeUserUpdatePayload{
+		officeUserUpdates := &adminmessages.OfficeUserUpdate{
 			TransportationOfficeID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
 		}
 
@@ -313,7 +313,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		officeUser := setupTestData()
 		// Setup payload to remove all roles for office user
 		newRoles := []*adminmessages.OfficeUserRole{}
-		officeUserUpdates := &adminmessages.OfficeUserUpdatePayload{
+		officeUserUpdates := &adminmessages.OfficeUserUpdate{
 			Roles: newRoles,
 		}
 		params := officeuserop.UpdateOfficeUserParams{
@@ -329,7 +329,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 			On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, officeUserUpdates).
 			Return(&officeUser, nil, nil)
 
-		expectedSessionUpdate := &adminmessages.UserUpdatePayload{
+		expectedSessionUpdate := &adminmessages.UserUpdate{
 			RevokeOfficeSession: swag.Bool(true),
 		}
 		mockRevoker := mocks.UserSessionRevocation{}
