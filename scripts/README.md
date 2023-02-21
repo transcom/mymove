@@ -11,26 +11,26 @@ If you want to see if scripts are not listed in this file you can run
 These scripts are primarily used for managing the developers
 environment.
 
-| Script Name            | Description                                          |
-| ---------------------- | ---------------------------------------------------- |
+| Script Name            | Description                                                                                        |
+| ---------------------- | -------------------------------------------------------------------------------------------------- |
 | `check-changes`        | checks for changes since the last `git pull` using `git diff` for any file changes to a given path |
-| `check-go-version`     | checks the go version required for the project |
-| `check-gopath`         | checks the go path is correct for the project  |
-| `check-hosts-file`     | adds necessary entries to /etc/hosts |
-| `check-node-version`   | checks the node version required for the project |
-| `kill-process-on-port` | asks to kill a process running on the specified port |
-| `prereqs`              | checks if all prerequisite programs have been installed |
-| `setup`                | installs all prerequisites and sets up the shell file |
+| `check-go-version`     | checks the go version required for the project                                                     |
+| `check-gopath`         | checks the go path is correct for the project                                                      |
+| `check-hosts-file`     | adds necessary entries to /etc/hosts                                                               |
+| `check-node-version`   | checks the node version required for the project                                                   |
+| `kill-process-on-port` | asks to kill a process running on the specified port                                               |
+| `prereqs`              | checks if all prerequisite programs have been installed                                            |
+| `setup`                | installs all prerequisites and sets up the shell file                                              |
 
 ## AWS Scripts
 
 These scripts are used for interacting with AWS or secrets in the AWS System Manager Parameter Store
 
-| Script Name               | Description                                                |
-| ------------------------- | ---------------------------------------------------------- |
-| `aws`                     | Linked to aws-vault-wrapper. Runs the aws binary           |
-| `aws-vault-wrapper`       | A wrapper to ensure AWS credentials are in the environment |
-| `chamber`                 | Linked to aws-vault-wrapper. Runs chamber binary           |
+| Script Name         | Description                                                |
+| ------------------- | ---------------------------------------------------------- |
+| `aws`               | Linked to aws-vault-wrapper. Runs the aws binary           |
+| `aws-vault-wrapper` | A wrapper to ensure AWS credentials are in the environment |
+| `chamber`           | Linked to aws-vault-wrapper. Runs chamber binary           |
 
 ## Operations Scripts
 
@@ -44,12 +44,12 @@ For example, to run the `health-tls-check` script, you'd run:
 DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/health-tls-check
 ```
 
-| Script Name             | Description                                                             |
-| ----------------------- | ----------------------------------------------------------------------- |
-| `download-alb-logs`     | Download alb logs for the given environment and dates to a local folder |
-| `dupe-secrets`          | Dupes experimental secrets to target params                             |
-| `health-tls-check`      | Run health and TLS version checks.                                      |
-| `scan-alb-logs`         | Scan alb logs for specific http codes.                                  |
+| Script Name         | Description                                                             |
+| ------------------- | ----------------------------------------------------------------------- |
+| `download-alb-logs` | Download alb logs for the given environment and dates to a local folder |
+| `dupe-secrets`      | Dupes experimental secrets to target params                             |
+| `health-tls-check`  | Run health and TLS version checks.                                      |
+| `scan-alb-logs`     | Scan alb logs for specific http codes.                                  |
 
 ## Deployment Scripts
 
@@ -67,12 +67,12 @@ DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/d
 DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-tasks exp
 ```
 
-| Script Name                     | Description                                                             |
-| ------------------------------- | ----------------------------------------------------------------------- |
-| `deploy-app-migrations`         | Deploy the app migrations                                               |
-| `deploy-app`                    | Deploy the app                                                          |
-| `deploy-app-client-tls`         | Deploy the app client-tls                                               |
-| `deploy-app-tasks`              | Deploy the app tasks                                                    |
+| Script Name             | Description               |
+| ----------------------- | ------------------------- |
+| `deploy-app-migrations` | Deploy the app migrations |
+| `deploy-app`            | Deploy the app            |
+| `deploy-app-client-tls` | Deploy the app client-tls |
+| `deploy-app-tasks`      | Deploy the app tasks      |
 
 ## Pre-commit Scripts
 
@@ -80,7 +80,7 @@ These scripts are used primarily to check our code before
 committing.
 
 | Script Name                   | Description                                                       |
-| ----------------------------- |-------------------------------------------------------------------|
+| ----------------------------- | ----------------------------------------------------------------- |
 | `commit-msg`                  | Ensure JIRA issue is tagged to commit message                     |
 | `gen-docs-index`              | generate index for documents                                      |
 | `pre-commit-go-custom-linter` | run a custom linter against files (passed go files by pre-commit) |
@@ -108,6 +108,7 @@ These scripts are primarily used for CircleCI workflows.
 | `ecs-deploy-task-container`        | Updates the named task with the given name, image, and environment.                                     |
 | `ecs-restart-services`             | Restarted the ECS services associated with the given environment.                                       |
 | `ecs-run-app-migrations-container` | Creates and runs a migration task using the given container definition.                                 |
+| `export-ksm-secret`                | Exports a secret from Keeper Secrets Manager.                                                           |
 | `rds-snapshot-app-db`              | Creates a snapshot of the app database for the given environment.                                       |
 | `push-storybook-assets`            | Pushes static build of Story Book to AWS S3 for hosting.                                                |
 
@@ -128,10 +129,10 @@ application testing
 | `merge-pr`                      | A script to automate the landing of your GitHub pull requests.                                    |
 | `make-test`                     | A script to test common developer make targets.                                                   |
 | `prime-api`                     | A script to connect to endpoints on the Prime API.                                                |
-| `pricing-acceptance`                | A script to handle the acceptance process for pricing work.                                                                   |
+| `pricing-acceptance`            | A script to handle the acceptance process for pricing work.                                       |
 | `to-for-gbloc`                  | Helper script to find transportation offices with the same GBLOC as the given duty station        |
 | `update-docker-compose`         | Update branch name before running docker-compose                                                  |
-| `zips-for-gbloc`                | Helper script to find ZIP codes in the given GBLOC.                                             |
+| `zips-for-gbloc`                | Helper script to find ZIP codes in the given GBLOC.                                               |
 
 ### Building
 
@@ -147,14 +148,14 @@ This subset of development scripts is used primarily for building the app.
 
 This subset of development scripts is used for testing
 
-| Script Name                           | Description                                                                                      |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `ensure-go-test-coverage`              | Parse the go test coverage to ensure coverage increases                                         |
-| `ensure-js-test-coverage`              | Parse the js test coverage to ensure coverage increases                                         |
-| `ensure-spectral-lint`                 | Parse the spectral lint output to ensure error/warning counts decrease                          |
-| `run-e2e-mtls-test`                    | Runs playwright integration tests                                                               |
-| `run-e2e-test`                         | Runs integration tests for mtls endpoints                                                       |
-| `run-server-test`                      | Run golang server tests                                                                         |
+| Script Name               | Description                                                            |
+| ------------------------- | ---------------------------------------------------------------------- |
+| `ensure-go-test-coverage` | Parse the go test coverage to ensure coverage increases                |
+| `ensure-js-test-coverage` | Parse the js test coverage to ensure coverage increases                |
+| `ensure-spectral-lint`    | Parse the spectral lint output to ensure error/warning counts decrease |
+| `run-e2e-mtls-test`       | Runs playwright integration tests                                      |
+| `run-e2e-test`            | Runs integration tests for mtls endpoints                              |
+| `run-server-test`         | Run golang server tests                                                |
 
 ### Secure Migrations
 
