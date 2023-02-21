@@ -46,9 +46,7 @@ const formatNumericDate = (date) => {
 };
 
 test.describe('Prime simulator user', () => {
-  // ahobson 2022-01-13 - skip this test for now, in CI it is flaky
-  // because it takes too long to run. We'll come back to this later
-  test.skip('is able to update a shipment', async ({ page, officePage }) => {
+  test('is able to update a shipment', async ({ page, officePage }) => {
     const move = await officePage.testHarness.buildPrimeSimulatorMoveNeedsShipmentUpdate();
 
     await officePage.signInAsNewPrimeSimulatorUser();

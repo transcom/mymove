@@ -5,6 +5,7 @@ import { generatePath, useHistory, withRouter } from 'react-router-dom';
 
 import styles from './ReviewDocuments.module.scss';
 
+import ReviewDocumentsSidePanel from 'components/Office/PPM/ReviewDocumentsSidePanel/ReviewDocumentsSidePanel';
 import { ErrorMessage } from 'components/form';
 import { servicesCounselingRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -15,37 +16,38 @@ import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import { usePPMShipmentDocsQueries } from 'hooks/queries';
 import ReviewWeightTicket from 'components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket';
-import { WEIGHT_TICKETS } from 'constants/queryKeys';
+import { DOCUMENTS } from 'constants/queryKeys';
 
 export const ReviewDocuments = ({ match }) => {
   const { shipmentId, moveCode } = match.params;
-  const { mtoShipment, weightTickets, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
-
-  const ppmShipment = mtoShipment?.ppmShipment;
+  const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
 
-  let documentSet;
+  let documentSet = [];
+  const allDocuments = [];
 
-  if (weightTickets) {
-    weightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
-    documentSet = weightTickets[documentSetIndex];
+  const movingExpenses = documents?.MovingExpenses;
+  const weightTickets = documents?.WeightTickets;
+  const proGearWeightTickets = documents?.ProGearWeightTickets;
+
+  if (movingExpenses?.length !== 0) {
+    allDocuments.push(movingExpenses);
   }
-  const history = useHistory();
+  if (weightTickets?.length !== 0) {
+    allDocuments.push(weightTickets);
+  }
+  if (proGearWeightTickets?.length !== 0) {
+    allDocuments.push(proGearWeightTickets);
+  }
 
-  const formRef = useRef();
-
-  const weightTicketPanelRef = useRef();
-
-  const [serverError, setServerError] = useState(null);
-
-  const queryClient = useQueryClient();
-
-  // placeholder pro-gear tickets & expenses
-  // const progearTickets = [];
-  // const expenses = [];
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+  const fullDocuments = [];
+  allDocuments?.map((docSet) => {
+    docSet?.map((doc) => {
+      return fullDocuments.push(doc);
+    });
+    return fullDocuments;
+  });
 
   let uploads = [];
   weightTickets?.forEach((weightTicket) => {
@@ -54,24 +56,67 @@ export const ReviewDocuments = ({ match }) => {
     uploads = uploads.concat(weightTicket.proofOfTrailerOwnershipDocument?.uploads);
   });
 
+  if (weightTickets) {
+    weightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+    documentSet = documentSet.concat(weightTickets[documentSetIndex]);
+  }
+
+  proGearWeightTickets?.forEach((proGearWeightTicket) => {
+    uploads = uploads.concat(proGearWeightTicket.document?.uploads);
+  });
+
+  if (proGearWeightTickets) {
+    proGearWeightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+    documentSet = documentSet.concat(proGearWeightTickets[documentSetIndex]);
+  }
+
+  movingExpenses?.forEach((movingExpense) => {
+    uploads = uploads.concat(movingExpense.document?.uploads);
+  });
+
+  if (movingExpenses) {
+    movingExpenses.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+    documentSet = documentSet.concat(movingExpenses[documentSetIndex]);
+  }
+
+  const history = useHistory();
+
+  const formRef = useRef();
+
+  const weightTicketPanelRef = useRef();
+
+  const [serverError, setServerError] = useState(null);
+  const [showOverview, setShowOverview] = useState(false);
+
+  const queryClient = useQueryClient();
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
+
   const onClose = () => {
     history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
 
   const onBack = () => {
     setServerError(null);
-    if (documentSetIndex > 0) {
+    if (showOverview) {
+      setShowOverview(false);
+    } else if (documentSetIndex > 0) {
       setDocumentSetIndex(documentSetIndex - 1);
     }
   };
 
   const onSuccess = () => {
-    queryClient.invalidateQueries([WEIGHT_TICKETS, ppmShipment.id]);
-    if (documentSetIndex < weightTickets.length - 1) {
+    queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
+    if (documentSetIndex < fullDocuments.length - 1) {
       setDocumentSetIndex(documentSetIndex + 1);
     } else {
-      history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+      setShowOverview(true);
     }
+  };
+
+  const onConfirmSuccess = () => {
+    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
 
   const onError = () => {
@@ -94,31 +139,41 @@ export const ReviewDocuments = ({ match }) => {
         title="Review documents"
         onClose={onClose}
         className={styles.sidebar}
-        // TODO: set this correctly based on total document sets, including pro gear and expenses
-        supertitle={`${documentSetIndex + 1} of ${weightTickets.length} Document Sets`}
+        supertitle={`${documentSetIndex + 1} of ${fullDocuments.length} Document Sets`}
         defaultH3
       >
         <DocumentViewerSidebar.Content mainRef={weightTicketPanelRef}>
           <NotificationScrollToTop dependency={documentSetIndex || serverError} target={weightTicketPanelRef.current} />
           <ErrorMessage display={!!serverError}>{serverError}</ErrorMessage>
-          {documentSet && (
-            <ReviewWeightTicket
-              weightTicket={documentSet}
-              ppmNumber={1}
-              tripNumber={documentSetIndex + 1}
-              mtoShipment={mtoShipment}
-              onError={onError}
-              onSuccess={onSuccess}
-              formRef={formRef}
-            />
-          )}
+          {documentSet &&
+            (showOverview ? (
+              <ReviewDocumentsSidePanel
+                ppmShipment={mtoShipment.ppmShipment}
+                weightTickets={weightTickets}
+                proGearTickets={proGearWeightTickets}
+                expenseTickets={movingExpenses}
+                onError={onError}
+                onSuccess={onConfirmSuccess}
+                formRef={formRef}
+              />
+            ) : (
+              <ReviewWeightTicket
+                weightTicket={documentSet[0]}
+                ppmNumber={1}
+                tripNumber={documentSetIndex + 1}
+                mtoShipment={mtoShipment}
+                onError={onError}
+                onSuccess={onSuccess}
+                formRef={formRef}
+              />
+            ))}
         </DocumentViewerSidebar.Content>
         <DocumentViewerSidebar.Footer>
-          <Button onClick={onBack} disabled={documentSetIndex === 0}>
+          <Button className="usa-button--secondary" onClick={onBack} disabled={documentSetIndex === 0}>
             Back
           </Button>
           <Button type="submit" onClick={onContinue}>
-            Continue
+            {showOverview ? 'Confirm' : 'Continue'}
           </Button>
         </DocumentViewerSidebar.Footer>
       </DocumentViewerSidebar>
