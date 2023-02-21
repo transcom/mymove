@@ -147,6 +147,7 @@ export const ReviewDocuments = ({ match }) => {
   };
 
   const currentDocumentSet = documentSets[documentSetIndex];
+  const disableBackButton = documentSetIndex === 0 && !showOverview;
 
   return (
     <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
@@ -189,7 +190,7 @@ export const ReviewDocuments = ({ match }) => {
             ))}
         </DocumentViewerSidebar.Content>
         <DocumentViewerSidebar.Footer>
-          <Button className="usa-button--secondary" onClick={onBack} disabled={documentSetIndex === 0}>
+          <Button className="usa-button--secondary" onClick={onBack} disabled={disableBackButton}>
             Back
           </Button>
           <Button type="submit" onClick={onContinue}>

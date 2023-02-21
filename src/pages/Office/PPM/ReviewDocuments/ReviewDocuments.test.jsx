@@ -151,6 +151,7 @@ describe('ReviewDocuments', () => {
       expect(within(uploadList).getByRole('button', { name: /fullWeightTicket\.xls.*/i })).toBeInTheDocument();
 
       expect(screen.getByRole('heading', { level: 2, name: '1 of 1 Document Sets' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 3, name: /trip 1/ })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
 
@@ -244,6 +245,33 @@ describe('ReviewDocuments', () => {
 
       expect(screen.getByText('There was an error submitting the form. Please try again later.')).toBeInTheDocument();
     });
+
+    it('handles navigation properly using the continue/back buttons', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
+
+      expect(await screen.findByRole('heading', { level: 2, name: '1 of 1 Document Sets' }));
+
+      expect(await screen.findByRole('heading', { level: 3, name: /trip 1/ })).toBeInTheDocument();
+
+      // Need to accept the document before we can move forward without errors.
+      await userEvent.click(screen.getByLabelText('Accept'));
+
+      const continueButton = screen.getByRole('button', { name: 'Continue' });
+      expect(continueButton).toBeEnabled();
+
+      const backButton = screen.getByRole('button', { name: 'Back' });
+      expect(backButton).not.toBeEnabled();
+
+      await userEvent.click(continueButton);
+
+      expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
+
+      expect(backButton).toBeEnabled();
+      await userEvent.click(backButton);
+
+      expect(await screen.findByRole('heading', { level: 3, name: /trip 1/ })).toBeInTheDocument();
+    });
   });
   describe('with multiple document sets loaded', () => {
     const usePPMShipmentDocsQueriesReturnValueMultipleWeightTickets = {
@@ -262,14 +290,14 @@ describe('ReviewDocuments', () => {
 
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
 
-      expect(await screen.findByRole('heading', { level: 2, text: '1 of 4 Document Sets' }));
+      expect(await screen.findByRole('heading', { level: 2, name: '1 of 4 Document Sets' }));
       expect(screen.getByLabelText('Accept')).toBeInTheDocument();
       expect(screen.getByLabelText('Reject')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
       await userEvent.click(screen.getByLabelText('Accept'));
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-      expect(screen.getByRole('heading', { level: 2, text: '2 of 4 Document Sets' }));
+      expect(screen.getByRole('heading', { level: 2, name: '2 of 4 Document Sets' }));
     });
 
     it('renders and handles the Back button', async () => {
@@ -277,16 +305,20 @@ describe('ReviewDocuments', () => {
 
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
 
-      expect(screen.findByRole('heading', { level: 2, text: '1 of 4 Document Sets' }));
-      expect(screen.getByLabelText('Accept')).toBeInTheDocument();
-      expect(screen.getByLabelText('Reject')).toBeInTheDocument();
+      expect(screen.findByRole('heading', { level: 2, name: '1 of 4 Document Sets' }));
+      expect(screen.getByRole('heading', { level: 3, name: /trip 1/ })).toBeInTheDocument();
+
       expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
       await userEvent.click(screen.getByLabelText('Accept'));
+
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-      expect(screen.getByRole('heading', { level: 2, text: '2 of 4 Document Sets' }));
+      expect(screen.getByRole('heading', { level: 2, name: '2 of 4 Document Sets' }));
+      expect(screen.getByRole('heading', { level: 3, name: /trip 2/ })).toBeInTheDocument();
+
       await userEvent.click(screen.getByRole('button', { name: 'Back' }));
-      expect(screen.getByRole('heading', { level: 2, text: '1 of 4 Document Sets' }));
+      expect(screen.getByRole('heading', { level: 2, name: '1 of 4 Document Sets' }));
+      expect(screen.getByRole('heading', { level: 3, name: /trip 1/ })).toBeInTheDocument();
     });
 
     it('only shows uploads for the document set being reviewed', async () => {
@@ -328,6 +360,7 @@ describe('ReviewDocuments', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
       expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
+      expect(await screen.getByRole('button', { name: 'Back' })).toBeEnabled();
     });
   });
 });
