@@ -19,6 +19,10 @@ import (
 // swagger:model UpdateWeightTicket
 type UpdateWeightTicket struct {
 
+	// Indicates the adjusted net weight of the vehicle
+	// Minimum: 0
+	AdjustedNetWeight *int64 `json:"adjustedNetWeight,omitempty"`
+
 	// Weight of the vehicle when empty.
 	// Minimum: 0
 	EmptyWeight *int64 `json:"emptyWeight,omitempty"`
@@ -32,6 +36,9 @@ type UpdateWeightTicket struct {
 
 	// Indicates if the customer is missing a weight ticket for the vehicle weight when full.
 	MissingFullWeightTicket bool `json:"missingFullWeightTicket,omitempty"`
+
+	// Remarks explaining any edits made to the net weight
+	NetWeightRemarks string `json:"netWeightRemarks,omitempty"`
 
 	// Indicates if the customer used a trailer they own for the move.
 	OwnsTrailer bool `json:"ownsTrailer,omitempty"`
@@ -47,6 +54,10 @@ type UpdateWeightTicket struct {
 func (m *UpdateWeightTicket) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAdjustedNetWeight(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateEmptyWeight(formats); err != nil {
 		res = append(res, err)
 	}
@@ -58,6 +69,18 @@ func (m *UpdateWeightTicket) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *UpdateWeightTicket) validateAdjustedNetWeight(formats strfmt.Registry) error {
+	if swag.IsZero(m.AdjustedNetWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("adjustedNetWeight", "body", *m.AdjustedNetWeight, 0, false); err != nil {
+		return err
+	}
+
 	return nil
 }
 
