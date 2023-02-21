@@ -133,7 +133,7 @@ func loadPPMAssociations(appCtx appcontext.AppContext, ppmShipment *models.PPMSh
 			"Document.UserUploads.Upload")
 
 		if err != nil {
-			return apperror.NewQueryError("MovingExpenses", err, "failed to load ProgearExpenses document uploads")
+			return apperror.NewQueryError("MovingExpenses", err, "failed to load  MovingExpenses document uploads")
 		}
 
 		movingExpense.Document.UserUploads = movingExpense.Document.UserUploads.FilterDeleted()
