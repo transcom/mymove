@@ -39,7 +39,7 @@ type UpdateAdminUserParams struct {
 	  Required: true
 	  In: body
 	*/
-	AdminUser *adminmessages.AdminUserUpdatePayload
+	AdminUser *adminmessages.AdminUserUpdate
 	/*
 	  Required: true
 	  In: path
@@ -58,7 +58,7 @@ func (o *UpdateAdminUserParams) BindRequest(r *http.Request, route *middleware.M
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body adminmessages.AdminUserUpdatePayload
+		var body adminmessages.AdminUserUpdate
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("adminUser", "body", ""))
