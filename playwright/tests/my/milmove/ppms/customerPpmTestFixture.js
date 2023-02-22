@@ -710,10 +710,6 @@ export class CustomerPpmPage extends CustomerPage {
     await this.navigateToPPMReviewPage();
   }
 
-  async checkIncentive(expectedIncentive) {
-    await expect(this.page.getByText(`Your final estimated incentive: ${expectedIncentive}`)).toBeVisible();
-  }
-
   /**
    */
   async navigateFromCloseoutReviewPageToEditExpensePage() {
