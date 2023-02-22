@@ -233,11 +233,18 @@ const ShipmentForm = (props) => {
         moveETag: move.eTag,
       };
 
+      const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
+        moveCode,
+        shipmentId: mtoShipment.id,
+      });
+      const SCMoveViewPath = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode });
+      const TOOMoveViewPath = generatePath(tooRoutes.MOVE_VIEW_PATH, { moveCode });
+
       submitHandler(updatePPMPayload, {
         onSuccess: () => {
           if (!isAdvancePage && formValues.closeoutOffice.id) {
-            // if we have a closeout office, we must be on the first page of creating a PPM shipment,
-            // as a SC so we should update the closeout office and redirect to the advance page
+            // If we are on the first page and a closeout office is a part of the form, we must be an SC editing a
+            // PPM shipment, so we should update the closeout office and redirect to the advance page upon success.
             mutateMoveCloseoutOffice(
               {
                 locator: moveCode,
@@ -246,24 +253,29 @@ const ShipmentForm = (props) => {
               },
               {
                 onSuccess: () => {
-                  const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
-                    moveCode,
-                    shipmentId: mtoShipment.id,
-                  });
                   actions.setSubmitting(false);
                   history.push(advancePath);
                   onUpdate('success');
                 },
                 onError: () => {
-                  history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+                  history.push(SCMoveViewPath);
                   onUpdate('error');
                 },
               },
             );
+          } else if (!isAdvancePage && isServiceCounselor) {
+            // If we are on the first page, and we are an SC with no closeout office present, we should redirect
+            // to the advance page.
+            actions.setSubmitting(false);
+            history.push(advancePath);
+            onUpdate('success');
+          } else if (isServiceCounselor) {
+            // If we are on the second page as an SC, we submit and redirect to the SC move view path.
+            history.push(SCMoveViewPath);
+            onUpdate('success');
           } else {
-            // if we don't have a closeout office, we're either on the advance page for a PPM as a SC or the first page of a PPM as a TOO.
-            // In any case, we're done now and can head back to the move viewÎ
-            history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+            // If we are a TOO, we redirect to the TOO move path.
+            history.push(TOOMoveViewPath);
             onUpdate('success');
           }
         },
