@@ -50,6 +50,8 @@ func TestGetCurrentPassword(t *testing.T) {
 	assert := assert.New(t)
 
 	rdsu := RDSUTest{}
+	// We need to put a blank token first to avoid race conditions.
+	// See more below
 	rdsu.passes = append(rdsu.passes, "")
 	rdsu.passes = append(rdsu.passes, "abc")
 	logger := zaptest.NewLogger(t)
@@ -83,9 +85,36 @@ func TestGetCurrentPassword(t *testing.T) {
 	shouldQuitChan <- true
 	tmr.Stop()
 
+	// This test wants to ensure that getCurrentPass does not return
+	// an empty string and keeps looping until it does gets a non
+	// empty string.
+	//
+	// If refreshRDSIAM runs first (called from EnableIAM), it will
+	// set currentIamPass to the next token (which is set to the empty
+	// string up above). Then getCurrentPass runs and it will see that
+	// currentIamPass is the empty string and then loop, running
+	// iamConfig.pauseFn (and incrementing pauseCounter). Then, the
+	// refreshRDSIAM loop will run, getting the next token (set to
+	// "abc" up above). Finally, the getCurrentPass loop will run
+	// again (after the pauseFn finishes) and get the current
+	// password.
+	//
+	// If getCurrentPass runs first, it will see the currentIamPass is
+	// the empty string and run iamConfig.pauseFn (and increment
+	// pauseCounter). Then it is the same as the refreshRDSIAM
+	// scenario above.
+	//
 	// If the refreshRDSIAM go routine runs before getCurrentPass,
-	// there would be only one pause. If getCurrentPass runs before
-	// refreshRDSIAM, there would be two pauses
+	// there would be only one pause by getCurrentPass. If
+	// getCurrentPass runs before refreshRDSIAM, there would be two
+	// pauses.
+	//
+	// If the first token is a non empty string, then when
+	// refreshRDSIAM runs first it will set currentIamPass and then
+	// getCurrentPassword will not loop at all. That means we are not
+	// testing what we want to test, the looping property of
+	// getCurrentPassword
+
 	assert.True(1 <= pauseCounter, "expected pauseCounter to be greater than 1, was "+fmt.Sprintf("%d", pauseCounter))
 }
 
