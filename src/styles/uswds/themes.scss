@@ -1,0 +1,7 @@
+@use './colors' as milmove_colors;
+
+$panel-border: milmove_colors.$color-gray-lightest;
+$table-border-primary: milmove_colors.$color-gray-medium;
+$table-border-secondary: milmove_colors.$color-gray-lightest;
+$theme-warning: milmove_colors.$color-red;
+$subtext: milmove_colors.$color-gray-dark;

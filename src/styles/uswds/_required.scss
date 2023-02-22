@@ -1,0 +1,31 @@
+//
+// using scss/packages/required, did `yarn build && time yarn build`
+// so we get the time after caching.
+// `yarn build  217.92s user 11.42s system 189% cpu 2:00.95 total`
+//
+// using scss/uswds (the whole enchilada) did `yarn build && time yarn build`
+// so we get the time after caching. After 10 minutes I killed the
+// build and gave up.
+//
+
+@forward '~uswds/scss/packages/required' with (
+  /* reduce noise in logs by turning off uswds notifications */
+  $theme-show-notifications: false,
+  $theme-show-compile-warnings: false,
+
+  /* GENERAL */
+  $theme-image-path: '~uswds/img',
+  $theme-hero-image: '~uswds/img/hero.png',
+
+  /* TYPOGRAPHY */
+  $theme-respect-user-font-size: false,
+  $theme-root-font-size: 15px,
+  $theme-font-path: '~uswds/fonts',
+  $theme-font-type-sans: 'public-sans',
+  $theme-style-body-element: true,
+
+  $theme-link-color: 'blue-warm-60v',
+  $theme-link-visited-color: 'violet-warm-60',
+  $theme-link-hover-color: 'blue-warm-60v',
+  $theme-link-active-color: 'blue-warm-60v',
+);

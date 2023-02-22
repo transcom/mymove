@@ -1,0 +1,65 @@
+//Mixins & Variables
+
+/*
+ * not sure about this, but will @use the minimal set necessary for our
+ * own mixins
+ */
+
+@use './colors' as milmove_colors;
+@use './required' as milmove_uswds;
+
+$z-index-front: 100;
+$z-index-back: -100;
+
+// Function for converting a px based font-size to rem.
+@function calculateRem($size) {
+  $remSize: $size / 16px;
+  //Default font size on html element is 100%, equivalent to 16px;
+  @return #{$remSize}rem;
+}
+
+//mixin that makes an underline that wont cause changes in height to elements and will stick to the bottom of the parent container
+@mixin underline($size, $color) {
+  &:after {
+    @include milmove_uswds.u-height($size);
+    @include milmove_uswds.u-bg($color);
+    content: ' ';
+    @include milmove_uswds.u-display('block');
+    @include milmove_uswds.u-position('absolute');
+    @include milmove_uswds.u-left(0);
+    @include milmove_uswds.u-right(0);
+    bottom: -4px;
+  }
+}
+
+@mixin border-inset($size, $color) {
+  box-shadow: inset 0 0 0 $size $color;
+}
+
+@mixin cont-border-top($color) {
+  border-top: 8px solid $color;
+  @include milmove_uswds.u-shadow(2);
+}
+
+// uswds also has a focus-outline, so use a different name
+@mixin mm-focus-outline {
+  outline: 0.26667rem solid #2491ff;
+  outline-offset: 0.26667rem;
+}
+
+@mixin icon-hover-state {
+  button {
+    svg {
+      path,
+      polygon {
+        fill: milmove_colors.$primary;
+      }
+    }
+    &:hover {
+      svg path,
+      svg polygon {
+        fill: milmove_colors.$primary-dark;
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+// this file is for converting to
+// <https://sass-lang.com/documentation/at-rules/use>
+
+// Our components use <https://github.com/css-modules/css-modules>.
+// Those modules use <https://designsystem.digital.gov/design-tokens/>
+// and means the module styles do not use the global scope (which is
+// the whole point of css modules). However, almost all our components
+// use the global scope when they reference uswds classnames (e.g.
+// `usa-button`). This means we need to also include uswds globally
+// with the same settings.
+//
+// See ghc_index.scss for where the global settings are made
+
+@forward 'styles/uswds/required';
+
+// forward the shared partials so they are all exported
+@forward './colors';
+@forward './variables';
+@forward './mixins';
+@forward './themes';
