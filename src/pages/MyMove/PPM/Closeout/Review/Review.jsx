@@ -179,7 +179,12 @@ const Review = () => {
                 itemToDelete={itemToDelete}
               />
             )}
-            {alert && <Alert type={alert.type}>{alert.message}</Alert>}
+            {alert && (
+              <>
+                <Alert type={alert.type}>{alert.message}</Alert>
+                <br />
+              </>
+            )}
             {!canAdvance && (
               <>
                 <Alert type="error">
