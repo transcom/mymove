@@ -559,7 +559,7 @@ export class CustomerPpmPage extends CustomerPage {
    * @param {boolean} isLastWeightTicket
    */
   async deleteWeightTicket(ticketIndex, isLastWeightTicket) {
-    const weightMoved = await this.page.getByRole('heading', { name: 'Weight moved' });
+    const weightMoved = this.page.getByRole('heading', { name: 'Weight moved' });
     await expect(weightMoved).toBeVisible();
     const weightMovedContainer = weightMoved.locator('../../..');
     await expect(weightMovedContainer).toBeVisible();
@@ -584,7 +584,7 @@ export class CustomerPpmPage extends CustomerPage {
    * @param {boolean} isLastProGear
    */
   async deleteProGearExpense(index, isLastProGear) {
-    const proGearExpense = await this.page.getByRole('heading', { name: 'Pro-gear' });
+    const proGearExpense = this.page.getByRole('heading', { name: 'Pro-gear' });
     await expect(proGearExpense).toBeVisible();
     const proGearExpenseContainer = proGearExpense.locator('../../..');
     await expect(proGearExpenseContainer).toBeVisible();
@@ -602,7 +602,7 @@ export class CustomerPpmPage extends CustomerPage {
    * @param {boolean} isLastMovingExpense
    */
   async deleteMovingExpense(index, isLastMovingExpense) {
-    const moveExpense = await this.page.getByRole('heading', { name: 'Expenses' });
+    const moveExpense = this.page.getByRole('heading', { name: 'Expenses' });
     await expect(moveExpense).toBeVisible();
     const moveExpensesContainer = moveExpense.locator('../../..');
     await expect(moveExpensesContainer).toBeVisible();
@@ -706,7 +706,7 @@ export class CustomerPpmPage extends CustomerPage {
       this.page.waitForNavigation(),
       this.page.getByRole('button', { name: 'Return to Homepage' }).click(),
     ]);
-    await expect(this.page).toHaveURL(/\//);
+    expect(new URL(this.page.url()).pathname).toBe('/');
     await this.navigateToPPMReviewPage();
   }
 
