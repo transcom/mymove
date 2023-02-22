@@ -3,19 +3,24 @@
 @import 'shared/styles/colors';
 
 
+.calculationWrapper{
+    flex: 1;
+    //@include u-margin-top(2);
+}
 .calculations {
-  display: grid;
-  grid-template-columns: 1fr 3fr;
-  grid-template-rows: auto;
-  grid-column-gap: 0px;
-  grid-row-gap: 0px;
-  line-height: 18px;
-  font-size: 13px;
-  .value {
-    display: inline-block;
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    grid-template-rows: auto;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    line-height: 18px;
+    font-size: 13px;
+    .value {
+        display: inline-block;
   }
   .label {
     color: $base;
+    flex: 1
   }
 }
 
@@ -32,6 +37,11 @@
   }
   :global(.usa-textarea) {
     height: 96px;
+  }
+  :global(.usa-form-group),
+  :global(.usa-form-group--error),
+  :global(.usa-label--error) {
+    margin-top: 0;
   }
 }
 
@@ -52,23 +62,24 @@
   }
 }
 
+.minus {
+    align-items:last baseline;
+    justify-content: flex-start;
+    width: 100%
+}
+
+
 .warnings {
   background: #ffbe2e;
   width: 4px;
   margin-right: 16px;
 }
 
-.errorMessage {
+.errors {
     margin-top: 0;
     color: #b50909;
     font-weight: 700;
     font-size: 15px;
-  }
-
-.errors {
-    background:  #b50909;
-    width: 4px;
-    margin-right: 16px;
   }
 
 .wrapper {

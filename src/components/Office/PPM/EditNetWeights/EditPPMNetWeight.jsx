@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 // import { func, number, string, bool } from 'prop-types';
-import { Button, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
+import { Button, Fieldset, Label, Textarea, InputSuffix, TextInput, FormGroup } from '@trussworks/react-uswds';
 
 import styles from './EditPPMNetWeight.module.scss';
 
@@ -37,18 +37,28 @@ const FlexContainer = ({ children, className }) => {
   );
 };
 
+// Form Error Indicator
+const ErrorIndicator = ({ children, hasErrors }) => {
+  return <div className={hasErrors ? 'usa-form-group--error' : ''}>{children}</div>;
+};
+
 const WeightCalculation = ({ type, firstValue, secondValue, thirdValue }) => {
   const { firstLabel, secondLabel, thirdLabel } = weightLabels[type];
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.calculations}>
-        <strong className={styles.value}>{formatWeight(firstValue)}</strong>
-        <span className={styles.label}> {firstLabel}</span>
-      </div>
-      <div className={styles.calculations}>
-        <strong className={styles.value}>{formatWeight(secondValue)}</strong>
-        <span className={styles.label}> {secondLabel}</span>
-      </div>
+    <>
+      <FlexContainer className={styles.minus}>
+        {thirdValue && <>-</>}
+        <div className={styles.calculationWrapper}>
+          <div className={styles.calculations}>
+            <strong className={styles.value}>{formatWeight(firstValue)}</strong>
+            <span className={styles.label}> {firstLabel}</span>
+          </div>
+          <div className={styles.calculations}>
+            <strong className={styles.value}>{formatWeight(secondValue)}</strong>
+            <span className={styles.label}> {secondLabel}</span>
+          </div>
+        </div>
+      </FlexContainer>
       {thirdValue && (
         <>
           <hr className={styles.divider} />
@@ -58,11 +68,12 @@ const WeightCalculation = ({ type, firstValue, secondValue, thirdValue }) => {
           </div>
         </>
       )}
-    </div>
+    </>
   );
 };
 
 const validationSchema = Yup.object({
+  ppmNetWeight: Yup.number().min(1, 'Authorized weight must be greater than or equal to 1').required('Required'),
   ppmNetWeightRemarks: Yup.string().required('Required'),
 });
 
@@ -80,30 +91,30 @@ const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => (
             scale={0}
             signed={false} // no negative numbers
             thousandsSeparator=","
+            suffix="lbs"
             inputClassName={styles.weightInput}
-            errorClassName={styles.errorMessage}
+            errorClassName={styles.errors}
             labelClassName={styles.weightLabel}
-          >
-            {' '}
-            lbs
-          </MaskedTextField>
+          />
           <Label htmlFor="remarks">Remarks</Label>
           <ErrorMessage
-            className={styles.errorMessage}
+            className={styles.errors}
             display={!!touched.ppmNetWeightRemarks && !!errors.ppmNetWeightRemarks}
           >
             {errors.ppmNetWeightRemarks}
           </ErrorMessage>
-          <Textarea
-            id="ppmNetWeightRemarks"
-            maxLength={500}
-            placeholder=""
-            onChange={handleChange}
-            onBlur={() => {
-              setTouched({ ppmNetWeightRemarks: true }, false);
-            }}
-            values={values.ppmNetWeightRemarks}
-          />
+          <ErrorIndicator hasErrors={!!touched.ppmNetWeightRemarks && !!errors.ppmNetWeightRemarks}>
+            <Textarea
+              id="ppmNetWeightRemarks"
+              maxLength={500}
+              placeholder=""
+              onChange={handleChange}
+              onBlur={() => {
+                setTouched({ ppmNetWeightRemarks: true }, false);
+              }}
+              values={values.ppmNetWeightRemarks}
+            />
+          </ErrorIndicator>
           <FlexContainer className={styles.wrapper}>
             <Button onClick={onSave} disabled={!isValid}>
               Save changes
@@ -133,6 +144,7 @@ const EditPPMNetWeight = ({
   const toFitValue = maxBillableWeight - totalBillableWeight + billableWeight;
   const excessWeight = totalBillableWeight - weightAllowance;
   const hasExcessWeight = Boolean(excessWeight > 0);
+  const showWarning = Boolean(hasExcessWeight && !showEditForm);
   return (
     <div className={styles.wrapper}>
       <div>
@@ -147,9 +159,9 @@ const EditPPMNetWeight = ({
         )}
       </div>
       <FlexContainer className={styles.netWeightContainer}>
-        {hasExcessWeight && <div className={styles.warnings} />}
+        {showWarning && <div className={styles.warnings} />}
         <div>
-          <h5 className={styles.header}>Net Weight</h5>
+          <h5 className={styles.header}>Net weight</h5>
           <WeightCalculation firstValue={originalWeight} secondValue={toFitValue} type={CALCULATION_TYPE.NET_WEIGHT} />
           {!showEditForm ? (
             <div className={styles.wrapper}>
