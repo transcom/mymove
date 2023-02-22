@@ -32,6 +32,7 @@ test.describe('Entire PPM closeout flow', () => {
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);
+      await customerPpmPage.navigateToPPMReviewPage();
       await customerPpmPage.navigateFromCloseoutReviewPageToAboutPage();
       await customerPpmPage.fillOutAboutPage();
       await customerPpmPage.navigateFromCloseoutReviewPageToEditWeightTicketPage();
