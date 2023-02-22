@@ -70,13 +70,13 @@ func (_m *PPMShipmentRouter) SubmitCloseOutDocumentation(appCtx appcontext.AppCo
 	return r0
 }
 
-// SubmitReviewedDocuments provides a mock function with given fields: appCtx, ppmShipment, ppmDocuments
-func (_m *PPMShipmentRouter) SubmitReviewedDocuments(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, ppmDocuments models.PPMDocuments) error {
-	ret := _m.Called(appCtx, ppmShipment, ppmDocuments)
+// SubmitReviewedDocuments provides a mock function with given fields: appCtx, ppmShipment
+func (_m *PPMShipmentRouter) SubmitReviewedDocuments(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error {
+	ret := _m.Called(appCtx, ppmShipment)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment, models.PPMDocuments) error); ok {
-		r0 = rf(appCtx, ppmShipment, ppmDocuments)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) error); ok {
+		r0 = rf(appCtx, ppmShipment)
 	} else {
 		r0 = ret.Error(0)
 	}

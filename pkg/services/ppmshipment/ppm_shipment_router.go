@@ -117,28 +117,28 @@ func (p *ppmShipmentRouter) SubmitCloseOutDocumentation(_ appcontext.AppContext,
 }
 
 // SubmitReviewedDocuments sets the PPM shipment status to the PAYMENT_APPROVED if all docs approved otherwise WAITING_ON_CUSTOMER
-func (p *ppmShipmentRouter) SubmitReviewedDocuments(_ appcontext.AppContext, ppmShipment *models.PPMShipment, ppmDocuments models.PPMDocuments) error {
+func (p *ppmShipmentRouter) SubmitReviewedDocuments(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
 	// IS there a status the PPM should be in before proceeding
 	// Otherwise TODO - remove the err returned from this func
 	numOfRejectedDocs := 0
-	if len(ppmDocuments.WeightTickets) >= 1 {
-		for _, weightTicket := range ppmDocuments.WeightTickets {
+	if len(ppmShipment.WeightTickets) >= 1 {
+		for _, weightTicket := range ppmShipment.WeightTickets {
 			if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
 				numOfRejectedDocs++
 			}
 		}
 	}
 
-	if len(ppmDocuments.ProgearExpenses) >= 1 {
-		for _, progear := range ppmDocuments.ProgearExpenses {
+	if len(ppmShipment.ProgearExpenses) >= 1 {
+		for _, progear := range ppmShipment.ProgearExpenses {
 			if progear.Status != nil && *progear.Status == models.PPMDocumentStatusRejected {
 				numOfRejectedDocs++
 			}
 		}
 	}
 
-	if len(ppmDocuments.MovingExpenses) >= 1 {
-		for _, movingExpenses := range ppmDocuments.MovingExpenses {
+	if len(ppmShipment.MovingExpenses) >= 1 {
+		for _, movingExpenses := range ppmShipment.MovingExpenses {
 			if movingExpenses.Status != nil && *movingExpenses.Status == models.PPMDocumentStatusRejected {
 				numOfRejectedDocs++
 			}

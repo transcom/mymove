@@ -411,12 +411,10 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 		progear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
-		docs := models.PPMDocuments{
-			WeightTickets:   models.WeightTickets{weightTicket},
-			MovingExpenses:  models.MovingExpenses{movingExpense},
-			ProgearExpenses: models.ProgearWeightTickets{progear},
-		}
-		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment, docs)
+		ppmShipment.WeightTickets = models.WeightTickets{weightTicket}
+		ppmShipment.MovingExpenses = models.MovingExpenses{movingExpense}
+		ppmShipment.ProgearExpenses = models.ProgearWeightTickets{progear}
+		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment)
 
 		if suite.NoError(err) {
 			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
@@ -435,12 +433,10 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
-		docs := models.PPMDocuments{
-			WeightTickets:   models.WeightTickets{weightTicket},
-			MovingExpenses:  models.MovingExpenses{movingExpense},
-			ProgearExpenses: models.ProgearWeightTickets{progear},
-		}
-		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment, docs)
+		ppmShipment.WeightTickets = models.WeightTickets{weightTicket}
+		ppmShipment.MovingExpenses = models.MovingExpenses{movingExpense}
+		ppmShipment.ProgearExpenses = models.ProgearWeightTickets{progear}
+		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment)
 
 		if suite.NoError(err) {
 			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
@@ -459,12 +455,10 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
-		docs := models.PPMDocuments{
-			WeightTickets:   models.WeightTickets{weightTicket},
-			MovingExpenses:  models.MovingExpenses{movingExpense},
-			ProgearExpenses: models.ProgearWeightTickets{progear},
-		}
-		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment, docs)
+		ppmShipment.WeightTickets = models.WeightTickets{weightTicket}
+		ppmShipment.MovingExpenses = models.MovingExpenses{movingExpense}
+		ppmShipment.ProgearExpenses = models.ProgearWeightTickets{progear}
+		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment)
 
 		if suite.NoError(err) {
 			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
@@ -478,12 +472,10 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
-		docs := models.PPMDocuments{
-			WeightTickets:   models.WeightTickets{weightTicket},
-			MovingExpenses:  models.MovingExpenses{movingExpense},
-			ProgearExpenses: models.ProgearWeightTickets{progear},
-		}
-		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment, docs)
+		ppmShipment.WeightTickets = models.WeightTickets{weightTicket}
+		ppmShipment.MovingExpenses = models.MovingExpenses{movingExpense}
+		ppmShipment.ProgearExpenses = models.ProgearWeightTickets{progear}
+		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment)
 
 		if suite.NoError(err) {
 			suite.Equal(models.PPMShipmentStatusPaymentApproved, ppmShipment.Status)

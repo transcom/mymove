@@ -22,22 +22,9 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 		return mockRouter
 	}
 
-	setUpPPMDocumentFetcherMock := func(returnValue ...interface{}) services.PPMDocumentFetcher {
-		mockFetcher := &mocks.PPMDocumentFetcher{}
-
-		mockFetcher.On(
-			"GetPPMDocuments",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("uuid.UUID"),
-		).Return(returnValue...)
-
-		return mockFetcher
-	}
-
 	suite.Run("Returns an error if PPM ID is invalid", func() {
 		submitter := NewPPMShipmentReviewDocuments(
 			setUpPPMShipperRouterMock(nil),
-			setUpPPMDocumentFetcherMock(nil),
 		)
 
 		updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
@@ -58,7 +45,6 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 
 		submitter := NewPPMShipmentReviewDocuments(
 			setUpPPMShipperRouterMock(nil),
-			setUpPPMDocumentFetcherMock(nil),
 		)
 
 		updatedPPMShipment, err := submitter.SubmitReviewedDocuments(

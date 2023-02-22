@@ -45,7 +45,7 @@ type PPMShipmentRouter interface {
 	Submit(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error
 	SendToCustomer(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error
 	SubmitCloseOutDocumentation(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error
-	SubmitReviewedDocuments(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, ppmDocuments models.PPMDocuments) error
+	SubmitReviewedDocuments(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error
 }
 
 // PPMShipmentNewSubmitter handles a new submission for a PPM shipment
