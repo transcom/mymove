@@ -1,57 +1,55 @@
-@import 'src/shared/styles/basics';
-@import 'src/shared/styles/mixins';
-@import 'src/shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .RequestedShipments {
-  @include u-bg('white');
-  @include u-padding-x(4);
-  @include u-padding-y(2);
+  @include milmove_uswds.u-bg('white');
+  @include milmove_uswds.u-padding-x(4);
+  @include milmove_uswds.u-padding-y(2);
 
   h4 {
-    @include u-margin(0);
+    @include milmove_uswds.u-margin(0);
     font-weight: bold;
   }
 
   h4 + table {
-    @include u-margin-top(2);
+    @include milmove_uswds.u-margin-top(2);
   }
 
   .serviceItems {
-    @include u-padding-top(2);
-    @include u-border-top('1px');
-    @include u-border-top('base-lighter');
+    @include milmove_uswds.u-padding-top(2);
+    @include milmove_uswds.u-border-top('1px');
+    @include milmove_uswds.u-border-top('base-lighter');
 
     table {
-      @include u-width(full);
+      @include milmove_uswds.u-width(full);
     }
 
     :global(.usa-fieldset) {
-      @include u-padding-x(2);
+      @include milmove_uswds.u-padding-x(2);
     }
 
     :global(.usa-checkbox) {
-      @include u-margin-bottom(2);
+      @include milmove_uswds.u-margin-bottom(2);
     }
   }
 }
 
 .serviceItemApproval {
-  @include u-height(1rem);
-  @include u-width(1rem);
-  color: $success;
+  @include milmove_uswds.u-height(1rem);
+  @include milmove_uswds.u-width(1rem);
+  color: milmove_uswds.$success;
 }
 
 .serviceItemRejection {
-  @include u-height(1rem);
-  @include u-width(1rem);
-  color: $error;
+  @include milmove_uswds.u-height(1rem);
+  @include milmove_uswds.u-width(1rem);
+  color: milmove_uswds.$error;
 }
 
 .approveButton {
-  @include u-margin-top(2);
-  @include u-margin-left(0);
+  @include milmove_uswds.u-margin-top(2);
+  @include milmove_uswds.u-margin-left(0);
 }
 
 .serviceCounselingCompleted {
-  @include u-margin-top(3);
+  @include milmove_uswds.u-margin-top(3);
 }

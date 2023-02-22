@@ -1,26 +1,24 @@
-@import 'shared/styles/colors';
-@import 'shared/styles/_basics';
-@import 'shared/styles/_variables';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .shipment-list-item-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-radius: 0 5px 5px 0;
-  border: 1px solid $base-lighter;
+  border: 1px solid milmove_uswds.$base-lighter;
   padding-left: 6px;
   padding-right: 13px;
   padding-top: 12px;
   padding-bottom: 12px;
   height: 52px;
-  @include u-margin-bottom(1);
+  @include milmove_uswds.u-margin-bottom(1);
 
   strong {
     white-space: nowrap;
-    @media (min-width: $tablet) {
-      @include u-minw(15);
+    @media (min-width: milmove_uswds.$tablet) {
+      @include milmove_uswds.u-minw(15);
     }
-    @include u-minw(7);
+    @include milmove_uswds.u-minw(7);
     text-align: left;
   }
 
@@ -42,25 +40,25 @@
 
 :global(.usa-button).edit-btn {
   background-color: transparent;
-  color: $primary;
+  color: milmove_uswds.$primary;
   font-weight: normal;
   margin: 0;
-  @include u-padding(1.5);
+  @include milmove_uswds.u-padding(1.5);
 
   &:active,
   &:hover,
   &:focus {
-    color: $primary;
+    color: milmove_uswds.$primary;
     background-color: white;
   }
 }
 
 .warning {
-  color: $warning;
+  color: milmove_uswds.$warning;
 }
 
 .warningText {
-  color: $base;
+  color: milmove_uswds.$base;
   font-size: 13px;
   margin-left: 5px;
 }
@@ -81,17 +79,17 @@
 }
 
 .shipment-list-item-PPM {
-  border-left: 5px solid $accent-ppm;
+  border-left: 5px solid milmove_uswds.$accent-ppm;
 }
 
 .shipment-list-item-HHG {
-  border-left: 5px solid $accent-hhg;
+  border-left: 5px solid milmove_uswds.$accent-hhg;
 }
 
 .shipment-list-item-NTS {
-  border-left: 5px solid $accent-nts;
+  border-left: 5px solid milmove_uswds.$accent-nts;
 }
 
 .shipment-list-item-NTS-release {
-  border-left: 5px solid $accent-ntsr;
+  border-left: 5px solid milmove_uswds.$accent-ntsr;
 }

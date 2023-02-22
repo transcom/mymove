@@ -1,34 +1,31 @@
-@import '../../shared/styles/basics';
-@import '../../shared/styles/mixins';
-@import '../../shared/styles/colors';
-@import '../../shared/styles/_variables';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .uploadsTableContainer {
-  @include u-padding(2);
+  @include milmove_uswds.u-padding(2);
   border: 1px solid #dcdee0;
 
   h6 {
-    @include u-margin(0);
+    @include milmove_uswds.u-margin(0);
   }
 
   ul {
-    @include u-padding-left(0);
-    @include u-margin-top(1);
-    @include u-margin-bottom(0);
+    @include milmove_uswds.u-padding-left(0);
+    @include milmove_uswds.u-margin-top(1);
+    @include milmove_uswds.u-margin-bottom(0);
   }
 
-  @media (min-width: $tablet) {
-    @include u-padding(3);
+  @media (min-width: milmove_uswds.$tablet) {
+    @include milmove_uswds.u-padding(3);
   }
 }
 
 .uploadListItem {
-  @include u-padding-y(2);
+  @include milmove_uswds.u-padding-y(2);
   display: flex;
   justify-content: space-between;
 
   &:last-child {
-    @include u-padding-bottom(0);
+    @include milmove_uswds.u-padding-bottom(0);
   }
 
   &:not(:last-child) {
@@ -36,7 +33,7 @@
   }
 
   .faIcon {
-    color: $base;
+    color: milmove_uswds.$base;
   }
 
   button {
@@ -49,7 +46,7 @@
 }
 
 .fileInfo {
-  @include u-padding-left(2);
+  @include milmove_uswds.u-padding-left(2);
   word-break: normal;
   overflow-wrap: anywhere;
 
@@ -58,18 +55,18 @@
   }
 
   .fileSizeAndTime {
-    @include u-font('body', 'xs');
-    color: $base;
+    @include milmove_uswds.u-font('body', 'xs');
+    color: milmove_uswds.$base;
   }
 
   .uploadFileSize {
     display: none;
   }
 
-  @media (min-width: $tablet) {
+  @media (min-width: milmove_uswds.$tablet) {
     .uploadFileSize {
       display: inline;
-      @include u-margin-right(2);
+      @include milmove_uswds.u-margin-right(2);
     }
   }
 }

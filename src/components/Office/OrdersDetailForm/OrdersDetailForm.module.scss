@@ -1,10 +1,8 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .OrdersDetailForm {
   label {
-    color: $base-darker;
+    color: milmove_uswds.$base-darker;
   }
 
   :global .DayPickerInput {
@@ -12,22 +10,22 @@
   }
 
   .wrappedCheckbox {
-    @include u-margin-top(4);
-    @include u-margin-bottom(4);
-    @include u-padding-top(1);
-    @include u-padding-bottom(1);
-    @include u-padding-left(2);
-    @include u-display(flex);
+    @include milmove_uswds.u-margin-top(4);
+    @include milmove_uswds.u-margin-bottom(4);
+    @include milmove_uswds.u-padding-top(1);
+    @include milmove_uswds.u-padding-bottom(1);
+    @include milmove_uswds.u-padding-left(2);
+    @include milmove_uswds.u-display(flex);
     justify-content: center;
-    border: 1px solid $base-lighter;
+    border: 1px solid milmove_uswds.$base-lighter;
     border-radius: 4px;
     max-width: 32rem;
     :global(.usa-checkbox__label) {
-      @include u-margin-top(0);
+      @include milmove_uswds.u-margin-top(0);
     }
   }
 
   h3 {
-    @include u-margin-bottom(0);
+    @include milmove_uswds.u-margin-bottom(0);
   }
 }

@@ -1,10 +1,8 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/_variables';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .moveSetup {
   // using important to override rule that has more specificity on h2
-  @include u-margin-bottom(1 !important);
+  @include milmove_uswds.u-margin-bottom(1 !important);
 }
 
 .buttonContainer {
@@ -16,16 +14,16 @@
     padding: 0;
     vertical-align: baseline;
 
-    @media (min-width: $tablet) {
+    @media (min-width: milmove_uswds.$tablet) {
       justify-content: center;
     }
   }
 }
 
 .SummarySectionWrapper {
-  @include u-margin-bottom(2);
+  @include milmove_uswds.u-margin-bottom(2);
 }
 
 .SummarySectionWrapper + .SummarySectionWrapper {
-  @include u-margin-top(4);
+  @include milmove_uswds.u-margin-top(4);
 }

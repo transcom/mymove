@@ -1,6 +1,6 @@
-@import 'shared/styles/_basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 .title {
-  @include u-margin-bottom(1);
+  @include milmove_uswds.u-margin-bottom(1);
 }
 
 .titleWithError {
@@ -16,6 +16,6 @@
 
 
 .hint.hint {
-  @include u-margin-top(0);
-  @include u-margin-bottom(1);
+  @include milmove_uswds.u-margin-top(0);
+  @include milmove_uswds.u-margin-bottom(1);
 }

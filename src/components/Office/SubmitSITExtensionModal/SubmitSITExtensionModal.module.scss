@@ -1,5 +1,4 @@
-@import 'shared/styles/colors.scss';
-@import 'shared/styles/basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .SubmitSITExtensionModal {
   //min-width: 45rem !important;
@@ -7,7 +6,7 @@
   max-height: 90vh;
 
   .summarySITComponent {
-    @include u-margin-bottom(3);
+    @include milmove_uswds.u-margin-bottom(3);
   }
 
   .ApprovedDaysInput {
@@ -15,17 +14,17 @@
   }
 
   .ModalPanel {
-    @include u-border('base-lighter');
-    @include u-border('1px');
-    @include u-radius('05');
-    @include u-padding(3);
+    @include milmove_uswds.u-border('base-lighter');
+    @include milmove_uswds.u-border('1px');
+    @include milmove_uswds.u-radius('05');
+    @include milmove_uswds.u-padding(3);
 
     .reasonDropdown label {
-      @include u-margin-top(0);
+      @include milmove_uswds.u-margin-top(0);
     }
   }
 
   .CancelButton {
-    @include u-bg('transparent');
+    @include milmove_uswds.u-bg('transparent');
   }
 }

@@ -1,11 +1,9 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .cardContainer {
   max-width: 1046px;
-  @include u-padding-x(2);
-  @include u-padding-y(1);
+  @include milmove_uswds.u-padding-x(2);
+  @include milmove_uswds.u-padding-y(1);
 
   h1,
   h2,
@@ -23,7 +21,7 @@
 
   h4,
   h5 {
-    color: $base-darkest;
+    color: milmove_uswds.$base-darkest;
   }
 
   h4 {
@@ -31,11 +29,11 @@
     font-size: 22px;
 
     &:first-of-type {
-      @include u-margin-bottom(3);
+      @include milmove_uswds.u-margin-bottom(3);
     }
 
     &:last-of-type {
-      @include u-margin-bottom(2);
+      @include milmove_uswds.u-margin-bottom(2);
     }
   }
 
@@ -43,25 +41,25 @@
     font-weight: normal;
 
     &:first-of-type {
-      @include u-margin-bottom('05');
+      @include milmove_uswds.u-margin-bottom('05');
     }
 
     &:last-of-type {
-      @include u-margin-bottom(1);
+      @include milmove_uswds.u-margin-bottom(1);
     }
   }
 
   h6 {
-    color: $base;
+    color: milmove_uswds.$base;
     font-size: 13px;
     &:first-of-type {
-      @include u-margin-bottom('05');
+      @include milmove_uswds.u-margin-bottom('05');
     }
 
     strong {
       font-size: 15px;
-      color: $base-darker;
-      @include u-margin-left(1);
+      color: milmove_uswds.$base-darker;
+      @include milmove_uswds.u-margin-left(1);
     }
   }
 
@@ -69,7 +67,7 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    @include u-margin-bottom(5);
+    @include milmove_uswds.u-margin-bottom(5);
   }
 
   .spaceBetween {
@@ -86,8 +84,8 @@
   }
 
   .errorFlag {
-    color: $error;
-    @include u-margin-right(.5);
+    color: milmove_uswds.$error;
+    @include milmove_uswds.u-margin-right(.5);
   }
 
   .errorText {

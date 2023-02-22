@@ -1,6 +1,4 @@
-@import 'shared/styles/colors';
-@import 'shared/styles/_basics';
-@import 'shared/styles/_variables';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .grid-container {
   margin-left: auto;
@@ -9,13 +7,13 @@
   padding-left: 1rem;
   padding-right: 1rem;
 
-  @media (min-width: $tablet) {
+  @media (min-width: milmove_uswds.$tablet) {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
   }
 
   .secondaryBtn {
-    box-shadow: inset 0 0 0 2px $primary;
+    box-shadow: inset 0 0 0 2px milmove_uswds.$primary;
 
     &:disabled {
       box-shadow: none;
@@ -23,23 +21,23 @@
   }
 
   > :global(.usa-alert) {
-    @include u-margin-top('205');
-    @include u-margin-bottom(2);
+    @include milmove_uswds.u-margin-top('205');
+    @include milmove_uswds.u-margin-bottom(2);
   }
 }
 
 .customer-header {
   color: white;
-  background-color: $base-darker;
+  background-color: milmove_uswds.$base-darker;
 
   // undoes padding of parent container
   margin-top: -21px;
   margin-left: -1.25rem;
   margin-right: -1.25rem;
-  @include u-margin-bottom(2);
+  @include milmove_uswds.u-margin-bottom(2);
 
-  @include u-padding-top(3);
-  @include u-padding-bottom(3);
+  @include milmove_uswds.u-padding-top(3);
+  @include milmove_uswds.u-padding-bottom(3);
   padding-left: 20px;
   padding-right: 20px;
 
@@ -59,7 +57,7 @@
   font-size: 15px;
 
   .descriptionExtra {
-    @include u-padding-bottom(3);
+    @include milmove_uswds.u-padding-bottom(3);
   }
 
   .printBtn {
@@ -74,7 +72,7 @@
     text-decoration: underline;
 
     &:visited {
-      color: $link;
+      color: milmove_uswds.$link;
     }
   }
 }
@@ -88,9 +86,9 @@
 .subheaderContainer {
   display: flex;
   justify-content: space-between;
-  color: $base-lighter;
-  @include u-margin-top(1.5);
-  @include u-margin-bottom(0);
+  color: milmove_uswds.$base-lighter;
+  @include milmove_uswds.u-margin-top(1.5);
+  @include milmove_uswds.u-margin-bottom(0);
 
   .subheaderSubsection {
     display: flex;
@@ -101,7 +99,7 @@
   }
 
   .subheaderSubsection + .subheaderSubsection {
-    @include u-margin-left(2);
+    @include milmove_uswds.u-margin-left(2);
   }
 
   dt {
@@ -111,8 +109,8 @@
   }
 
   dt + dd {
-    @include u-margin-left(0);
-    @include u-margin-top(1);
+    @include milmove_uswds.u-margin-left(0);
+    @include milmove_uswds.u-margin-top(1);
   }
 
   dd {
@@ -122,7 +120,7 @@
     color: white;
   }
 
-  @media (min-width: $tablet) {
+  @media (min-width: milmove_uswds.$tablet) {
     justify-content: flex-start;
 
     .subheaderSubsection {
@@ -142,15 +140,15 @@
     }
 
     dt + dd {
-      @include u-margin-left(0.5em);
-      @include u-margin-top(0);
+      @include milmove_uswds.u-margin-left(0.5em);
+      @include milmove_uswds.u-margin-top(0);
     }
   }
 }
 
 .alertMessageSecondLine {
   display: block;
-  @include u-margin-y(1em);
+  @include milmove_uswds.u-margin-y(1em);
 }
 
 .alertMessageFirstLine {
@@ -160,37 +158,37 @@
 .helper-submitted-section,
 .helper-approved-section {
   h3 {
-    @include u-margin-bottom(2);
+    @include milmove_uswds.u-margin-bottom(2);
   }
 
   p {
-    @include u-margin-top(0);
-    @include u-margin-bottom(0);
+    @include milmove_uswds.u-margin-top(0);
+    @include milmove_uswds.u-margin-bottom(0);
   }
 
   .top-gap {
-    @include u-margin-top(1);
+    @include milmove_uswds.u-margin-top(1);
   }
 
   > div {
-    @include u-margin-bottom(3);
+    @include milmove_uswds.u-margin-bottom(3);
 
     &:last-of-type {
-      @include u-margin-bottom(0);
+      @include milmove_uswds.u-margin-bottom(0);
     }
 
     ul li + li {
-      @include u-margin-top(0);
+      @include milmove_uswds.u-margin-top(0);
     }
 
     > p > strong {
-      @include u-margin-bottom(1);
+      @include milmove_uswds.u-margin-bottom(1);
     }
   }
 }
 
 .helper-paragraph-only {
   p:last-of-type {
-    @include u-margin-bottom(0);
+    @include milmove_uswds.u-margin-bottom(0);
   }
 }

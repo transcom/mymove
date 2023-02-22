@@ -1,28 +1,27 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 
 .WeightTicketUpload {
   .uploadsTable {
-    @include u-margin-y(2);
+    @include milmove_uswds.u-margin-y(2);
   }
 
   .uploadTypeHint {
-    @include u-margin-bottom(1);
+    @include milmove_uswds.u-margin-bottom(1);
   }
 
   .constructedWeightLink {
-    @include u-margin-top(2);
+    @include milmove_uswds.u-margin-top(2);
     width: fit-content;
-    @include u-text-decoration(no-underline);
+    @include milmove_uswds.u-text-decoration(no-underline);
 
     &:hover, &:hover:visited {
-      color: $primary-dark;
-      @include u-text-decoration(no-underline);
+      color: milmove_uswds.$primary-dark;
+      @include milmove_uswds.u-text-decoration(no-underline);
     }
 
     &:visited {
-      color: $primary;
+      color: milmove_uswds.$primary;
     }
   }
 

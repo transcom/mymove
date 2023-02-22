@@ -1,28 +1,25 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/_variables';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .MTOShipmentForm {
-  @include u-padding-x(0.5);
+  @include milmove_uswds.u-padding-x(0.5);
 
-  @include at-media('tablet') {
+  @include milmove_uswds.at-media('tablet') {
     margin-top: 20px; // + global 20px padding = 40px = 5 units
   }
 
   h1 {
-    @include u-margin-top(1);
-    @include u-margin-bottom(2);
+    @include milmove_uswds.u-margin-top(1);
+    @include milmove_uswds.u-margin-bottom(2);
 
-    @include at-media('tablet') {
-      @include u-margin-top(2);
-      @include u-margin-bottom(3);
+    @include milmove_uswds.at-media('tablet') {
+      @include milmove_uswds.u-margin-top(2);
+      @include milmove_uswds.u-margin-bottom(3);
     }
   }
 
   h4 {
     font-weight: bold;
-    @include u-margin-top(4);
-    @include u-margin-bottom(3);
+    @include milmove_uswds.u-margin-top(4);
+    @include milmove_uswds.u-margin-bottom(3);
   }
 }

@@ -1,12 +1,9 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/_variables';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ShipmentForm {
-  @include u-padding-x(0.5);
+  @include milmove_uswds.u-padding-x(0.5);
 
-  @include at-media('tablet') {
+  @include milmove_uswds.at-media('tablet') {
     margin-top: 20px; // + global 20px padding = 40px = 5 units
   }
 
@@ -22,31 +19,31 @@
   }
 
   h1 {
-    @include u-margin-top(1);
-    @include u-margin-bottom(2);
+    @include milmove_uswds.u-margin-top(1);
+    @include milmove_uswds.u-margin-bottom(2);
     min-width: 400px;
 
-    @include at-media('tablet') {
-      @include u-margin-top(2);
-      @include u-margin-bottom(3);
+    @include milmove_uswds.at-media('tablet') {
+      @include milmove_uswds.u-margin-top(2);
+      @include milmove_uswds.u-margin-bottom(3);
     }
   }
 
   .SectionHeader {
-    @include u-margin-bottom(2);
+    @include milmove_uswds.u-margin-bottom(2);
   }
 
   .SectionHeaderExtraSpacing {
-    @include u-margin-bottom(3);
+    @include milmove_uswds.u-margin-bottom(3);
   }
 
   .NoSpacing {
-    @include u-margin-bottom(0);
+    @include milmove_uswds.u-margin-bottom(0);
   }
 
   .AdvanceText {
-    @include u-font-size('body', 'xs');
-    @include u-margin-top(2.5);
+    @include milmove_uswds.u-font-size('body', 'xs');
+    @include milmove_uswds.u-margin-top(2.5);
   }
 
   .weightAllowance {
@@ -55,10 +52,10 @@
   }
 
   .remarksField :global(.usa-form-group) {
-    @include u-margin-top(0);
+    @include milmove_uswds.u-margin-top(0);
 
     input {
-      @include u-margin-top(1);
+      @include milmove_uswds.u-margin-top(1);
       width: 70%;
     }
   }
@@ -80,7 +77,7 @@
 
 .Fieldset {
   h2 {
-    @include u-margin-bottom(2);
+    @include milmove_uswds.u-margin-bottom(2);
   }
 }
 
@@ -91,16 +88,16 @@
 }
 
 .VendorExplainerText {
-  @include u-margin-y(2);
-  @include u-padding(2);
-  @include u-font-size('body', 2);
-  border: solid 1px $border-color;
-  background: $bg-gray;
+  @include milmove_uswds.u-margin-y(2);
+  @include milmove_uswds.u-padding(2);
+  @include milmove_uswds.u-font-size('body', 2);
+  border: solid 1px milmove_uswds.$border-color;
+  background: milmove_uswds.$bg-gray;
   border-radius: 5px;
 
   ul {
-    @include u-margin-x(1);
-    @include u-margin-y(0);
+    @include milmove_uswds.u-margin-x(1);
+    @include milmove_uswds.u-margin-y(0);
   }
 }
 

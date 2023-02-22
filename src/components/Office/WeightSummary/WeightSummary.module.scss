@@ -1,24 +1,22 @@
-@import '../../../shared/styles/basics';
-@import '../../../shared/styles/mixins';
-@import '../../../shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .weightSummaryContainer {
   display: flex;
   justify-content: space-between;
   padding: 20px 14px;
   background-color: white;
-  border: 1px solid $border-color;
+  border: 1px solid milmove_uswds.$border-color;
 
   .weightSummaryHeading {
-    @include u-font-size('body', '3xs');
-    @include u-text('bold');
-    @include u-margin-top(0);
-    @include u-margin-bottom(0.5);
-    color: $base-darker;
+    @include milmove_uswds.u-font-size('body', '3xs');
+    @include milmove_uswds.u-text('bold');
+    @include milmove_uswds.u-margin-top(0);
+    @include milmove_uswds.u-margin-bottom(0.5);
+    color: milmove_uswds.$base-darker;
   }
 
   .marginBottom {
-    @include u-margin-bottom(2);
+    @include milmove_uswds.u-margin-bottom(2);
   }
 
   .weight {
@@ -31,8 +29,8 @@
   }
 
   hr {
-    @include u-margin-top(0);
-    @include u-margin-bottom(0.5);
+    @include milmove_uswds.u-margin-top(0);
+    @include milmove_uswds.u-margin-bottom(0.5);
   }
 
   svg {
@@ -41,10 +39,10 @@
   }
 
   .warningFlag {
-    color: $warning;
+    color: milmove_uswds.$warning;
   }
 
   .errorFlag {
-    color: $error;
+    color: milmove_uswds.$error;
   }
 }

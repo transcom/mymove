@@ -1,48 +1,46 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_variables';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .PPMReview {
-  @include at-media-max(mobile-lg) {
+  @include milmove_uswds.at-media-max(mobile-lg) {
     .aboutSection {
-      @include u-padding-bottom(4);
-      @include u-margin-bottom(4);
-      @include u-border-bottom(1px, solid);
-      border-color: $base-lighter;
+      @include milmove_uswds.u-padding-bottom(4);
+      @include milmove_uswds.u-margin-bottom(4);
+      @include milmove_uswds.u-border-bottom(1px, solid);
+      border-color: milmove_uswds.$base-lighter;
     }
   }
   .reviewItems:first-of-type {
-    @include u-margin-top(2);
+    @include milmove_uswds.u-margin-top(2);
   }
 
-  @include at-media(mobile-lg) {
+  @include milmove_uswds.at-media(mobile-lg) {
     .reviewItems {
-      @include u-margin-top(3);
+      @include milmove_uswds.u-margin-top(3);
     }
   }
 
-  @include at-media-max(mobile-lg) {
+  @include milmove_uswds.at-media-max(mobile-lg) {
     .reviewItems {
-      @include u-margin-top(4);
+      @include milmove_uswds.u-margin-top(4);
     }
 
     .navigationButtons {
-      @include u-margin-top(4);
+      @include milmove_uswds.u-margin-top(4);
     }
   }
 
   :global(.usa-button.usa-button--secondary) {
     &:visited {
-      color: $primary;
+      color: milmove_uswds.$primary;
     }
 
     &:hover {
-      color: $primary-dark;
+      color: milmove_uswds.$primary-dark;
     }
   }
 
   :global(.usa-button--disabled) {
     pointer-events: none;
-    background-color: $disabled;
+    background-color: milmove_uswds.$disabled;
   }
 }

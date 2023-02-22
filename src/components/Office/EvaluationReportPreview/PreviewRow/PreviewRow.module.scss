@@ -1,14 +1,13 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .label {
   width: 200px !important;
-  @include u-padding-x(1 !important);
-  @include u-padding-y(1.5 !important);
+  @include milmove_uswds.u-padding-x(1 !important);
+  @include milmove_uswds.u-padding-y(1.5 !important);
 }
 
 .data {
   flex-grow: 1;
-  @include u-padding-x(1 !important);
-  @include u-padding-y(1.5 !important);
+  @include milmove_uswds.u-padding-x(1 !important);
+  @include milmove_uswds.u-padding-y(1.5 !important);
 }

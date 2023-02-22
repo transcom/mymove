@@ -1,10 +1,8 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .mmHeader {
-  background: $mm-blue;
-  color: $bg-white;
+  background: milmove_uswds.$mm-blue;
+  color: milmove_uswds.$bg-white;
 
   // Override USWDS
   +.usa-section,
@@ -16,15 +14,15 @@
   a,
   :global(.usa-link),
   :global(.usa-button.usa-button--unstyled) {
-    color: $link-light;
+    color: milmove_uswds.$link-light;
 
     &:visited {
-      color: $link-light;
+      color: milmove_uswds.$link-light;
     }
 
     &:hover,
     &:focus {
-      color: $link-light-hover;
+      color: milmove_uswds.$link-light-hover;
     }
   }
 
@@ -33,14 +31,14 @@
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    @include u-padding-left(1);
-    @include u-padding-right(0);
+    @include milmove_uswds.u-padding-left(1);
+    @include milmove_uswds.u-padding-right(0);
     min-height: 58px;
     max-width: none;
 
-    @include at-media(tablet) {
-      @include u-padding-x(4);
-      @include u-padding-right(0);
+    @include milmove_uswds.at-media(tablet) {
+      @include milmove_uswds.u-padding-x(4);
+      @include milmove_uswds.u-padding-right(0);
       min-height: 50px;
     }
   }
@@ -66,10 +64,10 @@
     justify-content: flex-end;
 
     a {
-      @include u-font-size('body', '3xs');
+      @include milmove_uswds.u-font-size('body', '3xs');
 
-      @include at-media(tablet) {
-        @include u-font-size('body', 'xs');
+      @include milmove_uswds.at-media(tablet) {
+        @include milmove_uswds.u-font-size('body', 'xs');
       }
     }
   }
@@ -80,7 +78,7 @@
     display: flex;
     align-self: stretch;
     order: inherit;
-    color: $bg-white;
+    color: milmove_uswds.$bg-white;
 
     > :global(.usa-nav__primary-item) {
       border: none;
@@ -97,7 +95,7 @@
         font-weight: normal;
         border-top: 4px solid transparent;
         border-bottom: 4px solid transparent;
-        @include u-padding-y(1);
+        @include milmove_uswds.u-padding-y(1);
 
         svg {
           color: #fff;
@@ -105,24 +103,24 @@
 
         &:hover {
           svg {
-            color: $link-light;
+            color: milmove_uswds.$link-light;
           }
         }
 
-        @include at-media(tablet) {
-          color: $link-light;
+        @include milmove_uswds.at-media(tablet) {
+          color: milmove_uswds.$link-light;
           font-weight: bold;
         }
 
         &:visited {
-          color: $link-light;
+          color: milmove_uswds.$link-light;
         }
 
         &:hover,
         &:focus {
-          color: $link-light-hover;
+          color: milmove_uswds.$link-light-hover;
           background-color: transparent;
-          border-bottom: 4px solid $link-light-hover;
+          border-bottom: 4px solid milmove_uswds.$link-light-hover;
         }
       }
     }
@@ -130,11 +128,11 @@
 
   // Static text in a nav item that is not a link or button
   .navText {
-    @include u-padding-x(2);
-    @include u-font-size('body', '3xs');
+    @include milmove_uswds.u-padding-x(2);
+    @include milmove_uswds.u-font-size('body', '3xs');
 
-    @include at-media(tablet) {
-      @include u-font-size('body', 'xs');
+    @include milmove_uswds.at-media(tablet) {
+      @include milmove_uswds.u-font-size('body', 'xs');
     }
   }
 
@@ -143,46 +141,46 @@
     align-self: stretch;
 
     :global(.usa-nav__primary) {
-      @include u-padding-x(0);
-      @include u-margin-x(0);
+      @include milmove_uswds.u-padding-x(0);
+      @include milmove_uswds.u-margin-x(0);
     }
 
     :global(.usa-nav__primary button),
     :global(.usa-nav__primary a:not(.usa-button)) {
-      @include u-font-size('body', '3xs');
-      @include u-padding-x(0);
-      @include u-margin-x(0);
+      @include milmove_uswds.u-font-size('body', '3xs');
+      @include milmove_uswds.u-padding-x(0);
+      @include milmove_uswds.u-margin-x(0);
     }
 
     :global(.usa-nav__primary-item) {
-      @include u-margin-left(2);
+      @include milmove_uswds.u-margin-left(2);
     }
 
     :global(.usa-nav__primary-item):last-child {
-      @include u-margin-right(2);
+      @include milmove_uswds.u-margin-right(2);
     }
 
-    @include at-media(tablet) {
-      border-left: 1px solid $base-dark;
+    @include milmove_uswds.at-media(tablet) {
+      border-left: 1px solid milmove_uswds.$base-dark;
 
       :global(.usa-nav__primary-item) {
-        @include u-margin-x(0);
+        @include milmove_uswds.u-margin-x(0);
       }
 
       :global(.usa-nav__primary-item):last-child {
-        @include u-margin-left(2);
-        @include u-margin-right(0);
+        @include milmove_uswds.u-margin-left(2);
+        @include milmove_uswds.u-margin-right(0);
       }
 
       :global(.usa-nav__primary a:not(.usa-button)) {
-        @include u-margin-left(2);
-        @include u-padding-x(2);
+        @include milmove_uswds.u-margin-left(2);
+        @include milmove_uswds.u-padding-x(2);
       }
 
       :global(.usa-nav__primary button) {
-        @include u-font-size('body', 'xs');
-        @include u-padding-x(2);
-        @include u-margin-right(2);
+        @include milmove_uswds.u-font-size('body', 'xs');
+        @include milmove_uswds.u-padding-x(2);
+        @include milmove_uswds.u-margin-right(2);
       }
     }
   }

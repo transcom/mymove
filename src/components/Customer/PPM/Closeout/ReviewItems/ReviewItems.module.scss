@@ -1,170 +1,168 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_variables';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ReviewItems {
-  @include at-media-max(mobile-lg) {
+  @include milmove_uswds.at-media-max(mobile-lg) {
     .headingContainer {
-      @include u-display(block);
+      @include milmove_uswds.u-display(block);
 
       .headingContent {
-        @include u-display(block);
+        @include milmove_uswds.u-display(block);
 
         h1,h2,h3,h4,h5,h6 {
-          @include u-display(inline);
-          @include u-margin-right(1);
+          @include milmove_uswds.u-display(inline);
+          @include milmove_uswds.u-margin-right(1);
         }
       }
 
       .addButtonContainer {
-        @include u-display(block);
-        @include u-padding-top(2);
-        @include u-padding-bottom(1);
+        @include milmove_uswds.u-display(block);
+        @include milmove_uswds.u-padding-top(2);
+        @include milmove_uswds.u-padding-bottom(1);
 
         a {
-          @include u-margin-bottom(0);
-          @include u-margin-right(0);
+          @include milmove_uswds.u-margin-bottom(0);
+          @include milmove_uswds.u-margin-right(0);
         }
       }
     }
   }
 
-  @include at-media(mobile-lg) {
+  @include milmove_uswds.at-media(mobile-lg) {
     .headingContainer {
-      @include u-display(flex);
-      @include u-align-items(align-end);
+      @include milmove_uswds.u-display(flex);
+      @include milmove_uswds.u-align-items(align-end);
 
       .headingContent {
-        @include u-flex(1);
+        @include milmove_uswds.u-flex(1);
 
         h1, h2, h3, h4, h5, h6 {
-          @include u-display(inline);
-          @include u-margin-right(1);
+          @include milmove_uswds.u-display(inline);
+          @include milmove_uswds.u-margin-right(1);
         }
       }
 
       .addButtonContainer {
-        @include u-flex(auto);
+        @include milmove_uswds.u-flex(auto);
 
         a {
-          @include u-margin-bottom(0);
-          @include u-margin-right(0);
+          @include milmove_uswds.u-margin-bottom(0);
+          @include milmove_uswds.u-margin-right(0);
         }
       }
     }
   }
 
   .missingAlert {
-     @include u-margin-bottom(2);
-     @include u-font-weight(700);
-     @include u-color('secondary-dark');
+     @include milmove_uswds.u-margin-bottom(2);
+     @include milmove_uswds.u-font-weight(700);
+     @include milmove_uswds.u-color('secondary-dark');
      display: flex;
 
   }
 
   .alertTag {
-    @include u-margin-right(8px);
-    @include u-margin-top(2px);
+    @include milmove_uswds.u-margin-right(8px);
+    @include milmove_uswds.u-margin-top(2px);
     width: 20px;
     height: 20px;
-    @include u-bg('secondary-dark');
+    @include milmove_uswds.u-bg('secondary-dark');
   }
 
   .contentsContainer {
     .headingWrapper {
-      @include u-border(1px, solid);
-      @include u-radius(3px);
-      border-color: $border-color;
-      @include u-margin-top(2);
-      @include u-padding(3);
+      @include milmove_uswds.u-border(1px, solid);
+      @include milmove_uswds.u-radius(3px);
+      border-color: milmove_uswds.$border-color;
+      @include milmove_uswds.u-margin-top(2);
+      @include milmove_uswds.u-padding(3);
     }
 
     .subheadingWrapper {
-      @include u-margin-top(0);
+      @include milmove_uswds.u-margin-top(0);
 
       h1, h2, h3, h4, h5, h6, dl {
-        @include u-margin-top(0);
+        @include milmove_uswds.u-margin-top(0);
       }
 
       .actionContainer {
-        @include u-margin-top(0);
-        @media(max-width: $mobile) {
+        @include milmove_uswds.u-margin-top(0);
+        @media(max-width: milmove_uswds.$mobile) {
           button {
-            @include u-width(auto);
+            @include milmove_uswds.u-width(auto);
           }
         }
       }
 
       .emptyMessage {
-        @include u-font-size('body', '3xs');
-        color: $base;
+        @include milmove_uswds.u-font-size('body', '3xs');
+        color: milmove_uswds.$base;
       }
     }
 
     .emptyWrapper {
-      @include u-border(1px, solid);
-      @include u-radius(3px);
-      border-color: $border-color;
-      @include u-margin-top(2);
-      @include u-padding(3);
+      @include milmove_uswds.u-border(1px, solid);
+      @include milmove_uswds.u-radius(3px);
+      border-color: milmove_uswds.$border-color;
+      @include milmove_uswds.u-margin-top(2);
+      @include milmove_uswds.u-padding(3);
     }
 
     .emptyMessage {
-        @include u-font-size('body', '3xs');
-        color: $base;
+        @include milmove_uswds.u-font-size('body', '3xs');
+        color: milmove_uswds.$base;
       }
 
     .subheading {
-      @include u-margin-right(2);
+      @include milmove_uswds.u-margin-right(2);
     }
 
     dl {
-      @include u-margin-bottom(0);
-      @include u-flex(1);
+      @include milmove_uswds.u-margin-bottom(0);
+      @include milmove_uswds.u-flex(1);
       .w2Address {
-        @include u-margin-top(2);
+        @include milmove_uswds.u-margin-top(2);
       }
     }
 
     .actionContainer {
-      @include u-margin-top(2);
+      @include milmove_uswds.u-margin-top(2);
 
       a {
-        @include u-font-size('body', 'xs');
+        @include milmove_uswds.u-font-size('body', 'xs');
       }
 
       button {
-        @include u-padding-x(0);
-        @include u-display(inline);
+        @include milmove_uswds.u-padding-x(0);
+        @include milmove_uswds.u-display(inline);
       }
 
       .actionSeparator{
-        @include u-margin-x(1);
+        @include milmove_uswds.u-margin-x(1);
       }
     }
 
     .hiddenTerm {
-      @include u-display(none);
+      @include milmove_uswds.u-display(none);
     }
 
     dt, dd {
-      @include u-display(inline);
+      @include milmove_uswds.u-display(inline);
     }
 
     dd {
-      @include u-margin-left(0);
+      @include milmove_uswds.u-margin-left(0);
     }
 
     dt {
-      @include u-margin-right('05');
+      @include milmove_uswds.u-margin-right('05');
     }
 
-    @include at-media-max(mobile-lg) {
+    @include milmove_uswds.at-media-max(mobile-lg) {
       .subheadingWrapper {
         flex-wrap: wrap;
 
         .subheading {
-          @include u-margin-right(0);
+          @include milmove_uswds.u-margin-right(0);
           flex-basis: 50%;
           flex-shrink: 0;
           order: 1;
@@ -181,7 +179,7 @@
           order: 2;
 
           button {
-            @include u-width(auto);
+            @include milmove_uswds.u-width(auto);
           }
         }
       }
@@ -189,11 +187,11 @@
   }
 
   :global(.usa-button--secondary:visited) {
-    color: $primary;
+    color: milmove_uswds.$primary;
   }
 
   :global(.usa-button--secondary:hover) {
-    color: $primary-dark;
+    color: milmove_uswds.$primary-dark;
   }
 
   :global(.usa-button--secondary:hover) {

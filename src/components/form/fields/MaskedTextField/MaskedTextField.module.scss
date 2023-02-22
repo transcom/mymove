@@ -1,4 +1,4 @@
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .hasSuffix {
   display: inline-block;
@@ -10,7 +10,7 @@
     right: 10px;
     bottom: 11px;
     font-size: 0.8rem;
-    color: $base;
+    color: milmove_uswds.$base;
   }
 }
 
@@ -22,7 +22,7 @@
     position: absolute;
     left: 10px;
     bottom: 9px;
-    color: $base-darkest;
+    color: milmove_uswds.$base-darkest;
   }
   input {
     padding-left: 25px;
@@ -30,12 +30,12 @@
 }
 
 input:disabled {
-  background-color: $border-color;
+  background-color: milmove_uswds.$border-color;
 }
 
 .description {
   font-size: 13px;
-  color: $base;
+  color: milmove_uswds.$base;
   font-weight: normal;
   margin-top: 0.53rem;
 }

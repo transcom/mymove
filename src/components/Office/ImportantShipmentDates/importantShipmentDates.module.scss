@@ -1,10 +1,8 @@
-@import 'shared/styles/basics';
-@import 'shared/styles/mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .shipmentDatesContainer {
-  @include u-padding-x(0);
-  @include u-margin-x(0);
+  @include milmove_uswds.u-padding-x(0);
+  @include milmove_uswds.u-margin-x(0);
 }
 
 .header,

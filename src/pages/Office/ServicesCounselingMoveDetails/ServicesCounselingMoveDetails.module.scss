@@ -1,28 +1,26 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ServicesCounselingMoveDetails {
   .pageHeader {
-    @include u-margin-bottom(4);
+    @include milmove_uswds.u-margin-bottom(4);
 
     .pageTitle {
       display: flex;
 
       h1 {
         // overriding the h1 defaults
-        @include u-margin-bottom(0);
+        @include milmove_uswds.u-margin-bottom(0);
         align-self: center;
       }
     }
   }
 
   .scFinancialReviewContainer {
-    @include u-margin-bottom(3);
+    @include milmove_uswds.u-margin-bottom(3);
   }
 
   .alertContainer {
-    @include u-margin-bottom(4);
+    @include milmove_uswds.u-margin-bottom(4);
   }
 
   .submitMoveDetailsContainer {
@@ -30,12 +28,12 @@
     justify-content: flex-end;
 
     button {
-      @include u-margin-right(0);
+      @include milmove_uswds.u-margin-right(0);
       align-self: center;
     }
   }
 
   .noPaddingBottom {
-    @include u-padding-bottom(0)
+    @include milmove_uswds.u-padding-bottom(0)
   }
 }

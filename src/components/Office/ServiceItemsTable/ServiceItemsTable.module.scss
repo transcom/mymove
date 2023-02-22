@@ -1,29 +1,27 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ServiceItemsTable {
-  @include u-margin-bottom(4);
+  @include milmove_uswds.u-margin-bottom(4);
   td {
-    @include u-padding-top(2);
+    @include milmove_uswds.u-padding-top(2);
   }
 }
 
 .nameAndDate {
   p {
-    @include u-margin-y(0);
+    @include milmove_uswds.u-margin-y(0);
   }
 
   .codeName {
-    @include u-margin-bottom(1);
-    @include u-font-weight(bold);
+    @include milmove_uswds.u-margin-bottom(1);
+    @include milmove_uswds.u-font-weight(bold);
   }
 }
 
 .statusAction {
-  @include u-display(flex);
+  @include milmove_uswds.u-display(flex);
 
   button {
-    @include u-margin-top(0);
+    @include milmove_uswds.u-margin-top(0);
   }
 }

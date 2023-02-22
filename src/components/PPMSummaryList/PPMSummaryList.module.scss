@@ -1,16 +1,16 @@
-@import 'shared/styles/_basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ppm-shipment {
-  @include u-padding(3);
-  @include u-margin-bottom(2);
+  @include milmove_uswds.u-padding(3);
+  @include milmove_uswds.u-margin-bottom(2);
 
   p {
-    @include u-margin(0);
+    @include milmove_uswds.u-margin(0);
   }
 
   ul {
-    @include u-margin(0);
-    @include u-padding-left(2);
+    @include milmove_uswds.u-margin(0);
+    @include milmove_uswds.u-padding-left(2);
 
     li {
       font-size: 15px;
@@ -23,20 +23,20 @@
     align-items: center;
 
     button {
-      @include u-margin(0);
+      @include milmove_uswds.u-margin(0);
       width: auto;
     }
   }
 
   .ppm-shipment__content {
-    @include u-margin-top(2);
+    @include milmove_uswds.u-margin-top(2);
   }
 
   .dateSummary {
-    @include u-margin-bottom(2);
+    @include milmove_uswds.u-margin-bottom(2);
   }
 
   &:last-of-type {
-    @include u-margin-bottom(0);
+    @include milmove_uswds.u-margin-bottom(0);
   }
 }

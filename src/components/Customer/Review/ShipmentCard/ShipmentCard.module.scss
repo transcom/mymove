@@ -1,9 +1,6 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/_variables';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
-@media (max-width: $tablet) {
+@media (max-width: milmove_uswds.$tablet) {
   .remarksRow {
     flex-direction: column;
     .remarksCell {
@@ -13,21 +10,21 @@
 }
 
 .ShipmentCard {
-  @include u-margin-top(3);
+  @include milmove_uswds.u-margin-top(3);
   .ShipmentCardHeader {
     display: flex;
     justify-content: space-between;
-    @include u-margin-top('205');
-    @include u-padding-x('105');
-    @include u-padding-bottom('105');
-    @include u-border-bottom('1px');
-    @include u-border-bottom('base-lighter');
+    @include milmove_uswds.u-margin-top('205');
+    @include milmove_uswds.u-padding-x('105');
+    @include milmove_uswds.u-padding-bottom('105');
+    @include milmove_uswds.u-border-bottom('1px');
+    @include milmove_uswds.u-border-bottom('base-lighter');
 
     .shipmentTypeNumber {
       flex: 1;
       h3 {
-        @include u-text('normal');
-        @include u-margin-bottom('05');
+        @include milmove_uswds.u-text('normal');
+        @include milmove_uswds.u-margin-bottom('05');
         margin: 0;
       }
 
@@ -42,56 +39,56 @@
       flex: 0;
       align-items: center;
       min-width: auto;
-      @include u-padding-x(0);
-      @include u-font('body', 'xs');
+      @include milmove_uswds.u-padding-x(0);
+      @include milmove_uswds.u-font('body', 'xs');
 
       button {
-        @include u-padding(1.5);
+        @include milmove_uswds.u-padding(1.5);
       }
     }
   }
 
   .shipmentCardSubsection {
-    @include u-margin-y(0);
-    @include u-padding-x('05');
+    @include milmove_uswds.u-margin-y(0);
+    @include milmove_uswds.u-padding-x('05');
 
     &:first-child {
       div:first-child {
         dt,
         dd {
-          @include u-border-top('1px');
-          @include u-border-top('base-lighter');
+          @include milmove_uswds.u-border-top('1px');
+          @include milmove_uswds.u-border-top('base-lighter');
         }
       }
     }
   }
 
   .container {
-    @include u-padding-left(0);
-    @include u-padding-right(0);
-    @include u-padding-bottom(2);
+    @include milmove_uswds.u-padding-left(0);
+    @include milmove_uswds.u-padding-right(0);
+    @include milmove_uswds.u-padding-bottom(2);
   }
 
   dt {
-    @include u-text('bold');
-    @include u-text('base-darker');
+    @include milmove_uswds.u-text('bold');
+    @include milmove_uswds.u-text('base-darker');
     width: 40%;
   }
 
   dd {
-    @include u-margin(0);
+    @include milmove_uswds.u-margin(0);
     width: 60%;
     overflow-wrap: break-word;
   }
 
   .subsectionHeader {
-    border-top: 1px solid $base-lighter;
-    @include u-margin-top('105');
-    @include u-padding-top('05');
+    border-top: 1px solid milmove_uswds.$base-lighter;
+    @include milmove_uswds.u-margin-top('105');
+    @include milmove_uswds.u-padding-top('05');
 
     h4 {
-      @include u-text('bold');
-      @include u-text('base-darker');
+      @include milmove_uswds.u-text('bold');
+      @include milmove_uswds.u-text('base-darker');
       display: flex;
       align-items: center;
       margin: 0;
@@ -99,10 +96,10 @@
 
     display: flex;
     justify-content: space-between;
-    @include u-padding-x('105');
+    @include milmove_uswds.u-padding-x('105');
 
     .editBtn {
-      @include u-font('body', 'xs');
+      @include milmove_uswds.u-font('body', 'xs');
       min-width: auto;
       padding: 0;
       width: 40px;
@@ -112,16 +109,16 @@
 
   .row {
     display: flex;
-    @include u-font('body', 'xs');
-    @include u-line-height('body', 2);
+    @include milmove_uswds.u-font('body', 'xs');
+    @include milmove_uswds.u-line-height('body', 2);
 
     dt,
     dd {
-      @include u-padding-x(1);
-      @include u-padding-y(1.5);
+      @include milmove_uswds.u-padding-x(1);
+      @include milmove_uswds.u-padding-y(1.5);
 
-      @include u-border-bottom('1px');
-      @include u-border-bottom('base-lighter');
+      @include milmove_uswds.u-border-bottom('1px');
+      @include milmove_uswds.u-border-bottom('base-lighter');
     }
 
     &:last-of-type {
@@ -131,34 +128,34 @@
     }
 
     .noBorder {
-      @include u-border(0);
+      @include milmove_uswds.u-border(0);
     }
   }
 
   .remarksRow {
     .remarksCell {
-      @include u-font('body', 'xs');
+      @include milmove_uswds.u-font('body', 'xs');
     }
     dt,
     dd {
-      @include u-border-bottom(0);
+      @include milmove_uswds.u-border-bottom(0);
     }
   }
 }
 
-@media (min-width: $tablet) {
+@media (min-width: milmove_uswds.$tablet) {
   .ShipmentCard {
     .shipmentCardSubsection {
-      @include u-padding-x(3);
+      @include milmove_uswds.u-padding-x(3);
     }
 
     .ShipmentCardHeader {
-      @include u-padding-x(3);
+      @include milmove_uswds.u-padding-x(3);
     }
 
     .subsectionHeader {
-      @include u-padding-x(3);
-      @include u-padding-top(2);
+      @include milmove_uswds.u-padding-x(3);
+      @include milmove_uswds.u-padding-top(2);
     }
   }
 }

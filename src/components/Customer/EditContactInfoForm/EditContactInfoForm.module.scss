@@ -1,25 +1,22 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/_variables';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .form {
   h2 {
-    @include u-margin-bottom(0);
+    @include milmove_uswds.u-margin-bottom(0);
   }
 
   .formSection {
     p {
-      @include u-margin-bottom(0);
+      @include milmove_uswds.u-margin-bottom(0);
     }
 
     > :global(.usa-form-group:first-of-type .usa-label),
     > :global(.usa-fieldset > .usa-form-group:first-of-type .usa-label) {
-      @include u-margin-top(3);
+      @include milmove_uswds.u-margin-top(3);
     }
 
     > :global(.usa-fieldset > .usa-form-group.usa-form-group--error:first-of-type .usa-label) {
-      @include u-margin-top(0);
+      @include milmove_uswds.u-margin-top(0);
     }
   }
 }

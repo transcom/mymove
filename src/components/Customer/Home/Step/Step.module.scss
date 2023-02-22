@@ -1,8 +1,7 @@
-@import 'shared/styles/colors';
-@import 'shared/styles/_basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .step-container {
-  @include u-margin-bottom(6);
+  @include milmove_uswds.u-margin-bottom(6);
 
   &.step-amended-orders {
     p {
@@ -47,10 +46,10 @@
   font-size: 17px;
   display: flex;
   align-items: center;
-  @include u-margin-bottom(2);
+  @include milmove_uswds.u-margin-bottom(2);
 
   .edit-disabled {
-    color: $base-light;
+    color: milmove_uswds.$base-light;
     cursor: not-allowed;
   }
 }
@@ -58,7 +57,7 @@
 
 .accept {
   display: inline-block;
-  color: $primary-darker;
+  color: milmove_uswds.$primary-darker;
   width: 33px;
   height: 33px;
   margin-right: 12px;
@@ -69,17 +68,17 @@
   height: 33px;
   width: 33px;
   border-radius: 50%;
-  background-color: $primary-darker;
+  background-color: milmove_uswds.$primary-darker;
   color: white;
   text-align: center;
   padding: 5px;
   margin-right: 12px;
   line-height: 1.4;
-  @include u-text(bold);
+  @include milmove_uswds.u-text(bold);
 }
 
 .action-btn {
-  @include u-margin-top(3);
+  @include milmove_uswds.u-margin-top(3);
   margin-left: 0px;
   margin-right: 0px;
 }
@@ -94,7 +93,7 @@
 
 :global(.usa-button).edit-btn {
   background-color: transparent;
-  color: $primary;
+  color: milmove_uswds.$primary;
   text-decoration: none;
   font-size: 15px;
   font-weight: normal;
@@ -105,12 +104,12 @@
   &:active,
   &:hover,
   &:focus {
-    color: $primary;
+    color: milmove_uswds.$primary;
     background-color: white;
   }
 
   &:disabled {
-    color: $base-light;
+    color: milmove_uswds.$base-light;
     background-color: transparent;
   }
 }
@@ -127,15 +126,15 @@
 
 // TODO: remove when GHC styles are integrated into customer app and migrate to using "secondary" prop on button, you will still need the box-shadow tho since secondary has a different outline
 .action-button--secondary {
-  box-shadow: inset 0 0 0 2px $base-lighter;
+  box-shadow: inset 0 0 0 2px milmove_uswds.$base-lighter;
 
   &:active,
   &:hover {
-    box-shadow: inset 0 0 0 2px $base-lighter;
+    box-shadow: inset 0 0 0 2px milmove_uswds.$base-lighter;
   }
 
   &:focus,
   &:not([disabled]):focus {
-    box-shadow: inset 0 0 0 2px $base-lighter;
+    box-shadow: inset 0 0 0 2px milmove_uswds.$base-lighter;
   }
 }

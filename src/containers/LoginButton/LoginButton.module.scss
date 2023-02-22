@@ -1,12 +1,10 @@
-@import '../../shared/styles/basics';
-@import '../../shared/styles/mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .signIn,
 .signOut {
   height: 46px;
   &:hover {
-    @include underline(0.25rem, 'white');
+    @include milmove_uswds.underline(0.25rem, 'white');
   }
   &:hover::after {
     left: 16px;
@@ -27,19 +25,19 @@
 }
 
 :global(.my-move-header .usa-nav__primary-item) > .profileLink {
-  @include at-media('desktop') {
+  @include milmove_uswds.at-media('desktop') {
     color: white;
   }
   &:hover,
   &:focus {
-    color: $link-light-hover;
+    color: milmove_uswds.$link-light-hover;
   }
 }
 
 :global(.my-move-header .usa-nav__primary button) {
   color: black;
   display: block;
-  @include at-media('desktop') {
+  @include milmove_uswds.at-media('desktop') {
     color: white;
   }
   &:hover,

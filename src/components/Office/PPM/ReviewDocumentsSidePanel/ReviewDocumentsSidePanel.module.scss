@@ -1,6 +1,4 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
-@import 'shared/styles/variables';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ReviewDocumentsSidePanel {
   main {
@@ -8,30 +6,30 @@
   }
 
   header {
-    @include u-padding(2);
+    @include milmove_uswds.u-padding(2);
   }
 
   hr {
-    @include u-margin-top(0);
-    @include u-margin-bottom(0);
+    @include milmove_uswds.u-margin-top(0);
+    @include milmove_uswds.u-margin-bottom(0);
   }
 
   h3 {
     &:nth-of-type(1) {
-      @include u-margin-top(0);
-      @include u-margin-bottom(1);
+      @include milmove_uswds.u-margin-top(0);
+      @include milmove_uswds.u-margin-bottom(1);
     }
 
     &.send {
-      @include u-margin-top(0);
-      @include u-margin-bottom(0);
-      @include u-padding(2);
+      @include milmove_uswds.u-margin-top(0);
+      @include milmove_uswds.u-margin-bottom(0);
+      @include milmove_uswds.u-padding(2);
     }
   }
 
   .rowContainer {
-    @include u-padding-left(2);
-    @include u-padding-right(2);
+    @include milmove_uswds.u-padding-left(2);
+    @include milmove_uswds.u-padding-right(2);
 
     p {
       margin: 12px 8px;
@@ -51,8 +49,8 @@
     padding: 12px 8px;
 
     .tripNumber {
-      @include u-font-size('body', 'xs');
-      @include u-margin-bottom(0);
+      @include milmove_uswds.u-font-size('body', 'xs');
+      @include milmove_uswds.u-margin-bottom(0);
       font-weight: normal;
       width: 220px;
       min-width: 184px;
@@ -60,8 +58,8 @@
 
     span {
       font-weight: bold;
-      @include u-font-size('body', 'xs');
-      color: $base-darker;
+      @include milmove_uswds.u-font-size('body', 'xs');
+      color: milmove_uswds.$base-darker;
     }
 
     .iconRow {
@@ -75,19 +73,19 @@
   }
 
   [data-icon='check'] {
-    color: $success;
+    color: milmove_uswds.$success;
     margin-left: 17px;
     margin-right: 9px;
   }
 
   [data-icon='ban'] {
-    color: $warning;
+    color: milmove_uswds.$warning;
     margin-left: 17px;
     margin-right: 9px;
   }
 
   [data-icon='xmark'] {
-    color: $error;
+    color: milmove_uswds.$error;
     margin-left: 17px;
     margin-right: 9px;
   }
@@ -98,6 +96,6 @@
 }
 
 .sidebar {
-  @include u-margin-top(0);
-  @include u-margin-bottom(0);
+  @include milmove_uswds.u-margin-top(0);
+  @include milmove_uswds.u-margin-bottom(0);
 }

@@ -1,7 +1,7 @@
-@import 'shared/styles/_basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .Expenses {
   .introSection {
-    @include u-margin-bottom(5);
+    @include milmove_uswds.u-margin-bottom(5);
   }
 }

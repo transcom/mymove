@@ -1,43 +1,41 @@
-@import 'shared/styles/basics';
-@import 'shared/styles/mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .SimpleSection {
-  @include u-line-height('body', 2);
+  @include milmove_uswds.u-line-height('body', 2);
 
   header {
-    color: $base-darker;
-    @include u-font-size('body', '3xs');
-    @include u-text('bold');
+    color: milmove_uswds.$base-darker;
+    @include milmove_uswds.u-font-size('body', '3xs');
+    @include milmove_uswds.u-text('bold');
 
-    @include u-border-bottom('1px');
-    @include u-border-bottom('base-lighter');
-    @include u-margin-bottom(1);
-    @include u-padding(1);
+    @include milmove_uswds.u-border-bottom('1px');
+    @include milmove_uswds.u-border-bottom('base-lighter');
+    @include milmove_uswds.u-margin-bottom(1);
+    @include milmove_uswds.u-padding(1);
   }
 
   > :not(header) {
-    @include u-margin-x(1);
+    @include milmove_uswds.u-margin-x(1);
   }
 
   > .SimpleSection {
     > header {
-      @include u-padding-x(0);
+      @include milmove_uswds.u-padding-x(0);
     }
     > :not(header) {
-      @include u-margin-x(0);
+      @include milmove_uswds.u-margin-x(0);
     }
   }
 
   > p {
-    @include u-margin-top(0);
-    @include u-margin-bottom(1);
+    @include milmove_uswds.u-margin-top(0);
+    @include milmove_uswds.u-margin-bottom(1);
   }
 
   .noBorder {
     header {
-      @include u-border(0);
-      @include u-margin-bottom(0);
+      @include milmove_uswds.u-border(0);
+      @include milmove_uswds.u-margin-bottom(0);
     }
   }
 }

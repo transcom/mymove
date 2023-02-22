@@ -1,6 +1,4 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .formSectionHeader {
   .sectionHeader {
@@ -10,7 +8,7 @@
     justify-content: space-between;
     .optional {
       font-size: 13px;
-      color: $base;
+      color: milmove_uswds.$base;
       font-weight: normal;
     }
   }

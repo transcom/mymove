@@ -1,24 +1,23 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .DetailsPanel {
-  @include u-padding-y(2);
-  @include u-padding-x(4);
-  background: $bg-white;
+  @include milmove_uswds.u-padding-y(2);
+  @include milmove_uswds.u-padding-x(4);
+  background: milmove_uswds.$bg-white;
 
   :global .stackedtable-header {
     max-width: unset;
     h2 {
       span {
-        @include u-margin-left(2);
+        @include milmove_uswds.u-margin-left(2);
       }
     }
 
     a.usa-button--secondary {
-      @include u-margin-right(0);
+      @include milmove_uswds.u-margin-right(0);
 
       &:visited {
-        color: $primary;
+        color: milmove_uswds.$primary;
       }
 
       &:hover {
@@ -33,7 +32,7 @@
   }
 
   th {
-    @include u-font-weight(bold);
-    color: $base-darker;
+    @include milmove_uswds.u-font-weight(bold);
+    color: milmove_uswds.$base-darker;
   }
 }

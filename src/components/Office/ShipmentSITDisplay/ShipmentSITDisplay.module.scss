@@ -1,15 +1,14 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .mtoshipmentSITDisplay {
   // these styles conflict with the custom.scss .table--data-point-group, we should try to remove that custom class
-  @include u-padding-x(2);
+  @include milmove_uswds.u-padding-x(2);
   padding-top: 18px;
   padding-bottom: 18px;
-  @include u-border('base-lighter');
-  @include u-border('1px');
-  @include u-radius('05');
-  background-color: $bg-gray;
+  @include milmove_uswds.u-border('base-lighter');
+  @include milmove_uswds.u-border('1px');
+  @include milmove_uswds.u-radius('05');
+  background-color: milmove_uswds.$bg-gray;
 
   .title {
     display: flex;
@@ -17,11 +16,11 @@
     // for now, to counteract top margin on table below it. When more content gets added below here, this might need to be changed
 
     p {
-      @include u-margin-y(0);
-      @include u-font-size('body', '3xs');
+      @include milmove_uswds.u-margin-y(0);
+      @include milmove_uswds.u-font-size('body', '3xs');
 
       :global .usa-tag {
-        @include u-font-size('body', '3xs');
+        @include milmove_uswds.u-font-size('body', '3xs');
       }
     }
 
@@ -32,7 +31,7 @@
       margin-left: 0.5rem !important;
     }
     .submitSITEXtensionLink {
-      @include u-margin-right(2);
+      @include milmove_uswds.u-margin-right(2);
     }
   }
 
@@ -41,8 +40,8 @@
   }
 
   > p {
-    @include u-margin-left(1);
-    @include u-font-weight('bold');
+    @include milmove_uswds.u-margin-left(1);
+    @include milmove_uswds.u-font-weight('bold');
   }
 
   td {
@@ -59,22 +58,22 @@
     }
 
     dl {
-      @include u-margin-top(0);
+      @include milmove_uswds.u-margin-top(0);
     }
 
     dl:last-child {
-      @include u-margin-y(0);
+      @include milmove_uswds.u-margin-y(0);
     }
 
     dt,
     dd {
-      @include u-font-size('body', '3xs');
-      @include u-line-height('body', 2);
-      color: $base-darker;
+      @include milmove_uswds.u-font-size('body', '3xs');
+      @include milmove_uswds.u-line-height('body', 2);
+      color: milmove_uswds.$base-darker;
     }
 
     dt {
-      @include u-font-weight('bold');
+      @include milmove_uswds.u-font-weight('bold');
       white-space: nowrap;
     }
 

@@ -1,32 +1,30 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .editBtn {
   width: fit-content;
-  @include u-margin-top(2);
+  @include milmove_uswds.u-margin-top(2);
 }
 
 .wrapper {
-  @include u-margin-top(2);
+  @include milmove_uswds.u-margin-top(2);
 }
 
 .header {
-  @include u-margin-bottom(0.5);
+  @include milmove_uswds.u-margin-bottom(0.5);
   margin-top: 2rem;
   font-size: 17px;
-  color: $base-darker;
+  color: milmove_uswds.$base-darker;
   font-weight: bold;
 }
 
 h5.remarksHeader {
   margin: 0;
-  @include u-margin-top(2);
+  @include milmove_uswds.u-margin-top(2);
 }
 
 .remarks {
   margin: 0;
-  @include u-margin-bottom(3);
+  @include milmove_uswds.u-margin-bottom(3);
 }
 
 .container {
@@ -37,7 +35,7 @@ h5.remarksHeader {
   strong,
   span {
     font-size: 13px;
-    color: $base;
+    color: milmove_uswds.$base;
   }
 
   .maxBillableWeight {
@@ -63,8 +61,8 @@ h5.remarksHeader {
     padding: 0;
 
     :global(.usa-label) {
-      color: $base-darker;
-      @include u-margin-top(3);
+      color: milmove_uswds.$base-darker;
+      @include milmove_uswds.u-margin-top(3);
     }
 
     :global(.usa-textarea) {
@@ -77,7 +75,7 @@ h5.remarksHeader {
   }
   .btnContainer {
     display: flex;
-    @include u-margin-top(2);
+    @include milmove_uswds.u-margin-top(2);
   }
 
   :global(.usa-form-group--error),

@@ -1,17 +1,15 @@
-@import '../../../shared/styles/basics';
-@import '../../../shared/styles/mixins';
-@import '../../../shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .docViewerMenu {
-  @include u-bg('white');
-  @include u-shadow(2);
-  @include u-padding-bottom(3);
+  @include milmove_uswds.u-bg('white');
+  @include milmove_uswds.u-shadow(2);
+  @include milmove_uswds.u-padding-bottom(3);
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
   width: 304px;
-  z-index: $z-index-front;
+  z-index: milmove_uswds.$z-index-front;
   transform: translateX(0);
   transition: transform 0.5s;
 
@@ -25,87 +23,87 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  @include u-padding-x(2);
+  @include milmove_uswds.u-padding-x(2);
 }
 
 .menuControls {
   svg {
-    @include u-width(2);
-    @include u-height(2);
+    @include milmove_uswds.u-width(2);
+    @include milmove_uswds.u-height(2);
     path {
-      fill: $primary;
+      fill: milmove_uswds.$primary;
     }
   }
   button {
-    @include u-padding-right(2);
+    @include milmove_uswds.u-padding-right(2);
   }
 }
 
 .menuList {
   list-style-type: none;
-  @include u-padding(0);
-  @include u-margin(0);
+  @include milmove_uswds.u-padding(0);
+  @include milmove_uswds.u-margin(0);
   overflow-x: auto;
 }
 
 .menuItemBtn {
   justify-content: flex-start;
   width: 100%;
-  @include u-border-top(1px);
-  @include u-border-top('base-lighter');
-  @include u-padding-x(1.5);
+  @include milmove_uswds.u-border-top(1px);
+  @include milmove_uswds.u-border-top('base-lighter');
+  @include milmove_uswds.u-padding-x(1.5);
 
   p {
-    @include u-padding-y(2);
-    @include u-text('gray-50');
+    @include milmove_uswds.u-padding-y(2);
+    @include milmove_uswds.u-text('gray-50');
     word-wrap: break-word;
-    @include u-margin-y(0);
-    @include u-line-height('body', 2);
+    @include milmove_uswds.u-margin-y(0);
+    @include milmove_uswds.u-line-height('body', 2);
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
     span {
-      @include u-font-size('body', '3xs');
-      @include u-font-weight(normal);
-      color: $base;
+      @include milmove_uswds.u-font-size('body', '3xs');
+      @include milmove_uswds.u-font-weight(normal);
+      color: milmove_uswds.$base;
     }
   }
 
   &:hover {
     p {
-      @include u-text('primary-vivid');
+      @include milmove_uswds.u-text('primary-vivid');
     }
 
     .thumbnailImage {
-      @include u-border(2px);
-      @include u-border('primary-vivid');
+      @include milmove_uswds.u-border(2px);
+      @include milmove_uswds.u-border('primary-vivid');
     }
   }
 
   &:active,
   &.active {
-    @include u-border-left('05');
-    @include u-border-left('primary-vivid');
-    @include u-text('bold');
+    @include milmove_uswds.u-border-left('05');
+    @include milmove_uswds.u-border-left('primary-vivid');
+    @include milmove_uswds.u-text('bold');
     .thumbnailImage {
-      @include border-inset(2px, $link);
+      @include milmove_uswds.border-inset(2px, milmove_uswds.$link);
     }
   }
 
   &:focus {
-    @include focus-outline;
+    @include milmove_uswds.focus-outline;
   }
 }
 
 // TODO
 /*
 .thumbnailImage {
-  @include u-border('1px');
-  @include u-border('base-lightest');
-  @include u-width(6);
-  @include u-height(6);
-  @include u-margin-y(1.5);
-  @include u-margin-left(1.5);
+  @include milmove_uswds.u-border('1px');
+  @include milmove_uswds.u-border('base-lightest');
+  @include milmove_uswds.u-width(6);
+  @include milmove_uswds.u-height(6);
+  @include milmove_uswds.u-margin-y(1.5);
+  @include milmove_uswds.u-margin-left(1.5);
   overflow: hidden;
 }
 */

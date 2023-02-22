@@ -1,13 +1,11 @@
-@import '../../../shared/styles/basics';
-@import '../../../shared/styles/mixins';
-@import '../../../shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .PaymentRequestQueue {
-  @include u-display(flex);
+  @include milmove_uswds.u-display(flex);
   flex-direction: column;
   flex: auto;
 
-  background-color: $bg-gray;
+  background-color: milmove_uswds.$bg-gray;
 
   :global td.age {
     white-space: nowrap;

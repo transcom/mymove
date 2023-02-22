@@ -1,6 +1,4 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/_variables';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .Modal {
   h3 {
@@ -8,12 +6,12 @@
   }
 
   li {
-    @include u-margin-bottom('205');
+    @include milmove_uswds.u-margin-bottom('205');
   }
 }
 
 .Button {
-  @media (max-width: $tablet) {
+  @media (max-width: milmove_uswds.$tablet) {
     width: 100%;
   }
 }

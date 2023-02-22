@@ -11,7 +11,7 @@
 //
 // See ghc_index.scss for where the global settings are made
 
-@forward 'styles/uswds/required';
+@forward './required';
 
 // forward the shared partials so they are all exported
 @forward './colors';

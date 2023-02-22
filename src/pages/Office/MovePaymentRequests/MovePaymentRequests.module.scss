@@ -1,5 +1,4 @@
-@import 'shared/styles/colors';
-@import 'shared/styles/_basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .errorTag {
   height: 20px;
@@ -7,7 +6,7 @@
 }
 
 .warning {
-  color: $warning;
+  color: milmove_uswds.$warning;
 
   &.errorTag {
     width: 20px;

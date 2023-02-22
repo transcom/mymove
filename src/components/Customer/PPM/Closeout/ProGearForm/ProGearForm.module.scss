@@ -1,4 +1,4 @@
-@import 'shared/styles/_basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ProGearForm {
   :global(.usa-label) {
@@ -10,16 +10,16 @@
   }
 
   :global(.usa-checkbox) {
-    @include u-margin-bottom(2);
+    @include milmove_uswds.u-margin-bottom(2);
   }
 
   legend:global(.usa-label) {
-    @include u-margin-bottom(0);
+    @include milmove_uswds.u-margin-bottom(0);
   }
 
   .hint {
-    @include u-margin-top('05');
-    @include u-margin-bottom('05');
+    @include milmove_uswds.u-margin-top('05');
+    @include milmove_uswds.u-margin-bottom('05');
     font-weight: normal;
     width: 100%;
     max-width: none;
@@ -32,14 +32,14 @@
   }
 
   .labelWrapper {
-    @include u-margin-top(3);
+    @include milmove_uswds.u-margin-top(3);
   }
 
   .weightField {
-    @include u-margin-top(0);
+    @include milmove_uswds.u-margin-top(0);
   }
 
   .uploadInstructions {
-    @include u-margin-bottom(1);
+    @include milmove_uswds.u-margin-bottom(1);
   }
 }

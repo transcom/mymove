@@ -1,54 +1,51 @@
-@import '../../shared/styles/basics';
-@import '../../shared/styles/mixins';
-@import '../../shared/styles/colors';
-@import '../../shared/styles/_variables';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 p+.cardContainer {
   margin-top: 0px;
 }
 
 .cardContainer+.cardContainer {
-  @include u-margin-top('105');
+  @include milmove_uswds.u-margin-top('105');
 }
 
 .cardContainer {
   position: relative;
 
   :global(.usa-radio__input:disabled + .usa-radio__label) {
-    color: $base-darkest;
+    color: milmove_uswds.$base-darkest;
   }
 
   :global(.usa-radio__label) {
-    @include u-margin-top(0);
+    @include milmove_uswds.u-margin-top(0);
   }
 
   :global(.usa-radio__input--tile + .usa-radio__label) {
     border-radius: 2px;
-    background-color: $bg-white;
+    background-color: milmove_uswds.$bg-white;
   }
 
   :global(.usa-checkbox__label),
   :global(.usa-radio__label) {
-    @include u-text('bold');
-    @include u-padding-bottom(2);
+    @include milmove_uswds.u-text('bold');
+    @include milmove_uswds.u-padding-bottom(2);
   }
 
   :global(.usa-radio__label):before {
-    @include u-margin-left(1);
+    @include milmove_uswds.u-margin-left(1);
     margin-top: 7px;
   }
 
   :global(.usa-checkbox__label-description) {
     font-weight: normal;
-    color: $base;
+    color: milmove_uswds.$base;
     font-size: 13px;
     line-height: 1.25;
-    @include u-padding-top(1);
+    @include milmove_uswds.u-padding-top(1);
     transform: translate(0px, -8px);
     width: 100%;
 
     div {
-      @include u-margin-bottom(1);
+      @include milmove_uswds.u-margin-bottom(1);
     }
   }
 
@@ -71,30 +68,30 @@ p+.cardContainer {
       // TODO - temp until we can make icon code more consistent
       width: 24px !important;
       height: 24px;
-      fill: $primary;
+      fill: milmove_uswds.$primary;
     }
   }
 
   :global(.usa-radio__input--tile:checked + .usa-radio__label) {
-    @include u-shadow(2);
-    background-color: $info-light;
-    border: 2px solid $base-lighter;
-    @include u-padding-bottom('205');
+    @include milmove_uswds.u-shadow(2);
+    background-color: milmove_uswds.$info-light;
+    border: 2px solid milmove_uswds.$base-lighter;
+    @include milmove_uswds.u-padding-bottom('205');
 
     & :global(.usa-checkbox__label-description) {
-      color: $base-dark;
+      color: milmove_uswds.$base-dark;
     }
   }
 
   :global(.usa-radio__input--tile + .usa-radio__label) {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0);
-    @include u-padding-bottom('205');
+    @include milmove_uswds.u-padding-bottom('205');
     padding-left: 50px;
   }
 
-  @media (max-width: $tablet) {
+  @media (max-width: milmove_uswds.$tablet) {
     :global(.usa-radio__label) {
-      @include u-padding-right(6);
+      @include milmove_uswds.u-padding-right(6);
     }
 
     :global(.usa-checkbox__label-description) {

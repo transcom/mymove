@@ -1,24 +1,23 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .Section {
-  @include u-margin-bottom(2);
+  @include milmove_uswds.u-margin-bottom(2);
 }
 
 .SectionDefaultText {
-  @include u-margin-y(1);
+  @include milmove_uswds.u-margin-y(1);
 }
 
 .SectionClear {
-  @include u-text('primary');
-  @include u-font-size('body', '3xs');
-  @include u-padding(0);
-  @include u-margin(0);
+  @include milmove_uswds.u-text('primary');
+  @include milmove_uswds.u-font-size('body', '3xs');
+  @include milmove_uswds.u-padding(0);
+  @include milmove_uswds.u-margin(0);
   background: none;
   border: none;
   cursor: pointer;
 
   &:hover {
-    @include u-text('primary-dark');
+    @include milmove_uswds.u-text('primary-dark');
   }
 }

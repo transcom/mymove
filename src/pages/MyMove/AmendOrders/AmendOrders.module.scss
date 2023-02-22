@@ -1,7 +1,7 @@
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .uploadOrdersHeader {
-  color: $base-darker;
+  color: milmove_uswds.$base-darker;
   margin-top: 0;
   margin-bottom: 0;
 }

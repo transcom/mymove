@@ -1,4 +1,4 @@
-@import 'shared/styles/colors.scss';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 a.bypassBlock {
     display: block;

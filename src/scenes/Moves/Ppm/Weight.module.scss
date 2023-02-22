@@ -1,4 +1,4 @@
-@import 'shared/styles/themes.scss';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 div.info {
   background-color: rgb(250, 250, 250);

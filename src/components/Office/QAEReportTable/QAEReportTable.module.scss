@@ -1,22 +1,20 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .qaeReportTable {
   th {
     min-width: 0px;
-    @include u-font('body', '3xs');
-    @include u-font-weight('bold');
-    @include u-line-height('body', 2);
-    @include u-padding-x(1);
-    color: $base-darker;
+    @include milmove_uswds.u-font('body', '3xs');
+    @include milmove_uswds.u-font-weight('bold');
+    @include milmove_uswds.u-line-height('body', 2);
+    @include milmove_uswds.u-padding-x(1);
+    color: milmove_uswds.$base-darker;
     height: 32px;
   }
   td {
     min-width: 0px;
-    color: $base-dark;
-    @include u-line-height('body', 1);
-    @include u-padding-x(1);
+    color: milmove_uswds.$base-dark;
+    @include milmove_uswds.u-line-height('body', 1);
+    @include milmove_uswds.u-padding-x(1);
     padding-top: 12px;
     padding-bottom: 12px;
   }
@@ -26,7 +24,7 @@
   }
 
   .draftTag {
-    background-color: $base-lighter;
+    background-color: milmove_uswds.$base-lighter;
   }
 
   // The table will be displayed multiple times on the same
@@ -64,8 +62,8 @@
 }
 
 .modalActions {
-  @include u-display('flex');
-  @include u-justify-content('justify-end');
-  @include u-margin-top(4 !important);
-  @include u-margin-x(0 !important);
+  @include milmove_uswds.u-display('flex');
+  @include milmove_uswds.u-justify-content('justify-end');
+  @include milmove_uswds.u-margin-top(4 !important);
+  @include milmove_uswds.u-margin-x(0 !important);
 }

@@ -1,53 +1,51 @@
-@import '../../../shared/styles/basics';
-@import '../../../shared/styles/mixins';
-@import '../../../shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ReviewDetailsCard {
-  @include u-bg('white');
-  @include u-padding(2);
-  @include u-radius('05');
-  @include u-border('base-light');
-  @include u-border('1px');
+  @include milmove_uswds.u-bg('white');
+  @include milmove_uswds.u-padding(2);
+  @include milmove_uswds.u-radius('05');
+  @include milmove_uswds.u-border('base-light');
+  @include milmove_uswds.u-border('1px');
 
   dl {
-    @include u-display('flex');
-    @include u-flex('wrap');
+    @include milmove_uswds.u-display('flex');
+    @include milmove_uswds.u-flex('wrap');
   }
 
   dt,
   dd {
-    @include u-border-y('1px');
-    @include u-border-color('gray-10');
-    @include u-padding(1);
+    @include milmove_uswds.u-border-y('1px');
+    @include milmove_uswds.u-border-color('gray-10');
+    @include milmove_uswds.u-padding(1);
   }
 
   dt:first-of-type,
   dd:first-of-type {
-    @include u-border-bottom(0);
+    @include milmove_uswds.u-border-bottom(0);
   }
 
   dt:last-of-type,
   dd:last-of-type {
-    @include u-border-y(0);
+    @include milmove_uswds.u-border-y(0);
   }
 
   dt {
     width: 33%;
-    color: $base-darker;
-    @include u-font-size('base', 4);
-    @include u-font-weight('bold');
+    color: milmove_uswds.$base-darker;
+    @include milmove_uswds.u-font-size('base', 4);
+    @include milmove_uswds.u-font-weight('bold');
   }
 
   dd {
     width: 66%;
     margin-left: 0;
 
-    @include u-text-align('right');
-    @include u-font-size('base', 4);
+    @include milmove_uswds.u-text-align('right');
+    @include milmove_uswds.u-font-size('base', 4);
   }
 
   .cardHeader {
-    @include u-margin-top(0);
-    @include u-margin-bottom(2);
+    @include milmove_uswds.u-margin-top(0);
+    @include milmove_uswds.u-margin-bottom(2);
   }
 }

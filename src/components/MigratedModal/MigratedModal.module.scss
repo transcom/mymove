@@ -1,5 +1,4 @@
-@import 'shared/styles/colors';
-@import 'shared/styles/_basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 /** This is a straightforward port of the Modal component from React-USWDS 1.17
  *  into the MilMove project, as the component is being deprecated in USWDS 2.x. */
@@ -16,14 +15,14 @@
 
 .title + .content,
 .content + .actions {
-  @include u-border-top(1px);
-  @include u-border-top($theme-color-base-lighter);
+  @include milmove_uswds.u-border-top(1px);
+  @include milmove_uswds.u-border-top(milmove_uswds.$theme-color-base-lighter);
 }
 
 .modal {
-  @include u-bg('white');
-  @include u-shadow(3);
-  @include u-radius('sm');
+  @include milmove_uswds.u-bg('white');
+  @include milmove_uswds.u-shadow(3);
+  @include milmove_uswds.u-radius('sm');
 
   // TODO - adapt these for different screen sizes/modal sizes?
   max-width: 630px;

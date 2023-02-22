@@ -1,18 +1,18 @@
-@import 'shared/styles/_basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .reviewMoveContainer {
   margin-top: -20px;
 }
 
 .reviewMoveHeaderContainer {
-  @include u-margin-top(4);
-  @include u-margin-bottom(3);
+  @include milmove_uswds.u-margin-top(4);
+  @include milmove_uswds.u-margin-bottom(3);
 
   h2 {
     margin: 0;
     font-size: 28px;
     font-weight: normal;
-    @include u-margin-bottom(1);
+    @include milmove_uswds.u-margin-bottom(1);
   }
 
   p {

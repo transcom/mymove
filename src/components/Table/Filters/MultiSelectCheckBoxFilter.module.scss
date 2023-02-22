@@ -1,20 +1,18 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 :global {
   :local(.MultiSelectCheckBoxFilterWrapper) {
-    @include u-radius(0);
-    @include u-padding-top(1);
-    @include u-font-weight(normal);
-    @include u-font-size('body', 4);
+    @include milmove_uswds.u-radius(0);
+    @include milmove_uswds.u-padding-top(1);
+    @include milmove_uswds.u-font-weight(normal);
+    @include milmove_uswds.u-font-size('body', 4);
 
     label {
-      @include u-margin-y(0.5);
+      @include milmove_uswds.u-margin-y(0.5);
     }
 
     .MultiSelectCheckBoxFilter__placeholder {
-      color: $base-darkest;
+      color: milmove_uswds.$base-darkest;
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
@@ -23,30 +21,30 @@
 
     .MultiSelectCheckBoxFilter__control {
       height: 2.5rem;
-      @include u-radius(0);
-      @include u-minw(15);
+      @include milmove_uswds.u-radius(0);
+      @include milmove_uswds.u-minw(15);
       max-width: 200px;
-      border-color: $base-darkest;
+      border-color: milmove_uswds.$base-darkest;
     }
 
     .MultiSelectCheckBoxFilter__control:hover {
-      border-color: $base-darkest;
+      border-color: milmove_uswds.$base-darkest;
     }
 
     .MultiSelectCheckBoxFilter__control--is-focused {
       box-shadow: none;
-      border-color: $base-darkest;
+      border-color: milmove_uswds.$base-darkest;
       outline: 0.25rem solid #2491ff !important;
       outline-offset: 0;
     }
 
     .MultiSelectCheckBoxFilter__menu {
-      @include u-margin-top(0.5);
-      @include u-radius(0);
+      @include milmove_uswds.u-margin-top(0.5);
+      @include milmove_uswds.u-radius(0);
     }
 
     .MultiSelectCheckBoxFilter__value-container {
-      @include u-height(2.5);
+      @include milmove_uswds.u-height(2.5);
     }
 
     .MultiSelectCheckBoxFilter__value-container div {
@@ -64,11 +62,11 @@
     }
 
     .MultiSelectCheckBoxFilter__option {
-      border: 2px solid $base-darkest;
+      border: 2px solid milmove_uswds.$base-darkest;
       border-left: 0;
       border-right: 0;
       background-color: white;
-      color: $base-darkest;
+      color: milmove_uswds.$base-darkest;
 
       .usa-checkbox label {
         text-indent: unset;
@@ -89,7 +87,7 @@
     }
 
     .MultiSelectCheckBoxFilter__indicator svg {
-      color: $base-darker;
+      color: milmove_uswds.$base-darker;
       height: 0.9rem;
       width: 0.9rem;
     }

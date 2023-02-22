@@ -1,57 +1,54 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/_variables';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .descriptionList {
   dt {
-    @include u-text('bold');
-    @include u-text('base-darker');
+    @include milmove_uswds.u-text('bold');
+    @include milmove_uswds.u-text('base-darker');
   }
 
   dd {
-    @include u-margin(0);
+    @include milmove_uswds.u-margin(0);
   }
 
   dt,
   dd {
-    @include u-border-top('1px');
-    @include u-border-top('base-lighter');
+    @include milmove_uswds.u-border-top('1px');
+    @include milmove_uswds.u-border-top('base-lighter');
 
-    @include u-padding-x(2);
-    @include u-padding-y(1.5);
+    @include milmove_uswds.u-padding-x(2);
+    @include milmove_uswds.u-padding-y(1.5);
   }
 
   .row {
     display: flex;
-    @include u-font('body', 'xs');
-    @include u-line-height('body', 2);
+    @include milmove_uswds.u-font('body', 'xs');
+    @include milmove_uswds.u-line-height('body', 2);
 
     .noBorder {
-      @include u-border(0);
+      @include milmove_uswds.u-border(0);
     }
   }
 
   .noBorder {
     dd,
     dt {
-      @include u-border(0);
+      @include milmove_uswds.u-border(0);
     }
   }
 
   .rowWithVisualCue::before {
-    @include u-margin-y(0.5);
+    @include milmove_uswds.u-margin-y(0.5);
 
     // Only valid values were 1px, 2px, 0 and 05
     // 2px were needed for the outline:
-    @include u-outline(2px);
+    @include milmove_uswds.u-outline(2px);
 
     // This is to offset the position of the outline
     // so it lines up next to the row:
-    @include u-margin-left(-2px);
-    @include u-margin-right(2px);
+    @include milmove_uswds.u-margin-left(-2px);
+    @include milmove_uswds.u-margin-right(2px);
 
-    outline-color: $mm-gold;
+    outline-color: milmove_uswds.$mm-gold;
     content: '';
   }
 }
@@ -68,17 +65,17 @@
 }
 
 .compact {
-  @include u-margin(0);
+  @include milmove_uswds.u-margin(0);
 
   dt,
   dd {
-    @include u-padding-x(1);
+    @include milmove_uswds.u-padding-x(1);
   }
 
   .row:first-child {
     dt,
     dd {
-      @include u-border(0);
+      @include milmove_uswds.u-border(0);
     }
   }
 }

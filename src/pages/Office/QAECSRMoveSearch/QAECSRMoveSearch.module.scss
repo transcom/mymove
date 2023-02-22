@@ -1,16 +1,14 @@
-@import '../../../shared/styles/basics';
-@import '../../../shared/styles/colors';
-@import 'styles/office.scss';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .QAECSRMoveSearchPage {
-  @include u-padding-y(3);
-  @include u-padding-x(4);
+  @include milmove_uswds.u-padding-y(3);
+  @include milmove_uswds.u-padding-x(4);
   width: 100%;
 }
 
 .QAECSRMoveSearchWrapper {
-  @include u-display(flex);
+  @include milmove_uswds.u-display(flex);
   flex-direction: column;
   flex: auto;
-  background-color: $bg-gray;
+  background-color: milmove_uswds.$bg-gray;
 }

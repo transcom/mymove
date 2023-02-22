@@ -1,11 +1,10 @@
-@import 'shared/styles/colors';
-@import 'shared/styles/_basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .doc-list-container {
   border-radius: 5px;
-  border: 1px solid $base-lighter;
-  @include u-padding-left(2);
-  @include u-padding-right(2);
+  border: 1px solid milmove_uswds.$base-lighter;
+  @include milmove_uswds.u-padding-left(2);
+  @include milmove_uswds.u-padding-right(2);
 
   h6,
   div {
@@ -14,19 +13,19 @@
   }
 
   .doc-list-item {
-    @include u-margin-bottom(2);
+    @include milmove_uswds.u-margin-bottom(2);
     display: flex;
     align-items: center;
   }
 }
 
 .doc-list-header {
-  @include u-margin-top(2);
-  @include u-margin-bottom(2);
+  @include milmove_uswds.u-margin-top(2);
+  @include milmove_uswds.u-margin-bottom(2);
   text-transform: uppercase;
 }
 
 .docs-icon {
   margin-right: 12px;
-  color: $base-light;
+  color: milmove_uswds.$base-light;
 }

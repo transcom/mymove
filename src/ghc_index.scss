@@ -42,6 +42,8 @@ $theme-link-active-color: 'blue-warm-60v';
  * Now do our custom global overrides.
  *
  */
+@import './styles/uswds/colors';
+@import './styles/uswds/variables';
 @import './styles/uswds/typography';
 @import './styles/uswds/custom';
 @import './styles/uswds/overrides';

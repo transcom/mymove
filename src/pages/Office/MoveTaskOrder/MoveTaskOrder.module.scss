@@ -1,9 +1,9 @@
-@import 'shared/styles/_basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .weightHeader {
   display: flex;
   justify-content: space-evenly;
-  @include u-margin-bottom(3);
+  @include milmove_uswds.u-margin-bottom(3);
   > div {
     flex: 1 1 0px;
   }
@@ -14,7 +14,7 @@
 }
 
 .financialReviewContainer {
-  @include u-margin-top(1);
+  @include milmove_uswds.u-margin-top(1);
   :global(.usa-button) {
     padding-right: 0;
   }

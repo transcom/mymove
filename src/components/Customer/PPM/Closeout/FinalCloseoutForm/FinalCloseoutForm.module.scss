@@ -1,33 +1,33 @@
-@import 'shared/styles/_basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .FinalCloseoutForm {
   h2 {
-    @include u-margin-top(3);
-    @include u-margin-bottom(2);
+    @include milmove_uswds.u-margin-top(3);
+    @include milmove_uswds.u-margin-bottom(2);
   }
 
-  @include at-media(mobile-lg) {
+  @include milmove_uswds.at-media(mobile-lg) {
     h2 {
-      @include u-margin-top(4);
-      @include u-margin-bottom(3);
+      @include milmove_uswds.u-margin-top(4);
+      @include milmove_uswds.u-margin-bottom(3);
     }
   }
 
   p.listDescription {
-    @include u-margin-y(0);
+    @include milmove_uswds.u-margin-y(0);
   }
 
   p + dl,
   p + ul,
   h3 + ul {
-    @include u-margin-y(0);
+    @include milmove_uswds.u-margin-y(0);
   }
 
   .incentiveFactors {
     .definitionWrapper {
       display: list-item;
       list-style: disc inside;
-      @include u-font-size('body', 'xs');
+      @include milmove_uswds.u-font-size('body', 'xs');
     }
 
     dt,
@@ -44,37 +44,37 @@
     }
 
     dd {
-      @include u-margin-left(0);
+      @include milmove_uswds.u-margin-left(0);
     }
   }
 
   .shipmentTotals {
     h3 {
-      @include u-margin-top(3);
-      @include u-margin-bottom(0);
+      @include milmove_uswds.u-margin-top(3);
+      @include milmove_uswds.u-margin-bottom(0);
     }
 
     ul {
       list-style-position: inside;
-      @include u-margin-left(0);
-      @include u-padding-left(0);
-      @include u-text('bold');
-      @include u-font-size('body', 'md');
+      @include milmove_uswds.u-margin-left(0);
+      @include milmove_uswds.u-padding-left(0);
+      @include milmove_uswds.u-text('bold');
+      @include milmove_uswds.u-font-size('body', 'md');
     }
 
-    @include at-media(mobile-lg) {
+    @include milmove_uswds.at-media(mobile-lg) {
       ul {
-        @include u-font-size('body', 'lg');
+        @include milmove_uswds.u-font-size('body', 'lg');
       }
     }
   }
 
   .finalPaymentFactors {
-    @include u-font-size('body', 'xs');
+    @include milmove_uswds.u-font-size('body', 'xs');
 
     ul {
       list-style-position: inside;
-      @include u-padding-left(0);
+      @include milmove_uswds.u-padding-left(0);
     }
   }
 
@@ -93,7 +93,7 @@
     width: 100%;
   }
 
-  @include at-media(tablet) {
+  @include milmove_uswds.at-media(tablet) {
     .signatureField {
       display: inline-block;
       width: calc((100% / 12) * 6);

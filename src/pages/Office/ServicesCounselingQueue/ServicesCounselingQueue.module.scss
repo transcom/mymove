@@ -1,10 +1,9 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ServicesCounselingQueue {
-  @include u-display(flex);
+  @include milmove_uswds.u-display(flex);
   flex-direction: column;
   flex: auto;
   border: (1px, solid, green);
-  background-color: $bg-gray;
+  background-color: milmove_uswds.$bg-gray;
 }

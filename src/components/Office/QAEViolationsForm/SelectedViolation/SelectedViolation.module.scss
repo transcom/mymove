@@ -1,10 +1,8 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .violation {
   display: flex;
-  border: 1px solid $base-light;
+  border: 1px solid milmove_uswds.$base-light;
   border-radius: 2px;
   max-width: 648px;
   margin-bottom: -1px;

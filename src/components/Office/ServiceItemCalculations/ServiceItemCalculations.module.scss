@@ -1,33 +1,32 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ServiceItemCalculations {
-  @include u-padding(2);
-  border: 1px solid $base-lighter;
+  @include milmove_uswds.u-padding(2);
+  border: 1px solid milmove_uswds.$base-lighter;
   border-radius: 3px;
-  background-color: $bg-gray;
+  background-color: milmove_uswds.$bg-gray;
   min-width: 892px;
 
   p {
-    @include u-margin-y(0);
+    @include milmove_uswds.u-margin-y(0);
   }
 
   ul {
-    @include u-margin-y(0);
-    @include u-padding(0);
+    @include milmove_uswds.u-margin-y(0);
+    @include milmove_uswds.u-padding(0);
     list-style: none;
   }
 
   .title {
-    @include u-font-weight('bold');
-    @include u-margin-top(0);
-    @include u-margin-bottom(2);
-    color: $base-darkest;
+    @include milmove_uswds.u-font-weight('bold');
+    @include milmove_uswds.u-margin-top(0);
+    @include milmove_uswds.u-margin-bottom(2);
+    color: milmove_uswds.$base-darkest;
   }
 
   .icon {
-    @include u-padding-right(1);
-    color: $base-dark;
+    @include milmove_uswds.u-padding-right(1);
+    color: milmove_uswds.$base-dark;
     width: auto;
   }
 
@@ -41,13 +40,13 @@
     .col {
       flex-shrink: 0;
       flex-grow: 0;
-      @include u-margin-right(4);
+      @include milmove_uswds.u-margin-right(4);
 
       hr {
-        @include u-margin-top(1);
-        @include u-margin-bottom(2);
+        @include milmove_uswds.u-margin-top(1);
+        @include milmove_uswds.u-margin-bottom(2);
         width: calc(100% + 4rem);
-        border: 1px solid $base-lighter;
+        border: 1px solid milmove_uswds.$base-lighter;
       }
     }
 
@@ -58,8 +57,8 @@
     }
 
     .col:last-of-type {
-      @include u-margin-right(0);
-      @include u-text-align('right');
+      @include milmove_uswds.u-margin-right(0);
+      @include milmove_uswds.u-text-align('right');
 
       hr {
         width: 100%;
@@ -72,14 +71,14 @@
     flex-direction: column;
 
     .col {
-      @include u-margin-x(0);
-      @include u-padding-y(1);
+      @include milmove_uswds.u-margin-x(0);
+      @include milmove_uswds.u-padding-y(1);
       display: flex;
       flex-direction: row-reverse;
       justify-content: space-between;
 
       .value {
-        @include u-margin-left(4);
+        @include milmove_uswds.u-margin-left(4);
       }
 
       hr {
@@ -88,25 +87,25 @@
     }
 
     .col:first-of-type {
-      @include u-padding-top(0);
+      @include milmove_uswds.u-padding-top(0);
     }
 
     .col:last-of-type {
-      @include u-margin-top(1);
-      @include u-padding-top(3);
-      @include u-padding-bottom(0);
-      border-top: 1px solid $base-lighter;
+      @include milmove_uswds.u-margin-top(1);
+      @include milmove_uswds.u-padding-top(3);
+      @include milmove_uswds.u-padding-bottom(0);
+      border-top: 1px solid milmove_uswds.$base-lighter;
     }
   }
 
   .descriptionTitle {
-    @include u-font-weight('bold');
-    color: $base-darker;
+    @include milmove_uswds.u-font-weight('bold');
+    color: milmove_uswds.$base-darker;
   }
 
   .descriptionContent {
-    @include u-margin-y(0.5);
-    color: $base-darkest;
+    @include milmove_uswds.u-margin-y(0.5);
+    color: milmove_uswds.$base-darkest;
     margin-left: 0;
   }
 }

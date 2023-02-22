@@ -1,6 +1,4 @@
-@import '../shared/styles/basics';
-@import '../shared/styles/mixins';
-@import '../shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .DocumentWrapper {
   display: flex;
@@ -10,7 +8,7 @@
   overflow: auto;
 
   form {
-    @include u-display(flex);
+    @include milmove_uswds.u-display(flex);
     height: 100%;
   }
 
@@ -36,74 +34,74 @@
   flex-direction: column;
 
   .top {
-    @include u-padding(3);
-    @include u-padding-left(4);
-    @include u-bg('white');
-    @include u-border-bottom('2px');
-    @include u-border-bottom('gray-10');
-    @include u-height('auto');
+    @include milmove_uswds.u-padding(3);
+    @include milmove_uswds.u-padding-left(4);
+    @include milmove_uswds.u-bg('white');
+    @include milmove_uswds.u-border-bottom('2px');
+    @include milmove_uswds.u-border-bottom('gray-10');
+    @include milmove_uswds.u-height('auto');
 
     .closeButton {
       float: right;
       // on mobile the button becomes flexed so must override centering
       justify-content: flex-end;
-      @include u-padding(0);
+      @include milmove_uswds.u-padding(0);
       svg {
-        @include u-width(2);
-        @include u-height(2);
+        @include milmove_uswds.u-width(2);
+        @include milmove_uswds.u-height(2);
         path {
-          fill: $primary;
+          fill: milmove_uswds.$primary;
         }
       }
     }
 
     h2 {
-      @include u-margin-bottom(2);
+      @include milmove_uswds.u-margin-bottom(2);
     }
 
     .viewAllowances {
-      @include u-padding-left(0);
+      @include milmove_uswds.u-padding-left(0);
 
       &:hover {
         text-decoration: none;
       }
 
       &:visited {
-        color: $primary;
+        color: milmove_uswds.$primary;
       }
     }
   }
 
   .body {
-    @include u-padding(4);
-    background-color: $bg-gray;
-    @include u-overflow-y('auto');
+    @include milmove_uswds.u-padding(4);
+    background-color: milmove_uswds.$bg-gray;
+    @include milmove_uswds.u-overflow-y('auto');
     flex: 1 1 0;
     flex-basis: 0;
 
     :global .usa-form-group:first-child label {
-      @include u-margin-top(0);
+      @include milmove_uswds.u-margin-top(0);
     }
 
     :global .usa-form-group:last-child {
-      @include u-padding-bottom(4);
+      @include milmove_uswds.u-padding-bottom(4);
     }
   }
 
   .bottom {
-    @include u-padding-x(3);
-    @include u-padding-y(1);
-    @include u-bg('white');
+    @include milmove_uswds.u-padding-x(3);
+    @include milmove_uswds.u-padding-y(1);
+    @include milmove_uswds.u-bg('white');
 
-    @include u-border-top('2px');
-    @include u-border-top('gray-10');
-    @include u-position('relative');
+    @include milmove_uswds.u-border-top('2px');
+    @include milmove_uswds.u-border-top('gray-10');
+    @include milmove_uswds.u-position('relative');
 
     display: flex;
     align-items: center;
 
     .buttonGroup {
-      @include u-display(flex);
+      @include milmove_uswds.u-display(flex);
     }
   }
 }

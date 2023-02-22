@@ -1,5 +1,5 @@
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 input:disabled {
-  color: $base-darker;
+  color: milmove_uswds.$base-darker;
 }

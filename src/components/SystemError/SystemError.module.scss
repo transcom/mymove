@@ -1,8 +1,8 @@
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .systemError {
   font-size: 1rem;
-  background-color: $warning;
+  background-color: milmove_uswds.$warning;
   padding-bottom: 0.8rem;
   padding-top: 0.8rem;
   padding-left: 1.6rem;

@@ -1,45 +1,44 @@
-@import '../../../shared/styles/colors';
-@import '../../../shared/styles/_basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .EditMaxBillableWeightModal {
 
   h4 {
-    @include u-font-weight(bold)
+    @include milmove_uswds.u-font-weight(bold)
   }
 
   dl {
-    @include u-font-size('body', '3xs');
-    @include u-font-weight(bold);
-    @include u-margin-bottom(1);
-    color: $base-darker;
+    @include milmove_uswds.u-font-size('body', '3xs');
+    @include milmove_uswds.u-font-weight(bold);
+    @include milmove_uswds.u-margin-bottom(1);
+    color: milmove_uswds.$base-darker;
   }
 
   dt {
-    @include u-display(inline);
-    @include u-margin-right(1);
+    @include milmove_uswds.u-display(inline);
+    @include milmove_uswds.u-margin-right(1);
   }
 
   dd {
-    @include u-display(inline);
-    @include u-margin-left(0);
+    @include milmove_uswds.u-display(inline);
+    @include milmove_uswds.u-margin-left(0);
   }
 
   :global .usa-label {
-    @include u-margin-top(2);
-    color: $base-darker;
+    @include milmove_uswds.u-margin-top(2);
+    color: milmove_uswds.$base-darker;
   }
 
   /* there seems to be an issue with the base .usa-button background being set to primary and the .usa-button--outline
     transparent background color being superseded */
   .backButton {
-    @include u-bg('transparent');
+    @include milmove_uswds.u-bg('transparent');
   }
 
   button.weightModalClose {
     svg {
-      @include u-width(14px);
-      @include u-height(14px);
-      color: $primary;
+      @include milmove_uswds.u-width(14px);
+      @include milmove_uswds.u-height(14px);
+      color: milmove_uswds.$primary;
     }
   }
 }

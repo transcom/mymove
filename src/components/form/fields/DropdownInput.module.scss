@@ -1,7 +1,7 @@
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 select:disabled {
-  background-color: $border-color;
+  background-color: milmove_uswds.$border-color;
   opacity: 1.0;
   pointer-events: none;
 }

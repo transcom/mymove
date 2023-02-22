@@ -1,16 +1,15 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .contentContainer {
   width: 336px;
-  @include u-margin-bottom(2);
+  @include milmove_uswds.u-margin-bottom(2);
 }
 
 .footer {
   position: 'fixed';
   bottom: '0';
   width: '100%';
-  background-color: $bg-white;
+  background-color: milmove_uswds.$bg-white;
 }
 
 .flex {
@@ -18,5 +17,5 @@
 }
 
 .weightSummary {
-  @include u-margin-top(1.5);
+  @include milmove_uswds.u-margin-top(1.5);
 }

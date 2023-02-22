@@ -1,8 +1,7 @@
-@import 'shared/styles/themes.scss';
-@import 'shared/styles/colors.scss';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .rangeslider-output {
-  border-color: $color-gray-light;
+  border-color: milmove_uswds.$color-gray-light;
 }
 
 .range-label-container {
@@ -32,14 +31,14 @@
     width: 100%;
     height: 16px;
     cursor: pointer;
-    background: $color-blue;
+    background: milmove_uswds.$color-blue;
     border-radius: 1em;
   }
   input[type='range']::-ms-fill-lower {
     width: 100%;
     height: 16px;
     cursor: pointer;
-    background: $color-blue;
+    background: milmove_uswds.$color-blue;
     border-radius: 1em;
   }
 

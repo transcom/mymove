@@ -1,25 +1,22 @@
 // Mm Header styles
 
-@import '../../shared/styles/basics';
-@import '../../shared/styles/mixins';
-@import '../../shared/styles/colors';
-@import '../../shared/styles/_variables';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .cui-header {
-  @include u-bg('black');
-  @include u-width(100%);
+  @include milmove_uswds.u-bg('black');
+  @include milmove_uswds.u-width(100%);
   &--text {
-    @include u-text('bold');
+    @include milmove_uswds.u-text('bold');
     color: #a2d63d;
-    @include u-font-size('body', 'xs');
-    @include u-text('uppercase');
-    @include u-text('center');
-    @include u-line-height('body', 3);
+    @include milmove_uswds.u-font-size('body', 'xs');
+    @include milmove_uswds.u-text('uppercase');
+    @include milmove_uswds.u-text('center');
+    @include milmove_uswds.u-line-height('body', 3);
   }
 
-  @media (max-width: $tablet) {
+  @media (max-width: milmove_uswds.$tablet) {
     &--text {
-      @include u-font-size('body', '2xs');
+      @include milmove_uswds.u-font-size('body', '2xs');
     }
   }
 }

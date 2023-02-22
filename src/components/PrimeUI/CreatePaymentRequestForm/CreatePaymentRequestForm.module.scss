@@ -1,15 +1,15 @@
-@import 'shared/styles/basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .CreatePaymentRequestForm {
   .serviceItemInputGroup {
-    @include u-display(flex);
+    @include milmove_uswds.u-display(flex);
     justify-content: flex-end;
 
     label {
-      @include u-margin-top(0);
-      @include u-margin-right(1);
-      @include u-font-size('body', 'xs');
-      @include u-font-weight(normal);
+      @include milmove_uswds.u-margin-top(0);
+      @include milmove_uswds.u-margin-right(1);
+      @include milmove_uswds.u-font-size('body', 'xs');
+      @include milmove_uswds.u-font-weight(normal);
       width: auto;
     }
   }

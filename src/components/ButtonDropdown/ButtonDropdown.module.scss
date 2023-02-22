@@ -1,25 +1,24 @@
-@import 'shared/styles/colors.scss';
-@import 'shared/styles/basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ButtonDropdown {
   position: relative;
   display: inline-block;
   select {
     color: white;
-    background-color: $primary;
+    background-color: milmove_uswds.$primary;
     background-image: none;
     border: 0;
     border-radius: 4px;
     text-align: left;
-    @include u-padding-left(2);
-    @include u-padding-right(5);
+    @include milmove_uswds.u-padding-left(2);
+    @include milmove_uswds.u-padding-right(5);
     &:hover {
-      background-color: $primary-dark;
+      background-color: milmove_uswds.$primary-dark;
     }
   }
   option {
     color: black;
-    @include u-font-weight('normal');
+    @include milmove_uswds.u-font-weight('normal');
     &:hover {
       background-color: white;
     }

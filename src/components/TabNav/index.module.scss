@@ -1,6 +1,4 @@
-@import '../../shared/styles/basics';
-@import '../../shared/styles/mixins';
-@import '../../shared/styles/variables';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 // conflicts with left nav border style
 nav.tabNav a {
@@ -11,11 +9,11 @@ nav.tabNav a {
 }
 
 .tabList {
-  @include u-margin(0);
-  @include u-line-height('body', 1);
-  @include u-position('relative');
-  @include u-bg('white');
-  @include u-padding-left(0);
+  @include milmove_uswds.u-margin(0);
+  @include milmove_uswds.u-line-height('body', 1);
+  @include milmove_uswds.u-position('relative');
+  @include milmove_uswds.u-bg('white');
+  @include milmove_uswds.u-padding-left(0);
 }
 
 .tabItem a {
@@ -28,38 +26,38 @@ nav.tabNav a {
 }
 
 .tabItem :global a .tab-title {
-  @include u-padding-bottom(1);
-  @include u-position('relative');
-  @include u-font-size('body', 4);
-  @include u-text('gray-cool-70');
+  @include milmove_uswds.u-padding-bottom(1);
+  @include milmove_uswds.u-position('relative');
+  @include milmove_uswds.u-font-size('body', 4);
+  @include milmove_uswds.u-text('gray-cool-70');
   font-weight: normal;
   &:hover {
-    @include u-text('blue-warm-60v');
-    @include underline(0.25rem, 'blue-warm-60v');
+    @include milmove_uswds.u-text('blue-warm-60v');
+    @include milmove_uswds.underline(0.25rem, 'blue-warm-60v');
   }
 }
 .tabItem :global .usa-current .tab-title {
-  @include u-text('gray-cool-70', 'bold');
-  @include underline(0.25rem, 'blue-warm-60v');
-  @include u-position('relative');
+  @include milmove_uswds.u-text('gray-cool-70', 'bold');
+  @include milmove_uswds.underline(0.25rem, 'blue-warm-60v');
+  @include milmove_uswds.u-position('relative');
   &:hover {
-    @include u-text('gray-cool-70', 'bold');
+    @include milmove_uswds.u-text('gray-cool-70', 'bold');
   }
 }
 
 .tabItem a :global .usa-tag {
-  @include u-text('gray-cool-70');
-  @include u-bg('gold-20v');
-  @include u-margin-left('05');
-  @include u-margin-right(0);
+  @include milmove_uswds.u-text('gray-cool-70');
+  @include milmove_uswds.u-bg('gold-20v');
+  @include milmove_uswds.u-margin-left('05');
+  @include milmove_uswds.u-margin-right(0);
   padding-bottom: 0px;
 }
 
 .tabList .tabItem {
   border: none;
-  @include u-padding(2);
-  @include u-display('inline-block');
+  @include milmove_uswds.u-padding(2);
+  @include milmove_uswds.u-display('inline-block');
   &:focus {
-    @include u-outline('05', 'blue-40v');
+    @include milmove_uswds.u-outline('05', 'blue-40v');
   }
 }

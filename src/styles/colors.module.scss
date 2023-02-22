@@ -1,4 +1,4 @@
-@import 'shared/styles/colors.scss';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 // This file is for exporting SASS color variables into JS files (such as colors.stories.jsx)
 // It has to be named like a CSS module because of this bug introduced in CRA 4:
@@ -6,44 +6,44 @@
 
 :export {
   brand: {
-    mmblue: $mm-blue;
-    mmgold: $mm-gold;
-    mmperiwinkle: $mm-periwinkle;
+    mmblue: milmove_uswds.$mm-blue;
+    mmgold: milmove_uswds.$mm-gold;
+    mmperiwinkle: milmove_uswds.$mm-periwinkle;
   }
   background: {
-    bgwhite: $bg-white;
-    bggray: $bg-gray;
+    bgwhite: milmove_uswds.$bg-white;
+    bggray: milmove_uswds.$bg-gray;
   }
   base: {
-    baselightest: $base-lightest;
-    baselighter: $base-lighter;
-    baselight: $base-light;
-    base: $base;
-    basedark: $base-dark;
-    basedarker: $base-darker;
-    basedarkest: $base-darkest;
+    baselightest: milmove_uswds.$base-lightest;
+    baselighter: milmove_uswds.$base-lighter;
+    baselight: milmove_uswds.$base-light;
+    base: milmove_uswds.$base;
+    basedark: milmove_uswds.$base-dark;
+    basedarker: milmove_uswds.$base-darker;
+    basedarkest: milmove_uswds.$base-darkest;
   }
   alert: {
-    error: $error;
-    errorlight: $error-light;
-    warning: $warning;
-    warninglight: $warning-light;
-    success: $success;
-    successlight: $success-light;
+    error: milmove_uswds.$error;
+    errorlight: milmove_uswds.$error-light;
+    warning: milmove_uswds.$warning;
+    warninglight: milmove_uswds.$warning-light;
+    success: milmove_uswds.$success;
+    successlight: milmove_uswds.$success-light;
   }
   primary: {
-    primary: $primary;
-    primarydark: $primary-dark;
-    primarydarker: $primary-darker;
+    primary: milmove_uswds.$primary;
+    primarydark: milmove_uswds.$primary-dark;
+    primarydarker: milmove_uswds.$primary-darker;
   }
   accent: {
-    link: $link;
-    linklight: $link-light;
-    accenteal: $accent-teal;
-    accenthhg: $accent-hhg;
-    accentppm: $accent-ppm;
-    accentub: $accent-ub;
-    accentnts: $accent-nts;
-    accentntsr: $accent-ntsr;
+    link: milmove_uswds.$link;
+    linklight: milmove_uswds.$link-light;
+    accenteal: milmove_uswds.$accent-teal;
+    accenthhg: milmove_uswds.$accent-hhg;
+    accentppm: milmove_uswds.$accent-ppm;
+    accentub: milmove_uswds.$accent-ub;
+    accentnts: milmove_uswds.$accent-nts;
+    accentntsr: milmove_uswds.$accent-ntsr;
   }
 }

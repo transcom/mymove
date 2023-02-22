@@ -1,11 +1,9 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ExpandableServiceItemRow {
   .accepted {
     svg {
-      @include u-margin-right(1);
+      @include milmove_uswds.u-margin-right(1);
       height: 18px;
       width: 18px;
       display: inline-block;
@@ -13,14 +11,14 @@
       top: 2px;
 
       path {
-        fill: $success;
+        fill: milmove_uswds.$success;
       }
     }
   }
 
   .rejected {
     svg {
-      @include u-margin-right(1);
+      @include milmove_uswds.u-margin-right(1);
       height: 18px;
       width: 18px;
       display: inline-block;
@@ -28,14 +26,14 @@
       top: 2px;
 
       path {
-        fill: $error;
+        fill: milmove_uswds.$error;
       }
     }
   }
 
   .needsReview {
     svg {
-      @include u-margin-right(1);
+      @include milmove_uswds.u-margin-right(1);
       height: 18px;
       width: 18px;
       display: inline-block;
@@ -43,7 +41,7 @@
       top: 2px;
 
       path {
-        fill: $warning;
+        fill: milmove_uswds.$warning;
       }
     }
   }
@@ -54,19 +52,19 @@
 
   &.expandable {
     .icon {
-      @include u-margin-left(-1);
-      @include u-margin-right(2);
-      color: $primary;
+      @include milmove_uswds.u-margin-left(-1);
+      @include milmove_uswds.u-margin-right(2);
+      color: milmove_uswds.$primary;
     }
   }
 
   &.expandedRow,
   &.expandedDetail {
-    border: 1px solid $base-lighter;
+    border: 1px solid milmove_uswds.$base-lighter;
   }
 
   &.expandedRow td {
-    background-color: $link-light;
+    background-color: milmove_uswds.$link-light;
   }
 
   &.expandedDetail td {

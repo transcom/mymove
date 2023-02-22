@@ -1,9 +1,7 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .modalTopContainer {
-  @include u-display(flex);
+  @include milmove_uswds.u-display(flex);
   h4 {
     flex-grow: 1;
   }
@@ -13,19 +11,19 @@
 }
 
 .rejectReasonClose {
-  @include u-padding-right(0);
+  @include milmove_uswds.u-padding-right(0);
   align-self: flex-start;
   cursor: pointer;
   svg {
     width: 24px;
     height: 24px;
-    color: $base;
+    color: milmove_uswds.$base;
   }
 }
 
 .modalActions {
-  @include u-display(flex);
-  @include u-margin-top(3);
+  @include milmove_uswds.u-display(flex);
+  @include milmove_uswds.u-margin-top(3);
 
   button[type='submit'],
   button[type='reset'] {
@@ -36,13 +34,13 @@
 .RejectServiceItemModal {
   :global .table--service-item--hasimg {
     td {
-      @include u-border-bottom(0);
-      @include u-padding-x(1);
+      @include milmove_uswds.u-border-bottom(0);
+      @include milmove_uswds.u-padding-x(1);
       vertical-align: top;
 
       p {
-        @include u-margin-top(0);
-        @include u-margin-bottom(1);
+        @include milmove_uswds.u-margin-top(0);
+        @include milmove_uswds.u-margin-bottom(1);
       }
     }
 
@@ -53,21 +51,21 @@
     }
 
     dl {
-      @include u-margin-top(0);
+      @include milmove_uswds.u-margin-top(0);
     }
 
     dt,
     dd {
-      @include u-display(inline);
+      @include milmove_uswds.u-display(inline);
     }
 
     dd {
-      @include u-margin-left(0);
+      @include milmove_uswds.u-margin-left(0);
     }
   }
 
   label {
-    @include u-margin-top(3);
-    color: $base-darker;
+    @include milmove_uswds.u-margin-top(3);
+    color: milmove_uswds.$base-darker;
   }
 }

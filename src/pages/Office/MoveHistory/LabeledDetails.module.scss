@@ -1,7 +1,7 @@
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .shipmentType {
   display: block;
-  color: $base;
+  color: milmove_uswds.$base;
   margin-bottom: 8px 0;
 }

@@ -1,25 +1,22 @@
-@import 'shared/styles/colors.scss';
-@import 'shared/styles/_mixins.scss';
-@import 'shared/styles/_variables.scss';
-@import 'shared/styles/_basics.scss';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 // 24px margin in between Alert and SectionWrapper
 :global(.usa-alert) + .sectionWrapper {
-  @include u-margin-top(3);
+  @include milmove_uswds.u-margin-top(3);
 }
 
 .sectionWrapper {
-  @media (min-width: $tablet) {
-    @include u-bg('white');
-    @include u-radius('05');
-    @include u-border('base-lighter');
-    @include u-border('1px');
-    @include u-padding(5);
-    @include u-margin-bottom(4);
+  @media (min-width: milmove_uswds.$tablet) {
+    @include milmove_uswds.u-bg('white');
+    @include milmove_uswds.u-radius('05');
+    @include milmove_uswds.u-border('base-lighter');
+    @include milmove_uswds.u-border('1px');
+    @include milmove_uswds.u-padding(5);
+    @include milmove_uswds.u-margin-bottom(4);
 
     hr {
-      color: $base-lighter;
-      background-color: $base-lighter;
+      color: milmove_uswds.$base-lighter;
+      background-color: milmove_uswds.$base-lighter;
       height: 1px;
       border: 0;
     }
@@ -28,13 +25,13 @@
     h3,
     h4 {
       &:first-child {
-        @include u-margin-top(0);
+        @include milmove_uswds.u-margin-top(0);
       }
     }
 
     :global {
       .usa-card-group:first-child > .usa-card--header-first:first-child .usa-card__header {
-        @include u-padding-top(0);
+        @include milmove_uswds.u-padding-top(0);
       }
 
       .usa-card-group:last-child > .usa-card:last-child {
@@ -43,7 +40,7 @@
         }
 
         .usa-card__body {
-          @include u-padding-bottom(0);
+          @include milmove_uswds.u-padding-bottom(0);
         }
       }
     }

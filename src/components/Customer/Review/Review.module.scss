@@ -1,8 +1,6 @@
-@import 'shared/styles/_variables';
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
-@media (min-width: $tablet) {
+@media (min-width: milmove_uswds.$tablet) {
   .review-container {
     colgroup {
       col:first-of-type {
@@ -30,7 +28,7 @@
   }
 
   .review-header {
-    @include u-margin-bottom(3);
+    @include milmove_uswds.u-margin-bottom(3);
     display: flex;
     justify-content: space-between;
 
@@ -44,16 +42,16 @@
     table-layout: fixed;
     border-collapse: separate;
     border-radius: 4px;
-    border: 1px solid $base-lighter;
+    border: 1px solid milmove_uswds.$base-lighter;
     border-spacing: 0;
     width: 100%;
-    @include u-bg('white');
-    @include u-padding-left('05');
-    @include u-padding-right('05');
+    @include milmove_uswds.u-bg('white');
+    @include milmove_uswds.u-padding-left('05');
+    @include milmove_uswds.u-padding-right('05');
 
     th {
       font-weight: bold;
-      color: $base-darker;
+      color: milmove_uswds.$base-darker;
       vertical-align: top;
     }
 
@@ -62,15 +60,15 @@
       overflow-wrap: break-word;
     }
 
-    @media (min-width: $tablet) {
+    @media (min-width: milmove_uswds.$tablet) {
       border-color: white;
     }
 
-    @include at-media-max('tablet') {
+    @include milmove_uswds.at-media-max('tablet') {
       // avoid double drawing of top border
       tr:first-of-type {
         th, td {
-          @include u-border-top(0);
+          @include milmove_uswds.u-border-top(0);
         }
       }
     }
@@ -79,10 +77,10 @@
 }
 
 .table-divider-top {
-  @include u-padding-bottom('105');
+  @include milmove_uswds.u-padding-bottom('105');
 }
 
 .table-divider:first-of-type {
-  border-color: $base-light;
-  @include u-padding-bottom('05');
+  border-color: milmove_uswds.$base-light;
+  @include milmove_uswds.u-padding-bottom('05');
 }

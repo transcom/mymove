@@ -1,11 +1,9 @@
-@import '../../../shared/styles/basics';
-@import '../../../shared/styles/mixins';
-@import '../../../shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .DocViewerContent {
   height: 100%;
   position: relative;
-  @include u-bg('base-lighter');
+  @include milmove_uswds.u-bg('base-lighter');
 
   :global {
     .pdf-viewer-container {
@@ -45,9 +43,9 @@
     justify-content: center;
     align-items: center;
     svg {
-      @include u-margin-right(1);
+      @include milmove_uswds.u-margin-right(1);
     }
-    @include icon-hover-state;
+    @include milmove_uswds.icon-hover-state;
 
     button {
       display: flex;
@@ -62,14 +60,14 @@
   top: 50vh;
   display: flex;
   justify-content: space-between;
-  width: $contentWidth;
-  @include icon-hover-state;
+  width: milmove_uswds.$contentWidth;
+  @include milmove_uswds.icon-hover-state;
   .arrowButton {
-    @include u-padding(1.5);
-    @include u-margin(1);
+    @include milmove_uswds.u-padding(1.5);
+    @include milmove_uswds.u-margin(1);
     background: white;
-    @include u-radius('pill');
-    @include u-shadow(2);
+    @include milmove_uswds.u-radius('pill');
+    @include milmove_uswds.u-shadow(2);
   }
 }
 */

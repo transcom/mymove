@@ -1,6 +1,4 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .container {
   display: flex;
@@ -20,52 +18,52 @@
 
   h1 {
     font-size: 28px;
-    color: $base-darkest;
+    color: milmove_uswds.$base-darkest;
   }
 
   h2 {
     font-size: 22px;
-    color: $base;
-    @include u-margin-top(1.5);
+    color: milmove_uswds.$base;
+    @include milmove_uswds.u-margin-top(1.5);
   }
 
   .supertitle {
     font-size: 15px;
-    color: $base;
+    color: milmove_uswds.$base;
     font-weight: normal;
     text-transform: uppercase;
-    @include u-margin-bottom(2);
+    @include milmove_uswds.u-margin-bottom(2);
   }
 
   .header {
     display: flex;
     justify-content: space-between;
-    @include u-padding-y(3);
-    @include u-padding-left(4);
+    @include milmove_uswds.u-padding-y(3);
+    @include milmove_uswds.u-padding-left(4);
 
-    @include u-border-bottom('2px');
-    @include u-border-bottom('gray-10');
+    @include milmove_uswds.u-border-bottom('2px');
+    @include milmove_uswds.u-border-bottom('gray-10');
 
     .closeButton {
-      @include u-height(2);
-      @include u-padding(0);
+      @include milmove_uswds.u-height(2);
+      @include milmove_uswds.u-padding(0);
       svg {
-        @include u-width(2);
-        @include u-height(2);
+        @include milmove_uswds.u-width(2);
+        @include milmove_uswds.u-height(2);
         path {
-          fill: $primary;
+          fill: milmove_uswds.$primary;
         }
       }
     }
   }
 
   main {
-    background: $bg-gray;
+    background: milmove_uswds.$bg-gray;
     overflow-y: auto;
     overflow-x: hidden;
-    @include u-padding-x(4);
-    @include u-padding-top(3);
-    @include u-padding-bottom(5);
+    @include milmove_uswds.u-padding-x(4);
+    @include milmove_uswds.u-padding-top(3);
+    @include milmove_uswds.u-padding-bottom(5);
     height: 100%;
   }
 
@@ -73,18 +71,18 @@
     display: flex;
     align-items: center;
 
-    @include u-padding-y(2);
-    @include u-padding-left(4);
-    @include u-border-top('2px');
-    @include u-border-top('gray-10');
+    @include milmove_uswds.u-padding-y(2);
+    @include milmove_uswds.u-padding-left(4);
+    @include milmove_uswds.u-border-top('2px');
+    @include milmove_uswds.u-border-top('gray-10');
     margin-top: auto;
   }
 }
 
 .container:not(.defaultH3) h3 {
   font-size: 15px;
-  color: $base;
+  color: milmove_uswds.$base;
   font-weight: normal;
   text-transform: uppercase;
-  @include u-margin-top(0.5);
+  @include milmove_uswds.u-margin-top(0.5);
 }

@@ -1,4 +1,4 @@
-@import 'src/shared/styles/basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 
 .shipmentCards {
@@ -10,15 +10,15 @@
     flex-grow: 1;
     flex-shrink: 1;
     width: 100%;
-    @include u-margin-bottom(4);
+    @include milmove_uswds.u-margin-bottom(4);
 
-    @include at-media('tablet-lg') {
+    @include milmove_uswds.at-media('tablet-lg') {
       &:not(:only-child) {
         width: calc(50% - 1em);
         flex-grow: 0;
 
         &:nth-child(even) {
-          @include u-margin-left(4);
+          @include milmove_uswds.u-margin-left(4);
         }
       }
     }

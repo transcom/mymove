@@ -1,27 +1,24 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/_variables';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .Hint {
-  color: $base;
+  color: milmove_uswds.$base;
   font-size: 13px;
   line-height: 18px;
-  @include u-margin-top('105');
-  @include u-margin-bottom(0);
+  @include milmove_uswds.u-margin-top('105');
+  @include milmove_uswds.u-margin-bottom(0);
 
   p {
-    color: $base;
+    color: milmove_uswds.$base;
     font-size: 13px;
     line-height: 18px;
-    @include u-margin(0);
+    @include milmove_uswds.u-margin(0);
   }
 
   p + p {
-    @include u-margin-top('105');
+    @include milmove_uswds.u-margin-top('105');
   }
 }
 
 :global(.grid-row) + .Hint {
-  @include u-margin-top(3);
+  @include milmove_uswds.u-margin-top(3);
 }

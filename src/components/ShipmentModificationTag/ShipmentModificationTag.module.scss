@@ -1,7 +1,7 @@
-@import '../../shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ShipmentModificationTag {
-  background-color: $info-light;
+  background-color: milmove_uswds.$info-light;
   display: inline-block;
   font-size: 13px;
   line-height: 1.38;

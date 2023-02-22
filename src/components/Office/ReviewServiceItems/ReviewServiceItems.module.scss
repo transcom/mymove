@@ -1,6 +1,4 @@
-@import '../../../shared/styles/basics';
-@import '../../../shared/styles/mixins';
-@import '../../../shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ReviewServiceItems {
   flex-grow: 1;
@@ -13,57 +11,57 @@
     float: right;
     // on mobile the button becomes flexed so must override centering
     justify-content: flex-end;
-    @include u-padding(0);
+    @include milmove_uswds.u-padding(0);
     svg {
-      @include u-width(2);
-      @include u-height(2);
+      @include milmove_uswds.u-width(2);
+      @include milmove_uswds.u-height(2);
       path {
-        fill: $primary;
+        fill: milmove_uswds.$primary;
       }
     }
   }
 
   .eyebrowTitle {
-    @include u-text('base');
-    @include u-font-size('body', '3xs');
-    @include u-padding-top(1);
+    @include milmove_uswds.u-text('base');
+    @include milmove_uswds.u-font-size('body', '3xs');
+    @include milmove_uswds.u-padding-top(1);
   }
 
   .header {
-    @include u-margin-top(1);
-    @include u-margin-bottom(0);
+    @include milmove_uswds.u-margin-top(1);
+    @include milmove_uswds.u-margin-bottom(0);
   }
 
   .top {
-    @include u-padding(3);
-    @include u-padding-left(4);
-    @include u-bg('white');
-    @include u-border-bottom('2px');
-    @include u-border-bottom('gray-10');
-    @include u-height('auto');
+    @include milmove_uswds.u-padding(3);
+    @include milmove_uswds.u-padding-left(4);
+    @include milmove_uswds.u-bg('white');
+    @include milmove_uswds.u-border-bottom('2px');
+    @include milmove_uswds.u-border-bottom('gray-10');
+    @include milmove_uswds.u-height('auto');
   }
 
   .body {
-    @include u-padding-y(3);
-    @include u-padding-x(4);
-    background-color: $bg-gray;
-    @include u-overflow-y('auto');
+    @include milmove_uswds.u-padding-y(3);
+    @include milmove_uswds.u-padding-x(4);
+    background-color: milmove_uswds.$bg-gray;
+    @include milmove_uswds.u-overflow-y('auto');
     flex: 1 1 0;
     flex-basis: 0;
 
     :global .usa-alert {
-      @include u-margin-bottom(2);
+      @include milmove_uswds.u-margin-bottom(2);
     }
   }
 
   .bottom {
-    @include u-padding-x(3);
-    @include u-padding-y(1);
-    @include u-bg('white');
+    @include milmove_uswds.u-padding-x(3);
+    @include milmove_uswds.u-padding-y(1);
+    @include milmove_uswds.u-bg('white');
 
-    @include u-border-top('2px');
-    @include u-border-top('gray-10');
-    @include u-position('relative');
+    @include milmove_uswds.u-border-top('2px');
+    @include milmove_uswds.u-border-top('gray-10');
+    @include milmove_uswds.u-position('relative');
 
     display: flex;
     align-items: center;
@@ -75,16 +73,16 @@
       text-align: right;
 
       .totalLabel {
-        @include u-font-size('body', '3xs');
-        @include u-text('bold');
-        @include u-padding-top(1);
-        color: $base-darker;
+        @include milmove_uswds.u-font-size('body', '3xs');
+        @include milmove_uswds.u-text('bold');
+        @include milmove_uswds.u-padding-top(1);
+        color: milmove_uswds.$base-darker;
       }
 
       .totalAmount {
-        @include u-font-size('body', 'xs');
-        @include u-padding-bottom(1);
-        color: $base-darkest;
+        @include milmove_uswds.u-font-size('body', 'xs');
+        @include milmove_uswds.u-padding-bottom(1);
+        color: milmove_uswds.$base-darkest;
         flex-grow: 1;
       }
     }

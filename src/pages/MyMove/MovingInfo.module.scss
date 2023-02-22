@@ -1,48 +1,46 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
-@import 'shared/styles/_variables';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ShipmentsHeader {
-  @media (max-width: $tablet) {
+  @media (max-width: milmove_uswds.$tablet) {
     font-weight: bold;
   }
 }
 
 .IconSection {
-  @include u-margin-bottom(3);
+  @include milmove_uswds.u-margin-bottom(3);
 }
 
 .SectionIcon {
-  @include u-padding-right('205');
+  @include milmove_uswds.u-padding-right('205');
   width: 46px;
-  color: $base-light;
+  color: milmove_uswds.$base-light;
 
   svg {
     height: 26px;
 
-    @media (max-width: $tablet) {
+    @media (max-width: milmove_uswds.$tablet) {
       height: 20px;
     }
   }
 }
 
 .SectionContent {
-  @include u-padding-y('2px');
+  @include milmove_uswds.u-padding-y('2px');
 
   ul {
     margin-inline-start: 20px;
-    @include u-margin-y(0);
+    @include milmove_uswds.u-margin-y(0);
   }
 
   p {
-    @include u-margin-y(0);
+    @include milmove_uswds.u-margin-y(0);
 
-    @media (max-width: $tablet) {
+    @media (max-width: milmove_uswds.$tablet) {
       display: inline;
     }
 
     & + p {
-      @include u-margin-top(1);
+      @include milmove_uswds.u-margin-top(1);
     }
   }
 }
@@ -50,16 +48,16 @@
 .SectionHeadline {
   font-weight: bold;
   font-size: 1.1em;
-  @include u-margin-bottom(1);
+  @include milmove_uswds.u-margin-bottom(1);
 
-  @media (max-width: $tablet) {
+  @media (max-width: milmove_uswds.$tablet) {
     display: inline;
     font-size: 1em;
   }
 }
 
 .Wrapper {
-  @include u-margin-bottom(5);
+  @include milmove_uswds.u-margin-bottom(5);
 }
 
 .IconSectionList {

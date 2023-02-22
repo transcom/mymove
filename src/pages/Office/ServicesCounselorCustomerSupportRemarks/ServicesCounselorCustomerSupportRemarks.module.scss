@@ -1,21 +1,19 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .customerSupportRemarksContent {
   h1, h2, h3 {
-    color: $mm-blue;
+    color: milmove_uswds.$mm-blue;
   }
   h1 {
-    @include u-margin-bottom(4);
+    @include milmove_uswds.u-margin-bottom(4);
   }
   h2 {
-    @include u-margin-bottom(1.5);
+    @include milmove_uswds.u-margin-bottom(1.5);
   }
   h3 {
     font-size: 17px;
     line-height: 20px;
-    @include u-margin-bottom(1.5);
+    @include milmove_uswds.u-margin-bottom(1.5);
   }
 }
 
@@ -23,12 +21,12 @@
 }
 
 .customerSupportRemarksContainer {
-  @include u-padding-bottom(40px);
-  @include u-bg('white');
-  @include u-radius('05');
-  @include u-border('base-lighter');
-  @include u-border('1px');
-  @include u-padding(5);
-  @include u-margin-bottom(4);
+  @include milmove_uswds.u-padding-bottom(40px);
+  @include milmove_uswds.u-bg('white');
+  @include milmove_uswds.u-radius('05');
+  @include milmove_uswds.u-border('base-lighter');
+  @include milmove_uswds.u-border('1px');
+  @include milmove_uswds.u-padding(5);
+  @include milmove_uswds.u-margin-bottom(4);
 
 }

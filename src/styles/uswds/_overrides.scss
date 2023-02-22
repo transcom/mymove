@@ -245,17 +245,17 @@
 }
 
 .usa-radio__input:checked + .usa-radio__label::before {
-  box-shadow: 0 0 0 2px $primary, inset 0 0 0 2px white;
+  box-shadow: 0 0 0 2px milmove_colors.$primary, inset 0 0 0 2px white;
 }
 
 .usa-checkbox__label::before,
 .usa-radio__label::before {
-  box-shadow: 0 0 0 2px $primary;
+  box-shadow: 0 0 0 2px milmove_colors.$primary;
 }
 
 .usa-checkbox__input:checked + .usa-checkbox__label::before {
   background-color: milmove_colors.$primary;
-  box-shadow: 0 0 0 2px $primary;
+  box-shadow: 0 0 0 2px milmove_colors.$primary;
 }
 
 .usa-radio__input:checked + .usa-radio__label::before {
@@ -288,7 +288,7 @@
 }
 
 .usa-form-group.warning {
-  border-left: 0.26667rem $warning solid;
+  border-left: 0.26667rem milmove_colors.$warning solid;
   padding-left: 1.06667rem;
   position: relative;
 

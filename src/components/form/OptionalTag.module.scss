@@ -1,7 +1,7 @@
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 .OptionalTag {
   font-size: 13px;
-  color: $base;
+  color: milmove_uswds.$base;
   font-weight: normal;
   margin-top: 1.6rem;
 }

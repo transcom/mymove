@@ -1,14 +1,12 @@
-@import 'shared/styles/_variables';
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .serviceInfoContainer {
   .header {
     h2 {
       flex-shrink: 0;
-      @include u-margin(0);
-      @include at-media('desktop') {
-        @include u-padding-bottom(1);
+      @include milmove_uswds.u-margin(0);
+      @include milmove_uswds.at-media('desktop') {
+        @include milmove_uswds.u-padding-bottom(1);
       }
     }
 
@@ -17,35 +15,35 @@
   }
 
   .whoToContactContainer {
-    @include u-margin-top(1);
-    @include u-margin-bottom(3);
+    @include milmove_uswds.u-margin-top(1);
+    @include milmove_uswds.u-margin-bottom(3);
   }
 
   .serviceInfoSection {
     dl {
       dt {
-        @include u-width(33%);
+        @include milmove_uswds.u-width(33%);
       }
 
       dd {
-        @include u-width(67%);
+        @include milmove_uswds.u-width(67%);
       }
-      @include u-margin-bottom(0);
+      @include milmove_uswds.u-margin-bottom(0);
     }
   }
 
   a {
-    color: $link;
+    color: milmove_uswds.$link;
     text-decoration: none;
 
     &:visited {
-      color: $link;
+      color: milmove_uswds.$link;
     }
 
     &:hover,
     &:focus {
-      color: $link;
-      @include u-text('no-underline');
+      color: milmove_uswds.$link;
+      @include milmove_uswds.u-text('no-underline');
     }
   }
 }

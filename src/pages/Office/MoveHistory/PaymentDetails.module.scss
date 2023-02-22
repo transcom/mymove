@@ -1,5 +1,4 @@
-@import 'shared/styles/basics';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .PaymentDetails {
   .paymentAmount {
@@ -19,9 +18,9 @@
     justify-content: space-between;
   }
   .successCheck {
-    color: $success;
+    color: milmove_uswds.$success;
   }
   .rejectTimes {
-    color: $error;
+    color: milmove_uswds.$error;
   }
 }

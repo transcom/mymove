@@ -1,26 +1,24 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .detailLine {
-  @include u-font-size('body', '3xs');
+  @include milmove_uswds.u-font-size('body', '3xs');
 }
 
 // design called for thin semi bold which isn't a variant
 .detailType {
-  @include u-font-weight(600);
+  @include milmove_uswds.u-font-weight(600);
 }
 
 .customerContact {
-  @include u-margin-top(2);
+  @include milmove_uswds.u-margin-top(2);
 }
 
 .detailCrating {
   p {
-    @include u-margin-top(0);
+    @include milmove_uswds.u-margin-top(0);
   }
 }
 
 .detailCaption {
-  @include u-margin-left(3);
+  @include milmove_uswds.u-margin-left(3);
 }

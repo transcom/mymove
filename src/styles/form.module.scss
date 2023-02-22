@@ -1,21 +1,18 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/_variables';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .form {
   max-width: none;
 
   h2 {
-    @include typeset('body', 11, 2);
-    @include u-margin-y(4);
+    @include milmove_uswds.typeset('body', 11, 2);
+    @include milmove_uswds.u-margin-y(4);
   }
 
   legend {
     width: 100%;
     max-width: none;
-    @include u-text('bold');
-    @include typeset('body', 9, 2);
+    @include milmove_uswds.u-text('bold');
+    @include milmove_uswds.typeset('body', 9, 2);
 
     .legendContent {
       display: flex;
@@ -25,25 +22,25 @@
   }
 
   legend + :global(.usa-form-group .usa-label) {
-    @include u-margin-top(2);
+    @include milmove_uswds.u-margin-top(2);
   }
 
   legend + :global(.usa-form-group) p {
-    @include u-margin-top(3);
-    @include u-margin-bottom(1);
+    @include milmove_uswds.u-margin-top(3);
+    @include milmove_uswds.u-margin-bottom(1);
   }
 
   legend + :global(.usa-checkbox) {
-    @include u-margin-top(3);
+    @include milmove_uswds.u-margin-top(3);
   }
 
   legend + p {
-    @include u-margin-top('205');
+    @include milmove_uswds.u-margin-top('205');
     margin-bottom: 0;
   }
 
   :global(.usa-label) {
-    color: $base-darker;
+    color: milmove_uswds.$base-darker;
     font-size: 13px;
     line-height: 16px;
     font-weight: bold;
@@ -59,37 +56,37 @@
   .optional {
     font-size: 13px;
     line-height: 1.3;
-    color: $base;
+    color: milmove_uswds.$base;
     font-weight: normal;
   }
 
   fieldset {
-    @include u-padding-top(0);
-    @include u-margin-bottom(4);
-    @include u-padding-bottom(4);
-    border-bottom: 1px solid $base-lighter;
+    @include milmove_uswds.u-padding-top(0);
+    @include milmove_uswds.u-margin-bottom(4);
+    @include milmove_uswds.u-padding-bottom(4);
+    border-bottom: 1px solid milmove_uswds.$base-lighter;
 
-    @include at-media('tablet') {
+    @include milmove_uswds.at-media('tablet') {
       &:last-child {
-        @include u-padding-bottom(0);
-        @include u-margin-bottom(0);
+        @include milmove_uswds.u-padding-bottom(0);
+        @include milmove_uswds.u-margin-bottom(0);
         border-bottom: 0;
       }
     }
   }
 
   fieldset + fieldset {
-    @include u-margin-y(4);
+    @include milmove_uswds.u-margin-y(4);
   }
 
   fieldset fieldset {
-    @include u-margin(0);
-    @include u-padding(0);
-    @include u-border(0);
+    @include milmove_uswds.u-margin(0);
+    @include milmove_uswds.u-padding(0);
+    @include milmove_uswds.u-border(0);
   }
   > :global(.usa-form-group:first-of-type .usa-label),
   > :global(.usa-fieldset > .usa-form-group:first-of-type .usa-label) {
-    @include u-margin-top(1.5);
+    @include milmove_uswds.u-margin-top(1.5);
   }
 }
 
@@ -101,23 +98,23 @@
 }
 
 .formSection {
-  @include u-margin-y(4);
+  @include milmove_uswds.u-margin-y(4);
 
   + .formSection {
-    @include u-margin-top(5);
+    @include milmove_uswds.u-margin-top(5);
   }
 
   &:last-of-type {
-    @include u-margin-bottom(6);
+    @include milmove_uswds.u-margin-bottom(6);
   }
 
   > :global(.usa-form-group:first-of-type .usa-label),
   > :global(.usa-fieldset > .usa-form-group:first-of-type .usa-label) {
-    @include u-margin-top('105');
+    @include milmove_uswds.u-margin-top('105');
   }
 
   > :global(p + .usa-form-group:first-of-type .usa-label) {
-    @include u-margin-top(2)
+    @include milmove_uswds.u-margin-top(2)
   }
 
   > :global(.usa-form-group:first-child .usa-label),
@@ -125,46 +122,46 @@
   > :global(.usa-form-group.warning :first-child),
   > :global(.usa-form-group.warning:first-of-type .usa-label),
   > :global(.usa-form-group.usa-form-group--error:first-of-type .usa-label) {
-    @include u-margin-top(0);
+    @include milmove_uswds.u-margin-top(0);
   }
 
   > :global(.usa-form-group.warning) {
-    @include at-media("desktop") {
-      @include u-margin-left(-2.5);
+    @include milmove_uswds.at-media("desktop") {
+      @include milmove_uswds.u-margin-left(-2.5);
     }
   }
 
-  @include at-media('tablet') {
-    @include u-margin-y(3);
+  @include milmove_uswds.at-media('tablet') {
+    @include milmove_uswds.u-margin-y(3);
 
     + .formSection {
-      @include u-margin-top(3);
+      @include milmove_uswds.u-margin-top(3);
     }
   }
 }
 
 p + .radioGroup {
-  @include u-margin-top('neg-05');
+  @include milmove_uswds.u-margin-top('neg-05');
 }
 
 .radioGroup {
   display: flex;
 
   > * + * {
-    @include u-margin-left(5);
+    @include milmove_uswds.u-margin-left(5);
   }
 
   :global(.usa-radio__label) {
     // 42px tall touch area
     padding-top: 10px;
     padding-bottom: 10px;
-    @include u-margin-y(0);
+    @include milmove_uswds.u-margin-y(0);
   }
 }
 
 .formActions {
-  @include u-margin-top(3);
-  @include u-margin-bottom(6);
+  @include milmove_uswds.u-margin-top(3);
+  @include milmove_uswds.u-margin-bottom(6);
 }
 
 .remarks {
@@ -173,5 +170,5 @@ p + .radioGroup {
 }
 
 .pBeforeFormGroup {
-  @include u-margin-bottom(0)
+  @include milmove_uswds.u-margin-bottom(0)
 }

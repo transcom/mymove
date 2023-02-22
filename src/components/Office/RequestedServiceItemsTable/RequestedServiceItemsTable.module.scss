@@ -1,11 +1,9 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .RequestedServiceItemsTable {
   h4 {
     span {
-      @include u-font-weight(normal);
+      @include milmove_uswds.u-font-weight(normal);
     }
   }
 
@@ -15,16 +13,16 @@
     }
 
     dl {
-      @include u-margin-top(0);
+      @include milmove_uswds.u-margin-top(0);
     }
 
     dt,
     dd {
-      @include u-display(inline);
+      @include milmove_uswds.u-display(inline);
     }
 
     dd {
-      @include u-margin-left(0);
+      @include milmove_uswds.u-margin-left(0);
     }
   }
 }

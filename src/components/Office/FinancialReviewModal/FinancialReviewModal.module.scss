@@ -1,5 +1,4 @@
-@import 'shared/styles/colors.scss';
-@import 'shared/styles/basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .FinancialReviewModal {
   overflow-y: auto;
@@ -19,6 +18,6 @@
   }
 
   .CancelButton {
-    @include u-bg('transparent');
+    @include milmove_uswds.u-bg('transparent');
   }
 }

@@ -1,14 +1,13 @@
-@import 'shared/styles/colors';
-@import 'shared/styles/_basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .contactContainer {
   border-radius: 5px;
-  border: 1px solid $base-lighter;
-  @include u-padding-top(2);
-  @include u-padding-left(2);
-  @include u-padding-right(2);
-  @include u-padding-bottom(3);
-  @include u-bg('white');
+  border: 1px solid milmove_uswds.$base-lighter;
+  @include milmove_uswds.u-padding-top(2);
+  @include milmove_uswds.u-padding-left(2);
+  @include milmove_uswds.u-padding-right(2);
+  @include milmove_uswds.u-padding-bottom(3);
+  @include milmove_uswds.u-bg('white');
 
   h6 {
     margin-top: 0px;
@@ -27,6 +26,6 @@
 }
 
 .contactHeader {
-  @include u-margin-bottom(1);
+  @include milmove_uswds.u-margin-bottom(1);
   text-transform: uppercase;
 }

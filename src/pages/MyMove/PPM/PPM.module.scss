@@ -1,9 +1,7 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_variables';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ppmPageStyle {
-  @include at-media('tablet') {
-    @include u-margin-top(2.5);
+  @include milmove_uswds.at-media('tablet') {
+    @include milmove_uswds.u-margin-top(2.5);
   }
 }

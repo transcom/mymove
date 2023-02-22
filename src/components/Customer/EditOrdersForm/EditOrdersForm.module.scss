@@ -1,12 +1,11 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors.scss';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .EditOrdersForm {
   .calloutLabel {
-    @include u-margin-top(5);
-    @include u-margin-bottom(1);
+    @include milmove_uswds.u-margin-top(5);
+    @include milmove_uswds.u-margin-bottom(1);
     font-size: 17px;
     line-height: 20px;
-    color: $base-darkest;
+    color: milmove_uswds.$base-darkest;
   }
 }

@@ -1,9 +1,7 @@
-@import 'shared/styles/basics';
-@import 'shared/styles/mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .FinancialReviewButton {
-  @include u-padding-left(0);
+  @include milmove_uswds.u-padding-left(0);
 }
 
 .EditFinancialReviewContainer {
@@ -15,10 +13,10 @@
 }
 
 .EditFinancialReviewButton {
-  @include u-padding-left(1);
-  @include u-padding-top(0);
+  @include milmove_uswds.u-padding-left(1);
+  @include milmove_uswds.u-padding-top(0);
 }
 
 .FinancialReviewTag {
-  background-color: $info-light !important;
+  background-color: milmove_uswds.$info-light !important;
 }

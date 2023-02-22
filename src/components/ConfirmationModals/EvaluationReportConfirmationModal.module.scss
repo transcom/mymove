@@ -1,15 +1,14 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .evaluationReportModal {
   min-width: 1200px !important;
   overflow-y: auto;
   max-height: 90vh;
-  @include u-padding(4 !important);
-  @include u-margin-bottom(4 !important);
+  @include milmove_uswds.u-padding(4 !important);
+  @include milmove_uswds.u-margin-bottom(4 !important);
 }
 
 .titleSection {
-  @include u-margin-top(4);
-  @include u-margin-right(0);
+  @include milmove_uswds.u-margin-top(4);
+  @include milmove_uswds.u-margin-right(0);
 }

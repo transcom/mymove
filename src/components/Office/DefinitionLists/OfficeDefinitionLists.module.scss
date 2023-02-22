@@ -1,5 +1,4 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .OfficeDefinitionLists {
   // remove browser defaults
@@ -16,9 +15,9 @@
   }
 
   .missingInfoError {
-    color: $error;
-    @include u-border-left(0.5); //4px
-    @include u-border-left('error');
-    @include u-font-weight(bold);
+    color: milmove_uswds.$error;
+    @include milmove_uswds.u-border-left(0.5); //4px
+    @include milmove_uswds.u-border-left('error');
+    @include milmove_uswds.u-font-weight(bold);
   }
 }

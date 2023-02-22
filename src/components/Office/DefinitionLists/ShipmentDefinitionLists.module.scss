@@ -1,54 +1,51 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/_variables';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ShipmentDefinitionLists {
   .missingInfoError {
     dt {
-      @include u-border-left(0.5); //4px
-      @include u-border-left('error');
+      @include milmove_uswds.u-border-left(0.5); //4px
+      @include milmove_uswds.u-border-left('error');
     }
     // These first-child styles added here since the descriptionList compact
     // display removes the border.
     dt:first-child {
-      @include u-border-left(0.5); //4px
-      @include u-padding-left(0.5); // Adjust padding so that content still ines up
+      @include milmove_uswds.u-border-left(0.5); //4px
+      @include milmove_uswds.u-padding-left(0.5); // Adjust padding so that content still ines up
     }
 
     dd {
-      color: $error;
+      color: milmove_uswds.$error;
       font-weight: bold;
     }
   }
 
   .warning {
     dt {
-      border-left: 4px solid $mm-gold;
+      border-left: 4px solid milmove_uswds.$mm-gold;
     }
     // These first-child styles added here since the descriptionList compact
     // display removes the border.
     dt:first-child {
-      @include u-border-left(0.5); //4px
-      @include u-padding-left(0.5); // Adjust padding so that content still ines up
+      @include milmove_uswds.u-border-left(0.5); //4px
+      @include milmove_uswds.u-padding-left(0.5); // Adjust padding so that content still ines up
     }
   }
 }
 
 .evaluationReportDLContainer {
-  @include u-padding-left(12px);
-  @include u-padding-right(12px);
+  @include milmove_uswds.u-padding-left(12px);
+  @include milmove_uswds.u-padding-right(12px);
 }
 
 .evaluationReportDL {
-  @include u-margin-left(0 !important);
-  @include u-margin-right(0 !important);
+  @include milmove_uswds.u-margin-left(0 !important);
+  @include milmove_uswds.u-margin-right(0 !important);
 }
 
 .sideBySideContainer {
   display: flex;
   justify-content: space-between;
-  @include u-padding-left(1);
+  @include milmove_uswds.u-padding-left(1);
   dd {
     font-size: 13px;
     width: 106px;
@@ -64,7 +61,7 @@
 }
 
 .ppmRightLonerDataRow {
-  border-bottom-color: $base-lighter;
+  border-bottom-color: milmove_uswds.$base-lighter;
   border-bottom-width: 1px !important;
   border-bottom-style: solid;
 }

@@ -1,16 +1,14 @@
-@import '../../shared/styles/basics';
-@import '../../shared/styles/mixins';
-@import '../../shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .dataTable {
   .table--small {
     th {
-      @include u-padding-x(1);
+      @include milmove_uswds.u-padding-x(1);
     }
   }
 
   td {
-    @include u-padding-x(1);
+    @include milmove_uswds.u-padding-x(1);
     white-space: pre-wrap;
   }
 
@@ -24,7 +22,7 @@
   }
 
   svg {
-    @include u-margin-right(2);
+    @include milmove_uswds.u-margin-right(2);
     flex-shrink: 0;
     fill: #000000;
     width: 15px;

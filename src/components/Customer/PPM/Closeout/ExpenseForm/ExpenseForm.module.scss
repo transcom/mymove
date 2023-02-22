@@ -1,4 +1,4 @@
-@import 'shared/styles/_basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ExpenseForm {
   :global(.usa-select) {
@@ -6,18 +6,18 @@
   }
 
   :global(.usa-checkbox) {
-    @include u-margin-bottom(2);
+    @include milmove_uswds.u-margin-bottom(2);
   }
 
   .labelWrapper {
-    @include u-margin-top(3);
+    @include milmove_uswds.u-margin-top(3);
   }
 
   .uploadInstructions {
-    @include u-margin-bottom(1);
+    @include milmove_uswds.u-margin-bottom(1);
   }
 
   .storageTotal {
-    @include u-margin-bottom(0);
+    @include milmove_uswds.u-margin-bottom(0);
   }
 }

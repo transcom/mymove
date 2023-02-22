@@ -1,16 +1,12 @@
-@import 'shared/styles/basics';
-@import 'shared/styles/mixins';
-@import 'shared/styles/variables';
-@import 'shared/styles/colors';
-@import 'shared/styles/overrides';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .approvalPreviewModal {
   min-width: 100%;
   width: 100%;
-  @include u-margin-top(10);
-  @include u-border('base-light');
-  @include u-border('05');
-  @include u-padding(4);
+  @include milmove_uswds.u-margin-top(10);
+  @include milmove_uswds.u-border('base-light');
+  @include milmove_uswds.u-border('05');
+  @include milmove_uswds.u-padding(4);
   overflow-x: hidden;
   overflow-y: auto;
   max-height: 100vh;
@@ -20,35 +16,35 @@
   }
 
   button[type='submit'] {
-    @include u-margin-left(0);
+    @include milmove_uswds.u-margin-left(0);
   }
 
   .previewContainer {
-    @include u-margin-bottom(5);
+    @include milmove_uswds.u-margin-bottom(5);
     h2 {
-      @include u-margin-bottom(2);
-      @include u-margin-top(2);
+      @include milmove_uswds.u-margin-bottom(2);
+      @include milmove_uswds.u-margin-top(2);
     }
 
     h3 {
-      @include u-margin-top(2);
-      @include u-margin-bottom(4);
+      @include milmove_uswds.u-margin-top(2);
+      @include milmove_uswds.u-margin-bottom(4);
     }
     @media (max-width: 700px) {
-      @include u-margin(0);
-      @include u-padding(1);
+      @include milmove_uswds.u-margin(0);
+      @include milmove_uswds.u-padding(1);
     }
   }
 
   .basicMoveDetails {
-    @include u-padding-y(4);
+    @include milmove_uswds.u-padding-y(4);
 
     h4:not(:first-of-type) {
-      @include u-margin-top(3);
+      @include milmove_uswds.u-margin-top(3);
     }
   }
   @media (max-width: 700px) {
-    @include u-padding(1);
+    @include milmove_uswds.u-padding(1);
   }
   @media (min-width: 700px) {
     min-width: 50rem;
@@ -59,31 +55,31 @@
 }
 
 .previewShipments {
-  @include u-margin-x(0);
-  @include u-margin-bottom(4);
+  @include milmove_uswds.u-margin-x(0);
+  @include milmove_uswds.u-margin-bottom(4);
 
   .innerWrapper {
-    @include u-margin-left(2);
+    @include milmove_uswds.u-margin-left(2);
     @media (max-width: 700px) {
-      @include u-margin-left(0);
+      @include milmove_uswds.u-margin-left(0);
     }
   }
 }
 
 .customerName {
-  @include u-margin-bottom(0);
+  @include milmove_uswds.u-margin-bottom(0);
 }
 
 .containerTop {
-  @include u-margin-bottom(2);
+  @include milmove_uswds.u-margin-bottom(2);
   .approvalClose {
-    @include u-float('right');
-    @include u-padding-right(0);
+    @include milmove_uswds.u-float('right');
+    @include milmove_uswds.u-padding-right(0);
     cursor: pointer;
     svg {
       width: 24px;
       height: 24px;
-      color: $base;
+      color: milmove_uswds.$base;
     }
   }
 }
@@ -97,33 +93,33 @@
 }
 
 .shipmentInfo {
-  @include u-border-top('1px');
-  @include u-border-top('base-lighter');
+  @include milmove_uswds.u-border-top('1px');
+  @include milmove_uswds.u-border-top('base-lighter');
 }
 
 .shipmentServiceItems {
-  @include u-margin-right(2);
-  @include u-margin-top(0);
-  @include u-margin-left(4);
+  @include milmove_uswds.u-margin-right(2);
+  @include milmove_uswds.u-margin-top(0);
+  @include milmove_uswds.u-margin-left(4);
   flex: 1 1 0;
 }
 
 .previewContainer {
-  @include u-padding-top(0);
-  @include u-padding-left(4);
-  @include u-padding-right(4);
-  @include u-margin-x(0);
+  @include milmove_uswds.u-padding-top(0);
+  @include milmove_uswds.u-padding-left(4);
+  @include milmove_uswds.u-padding-right(4);
+  @include milmove_uswds.u-margin-x(0);
   border-radius: 3px;
   border: 1px solid #dfe1e2;
 
   h4 {
-    @include u-margin-top(2);
-    @include u-margin-bottom(2);
+    @include milmove_uswds.u-margin-top(2);
+    @include milmove_uswds.u-margin-bottom(2);
   }
 
   .basicServiceItemsTable {
-    @include u-margin-bottom(3);
-    @include u-width(100%);
+    @include milmove_uswds.u-margin-bottom(3);
+    @include milmove_uswds.u-width(100%);
   }
 
   table {
@@ -131,19 +127,19 @@
   }
 
   .shipmentTypeHeading {
-    @include u-display(flex);
+    @include milmove_uswds.u-display(flex);
     align-items: flex-start;
 
     :global(.usa-tag) {
-      @include u-font-size('body', 3xs);
-      background-color: $info-light;
-      @include u-margin-top(2);
-      @include u-margin-left(1);
+      @include milmove_uswds.u-font-size('body', 3xs);
+      background-color: milmove_uswds.$info-light;
+      @include milmove_uswds.u-margin-top(2);
+      @include milmove_uswds.u-margin-left(1);
     }
   }
 
   .shipmentDetailWrapper {
-    @include u-display(flex);
+    @include milmove_uswds.u-display(flex);
     align-items: flex-start; // prevents the child table rows from stretching to match service item height
     @media (max-width: 700px) {
       flex-direction: column;
@@ -152,13 +148,13 @@
 
   :global .stackedtable-header {
     h4 {
-      @include u-margin-bottom(2);
+      @include milmove_uswds.u-margin-bottom(2);
       max-width: 100%;
     }
   }
   @media (max-width: 700px) {
     :global(.container) {
-      @include u-margin(0);
+      @include milmove_uswds.u-margin(0);
       width: 100%;
     }
   }

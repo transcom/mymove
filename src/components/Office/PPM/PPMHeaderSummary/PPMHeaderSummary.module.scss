@@ -1,21 +1,20 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .PPMHeaderSummary {
     .header {
         :global(.usa-label) {
             width: auto;
             display: inline-block;
-            @include u-margin-top(.5);
-            @include u-margin-right(1);
+            @include milmove_uswds.u-margin-top(.5);
+            @include milmove_uswds.u-margin-right(1);
         }
     }
 
     section {
-        color: $base-darker;
+        color: milmove_uswds.$base-darker;
     }
 
     .light {
-        @include u-font('body', '3xs');
+        @include milmove_uswds.u-font('body', '3xs');
     }
 }

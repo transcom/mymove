@@ -1,33 +1,31 @@
-@import 'shared/styles/basics';
-@import 'shared/styles/mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .shipmentHeading {
   .shipmentHeadingType {
-    @include u-display(flex);
-    @include u-padding-top(2);
-    @include u-margin-bottom(1);
+    @include milmove_uswds.u-display(flex);
+    @include milmove_uswds.u-padding-top(2);
+    @include milmove_uswds.u-margin-bottom(1);
     align-items: center;
 
     h2 {
-      @include u-margin-y(0);
+      @include milmove_uswds.u-margin-y(0);
     }
 
     :global(.usa-tag) {
-      @include u-font-size('body', 3xs);
-      @include u-margin-left(1);
-      background-color: $info-light;
+      @include milmove_uswds.u-font-size('body', 3xs);
+      @include milmove_uswds.u-margin-left(1);
+      background-color: milmove_uswds.$info-light;
     }
 
     :global(.usa-tag--red) {
-      @include u-font-size('body', 3xs);
-      @include u-margin-left(1);
-      background-color: $error-light;
+      @include milmove_uswds.u-font-size('body', 3xs);
+      @include milmove_uswds.u-margin-left(1);
+      background-color: milmove_uswds.$error-light;
     }
   }
 
   small {
-    @include u-text('base-light');
+    @include milmove_uswds.u-text('base-light');
   }
 
   .row {
@@ -35,13 +33,13 @@
     justify-content: space-between;
 
     button {
-      color: $link;
+      color: milmove_uswds.$link;
       padding: 2px 8px;
       font-size: 13px;
     }
 
     span {
-      background-color: $base-dark;
+      background-color: milmove_uswds.$base-dark;
       text-transform: uppercase;
       border-radius: 2px;
       color: #ffffff;

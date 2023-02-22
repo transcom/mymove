@@ -1,14 +1,12 @@
-@import 'shared/styles/_variables';
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .contactInfoContainer {
   .contactInfoHeader {
     h2 {
       flex-shrink: 0;
-      @include u-margin(0);
-      @include at-media('desktop') {
-        @include u-padding-bottom(1);
+      @include milmove_uswds.u-margin(0);
+      @include milmove_uswds.at-media('desktop') {
+        @include milmove_uswds.u-padding-bottom(1);
       }
     }
 
@@ -18,18 +16,18 @@
 
   .contactInfoSection {
     h3 {
-      @include u-margin-top(3);
+      @include milmove_uswds.u-margin-top(3);
     }
 
     dl {
       dt {
-        @include u-width(33%);
+        @include milmove_uswds.u-width(33%);
       }
 
       dd {
-        @include u-width(67%);
+        @include milmove_uswds.u-width(67%);
       }
-      @include u-margin-bottom(0);
+      @include milmove_uswds.u-margin-bottom(0);
     }
   }
 }

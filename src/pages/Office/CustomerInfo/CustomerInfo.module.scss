@@ -1,5 +1,5 @@
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .customerInfoPage {
-  background: $bg-gray;
+  background: milmove_uswds.$bg-gray;
 }

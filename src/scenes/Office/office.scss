@@ -1,5 +1,4 @@
-@import 'shared/styles/colors.scss';
-@import './officeQueueDaypicker.scss';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .queue-heading {
   margin-top: 0;
@@ -492,11 +491,11 @@ head .panel-subhead {
 }
 
 .clock-icon {
-  color: $color-gold;
+  color: milmove_uswds.$color-gold;
 }
 
 .bang-icon {
-  color: $color-red;
+  color: milmove_uswds.$color-red;
 }
 
 .editable-panel-column .missing-info-alert {
@@ -504,5 +503,5 @@ head .panel-subhead {
 }
 
 header.nav-header {
-  border-bottom: 1px solid $base-lighter;
+  border-bottom: 1px solid milmove_uswds.$base-lighter;
 }

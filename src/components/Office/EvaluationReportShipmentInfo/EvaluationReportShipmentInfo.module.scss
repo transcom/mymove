@@ -1,27 +1,25 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .qaeAndCustomerInfo {
-  @include u-margin-top(68px);
-  @include u-width(218px);
+  @include milmove_uswds.u-margin-top(68px);
+  @include milmove_uswds.u-width(218px);
   th, td {
     min-width: 218px !important;
   }
 }
 
 .cardContainer {
-  @include u-padding-bottom(40px);
+  @include milmove_uswds.u-padding-bottom(40px);
   max-width: 960px;
   width: 960px;
-  @include u-bg('white');
-  @include u-radius('05');
-  @include u-border('base-lighter');
-  @include u-border('1px');
-  @include u-padding-top(4);
-  @include u-padding-left(0);
-  @include u-padding-right(0);
-  @include u-margin-bottom(4);
+  @include milmove_uswds.u-bg('white');
+  @include milmove_uswds.u-radius('05');
+  @include milmove_uswds.u-border('base-lighter');
+  @include milmove_uswds.u-border('1px');
+  @include milmove_uswds.u-padding-top(4);
+  @include milmove_uswds.u-padding-left(0);
+  @include milmove_uswds.u-padding-right(0);
+  @include milmove_uswds.u-margin-bottom(4);
 }
 
 .sidebySideContainer {

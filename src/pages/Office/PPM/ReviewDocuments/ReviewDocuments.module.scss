@@ -1,5 +1,4 @@
-@import 'shared/styles/colors.scss';
-@import 'shared/styles/_mixins.scss';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .ReviewDocuments {
   display: flex;
@@ -20,7 +19,7 @@
 }
 
 .sidebarBody {
-  background-color: $base-lightest;
+  background-color: milmove_uswds.$base-lightest;
   flex-basis: auto;
 }
 

@@ -1,6 +1,4 @@
-@import '../../shared/styles/basics';
-@import '../../shared/styles/mixins';
-@import '../../shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .DocumentViewer {
   position: relative;
@@ -13,13 +11,13 @@
     background: rgba(255, 255, 255, 0.75);
     display: flex;
     justify-content: flex-start;
-    @include icon-hover-state;
-    @include u-padding-x(1); // Additional padding is built into the buttons
+    @include milmove_uswds.icon-hover-state;
+    @include milmove_uswds.u-padding-x(1); // Additional padding is built into the buttons
     z-index: 98;
 
     .documentTitle {
-      @include u-text('bold');
-      color: $base-darkest;
+      @include milmove_uswds.u-text('bold');
+      color: milmove_uswds.$base-darkest;
       display: flex;
       flex-grow: 1;
       min-width: 0;
@@ -31,8 +29,8 @@
         padding-right: 3px;
       }
       span:last-child {
-        @include u-font-weight(normal);
-        color: $base;
+        @include milmove_uswds.u-font-weight(normal);
+        color: milmove_uswds.$base;
         white-space: nowrap;
       }
     }
@@ -48,7 +46,7 @@
     }
 
     button svg:not(:only-child) {
-      @include u-margin-left(1);
+      @include milmove_uswds.u-margin-left(1);
     }
   }
 }
@@ -60,5 +58,5 @@
   width: 100%;
   height: 100%;
   z-index: 99;
-  background-color: rgba($base-darkest, 0.7);
+  background-color: rgba(milmove_uswds.$base-darkest, 0.7);
 }

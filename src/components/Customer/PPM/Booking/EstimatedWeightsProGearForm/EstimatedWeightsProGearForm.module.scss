@@ -1,9 +1,7 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_variables';
-@import 'shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .EstimatedWeightsProGearForm {
   svg {
-    color: $link;
+    color: milmove_uswds.$link;
   }
 }

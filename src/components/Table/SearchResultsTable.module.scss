@@ -1,28 +1,26 @@
-@import '../../shared/styles/basics';
-@import '../../shared/styles/mixins';
-@import '../../shared/styles/colors';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .SearchResultsTable {
-  @include u-display(flex);
-  @include u-margin-x(0);
-  @include u-padding-x(0);
+  @include milmove_uswds.u-display(flex);
+  @include milmove_uswds.u-margin-x(0);
+  @include milmove_uswds.u-padding-x(0);
   flex-direction: column;
   flex: auto;
 
   p {
-    @include u-margin(0);
-    @include u-padding-left(0.5);
+    @include milmove_uswds.u-margin(0);
+    @include milmove_uswds.u-padding-left(0.5);
   }
 
   h2 {
-    @include u-margin-top(4);
-    @include u-margin-bottom(2);
-    @include u-padding-left(0.5);
+    @include milmove_uswds.u-margin-top(4);
+    @include milmove_uswds.u-margin-bottom(2);
+    @include milmove_uswds.u-padding-left(0.5);
   }
 
   .tableContainer {
     flex: auto;
-    @include u-margin-top(1);
+    @include milmove_uswds.u-margin-top(1);
     width: 100%;
     overflow-x: auto;
   }

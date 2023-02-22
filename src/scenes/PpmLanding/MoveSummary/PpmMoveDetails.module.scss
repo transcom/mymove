@@ -1,8 +1,8 @@
-@import 'shared/styles/themes.scss';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .subText{
   fontSize: '0.90em';
-  color: $subtext;
+  color: milmove_uswds.$subtext;
 }
 .payment-details{
   margin-top: 1em;

@@ -1,8 +1,8 @@
-@import 'shared/styles/basics';
+@use 'styles/uswds/milmove' as milmove_uswds;
 
 .CreateShipmentServiceItemForm {
   form :global .usa-label {
-    @include u-display(flex);
+    @include milmove_uswds.u-display(flex);
     justify-content: space-between;
   }
 }
