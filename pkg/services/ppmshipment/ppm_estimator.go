@@ -56,6 +56,15 @@ func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShi
 }
 
 func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment, originalTotalWeight unit.Pound, newTotalWeight unit.Pound) bool {
+	//Check if weight tickets are present in new PPM - if so check for AdjustedNetWeight value
+	if len(newPPMShipment.WeightTickets) > 0 {
+		for _, weightTicket := range newPPMShipment.WeightTickets {
+			if weightTicket.AdjustedNetWeight != nil {
+				return false
+			}
+		}
+	}
+
 	// if oldPPMShipment field value is nil we know that the value has been updated and we should return false
 	return (oldPPMShipment.ActualMoveDate != nil && newPPMShipment.ActualMoveDate.Equal(*oldPPMShipment.ActualMoveDate)) &&
 		(oldPPMShipment.ActualPickupPostalCode != nil && *newPPMShipment.ActualPickupPostalCode == *oldPPMShipment.ActualPickupPostalCode) &&
