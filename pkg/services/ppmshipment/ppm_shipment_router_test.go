@@ -407,6 +407,7 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 				Status: &rejected,
 			},
 		})
+		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
 		movingExpense := testdatagen.MakeDefaultMovingExpense(suite.DB())
 		progear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
 
@@ -423,6 +424,7 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 
 	suite.Run("Update PPMShipment Status to WAITING_ON_CUSTOMER when there are rejected  progear weight tickets", func() {
 		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
 		rejected := models.PPMDocumentStatusRejected
 		progear := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
 			ProgearWeightTicket: models.ProgearWeightTicket{
@@ -445,6 +447,7 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 
 	suite.Run("Update PPMShipment Status to WAITING_ON_CUSTOMER when there are rejected  moving expenses", func() {
 		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
 		rejected := models.PPMDocumentStatusRejected
 		movingExpense := testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
 			MovingExpense: models.MovingExpense{
@@ -467,6 +470,7 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 
 	suite.Run("Update PPMShipment Status to PAYMENT_APPROVED when there are no rejected PPM Documents", func() {
 		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
 		movingExpense := testdatagen.MakeDefaultMovingExpense(suite.DB())
 		progear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
 		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
@@ -481,4 +485,73 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 			suite.Equal(models.PPMShipmentStatusPaymentApproved, ppmShipment.Status)
 		}
 	})
+
+	statusFailureTestCases := map[models.PPMShipmentStatus]func() models.PPMShipment{
+		models.PPMShipmentStatusDraft: func() models.PPMShipment {
+			return testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+				MTOShipment: models.MTOShipment{
+					ID:     uuid.Must(uuid.NewV4()),
+					Status: models.MTOShipmentStatusDraft,
+				},
+				Stub: true,
+			})
+		},
+		models.PPMShipmentStatusSubmitted: func() models.PPMShipment {
+			return testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{Stub: true})
+		},
+		models.PPMShipmentStatusWaitingOnCustomer: func() models.PPMShipment {
+			return testdatagen.MakeApprovedPPMShipmentWithActualInfo(suite.DB(), testdatagen.Assertions{Stub: true})
+		},
+		models.PPMShipmentStatusPaymentApproved: func() models.PPMShipment {
+			return testdatagen.MakeApprovedPPMShipmentWithActualInfo(
+				suite.DB(),
+				testdatagen.Assertions{
+					Stub: true,
+					PPMShipment: models.PPMShipment{
+						Status: models.PPMShipmentStatusPaymentApproved,
+					},
+				},
+			)
+		},
+		models.PPMShipmentStatusNeedsAdvanceApproval: func() models.PPMShipment {
+			return testdatagen.MakeApprovedPPMShipmentWithActualInfo(
+				suite.DB(),
+				testdatagen.Assertions{
+					Stub: true,
+					PPMShipment: models.PPMShipment{
+						Status: models.PPMShipmentStatusNeedsAdvanceApproval,
+					},
+				},
+			)
+		},
+	}
+
+	for currentStatus, makePPMShipment := range statusFailureTestCases {
+		currentStatus := currentStatus
+		makePPMShipment := makePPMShipment
+
+		suite.Run(fmt.Sprintf("Can't set status to %s if it is currently %s", models.PPMShipmentStatusNeedsPaymentApproval, currentStatus), func() {
+			ppmShipment := makePPMShipment()
+
+			ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
+
+			err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment)
+
+			if suite.Error(err) {
+				suite.IsType(apperror.ConflictError{}, err)
+				suite.Contains(
+					err.Error(),
+					fmt.Sprintf(
+						"PPM shipment documents cannot be submitted because it's not in the %s status.",
+						models.PPMShipmentStatusNeedsPaymentApproval,
+					),
+				)
+
+				suite.Equal(currentStatus, ppmShipment.Status)
+			}
+		})
+	}
 }
