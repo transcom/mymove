@@ -27,6 +27,9 @@ const ServicesCounselorCustomerSupportRemarks = lazy(() =>
 );
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const ReviewDocuments = lazy(() => import('pages/Office/PPM/ReviewDocuments/ReviewDocuments'));
+const ServicesCounselingReviewShipmentWeights = lazy(() =>
+  import('pages/Office/ServicesCounselingReviewShipmentWeights/ServicesCounselingReviewShipmentWeights'),
+);
 
 const ServicesCounselingMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = useState(0);
@@ -174,6 +177,12 @@ const ServicesCounselingMoveInfo = () => {
               // eslint-disable-next-line react/jsx-props-no-spreading
               <ReviewDocuments {...props} onUpdate={onInfoSavedUpdate} />
             )}
+          />
+
+          <Route
+            path={servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH}
+            exact
+            render={() => <ServicesCounselingReviewShipmentWeights moveCode={moveCode} />}
           />
 
           {/* TODO - clarify role/tab access */}

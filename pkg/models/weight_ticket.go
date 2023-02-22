@@ -35,6 +35,8 @@ type WeightTicket struct {
 	ProofOfTrailerOwnershipDocument   Document           `belongs_to:"documents" fk_id:"proof_of_trailer_ownership_document_id"`
 	Status                            *PPMDocumentStatus `json:"status" db:"status"`
 	Reason                            *string            `json:"reason" db:"reason"`
+	AdjustedNetWeight                 *unit.Pound        `json:"adjusted_net_weight" db:"adjusted_net_weight"`
+	NetWeightRemarks                  *string            `json:"net_weight_remarks" db:"net_weight_remarks"`
 }
 
 type WeightTickets []WeightTicket
@@ -68,5 +70,7 @@ func (w *WeightTicket) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Name: "ProofOfTrailerOwnershipDocumentID", Field: w.ProofOfTrailerOwnershipDocumentID},
 		&OptionalStringInclusion{Name: "Status", Field: (*string)(w.Status), List: AllowedPPMDocumentStatuses},
 		&StringIsNilOrNotBlank{Name: "Reason", Field: w.Reason},
+		&OptionalPoundIsNonNegative{Name: "AdjustedNetWeight", Field: w.AdjustedNetWeight},
+		&StringIsNilOrNotBlank{Name: "NetWeightRemarks", Field: w.NetWeightRemarks},
 	), nil
 }

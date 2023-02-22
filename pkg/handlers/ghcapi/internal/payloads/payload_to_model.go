@@ -478,6 +478,8 @@ func WeightTicketModelFromUpdate(weightTicket *ghcmessages.UpdateWeightTicket) *
 		TrailerMeetsCriteria: handlers.FmtBool(weightTicket.TrailerMeetsCriteria),
 		Status:               (*models.PPMDocumentStatus)(handlers.FmtString(string(weightTicket.Status))),
 		Reason:               handlers.FmtString(weightTicket.Reason),
+		AdjustedNetWeight:    handlers.PoundPtrFromInt64Ptr(weightTicket.AdjustedNetWeight),
+		NetWeightRemarks:     handlers.FmtString(weightTicket.NetWeightRemarks),
 	}
 	return model
 }
