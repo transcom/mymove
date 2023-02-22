@@ -1,12 +1,18 @@
 package ppmshipment
 
 import (
+	"fmt"
+
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PPMShipmentSuite) TestReviewDocuments() {
@@ -58,5 +64,85 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			suite.IsType(apperror.NotFoundError{}, err)
 			suite.Contains(err.Error(), "not found while looking for PPMShipment")
 		}
+	})
+
+	suite.Run("Returns an error if submitting the close out documentation fails", func() {
+		appCtx := suite.AppContextForTest()
+
+		existingPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(appCtx.DB(), testdatagen.Assertions{})
+
+		appCtx = suite.AppContextWithSessionForTest(&auth.Session{
+			UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
+		})
+
+		fakeErr := apperror.NewConflictError(
+			existingPPMShipment.ID,
+			fmt.Sprintf(
+				"PPM shipment documents cannot be submitted because it's not in the %s status.",
+				models.PPMShipmentStatusNeedsPaymentApproval,
+			),
+		)
+
+		submitter := NewPPMShipmentReviewDocuments(
+			setUpPPMShipperRouterMock(fakeErr),
+		)
+
+		updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
+			appCtx,
+			existingPPMShipment.ID,
+		)
+
+		if suite.Error(err) {
+			suite.Nil(updatedPPMShipment)
+
+			suite.IsType(apperror.ConflictError{}, err)
+			suite.Equal(fakeErr, err)
+		}
+	})
+
+	suite.Run("Can route the PPMShipment properly", func() {
+		appCtx := suite.AppContextForTest()
+
+		existingPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(appCtx.DB(), testdatagen.Assertions{})
+
+		appCtx = suite.AppContextWithSessionForTest(&auth.Session{
+			UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
+		})
+
+		router := setUpPPMShipperRouterMock(
+			func(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
+				ppmShipment.Status = models.PPMShipmentStatusPaymentApproved
+
+				return nil
+			})
+
+		submitter := NewPPMShipmentReviewDocuments(
+			router,
+		)
+
+		txErr := appCtx.NewTransaction(func(txAppCtx appcontext.AppContext) error {
+			txAppCtx.Session()
+			updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
+				txAppCtx,
+				existingPPMShipment.ID,
+			)
+
+			if suite.NoError(err) && suite.NotNil(updatedPPMShipment) {
+				suite.Equal(models.PPMShipmentStatusPaymentApproved, updatedPPMShipment.Status)
+
+				router.(*mocks.PPMShipmentRouter).AssertCalled(
+					suite.T(),
+					"SubmitReviewedDocuments",
+					txAppCtx,
+					mock.AnythingOfType("*models.PPMShipment"),
+				)
+
+				return nil
+			}
+
+			return err
+		})
+
+		suite.NoError(txErr)
 	})
 }
