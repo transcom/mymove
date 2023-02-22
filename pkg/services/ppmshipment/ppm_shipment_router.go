@@ -128,32 +128,32 @@ func (p *ppmShipmentRouter) SubmitReviewedDocuments(_ appcontext.AppContext, ppm
 		)
 	}
 
-	numOfRejectedDocs := 0
+	hasRejectedDocuments := false
 	if len(ppmShipment.WeightTickets) >= 1 {
 		for _, weightTicket := range ppmShipment.WeightTickets {
 			if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
-				numOfRejectedDocs++
+				hasRejectedDocuments = true
 			}
 		}
 	}
 
-	if len(ppmShipment.ProgearExpenses) >= 1 {
+	if len(ppmShipment.ProgearExpenses) >= 1 && !hasRejectedDocuments {
 		for _, progear := range ppmShipment.ProgearExpenses {
 			if progear.Status != nil && *progear.Status == models.PPMDocumentStatusRejected {
-				numOfRejectedDocs++
+				hasRejectedDocuments = true
 			}
 		}
 	}
 
-	if len(ppmShipment.MovingExpenses) >= 1 {
+	if len(ppmShipment.MovingExpenses) >= 1 && !hasRejectedDocuments {
 		for _, movingExpenses := range ppmShipment.MovingExpenses {
 			if movingExpenses.Status != nil && *movingExpenses.Status == models.PPMDocumentStatusRejected {
-				numOfRejectedDocs++
+				hasRejectedDocuments = true
 			}
 		}
 	}
 
-	if numOfRejectedDocs > 0 {
+	if hasRejectedDocuments {
 		ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 	} else {
 		ppmShipment.Status = models.PPMShipmentStatusPaymentApproved
