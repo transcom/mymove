@@ -1,9 +1,47 @@
-@import './shared/styles/settings';
+//
+// ghc_index.scss is imported by
+// * styles/customers.scss
+// * styles/offices.scss
+// * .storybook/preview.scss
+//
+// It duplicates the settings in the namespaced module
+// styles/uswds/_required.scss
+//
+// See the comment in styles/uswds/_milmove.scss for more on why
+//
+// It uses @import so that all of the globals are provided
+//
+// It seems like it should be possible to remove the duplication, but
+// no solution has been found (yet).
+//
+
+/* reduce noise in logs by turning off uswds notifications */
+$theme-show-notifications: false;
+$theme-show-compile-warnings: false;
+
+/* GENERAL */
+$theme-image-path: '~uswds/img';
+$theme-hero-image: '~uswds/img/hero.png';
+
+/* TYPOGRAPHY */
+$theme-respect-user-font-size: false;
+$theme-root-font-size: 15px;
+$theme-font-path: '~uswds/fonts';
+$theme-font-type-sans: 'public-sans';
+$theme-style-body-element: true;
+
+$theme-link-color: 'blue-warm-60v';
+$theme-link-visited-color: 'violet-warm-60';
+$theme-link-hover-color: 'blue-warm-60v';
+$theme-link-active-color: 'blue-warm-60v';
 @import '~uswds/scss/uswds.scss';
+
 @import '~@trussworks/react-uswds/lib/index.css';
-@import './shared/styles/colors';
-@import './shared/styles/variables';
-@import './shared/styles/mixins';
-@import './shared/styles/typography';
-@import './shared/styles/custom';
-@import './shared/styles/overrides';
+
+/*
+ * Now do our custom global overrides.
+ *
+ */
+@import './styles/uswds/typography';
+@import './styles/uswds/custom';
+@import './styles/uswds/overrides';
