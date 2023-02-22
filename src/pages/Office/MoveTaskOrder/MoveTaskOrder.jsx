@@ -48,7 +48,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
 import { MatchShape } from 'types/router';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
-import { includedStatusesForCalculatingWeights, useCalculatedWeightRequested } from 'hooks/custom';
+import { useCalculatedEstimatedWeight, useCalculatedWeightRequested } from 'hooks/custom';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
@@ -100,7 +100,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [activeSection, setActiveSection] = useState('');
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
   const [unapprovedSITExtensionForShipment, setUnApprovedSITExtensionForShipment] = useState({});
-  const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
   const [externalVendorShipmentCount, setExternalVendorShipmentCount] = useState(0);
 
   const nonShipmentSections = useMemo(() => {
@@ -117,8 +116,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   } = props;
 
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
-
   const order = Object.values(orders)?.[0];
+  const estimatedWeightTotal = useCalculatedEstimatedWeight(mtoShipments);
 
   const shipmentServiceItems = useMemo(() => {
     const serviceItemsForShipment = {};
@@ -499,19 +498,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   }, [mtoShipments]);
 
   useEffect(() => {
-    let estimatedWeightCalc = null;
     let excessBillableWeightCount = 0;
     const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
-
-    if (mtoShipments?.some((s) => s.primeEstimatedWeight && includedStatusesForCalculatingWeights(s.status))) {
-      estimatedWeightCalc = mtoShipments
-        ?.filter((s) => s.primeEstimatedWeight && includedStatusesForCalculatingWeights(s.status))
-        .reduce((prev, current) => {
-          return prev + current.primeEstimatedWeight;
-        }, 0);
-    }
-
-    setEstimatedWeightTotal(estimatedWeightCalc);
 
     if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
       excessBillableWeightCount = 1;
@@ -523,7 +511,12 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     const showWeightAlert = !riskOfExcessAcknowledged && !!excessBillableWeightCount;
 
     setIsWeightAlertVisible(showWeightAlert);
-  }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, move]);
+  }, [
+    estimatedWeightTotal,
+    move?.excess_weight_acknowledged_at,
+    order?.entitlement.totalWeight,
+    setExcessWeightRiskCount,
+  ]);
 
   // Edge case of diversion shipments being counted twice
   const moveWeightTotal = useCalculatedWeightRequested(mtoShipments);

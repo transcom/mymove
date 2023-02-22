@@ -38,10 +38,13 @@ export const useCalculatedWeightRequested = (mtoShipments) => {
 
 export const useCalculatedEstimatedWeight = (mtoShipments) => {
   return useMemo(() => {
-    return mtoShipments
-      ?.filter((s) => includedStatusesForCalculatingWeights(s.status))
-      .reduce((prev, current) => {
-        return prev + current.primeEstimatedWeight;
-      }, 0);
+    if (mtoShipments?.some((s) => includedStatusesForCalculatingWeights(s.status) && s.primeEstimatedWeight)) {
+      return mtoShipments
+        ?.filter((s) => includedStatusesForCalculatingWeights(s.status) && s.primeEstimatedWeight)
+        .reduce((prev, current) => {
+          return prev + current.primeEstimatedWeight;
+        }, 0);
+    }
+    return null;
   }, [mtoShipments]);
 };
