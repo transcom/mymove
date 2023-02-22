@@ -108,7 +108,7 @@ test.describe('Entire PPM closeout flow', () => {
       await customerPpmPage.page.getByRole('button', { name: 'Return to Homepage' }).click();
       await customerPpmPage.navigateToPPMReviewPage();
 
-      await customerPpmPage.deleteWeightTicket(1);
+      await customerPpmPage.deleteWeightTicket(1, false);
       await customerPpmPage.navigateFromPPMReviewPageToFinalCloseoutPage();
       await customerPpmPage.submitFinalCloseout({
         totalNetWeight: '4,000 lbs',
