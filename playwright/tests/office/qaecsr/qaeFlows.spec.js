@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, expect, OfficePage } = require('../../utils/officeTest');
+import { test, expect, OfficePage } from '../../utils/officeTest';
 
 /**
  * QaeFlowPage test fixture
@@ -152,6 +152,25 @@ class QaeFlowPage extends OfficePage {
     // Collapse the category so the page is back to original state
     await this.page.getByTestId(`accordionButton_${category}Violation`).click();
   }
+
+  async deleteDraft() {
+    // Delete draft
+    await this.page.locator('[data-testid="deleteReport"]').first().click();
+
+    // Confirm delete modal
+
+    // ahobson 2023-02-04 - somehow there are two modals on the
+    // page? confirmed with developer tools. We need to interact
+    // with the 2nd one. Not sure why
+    const modal = this.page.getByTestId('modal').nth(1);
+    await expect(modal.getByText('Are you sure you want to delete this report?')).toBeVisible();
+    await modal.getByText('Yes, delete').click();
+    await expect(this.page.getByTestId('modal')).toHaveCount(0);
+
+    // Verify deletion
+    await expect(this.page.getByText('Your draft report has been saved')).toHaveCount(0);
+    await expect(this.page.locator('.usa-alert__text')).toContainText('Your report has been deleted');
+  }
 }
 
 test.describe('Quality Evaluation Report', () => {
@@ -228,6 +247,21 @@ test.describe('Quality Evaluation Report', () => {
 
       // Submit report
       await qaeFlowPage.submitReportFromPreviewAndVerify();
+    });
+
+    // Deletes a counseling report draft. (It a different component from the shipment one.)
+    test('deletes a counseling report draft', async () => {
+      // Create a new counseling report
+      await qaeFlowPage.createCounselingReport();
+
+      // Fill out the eval report form with minimal info required to submit
+      await qaeFlowPage.fillInForm();
+
+      // Save the form as a draft
+      await qaeFlowPage.saveAsDraft();
+
+      // Delete the draft
+      await qaeFlowPage.deleteDraft();
     });
 
     // Create new report, fill out minimal fields with violations
@@ -379,29 +413,14 @@ test.describe('Quality Evaluation Report', () => {
       await expect(page.locator('[data-testid="evaluationReportForm"]')).toBeVisible();
     });
 
-    test('can delete a draft', async ({ page }) => {
+    test('can delete a draft', async () => {
       // Create a new shipment report
       await qaeFlowPage.createShipmentReport();
 
       // Save draft (reroutes back to reports list)
       await qaeFlowPage.saveAsDraft();
 
-      // Delete draft
-      await page.locator('[data-testid="deleteReport"]').first().click();
-
-      // Confirm delete modal
-
-      // ahobson 2023-02-04 - somehow there are two modals on the
-      // page? confirmed with developer tools. We need to interact
-      // with the 2nd one. Not sure why
-      const modal = page.getByTestId('modal').nth(1);
-      await expect(modal.getByText('Are you sure you want to delete this report?')).toBeVisible();
-      await modal.getByText('Yes, delete').click();
-      await expect(page.getByTestId('modal')).toHaveCount(0);
-
-      // Verify deletion
-      await expect(page.getByText('Your draft report has been saved')).toHaveCount(0);
-      await expect(page.locator('.usa-alert__text')).toContainText('Your report has been deleted');
+      await qaeFlowPage.deleteDraft();
     });
 
     test('can view a submitted draft', async ({ page }) => {
@@ -496,7 +515,7 @@ test.describe('Quality Evaluation Report', () => {
       await officePage.waitForLoading();
 
       // Should have been rerouted to reports list
-      expect(page.url()).toContain(`/moves/${qaeFlowPage.moveLocator}/evaluation-reports`);
+      await expect(page.url()).toContain(`/moves/${qaeFlowPage.moveLocator}/evaluation-reports`);
       await expect(page.getByTestId('evaluationReportTable').first()).toBeVisible();
       // Verify no delete modal
       await expect(page.locator('.usa-alert__text')).not.toBeVisible();
@@ -516,10 +535,10 @@ test.describe('Quality Evaluation Report', () => {
       // Click cancel
       await page.getByTestId('cancelReport').click();
       // No cancel report since not deleting
-      expect(page.getByText('Are you sure you want to cancel this report?')).not.toBeVisible();
+      await expect(page.getByText('Are you sure you want to cancel this report?')).not.toBeVisible();
       await officePage.waitForLoading();
       // Should have been rerouted to reports list
-      expect(page.url()).toContain(`/moves/${qaeFlowPage.moveLocator}/evaluation-reports`);
+      await expect(page.url()).toContain(`/moves/${qaeFlowPage.moveLocator}/evaluation-reports`);
       await expect(page.getByTestId('evaluationReportTable').first()).toBeVisible();
       // Verify no delete modal
       await expect(page.locator('.usa-alert__text')).not.toBeVisible();

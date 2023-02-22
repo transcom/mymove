@@ -19,6 +19,7 @@ import { shipmentTypeLabels } from 'content/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import { ShipmentShape } from 'types/shipment';
+import { fieldValidationShape } from 'utils/displayFlags';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
@@ -90,41 +91,51 @@ const SubmittedRequestedShipments = ({
         serviceCodeCS: values.counselingFee,
       };
 
-      approveMTO({
-        moveTaskOrderID: moveTaskOrder.id,
-        ifMatchETag: moveTaskOrder.eTag,
-        mtoApprovalServiceItemCodes,
-        normalize: false,
-      })
-        .then(() => {
-          Promise.all(
-            filteredShipments.map((shipment) => {
-              let operationPath = 'shipment.approveShipment';
+      approveMTO(
+        {
+          moveTaskOrderID: moveTaskOrder.id,
+          ifMatchETag: moveTaskOrder.eTag,
+          mtoApprovalServiceItemCodes,
+          normalize: false,
+        },
+        {
+          onSuccess: async () => {
+            try {
+              await Promise.all(
+                filteredShipments.map((shipment) => {
+                  let operationPath = 'shipment.approveShipment';
 
-              if (shipment.approvedDate) {
-                operationPath = 'shipment.approveShipmentDiversion';
-              }
-
-              return approveMTOShipment({
-                shipmentID: shipment.id,
-                operationPath,
-                ifMatchETag: shipment.eTag,
-                normalize: false,
-              });
-            }),
-          )
-            .then(() => {
+                  if (shipment.approvedDate) {
+                    operationPath = 'shipment.approveShipmentDiversion';
+                  }
+                  return approveMTOShipment(
+                    {
+                      shipmentID: shipment.id,
+                      operationPath,
+                      ifMatchETag: shipment.eTag,
+                      normalize: false,
+                    },
+                    {
+                      onError: () => {
+                        // TODO: Decide if we want to display an error notice, log error event, or retry
+                        setSubmitting(false);
+                      },
+                    },
+                  );
+                }),
+              );
               handleAfterSuccess('mto', { showMTOpostedMessage: true });
-            })
-            .catch(() => {
-              // TODO: Decide if we want to display an error notice, log error event, or retry
+            } catch {
               setSubmitting(false);
-            });
-        })
-        .catch(() => {
-          // TODO: Decide if we want to display an error notice, log error event, or retry
-          setSubmitting(false);
-        });
+            }
+          },
+          onError: () => {
+            // TODO: Decide if we want to display an error notice, log error event, or retry
+            setSubmitting(false);
+          },
+        },
+      );
+      //
     },
   });
 
@@ -290,7 +301,7 @@ SubmittedRequestedShipments.propTypes = {
   missingRequiredOrdersInfo: PropTypes.bool,
   moveCode: PropTypes.string.isRequired,
   handleAfterSuccess: PropTypes.func,
-  errorIfMissing: PropTypes.shape({}),
+  errorIfMissing: PropTypes.objectOf(PropTypes.arrayOf(fieldValidationShape)),
   displayDestinationType: PropTypes.bool,
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
 };

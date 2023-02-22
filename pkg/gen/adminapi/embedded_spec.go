@@ -122,7 +122,7 @@ func init() {
             "name": "adminUser",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/AdminUserCreatePayload"
+              "$ref": "#/definitions/AdminUserCreate"
             }
           }
         ],
@@ -206,7 +206,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/AdminUserUpdatePayload"
+              "$ref": "#/definitions/AdminUserUpdate"
             }
           }
         ],
@@ -468,7 +468,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MoveUpdatePayload"
+              "$ref": "#/definitions/MoveUpdate"
             }
           }
         ],
@@ -638,7 +638,7 @@ func init() {
             "name": "officeUser",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/OfficeUserCreatePayload"
+              "$ref": "#/definitions/OfficeUserCreate"
             }
           }
         ],
@@ -719,7 +719,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/OfficeUserUpdatePayload"
+              "$ref": "#/definitions/OfficeUserUpdate"
             }
           }
         ],
@@ -1136,7 +1136,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserUpdatePayload"
+              "$ref": "#/definitions/UserUpdate"
             }
           }
         ],
@@ -1585,7 +1585,7 @@ func init() {
         }
       }
     },
-    "AdminUserCreatePayload": {
+    "AdminUserCreate": {
       "type": "object",
       "properties": {
         "email": {
@@ -1608,7 +1608,7 @@ func init() {
         }
       }
     },
-    "AdminUserUpdatePayload": {
+    "AdminUserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -1809,7 +1809,7 @@ func init() {
         "SUBMITTED": "Submitted"
       }
     },
-    "MoveUpdatePayload": {
+    "MoveUpdate": {
       "type": "object",
       "required": [
         "show"
@@ -1938,7 +1938,7 @@ func init() {
         }
       }
     },
-    "OfficeUserCreatePayload": {
+    "OfficeUserCreate": {
       "type": "object",
       "properties": {
         "email": {
@@ -1996,7 +1996,7 @@ func init() {
         }
       }
     },
-    "OfficeUserUpdatePayload": {
+    "OfficeUserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -2440,7 +2440,7 @@ func init() {
         }
       }
     },
-    "UserUpdatePayload": {
+    "UserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -2664,7 +2664,7 @@ func init() {
             "name": "adminUser",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/AdminUserCreatePayload"
+              "$ref": "#/definitions/AdminUserCreate"
             }
           }
         ],
@@ -2748,7 +2748,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/AdminUserUpdatePayload"
+              "$ref": "#/definitions/AdminUserUpdate"
             }
           }
         ],
@@ -3010,7 +3010,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MoveUpdatePayload"
+              "$ref": "#/definitions/MoveUpdate"
             }
           }
         ],
@@ -3180,7 +3180,7 @@ func init() {
             "name": "officeUser",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/OfficeUserCreatePayload"
+              "$ref": "#/definitions/OfficeUserCreate"
             }
           }
         ],
@@ -3261,7 +3261,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/OfficeUserUpdatePayload"
+              "$ref": "#/definitions/OfficeUserUpdate"
             }
           }
         ],
@@ -3678,7 +3678,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserUpdatePayload"
+              "$ref": "#/definitions/UserUpdate"
             }
           }
         ],
@@ -4127,7 +4127,7 @@ func init() {
         }
       }
     },
-    "AdminUserCreatePayload": {
+    "AdminUserCreate": {
       "type": "object",
       "properties": {
         "email": {
@@ -4150,7 +4150,7 @@ func init() {
         }
       }
     },
-    "AdminUserUpdatePayload": {
+    "AdminUserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -4352,7 +4352,7 @@ func init() {
         "SUBMITTED": "Submitted"
       }
     },
-    "MoveUpdatePayload": {
+    "MoveUpdate": {
       "type": "object",
       "required": [
         "show"
@@ -4481,7 +4481,7 @@ func init() {
         }
       }
     },
-    "OfficeUserCreatePayload": {
+    "OfficeUserCreate": {
       "type": "object",
       "properties": {
         "email": {
@@ -4539,7 +4539,7 @@ func init() {
         }
       }
     },
-    "OfficeUserUpdatePayload": {
+    "OfficeUserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -4983,7 +4983,7 @@ func init() {
         }
       }
     },
-    "UserUpdatePayload": {
+    "UserUpdate": {
       "type": "object",
       "properties": {
         "active": {

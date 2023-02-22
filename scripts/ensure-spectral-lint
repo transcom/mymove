@@ -94,5 +94,4 @@ for fn in files:
 if baseline_error_increase:
     print("Spectral Errors have increased")
     print(f"Refer to the following to learn how resolve this: {HELP_URL}")
-    # for now, only warn on spectral errors
-    sys.exit(0)
+    sys.exit(1)

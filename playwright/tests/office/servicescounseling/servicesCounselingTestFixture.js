@@ -5,7 +5,8 @@
  */
 
 // @ts-check
-const { expect, test, OfficePage } = require('../../utils/officeTest');
+import { expect, test as officeTest, OfficePage } from '../../utils/officeTest';
+
 /**
  * ServiceCounselorPage test fixture
  *
@@ -14,26 +15,70 @@ const { expect, test, OfficePage } = require('../../utils/officeTest');
 export class ServiceCounselorPage extends OfficePage {
   /**
    * @param {OfficePage} officePage
-   * @param {Object} move
    * @override
    */
-  constructor(officePage, move) {
+  constructor(officePage) {
     super(officePage.page, officePage.request);
-    this.move = move;
-    this.moveLocator = move.locator;
+  }
+
+  waitForPage = {
+    counselingQueue: async () => {
+      await expect(this.page.getByRole('link', { name: 'Counseling' })).toHaveClass('usa-current');
+    },
+    closeoutQueue: async () => {
+      await expect(this.page.getByRole('link', { name: 'PPM Closeout' })).toHaveClass('usa-current');
+    },
+    moveDetails: async () => {
+      await expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Move details');
+    },
+    reviewDocuments: async () => {
+      await expect(this.page.getByRole('heading', { name: 'Review trip 1', level: 3 })).toBeVisible();
+    },
+    reviewDocumentsConfirmation: async () => {
+      await expect(this.page.getByRole('heading', { name: 'Send to customer?', level: 3 })).toBeVisible();
+    },
+  };
+
+  /**
+   * Verify that the user is in the correct move
+   * @param {string} moveLocator
+   */
+  async verifyMoveLocator(moveLocator) {
+    await expect(this.page.getByText(`#${moveLocator}`)).toHaveClass(/usa-tag/);
+  }
+
+  /**
+   * Service Counselor navigate to closeout move
+   * @param {string} moveLocator
+   */
+  async navigateToCloseoutMove(moveLocator) {
+    await this.waitForPage.counselingQueue();
+
+    // navigate to "PPM Closeout" section first
+    await this.page.getByRole('link', { name: 'PPM Closeout' }).click();
+    await this.waitForPage.closeoutQueue();
+
+    // type in move code/locator to filter
+    await this.page.locator('input[name="locator"]').type(moveLocator);
+    await this.page.locator('input[name="locator"]').blur();
+
+    await this.page.locator('tbody > tr').first().click();
+    await this.waitForPage.moveDetails();
+    await this.verifyMoveLocator(moveLocator);
   }
 
   /**
    * Service Counselor navigate to move
+   * @param {string} moveLocator
    */
-  async navigateToMove() {
+  async navigateToMove(moveLocator) {
     // type in move code/locator to filter
-    await this.page.locator('input[name="locator"]').type(this.moveLocator);
+    await this.page.locator('input[name="locator"]').type(moveLocator);
     await this.page.locator('input[name="locator"]').blur();
 
     await this.page.locator('tbody > tr').first().click();
     await this.waitForLoading();
-    expect(this.page.url()).toContain(`/counseling/moves/${this.moveLocator}/details`);
+    expect(this.page.url()).toContain(`/counseling/moves/${moveLocator}/details`);
   }
 
   async addNTSShipment() {
@@ -201,6 +246,22 @@ export class ServiceCounselorPage extends OfficePage {
   }
 }
 
-export { expect, test };
+/**
+ * @typedef {object} ServiceCounselorPageTestArgs - services counselor page test args
+ * @property {ServiceCounselorPage} scPage    - services counselor page
+ */
+
+/** @type {import('@playwright/test').Fixtures<ServiceCounselorPageTestArgs, {}, import('../../utils/officeTest').OfficePageTestArgs, import('@playwright/test').PlaywrightWorkerArgs>} */
+const scFixtures = {
+  scPage: async ({ officePage }, use) => {
+    const scPage = new ServiceCounselorPage(officePage);
+    await scPage.signInAsNewServicesCounselorUser();
+    use(scPage);
+  },
+};
+
+export const test = officeTest.extend(scFixtures);
+
+export { expect };
 
 export default ServiceCounselorPage;

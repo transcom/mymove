@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 
 let errorIfMissing = [];
 let warnIfMissing = [];
@@ -6,6 +7,10 @@ let showWhenCollapsed = [];
 let neverShow = [];
 let flaggedItem = null;
 let flagStyles = null;
+
+export function objectIsMissingFieldWithCondition(object, { fieldName, condition }) {
+  return !object[fieldName] && (!condition || condition(object));
+}
 
 /*
   Set CSS styles for the flags
@@ -59,7 +64,8 @@ export function getDisplayFlags(fieldname) {
   // Hide row will override any always show that is set.
   let hideRow = false;
 
-  if (errorIfMissing.includes(fieldname) && !flaggedItem[fieldname]) {
+  const fieldErrorIfMissing = errorIfMissing.find((entry) => entry.fieldName === fieldname);
+  if (fieldErrorIfMissing && objectIsMissingFieldWithCondition(flaggedItem, fieldErrorIfMissing)) {
     alwaysShow = true;
     classes = classNames(flagStyles.row, flagStyles.missingInfoError);
     return {
@@ -67,7 +73,8 @@ export function getDisplayFlags(fieldname) {
       classes,
     };
   }
-  if (warnIfMissing.includes(fieldname) && !flaggedItem[fieldname]) {
+  const fieldWarnIfMissing = warnIfMissing.find((entry) => entry.fieldName === fieldname);
+  if (fieldWarnIfMissing && objectIsMissingFieldWithCondition(flaggedItem, fieldWarnIfMissing)) {
     alwaysShow = true;
     classes = classNames(flagStyles.row, flagStyles.warning);
     return {
@@ -91,5 +98,10 @@ export function getDisplayFlags(fieldname) {
 }
 
 export function getMissingOrDash(fieldName) {
-  return errorIfMissing.includes(fieldName) ? 'Missing' : '—';
+  return errorIfMissing.map((entry) => entry.fieldName).includes(fieldName) ? 'Missing' : '—';
 }
+
+export const fieldValidationShape = PropTypes.shape({
+  fieldName: PropTypes.string.isRequired,
+  condition: PropTypes.func,
+});

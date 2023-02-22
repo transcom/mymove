@@ -209,15 +209,7 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 // role must have update.shipment permissions
 func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 	// TIO users have the proper permissions for our test - update.shipment
-	tioOfficeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
-
-	testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
-		User: tioOfficeUser.User,
-		UsersRoles: models.UsersRoles{
-			UserID: tioOfficeUser.User.ID,
-			RoleID: tioOfficeUser.User.Roles[0].ID,
-		},
-	})
+	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
 	identity, err := models.FetchUserIdentity(suite.DB(), tioOfficeUser.User.LoginGovUUID.String())
 
@@ -260,15 +252,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 // role must NOT have update.shipment permissions
 func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 	// QAECSR users will be denied access as they lack the proper permissions for our test - update.shipment
-	qaeCsrOfficeUser := testdatagen.MakeQAECSROfficeUser(suite.DB(), testdatagen.Assertions{})
-
-	testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
-		User: qaeCsrOfficeUser.User,
-		UsersRoles: models.UsersRoles{
-			UserID: qaeCsrOfficeUser.User.ID,
-			RoleID: qaeCsrOfficeUser.User.Roles[0].ID,
-		},
-	})
+	qaeCsrOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 
 	identity, err := models.FetchUserIdentity(suite.DB(), qaeCsrOfficeUser.User.LoginGovUUID.String())
 
@@ -836,11 +820,21 @@ func (suite *AuthSuite) TestAuthorizeDeactivateAdmin() {
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDeactivated() {
 	// deactivated office user exists, but user has never logged it (and therefore first need to create a new user).
-	officeUser := testdatagen.MakeOfficeUserWithNoUser(suite.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			Active: false,
-		},
-	})
+
+	// Create office user with no user
+	office := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+	officeUser := models.OfficeUser{
+		TransportationOffice:   office,
+		TransportationOfficeID: office.ID,
+		FirstName:              "Leo",
+		LastName:               "Spaceman",
+		Email:                  "leospaceman12345@example.com",
+		Telephone:              "415-555-1212",
+		Active:                 false,
+	}
+	verrs, err := suite.DB().ValidateAndCreate(&officeUser)
+	suite.NoError(err)
+	suite.False(verrs.HasAny())
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -909,13 +903,19 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	user := factory.BuildDefaultUser(suite.DB())
 	// user is in office_users but has never logged into the app
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			Active: true,
-			UserID: &user.ID,
+	officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Active: true,
+				UserID: &user.ID,
+				Email:  user.LoginGovEmail,
+			},
 		},
-		User: user,
-	})
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -961,21 +961,20 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 	user := factory.BuildDefaultUser(suite.DB())
 	// user is in office_users but has never logged into the app
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			Active: true,
-			UserID: &user.ID,
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Active: true,
+				UserID: &user.ID,
+				Email:  user.LoginGovEmail,
+			},
 		},
-		User: user,
-	})
-	qaeCsrRole, _ := testdatagen.LookupOrMakeRole(suite.DB(), roles.RoleTypeQaeCsr, "Quality Assurance and Customer Service")
-	testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
-		User: user,
-		UsersRoles: models.UsersRoles{
-			UserID: user.ID,
-			RoleID: qaeCsrRole.ID,
+		{
+			Model:    user,
+			LinkOnly: true,
 		},
-	})
+	}, []roles.RoleType{roles.RoleTypeQaeCsr})
+
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
 
@@ -1015,7 +1014,11 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 	suite.NotEqual("", foundUser.CurrentOfficeSessionID)
 	// Make sure session contains roles and permissions
 	suite.NotEmpty(session.Roles)
-	suite.Equal(qaeCsrRole.ID, session.Roles[0].ID)
+	userRole, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeQaeCsr)
+	suite.True(hasRole)
+	sessionRole, hasRole := session.Roles.GetRole(roles.RoleTypeQaeCsr)
+	suite.True(hasRole)
+	suite.Equal(userRole.ID, sessionRole.ID)
 	suite.NotEmpty(session.Permissions)
 	suite.ElementsMatch(QAECSR.Permissions, session.Permissions)
 }
@@ -1194,13 +1197,18 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 func (suite *AuthSuite) TestLoginGovAuthenticatedRedirect() {
 	user := factory.BuildDefaultUser(suite.DB())
 	// user is in office_users but has never logged into the app
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			Active: true,
-			UserID: &user.ID,
+	officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Active: true,
+				UserID: &user.ID,
+			},
 		},
-		User: user,
-	})
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	fakeToken := "some_token"
 

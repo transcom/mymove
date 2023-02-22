@@ -5,7 +5,8 @@
  */
 
 // @ts-check
-const { expect, OfficePage } = require('../../utils/officeTest');
+import { expect, OfficePage } from '../../utils/officeTest';
+
 /**
  * TooFlowPage test fixture
  *
@@ -67,7 +68,7 @@ export class TooFlowPage extends OfficePage {
     await expect(this.page.locator('#approvalConfirmationModal [data-testid="ShipmentContainer"]')).toHaveCount(
       shipmentCount,
     );
-    expect(modal.getByText('Approved service items for this move')).toBeVisible();
+    await expect(modal.getByText('Approved service items for this move')).toBeVisible();
     const siTable = modal.getByText('Approved service items for this move').locator('..').locator('table');
     await expect(siTable).toContainText('Move management');
     await expect(siTable).toContainText('Counseling');

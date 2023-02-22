@@ -1040,6 +1040,13 @@ definitions:
           Indicates if the trailer that the customer used meets all the criteria
           to be claimable.
         type: boolean
+      adjustedNetWeight:
+        description: Indicates the adjusted net weight of the vehicle
+        type: integer
+        minimum: 0
+      netWeightRemarks:
+        description: Remarks explaining any edits made to the net weight
+        type: string
   TransportationOffices:
     type: array
     items:
@@ -2978,6 +2985,10 @@ definitions:
   PPMAdvanceStatus:
     type: string
     title: PPM Advance Status
+    description: >-
+      Indicates whether an advance status has been accepted, rejected, or
+      edited.
+    x-nullable: true
     enum:
       - APPROVED
       - REJECTED
@@ -3122,6 +3133,17 @@ definitions:
         $ref: '#/definitions/OmittablePPMDocumentStatus'
       reason:
         $ref: '#/definitions/PPMDocumentStatusReason'
+      adjustedNetWeight:
+        description: Indicates the adjusted net weight of the vehicle
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      netWeightRemarks:
+        description: Remarks explaining any edits made to the net weight
+        type: string
+        x-nullable: true
+        x-omitempty: false
       eTag:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string

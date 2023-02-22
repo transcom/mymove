@@ -5,22 +5,15 @@
  */
 
 // @ts-check
-const { test, expect, ScPpmPage } = require('./scPpmTestFixture');
+import { test, expect } from './scPpmTestFixture';
 
 test.describe('Services counselor user', () => {
-  /** @type {ScPpmPage} */
-  let scPpmPage;
-
-  test.beforeEach(async ({ officePage }) => {
-    const move = await officePage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
-    await officePage.signInAsNewServicesCounselorUser();
-    scPpmPage = new ScPpmPage(officePage, move);
-    await scPpmPage.navigateToMove();
+  test.beforeEach(async ({ scPpmPage }) => {
+    const move = await scPpmPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
+    await scPpmPage.navigateToMove(move.locator);
   });
 
-  test('is able to add a new PPM shipment', async ({ page }) => {
-    // const moveLocator = 'PPMADD';
-
+  test('is able to add a new PPM shipment', async ({ page, scPpmPage }) => {
     // Delete existing shipment
     await page.locator('[data-testid="ShipmentContainer"] .usa-button').click();
     await page.locator('[data-testid="grid"] button').getByText('Delete shipment').click();
@@ -52,7 +45,7 @@ test.describe('Services counselor user', () => {
     await scPpmPage.waitForLoading();
 
     // Confirm new shipment is visible
-    expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();
+    await expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();
     const shipmentContainer = page.locator('[data-testid="ShipmentContainer"]');
     // Verify unexpanded view
     await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('09 Jun 2022');

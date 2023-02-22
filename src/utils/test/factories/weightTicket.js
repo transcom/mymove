@@ -40,6 +40,8 @@ const createCompleteWeightTicket = ({ serviceMemberId, creationDate } = {}, fiel
     vehicleDescription: '2022 Honda CR-V Hybrid',
     emptyWeight: 14500,
     fullWeight: 18500,
+    ownsTrailer: false,
+    trailerMeetsCriteria: false,
     ...fieldOverrides,
   };
 

@@ -5783,13 +5783,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",
@@ -7748,6 +7750,10 @@ func init() {
     "UpdateWeightTicket": {
       "type": "object",
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer"
+        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer"
@@ -7763,6 +7769,10 @@ func init() {
         "missingFullWeightTicket": {
           "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean"
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string"
         },
         "ownsTrailer": {
           "description": "Indicates if the customer used a trailer they own for the move.",
@@ -7906,6 +7916,12 @@ func init() {
         "proofOfTrailerOwnershipDocumentId"
       ],
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -7977,6 +7993,12 @@ func init() {
         "missingFullWeightTicket": {
           "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -14400,13 +14422,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",
@@ -16374,6 +16398,11 @@ func init() {
     "UpdateWeightTicket": {
       "type": "object",
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "minimum": 0
+        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer",
@@ -16391,6 +16420,10 @@ func init() {
         "missingFullWeightTicket": {
           "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean"
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string"
         },
         "ownsTrailer": {
           "description": "Indicates if the customer used a trailer they own for the move.",
@@ -16537,6 +16570,13 @@ func init() {
         "proofOfTrailerOwnershipDocumentId"
       ],
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -16610,6 +16650,12 @@ func init() {
         "missingFullWeightTicket": {
           "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },

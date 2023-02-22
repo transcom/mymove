@@ -23,308 +23,6 @@ consumes:
 produces:
   - application/json
 definitions:
-  ClientError:
-    type: object
-    properties:
-      title:
-        type: string
-      detail:
-        type: string
-      instance:
-        type: string
-        format: uuid
-    required:
-      - title
-      - detail
-      - instance
-  ValidationError:
-    allOf:
-      - $ref: '#/definitions/ClientError'
-      - type: object
-    properties:
-      invalidFields:
-        type: object
-        additionalProperties:
-          type: string
-    required:
-      - invalidFields
-  Role:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      roleType:
-        type: string
-        example: customer
-      roleName:
-        type: string
-        example: Transportation Ordering Officer
-      createdAt:
-        type: string
-        format: date-time
-      updatedAt:
-        type: string
-        format: date-time
-    required:
-      - id
-      - roleType
-      - roleName
-      - createdAt
-      - updatedAt
-  OfficeUser:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      userId:
-        type: string
-        format: uuid
-      firstName:
-        type: string
-      middleInitials:
-        type: string
-      lastName:
-        type: string
-      email:
-        type: string
-        format: x-email
-        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-      telephone:
-        type: string
-        format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
-      transportationOfficeId:
-        type: string
-        format: uuid
-      active:
-        type: boolean
-      roles:
-        type: array
-        items:
-          $ref: '#/definitions/Role'
-      createdAt:
-        type: string
-        format: date-time
-      updatedAt:
-        type: string
-        format: date-time
-    required:
-      - id
-      - firstName
-      - middleInitials
-      - lastName
-      - email
-      - telephone
-      - transportationOfficeId
-      - active
-      - roles
-      - createdAt
-      - updatedAt
-  OfficeUsers:
-    type: array
-    items:
-      $ref: '#/definitions/OfficeUser'
-  AdminUser:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      firstName:
-        type: string
-      lastName:
-        type: string
-      email:
-        type: string
-        format: x-email
-        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-      userId:
-        type: string
-        format: uuid
-      organizationId:
-        type: string
-        format: uuid
-      active:
-        type: boolean
-      createdAt:
-        type: string
-        format: date-time
-      updatedAt:
-        type: string
-        format: date-time
-    required:
-      - id
-      - firstName
-      - lastName
-      - email
-      - userId
-      - organizationId
-      - active
-      - createdAt
-      - updatedAt
-  AdminUsers:
-    type: array
-    items:
-      $ref: '#/definitions/AdminUser'
-  User:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      loginGovEmail:
-        type: string
-        format: x-email
-        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-      active:
-        type: boolean
-      createdAt:
-        type: string
-        format: date-time
-      updatedAt:
-        type: string
-        format: date-time
-      currentAdminSessionId:
-        type: string
-        example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
-      currentMilSessionId:
-        type: string
-        example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
-      currentOfficeSessionId:
-        type: string
-        example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
-    required:
-      - loginGovEmail
-      - active
-      - createdAt
-      - updatedAt
-      - currentAdminSessionId
-      - currentMilSessionId
-      - currentOfficeSessionId
-  Users:
-    type: array
-    items:
-      $ref: '#/definitions/User'
-  TransportationOffice:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        example: Fort Bragg North Station
-      address:
-        $ref: '#/definitions/Address'
-      phoneLines:
-        type: array
-        items:
-          type: string
-          format: telephone
-          pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
-          example: 212-555-5555
-      gbloc:
-        type: string
-        pattern: ^[A-Z]{4}$
-        example: JENQ
-      latitude:
-        type: number
-        format: float
-        example: 29.382973
-      longitude:
-        type: number
-        format: float
-        example: -98.62759
-      createdAt:
-        type: string
-        format: date-time
-      updatedAt:
-        type: string
-        format: date-time
-    required:
-      - id
-      - name
-      - address
-      - createdAt
-      - updatedAt
-  TransportationOffices:
-    type: array
-    items:
-      $ref: '#/definitions/TransportationOffice'
-  TransportationServiceProviderPerformance:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      trafficDistributionListId:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      transportationServiceProviderId:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      performancePeriodStart:
-        type: string
-        format: date-time
-      performancePeriodEnd:
-        type: string
-        format: date-time
-      rateCycleStart:
-        type: string
-        format: date-time
-      rateCycleEnd:
-        type: string
-        format: date-time
-      qualityBand:
-        type: integer
-        x-nullable: true
-        example: 29
-      bestValueScore:
-        type: number
-        example: 98.01
-      linehaulRate:
-        type: number
-        example: 0.26085695149376986
-      sitRate:
-        type: number
-        example: 0.26085695149376986
-      offerCount:
-        type: integer
-        example: 1
-      createdAt:
-        type: string
-        format: date-time
-      updatedAt:
-        type: string
-        format: date-time
-    required:
-      - id
-      - trafficDistributionListId
-      - transportationServiceProviderId
-      - performancePeriodStart
-      - performancePeriodEnd
-      - rateCycleStart
-      - rateCycleEnd
-      - bestValueScore
-      - linehaulRate
-      - sitRate
-      - offerCount
-      - createdAt
-      - updatedAt
-  TransportationServiceProviderPerformances:
-    type: array
-    items:
-      $ref: '#/definitions/TransportationServiceProviderPerformance'
   Address:
     type: object
     properties:
@@ -470,7 +168,316 @@ definitions:
       - state
       - city
       - postalCode
-  OfficeUserCreatePayload:
+  AdminUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      userId:
+        type: string
+        format: uuid
+      organizationId:
+        type: string
+        format: uuid
+      active:
+        type: boolean
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+    required:
+      - id
+      - firstName
+      - lastName
+      - email
+      - userId
+      - organizationId
+      - active
+      - createdAt
+      - updatedAt
+  AdminUserCreate:
+    type: object
+    properties:
+      email:
+        type: string
+        example: user@userdomain.com
+        title: Email
+      firstName:
+        type: string
+        title: First Name
+      lastName:
+        type: string
+        title: Last Name
+      organizationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  AdminUserUpdate:
+    type: object
+    properties:
+      firstName:
+        type: string
+        title: First Name
+        x-nullable: true
+      lastName:
+        type: string
+        title: Last Name
+        x-nullable: true
+      active:
+        type: boolean
+        x-nullable: true
+  AdminUsers:
+    type: array
+    items:
+      $ref: '#/definitions/AdminUser'
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
+  CreateWebhookSubscription:
+    type: object
+    properties:
+      subscriberId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      status:
+        $ref: '#/definitions/WebhookSubscriptionStatus'
+      eventKey:
+        type: string
+        description: >-
+          A string used to represent which events this subscriber expects to be
+          notified about. Corresponds to the possible event_key values in
+          webhook_notifications.
+      callbackUrl:
+        type: string
+        description: >-
+          The URL to which the notifications for this subscription will be
+          pushed to.
+    required:
+      - subscriberId
+      - status
+      - eventKey
+      - callbackUrl
+  ElectronicOrder:
+    type: object
+    required:
+      - id
+      - issuer
+      - ordersNumber
+      - createdAt
+      - updatedAt
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      issuer:
+        $ref: '#/definitions/Issuer'
+      ordersNumber:
+        type: string
+        title: Orders Number
+      createdAt:
+        type: string
+        format: date-time
+        title: Created at
+      updatedAt:
+        type: string
+        format: date-time
+        title: Updated at
+  ElectronicOrders:
+    type: array
+    items:
+      $ref: '#/definitions/ElectronicOrder'
+  ElectronicOrdersTotal:
+    type: object
+    properties:
+      category:
+        type: string
+      count:
+        type: integer
+        minimum: 0
+        title: Total Orders Count
+  ElectronicOrdersTotals:
+    type: array
+    items:
+      $ref: '#/definitions/ElectronicOrdersTotal'
+  Issuer:
+    type: string
+    description: >-
+      Organization that issues orders. If more organizations, especially
+      civilian ones, become clients of this API in the future, this enumeration
+      may need to be expanded.
+    enum:
+      - army
+      - navy
+      - air-force
+      - marine-corps
+      - coast-guard
+  Move:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      ordersId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      serviceMember:
+        $ref: '#/definitions/ServiceMember'
+      locator:
+        type: string
+        example: '12432'
+      status:
+        $ref: '#/definitions/MoveStatus'
+      show:
+        type: boolean
+        x-nullable: true
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+    required:
+      - id
+      - ordersId
+      - locator
+      - createdAt
+      - updatedAt
+  Moves:
+    type: array
+    items:
+      $ref: '#/definitions/Move'
+  MoveStatus:
+    type: string
+    title: Move status
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVED
+      - CANCELED
+    x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      CANCELED: Canceled
+  MoveUpdate:
+    type: object
+    required:
+      - show
+    properties:
+      show:
+        type: boolean
+  Notification:
+    type: object
+    required:
+      - id
+      - email
+      - serviceMemberId
+      - sesMessageId
+      - notificationType
+      - createdAt
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      email:
+        type: string
+      serviceMemberId:
+        type: string
+        format: uuid
+      sesMessageId:
+        type: string
+      notificationType:
+        type: string
+        enum:
+          - MOVE_REVIEWED_EMAIL
+          - MOVE_PAYMENT_REMINDER_EMAIL
+      createdAt:
+        type: string
+        format: date-time
+  Notifications:
+    type: array
+    items:
+      $ref: '#/definitions/Notification'
+  OfficeUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      userId:
+        type: string
+        format: uuid
+      firstName:
+        type: string
+      middleInitials:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+      transportationOfficeId:
+        type: string
+        format: uuid
+      active:
+        type: boolean
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/Role'
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+    required:
+      - id
+      - firstName
+      - middleInitials
+      - lastName
+      - email
+      - telephone
+      - transportationOfficeId
+      - active
+      - roles
+      - createdAt
+      - updatedAt
+  OfficeUserCreate:
     type: object
     properties:
       email:
@@ -501,7 +508,7 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/OfficeUserRole'
-  OfficeUserUpdatePayload:
+  OfficeUserUpdate:
     type: object
     properties:
       firstName:
@@ -547,89 +554,10 @@ definitions:
         example: transportation_ordering_officer
         x-nullable: true
         title: roleType
-  AdminUserCreatePayload:
-    type: object
-    properties:
-      email:
-        type: string
-        example: user@userdomain.com
-        title: Email
-      firstName:
-        type: string
-        title: First Name
-      lastName:
-        type: string
-        title: Last Name
-      organizationId:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-  MoveUpdatePayload:
-    type: object
-    required:
-      - show
-    properties:
-      show:
-        type: boolean
-  UserUpdatePayload:
-    type: object
-    properties:
-      revokeAdminSession:
-        type: boolean
-        x-nullable: true
-      revokeOfficeSession:
-        type: boolean
-        x-nullable: true
-      revokeMilSession:
-        type: boolean
-        x-nullable: true
-      active:
-        type: boolean
-        x-nullable: true
-  AdminUserUpdatePayload:
-    type: object
-    properties:
-      firstName:
-        type: string
-        title: First Name
-        x-nullable: true
-      lastName:
-        type: string
-        title: Last Name
-        x-nullable: true
-      active:
-        type: boolean
-        x-nullable: true
-  ElectronicOrder:
-    type: object
-    required:
-      - id
-      - issuer
-      - ordersNumber
-      - createdAt
-      - updatedAt
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      issuer:
-        $ref: '#/definitions/Issuer'
-      ordersNumber:
-        type: string
-        title: Orders Number
-      createdAt:
-        type: string
-        format: date-time
-        title: Created at
-      updatedAt:
-        type: string
-        format: date-time
-        title: Updated at
-  ElectronicOrders:
+  OfficeUsers:
     type: array
     items:
-      $ref: '#/definitions/ElectronicOrder'
+      $ref: '#/definitions/OfficeUser'
   Organization:
     type: object
     required:
@@ -667,31 +595,170 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/Organization'
-  Issuer:
-    type: string
-    description: >-
-      Organization that issues orders. If more organizations, especially
-      civilian ones, become clients of this API in the future, this enumeration
-      may need to be expanded.
-    enum:
-      - army
-      - navy
-      - air-force
-      - marine-corps
-      - coast-guard
-  ElectronicOrdersTotal:
+  Role:
     type: object
     properties:
-      category:
+      id:
         type: string
-      count:
-        type: integer
-        minimum: 0
-        title: Total Orders Count
-  ElectronicOrdersTotals:
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      roleType:
+        type: string
+        example: customer
+      roleName:
+        type: string
+        example: Transportation Ordering Officer
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+    required:
+      - id
+      - roleType
+      - roleName
+      - createdAt
+      - updatedAt
+  ServiceMember:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      userId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      firstName:
+        type: string
+        title: First Name
+        x-nullable: true
+      middleName:
+        type: string
+        title: Middle Name
+        x-nullable: true
+      lastName:
+        type: string
+        title: Last Name
+        x-nullable: true
+  TransportationOffice:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      address:
+        $ref: '#/definitions/Address'
+      phoneLines:
+        type: array
+        items:
+          type: string
+          format: telephone
+          pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+          example: 212-555-5555
+      gbloc:
+        type: string
+        pattern: ^[A-Z]{4}$
+        example: JENQ
+      latitude:
+        type: number
+        format: float
+        example: 29.382973
+      longitude:
+        type: number
+        format: float
+        example: -98.62759
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - address
+      - createdAt
+      - updatedAt
+  TransportationOffices:
     type: array
     items:
-      $ref: '#/definitions/ElectronicOrdersTotal'
+      $ref: '#/definitions/TransportationOffice'
+  TransportationServiceProviderPerformance:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      trafficDistributionListId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      transportationServiceProviderId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      performancePeriodStart:
+        type: string
+        format: date-time
+      performancePeriodEnd:
+        type: string
+        format: date-time
+      rateCycleStart:
+        type: string
+        format: date-time
+      rateCycleEnd:
+        type: string
+        format: date-time
+      qualityBand:
+        type: integer
+        x-nullable: true
+        example: 29
+      bestValueScore:
+        type: number
+        example: 98.01
+      linehaulRate:
+        type: number
+        example: 0.26085695149376986
+      sitRate:
+        type: number
+        example: 0.26085695149376986
+      offerCount:
+        type: integer
+        example: 1
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+    required:
+      - id
+      - trafficDistributionListId
+      - transportationServiceProviderId
+      - performancePeriodStart
+      - performancePeriodEnd
+      - rateCycleStart
+      - rateCycleEnd
+      - bestValueScore
+      - linehaulRate
+      - sitRate
+      - offerCount
+      - createdAt
+      - updatedAt
+  TransportationServiceProviderPerformances:
+    type: array
+    items:
+      $ref: '#/definitions/TransportationServiceProviderPerformance'
   Upload:
     type: object
     properties:
@@ -757,114 +824,72 @@ definitions:
       officeUserEmail:
         type: string
         x-nullable: true
-  Notification:
-    type: object
-    required:
-      - id
-      - email
-      - serviceMemberId
-      - sesMessageId
-      - notificationType
-      - createdAt
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      email:
-        type: string
-      serviceMemberId:
-        type: string
-        format: uuid
-      sesMessageId:
-        type: string
-      notificationType:
-        type: string
-        enum:
-          - MOVE_REVIEWED_EMAIL
-          - MOVE_PAYMENT_REMINDER_EMAIL
-      createdAt:
-        type: string
-        format: date-time
-  Notifications:
-    type: array
-    items:
-      $ref: '#/definitions/Notification'
-  MoveStatus:
-    type: string
-    title: Move status
-    enum:
-      - DRAFT
-      - SUBMITTED
-      - APPROVED
-      - CANCELED
-    x-display-value:
-      DRAFT: Draft
-      SUBMITTED: Submitted
-      APPROVED: Approved
-      CANCELED: Canceled
-  Moves:
-    type: array
-    items:
-      $ref: '#/definitions/Move'
-  Move:
+  User:
     type: object
     properties:
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      ordersId:
+      loginGovEmail:
         type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      serviceMember:
-        $ref: '#/definitions/ServiceMember'
-      locator:
-        type: string
-        example: '12432'
-      status:
-        $ref: '#/definitions/MoveStatus'
-      show:
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      active:
         type: boolean
-        x-nullable: true
       createdAt:
         type: string
         format: date-time
       updatedAt:
         type: string
         format: date-time
+      currentAdminSessionId:
+        type: string
+        example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
+      currentMilSessionId:
+        type: string
+        example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
+      currentOfficeSessionId:
+        type: string
+        example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
     required:
-      - id
-      - ordersId
-      - locator
+      - loginGovEmail
+      - active
       - createdAt
       - updatedAt
-  ServiceMember:
+      - currentAdminSessionId
+      - currentMilSessionId
+      - currentOfficeSessionId
+  Users:
+    type: array
+    items:
+      $ref: '#/definitions/User'
+  UserUpdate:
     type: object
     properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      userId:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      firstName:
-        type: string
-        title: First Name
+      revokeAdminSession:
+        type: boolean
         x-nullable: true
-      middleName:
-        type: string
-        title: Middle Name
+      revokeOfficeSession:
+        type: boolean
         x-nullable: true
-      lastName:
-        type: string
-        title: Last Name
+      revokeMilSession:
+        type: boolean
         x-nullable: true
+      active:
+        type: boolean
+        x-nullable: true
+  ValidationError:
+    allOf:
+      - $ref: '#/definitions/ClientError'
+      - type: object
+    properties:
+      invalidFields:
+        type: object
+        additionalProperties:
+          type: string
+    required:
+      - invalidFields
   WebhookSubscription:
     type: object
     description: >-
@@ -926,31 +951,6 @@ definitions:
       ACTIVE: Active
       FAILING: Failing
       DISABLED: Disabled
-  CreateWebhookSubscription:
-    type: object
-    properties:
-      subscriberId:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      status:
-        $ref: '#/definitions/WebhookSubscriptionStatus'
-      eventKey:
-        type: string
-        description: >-
-          A string used to represent which events this subscriber expects to be
-          notified about. Corresponds to the possible event_key values in
-          webhook_notifications.
-      callbackUrl:
-        type: string
-        description: >-
-          The URL to which the notifications for this subscription will be
-          pushed to.
-    required:
-      - subscriberId
-      - status
-      - eventKey
-      - callbackUrl
 paths:
   /office_users:
     get:
@@ -1003,7 +1003,7 @@ paths:
           name: officeUser
           description: Office user information
           schema:
-            $ref: '#/definitions/OfficeUserCreatePayload'
+            $ref: '#/definitions/OfficeUserCreate'
       responses:
         '201':
           description: Successfully created Office User
@@ -1057,7 +1057,7 @@ paths:
           description: Office user information
           required: true
           schema:
-            $ref: '#/definitions/OfficeUserUpdatePayload'
+            $ref: '#/definitions/OfficeUserUpdate'
       responses:
         '200':
           description: Successfully updated Office User
@@ -1190,7 +1190,7 @@ paths:
           name: adminUser
           description: Admin user information
           schema:
-            $ref: '#/definitions/AdminUserCreatePayload'
+            $ref: '#/definitions/AdminUserCreate'
       responses:
         '201':
           description: Successfully created Admin User
@@ -1246,7 +1246,7 @@ paths:
           description: Admin user information
           required: true
           schema:
-            $ref: '#/definitions/AdminUserUpdatePayload'
+            $ref: '#/definitions/AdminUserUpdate'
       responses:
         '200':
           description: Successfully updated Admin User
@@ -1569,7 +1569,7 @@ paths:
           description: Move information
           required: true
           schema:
-            $ref: '#/definitions/MoveUpdatePayload'
+            $ref: '#/definitions/MoveUpdate'
       responses:
         '200':
           description: Successfully updated the Mov
@@ -1669,7 +1669,7 @@ paths:
           description: User information
           required: true
           schema:
-            $ref: '#/definitions/UserUpdatePayload'
+            $ref: '#/definitions/UserUpdate'
       responses:
         '200':
           description: Successfully updated User

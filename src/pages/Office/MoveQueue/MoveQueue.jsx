@@ -6,13 +6,15 @@ import styles from './MoveQueue.module.scss';
 import { HistoryShape } from 'types/router';
 import { createHeader } from 'components/Table/utils';
 import { useMovesQueueQueries, useUserQueries } from 'hooks/queries';
-import { serviceMemberAgencyLabel } from 'utils/formatters';
+import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS, GBLOC, MOVE_STATUS_LABELS } from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
+import { DATE_FORMAT_STRING } from 'shared/constants';
 
 const columns = (showBranchFilter = true) => [
   createHeader('ID', 'id'),
@@ -46,6 +48,18 @@ const columns = (showBranchFilter = true) => [
     id: 'locator',
     isFilterable: true,
   }),
+  createHeader(
+    'Requested move date',
+    (row) => {
+      return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
+    },
+    {
+      id: 'requestedMoveDate',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <DateSelectFilter dateTime {...props} />,
+    },
+  ),
   createHeader(
     'Branch',
     (row) => {

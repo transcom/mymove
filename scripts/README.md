@@ -149,13 +149,12 @@ This subset of development scripts is used for testing
 
 | Script Name                           | Description                                                                                      |
 | ------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `ensure-go-test-coverage`              | Parse the go test coverage to ensure coverage increases                                                          |
-| `ensure-js-test-coverage`              | Parse the js test coverage to ensure coverage increases                                                          |
-| `ensure-spectral-lint`                 | Parse the spectral lint output to ensure error/warning counts decrease                                           |
-| `run-e2e-test`                        | Runs cypress tests with interactive GUI                                                          |
-| `run-e2e-test-docker`                 | Runs cypress tests entirely inside docker containers like in CircleCI                            |
-| `run-e2e-mtls-test-docker`            | Runs integration tests for mtls endpoints inside docker containers like in CircleCI              |
-| `run-server-test`                     | Run golang server tests                                                                          |
+| `ensure-go-test-coverage`              | Parse the go test coverage to ensure coverage increases                                         |
+| `ensure-js-test-coverage`              | Parse the js test coverage to ensure coverage increases                                         |
+| `ensure-spectral-lint`                 | Parse the spectral lint output to ensure error/warning counts decrease                          |
+| `run-e2e-mtls-test`                    | Runs playwright integration tests                                                               |
+| `run-e2e-test`                         | Runs integration tests for mtls endpoints                                                       |
+| `run-server-test`                      | Run golang server tests                                                                         |
 
 ### Secure Migrations
 
@@ -206,10 +205,11 @@ These scripts are primarily used for working with a CAC and the Orders API
 
 These scripts are primarily for working with Mutual TLS certificates
 
-| Script Name                      | Description                                                        |
-| -------------------------------- | ------------------------------------------------------------------ |
-| `mutual-tls-extract-fingerprint` | Get SHA 256 fingerprint of the public certificate from a cert file |
-| `mutual-tls-extract-subject`     | Get a sha256 hash of the certificate from a cert file              |
+| Script Name                      | Description                                                          |
+| -------------------------------- | -------------------------------------------------------------------- |
+| `generate-p7b-file`              | Creates a concatenated p7b file from several certificate file formats|
+| `mutual-tls-extract-fingerprint` | Get SHA 256 fingerprint of the public certificate from a cert file   |
+| `mutual-tls-extract-subject`     | Get a sha256 hash of the certificate from a cert file                |
 
 ### Amazon Console Scripts
 

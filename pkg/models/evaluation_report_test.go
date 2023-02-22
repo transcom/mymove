@@ -6,7 +6,9 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -23,7 +25,7 @@ func (suite *ModelSuite) TestReport() {
 		suite.NoError(err)
 	})
 
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	virtualInspection := models.EvaluationReportInspectionTypeVirtual
 	dataReviewInspection := models.EvaluationReportInspectionTypeDataReview
