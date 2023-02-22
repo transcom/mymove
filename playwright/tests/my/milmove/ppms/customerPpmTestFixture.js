@@ -555,6 +555,8 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * @param {number} ticketIndex
+   * @param {boolean} isLastWeightTicket
    */
   async deleteWeightTicket(ticketIndex, isLastWeightTicket) {
     const weightMoved = await this.page.getByRole('heading', { name: 'Weight moved' });
@@ -578,6 +580,8 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * @param {number} index
+   * @param {boolean} isLastProGear
    */
   async deleteProGearExpense(index, isLastProGear) {
     const proGearExpense = await this.page.getByRole('heading', { name: 'Pro-gear' });
@@ -594,6 +598,8 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * @param {number} index
+   * @param {boolean} isLastMovingExpense
    */
   async deleteMovingExpense(index, isLastMovingExpense) {
     const moveExpense = await this.page.getByRole('heading', { name: 'Expenses' });
