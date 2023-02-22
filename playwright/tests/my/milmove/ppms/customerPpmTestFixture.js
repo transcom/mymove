@@ -555,16 +555,55 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
-   * @param {import('@playwright/test').Locator} locator
-   * @param {string} expectedMessage
    */
-  // async deleteLineItem(locator, expectedMessage) {
-  //   await locator.getByText('Delete').nth(1).click();
-  //   const modal = this.page.locator('[data-testid="modal"]');
-  //   await expect(modal).toBeVisible();
-  //   await modal.getByRole('button', { name: 'Yes, Delete' }).click();
-  //   // await expect(this.page.locator('[data-testid="alert"]')).toContainText('The shipment was deleted.');
-  // }
+  async deleteWeightTicket() {
+    const weightMoved = await this.page.getByRole('heading', { name: 'Weight moved' });
+    await expect(weightMoved).toBeVisible();
+    const weightMovedContainer = weightMoved.locator('../../..');
+    await expect(weightMovedContainer).toBeVisible();
+    await weightMovedContainer.getByRole('button', { name: 'Delete' }).nth(0).click();
+    await expect(this.page.getByText('You are about to delete Trip 1')).toBeVisible();
+    await this.page.getByRole('button', { name: 'Yes, Delete' }).click();
+    // await expect(
+    //   this.page.getByText('No weight moved documented. At least one trip is required to continue.'),
+    // ).toBeVisible();
+    // await expect(
+    //   this.page.getByText(
+    //     'There are items below that are missing required information. Please select “Edit” to enter all required information or “Delete” to remove the item.',
+    //   ),
+    // ).toBeVisible();
+    await expect(this.page.getByText('Trip 1 successfully deleted.')).toBeVisible();
+  }
+
+  /**
+   */
+  async deleteProGearExpense() {
+    const proGearExpense = await this.page.getByRole('heading', { name: 'Pro-gear' });
+    await expect(proGearExpense).toBeVisible();
+    const proGearExpenseContainer = proGearExpense.locator('../../..');
+    await expect(proGearExpenseContainer).toBeVisible();
+    await expect(proGearExpenseContainer.getByRole('button', { name: 'Delete' })).toBeVisible();
+    await proGearExpenseContainer.getByRole('button', { name: 'Delete' }).click();
+    await expect(this.page.getByText('You are about to delete Set 1')).toBeVisible();
+    await this.page.getByRole('button', { name: 'Yes, Delete' }).click();
+    await expect(this.page.getByText('No pro-gear weight documented.')).toBeVisible();
+    await expect(this.page.getByText('Set 1 successfully deleted.')).toBeVisible();
+  }
+
+  /**
+   */
+  async deleteMovingExpense() {
+    const moveExpense = await this.page.getByRole('heading', { name: 'Expenses' });
+    await expect(moveExpense).toBeVisible();
+    const moveExpensesContainer = moveExpense.locator('../../..');
+    await expect(moveExpensesContainer).toBeVisible();
+    await expect(moveExpensesContainer.getByRole('button', { name: 'Delete' })).toBeVisible();
+    await moveExpensesContainer.getByRole('button', { name: 'Delete' }).click();
+    await expect(this.page.getByText('You are about to delete Receipt 1')).toBeVisible();
+    await this.page.getByRole('button', { name: 'Yes, Delete' }).click();
+    await expect(this.page.getByText('No receipts uploaded.')).toBeVisible();
+    await expect(this.page.getByText('Receipt 1 successfully deleted.')).toBeVisible();
+  }
 
   /**
    * @param {string[][]} shipmentCardFields
@@ -628,6 +667,30 @@ export class CustomerPpmPage extends CustomerPage {
       this.page.locator('.reviewWeightTickets a').getByText('Edit').click(),
     ]);
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
+  }
+
+  /**
+   */
+  async navigateFromCloseoutReviewPageToAddWeightTicketPage() {
+    await Promise.all([
+      this.page.waitForNavigation(),
+      this.page.getByRole('link', { name: 'Add More Weight' }).click(),
+    ]);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
+  }
+
+  /**
+   */
+  async cancelAddWeightTicketAndReturnToCloseoutReviewPage() {
+    await Promise.all([
+      this.page.waitForNavigation(),
+      this.page.getByRole('button', { name: 'Return to Homepage' }).click(),
+    ]);
+    await expect(this.page).toHaveURL(/\//);
+  }
+
+  async checkIncentive(expectedIncentive) {
+    await expect(this.page.getByText(`Your final estimated incentive: ${expectedIncentive}`)).toBeVisible();
   }
 
   /**
