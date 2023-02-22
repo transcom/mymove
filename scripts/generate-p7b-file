@@ -1,7 +1,8 @@
-! /usr/bin/env bash
-# The purpose of this function is to create a p7b file from a collection of certificate files that get passed in
+#! /usr/bin/env bash
+# The purpose of this function is to create a p7b file from a collection of certificate files that get passed in.
+# Run this from the root of the mymove directory and it will place it in config/tls/milmove-cert-bundle.p7b, replacing the current one
 ## Usage:
-## ./scripts/generate-p7b-file <YOUR/DESIRED/OUTPUT/PATH/FILENAME>.p7b cert1.pem cert2.pem cert3.p7b cert4.der.p7b cert5.cer cert6.crt
+## ./scripts/generate-p7b-file cert1.pem cert2.pem cert3.p7b cert4.der.p7b cert5.cer cert6.crt
 
 set -e -o pipefail
 # Function to convert DER-encoded p7b files to PEM format
@@ -46,16 +47,12 @@ function verify_and_convert_cer_crt_to_pem() {
 
 # Check if the required argument is passed
 if [ $# -lt 1 ]; then
-  echo "Usage: $0 output_file input_file1 [input_file2 ...]"
+  echo "Usage: $0 input_file1 [input_file2 ...]"
   exit 1
 fi
 
 # Create a temporary directory for generated files. I called it tmp_certs to avoid collision with tmp
 mkdir -p tmp_certs
-
-# Extract the output file and remove it from the argument list
-output_file="$1"
-shift
 
 # Convert any DER-encoded p7b files to PEM format
 for file in "$@"; do
@@ -75,9 +72,9 @@ done
 cat tmp_certs/*.pem > tmp_certs/merged.pem
 
 # convert to p7b
-openssl crl2pkcs7 -nocrl -certfile tmp_certs/merged.pem -outform DER -out "$output_file"
+openssl crl2pkcs7 -nocrl -certfile tmp_certs/merged.pem -outform DER -out config/tls/milmove-cert-bundle.p7b
 
 # Clean up any temporary files
 rm -rf tmp_certs
 
-echo "All files packaged into $output_file"
+echo "All files packaged into config/tls/milmove-cert-bundle.p7b"
