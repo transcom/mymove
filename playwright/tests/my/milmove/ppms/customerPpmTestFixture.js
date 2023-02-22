@@ -556,53 +556,57 @@ export class CustomerPpmPage extends CustomerPage {
 
   /**
    */
-  async deleteWeightTicket() {
+  async deleteWeightTicket(ticketIndex, isLastWeightTicket) {
     const weightMoved = await this.page.getByRole('heading', { name: 'Weight moved' });
     await expect(weightMoved).toBeVisible();
     const weightMovedContainer = weightMoved.locator('../../..');
     await expect(weightMovedContainer).toBeVisible();
-    await weightMovedContainer.getByRole('button', { name: 'Delete' }).nth(0).click();
-    await expect(this.page.getByText('You are about to delete Trip 1')).toBeVisible();
+    await weightMovedContainer.getByRole('button', { name: 'Delete' }).nth(ticketIndex).click();
+    await expect(this.page.getByText(`You are about to delete Trip ${1 + ticketIndex}`)).toBeVisible();
     await this.page.getByRole('button', { name: 'Yes, Delete' }).click();
-    // await expect(
-    //   this.page.getByText('No weight moved documented. At least one trip is required to continue.'),
-    // ).toBeVisible();
-    // await expect(
-    //   this.page.getByText(
-    //     'There are items below that are missing required information. Please select “Edit” to enter all required information or “Delete” to remove the item.',
-    //   ),
-    // ).toBeVisible();
-    await expect(this.page.getByText('Trip 1 successfully deleted.')).toBeVisible();
+    if (isLastWeightTicket) {
+      await expect(
+        this.page.getByText('No weight moved documented. At least one trip is required to continue.'),
+      ).toBeVisible();
+      await expect(
+        this.page.getByText(
+          'There are items below that are missing required information. Please select “Edit” to enter all required information or “Delete” to remove the item.',
+        ),
+      ).toBeVisible();
+    }
+    await expect(this.page.getByText(`Trip ${1 + ticketIndex} successfully deleted.`)).toBeVisible();
   }
 
   /**
    */
-  async deleteProGearExpense() {
+  async deleteProGearExpense(index, isLastProGear) {
     const proGearExpense = await this.page.getByRole('heading', { name: 'Pro-gear' });
     await expect(proGearExpense).toBeVisible();
     const proGearExpenseContainer = proGearExpense.locator('../../..');
     await expect(proGearExpenseContainer).toBeVisible();
-    await expect(proGearExpenseContainer.getByRole('button', { name: 'Delete' })).toBeVisible();
-    await proGearExpenseContainer.getByRole('button', { name: 'Delete' }).click();
-    await expect(this.page.getByText('You are about to delete Set 1')).toBeVisible();
+    await proGearExpenseContainer.getByRole('button', { name: 'Delete' }).nth(index).click();
+    await expect(this.page.getByText(`You are about to delete Set ${1 + index}`)).toBeVisible();
     await this.page.getByRole('button', { name: 'Yes, Delete' }).click();
-    await expect(this.page.getByText('No pro-gear weight documented.')).toBeVisible();
-    await expect(this.page.getByText('Set 1 successfully deleted.')).toBeVisible();
+    await expect(this.page.getByText(`Set ${1 + index} successfully deleted.`)).toBeVisible();
+    if (isLastProGear) {
+      await expect(this.page.getByText('No pro-gear weight documented.')).toBeVisible();
+    }
   }
 
   /**
    */
-  async deleteMovingExpense() {
+  async deleteMovingExpense(index, isLastMovingExpense) {
     const moveExpense = await this.page.getByRole('heading', { name: 'Expenses' });
     await expect(moveExpense).toBeVisible();
     const moveExpensesContainer = moveExpense.locator('../../..');
     await expect(moveExpensesContainer).toBeVisible();
-    await expect(moveExpensesContainer.getByRole('button', { name: 'Delete' })).toBeVisible();
-    await moveExpensesContainer.getByRole('button', { name: 'Delete' }).click();
-    await expect(this.page.getByText('You are about to delete Receipt 1')).toBeVisible();
+    await moveExpensesContainer.getByRole('button', { name: 'Delete' }).nth(index).click();
+    await expect(this.page.getByText(`You are about to delete Receipt ${index + 1}`)).toBeVisible();
     await this.page.getByRole('button', { name: 'Yes, Delete' }).click();
-    await expect(this.page.getByText('No receipts uploaded.')).toBeVisible();
-    await expect(this.page.getByText('Receipt 1 successfully deleted.')).toBeVisible();
+    await expect(this.page.getByText(`Receipt ${index + 1} successfully deleted.`)).toBeVisible();
+    if (isLastMovingExpense) {
+      await expect(this.page.getByText('No receipts uploaded.')).toBeVisible();
+    }
   }
 
   /**
@@ -661,6 +665,16 @@ export class CustomerPpmPage extends CustomerPage {
 
   /**
    */
+  async navigateFromCloseoutReviewPageToAddProGearPage() {
+    await Promise.all([
+      this.page.waitForNavigation(),
+      this.page.getByRole('link', { name: 'Add Pro-gear Weight' }).click(),
+    ]);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
+  }
+
+  /**
+   */
   async navigateFromCloseoutReviewPageToEditWeightTicketPage() {
     await Promise.all([
       this.page.waitForNavigation(),
@@ -681,12 +695,13 @@ export class CustomerPpmPage extends CustomerPage {
 
   /**
    */
-  async cancelAddWeightTicketAndReturnToCloseoutReviewPage() {
+  async cancelAddLineItemAndReturnToCloseoutReviewPage() {
     await Promise.all([
       this.page.waitForNavigation(),
       this.page.getByRole('button', { name: 'Return to Homepage' }).click(),
     ]);
     await expect(this.page).toHaveURL(/\//);
+    await this.navigateToPPMReviewPage();
   }
 
   async checkIncentive(expectedIncentive) {
@@ -705,6 +720,13 @@ export class CustomerPpmPage extends CustomerPage {
 
   /**
    */
+  async navigateFromCloseoutReviewPageToAddExpensePage() {
+    await Promise.all([this.page.waitForNavigation(), this.page.getByRole('link', { name: 'Add Expenses' }).click()]);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
+  }
+
+  /**
+   */
   async navigateFromCloseoutReviewPageToAboutPage() {
     await this.page.locator('[data-testid="aboutYourPPM"] a').getByText('Edit').click();
   }
@@ -718,6 +740,19 @@ export class CustomerPpmPage extends CustomerPage {
     ]);
 
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+  }
+
+  async verifySaveAndContinueDisabled() {
+    await expect(this.page.getByRole('link', { name: 'Save & Continue' })).toBeDisabled();
+    await expect(
+      this.page.getByText(
+        'There are items below that are missing required information. Please select “Edit” to enter all required information or “Delete” to remove the item.',
+      ),
+    ).toBeVisible();
+  }
+
+  async verifySaveAndContinueEnabled() {
+    await expect(this.page.getByRole('link', { name: 'Save & Continue' })).toBeEnabled();
   }
 
   /**
