@@ -43,7 +43,7 @@ test('Users can upload orders', async ({ page, customerPage }) => {
   // Upload an orders document, then submit
   // Annoyingly, there's no test IDs or labeling text for this control, so the only way to access it is .locator
   const filepondContainer = page.locator('.filepond--wrapper');
-  await customerPage.uploadFileViaFilepond(filepondContainer, 'sampleWeightTicket.jpg');
+  await customerPage.uploadFileViaFilepond(filepondContainer, 'AF Orders Sample.pdf');
   await customerPage.navigateForward();
 
   // Verify that we're on the home page and that orders have been uploaded
