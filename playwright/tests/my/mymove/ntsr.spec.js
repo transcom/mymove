@@ -23,7 +23,7 @@ test('A customer can create, edit, and delete an NTS-release shipment', async ({
   await page.getByLabel('Preferred delivery date').blur();
   await page.getByLabel('Address 1').fill('7 Q St');
   await page.getByLabel('City').fill('Atco');
-  await page.getByLabel('State').selectOption('NJ');
+  await page.getByLabel('State').selectOption({ label: 'NJ' });
   await page.getByLabel('ZIP').fill('08004');
   await page.getByTestId('remarks').fill('Grandfather antique clock');
   await customerPage.navigateForward();

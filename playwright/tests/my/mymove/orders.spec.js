@@ -13,7 +13,7 @@ test('Users can upload orders', async ({ page, customerPage }) => {
   await customerPage.waitForPage.ordersDetails();
 
   // Fill in orders details
-  await page.getByTestId('dropdown').selectOption('PERMANENT_CHANGE_OF_STATION');
+  await page.getByTestId('dropdown').selectOption({ label: 'Permanent Change Of Station (PCS)' });
   await page.getByLabel('Orders date').fill('6/2/2018');
   await page.getByLabel('Orders date').blur();
   await page.getByLabel('Report by date').fill('8/9/2018');

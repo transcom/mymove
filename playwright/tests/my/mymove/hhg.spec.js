@@ -42,7 +42,7 @@ test('A customer can create, edit, and delete an HHG shipment', async ({ page, c
   await pickupAddress.getByLabel('Address 1').fill('7 Q St');
   await pickupAddress.getByLabel('Address 2').clear();
   await pickupAddress.getByLabel('City').fill('Atco');
-  await pickupAddress.getByLabel('State').selectOption('NJ');
+  await pickupAddress.getByLabel('State').selectOption({ label: 'NJ' });
   await pickupAddress.getByLabel('ZIP').fill('08004');
 
   const deliveryAddress = await page.getByRole('group', { name: 'Delivery location' });
@@ -50,7 +50,7 @@ test('A customer can create, edit, and delete an HHG shipment', async ({ page, c
   await deliveryAddress.getByLabel('Address 1').fill('9 W 2nd Ave');
   await deliveryAddress.getByLabel('Address 2').fill('P.O. Box 456');
   await deliveryAddress.getByLabel('City').fill('Hollywood');
-  await deliveryAddress.getByLabel('State').selectOption('MD');
+  await deliveryAddress.getByLabel('State').selectOption({ label: 'MD' });
   await deliveryAddress.getByLabel('ZIP').fill('20636');
   await customerPage.navigateForward();
 
