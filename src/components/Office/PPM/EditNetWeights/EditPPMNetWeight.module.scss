@@ -5,7 +5,6 @@
 
 .calculationWrapper{
     flex: 1;
-    //@include u-margin-top(2);
 }
 .calculations {
     display: grid;
@@ -17,6 +16,7 @@
     font-size: 13px;
     .value {
         display: inline-block;
+        color: $base-darker
   }
   .label {
     color: $base;
@@ -108,3 +108,12 @@ h5 {
     width: fit-content;
     @include u-margin-top(2);
   }
+
+  .remarksHeader{
+    margin: 0;
+    @include u-margin-top(2);
+  }
+.remarks{
+    margin: 0;
+    @include u-margin-bottom(3);
+}

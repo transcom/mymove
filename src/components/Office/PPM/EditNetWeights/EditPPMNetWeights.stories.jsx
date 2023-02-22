@@ -28,6 +28,7 @@ EditPPMNetWeightDefault.args = {
   totalBillableWeight: 11000,
   estimatedWeight: 13000,
   billableWeight: 7000,
+  ppmNetWeightRemarks: 'Everything seems fine',
 };
 
 export const EditPPMNetWeightExcessWeight = Template.bind({});
@@ -38,4 +39,5 @@ EditPPMNetWeightExcessWeight.args = {
   totalBillableWeight: 21000,
   estimatedWeight: 13000,
   billableWeight: 7000,
+  ppmNetWeightRemarks: '',
 };

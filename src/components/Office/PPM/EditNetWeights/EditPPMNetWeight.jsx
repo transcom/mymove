@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 // import { func, number, string, bool } from 'prop-types';
-import { Button, Fieldset, Label, Textarea, InputSuffix, TextInput, FormGroup } from '@trussworks/react-uswds';
+import { Button, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 
 import styles from './EditPPMNetWeight.module.scss';
 
@@ -112,7 +112,7 @@ const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => (
               onBlur={() => {
                 setTouched({ ppmNetWeightRemarks: true }, false);
               }}
-              values={values.ppmNetWeightRemarks}
+              value={values.ppmNetWeightRemarks}
             />
           </ErrorIndicator>
           <FlexContainer className={styles.wrapper}>
@@ -130,8 +130,9 @@ const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => (
 );
 
 const EditPPMNetWeight = ({
+  ppmNetWeightRemarks,
   billableWeight,
-  estimatedWeight,
+  // estimatedWeight,
   originalWeight,
   maxBillableWeight,
   totalBillableWeight,
@@ -166,13 +167,19 @@ const EditPPMNetWeight = ({
           {!showEditForm ? (
             <div className={styles.wrapper}>
               {formatWeight(originalWeight)}
+              {ppmNetWeightRemarks && (
+                <>
+                  <h5 className={styles.remarksHeader}>Remarks</h5>
+                  <p className={styles.remarks}>{ppmNetWeightRemarks}</p>
+                </>
+              )}
               <Button onClick={toggleEditForm} className={styles.editButton}>
                 Edit
               </Button>
             </div>
           ) : (
             <EditPPMNetWeightForm
-              initialValues={{ ppmNetWeight: String(originalWeight), ppmNetWeightRemarks: '' }}
+              initialValues={{ ppmNetWeight: String(originalWeight), ppmNetWeightRemarks }}
               onCancel={toggleEditForm}
             />
           )}
