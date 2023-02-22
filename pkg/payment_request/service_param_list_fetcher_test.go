@@ -1,6 +1,7 @@
 package paymentrequest
 
 import (
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -19,24 +20,30 @@ func (suite *PaymentRequestHelperSuite) TestFetchServiceParamList() {
 	})
 
 	// Make a few keys
-	contractCodeKey := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:    models.ServiceItemParamNameContractCode,
-			Origin: models.ServiceItemParamOriginSystem,
+	contractCodeKey := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:    models.ServiceItemParamNameContractCode,
+				Origin: models.ServiceItemParamOriginSystem,
+			},
 		},
-	})
-	contractYearNameKey := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:    models.ServiceItemParamNameContractYearName,
-			Origin: models.ServiceItemParamOriginPricer,
+	}, nil)
+	contractYearNameKey := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:    models.ServiceItemParamNameContractYearName,
+				Origin: models.ServiceItemParamOriginPricer,
+			},
 		},
-	})
-	weightEstimatedKey := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:    models.ServiceItemParamNameWeightEstimated,
-			Origin: models.ServiceItemParamOriginPrime,
+	}, nil)
+	weightEstimatedKey := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:    models.ServiceItemParamNameWeightEstimated,
+				Origin: models.ServiceItemParamOriginPrime,
+			},
 		},
-	})
+	}, nil)
 
 	// Make the service param associations
 	var serviceKeysAssociation = []struct {
