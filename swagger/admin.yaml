@@ -1036,7 +1036,7 @@ paths:
         '500':
           description: server error
     patch:
-      summary: Updates an office user
+      description: Updates an office user
       operationId: updateOfficeUser
       tags:
         - office_users
@@ -1225,7 +1225,7 @@ paths:
         '500':
           description: server error
     patch:
-      summary: Updates an admin user
+      description: Updates an admin user
       operationId: updateAdminUser
       tags:
         - admin_users
@@ -1648,7 +1648,7 @@ paths:
         '500':
           description: server error
     patch:
-      summary: Update a user's session or active status
+      description: Update a user's session or active status
       operationId: updateUser
       tags:
         - users
@@ -1751,7 +1751,12 @@ paths:
   /webhook_subscriptions/{webhookSubscriptionId}:
     get:
       summary: Get information about a webhook subscription
-      description: Returns the given webhook subscription and its details
+      description: >
+        This endpoint returns a single WebhookSubscription by ID. Do not use
+        this
+
+        endpoint directly as it is meant to be used with the Admin UI and not
+        directly.
       operationId: getWebhookSubscription
       tags:
         - webhook_subscriptions
@@ -1775,7 +1780,11 @@ paths:
         '500':
           description: server error
     patch:
-      summary: Update a webhook subscription
+      description: >
+        This endpoint updates a WebhookSubscription by ID. Do not use this
+        endpoint
+
+        directly as it is meant to be used with the Admin UI and not directly.
       operationId: updateWebhookSubscription
       tags:
         - webhook_subscriptions

@@ -34,7 +34,8 @@ func NewGetWebhookSubscription(ctx *middleware.Context, handler GetWebhookSubscr
 
 # Get information about a webhook subscription
 
-Returns the given webhook subscription and its details
+This endpoint returns a single WebhookSubscription by ID. Do not use this
+endpoint directly as it is meant to be used with the Admin UI and not directly.
 */
 type GetWebhookSubscription struct {
 	Context *middleware.Context

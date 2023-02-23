@@ -179,10 +179,10 @@ func init() {
         }
       },
       "patch": {
+        "description": "Updates an admin user",
         "tags": [
           "admin_users"
         ],
-        "summary": "Updates an admin user",
         "operationId": "updateAdminUser",
         "parameters": [
           {
@@ -692,10 +692,10 @@ func init() {
         }
       },
       "patch": {
+        "description": "Updates an office user",
         "tags": [
           "office_users"
         ],
-        "summary": "Updates an office user",
         "operationId": "updateOfficeUser",
         "parameters": [
           {
@@ -1109,10 +1109,10 @@ func init() {
         }
       },
       "patch": {
+        "description": "Update a user's session or active status",
         "tags": [
           "users"
         ],
-        "summary": "Update a user's session or active status",
         "operationId": "updateUser",
         "parameters": [
           {
@@ -1266,7 +1266,7 @@ func init() {
     },
     "/webhook_subscriptions/{webhookSubscriptionId}": {
       "get": {
-        "description": "Returns the given webhook subscription and its details",
+        "description": "This endpoint returns a single WebhookSubscription by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI and not directly.\n",
         "tags": [
           "webhook_subscriptions"
         ],
@@ -1303,10 +1303,10 @@ func init() {
         }
       },
       "patch": {
+        "description": "This endpoint updates a WebhookSubscription by ID. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI and not directly.\n",
         "tags": [
           "webhook_subscriptions"
         ],
-        "summary": "Update a webhook subscription",
         "operationId": "updateWebhookSubscription",
         "parameters": [
           {
@@ -2713,10 +2713,10 @@ func init() {
         }
       },
       "patch": {
+        "description": "Updates an admin user",
         "tags": [
           "admin_users"
         ],
-        "summary": "Updates an admin user",
         "operationId": "updateAdminUser",
         "parameters": [
           {
@@ -3226,10 +3226,10 @@ func init() {
         }
       },
       "patch": {
+        "description": "Updates an office user",
         "tags": [
           "office_users"
         ],
-        "summary": "Updates an office user",
         "operationId": "updateOfficeUser",
         "parameters": [
           {
@@ -3643,10 +3643,10 @@ func init() {
         }
       },
       "patch": {
+        "description": "Update a user's session or active status",
         "tags": [
           "users"
         ],
-        "summary": "Update a user's session or active status",
         "operationId": "updateUser",
         "parameters": [
           {
@@ -3800,7 +3800,7 @@ func init() {
     },
     "/webhook_subscriptions/{webhookSubscriptionId}": {
       "get": {
-        "description": "Returns the given webhook subscription and its details",
+        "description": "This endpoint returns a single WebhookSubscription by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI and not directly.\n",
         "tags": [
           "webhook_subscriptions"
         ],
@@ -3837,10 +3837,10 @@ func init() {
         }
       },
       "patch": {
+        "description": "This endpoint updates a WebhookSubscription by ID. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI and not directly.\n",
         "tags": [
           "webhook_subscriptions"
         ],
-        "summary": "Update a webhook subscription",
         "operationId": "updateWebhookSubscription",
         "parameters": [
           {
