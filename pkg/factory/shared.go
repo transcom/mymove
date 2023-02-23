@@ -33,7 +33,6 @@ type CustomType string
 // This does not have to match the model type but generally will
 // You can have CustomType like ResidentialAddress to define specifically
 // where this address will get created and nested
-var control CustomType = "Control"
 var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
 var Contractor CustomType = "Contractor"
@@ -122,12 +121,6 @@ var DutyLocations = dutyLocationsGroup{
 	NewDutyLocation:    "NewDutyLocation",
 }
 
-// controlObject is a struct used to control the global behavior of a
-// set of customizations
-type controlObject struct {
-	isValid bool // has this set of customizations been validated
-}
-
 // Trait is a function that returns a set of customizations
 // Every Trait should start with GetTrait for discoverability
 type Trait func() []Customization
@@ -177,30 +170,11 @@ func linkOnlyHasID(clist []Customization) error {
 // by applying and merging the traits.
 // customs is a slice that will be modified by setupCustomizations.
 //
-//   - Ensures a control object has been created
 //   - Assigns default types to all default customizations
 //   - Merges customizations and traits
 //   - Ensure there's only one customization per type
 func setupCustomizations(customs []Customization, traits []Trait) []Customization {
 
-	// If a valid control object does not exist, create
-	_, controlCustom := findCustomWithIdx(customs, control)
-	if controlCustom == nil {
-		controlCustom = &Customization{
-			Model: controlObject{
-				isValid: false,
-			},
-			Type: &control,
-		}
-		customs = append(customs, *controlCustom)
-	}
-	// If it exists and is valid, return, this list has been setup and validated
-	controller := controlCustom.Model.(controlObject)
-	if controller.isValid {
-		return customs
-	}
-
-	// If not valid:
 	// Ensure LinkOnly customizations all have ID
 	err := linkOnlyHasID(customs)
 	if err != nil {
@@ -216,7 +190,6 @@ func setupCustomizations(customs []Customization, traits []Trait) []Customizatio
 		log.Panic(err)
 	}
 	// Store the validation result
-	controller.isValid = true
 	return customs
 
 }
