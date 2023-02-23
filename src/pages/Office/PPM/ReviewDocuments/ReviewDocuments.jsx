@@ -26,7 +26,7 @@ const DOCUMENT_TYPES = {
 };
 
 export const ReviewDocuments = () => {
-  const { shipmentId, moveCode } = useParams();
+  const { shipmentId } = useParams();
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
