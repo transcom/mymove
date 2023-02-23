@@ -39,6 +39,9 @@ func init() {
     "/admin_users": {
       "get": {
         "description": "Returns a list of admin users",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "admin_users"
         ],
@@ -103,6 +106,12 @@ func init() {
       },
       "post": {
         "description": "creates and returns an admin user record",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "admin_users"
         ],
@@ -143,6 +152,9 @@ func init() {
     "/admin_users/{adminUserId}": {
       "get": {
         "description": "Returns a single admin user",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "admin_users"
         ],
@@ -179,6 +191,12 @@ func init() {
         }
       },
       "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "admin_users"
         ],
@@ -227,6 +245,9 @@ func init() {
     "/electronic_orders": {
       "get": {
         "description": "Returns a list of electronic orders",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "electronic_order"
         ],
@@ -293,6 +314,9 @@ func init() {
     "/electronic_orders/totals": {
       "get": {
         "description": "Returns a list of record counts for orders",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "electronic_order"
         ],
@@ -341,6 +365,9 @@ func init() {
     "/moves": {
       "get": {
         "description": "Returns a list of moves",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "move"
         ],
@@ -404,6 +431,9 @@ func init() {
     "/moves/{moveID}": {
       "get": {
         "description": "Returns the given move and its relevant info",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "move"
         ],
@@ -441,6 +471,12 @@ func init() {
       },
       "patch": {
         "description": "Allows the user to change the ` + "`" + `show` + "`" + ` field on the selected field to either ` + "`" + `True` + "`" + ` or ` + "`" + `False` + "`" + `. A \"shown\" move will appear to all users as normal, a \"hidden\" move will not be returned or editable using any other endpoint (besides those in the Support API), and thus effectively deactivated.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "move"
         ],
@@ -495,6 +531,9 @@ func init() {
     "/notifications": {
       "get": {
         "description": "Returns a list of notifications that have been sent to service members",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "notification"
         ],
@@ -558,6 +597,9 @@ func init() {
     "/office_users": {
       "get": {
         "description": "Returns a list of office users",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office_users"
         ],
@@ -619,6 +661,12 @@ func init() {
       },
       "post": {
         "description": "creates and returns an office user record",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office_users"
         ],
@@ -656,6 +704,9 @@ func init() {
     "/office_users/{officeUserId}": {
       "get": {
         "description": "Returns the given office user",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office_users"
         ],
@@ -692,6 +743,12 @@ func init() {
         }
       },
       "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office_users"
         ],
@@ -740,6 +797,9 @@ func init() {
     "/offices": {
       "get": {
         "description": "Returns a list of transportation offices",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office"
         ],
@@ -803,6 +863,9 @@ func init() {
     "/organizations": {
       "get": {
         "description": "Returns a list of organizations",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "organization"
         ],
@@ -869,6 +932,9 @@ func init() {
     "/transportation_service_provider_performances": {
       "get": {
         "description": "Returns a list of transportation service provider performances (TSPPs)",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "transportation_service_provider_performances"
         ],
@@ -932,6 +998,9 @@ func init() {
     "/transportation_service_provider_performances/{tsppId}": {
       "get": {
         "description": "Returns a single tspp",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "transportation_service_provider_performances"
         ],
@@ -971,6 +1040,9 @@ func init() {
     "/uploads/{uploadId}": {
       "get": {
         "description": "Returns the given upload and information about the uploader and move",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "upload"
         ],
@@ -1010,6 +1082,9 @@ func init() {
     "/users": {
       "get": {
         "description": "Returns a list of users",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "users"
         ],
@@ -1073,6 +1148,9 @@ func init() {
     "/users/{userId}": {
       "get": {
         "description": "Returns the given user and their sessions",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "users"
         ],
@@ -1109,6 +1187,12 @@ func init() {
         }
       },
       "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "users"
         ],
@@ -1166,6 +1250,9 @@ func init() {
     "/webhook_subscriptions": {
       "get": {
         "description": "Returns a list of webhook subscriptions",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "webhook_subscriptions"
         ],
@@ -1227,6 +1314,12 @@ func init() {
       },
       "post": {
         "description": "creates and returns a webhook subscription",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "webhook_subscriptions"
         ],
@@ -1267,6 +1360,9 @@ func init() {
     "/webhook_subscriptions/{webhookSubscriptionId}": {
       "get": {
         "description": "Returns the given webhook subscription and its details",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "webhook_subscriptions"
         ],
@@ -1303,6 +1399,12 @@ func init() {
         }
       },
       "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "webhook_subscriptions"
         ],
@@ -2573,6 +2675,9 @@ func init() {
     "/admin_users": {
       "get": {
         "description": "Returns a list of admin users",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "admin_users"
         ],
@@ -2637,6 +2742,12 @@ func init() {
       },
       "post": {
         "description": "creates and returns an admin user record",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "admin_users"
         ],
@@ -2677,6 +2788,9 @@ func init() {
     "/admin_users/{adminUserId}": {
       "get": {
         "description": "Returns a single admin user",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "admin_users"
         ],
@@ -2713,6 +2827,12 @@ func init() {
         }
       },
       "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "admin_users"
         ],
@@ -2761,6 +2881,9 @@ func init() {
     "/electronic_orders": {
       "get": {
         "description": "Returns a list of electronic orders",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "electronic_order"
         ],
@@ -2827,6 +2950,9 @@ func init() {
     "/electronic_orders/totals": {
       "get": {
         "description": "Returns a list of record counts for orders",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "electronic_order"
         ],
@@ -2875,6 +3001,9 @@ func init() {
     "/moves": {
       "get": {
         "description": "Returns a list of moves",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "move"
         ],
@@ -2938,6 +3067,9 @@ func init() {
     "/moves/{moveID}": {
       "get": {
         "description": "Returns the given move and its relevant info",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "move"
         ],
@@ -2975,6 +3107,12 @@ func init() {
       },
       "patch": {
         "description": "Allows the user to change the ` + "`" + `show` + "`" + ` field on the selected field to either ` + "`" + `True` + "`" + ` or ` + "`" + `False` + "`" + `. A \"shown\" move will appear to all users as normal, a \"hidden\" move will not be returned or editable using any other endpoint (besides those in the Support API), and thus effectively deactivated.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "move"
         ],
@@ -3029,6 +3167,9 @@ func init() {
     "/notifications": {
       "get": {
         "description": "Returns a list of notifications that have been sent to service members",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "notification"
         ],
@@ -3092,6 +3233,9 @@ func init() {
     "/office_users": {
       "get": {
         "description": "Returns a list of office users",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office_users"
         ],
@@ -3153,6 +3297,12 @@ func init() {
       },
       "post": {
         "description": "creates and returns an office user record",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office_users"
         ],
@@ -3190,6 +3340,9 @@ func init() {
     "/office_users/{officeUserId}": {
       "get": {
         "description": "Returns the given office user",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office_users"
         ],
@@ -3226,6 +3379,12 @@ func init() {
         }
       },
       "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office_users"
         ],
@@ -3274,6 +3433,9 @@ func init() {
     "/offices": {
       "get": {
         "description": "Returns a list of transportation offices",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office"
         ],
@@ -3337,6 +3499,9 @@ func init() {
     "/organizations": {
       "get": {
         "description": "Returns a list of organizations",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "organization"
         ],
@@ -3403,6 +3568,9 @@ func init() {
     "/transportation_service_provider_performances": {
       "get": {
         "description": "Returns a list of transportation service provider performances (TSPPs)",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "transportation_service_provider_performances"
         ],
@@ -3466,6 +3634,9 @@ func init() {
     "/transportation_service_provider_performances/{tsppId}": {
       "get": {
         "description": "Returns a single tspp",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "transportation_service_provider_performances"
         ],
@@ -3505,6 +3676,9 @@ func init() {
     "/uploads/{uploadId}": {
       "get": {
         "description": "Returns the given upload and information about the uploader and move",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "upload"
         ],
@@ -3544,6 +3718,9 @@ func init() {
     "/users": {
       "get": {
         "description": "Returns a list of users",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "users"
         ],
@@ -3607,6 +3784,9 @@ func init() {
     "/users/{userId}": {
       "get": {
         "description": "Returns the given user and their sessions",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "users"
         ],
@@ -3643,6 +3823,12 @@ func init() {
         }
       },
       "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "users"
         ],
@@ -3700,6 +3886,9 @@ func init() {
     "/webhook_subscriptions": {
       "get": {
         "description": "Returns a list of webhook subscriptions",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "webhook_subscriptions"
         ],
@@ -3761,6 +3950,12 @@ func init() {
       },
       "post": {
         "description": "creates and returns a webhook subscription",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "webhook_subscriptions"
         ],
@@ -3801,6 +3996,9 @@ func init() {
     "/webhook_subscriptions/{webhookSubscriptionId}": {
       "get": {
         "description": "Returns the given webhook subscription and its details",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "webhook_subscriptions"
         ],
@@ -3837,6 +4035,12 @@ func init() {
         }
       },
       "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "webhook_subscriptions"
         ],
