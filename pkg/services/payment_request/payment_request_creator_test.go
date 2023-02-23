@@ -62,66 +62,80 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				UsesExternalVendor:   true,
 			},
 		})
-		serviceItemParamKey1 = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameWeightEstimated,
-				Description: "estimated weight",
-				Type:        models.ServiceItemParamTypeInteger,
-				Origin:      models.ServiceItemParamOriginPrime,
+		serviceItemParamKey1 = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNameWeightEstimated,
+					Description: "estimated weight",
+					Type:        models.ServiceItemParamTypeInteger,
+					Origin:      models.ServiceItemParamOriginPrime,
+				},
 			},
-		})
-		serviceItemParamKey2 = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameRequestedPickupDate,
-				Description: "requested pickup date",
-				Type:        models.ServiceItemParamTypeDate,
-				Origin:      models.ServiceItemParamOriginPrime,
+		}, nil)
+		serviceItemParamKey2 = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNameRequestedPickupDate,
+					Description: "requested pickup date",
+					Type:        models.ServiceItemParamTypeDate,
+					Origin:      models.ServiceItemParamOriginPrime,
+				},
 			},
-		})
-		serviceItemParamKey3 = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameZipPickupAddress,
-				Description: "zip pickup address",
-				Type:        models.ServiceItemParamTypeString,
-				Origin:      models.ServiceItemParamOriginPrime,
+		}, nil)
+		serviceItemParamKey3 = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNameZipPickupAddress,
+					Description: "zip pickup address",
+					Type:        models.ServiceItemParamTypeString,
+					Origin:      models.ServiceItemParamOriginPrime,
+				},
 			},
-		})
+		}, nil)
 
-		serviceItemParamKey4 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameEscalationCompounded,
-				Description: "escalation factor",
-				Type:        models.ServiceItemParamTypeDecimal,
-				Origin:      models.ServiceItemParamOriginPricer,
+		serviceItemParamKey4 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNameEscalationCompounded,
+					Description: "escalation factor",
+					Type:        models.ServiceItemParamTypeDecimal,
+					Origin:      models.ServiceItemParamOriginPricer,
+				},
 			},
-		})
+		}, nil)
 
-		serviceItemParamKey5 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameContractYearName,
-				Description: "contract year name",
-				Type:        models.ServiceItemParamTypeString,
-				Origin:      models.ServiceItemParamOriginPricer,
+		serviceItemParamKey5 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNameContractYearName,
+					Description: "contract year name",
+					Type:        models.ServiceItemParamTypeString,
+					Origin:      models.ServiceItemParamOriginPricer,
+				},
 			},
-		})
+		}, nil)
 
-		serviceItemParamKey6 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameIsPeak,
-				Description: "is peak",
-				Type:        models.ServiceItemParamTypeBoolean,
-				Origin:      models.ServiceItemParamOriginPricer,
+		serviceItemParamKey6 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNameIsPeak,
+					Description: "is peak",
+					Type:        models.ServiceItemParamTypeBoolean,
+					Origin:      models.ServiceItemParamOriginPricer,
+				},
 			},
-		})
+		}, nil)
 
-		serviceItemParamKey7 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNamePriceRateOrFactor,
-				Description: "Price, rate, or factor used in calculation",
-				Type:        models.ServiceItemParamTypeDecimal,
-				Origin:      models.ServiceItemParamOriginPricer,
+		serviceItemParamKey7 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNamePriceRateOrFactor,
+					Description: "Price, rate, or factor used in calculation",
+					Type:        models.ServiceItemParamTypeDecimal,
+					Origin:      models.ServiceItemParamOriginPricer,
+				},
 			},
-		})
+		}, nil)
 
 		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
 			ServiceParam: models.ServiceParam{
