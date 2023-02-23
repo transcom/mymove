@@ -35,10 +35,9 @@ func NewUpdateMTOPostCounselingInformation(ctx *middleware.Context, handler Upda
 updateMTOPostCounselingInformation
 
 ### Functionality
-This endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.
-
-PPM related information may also be passed in with the counseling information here. **NOTE:** PPM information cannot be updated from this endpoint
-after counseling information is updated. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).
+This endpoint **updates** the MoveTaskOrder to indicate that the Prime has completed Counseling.
+This update uses the moveTaskOrderID provided in the path, updates the move status and marks child elements of the move to indicate the update.
+No body object is expected for this request.
 */
 type UpdateMTOPostCounselingInformation struct {
 	Context *middleware.Context
