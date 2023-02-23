@@ -25,14 +25,8 @@ func BuildOfficePhoneLine(db *pop.Connection, customs []Customization, traits []
 		}
 	}
 
-	// Find/create the transportationOffice model
-	var office models.TransportationOffice
-	result := findValidCustomization(customs, TransportationOffice)
-	if result != nil {
-		office = result.Model.(models.TransportationOffice)
-	}
-	office = BuildTransportationOffice(db, customs, nil)
-	// At this point, office exists. It's either the provided or created office
+	// Create the associated transportationOffice model
+	office := BuildTransportationOffice(db, customs, nil)
 
 	// create officephoneline
 	phoneLine := models.OfficePhoneLine{

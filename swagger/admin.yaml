@@ -1,4 +1,7 @@
+schemes:
+  - https
 swagger: '2.0'
+host: admin.move.mil
 info:
   description: >
     The Admin API is a RESTful API that enables the Admin application for
@@ -11,6 +14,9 @@ info:
   license:
     name: MIT
     url: https://github.com/transcom/mymove/blob/main/LICENSE.md
+  contact:
+    name: MilMove AppEng
+    email: support@movemil.pagerduty.com
 basePath: /admin/v1
 consumes:
   - application/json
