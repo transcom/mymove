@@ -227,6 +227,8 @@ const ShipmentForm = (props) => {
                   },
                 );
               }
+              history.replace(currentPath);
+              history.push(advancePath);
             },
             onError: () => {
               actions.setSubmitting(false);
