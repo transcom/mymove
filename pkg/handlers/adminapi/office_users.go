@@ -265,7 +265,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				}
 
 				boolean := true
-				revokeOfficeSessionPayload := adminmessages.UserUpdatePayload{
+				revokeOfficeSessionPayload := adminmessages.UserUpdate{
 					RevokeOfficeSession: &boolean,
 				}
 

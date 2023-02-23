@@ -24,16 +24,24 @@ func init() {
   "produces": [
     "application/json"
   ],
+  "schemes": [
+    "https"
+  ],
   "swagger": "2.0",
   "info": {
     "description": "The Admin API is a RESTful API that enables the Admin application for MilMove.\n\nAll endpoints are located under ` + "`" + `/admin/v1` + "`" + `.\n",
     "title": "MilMove Admin API",
+    "contact": {
+      "name": "MilMove AppEng",
+      "email": "support@movemil.pagerduty.com"
+    },
     "license": {
       "name": "MIT",
       "url": "https://github.com/transcom/mymove/blob/main/LICENSE.md"
     },
     "version": "1.0.0"
   },
+  "host": "admin.move.mil",
   "basePath": "/admin/v1",
   "paths": {
     "/admin_users": {
@@ -114,7 +122,7 @@ func init() {
             "name": "adminUser",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/AdminUserCreatePayload"
+              "$ref": "#/definitions/AdminUserCreate"
             }
           }
         ],
@@ -198,7 +206,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/AdminUserUpdatePayload"
+              "$ref": "#/definitions/AdminUserUpdate"
             }
           }
         ],
@@ -460,7 +468,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MoveUpdatePayload"
+              "$ref": "#/definitions/MoveUpdate"
             }
           }
         ],
@@ -630,7 +638,7 @@ func init() {
             "name": "officeUser",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/OfficeUserCreatePayload"
+              "$ref": "#/definitions/OfficeUserCreate"
             }
           }
         ],
@@ -711,7 +719,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/OfficeUserUpdatePayload"
+              "$ref": "#/definitions/OfficeUserUpdate"
             }
           }
         ],
@@ -1128,7 +1136,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserUpdatePayload"
+              "$ref": "#/definitions/UserUpdate"
             }
           }
         ],
@@ -1577,7 +1585,7 @@ func init() {
         }
       }
     },
-    "AdminUserCreatePayload": {
+    "AdminUserCreate": {
       "type": "object",
       "properties": {
         "email": {
@@ -1600,7 +1608,7 @@ func init() {
         }
       }
     },
-    "AdminUserUpdatePayload": {
+    "AdminUserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -1801,7 +1809,7 @@ func init() {
         "SUBMITTED": "Submitted"
       }
     },
-    "MoveUpdatePayload": {
+    "MoveUpdate": {
       "type": "object",
       "required": [
         "show"
@@ -1930,7 +1938,7 @@ func init() {
         }
       }
     },
-    "OfficeUserCreatePayload": {
+    "OfficeUserCreate": {
       "type": "object",
       "properties": {
         "email": {
@@ -1988,7 +1996,7 @@ func init() {
         }
       }
     },
-    "OfficeUserUpdatePayload": {
+    "OfficeUserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -2432,7 +2440,7 @@ func init() {
         }
       }
     },
-    "UserUpdatePayload": {
+    "UserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -2558,16 +2566,24 @@ func init() {
   "produces": [
     "application/json"
   ],
+  "schemes": [
+    "https"
+  ],
   "swagger": "2.0",
   "info": {
     "description": "The Admin API is a RESTful API that enables the Admin application for MilMove.\n\nAll endpoints are located under ` + "`" + `/admin/v1` + "`" + `.\n",
     "title": "MilMove Admin API",
+    "contact": {
+      "name": "MilMove AppEng",
+      "email": "support@movemil.pagerduty.com"
+    },
     "license": {
       "name": "MIT",
       "url": "https://github.com/transcom/mymove/blob/main/LICENSE.md"
     },
     "version": "1.0.0"
   },
+  "host": "admin.move.mil",
   "basePath": "/admin/v1",
   "paths": {
     "/admin_users": {
@@ -2648,7 +2664,7 @@ func init() {
             "name": "adminUser",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/AdminUserCreatePayload"
+              "$ref": "#/definitions/AdminUserCreate"
             }
           }
         ],
@@ -2732,7 +2748,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/AdminUserUpdatePayload"
+              "$ref": "#/definitions/AdminUserUpdate"
             }
           }
         ],
@@ -2994,7 +3010,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MoveUpdatePayload"
+              "$ref": "#/definitions/MoveUpdate"
             }
           }
         ],
@@ -3164,7 +3180,7 @@ func init() {
             "name": "officeUser",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/OfficeUserCreatePayload"
+              "$ref": "#/definitions/OfficeUserCreate"
             }
           }
         ],
@@ -3245,7 +3261,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/OfficeUserUpdatePayload"
+              "$ref": "#/definitions/OfficeUserUpdate"
             }
           }
         ],
@@ -3662,7 +3678,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserUpdatePayload"
+              "$ref": "#/definitions/UserUpdate"
             }
           }
         ],
@@ -4111,7 +4127,7 @@ func init() {
         }
       }
     },
-    "AdminUserCreatePayload": {
+    "AdminUserCreate": {
       "type": "object",
       "properties": {
         "email": {
@@ -4134,7 +4150,7 @@ func init() {
         }
       }
     },
-    "AdminUserUpdatePayload": {
+    "AdminUserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -4336,7 +4352,7 @@ func init() {
         "SUBMITTED": "Submitted"
       }
     },
-    "MoveUpdatePayload": {
+    "MoveUpdate": {
       "type": "object",
       "required": [
         "show"
@@ -4465,7 +4481,7 @@ func init() {
         }
       }
     },
-    "OfficeUserCreatePayload": {
+    "OfficeUserCreate": {
       "type": "object",
       "properties": {
         "email": {
@@ -4523,7 +4539,7 @@ func init() {
         }
       }
     },
-    "OfficeUserUpdatePayload": {
+    "OfficeUserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -4967,7 +4983,7 @@ func init() {
         }
       }
     },
-    "UserUpdatePayload": {
+    "UserUpdate": {
       "type": "object",
       "properties": {
         "active": {

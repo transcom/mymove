@@ -8,11 +8,12 @@ import moment from 'moment';
 import About from 'pages/MyMove/PPM/Closeout/About/About';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
-import { getResponseError, patchMTOShipment } from 'services/internalApi';
+import { getResponseError, patchMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { MockProviders } from 'testUtils';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
+import { shipment } from 'shared/Entities/schema';
 
 const mockMoveId = v4();
 const mockMTOShipmentId = v4();
@@ -34,6 +35,7 @@ jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   patchMTOShipment: jest.fn(),
   getResponseError: jest.fn(),
+  getMTOShipmentsForMove: jest.fn(),
 }));
 
 const mtoShipmentCreatedDate = new Date();
@@ -169,15 +171,20 @@ const fillOutAdvanceSections = async (form) => {
 
 describe('About page', () => {
   it('loads the selected shipment from redux', () => {
+    getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
     render(<About />, { wrapper: MockProviders });
 
     expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
   });
 
-  it('renders the page Content', () => {
+  it('renders the page Content', async () => {
+    getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
     render(<About />, { wrapper: MockProviders });
 
-    expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
+    await waitFor(() => {
+      expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
+    });
+
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('About your PPM');
     expect(screen.getByText('Finish moving this PPM before you start documenting it.')).toBeInTheDocument();
     const headings = screen.getAllByRole('heading', { level: 2 });
@@ -192,17 +199,26 @@ describe('About page', () => {
   });
 
   it('routes back to home when return to homepage is clicked', async () => {
+    getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
     render(<About />, { wrapper: MockProviders });
 
-    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+    await waitFor(async () => {
+      await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+    });
+
     expect(mockPush).toHaveBeenCalledWith(homePath);
   });
 
   it('calls the patch shipment with the appropriate payload', async () => {
     patchMTOShipment.mockResolvedValueOnce(mockMTOShipmentResponse);
+    getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
 
     render(<About />, { wrapper: MockProviders });
-    const form = screen.getByTestId('aboutForm');
+
+    let form;
+    await waitFor(() => {
+      form = screen.getByTestId('aboutForm');
+    });
 
     await fillOutBasicForm(form);
     await fillOutAdvanceSections(form);
@@ -218,12 +234,17 @@ describe('About page', () => {
 
   it('displays an error when the patch shipment API fails', async () => {
     const mockErrorMsg = 'Error Updating';
+    getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
     patchMTOShipment.mockRejectedValue(mockErrorMsg);
     getResponseError.mockReturnValue(mockErrorMsg);
 
     render(<About />, { wrapper: MockProviders });
 
-    const form = screen.getByTestId('aboutForm');
+    let form;
+    await waitFor(() => {
+      form = screen.getByTestId('aboutForm');
+    });
+
     await fillOutBasicForm(form);
 
     await userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
@@ -239,11 +260,14 @@ describe('About page', () => {
       expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, payload, mockMTOShipment.eTag);
     });
 
-    expect(screen.getByText(mockErrorMsg)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(mockErrorMsg)).toBeInTheDocument();
+    });
   });
 
   it('expect loadingPlaceholder when mtoShipment is falsy', () => {
     selectMTOShipmentById.mockReturnValue(null);
+    getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
 
     render(<About />, { wrapper: MockProviders });
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Loading, please wait...');
