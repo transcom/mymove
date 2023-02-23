@@ -32,6 +32,7 @@ const DOCUMENT_TYPES = {
 export const ReviewDocuments = () => {
   const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
+
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const order = Object.values(orders)?.[0];
