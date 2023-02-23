@@ -178,6 +178,9 @@ func (a *Client) ListMoves(params *ListMovesParams, opts ...ClientOption) (*List
 	### Functionality
 
 This endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.
+
+PPM related information may also be passed in with the counseling information here. **NOTE:** PPM information cannot be updated from this endpoint
+after counseling information is updated. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).
 */
 func (a *Client) UpdateMTOPostCounselingInformation(params *UpdateMTOPostCounselingInformationParams, opts ...ClientOption) (*UpdateMTOPostCounselingInformationOK, error) {
 	// TODO: Validate the params before sending
