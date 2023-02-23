@@ -24,16 +24,24 @@ func init() {
   "produces": [
     "application/json"
   ],
+  "schemes": [
+    "https"
+  ],
   "swagger": "2.0",
   "info": {
     "description": "The Admin API is a RESTful API that enables the Admin application for MilMove.\n\nAll endpoints are located under ` + "`" + `/admin/v1` + "`" + `.\n",
     "title": "MilMove Admin API",
+    "contact": {
+      "name": "MilMove AppEng",
+      "email": "support@movemil.pagerduty.com"
+    },
     "license": {
       "name": "MIT",
       "url": "https://github.com/transcom/mymove/blob/main/LICENSE.md"
     },
     "version": "1.0.0"
   },
+  "host": "admin.move.mil",
   "basePath": "/admin/v1",
   "paths": {
     "/admin_users": {
@@ -2558,16 +2566,24 @@ func init() {
   "produces": [
     "application/json"
   ],
+  "schemes": [
+    "https"
+  ],
   "swagger": "2.0",
   "info": {
     "description": "The Admin API is a RESTful API that enables the Admin application for MilMove.\n\nAll endpoints are located under ` + "`" + `/admin/v1` + "`" + `.\n",
     "title": "MilMove Admin API",
+    "contact": {
+      "name": "MilMove AppEng",
+      "email": "support@movemil.pagerduty.com"
+    },
     "license": {
       "name": "MIT",
       "url": "https://github.com/transcom/mymove/blob/main/LICENSE.md"
     },
     "version": "1.0.0"
   },
+  "host": "admin.move.mil",
   "basePath": "/admin/v1",
   "paths": {
     "/admin_users": {

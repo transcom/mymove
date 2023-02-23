@@ -1,6 +1,7 @@
 package paymentrequest
 
 import (
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -31,39 +32,47 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 			Name: "Domestic Origin Pickup",
 		},
 	})
-	serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameWeightEstimated,
-			Description: "estimated weight",
-			Type:        models.ServiceItemParamTypeInteger,
-			Origin:      models.ServiceItemParamOriginPrime,
+	serviceItemParamKey1 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNameWeightEstimated,
+				Description: "estimated weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
 		},
-	})
-	serviceItemParamKey2 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameRequestedPickupDate,
-			Description: "requested pickup date",
-			Type:        models.ServiceItemParamTypeDate,
-			Origin:      models.ServiceItemParamOriginPrime,
+	}, nil)
+	serviceItemParamKey2 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNameRequestedPickupDate,
+				Description: "requested pickup date",
+				Type:        models.ServiceItemParamTypeDate,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
 		},
-	})
-	serviceItemParamKey3 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameZipPickupAddress,
-			Description: "ZIP Pickup Address",
-			Type:        models.ServiceItemParamTypeString,
-			Origin:      models.ServiceItemParamOriginPrime,
+	}, nil)
+	serviceItemParamKey3 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNameZipPickupAddress,
+				Description: "ZIP Pickup Address",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
 		},
-	})
+	}, nil)
 
-	serviceItemParamKey4 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameDistanceZip,
-			Description: "ZIP Distance",
-			Type:        models.ServiceItemParamTypeString,
-			Origin:      models.ServiceItemParamOriginPrime,
+	serviceItemParamKey4 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNameDistanceZip,
+				Description: "ZIP Distance",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
 		},
-	})
+	}, nil)
 
 	mtoServiceItem1Param1 := testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
