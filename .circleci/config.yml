@@ -810,7 +810,7 @@ jobs:
             - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run:
           name: Test Keeper Export
-          command: scripts/export-ksm-secret TEST_EXPORT_LOGIN keeper://rR6DtKpYd8ajEIKZGaq26g/field/login
+          command: sudo scripts/export-ksm-secret TEST_EXPORT_LOGIN keeper://rR6DtKpYd8ajEIKZGaq26g/field/login
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Install dependencies
