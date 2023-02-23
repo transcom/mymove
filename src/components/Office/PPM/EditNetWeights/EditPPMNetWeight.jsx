@@ -22,7 +22,7 @@ const weightLabels = {
     secondLabel: ' | to fit within weight allowance',
   },
   [CALCULATION_TYPE.EXCESS_WEIGHT]: {
-    firstLabel: 'Move Weight (total)',
+    firstLabel: 'Move weight (total)',
     secondLabel: 'Weight allowance',
     thirdLabel: 'Excess weight (total)',
   },
@@ -39,7 +39,11 @@ const FlexContainer = ({ children, className }) => {
 
 // Form Error Indicator
 const ErrorIndicator = ({ children, hasErrors }) => {
-  return <div className={hasErrors ? 'usa-form-group--error' : ''}>{children}</div>;
+  return (
+    <div data-testid="errorIndicator" className={hasErrors ? 'usa-form-group--error' : ''}>
+      {children}
+    </div>
+  );
 };
 
 const WeightCalculation = ({ type, firstValue, secondValue, thirdValue }) => {
@@ -83,6 +87,7 @@ const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => (
       <div>
         <Fieldset className={styles.fieldset}>
           <MaskedTextField
+            data-testid="weightInput"
             defaultValue="0"
             id="ppmNetWeight"
             name="ppmNetWeight"
@@ -106,6 +111,7 @@ const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => (
           <ErrorIndicator hasErrors={!!touched.ppmNetWeightRemarks && !!errors.ppmNetWeightRemarks}>
             <Textarea
               id="ppmNetWeightRemarks"
+              data-testid="formRemarks"
               maxLength={500}
               placeholder=""
               onChange={handleChange}
