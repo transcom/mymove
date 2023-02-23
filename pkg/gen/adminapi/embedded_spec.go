@@ -2552,37 +2552,81 @@ func init() {
   },
   "tags": [
     {
-      "name": "admin_users"
+      "description": "Information about Admin UI users",
+      "name": "admin_users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "electronic_order"
+      "description": "Information about electronic orders",
+      "name": "electronic_order",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "move"
+      "description": "Information about moves",
+      "name": "move",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "notification"
+      "description": "Information about notifications",
+      "name": "notification",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "office"
+      "description": "Information about transportation offices",
+      "name": "office",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "office_users"
+      "description": "Information about office users",
+      "name": "office_users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "organization"
+      "description": "Information about organizations",
+      "name": "organization",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "transportation_service_provider_performances"
+      "description": "Information about Transportation Service Provider performances",
+      "name": "transportation_service_provider_performances",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "upload"
+      "description": "Information about uploads",
+      "name": "upload",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "users"
+      "description": "Information about users",
+      "name": "users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "webhook_subscriptions"
+      "description": "Information about Webhook subscriptions",
+      "name": "webhook_subscriptions",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     }
   ]
 }`))
@@ -5126,37 +5170,81 @@ func init() {
   },
   "tags": [
     {
-      "name": "admin_users"
+      "description": "Information about Admin UI users",
+      "name": "admin_users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "electronic_order"
+      "description": "Information about electronic orders",
+      "name": "electronic_order",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "move"
+      "description": "Information about moves",
+      "name": "move",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "notification"
+      "description": "Information about notifications",
+      "name": "notification",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "office"
+      "description": "Information about transportation offices",
+      "name": "office",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "office_users"
+      "description": "Information about office users",
+      "name": "office_users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "organization"
+      "description": "Information about organizations",
+      "name": "organization",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "transportation_service_provider_performances"
+      "description": "Information about Transportation Service Provider performances",
+      "name": "transportation_service_provider_performances",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "upload"
+      "description": "Information about uploads",
+      "name": "upload",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "users"
+      "description": "Information about users",
+      "name": "users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     },
     {
-      "name": "webhook_subscriptions"
+      "description": "Information about Webhook subscriptions",
+      "name": "webhook_subscriptions",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
     }
   ]
 }`))
