@@ -27,8 +27,8 @@ func payloadForAdminUserModel(o models.AdminUser) *adminmessages.AdminUser {
 		UserID:         handlers.FmtUUIDPtr(o.UserID),
 		OrganizationID: handlers.FmtUUIDPtr(o.OrganizationID),
 		Active:         handlers.FmtBool(o.Active),
-		CreatedAt:      handlers.FmtDateTime(o.CreatedAt),
-		UpdatedAt:      handlers.FmtDateTime(o.UpdatedAt),
+		CreatedAt:      *handlers.FmtDateTime(o.CreatedAt),
+		UpdatedAt:      *handlers.FmtDateTime(o.UpdatedAt),
 	}
 }
 
