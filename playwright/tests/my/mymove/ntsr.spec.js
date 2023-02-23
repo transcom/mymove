@@ -1,9 +1,3 @@
-/**
- * Semi-automated converted from a cypress test, and thus may contain
- * non best-practices, in particular: heavy use of `page.locator`
- * instead of `page.getBy*`.
- */
-
 // @ts-check
 import { test, expect } from '../../utils/customerTest';
 
@@ -13,19 +7,24 @@ test('A customer can create, edit, and delete an NTS-release shipment', async ({
   await customerPage.signInAsExistingCustomer(userId);
 
   // Navigate to create a new shipment
+  await customerPage.waitForPage.home();
   await page.getByTestId('shipment-selection-btn').click();
+  await customerPage.waitForPage.aboutShipments();
   await customerPage.navigateForward();
-  await page.getByText('It was stored during a previous move (NTS-release)Movers pick up things you put ').click();
+  await customerPage.waitForPage.selectShipmentType();
+
+  // Create an NTS-release shipment
+  await page.getByText('It was stored during a previous move').click();
   await customerPage.navigateForward();
 
-  // Fill in form to create NTS shipment
+  // Fill in form to create NTS-release shipment
+  await customerPage.waitForPage.ntsReleaseShipment();
   await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
   await page.getByLabel('Preferred delivery date').blur();
   await page.getByLabel('Address 1').fill('7 Q St');
   await page.getByLabel('City').fill('Atco');
-  await page.getByLabel('State').selectOption('NJ');
+  await page.getByLabel('State').selectOption({ label: 'NJ' });
   await page.getByLabel('ZIP').fill('08004');
-
   await page.getByTestId('remarks').fill('Grandfather antique clock');
   await customerPage.navigateForward();
 
