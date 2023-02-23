@@ -14,16 +14,49 @@ produces:
   - application/json
 tags:
   - name: admin_users
+    description: Information about Admin UI users
+    externalDocs:
+      url: https://transcom.github.io/mymove-docs/docs/api
   - name: electronic_order
+    description: Information about electronic orders
+    externalDocs:
+      url: https://transcom.github.io/mymove-docs/docs/api
   - name: move
+    description: Information about moves
+    externalDocs:
+      url: https://transcom.github.io/mymove-docs/docs/api
   - name: notification
+    description: Information about notifications
+    externalDocs:
+      url: https://transcom.github.io/mymove-docs/docs/api
   - name: office
+    description: Information about transportation offices
+    externalDocs:
+      url: https://transcom.github.io/mymove-docs/docs/api
   - name: office_users
+    description: Information about office users
+    externalDocs:
+      url: https://transcom.github.io/mymove-docs/docs/api
   - name: organization
+    description: Information about organizations
+    externalDocs:
+      url: https://transcom.github.io/mymove-docs/docs/api
   - name: transportation_service_provider_performances
+    description: Information about Transportation Service Provider performances
+    externalDocs:
+      url: https://transcom.github.io/mymove-docs/docs/api
   - name: upload
+    description: Information about uploads
+    externalDocs:
+      url: https://transcom.github.io/mymove-docs/docs/api
   - name: users
+    description: Information about users
+    externalDocs:
+      url: https://transcom.github.io/mymove-docs/docs/api
   - name: webhook_subscriptions
+    description: Information about Webhook subscriptions
+    externalDocs:
+      url: https://transcom.github.io/mymove-docs/docs/api
 definitions:
   ClientError:
     type: object
