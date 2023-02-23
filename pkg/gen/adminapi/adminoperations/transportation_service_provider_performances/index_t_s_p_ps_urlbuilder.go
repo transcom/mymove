@@ -45,7 +45,7 @@ func (o *IndexTSPPsURL) SetBasePath(bp string) {
 func (o *IndexTSPPsURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/transportation_service_provider_performances"
+	var _path = "/transportation-service-provider-performances"
 
 	_basePath := o._basePath
 	if _basePath == "" {

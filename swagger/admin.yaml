@@ -946,7 +946,7 @@ definitions:
       FAILING: Failing
       DISABLED: Disabled
 paths:
-  /office_users:
+  /office-users:
     get:
       summary: List office users
       description: Returns a list of office users
@@ -1009,7 +1009,7 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: internal server error
-  /office_users/{officeUserId}:
+  /office-users/{officeUserId}:
     get:
       summary: Get an office user
       description: Returns the given office user
@@ -1065,7 +1065,7 @@ paths:
           description: Not authorized to update an office user
         '500':
           description: Server error
-  /transportation_service_provider_performances:
+  /transportation-service-provider-performances:
     get:
       summary: List transportation service provider performances (TSPPs)
       description: Returns a list of transportation service provider performances (TSPPs)
@@ -1105,7 +1105,7 @@ paths:
           description: office not found
         '500':
           description: server error
-  /transportation_service_provider_performances/{tsppId}:
+  /transportation-service-provider-performances/{tsppId}:
     get:
       summary: Fetch a specific tspp
       description: Returns a single tspp
@@ -1131,7 +1131,7 @@ paths:
           description: tspp not found
         '500':
           description: server error
-  /admin_users:
+  /admin-users:
     get:
       summary: List admin users
       description: Returns a list of admin users
@@ -1198,7 +1198,7 @@ paths:
           description: Not authorized to create an admin user
         '500':
           description: Server error
-  /admin_users/{adminUserId}:
+  /admin-users/{adminUserId}:
     get:
       summary: Fetch a specific admin user
       description: Returns a single admin user
@@ -1294,7 +1294,7 @@ paths:
           description: office not found
         '500':
           description: server error
-  /electronic_orders:
+  /electronic-orders:
     get:
       summary: List electronic orders
       description: Returns a list of electronic orders
@@ -1336,7 +1336,7 @@ paths:
           description: not found
         '500':
           description: server error
-  /electronic_orders/totals:
+  /electronic-orders/totals:
     get:
       summary: Get total counts for the orders stored in MilMove
       description: Returns a list of record counts for orders
@@ -1683,7 +1683,7 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: Server error
-  /webhook_subscriptions:
+  /webhook-subscriptions:
     get:
       summary: Lists webhook subscriptions
       description: Returns a list of webhook subscriptions
@@ -1748,7 +1748,7 @@ paths:
           description: Not authorized to create a webhook subscription
         '500':
           description: Server error
-  /webhook_subscriptions/{webhookSubscriptionId}:
+  /webhook-subscriptions/{webhookSubscriptionId}:
     get:
       summary: Get information about a webhook subscription
       description: Returns the given webhook subscription and its details

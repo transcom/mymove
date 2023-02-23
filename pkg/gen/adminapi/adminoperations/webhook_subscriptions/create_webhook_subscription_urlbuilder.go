@@ -35,7 +35,7 @@ func (o *CreateWebhookSubscriptionURL) SetBasePath(bp string) {
 func (o *CreateWebhookSubscriptionURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/webhook_subscriptions"
+	var _path = "/webhook-subscriptions"
 
 	_basePath := o._basePath
 	if _basePath == "" {
