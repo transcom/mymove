@@ -16739,7 +16739,7 @@ quick-lru@^5.1.1:
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-5.1.1.tgz#366493e6b3e42a3a6885e2e99d18f80fb7a8c932"
   integrity sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==
 
-ra-core@^4.8.1:
+ra-core@^4.8.0, ra-core@^4.8.1:
   version "4.8.1"
   resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.8.1.tgz#c5311413bd8bfd818a81471def5b28f9abe2f612"
   integrity sha512-v6krJQid79Vgg1D5ZpoxyMF75R+MGXhBaV7VY6hlHVZqv5zIWXbljjCw0Xv1fb7dhnCFhmxjXjnTr1V+LdbQnQ==
@@ -16770,21 +16770,7 @@ ra-i18n-polyglot@^4.8.0:
     node-polyglot "^2.2.2"
     ra-core "^4.8.0"
 
-ra-language-english@^3.19.11:
-  version "3.19.11"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.19.11.tgz#0828c5fe48d68ba3c4cb997e769d5853978f9956"
-  integrity sha512-pRT/sxg8BkgelRhKc5/64gSOte+wF+Q/La+H9nPmMMqFmZI+kr/E++DXP5i7p4h2eChsuRysgp4tPefVMxgHpQ==
-  dependencies:
-    ra-core "^3.19.11"
-
-ra-language-english@^4.7.2:
-  version "4.7.2"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.7.2.tgz#4e72eb2a78a81b8839f8b81702c73430cbaee6c6"
-  integrity sha512-F/s6ElTitIsNbxt7LMiaAPdb3vx2vkSeB9goaqWN8lP/ZRSvLEeDQ7Zj3hjHv3nbKI/uglVBHmhZvFJMDjbULQ==
-  dependencies:
-    ra-core "^4.8.0"
-
-ra-language-english@^4.8.1:
+ra-language-english@^4.8.0, ra-language-english@^4.8.1:
   version "4.8.1"
   resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.8.1.tgz#8520a344912196b2e26c39448e5e8c85d5fa9aaf"
   integrity sha512-QHXAO5GHxH9CXWCIyNqIQWdMIaCiDQZe9zInFLTA+apHUYKX3mZee1iZmc7qa7NNfgoYlpJ1b3eMpVfqhXaktw==
