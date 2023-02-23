@@ -1,10 +1,9 @@
-@import '../ghc_index.scss';
-
+@use 'styles/uswds/milmove' as milmove_uswds;
 .my-move-container,
 .my-move .usa-footer {
-  background-color: $bg-white;
-  @media (min-width: $tablet) {
-    background-color: $bg-gray;
+  background-color: milmove_uswds.$bg-white;
+  @media (min-width: milmove_uswds.$tablet) {
+    background-color: milmove_uswds.$bg-gray;
   }
 }
 

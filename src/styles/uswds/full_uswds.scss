@@ -1,8 +1,7 @@
 //
-// ghc_index.scss is imported by
-// * styles/customers.scss
-// * styles/offices.scss
-// * .storybook/preview.scss
+// full_uswds.scss is imported by
+// * App/index.scss
+// * .storybook/preview.js
 //
 // It duplicates the settings in the namespaced module
 // styles/uswds/_required.scss
@@ -42,8 +41,10 @@ $theme-link-active-color: 'blue-warm-60v';
  * Now do our custom global overrides.
  *
  */
-@import './styles/uswds/colors';
-@import './styles/uswds/variables';
-@import './styles/uswds/typography';
-@import './styles/uswds/custom';
-@import './styles/uswds/overrides';
+@import './colors';
+@import './themes';
+@import './variables';
+@import './typography';
+@import './custom';
+@import './mixins';
+@import './overrides';

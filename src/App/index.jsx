@@ -13,6 +13,7 @@ import { detectFlags } from 'utils/featureFlags';
 import '../icons';
 import 'shared/shared.css';
 import './index.css';
+import 'styles/uswds/full_uswds.scss';
 import MarkerIO from 'components/ThirdParty/MarkerIO';
 import ScrollToTop from 'components/ScrollToTop';
 

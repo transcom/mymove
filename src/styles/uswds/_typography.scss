@@ -8,6 +8,7 @@
  * dependency with milmove_uswds
  */
 
+@use './required' as milmove_uswds;
 @use './colors' as milmove_colors;
 
 // theme colors needed in one spot below
@@ -15,93 +16,93 @@
 
 h1,
 .usa-prose > h1 {
-  @include typeset('body', 11, 2);
-  @include u-text('normal');
-  @include at-media('tablet') {
-    @include typeset('body', '2xl', 2);
+  @include milmove_uswds.typeset('body', 11, 2);
+  @include milmove_uswds.u-text('normal');
+  @include milmove_uswds.at-media('tablet') {
+    @include milmove_uswds.typeset('body', '2xl', 2);
   }
 }
 h2,
 .usa-prose > h2 {
-  @include typeset('body', 9, 2);
-  @include at-media('tablet') {
-    @include typeset('body', 11, 2);
+  @include milmove_uswds.typeset('body', 9, 2);
+  @include milmove_uswds.at-media('tablet') {
+    @include milmove_uswds.typeset('body', 11, 2);
   }
 }
 h3,
 .usa-prose > h3 {
-  @include typeset('body', 6, 2);
-  @include at-media('tablet') {
-    @include typeset('body', 9, 2);
+  @include milmove_uswds.typeset('body', 6, 2);
+  @include milmove_uswds.at-media('tablet') {
+    @include milmove_uswds.typeset('body', 9, 2);
   }
 }
 h4,
 .usa-prose > h4 {
-  @include u-text('normal');
-  @include typeset('body', 6, 2);
+  @include milmove_uswds.u-text('normal');
+  @include milmove_uswds.typeset('body', 6, 2);
 }
 h5,
 .usa-prose > h5 {
-  @include typeset('body', 4, 3);
+  @include milmove_uswds.typeset('body', 4, 3);
 }
 h6,
 .usa-prose > h6 {
-  @include typeset('body', 2, 3);
-  @include u-text('uppercase');
-  @include u-text('normal');
+  @include milmove_uswds.typeset('body', 2, 3);
+  @include milmove_uswds.u-text('uppercase');
+  @include milmove_uswds.u-text('normal');
 }
 p,
 .usa-prose > p {
-  @include typeset('body', 4, 3);
+  @include milmove_uswds.typeset('body', 4, 3);
 }
 small,
 .usa-prose > small {
-  @include typeset('body', 2, 2);
+  @include milmove_uswds.typeset('body', 2, 2);
 }
 legend {
   @extend h2;
-  @include u-text('bold');
+  @include milmove_uswds.u-text('bold');
 }
 
 a,
 .usa-link,
 .usa-prose > a,
 .usa-prose .usa-link {
-  @include u-text('no-underline', uswds_theme.$theme-link-color);
+  @include milmove_uswds.u-text('no-underline', uswds_theme.$theme-link-color);
 
   &:hover,
   &.hover {
-    @include u-text('underline', uswds_theme.$theme-link-hover-color);
+    @include milmove_uswds.u-text('underline', uswds_theme.$theme-link-hover-color);
   }
 
   &:visited,
   &.visited {
-    @include u-text(uswds_theme.$theme-link-visited-color);
+    @include milmove_uswds.u-text(uswds_theme.$theme-link-visited-color);
   }
 
   &:disabled,
   &.disabled {
-    @include u-text('base');
+    @include milmove_uswds.u-text('base');
     &:hover {
-      @include u-text('no-underline');
+      @include milmove_uswds.u-text('no-underline');
     }
   }
 
   &:focus,
   &.focus {
-    @include u-outline('05', 'blue-40v');
+    @include milmove_uswds.u-outline('05', 'blue-40v');
   }
   &-light {
-    @include u-text('bold');
+    @include milmove_uswds.u-text('bold');
     color: milmove_colors.$link-light;
     &:hover,
     &.hover {
       color: milmove_colors.$link-light-hover;
-      @include u-text('no-underline');
+      @include milmove_uswds.u-text('no-underline');
     }
     &:focus,
     &.focus {
-      @include u-outline('05', 'blue-40v');
+      @include milmove_uswds.u-outline('05', 'blue-40v');
     }
     &:visited,
     &.visited {
@@ -111,9 +112,9 @@ a,
 }
 
 ul {
-  @include u-line-height('body', 4);
+  @include milmove_uswds.u-line-height('body', 4);
   color: milmove_colors.$base-darkest;
-  @include u-padding-left(1.5);
+  @include milmove_uswds.u-padding-left(1.5);
 }
 
 .usa-prose {
