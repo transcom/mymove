@@ -197,6 +197,10 @@ const ShipmentForm = (props) => {
           { body, normalize: false },
           {
             onSuccess: (newMTOShipment) => {
+              const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
+                moveCode,
+                shipmentId: newMTOShipment.id,
+              });
               const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
                 moveCode,
                 shipmentId: newMTOShipment.id,
@@ -211,6 +215,7 @@ const ShipmentForm = (props) => {
                   {
                     onSuccess: () => {
                       actions.setSubmitting(false);
+                      history.replace(currentPath);
                       history.push(advancePath);
                       setErrorMessage(null);
                       onUpdate('success');
