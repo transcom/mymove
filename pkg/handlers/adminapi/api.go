@@ -167,7 +167,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		pagination.NewPagination,
 	}
 
-	adminAPI.MoveIndexMovesHandler = IndexMovesHandler{
+	adminAPI.MovesIndexMovesHandler = IndexMovesHandler{
 		handlerConfig,
 		move.NewMoveListFetcher(queryBuilder),
 		query.NewQueryFilter,
@@ -175,7 +175,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	}
 
 	moveRouter := move.NewMoveRouter()
-	adminAPI.MoveUpdateMoveHandler = UpdateMoveHandler{
+	adminAPI.MovesUpdateMoveHandler = UpdateMoveHandler{
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(
 			queryBuilder,
@@ -184,7 +184,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		),
 	}
 
-	adminAPI.MoveGetMoveHandler = GetMoveHandler{
+	adminAPI.MovesGetMoveHandler = GetMoveHandler{
 		handlerConfig,
 	}
 
