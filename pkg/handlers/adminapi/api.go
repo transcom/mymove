@@ -78,7 +78,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		pagination.NewPagination,
 	}
 
-	adminAPI.OrganizationIndexOrganizationsHandler = IndexOrganizationsHandler{
+	adminAPI.OrganizationsIndexOrganizationsHandler = IndexOrganizationsHandler{
 		handlerConfig,
 		organization.NewOrganizationListFetcher(queryBuilder),
 		query.NewQueryFilter,
