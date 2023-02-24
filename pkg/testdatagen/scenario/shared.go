@@ -3896,14 +3896,16 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			Value:       destDepartureDate.Format("2006-01-02"),
 		}}
 
-	var debugString string
+	// Ordering the service items based on approved date to ensure the DDFSIT is after the DOASIT.
+	// This avoids a flaky error when we create the service item parameters.
 	sort.SliceStable(serviceItems, func(i, j int) bool {
 		return serviceItems[i].ApprovedAt.String() < serviceItems[j].ApprovedAt.String()
 	})
 	paymentServiceItems := []models.PaymentServiceItem{}
+	var serviceItemOrderString string
 	for _, serviceItem := range serviceItems {
-		debugString += serviceItem.ReService.Code.String()
-		debugString += ", "
+		serviceItemOrderString += serviceItem.ReService.Code.String()
+		serviceItemOrderString += ", "
 		paymentItem := models.PaymentServiceItem{
 			MTOServiceItemID: serviceItem.ID,
 			MTOServiceItem:   serviceItem,
@@ -3916,7 +3918,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		paymentServiceItems = append(paymentServiceItems, paymentItem)
 	}
 
-	logger.Debug(debugString)
+	logger.Debug(serviceItemOrderString)
 	paymentRequest.PaymentServiceItems = paymentServiceItems
 	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest)
 
