@@ -1404,8 +1404,9 @@ paths:
     get:
       produces:
         - application/json
-      summary: List electronic orders
-      description: Returns a list of electronic orders
+      summary: List Electronic Orders
+      description:
+        $ref: paths/electronic-orders/get/description.md
       operationId: indexElectronicOrders
       tags:
         - electronic_order
@@ -1441,7 +1442,7 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: not found
+          description: Electronic Order not found
         '500':
           description: server error
   /electronic-orders/totals:
@@ -1449,7 +1450,8 @@ paths:
       produces:
         - application/json
       summary: Get total counts for the orders stored in MilMove
-      description: Returns a list of record counts for orders
+      description:
+        $ref: paths/electronic-orders/totals/get/description.md
       operationId: getElectronicOrdersTotals
       tags:
         - electronic_order
@@ -1474,7 +1476,7 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: not found
+          description: Total count for Electronic Orders not found
         '500':
           description: server error
   /uploads/{uploadId}:
