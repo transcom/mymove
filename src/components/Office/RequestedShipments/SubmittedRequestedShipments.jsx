@@ -105,7 +105,7 @@ const SubmittedRequestedShipments = ({
                 filteredShipments.map((shipment) => {
                   let operationPath = 'shipment.approveShipment';
 
-                  if (shipment.approvedDate) {
+                  if (shipment.approvedDate && moveTaskOrder.availableToPrimeAt) {
                     operationPath = 'shipment.approveShipmentDiversion';
                   }
                   return approveMTOShipment(

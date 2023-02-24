@@ -70,6 +70,20 @@ func (_m *PPMShipmentRouter) SubmitCloseOutDocumentation(appCtx appcontext.AppCo
 	return r0
 }
 
+// SubmitReviewedDocuments provides a mock function with given fields: appCtx, ppmShipment
+func (_m *PPMShipmentRouter) SubmitReviewedDocuments(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error {
+	ret := _m.Called(appCtx, ppmShipment)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) error); ok {
+		r0 = rf(appCtx, ppmShipment)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 type mockConstructorTestingTNewPPMShipmentRouter interface {
 	mock.TestingT
 	Cleanup(func())

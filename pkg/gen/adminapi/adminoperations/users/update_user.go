@@ -32,6 +32,8 @@ func NewUpdateUser(ctx *middleware.Context, handler UpdateUserHandler) *UpdateUs
 /*
 	UpdateUser swagger:route PATCH /users/{userId} users updateUser
 
+# Update a user's session or active status
+
 Update a user's session or active status
 */
 type UpdateUser struct {

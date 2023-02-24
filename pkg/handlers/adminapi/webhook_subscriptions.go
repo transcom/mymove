@@ -18,7 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-// IndexWebhookSubscriptionsHandler returns a list of webhook subscriptions via GET /webhook_subscriptions
+// IndexWebhookSubscriptionsHandler returns a list of webhook subscriptions via GET /webhook-subscriptions
 type IndexWebhookSubscriptionsHandler struct {
 	handlers.HandlerConfig
 	services.ListFetcher
@@ -59,7 +59,7 @@ func (h IndexWebhookSubscriptionsHandler) Handle(params webhooksubscriptionop.In
 		})
 }
 
-// GetWebhookSubscriptionHandler returns one webhookSubscription via GET /webhook_subscriptions/:ID
+// GetWebhookSubscriptionHandler returns one webhookSubscription via GET /webhook-subscriptions/:ID
 type GetWebhookSubscriptionHandler struct {
 	handlers.HandlerConfig
 	services.WebhookSubscriptionFetcher

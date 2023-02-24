@@ -3,6 +3,7 @@ package serviceparamvaluelookups
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -31,14 +32,16 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 		})
 
 		// ContractCode
-		serviceItemParamKey1 := testdatagen.FetchOrMakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameContractCode,
-				Description: "contract code",
-				Type:        models.ServiceItemParamTypeString,
-				Origin:      models.ServiceItemParamOriginSystem,
+		serviceItemParamKey1 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNameContractCode,
+					Description: "contract code",
+					Type:        models.ServiceItemParamTypeString,
+					Origin:      models.ServiceItemParamOriginSystem,
+				},
 			},
-		})
+		}, nil)
 
 		_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
 			ServiceParam: models.ServiceParam{

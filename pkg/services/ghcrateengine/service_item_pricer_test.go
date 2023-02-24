@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -103,13 +104,15 @@ func (suite *GHCRateEngineServiceSuite) setupPriceServiceItemData() {
 
 func (suite *GHCRateEngineServiceSuite) setupPriceServiceItem() models.PaymentServiceItem {
 	// This ParamKey doesn't need to be connected to the PaymentServiceItem yet, so we'll create it separately
-	testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:    models.ServiceItemParamNamePriceRateOrFactor,
-			Type:   models.ServiceItemParamTypeDecimal,
-			Origin: models.ServiceItemParamOriginPricer,
+	factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:    models.ServiceItemParamNamePriceRateOrFactor,
+				Type:   models.ServiceItemParamTypeDecimal,
+				Origin: models.ServiceItemParamOriginPricer,
+			},
 		},
-	})
+	}, nil)
 	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeMS,

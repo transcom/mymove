@@ -31,7 +31,7 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 		//   GET request returns 200 and a list of length 1 containing a subscription
 		ws := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
 		params := webhooksubscriptionop.IndexWebhookSubscriptionsParams{
-			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/webhook_subscriptions"),
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/webhook-subscriptions"),
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexWebhookSubscriptionsHandler{
@@ -58,7 +58,7 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 		newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
 		params := webhooksubscriptionop.IndexWebhookSubscriptionsParams{
-			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/webhook_subscriptions"),
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/webhook-subscriptions"),
 		}
 		expectedError := models.ErrFetchNotFound
 		webhookSubscriptionListFetcher := &mocks.ListFetcher{}
@@ -99,7 +99,7 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 		//					 		review a 200 OK.
 		webhookSubscription := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
 		params := webhooksubscriptionop.GetWebhookSubscriptionParams{
-			HTTPRequest:           suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/webhook_subscriptions/%s", webhookSubscription.ID)),
+			HTTPRequest:           suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/webhook-subscriptions/%s", webhookSubscription.ID)),
 			WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
 		}
 
@@ -130,7 +130,7 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 
 		expectedError := models.ErrFetchNotFound
 		params := webhooksubscriptionop.GetWebhookSubscriptionParams{
-			HTTPRequest:           suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/webhook_subscriptions/%s", webhookSubscription.ID)),
+			HTTPRequest:           suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/webhook-subscriptions/%s", webhookSubscription.ID)),
 			WebhookSubscriptionID: strfmt.UUID(fakeID.String()),
 		}
 
@@ -176,7 +176,7 @@ func (suite *HandlerSuite) TestCreateWebhookSubscriptionHandler() {
 	suite.Run("201 - Successful create", func() {
 		subscriber := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		params := webhooksubscriptionop.CreateWebhookSubscriptionParams{
-			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/webhook_subscriptions"),
+			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/webhook-subscriptions"),
 			WebhookSubscription: &adminmessages.CreateWebhookSubscription{
 				Status:       &status,
 				EventKey:     &webhookSubscription.EventKey,
@@ -196,7 +196,7 @@ func (suite *HandlerSuite) TestCreateWebhookSubscriptionHandler() {
 		// Create Fake subscriber
 		fakeSubscriberID, _ := uuid.NewV4()
 		params := webhooksubscriptionop.CreateWebhookSubscriptionParams{
-			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/webhook_subscriptions"),
+			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/webhook-subscriptions"),
 			WebhookSubscription: &adminmessages.CreateWebhookSubscription{
 				Status:       &status,
 				EventKey:     &webhookSubscription.EventKey,
@@ -222,7 +222,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		subscriberID := strfmt.UUID(webhookSubscription.SubscriberID.String())
 
 		params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
-			HTTPRequest:           suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/webhook_subscriptions/%s", webhookSubscription.ID)),
+			HTTPRequest:           suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/webhook-subscriptions/%s", webhookSubscription.ID)),
 			WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
 			WebhookSubscription: &adminmessages.WebhookSubscription{
 				CallbackURL:  swag.String("something.com"),
@@ -261,7 +261,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		webhookSubscription := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
 
 		params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
-			HTTPRequest:           suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/webhook_subscriptions/%s", webhookSubscription.ID)),
+			HTTPRequest:           suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/webhook-subscriptions/%s", webhookSubscription.ID)),
 			WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
 			WebhookSubscription: &adminmessages.WebhookSubscription{
 				CallbackURL: swag.String("somethingelse.com"),
@@ -303,7 +303,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		status := adminmessages.WebhookSubscriptionStatusFAILING
 		subscriberID := strfmt.UUID(webhookSubscription.SubscriberID.String())
 		params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
-			HTTPRequest:           suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/webhook_subscriptions/%s", webhookSubscription.ID)),
+			HTTPRequest:           suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/webhook-subscriptions/%s", webhookSubscription.ID)),
 			WebhookSubscriptionID: strfmt.UUID(fakeID.String()),
 			WebhookSubscription: &adminmessages.WebhookSubscription{
 				CallbackURL:  swag.String("something.com"),
@@ -333,7 +333,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		// Expected Outcome:  We receive a 412 Precondition Failed error.
 		webhookSubscription := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
 		params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
-			HTTPRequest:           suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/webhook_subscriptions/%s", webhookSubscription.ID)),
+			HTTPRequest:           suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/webhook-subscriptions/%s", webhookSubscription.ID)),
 			WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
 			WebhookSubscription: &adminmessages.WebhookSubscription{
 				CallbackURL: swag.String("stale.etag.com"),

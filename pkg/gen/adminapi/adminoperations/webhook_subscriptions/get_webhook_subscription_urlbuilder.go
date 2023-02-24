@@ -42,7 +42,7 @@ func (o *GetWebhookSubscriptionURL) SetBasePath(bp string) {
 func (o *GetWebhookSubscriptionURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/webhook_subscriptions/{webhookSubscriptionId}"
+	var _path = "/webhook-subscriptions/{webhookSubscriptionId}"
 
 	webhookSubscriptionID := o.WebhookSubscriptionID.String()
 	if webhookSubscriptionID != "" {

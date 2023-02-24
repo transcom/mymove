@@ -30,7 +30,7 @@ func NewGetWebhookSubscription(ctx *middleware.Context, handler GetWebhookSubscr
 }
 
 /*
-	GetWebhookSubscription swagger:route GET /webhook_subscriptions/{webhookSubscriptionId} webhook_subscriptions getWebhookSubscription
+	GetWebhookSubscription swagger:route GET /webhook-subscriptions/{webhookSubscriptionId} webhook_subscriptions getWebhookSubscription
 
 # Get information about a webhook subscription
 

@@ -4402,6 +4402,13 @@ definitions:
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
+      adjustedNetWeight:
+        description: Indicates the adjusted net weight of the vehicle
+        type: integer
+        minimum: 0
+      netWeightRemarks:
+        description: Remarks explaining any edits made to the net weight
+        type: string
   UpdateMovingExpense:
     type: object
     properties:
@@ -6097,6 +6104,17 @@ definitions:
         $ref: '#/definitions/OmittablePPMDocumentStatus'
       reason:
         $ref: '#/definitions/PPMDocumentStatusReason'
+      adjustedNetWeight:
+        description: Indicates the adjusted net weight of the vehicle
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      netWeightRemarks:
+        description: Remarks explaining any edits made to the net weight
+        type: string
+        x-nullable: true
+        x-omitempty: false
       eTag:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string

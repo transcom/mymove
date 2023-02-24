@@ -1,24 +1,25 @@
-/**
- * Semi-automated converted from a cypress test, and thus may contain
- * non best-practices, in particular: heavy use of `page.locator`
- * instead of `page.getBy*`.
- */
-
 // @ts-check
 import { test, expect } from '../../utils/customerTest';
 
 test('A customer can create, edit, and delete an NTS shipment', async ({ page, customerPage }) => {
+  // Generate a new onboarded user with orders and log in
   const move = await customerPage.testHarness.buildMoveWithOrders();
   const userId = move.Orders.ServiceMember.user_id;
   await customerPage.signInAsExistingCustomer(userId);
 
   // Navigate to create a new shipment
+  await customerPage.waitForPage.home();
   await page.getByTestId('shipment-selection-btn').click();
+  await customerPage.waitForPage.aboutShipments();
   await customerPage.navigateForward();
-  await page.getByText("It's going into storage for months or years (NTS)Movers pack and ship things to ").click();
+  await customerPage.waitForPage.selectShipmentType();
+
+  // Create an NTS shipment
+  await page.getByText("It's going into storage for months or years").click();
   await customerPage.navigateForward();
 
   // Fill in form to create NTS shipment
+  await customerPage.waitForPage.ntsShipment();
   await page.getByLabel('Preferred pickup date').fill('25 Dec 2022');
   await page.getByLabel('Preferred pickup date').blur();
   await page.getByText('Use my current address').click();

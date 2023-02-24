@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
@@ -14,19 +14,37 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { validatePostalCode } from 'utils/validation';
 import { formatDateForSwagger } from 'shared/dates';
-import { getResponseError, patchMTOShipment } from 'services/internalApi';
+import { getResponseError, patchMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { isWeightTicketComplete } from 'utils/shipments';
 
 const About = () => {
   const [errorMessage, setErrorMessage] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const history = useHistory();
   const { moveId, mtoShipmentId } = useParams();
   const dispatch = useDispatch();
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
+
+  useEffect(() => {
+    getMTOShipmentsForMove(moveId)
+      .then((response) => {
+        dispatch(updateMTOShipment(response.mtoShipments[mtoShipmentId]));
+      })
+      .catch(() => {
+        setErrorMessage('Failed to fetch shipment information');
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [moveId, mtoShipmentId, dispatch]);
+
+  if (!mtoShipment || isLoading) {
+    return <LoadingPlaceholder />;
+  }
 
   const handleBack = () => {
     history.push(generalRoutes.HOME_PATH);

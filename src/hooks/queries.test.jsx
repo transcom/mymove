@@ -16,6 +16,7 @@ import {
   useEditShipmentQueries,
   useEvaluationReportQueries,
   useServicesCounselingQueuePPMQueries,
+  useReviewShipmentWeightsQuery,
 } from './queries';
 
 import { serviceItemCodes } from 'content/serviceItems';
@@ -90,6 +91,7 @@ jest.mock('services/ghcApi', () => ({
     }
     return Promise.resolve([
       {
+        id: 'a1',
         shipmentType: 'HHG_LONGHAUL_DOMESTIC',
         mtoAgents: [
           {
@@ -111,6 +113,7 @@ jest.mock('services/ghcApi', () => ({
         ],
       },
       {
+        id: 'b2',
         shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
         mtoAgents: [
           {
@@ -279,6 +282,26 @@ jest.mock('services/ghcApi', () => ({
         },
       ],
     }),
+  getPPMDocuments: (key, shipmentID) => {
+    if (shipmentID !== 'a1') {
+      return { MovingExpenses: [], ProGearWeightTickets: [], WeightTickets: [] };
+    }
+    return Promise.resolve({
+      MovingExpenses: [],
+      ProGearWeightTickets: [],
+      WeightTickets: [
+        {
+          emptyWeight: 14500,
+          fullWeight: 18500,
+          id: 'ppmDoc1',
+          missingEmptyWeightTicket: false,
+          missingFullWeightTicket: false,
+          ownsTrailer: false,
+          vehicleDescription: '2022 Honda CR-V Hybrid',
+        },
+      ],
+    });
+  },
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -358,6 +381,7 @@ describe('usePaymentRequestQueries', () => {
       paymentServiceItems: {},
       mtoShipments: [
         {
+          id: 'a1',
           shipmentType: 'HHG_LONGHAUL_DOMESTIC',
           mtoAgents: [
             {
@@ -379,6 +403,7 @@ describe('usePaymentRequestQueries', () => {
           ],
         },
         {
+          id: 'b2',
           shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
           mtoAgents: [
             {
@@ -494,6 +519,7 @@ describe('useMoveDetailsQueries', () => {
       },
       mtoShipments: [
         {
+          id: 'a1',
           shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
           mtoAgents: [
             {
@@ -515,6 +541,7 @@ describe('useMoveDetailsQueries', () => {
           ],
         },
         {
+          id: 'b2',
           shipmentType: SHIPMENT_OPTIONS.NTSR,
           mtoAgents: [
             {
@@ -586,6 +613,7 @@ describe('useMoveTaskOrderQueries', () => {
       },
       mtoShipments: [
         {
+          id: 'a1',
           shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
           mtoAgents: [
             {
@@ -607,6 +635,7 @@ describe('useMoveTaskOrderQueries', () => {
           ],
         },
         {
+          id: 'b2',
           shipmentType: SHIPMENT_OPTIONS.NTSR,
           mtoAgents: [
             {
@@ -676,6 +705,7 @@ describe('useEditShipmentQueries', () => {
       },
       mtoShipments: [
         {
+          id: 'a1',
           shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
           mtoAgents: [
             {
@@ -697,6 +727,7 @@ describe('useEditShipmentQueries', () => {
           ],
         },
         {
+          id: 'b2',
           shipmentType: SHIPMENT_OPTIONS.NTSR,
           mtoAgents: [
             {
@@ -915,6 +946,103 @@ describe('useServicesCounselingQueuePPMQueries', () => {
           },
         ],
       },
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    });
+  });
+});
+
+describe('useReviewShipmentWeightsQuery', () => {
+  it('loads data', async () => {
+    const { result, waitFor } = renderHook(() => useReviewShipmentWeightsQuery('ABCDEF'), { wrapper });
+
+    await waitFor(() => result.current.isSuccess);
+
+    expect(result.current).toEqual({
+      move: { id: '1234', ordersId: '4321', moveCode: 'ABCDEF' },
+      orders: {
+        4321: {
+          id: '4321',
+          customerID: '2468',
+          customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+          uploaded_order_id: '2',
+          uploadedAmendedOrderID: '3',
+          departmentIndicator: 'Navy',
+          grade: 'E-6',
+          originDutyLocation: {
+            name: 'JBSA Lackland',
+          },
+          destinationDutyLocation: {
+            name: 'JB Lewis-McChord',
+          },
+          report_by_date: '2018-08-01',
+        },
+      },
+      mtoShipments: [
+        {
+          id: 'a1',
+          shipmentType: 'HHG_LONGHAUL_DOMESTIC',
+          mtoAgents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              mtoShipmentID: 'a1',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              mtoShipmentID: 'a1',
+            },
+          ],
+          mtoServiceItems: [
+            {
+              reServiceName: 'Domestic linehaul',
+            },
+            {
+              reServiceName: 'Fuel surcharge',
+            },
+          ],
+        },
+        {
+          id: 'b2',
+          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+          mtoAgents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              mtoShipmentID: 'b2',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              mtoShipmentID: 'b2',
+            },
+          ],
+          mtoServiceItems: [
+            {
+              reServiceName: 'Domestic origin price',
+            },
+            {
+              reServiceName: 'Domestic unpacking',
+            },
+          ],
+        },
+      ],
+      documents: [
+        {
+          MovingExpenses: [],
+          ProGearWeightTickets: [],
+          WeightTickets: [
+            {
+              emptyWeight: 14500,
+              fullWeight: 18500,
+              id: 'ppmDoc1',
+              missingEmptyWeightTicket: false,
+              missingFullWeightTicket: false,
+              ownsTrailer: false,
+              vehicleDescription: '2022 Honda CR-V Hybrid',
+            },
+          ],
+        },
+        { MovingExpenses: [], ProGearWeightTickets: [], WeightTickets: [] },
+      ],
       isLoading: false,
       isError: false,
       isSuccess: true,

@@ -787,3 +787,4 @@
 20230202193449_add_daycos_and_movehq_certs.up.sql
 20230214161337_add_mmayo-truss_certs.up.sql
 20230216145923_dspencer_cac.up.sql
+20230216192945_add_adjusted_net_weight_and_net_weight_remarks_to_weight_ticket_table.up.sql

@@ -21,6 +21,52 @@ export class ServiceCounselorPage extends OfficePage {
     super(officePage.page, officePage.request);
   }
 
+  waitForPage = {
+    counselingQueue: async () => {
+      await expect(this.page.getByRole('link', { name: 'Counseling' })).toHaveClass('usa-current');
+    },
+    closeoutQueue: async () => {
+      await expect(this.page.getByRole('link', { name: 'PPM Closeout' })).toHaveClass('usa-current');
+    },
+    moveDetails: async () => {
+      await expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Move details');
+    },
+    reviewDocuments: async () => {
+      await expect(this.page.getByRole('heading', { name: 'Review trip 1', level: 3 })).toBeVisible();
+    },
+    reviewDocumentsConfirmation: async () => {
+      await expect(this.page.getByRole('heading', { name: 'Send to customer?', level: 3 })).toBeVisible();
+    },
+  };
+
+  /**
+   * Verify that the user is in the correct move
+   * @param {string} moveLocator
+   */
+  async verifyMoveLocator(moveLocator) {
+    await expect(this.page.getByText(`#${moveLocator}`)).toHaveClass(/usa-tag/);
+  }
+
+  /**
+   * Service Counselor navigate to closeout move
+   * @param {string} moveLocator
+   */
+  async navigateToCloseoutMove(moveLocator) {
+    await this.waitForPage.counselingQueue();
+
+    // navigate to "PPM Closeout" section first
+    await this.page.getByRole('link', { name: 'PPM Closeout' }).click();
+    await this.waitForPage.closeoutQueue();
+
+    // type in move code/locator to filter
+    await this.page.locator('input[name="locator"]').type(moveLocator);
+    await this.page.locator('input[name="locator"]').blur();
+
+    await this.page.locator('tbody > tr').first().click();
+    await this.waitForPage.moveDetails();
+    await this.verifyMoveLocator(moveLocator);
+  }
+
   /**
    * Service Counselor navigate to move
    * @param {string} moveLocator

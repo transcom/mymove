@@ -205,10 +205,11 @@ These scripts are primarily used for working with a CAC and the Orders API
 
 These scripts are primarily for working with Mutual TLS certificates
 
-| Script Name                      | Description                                                        |
-| -------------------------------- | ------------------------------------------------------------------ |
-| `mutual-tls-extract-fingerprint` | Get SHA 256 fingerprint of the public certificate from a cert file |
-| `mutual-tls-extract-subject`     | Get a sha256 hash of the certificate from a cert file              |
+| Script Name                      | Description                                                          |
+| -------------------------------- | -------------------------------------------------------------------- |
+| `generate-p7b-file`              | Creates a concatenated p7b file from several certificate file formats|
+| `mutual-tls-extract-fingerprint` | Get SHA 256 fingerprint of the public certificate from a cert file   |
+| `mutual-tls-extract-subject`     | Get a sha256 hash of the certificate from a cert file                |
 
 ### Amazon Console Scripts
 
