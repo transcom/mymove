@@ -30,7 +30,7 @@ func NewIndexTSPPs(ctx *middleware.Context, handler IndexTSPPsHandler) *IndexTSP
 }
 
 /*
-	IndexTSPPs swagger:route GET /transportation_service_provider_performances transportation_service_provider_performances indexTSPPs
+	IndexTSPPs swagger:route GET /transportation-service-provider-performances transportation_service_provider_performances indexTSPPs
 
 List transportation service provider performances (TSPPs)
 

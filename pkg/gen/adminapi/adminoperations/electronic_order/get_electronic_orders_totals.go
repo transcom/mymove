@@ -30,7 +30,7 @@ func NewGetElectronicOrdersTotals(ctx *middleware.Context, handler GetElectronic
 }
 
 /*
-	GetElectronicOrdersTotals swagger:route GET /electronic_orders/totals electronic_order getElectronicOrdersTotals
+	GetElectronicOrdersTotals swagger:route GET /electronic-orders/totals electronic_order getElectronicOrdersTotals
 
 # Get total counts for the orders stored in MilMove
 

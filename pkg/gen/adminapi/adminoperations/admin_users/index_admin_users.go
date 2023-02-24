@@ -30,7 +30,7 @@ func NewIndexAdminUsers(ctx *middleware.Context, handler IndexAdminUsersHandler)
 }
 
 /*
-	IndexAdminUsers swagger:route GET /admin_users admin_users indexAdminUsers
+	IndexAdminUsers swagger:route GET /admin-users admin_users indexAdminUsers
 
 # List admin users
 

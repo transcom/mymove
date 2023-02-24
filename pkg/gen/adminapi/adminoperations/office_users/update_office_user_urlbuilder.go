@@ -42,7 +42,7 @@ func (o *UpdateOfficeUserURL) SetBasePath(bp string) {
 func (o *UpdateOfficeUserURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/office_users/{officeUserId}"
+	var _path = "/office-users/{officeUserId}"
 
 	officeUserID := o.OfficeUserID.String()
 	if officeUserID != "" {
