@@ -172,8 +172,9 @@ func linkOnlyHasID(clist []Customization) error {
 // by applying and merging the traits.
 // customs is a slice that will be modified by setupCustomizations.
 //
-//   - Assigns default types to all default customizations
+//   - Ensures linkOnly customizations have ID
 //   - Merges customizations and traits
+//   - Assigns default types to all default customizations
 //   - Ensure there's only one customization per type
 func setupCustomizations(customs []Customization, traits []Trait) []Customization {
 
@@ -191,7 +192,7 @@ func setupCustomizations(customs []Customization, traits []Trait) []Customizatio
 	if err != nil {
 		log.Panic(err)
 	}
-	// Store the validation result
+
 	return customs
 
 }
