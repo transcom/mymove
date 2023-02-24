@@ -470,23 +470,23 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/admin_users"] = admin_users.NewCreateAdminUser(o.context, o.AdminUsersCreateAdminUserHandler)
+	o.handlers["POST"]["/admin-users"] = admin_users.NewCreateAdminUser(o.context, o.AdminUsersCreateAdminUserHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/office_users"] = office_users.NewCreateOfficeUser(o.context, o.OfficeUsersCreateOfficeUserHandler)
+	o.handlers["POST"]["/office-users"] = office_users.NewCreateOfficeUser(o.context, o.OfficeUsersCreateOfficeUserHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/webhook_subscriptions"] = webhook_subscriptions.NewCreateWebhookSubscription(o.context, o.WebhookSubscriptionsCreateWebhookSubscriptionHandler)
+	o.handlers["POST"]["/webhook-subscriptions"] = webhook_subscriptions.NewCreateWebhookSubscription(o.context, o.WebhookSubscriptionsCreateWebhookSubscriptionHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/admin_users/{adminUserId}"] = admin_users.NewGetAdminUser(o.context, o.AdminUsersGetAdminUserHandler)
+	o.handlers["GET"]["/admin-users/{adminUserId}"] = admin_users.NewGetAdminUser(o.context, o.AdminUsersGetAdminUserHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/electronic_orders/totals"] = electronic_order.NewGetElectronicOrdersTotals(o.context, o.ElectronicOrderGetElectronicOrdersTotalsHandler)
+	o.handlers["GET"]["/electronic-orders/totals"] = electronic_order.NewGetElectronicOrdersTotals(o.context, o.ElectronicOrderGetElectronicOrdersTotalsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -494,11 +494,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/office_users/{officeUserId}"] = office_users.NewGetOfficeUser(o.context, o.OfficeUsersGetOfficeUserHandler)
+	o.handlers["GET"]["/office-users/{officeUserId}"] = office_users.NewGetOfficeUser(o.context, o.OfficeUsersGetOfficeUserHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/transportation_service_provider_performances/{tsppId}"] = transportation_service_provider_performances.NewGetTSPP(o.context, o.TransportationServiceProviderPerformancesGetTSPPHandler)
+	o.handlers["GET"]["/transportation-service-provider-performances/{tsppId}"] = transportation_service_provider_performances.NewGetTSPP(o.context, o.TransportationServiceProviderPerformancesGetTSPPHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -510,15 +510,15 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/webhook_subscriptions/{webhookSubscriptionId}"] = webhook_subscriptions.NewGetWebhookSubscription(o.context, o.WebhookSubscriptionsGetWebhookSubscriptionHandler)
+	o.handlers["GET"]["/webhook-subscriptions/{webhookSubscriptionId}"] = webhook_subscriptions.NewGetWebhookSubscription(o.context, o.WebhookSubscriptionsGetWebhookSubscriptionHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/admin_users"] = admin_users.NewIndexAdminUsers(o.context, o.AdminUsersIndexAdminUsersHandler)
+	o.handlers["GET"]["/admin-users"] = admin_users.NewIndexAdminUsers(o.context, o.AdminUsersIndexAdminUsersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/electronic_orders"] = electronic_order.NewIndexElectronicOrders(o.context, o.ElectronicOrderIndexElectronicOrdersHandler)
+	o.handlers["GET"]["/electronic-orders"] = electronic_order.NewIndexElectronicOrders(o.context, o.ElectronicOrderIndexElectronicOrdersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -530,7 +530,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/office_users"] = office_users.NewIndexOfficeUsers(o.context, o.OfficeUsersIndexOfficeUsersHandler)
+	o.handlers["GET"]["/office-users"] = office_users.NewIndexOfficeUsers(o.context, o.OfficeUsersIndexOfficeUsersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -542,7 +542,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/transportation_service_provider_performances"] = transportation_service_provider_performances.NewIndexTSPPs(o.context, o.TransportationServiceProviderPerformancesIndexTSPPsHandler)
+	o.handlers["GET"]["/transportation-service-provider-performances"] = transportation_service_provider_performances.NewIndexTSPPs(o.context, o.TransportationServiceProviderPerformancesIndexTSPPsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -550,11 +550,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/webhook_subscriptions"] = webhook_subscriptions.NewIndexWebhookSubscriptions(o.context, o.WebhookSubscriptionsIndexWebhookSubscriptionsHandler)
+	o.handlers["GET"]["/webhook-subscriptions"] = webhook_subscriptions.NewIndexWebhookSubscriptions(o.context, o.WebhookSubscriptionsIndexWebhookSubscriptionsHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/admin_users/{adminUserId}"] = admin_users.NewUpdateAdminUser(o.context, o.AdminUsersUpdateAdminUserHandler)
+	o.handlers["PATCH"]["/admin-users/{adminUserId}"] = admin_users.NewUpdateAdminUser(o.context, o.AdminUsersUpdateAdminUserHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
@@ -562,7 +562,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/office_users/{officeUserId}"] = office_users.NewUpdateOfficeUser(o.context, o.OfficeUsersUpdateOfficeUserHandler)
+	o.handlers["PATCH"]["/office-users/{officeUserId}"] = office_users.NewUpdateOfficeUser(o.context, o.OfficeUsersUpdateOfficeUserHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
@@ -570,7 +570,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/webhook_subscriptions/{webhookSubscriptionId}"] = webhook_subscriptions.NewUpdateWebhookSubscription(o.context, o.WebhookSubscriptionsUpdateWebhookSubscriptionHandler)
+	o.handlers["PATCH"]["/webhook-subscriptions/{webhookSubscriptionId}"] = webhook_subscriptions.NewUpdateWebhookSubscription(o.context, o.WebhookSubscriptionsUpdateWebhookSubscriptionHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

@@ -44,7 +44,7 @@ func init() {
   "host": "admin.move.mil",
   "basePath": "/admin/v1",
   "paths": {
-    "/admin_users": {
+    "/admin-users": {
       "get": {
         "description": "Returns a list of admin users",
         "produces": [
@@ -157,7 +157,7 @@ func init() {
         }
       }
     },
-    "/admin_users/{adminUserId}": {
+    "/admin-users/{adminUserId}": {
       "get": {
         "description": "Returns a single admin user",
         "produces": [
@@ -250,7 +250,7 @@ func init() {
         }
       }
     },
-    "/electronic_orders": {
+    "/electronic-orders": {
       "get": {
         "description": "Returns a list of electronic orders",
         "produces": [
@@ -319,7 +319,7 @@ func init() {
         }
       }
     },
-    "/electronic_orders/totals": {
+    "/electronic-orders/totals": {
       "get": {
         "description": "Returns a list of record counts for orders",
         "produces": [
@@ -602,7 +602,7 @@ func init() {
         }
       }
     },
-    "/office_users": {
+    "/office-users": {
       "get": {
         "description": "Returns a list of office users",
         "produces": [
@@ -709,7 +709,7 @@ func init() {
         }
       }
     },
-    "/office_users/{officeUserId}": {
+    "/office-users/{officeUserId}": {
       "get": {
         "description": "Returns the given office user",
         "produces": [
@@ -937,7 +937,7 @@ func init() {
         }
       }
     },
-    "/transportation_service_provider_performances": {
+    "/transportation-service-provider-performances": {
       "get": {
         "description": "Returns a list of transportation service provider performances (TSPPs)",
         "produces": [
@@ -1003,7 +1003,7 @@ func init() {
         }
       }
     },
-    "/transportation_service_provider_performances/{tsppId}": {
+    "/transportation-service-provider-performances/{tsppId}": {
       "get": {
         "description": "Returns a single tspp",
         "produces": [
@@ -1255,7 +1255,7 @@ func init() {
         }
       }
     },
-    "/webhook_subscriptions": {
+    "/webhook-subscriptions": {
       "get": {
         "description": "Returns a list of webhook subscriptions",
         "produces": [
@@ -1365,7 +1365,7 @@ func init() {
         }
       }
     },
-    "/webhook_subscriptions/{webhookSubscriptionId}": {
+    "/webhook-subscriptions/{webhookSubscriptionId}": {
       "get": {
         "description": "Returns the given webhook subscription and its details",
         "produces": [
@@ -2710,7 +2710,7 @@ func init() {
   "host": "admin.move.mil",
   "basePath": "/admin/v1",
   "paths": {
-    "/admin_users": {
+    "/admin-users": {
       "get": {
         "description": "Returns a list of admin users",
         "produces": [
@@ -2823,7 +2823,7 @@ func init() {
         }
       }
     },
-    "/admin_users/{adminUserId}": {
+    "/admin-users/{adminUserId}": {
       "get": {
         "description": "Returns a single admin user",
         "produces": [
@@ -2916,7 +2916,7 @@ func init() {
         }
       }
     },
-    "/electronic_orders": {
+    "/electronic-orders": {
       "get": {
         "description": "Returns a list of electronic orders",
         "produces": [
@@ -2985,7 +2985,7 @@ func init() {
         }
       }
     },
-    "/electronic_orders/totals": {
+    "/electronic-orders/totals": {
       "get": {
         "description": "Returns a list of record counts for orders",
         "produces": [
@@ -3268,7 +3268,7 @@ func init() {
         }
       }
     },
-    "/office_users": {
+    "/office-users": {
       "get": {
         "description": "Returns a list of office users",
         "produces": [
@@ -3375,7 +3375,7 @@ func init() {
         }
       }
     },
-    "/office_users/{officeUserId}": {
+    "/office-users/{officeUserId}": {
       "get": {
         "description": "Returns the given office user",
         "produces": [
@@ -3603,7 +3603,7 @@ func init() {
         }
       }
     },
-    "/transportation_service_provider_performances": {
+    "/transportation-service-provider-performances": {
       "get": {
         "description": "Returns a list of transportation service provider performances (TSPPs)",
         "produces": [
@@ -3669,7 +3669,7 @@ func init() {
         }
       }
     },
-    "/transportation_service_provider_performances/{tsppId}": {
+    "/transportation-service-provider-performances/{tsppId}": {
       "get": {
         "description": "Returns a single tspp",
         "produces": [
@@ -3921,7 +3921,7 @@ func init() {
         }
       }
     },
-    "/webhook_subscriptions": {
+    "/webhook-subscriptions": {
       "get": {
         "description": "Returns a list of webhook subscriptions",
         "produces": [
@@ -4031,7 +4031,7 @@ func init() {
         }
       }
     },
-    "/webhook_subscriptions/{webhookSubscriptionId}": {
+    "/webhook-subscriptions/{webhookSubscriptionId}": {
       "get": {
         "description": "Returns the given webhook subscription and its details",
         "produces": [

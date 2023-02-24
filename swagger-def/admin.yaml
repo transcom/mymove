@@ -964,7 +964,7 @@ definitions:
       FAILING: Failing
       DISABLED: Disabled
 paths:
-  /office_users:
+  /office-users:
     get:
       produces:
         - application/json
@@ -1033,7 +1033,7 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: internal server error
-  /office_users/{officeUserId}:
+  /office-users/{officeUserId}:
     get:
       produces:
         - application/json
@@ -1095,7 +1095,7 @@ paths:
           description: Not authorized to update an office user
         '500':
           description: Server error
-  /transportation_service_provider_performances:
+  /transportation-service-provider-performances:
     get:
       produces:
         - application/json
@@ -1137,7 +1137,7 @@ paths:
           description: office not found
         '500':
           description: server error
-  /transportation_service_provider_performances/{tsppId}:
+  /transportation-service-provider-performances/{tsppId}:
     get:
       produces:
         - application/json
@@ -1165,7 +1165,7 @@ paths:
           description: tspp not found
         '500':
           description: server error
-  /admin_users:
+  /admin-users:
     get:
       produces:
         - application/json
@@ -1238,7 +1238,7 @@ paths:
           description: Not authorized to create an admin user
         '500':
           description: Server error
-  /admin_users/{adminUserId}:
+  /admin-users/{adminUserId}:
     get:
       produces:
         - application/json
@@ -1342,7 +1342,7 @@ paths:
           description: office not found
         '500':
           description: server error
-  /electronic_orders:
+  /electronic-orders:
     get:
       produces:
         - application/json
@@ -1386,7 +1386,7 @@ paths:
           description: not found
         '500':
           description: server error
-  /electronic_orders/totals:
+  /electronic-orders/totals:
     get:
       produces:
         - application/json
@@ -1755,7 +1755,7 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: Server error
-  /webhook_subscriptions:
+  /webhook-subscriptions:
     get:
       produces:
         - application/json
@@ -1826,7 +1826,7 @@ paths:
           description: Not authorized to create a webhook subscription
         '500':
           description: Server error
-  /webhook_subscriptions/{webhookSubscriptionId}:
+  /webhook-subscriptions/{webhookSubscriptionId}:
     get:
       produces:
         - application/json

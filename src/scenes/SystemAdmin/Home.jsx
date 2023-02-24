@@ -69,7 +69,7 @@ const Home = () => (
       disableTelemetry
     >
       <Resource
-        name="office_users"
+        name="office-users"
         options={{ label: 'Office Users' }}
         list={OfficeUserList}
         show={OfficeUserShow}
@@ -78,7 +78,7 @@ const Home = () => (
       />
       <Resource name="offices" options={{ label: 'Offices' }} list={OfficeList} />
       <Resource
-        name="admin_users"
+        name="admin-users"
         options={{ label: 'Admin Users' }}
         list={AdminUserList}
         show={AdminUserShow}
@@ -88,17 +88,17 @@ const Home = () => (
       <Resource name="users" options={{ label: 'Users' }} list={UserList} show={UserShow} edit={UserEdit} />
       <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} show={MoveShow} edit={MoveEdit} />
       <Resource
-        name="transportation_service_provider_performances"
+        name="transportation-service-provider-performances"
         options={{ label: 'TSPPs' }}
         list={TSPPList}
         show={TSPPShow}
       />
-      <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
+      <Resource name="electronic-orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
       <Resource name="organizations" />
       <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
       <Resource
-        name="webhook_subscriptions"
+        name="webhook-subscriptions"
         options={{ label: 'Webhook Subscriptions' }}
         show={WebhookSubscriptionShow}
         create={WebhookSubscriptionCreate}
