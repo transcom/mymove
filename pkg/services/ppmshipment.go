@@ -45,6 +45,7 @@ type PPMShipmentRouter interface {
 	Submit(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error
 	SendToCustomer(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error
 	SubmitCloseOutDocumentation(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error
+	SubmitReviewedDocuments(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error
 }
 
 // PPMShipmentNewSubmitter handles a new submission for a PPM shipment
@@ -52,6 +53,13 @@ type PPMShipmentRouter interface {
 //go:generate mockery --name PPMShipmentNewSubmitter --disable-version-string
 type PPMShipmentNewSubmitter interface {
 	SubmitNewCustomerCloseOut(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, signedCertification models.SignedCertification) (*models.PPMShipment, error)
+}
+
+// PPMShipmentReviewDocuments handles a new submission for a PPM shipment
+//
+//go:generate mockery --name PPMShipmentReviewDocuments --disable-version-string
+type PPMShipmentReviewDocuments interface {
+	SubmitReviewedDocuments(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMShipment, error)
 }
 
 // PPMShipmentUpdatedSubmitter handles a submission for a PPM shipment that has been submitted before
