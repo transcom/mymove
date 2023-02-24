@@ -1557,8 +1557,9 @@ paths:
     get:
       produces:
         - application/json
-      summary: List notifications
-      description: Returns a list of notifications that have been sent to service members
+      summary: List Notifications
+      description:
+        $ref: paths/notifications/get/description.md
       operationId: indexNotifications
       tags:
         - notification
@@ -1592,7 +1593,7 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: not found
+          description: Notifications not found
         '500':
           description: server error
   /moves:
