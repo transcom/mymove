@@ -55,7 +55,7 @@ tags:
     description: Information about uploads
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: users
+  - name: Users
     description: Information about users
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
@@ -1698,7 +1698,7 @@ paths:
       description: Returns a list of users
       operationId: indexUsers
       tags:
-        - users
+        - Users
       parameters:
         - in: query
           name: filter
@@ -1740,7 +1740,7 @@ paths:
       description: Returns the given user and their sessions
       operationId: getUser
       tags:
-        - users
+        - Users
       parameters:
         - in: path
           name: userId
@@ -1768,7 +1768,7 @@ paths:
         - application/json
       operationId: updateUser
       tags:
-        - users
+        - Users
       parameters:
         - in: path
           name: userId
