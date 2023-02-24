@@ -51,7 +51,7 @@ tags:
     description: Information about Transportation Service Provider performances
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: upload
+  - name: Uploads
     description: Information about uploads
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
@@ -1472,7 +1472,7 @@ paths:
       description: Returns the given upload and information about the uploader and move
       operationId: getUpload
       tags:
-        - upload
+        - Uploads
       parameters:
         - in: path
           name: uploadId
