@@ -4,9 +4,9 @@
  * <https://playwright.dev/docs/test-fixtures>
  */
 // @ts-check
-const base = require('@playwright/test');
+import * as base from '@playwright/test';
 
-const { BaseTestPage } = require('./baseTest');
+import { BaseTestPage } from './baseTest';
 
 /**
  * devlocal auth user types
@@ -15,7 +15,7 @@ export const TOOOfficeUserType = 'TOO office';
 export const TIOOfficeUserType = 'TIO office';
 export const QAECSROfficeUserType = 'QAE/CSR office';
 export const ServicesCounselorOfficeUserType = 'Services Counselor office';
-export const PrimeSimulatorUserType = 'Prime Simulator';
+export const PrimeSimulatorUserType = 'Prime Simulator office';
 
 /**
  * office test fixture for playwright
@@ -146,7 +146,7 @@ export class OfficePage extends BaseTestPage {
     await this.waitForLoading();
 
     await base.expect(this.page.locator('tbody >> tr')).toHaveCount(1);
-    base.expect(this.page.locator('tbody >> tr').first()).toContainText(moveLocator);
+    await base.expect(this.page.locator('tbody >> tr').first()).toContainText(moveLocator);
 
     // click result to navigate to move details page
     await this.page.locator('tbody > tr').first().click();

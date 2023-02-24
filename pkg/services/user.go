@@ -28,5 +28,5 @@ type UserUpdater interface {
 //
 //go:generate mockery --name UserSessionRevocation --disable-version-string
 type UserSessionRevocation interface {
-	RevokeUserSession(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.UserUpdatePayload, sessionManagers auth.AppSessionManagers) (*models.User, *validate.Errors, error)
+	RevokeUserSession(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.UserUpdate, sessionManagers auth.AppSessionManagers) (*models.User, *validate.Errors, error)
 }

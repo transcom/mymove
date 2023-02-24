@@ -12,11 +12,11 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func getCookie(name string, cookies []*http.Cookie) (*http.Cookie, error) {
@@ -67,10 +67,21 @@ func (suite *AuthSuite) TestCreateUserHandlerMilMove() {
 
 func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 	// These roles are created during migrations but our test suite truncates all tables
-	testdatagen.MakeTOORole(suite.DB())
-	testdatagen.MakeTIORole(suite.DB())
-	testdatagen.MakeServicesCounselorRole(suite.DB())
-	testdatagen.MakeQaeCsrRole(suite.DB())
+	factory.BuildRole(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitTOORole,
+	})
+	factory.BuildRole(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitTIORole,
+	})
+	factory.BuildRole(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitServicesCounselorRole,
+	})
+	factory.BuildRole(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitQaeCsrRole,
+	})
+	factory.BuildRole(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitPrimeSimulatorRole,
+	})
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -80,10 +91,42 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 	handler := NewCreateUserHandler(authContext, handlerConfig)
 
 	for _, newOfficeUser := range []struct {
-		userType string
-		roleType roles.RoleType
-		email    string
-	}{{userType: TOOOfficeUserType, roleType: roles.RoleTypeTOO, email: "too_office_user@example.com"}, {userType: TIOOfficeUserType, roleType: roles.RoleTypeTIO, email: "tio_office_user@example.com"}, {userType: ServicesCounselorOfficeUserType, roleType: roles.RoleTypeServicesCounselor, email: "services_counselor_office_user@example.com"}, {userType: QaeCsrOfficeUserType, roleType: roles.RoleTypeQaeCsr, email: "qae_csr_office_user@example.com"}} {
+		userType  string
+		roleTypes []roles.RoleType
+		email     string
+	}{
+		{
+			userType:  TOOOfficeUserType,
+			roleTypes: []roles.RoleType{roles.RoleTypeTOO},
+			email:     "too_office_user@example.com",
+		},
+		{
+			userType:  TIOOfficeUserType,
+			roleTypes: []roles.RoleType{roles.RoleTypeTIO},
+			email:     "tio_office_user@example.com",
+		},
+		{
+			userType:  ServicesCounselorOfficeUserType,
+			roleTypes: []roles.RoleType{roles.RoleTypeServicesCounselor},
+			email:     "services_counselor_office_user@example.com",
+		},
+		{
+			userType:  QaeCsrOfficeUserType,
+			roleTypes: []roles.RoleType{roles.RoleTypeQaeCsr},
+			email:     "qae_csr_office_user@example.com",
+		},
+		{
+			userType:  PrimeSimulatorOfficeUserType,
+			roleTypes: []roles.RoleType{roles.RoleTypePrimeSimulator},
+			email:     "prime_simulator_user@example.com",
+		},
+		{
+			userType: MultiRoleOfficeUserType,
+			roleTypes: []roles.RoleType{roles.RoleTypeTIO, roles.RoleTypeTOO,
+				roles.RoleTypeServicesCounselor, roles.RoleTypePrimeSimulator},
+			email: "multi_role@example.com",
+		},
+	} {
 		// Exercise all variables in the office user
 		form := url.Values{}
 		form.Add("userType", newOfficeUser.userType)
@@ -124,7 +167,14 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 		suite.Equal("Carol", officeUser.FirstName)
 		suite.Equal("X", officeUser.LastName)
 		suite.Equal("222-222-2222", officeUser.Telephone)
-		suite.Equal(newOfficeUser.roleType, officeUser.User.Roles[0].RoleType)
+		actualRoleTypes := []roles.RoleType{}
+		for i := range officeUser.User.Roles {
+			actualRoleTypes = append(actualRoleTypes, officeUser.User.Roles[i].RoleType)
+		}
+		for i := range newOfficeUser.roleTypes {
+			suite.Contains(actualRoleTypes, newOfficeUser.roleTypes[i])
+		}
+		suite.Equal(len(newOfficeUser.roleTypes), len(actualRoleTypes))
 		suite.Equal("KKFA", officeUser.TransportationOffice.Gbloc)
 	}
 }
@@ -227,7 +277,9 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 	t := suite.T()
-	testdatagen.MakeTOORole(suite.DB())
+	factory.BuildRole(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitTOORole,
+	})
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -393,7 +445,9 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToMilMove() {
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToOffice() {
 	t := suite.T()
-	testdatagen.MakeTOORole(suite.DB())
+	factory.BuildRole(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitTOORole,
+	})
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()

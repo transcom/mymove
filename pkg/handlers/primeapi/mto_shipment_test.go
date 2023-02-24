@@ -1641,7 +1641,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		handler, move := setupTestData()
 
 		address := factory.BuildAddress(suite.DB(), nil, nil)
-		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{})
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 
 		hhgShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,

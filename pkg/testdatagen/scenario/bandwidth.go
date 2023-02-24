@@ -11,6 +11,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -241,23 +242,31 @@ func createOfficeUser(appCtx appcontext.AppContext) {
 
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            tooTioUUID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         []roles.Role{tooRole, tioRole},
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:            tooTioUUID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{tooRole, tioRole},
+			},
 		},
-	})
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
-			Email:  email,
-			Active: true,
-			UserID: &tooTioUUID,
+	}, nil)
+	factory.BuildOfficeUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
+				Email:  email,
+				Active: true,
+				UserID: &tooTioUUID,
+			},
 		},
-	})
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func filesInBandwidthTestDirectory(fileNames *[]string) []string {

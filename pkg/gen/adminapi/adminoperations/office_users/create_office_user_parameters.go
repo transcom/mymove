@@ -36,7 +36,7 @@ type CreateOfficeUserParams struct {
 	/*Office user information
 	  In: body
 	*/
-	OfficeUser *adminmessages.OfficeUserCreatePayload
+	OfficeUser *adminmessages.OfficeUserCreate
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -50,7 +50,7 @@ func (o *CreateOfficeUserParams) BindRequest(r *http.Request, route *middleware.
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body adminmessages.OfficeUserCreatePayload
+		var body adminmessages.OfficeUserCreate
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			res = append(res, errors.NewParseError("officeUser", "body", "", err))
 		} else {

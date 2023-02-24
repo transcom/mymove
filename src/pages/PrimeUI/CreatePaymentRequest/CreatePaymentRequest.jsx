@@ -42,33 +42,6 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
 
       queryClient.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
       queryClient.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]).then(() => {});
-
-      setFlashMessage(
-        `MSG_CREATE_PAYMENT_SUCCESS${moveCodeOrID}`,
-        'success',
-        'Successfully created payment request',
-        '',
-        true,
-      );
-
-      history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
-    },
-    onError: (error) => {
-      const { response: { body } = {} } = error;
-
-      if (body) {
-        setErrorMessage({
-          title: `Prime API: ${body.title} `,
-          detail: `${body.detail}`,
-        });
-      } else {
-        setErrorMessage({
-          title: 'Unexpected error',
-          detail:
-            'An unknown error has occurred, please check the state of the shipment and service items data for this move',
-        });
-      }
-      scrollToTop();
     },
   });
 
@@ -157,9 +130,39 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
       }
       return { id: serviceItem };
     });
-    createPaymentRequestMutation({ moveTaskOrderID: moveTaskOrder.id, serviceItems: serviceItemsPayload }).then(() => {
-      formik.setSubmitting(false);
-    });
+    createPaymentRequestMutation(
+      { moveTaskOrderID: moveTaskOrder.id, serviceItems: serviceItemsPayload },
+      {
+        onSuccess: () => {
+          setFlashMessage(
+            `MSG_CREATE_PAYMENT_SUCCESS${moveCodeOrID}`,
+            'success',
+            'Successfully created payment request',
+            '',
+            true,
+          );
+          history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
+          formik.setSubmitting(false);
+        },
+        onError: (error) => {
+          const { response: { body } = {} } = error;
+
+          if (body) {
+            setErrorMessage({
+              title: `Prime API: ${body.title} `,
+              detail: `${body.detail}`,
+            });
+          } else {
+            setErrorMessage({
+              title: 'Unexpected error',
+              detail:
+                'An unknown error has occurred, please check the state of the shipment and service items data for this move',
+            });
+          }
+          scrollToTop();
+        },
+      },
+    );
   };
 
   const handleShipmentSelectAll = (shipmentID, values, setValues, event) => {

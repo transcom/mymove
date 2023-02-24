@@ -1,6 +1,7 @@
 package uploader_test
 
 import (
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -13,7 +14,7 @@ func (suite *UploaderSuite) TestPrimeUploadFromLocalFile() {
 	suite.NoError(err)
 	file := suite.fixture("test.pdf")
 
-	contractor := testdatagen.MakeDefaultContractor(suite.DB())
+	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	primeUpload, verrs, err := primeUploader.CreatePrimeUploadForDocument(suite.AppContextForTest(), &document.ID, contractor.ID, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
@@ -31,7 +32,7 @@ func (suite *UploaderSuite) TestPrimeUploadFromLocalFileZeroLength() {
 	suite.Nil(err, "failed to create upload")
 	defer cleanup()
 
-	contractor := testdatagen.MakeDefaultContractor(suite.DB())
+	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	primeUpload, verrs, err := primeUploader.CreatePrimeUploadForDocument(suite.AppContextForTest(), &document.ID, contractor.ID, uploader.File{File: file}, uploader.AllowedTypesAny)
 	suite.Equal(uploader.ErrZeroLengthFile, err)
@@ -48,7 +49,7 @@ func (suite *UploaderSuite) TestPrimeUploadFromLocalFileWrongContentType() {
 	suite.Nil(err, "failed to create upload")
 	defer cleanup()
 
-	contractor := testdatagen.MakeDefaultContractor(suite.DB())
+	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	upload, verrs, err := primeUploader.CreatePrimeUploadForDocument(suite.AppContextForTest(), &document.ID, contractor.ID, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Error(err)
@@ -66,7 +67,7 @@ func (suite *UploaderSuite) TestTooLargePrimeUploadFromLocalFile() {
 	suite.NoError(err)
 	defer cleanup()
 
-	contractor := testdatagen.MakeDefaultContractor(suite.DB())
+	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	_, verrs, err := primeUploader.CreatePrimeUploadForDocument(suite.AppContextForTest(), &document.ID, contractor.ID, uploader.File{File: f}, uploader.AllowedTypesAny)
 	suite.Error(err)
@@ -86,7 +87,7 @@ func (suite *UploaderSuite) TestPrimeUploadStorerCalledWithTags() {
 
 	tags := "metaDataTag=value"
 
-	contractor := testdatagen.MakeDefaultContractor(suite.DB())
+	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	// assert tags are passed along to storer
 	_, verrs, err := primeUploader.CreatePrimeUploadForDocument(suite.AppContextForTest(), &document.ID, contractor.ID, uploader.File{File: f, Tags: &tags}, uploader.AllowedTypesAny)

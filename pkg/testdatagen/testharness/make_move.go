@@ -712,13 +712,9 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 	})
 
 	// Create Storage Facility
-	storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			// KKFA GBLOC
-			PostalCode: "85004",
-		},
+	storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, []factory.Trait{
+		factory.GetTraitStorageFacilityKKFA,
 	})
-
 	// Create NTS-R Shipment
 	tacType := models.LOATypeHHG
 	serviceOrderNumber := testdatagen.MakeRandomNumberString(4)
@@ -1245,13 +1241,14 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 	})
 
 	// Create Storage Facility
-	storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			// KKFA GBLOC
-			PostalCode: "85005",
+	storageFacility := factory.BuildStorageFacility(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// KKFA GBLOC
+				PostalCode: "85005",
+			},
 		},
-	})
-
+	}, nil)
 	// Create NTS-R Shipment
 	tacType := models.LOATypeHHG
 	sacType := models.LOATypeNTS
@@ -1845,8 +1842,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 		}
 	}
 
-	storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(),
-		testdatagen.Assertions{})
+	storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
 
 	updatedShipment := updatedShipments[1]
 
@@ -1950,8 +1946,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 		}
 	}
 
-	storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(),
-		testdatagen.Assertions{})
+	storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
 
 	updatedShipment := updatedShipments[1]
 
@@ -2448,6 +2443,63 @@ func MakeApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext) mo
 	testdatagen.MakeWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
 	testdatagen.MakeMovingExpense(appCtx.DB(), ppmCloseoutAssertions)
 	testdatagen.MakeProgearWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeApprovedMoveWithPPMWeightTicketOffice(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       userInfo.email,
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   userInfo.firstName,
+		LastName:    userInfo.lastName,
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: models.GenerateLocator(),
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          uuid.Must(uuid.NewV4()),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	ppmCloseoutAssertions := testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+	}
+
+	testdatagen.MakeWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db

@@ -246,4 +246,44 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 			)
 		}
 	})
+
+	suite.Run("FindPPMShipmentByMTOID - Success deleted line items are excluded", func() {
+		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{})
+
+		weightTicketToDelete := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+			PPMShipment: ppmShipment,
+		})
+
+		err := utilities.SoftDestroy(suite.DB(), &weightTicketToDelete)
+		suite.NoError(err)
+
+		testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
+			PPMShipment: ppmShipment,
+		})
+
+		proGearToDelete := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
+			PPMShipment: ppmShipment,
+		})
+
+		err = utilities.SoftDestroy(suite.DB(), &proGearToDelete)
+		suite.NoError(err)
+
+		testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
+			PPMShipment: ppmShipment,
+		})
+
+		movingExpenseToDelete := testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
+			PPMShipment: ppmShipment,
+		})
+
+		err = utilities.SoftDestroy(suite.DB(), &movingExpenseToDelete)
+		suite.NoError(err)
+
+		actualShipment, err := FindPPMShipmentByMTOID(suite.AppContextForTest(), ppmShipment.ShipmentID)
+		suite.NoError(err)
+
+		suite.Len(actualShipment.WeightTickets, 1)
+		suite.Len(actualShipment.ProgearExpenses, 1)
+		suite.Len(actualShipment.MovingExpenses, 1)
+	})
 }

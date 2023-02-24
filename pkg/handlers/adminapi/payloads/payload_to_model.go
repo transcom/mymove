@@ -11,7 +11,7 @@ import (
 
 // UserModel represents the user
 // This does not copy over session IDs to the model
-func UserModel(user *adminmessages.UserUpdatePayload, id uuid.UUID, userOriginalActive bool) (*models.User, error) {
+func UserModel(user *adminmessages.UserUpdate, id uuid.UUID, userOriginalActive bool) (*models.User, error) {
 	if user == nil {
 		return nil, fmt.Errorf("User payload is nil")
 	}

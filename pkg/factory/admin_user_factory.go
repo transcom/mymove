@@ -29,14 +29,8 @@ func BuildAdminUser(db *pop.Connection, customs []Customization, traits []Trait)
 		}
 	}
 
-	// Find/create the user model
-	var user models.User
-	result := findValidCustomization(customs, User)
-	if result != nil {
-		user = result.Model.(models.User)
-	}
-	user = BuildUser(db, customs, nil)
-	// At this point, user exists. It's either the provided or created user
+	// Create the associated user model
+	user := BuildUser(db, customs, nil)
 
 	// create adminuser
 	adminUser := models.AdminUser{

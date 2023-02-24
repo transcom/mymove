@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, expect } = require('../utils/officeTest');
+import { test, expect } from '../utils/officeTest';
 
 const csrfForbiddenMsg = 'Forbidden - CSRF token invalid\n';
 const csrfForbiddenRespCode = 403;
@@ -39,9 +39,9 @@ test.describe('testing CSRF protection', () => {
     expect(allCookies.filter((cookie) => cookie.name === unmaskedCsrfCookieName)).toHaveLength(1);
 
     // add back all cookies but the unmasked csrf one
-    context.clearCookies();
+    await context.clearCookies();
     const filteredCookies = allCookies.filter((cookie) => cookie.name !== unmaskedCsrfCookieName);
-    context.addCookies(filteredCookies);
+    await context.addCookies(filteredCookies);
 
     const maskedCsrfCookie = allCookies.filter((cookie) => cookie.name === maskedCsrfCookieName)[0];
     expect(maskedCsrfCookie).toBeDefined();
@@ -77,9 +77,9 @@ test.describe('testing CSRF protection', () => {
     expect(allCookies.filter((cookie) => cookie.name === maskedCsrfCookieName)).toHaveLength(1);
 
     // add back all cookies but the masked csrf one
-    context.clearCookies();
+    await context.clearCookies();
     const filteredCookies = allCookies.filter((cookie) => cookie.name !== maskedCsrfCookieName);
-    context.addCookies(filteredCookies);
+    await context.addCookies(filteredCookies);
 
     // make a request with the wrong csrf token in a header
     const failedResponse = await context.request.post('/devlocal-auth/login', {
@@ -111,11 +111,11 @@ test.describe('testing CSRF protection', () => {
     expect(allCookies.filter((cookie) => cookie.name === maskedCsrfCookieName)).toHaveLength(1);
 
     // add back all cookies except the csrf ones
-    context.clearCookies();
+    await context.clearCookies();
     const filteredCookies = allCookies
       .filter((cookie) => cookie.name !== maskedCsrfCookieName)
       .filter((cookie) => cookie.name !== unmaskedCsrfCookieName);
-    context.addCookies(filteredCookies);
+    await context.addCookies(filteredCookies);
 
     // make a request with the wrong csrf token in a header
     const failedResponse = await context.request.post('/devlocal-auth/login', {
@@ -171,9 +171,9 @@ test.describe('testing CSRF protection updating move info', () => {
     expect(allCookies.filter((cookie) => cookie.name === maskedCsrfCookieName)).toHaveLength(1);
 
     // add back all cookies but the masked csrf one
-    context.clearCookies();
+    await context.clearCookies();
     const filteredCookies = allCookies.filter((cookie) => cookie.name !== maskedCsrfCookieName);
-    context.addCookies(filteredCookies);
+    await context.addCookies(filteredCookies);
 
     // wait for the response before clicking so we don't miss it
     const values = await Promise.all([

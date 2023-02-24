@@ -19,7 +19,7 @@ type userSessionRevocation struct {
 }
 
 // RevokeUserSession revokes the user's session
-func (o *userSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.UserUpdatePayload, sessionManagers auth.AppSessionManagers) (*models.User, *validate.Errors, error) {
+func (o *userSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.UserUpdate, sessionManagers auth.AppSessionManagers) (*models.User, *validate.Errors, error) {
 	var foundUser models.User
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	err := o.builder.FetchOne(appCtx, &foundUser, filters)
@@ -65,7 +65,7 @@ func deleteSessionIDFromRedis(appCtx appcontext.AppContext, app auth.Application
 
 // deleteSessionsFromRedis deletes all sessions as configured in the
 // payload form the sessionManagers
-func deleteSessionsFromRedis(appCtx appcontext.AppContext, user models.User, payload *adminmessages.UserUpdatePayload, sessionManagers auth.AppSessionManagers) error {
+func deleteSessionsFromRedis(appCtx appcontext.AppContext, user models.User, payload *adminmessages.UserUpdate, sessionManagers auth.AppSessionManagers) error {
 	userID := user.ID
 
 	var adminErr, officeErr, milErr error
@@ -96,7 +96,7 @@ func deleteSessionsFromRedis(appCtx appcontext.AppContext, user models.User, pay
 	return nil
 }
 
-func deleteSessionIDFromDB(appCtx appcontext.AppContext, o *userSessionRevocation, user models.User, payload *adminmessages.UserUpdatePayload) (*models.User, *validate.Errors, error) {
+func deleteSessionIDFromDB(appCtx appcontext.AppContext, o *userSessionRevocation, user models.User, payload *adminmessages.UserUpdate) (*models.User, *validate.Errors, error) {
 	if payload.RevokeAdminSession != nil && *payload.RevokeAdminSession {
 		user.CurrentAdminSessionID = ""
 	}

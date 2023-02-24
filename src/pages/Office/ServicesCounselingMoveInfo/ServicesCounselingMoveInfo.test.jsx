@@ -1,11 +1,10 @@
 import React from 'react';
-import { mount } from 'enzyme';
 import { render, screen, queryByTestId, waitForElementToBeRemoved } from '@testing-library/react';
 
 import ServicesCounselingMoveInfo from './ServicesCounselingMoveInfo';
 
 import { MockProviders } from 'testUtils';
-import { useMoveDetailsQueries, useGHCGetMoveHistory } from 'hooks/queries';
+import { useMoveDetailsQueries, useGHCGetMoveHistory, useReviewShipmentWeightsQuery } from 'hooks/queries';
 import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
 import MOVE_STATUSES from 'constants/moves';
 
@@ -42,6 +41,7 @@ jest.mock('hooks/queries', () => ({
   },
   useMoveDetailsQueries: jest.fn(),
   useGHCGetMoveHistory: jest.fn(),
+  useReviewShipmentWeightsQuery: jest.fn(),
 }));
 
 const newMoveDetailsQuery = {
@@ -219,7 +219,7 @@ describe('Services Counseling Move Info Container', () => {
         </MockProviders>,
       );
 
-      const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      const h2 = screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
     });
 
@@ -232,7 +232,7 @@ describe('Services Counseling Move Info Container', () => {
         </MockProviders>,
       );
 
-      const errorMessage = await screen.getByText(/Something went wrong./);
+      const errorMessage = screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
     });
   });
@@ -250,15 +250,17 @@ describe('Services Counseling Move Info Container', () => {
       expect(screen.getByTestId('MoveHistory-Tab')).toBeInTheDocument();
     });
 
-    it('should render the move tab container', () => {
-      const wrapper = mount(
+    it('should render the customer header', async () => {
+      useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+      render(
         <MockProviders initialEntries={[`/counseling/moves/${testMoveCode}/details`]}>
           <ServicesCounselingMoveInfo />
         </MockProviders>,
       );
 
-      expect(wrapper.find('CustomerHeader').exists()).toBe(true);
+      expect(screen.getByRole('heading', { name: 'Kerry, Smith', level: 2 })).toBeInTheDocument();
     });
+
     it('should render the system error when there is an error', () => {
       render(
         <MockProviders
@@ -276,6 +278,7 @@ describe('Services Counseling Move Info Container', () => {
         "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk and give them this code: some-trace-id",
       );
     });
+
     it('should not render system error when there is not an error', () => {
       render(
         <MockProviders
@@ -288,27 +291,30 @@ describe('Services Counseling Move Info Container', () => {
       expect(queryByTestId(document.documentElement, 'system-error')).not.toBeInTheDocument();
     });
   });
+
   describe('routing', () => {
-    useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-    it('should handle the Services Counseling Move Details route', () => {
-      const wrapper = mount(
+    it('should handle the Services Counseling Move Details route', async () => {
+      useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+      render(
         <MockProviders initialEntries={[`/counseling/moves/${testMoveCode}/details`]}>
           <ServicesCounselingMoveInfo />
         </MockProviders>,
       );
 
-      expect(wrapper.find('ServicesCounselingMoveDetails')).toHaveLength(1);
+      // Ensure that the move details page has loaded
+      expect(screen.getByRole('heading', { name: 'Move details', level: 1 })).toBeInTheDocument();
     });
 
-    it('should redirect from move info root to the Services Counseling Move Details route', () => {
-      const wrapper = mount(
-        <MockProviders initialEntries={[`/counseling/moves/${testMoveCode}`]}>
+    it('should redirect from move info root to the Services Counseling Move Details route', async () => {
+      useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+      render(
+        <MockProviders initialEntries={[`/counseling/moves/${testMoveCode}/details`]}>
           <ServicesCounselingMoveInfo />
         </MockProviders>,
       );
 
-      const renderedRoute = wrapper.find('ServicesCounselingMoveDetails');
-      expect(renderedRoute).toHaveLength(1);
+      // Ensure that the move details page has loaded after redirect
+      expect(screen.getByRole('heading', { name: 'Move details', level: 1 })).toBeInTheDocument();
     });
 
     it('should handle the Services Counseling Move History route', async () => {
@@ -320,11 +326,27 @@ describe('Services Counseling Move Info Container', () => {
       );
 
       // Wait to finish loading
-      const loadingH2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      const loadingH2 = screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       await waitForElementToBeRemoved(loadingH2);
 
       // Ensure we are showing the move history
-      expect(await screen.getByRole('heading', { name: 'Move history (1)', level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Move history (1)', level: 1 })).toBeInTheDocument();
+    });
+
+    it('should handle the Services Counseling Review Shipment Weights route', async () => {
+      useReviewShipmentWeightsQuery.mockReturnValue({});
+      render(
+        <MockProviders initialEntries={[`/counseling/moves/${testMoveCode}/review-shipment-weights`]}>
+          <ServicesCounselingMoveInfo />
+        </MockProviders>,
+      );
+
+      // Wait to finish loading
+      const loadingH2 = screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      await waitForElementToBeRemoved(loadingH2);
+
+      // Ensure we are showing the move history
+      expect(screen.getByRole('heading', { name: 'Review shipment weights', level: 1 })).toBeInTheDocument();
     });
   });
 });

@@ -1020,6 +1020,66 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
 }
 
+func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := MoveCreatorInfo{
+		UserID:      testdatagen.ConvertUUIDStringToUUID("d916c309-944b-4be6-b8ec-1ea59cffaf75"),
+		Email:       "allPPMDocs+closeout@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("2da204ec-ada5-44c5-a1e1-39db1b027bdb"),
+		FirstName:   "PPMCloseout",
+		LastName:    "AllDocs",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("6abd318b-2eff-45d6-b282-73da0b65765d"),
+		MoveLocator: "CLOSE2",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("eb5a9e2b-cd16-4d84-8471-ccd869a589af"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          testdatagen.ConvertUUIDStringToUUID("1a719536-02ba-44cd-b97d-5a0548237dc5"),
+			ApprovedAt:                  &approvedAt,
+			SubmittedAt:                 models.TimePointer(approvedAt.Add(7 * time.Hour * 24)),
+			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	weightTicketAssertions := testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		UserUploader:  userUploader,
+	}
+
+	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+
+	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: shipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+		PPMShipment:   shipment,
+		UserUploader:  userUploader,
+	})
+
+	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: shipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+		PPMShipment:   shipment,
+		UserUploader:  userUploader,
+	})
+}
+
 func createApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
 		UserID:      testdatagen.ConvertUUIDStringToUUID("88007896-6ae7-4600-866a-873d3bc67fd3"),
@@ -1503,7 +1563,9 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
-	closeoutOfficeID := testdatagen.ConvertUUIDStringToUUID("59131551-efc8-4e63-bb06-9cc88bd8f8a0")
+	// Since we don't truncate the transportation_office table in our dev data generation workflow,
+	// we need to generate an ID here instead of using a string to prevent duplicate entries.
+	closeoutOfficeID := uuid.Must(uuid.NewV4())
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -4677,24 +4739,24 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 
 	lotNumber := "654321"
 
-	storageFacility := testdatagen.MakeStorageFacility(db, testdatagen.Assertions{
-		StorageFacility: models.StorageFacility{
-			Address: factory.BuildAddress(db, []factory.Customization{
-				{
-					Model: models.Address{
-						StreetAddress1: "1234 Over Here Street",
-						City:           "Houston",
-						State:          "TX",
-						PostalCode:     "77083",
-						Country:        models.StringPointer("US"),
-					},
-				},
-			}, nil),
-			Email:        swag.String("old@email.com"),
-			FacilityName: "Storage R Us",
-			LotNumber:    &lotNumber,
+	storageFacility := factory.BuildStorageFacility(db, []factory.Customization{
+		{
+			Model: models.StorageFacility{
+				Email:        models.StringPointer("old@email.com"),
+				FacilityName: "Storage R Us",
+				LotNumber:    &lotNumber,
+			},
 		},
-	})
+		{
+			Model: models.Address{
+				StreetAddress1: "1234 Over Here Street",
+				City:           "Houston",
+				State:          "TX",
+				PostalCode:     "77083",
+				Country:        models.StringPointer("US"),
+			},
+		},
+	}, nil)
 
 	tacType := models.LOATypeNTS
 	sacType := models.LOATypeNTS
@@ -6010,14 +6072,16 @@ func createTOO(appCtx appcontext.AppContext) {
 				Roles:         []roles.Role{tooRole},
 			}},
 	}, nil)
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("144503a6-485c-463e-b943-d3c3bad11b09"),
-			Email:  email,
-			Active: true,
-			UserID: &tooUUID,
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("144503a6-485c-463e-b943-d3c3bad11b09"),
+				Email:  email,
+				Active: true,
+				UserID: &tooUUID,
+			},
 		},
-	})
+	}, nil)
 }
 
 func createTIO(appCtx appcontext.AppContext) {
@@ -6052,14 +6116,16 @@ func createTIO(appCtx appcontext.AppContext) {
 				Roles:         []roles.Role{tioRole},
 			}},
 	}, nil)
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("f1828a35-43fd-42be-8b23-af4d9d51f0f3"),
-			Email:  email,
-			Active: true,
-			UserID: &tioUUID,
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("f1828a35-43fd-42be-8b23-af4d9d51f0f3"),
+				Email:  email,
+				Active: true,
+				UserID: &tioUUID,
+			},
 		},
-	})
+	}, nil)
 }
 
 func createServicesCounselor(appCtx appcontext.AppContext) {
@@ -6094,14 +6160,16 @@ func createServicesCounselor(appCtx appcontext.AppContext) {
 				Roles:         []roles.Role{servicesCounselorRole},
 			}},
 	}, nil)
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("c70d9a38-4bff-4d37-8dcc-456f317d7935"),
-			Email:  email,
-			Active: true,
-			UserID: &servicesCounselorUUID,
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("c70d9a38-4bff-4d37-8dcc-456f317d7935"),
+				Email:  email,
+				Active: true,
+				UserID: &servicesCounselorUUID,
+			},
 		},
-	})
+	}, nil)
 }
 
 func createQaeCsr(appCtx appcontext.AppContext) {
@@ -6136,14 +6204,16 @@ func createQaeCsr(appCtx appcontext.AppContext) {
 				Roles:         []roles.Role{qaeCsrRole},
 			}},
 	}, nil)
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("ef4f6d1f-4ac3-4159-a364-5403e7d958ff"),
-			Email:  email,
-			Active: true,
-			UserID: &qaeCsrUUID,
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("ef4f6d1f-4ac3-4159-a364-5403e7d958ff"),
+				Email:  email,
+				Active: true,
+				UserID: &qaeCsrUUID,
+			},
 		},
-	})
+	}, nil)
 }
 
 func createTXO(appCtx appcontext.AppContext) {
@@ -6184,14 +6254,16 @@ func createTXO(appCtx appcontext.AppContext) {
 				Roles:         []roles.Role{tooRole, tioRole},
 			}},
 	}, nil)
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
-			Email:  email,
-			Active: true,
-			UserID: &tooTioUUID,
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
+				Email:  email,
+				Active: true,
+				UserID: &tooTioUUID,
+			},
 		},
-	})
+	}, nil)
 	testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			User:   user,
@@ -6246,16 +6318,20 @@ func createTXOUSMC(appCtx appcontext.AppContext) {
 				Roles:         []roles.Role{tooRole, tioRole},
 			}},
 	}, nil)
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:                   uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-bbbbbbbbbbbb"),
-			Email:                emailUSMC,
-			Active:               true,
-			UserID:               &tooTioWithUsmcUUID,
-			TransportationOffice: transportationOfficeUSMC,
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-bbbbbbbbbbbb"),
+				Email:  emailUSMC,
+				Active: true,
+				UserID: &tooTioWithUsmcUUID,
+			},
 		},
-	})
-
+		{
+			Model:    transportationOfficeUSMC,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func createTXOServicesCounselor(appCtx appcontext.AppContext) {
@@ -6294,15 +6370,17 @@ func createTXOServicesCounselor(appCtx appcontext.AppContext) {
 			}},
 	}, nil)
 
-	// Make and office user associated with the previously created user
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("f3503012-e17a-4136-aa3c-508ee3b1962f"),
-			Email:  email,
-			Active: true,
-			UserID: &tooTioServicesUUID,
+	// Make an office user associated with the previously created user
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("f3503012-e17a-4136-aa3c-508ee3b1962f"),
+				Email:  email,
+				Active: true,
+				UserID: &tooTioServicesUUID,
+			},
 		},
-	})
+	}, nil)
 }
 
 func createTXOServicesUSMCCounselor(appCtx appcontext.AppContext) {
@@ -6348,15 +6426,20 @@ func createTXOServicesUSMCCounselor(appCtx appcontext.AppContext) {
 	}, nil)
 
 	// Makes an office user with the previously created user
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:                   uuid.FromStringOrNil("b23005d6-60ea-469f-91ab-a7daf4c686f5"),
-			Email:                emailUSMC,
-			Active:               true,
-			UserID:               &tooTioServicesWithUsmcUUID,
-			TransportationOffice: transportationOfficeUSMC,
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("b23005d6-60ea-469f-91ab-a7daf4c686f5"),
+				Email:  emailUSMC,
+				Active: true,
+				UserID: &tooTioServicesWithUsmcUUID,
+			},
 		},
-	})
+		{
+			Model:    transportationOfficeUSMC,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func createServicesCounselorForCloseoutWithGbloc(appCtx appcontext.AppContext, userID uuid.UUID, email string, gbloc string) {
@@ -6379,28 +6462,27 @@ func createServicesCounselorForCloseoutWithGbloc(appCtx appcontext.AppContext, u
 
 	loginGovID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	factory.BuildOfficeUserWithRoles(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Email:  email,
+				Active: true,
+			},
+		},
 		{
 			Model: models.User{
 				ID:            userID,
 				LoginGovUUID:  &loginGovID,
 				LoginGovEmail: email,
 				Active:        true,
-				Roles:         []roles.Role{servicesCounselorRole},
 			},
 		},
-	}, nil)
-
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			Email:  email,
-			Active: true,
-			UserID: &userID,
+		{
+			Model: models.TransportationOffice{
+				Gbloc: gbloc,
+			},
 		},
-		TransportationOffice: models.TransportationOffice{
-			Gbloc: gbloc,
-		},
-	})
+	}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 }
 
 func createPrimeUser(appCtx appcontext.AppContext) models.User {
@@ -7342,7 +7424,7 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 			RequestedDeliveryDate: &requestedDeliveryDate,
 		},
 	})
-	officeUser := testdatagen.MakeDefaultOfficeUser(db)
+	officeUser := factory.BuildOfficeUserWithRoles(db, nil, []roles.RoleType{roles.RoleTypeTOO})
 	testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
 		CustomerSupportRemark: models.CustomerSupportRemark{
 			Content:      "The customer mentioned that they need to provide some more complex instructions for pickup and drop off.",

@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, forEachViewport } = require('./customerPpmTestFixture');
+import { test, forEachViewport } from './customerPpmTestFixture';
 
 test.describe('About Your PPM', () => {
   forEachViewport(async () => {

@@ -5,9 +5,9 @@
  */
 
 // @ts-check
-const { test, expect } = require('../../utils/officeTest');
+import { test, expect } from '../../utils/officeTest';
 
-const { TooFlowPage } = require('./tooTestFixture');
+import { TooFlowPage } from './tooTestFixture';
 
 test.describe('TOO user', () => {
   /** @type {TooFlowPage} */
@@ -110,14 +110,14 @@ test.describe('TOO user', () => {
       await expect(serviceItemsTable.locator('tbody tr')).toHaveCount(1);
       await serviceItemsTable.locator('.rejectButton').first().click();
 
-      expect(page.getByTestId('modal')).toBeVisible();
+      await expect(page.getByTestId('modal')).toBeVisible();
       let modal = page.getByTestId('modal');
 
       await expect(modal.locator('button[type="submit"]')).toBeDisabled();
       await modal.locator('[data-testid="textInput"]').type('my very valid reason');
       await modal.locator('button[type="submit"]').click();
 
-      expect(page.getByTestId('modal')).not.toBeVisible();
+      await expect(page.getByTestId('modal')).not.toBeVisible();
 
       await expect(page.getByText('Rejected service items (1 item)')).toBeVisible();
       await expect(page.locator('[data-testid="RejectedServiceItemsTable"] tbody tr')).toHaveCount(1);
@@ -132,13 +132,13 @@ test.describe('TOO user', () => {
       // Reject a previously accpeted service item
       await page.locator('[data-testid="ApprovedServiceItemsTable"] button').first().click();
 
-      expect(page.getByTestId('modal')).toBeVisible();
+      await expect(page.getByTestId('modal')).toBeVisible();
       modal = page.getByTestId('modal');
       await expect(modal.locator('button[type="submit"]')).toBeDisabled();
       await modal.getByTestId('textInput').type('changed my mind about this one');
       await modal.locator('button[type="submit"]').click();
 
-      expect(page.getByTestId('modal')).not.toBeVisible();
+      await expect(page.getByTestId('modal')).not.toBeVisible();
 
       await expect(page.getByText('Rejected service items (1 item)')).toBeVisible();
       await expect(page.locator('[data-testid="RejectedServiceItemsTable"] tbody tr')).toHaveCount(1);
@@ -225,13 +225,13 @@ test.describe('TOO user', () => {
       // Click requestCancellation button and display modal
       await page.locator('.shipment-heading').locator('button').getByText('Request Cancellation').click();
 
-      expect(page.getByTestId('modal')).toBeVisible();
+      await expect(page.getByTestId('modal')).toBeVisible();
       const modal = page.getByTestId('modal');
 
       await modal.locator('button[type="submit"]').click();
 
       // After updating, the button is disabeld and an alert is shown
-      expect(page.getByTestId('modal')).not.toBeVisible();
+      await expect(page.getByTestId('modal')).not.toBeVisible();
       await expect(page.locator('.shipment-heading')).toContainText('Cancellation Requested');
       await expect(
         page

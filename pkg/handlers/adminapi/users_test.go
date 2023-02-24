@@ -204,7 +204,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
-			User: &adminmessages.UserUpdatePayload{
+			User: &adminmessages.UserUpdate{
 				RevokeMilSession:    swag.Bool(true),
 				RevokeAdminSession:  swag.Bool(false),
 				RevokeOfficeSession: swag.Bool(true),
@@ -243,7 +243,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		// Create the update to revoke 2 sessions and deactivate the user
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
-			User: &adminmessages.UserUpdatePayload{
+			User: &adminmessages.UserUpdate{
 				Active:              swag.Bool(false),
 				RevokeMilSession:    swag.Bool(true),
 				RevokeOfficeSession: swag.Bool(true),
@@ -281,7 +281,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
-			User: &adminmessages.UserUpdatePayload{
+			User: &adminmessages.UserUpdate{
 				Active: swag.Bool(false),
 			},
 			UserID: strfmt.UUID(user.ID.String()),
@@ -325,7 +325,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
-			User: &adminmessages.UserUpdatePayload{
+			User: &adminmessages.UserUpdate{
 				Active: swag.Bool(true),
 			},
 			UserID: strfmt.UUID(user.ID.String()),
@@ -360,7 +360,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
-			User: &adminmessages.UserUpdatePayload{
+			User: &adminmessages.UserUpdate{
 				Active: swag.Bool(false),
 			},
 			UserID: strfmt.UUID(user.ID.String()),
@@ -405,7 +405,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
-			User: &adminmessages.UserUpdatePayload{
+			User: &adminmessages.UserUpdate{
 				Active:              swag.Bool(false),
 				RevokeAdminSession:  swag.Bool(true),
 				RevokeMilSession:    swag.Bool(true),
@@ -454,7 +454,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
-			User: &adminmessages.UserUpdatePayload{
+			User: &adminmessages.UserUpdate{
 				Active:              nil,
 				RevokeAdminSession:  swag.Bool(true),
 				RevokeMilSession:    swag.Bool(true),

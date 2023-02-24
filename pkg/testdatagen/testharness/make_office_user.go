@@ -38,13 +38,20 @@ func MakeOfficeUserWithTOOAndTIO(appCtx appcontext.AppContext) models.User {
 		},
 	}, nil)
 
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			Email:  email,
-			Active: true,
-			UserID: &user.ID,
+	factory.BuildOfficeUserWithRoles(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Email:  email,
+				Active: true,
+				UserID: &user.ID,
+			},
 		},
-	})
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO})
+
 	testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			User:   user,

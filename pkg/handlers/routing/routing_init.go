@@ -254,6 +254,8 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 			testHarnessMux.Use(addAuditUserToRequestContextMiddleware)
 			testHarnessMux.Handle("/build/{action}",
 				testharnessapi.NewDefaultBuilder(routingConfig.HandlerConfig)).Methods("POST")
+			testHarnessMux.Handle("/list",
+				testharnessapi.NewBuilderList(routingConfig.HandlerConfig)).Methods("GET")
 
 		}
 		primeServerName := routingConfig.HandlerConfig.AppNames().PrimeServername

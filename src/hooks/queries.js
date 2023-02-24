@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 
 import {
   getPaymentRequest,
@@ -11,7 +11,7 @@ import {
   getDocument,
   getMovesQueue,
   getPaymentRequestsQueue,
-  getWeightTickets,
+  getPPMDocuments,
   getServicesCounselingQueue,
   getMovePaymentRequests,
   getCustomer,
@@ -54,7 +54,7 @@ import {
   PWS_VIOLATIONS,
   REPORT_VIOLATIONS,
   MTO_SHIPMENT,
-  WEIGHT_TICKETS,
+  DOCUMENTS,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -200,25 +200,80 @@ export const useEditShipmentQueries = (moveCode) => {
   };
 };
 
-export const usePPMShipmentDocsQueries = (shipmentID) => {
-  const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentID], ({ queryKey }) =>
+export const usePPMShipmentDocsQueries = (shipmentId) => {
+  const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentId], ({ queryKey }) =>
     getMTOShipmentByID(...queryKey),
   );
 
-  const ppmShipmentId = mtoShipment?.ppmShipment?.id;
-
-  const { data: weightTickets, ...weightTicketsQuery } = useQuery(
-    [WEIGHT_TICKETS, ppmShipmentId],
-    ({ queryKey }) => getWeightTickets(...queryKey),
+  const { data: documents, ...documentsQuery } = useQuery(
+    [DOCUMENTS, shipmentId],
+    ({ queryKey }) => getPPMDocuments(...queryKey),
     {
-      enabled: !!ppmShipmentId,
+      enabled: !!shipmentId,
     },
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, weightTicketsQuery]);
+  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, documentsQuery]);
   return {
     mtoShipment,
-    weightTickets,
+    documents,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useReviewShipmentWeightsQuery = (moveCode) => {
+  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
+  const orderId = move?.ordersId;
+
+  // get orders
+  const { data: { orders } = {}, ...orderQuery } = useQuery(
+    [ORDERS, orderId],
+    ({ queryKey }) => getOrder(...queryKey),
+    {
+      enabled: !!orderId,
+    },
+  );
+  const mtoID = move?.id;
+
+  // get MTO shipments
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery(
+    [MTO_SHIPMENTS, mtoID, false],
+    ({ queryKey }) => getMTOShipments(...queryKey),
+    {
+      enabled: !!mtoID,
+    },
+  );
+
+  // filter for ppm shipments to get their documents(including weight tickets)
+  const shipmentIDs = mtoShipments?.map((shipment) => shipment.id) ?? [];
+
+  // get ppm documents
+  const ppmDocsQueriesResults = useQueries({
+    queries: shipmentIDs?.map((shipmentID) => {
+      return {
+        queryKey: [DOCUMENTS, shipmentID],
+        queryFn: ({ queryKey }) => getPPMDocuments(...queryKey),
+        enabled: !!shipmentID,
+      };
+    }),
+  });
+
+  const documents = ppmDocsQueriesResults.map((result) => result.data);
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([
+    moveQuery,
+    orderQuery,
+    mtoShipmentQuery,
+    ...ppmDocsQueriesResults,
+  ]);
+
+  return {
+    move,
+    orders,
+    mtoShipments,
+    documents,
     isLoading,
     isError,
     isSuccess,

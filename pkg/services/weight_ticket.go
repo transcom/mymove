@@ -19,7 +19,6 @@ type WeightTicketCreator interface {
 //go:generate mockery --name WeightTicketFetcher --disable-version-string
 type WeightTicketFetcher interface {
 	GetWeightTicket(appCtx appcontext.AppContext, weightTicketID uuid.UUID) (*models.WeightTicket, error)
-	ListWeightTickets(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (models.WeightTickets, error)
 }
 
 // WeightTicketUpdater updates a WeightTicket

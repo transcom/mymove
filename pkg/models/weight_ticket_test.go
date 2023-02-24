@@ -47,6 +47,8 @@ func (suite *ModelSuite) TestWeightTicketValidation() {
 				ProofOfTrailerOwnershipDocumentID: uuid.Must(uuid.NewV4()),
 				Status:                            &blankStatusType,
 				Reason:                            models.StringPointer(""),
+				AdjustedNetWeight:                 models.PoundPointer(unit.Pound(-1)),
+				NetWeightRemarks:                  models.StringPointer(""),
 			},
 			expectedErrs: map[string][]string{
 				"deleted_at":          {"DeletedAt can not be blank."},
@@ -55,6 +57,8 @@ func (suite *ModelSuite) TestWeightTicketValidation() {
 				"full_weight":         {"-1 is less than zero."},
 				"status":              {fmt.Sprintf("Status is not in the list [%s].", validStatuses)},
 				"reason":              {"Reason can not be blank."},
+				"adjusted_net_weight": {"-1 is less than zero."},
+				"net_weight_remarks":  {"NetWeightRemarks can not be blank."},
 			},
 		},
 	}

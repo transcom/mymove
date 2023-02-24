@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -179,9 +180,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
-			Stub: true,
-		})
+		storageFacility := factory.BuildStorageFacility(nil, nil, nil)
 
 		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,

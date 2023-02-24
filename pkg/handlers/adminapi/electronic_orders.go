@@ -7,7 +7,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	electronicorderop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
+	electronicorderop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_orders"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -20,8 +20,8 @@ func payloadForElectronicOrderModel(o models.ElectronicOrder) *adminmessages.Ele
 		ID:           handlers.FmtUUID(o.ID),
 		Issuer:       adminmessages.NewIssuer(adminmessages.Issuer(o.Issuer)),
 		OrdersNumber: handlers.FmtString(o.OrdersNumber),
-		CreatedAt:    handlers.FmtDateTime(o.CreatedAt),
-		UpdatedAt:    handlers.FmtDateTime(o.UpdatedAt),
+		CreatedAt:    *handlers.FmtDateTime(o.CreatedAt),
+		UpdatedAt:    *handlers.FmtDateTime(o.UpdatedAt),
 	}
 }
 

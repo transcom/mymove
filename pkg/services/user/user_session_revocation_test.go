@@ -25,7 +25,7 @@ import (
 
 func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 	boolean := true
-	payload := &adminmessages.UserUpdatePayload{
+	payload := &adminmessages.UserUpdate{
 		RevokeMilSession: &boolean,
 	}
 	newUUID, _ := uuid.NewV4()
@@ -65,7 +65,7 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 
 	suite.Run("Key is not removed from Redis when boolean is false", func() {
 		boolean = false
-		payload = &adminmessages.UserUpdatePayload{
+		payload = &adminmessages.UserUpdate{
 			RevokeMilSession: &boolean,
 		}
 		sessionID, _, err := sessionManagers.Mil.Commit(ctx)
@@ -127,7 +127,7 @@ func (suite *UserServiceSuite) TestRevokeAdminUserSession() {
 	updater := NewUserSessionRevocation(builder)
 
 	boolean := true
-	payload := &adminmessages.UserUpdatePayload{
+	payload := &adminmessages.UserUpdate{
 		RevokeAdminSession: &boolean,
 	}
 
@@ -152,7 +152,7 @@ func (suite *UserServiceSuite) TestRevokeAdminUserSession() {
 		suite.Equal(existsBefore, true)
 
 		boolean = false
-		payload = &adminmessages.UserUpdatePayload{
+		payload = &adminmessages.UserUpdate{
 			RevokeAdminSession: &boolean,
 		}
 
@@ -189,7 +189,7 @@ func (suite *UserServiceSuite) TestRevokeOfficeUserSession() {
 	updater := NewUserSessionRevocation(builder)
 
 	boolean := true
-	payload := &adminmessages.UserUpdatePayload{
+	payload := &adminmessages.UserUpdate{
 		RevokeOfficeSession: &boolean,
 	}
 
@@ -208,7 +208,7 @@ func (suite *UserServiceSuite) TestRevokeOfficeUserSession() {
 
 	suite.Run("Key is not removed from Redis when boolean is false", func() {
 		boolean = false
-		payload = &adminmessages.UserUpdatePayload{
+		payload = &adminmessages.UserUpdate{
 			RevokeOfficeSession: &boolean,
 		}
 		sessionID, _, err := sessionManagers.Office.Commit(ctx)
@@ -265,7 +265,7 @@ func (suite *UserServiceSuite) TestRevokeMultipleSessions() {
 	updater := NewUserSessionRevocation(builder)
 
 	boolean := true
-	payload := &adminmessages.UserUpdatePayload{
+	payload := &adminmessages.UserUpdate{
 		RevokeOfficeSession: &boolean,
 		RevokeAdminSession:  &boolean,
 		RevokeMilSession:    &boolean,
