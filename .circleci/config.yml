@@ -11,9 +11,6 @@
 
 version: '2.1'
 
-orbs:
-  keeper: gravitee-io/keeper@0.6.2
-
 # References for variables shared across the file
 references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-314bd6870544a433eacfe83cf3039d549d13be41
@@ -797,17 +794,14 @@ jobs:
   # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
     executor: mymove_compiler
-    environment:
-      TEST_EXPORT_LOGIN: 'keeper://rR6DtKpYd8ajEIKZGaq26g/field/login'
-      TEST_EXPORT_PASSWORD: 'keeper://rR6DtKpYd8ajEIKZGaq26g/field/password'
     steps:
-      # - keeper/env-export:
-      #  secret-url: 'keeper://rR6DtKpYd8ajEIKZGaq26g/field/login'
-      #  var-name: TEST_KEEPER_EXPORT_LOGIN
       - checkout
       - restore_cache:
           keys:
             - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - run:
+          name: Keeper Install
+          command: sudo scripts/install-ksm
       - run:
           name: Test Keeper Export
           command: sudo scripts/export-ksm-secret TEST_EXPORT_LOGIN keeper://rR6DtKpYd8ajEIKZGaq26g/field/login
