@@ -98,14 +98,14 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		query.NewQueryFilter,
 	}
 
-	adminAPI.ElectronicOrderIndexElectronicOrdersHandler = IndexElectronicOrdersHandler{
+	adminAPI.ElectronicOrdersIndexElectronicOrdersHandler = IndexElectronicOrdersHandler{
 		handlerConfig,
 		electronicorder.NewElectronicOrderListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
-	adminAPI.ElectronicOrderGetElectronicOrdersTotalsHandler = GetElectronicOrdersTotalsHandler{
+	adminAPI.ElectronicOrdersGetElectronicOrdersTotalsHandler = GetElectronicOrdersTotalsHandler{
 		handlerConfig,
 		electronicorder.NewElectronicOrdersCategoricalCountsFetcher(queryBuilder),
 		query.NewQueryFilter,
