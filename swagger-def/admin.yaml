@@ -43,7 +43,7 @@ tags:
     description: Information about office users
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: organization
+  - name: Organizations
     description: Information about organizations
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
@@ -1500,7 +1500,7 @@ paths:
       description: Returns a list of organizations
       operationId: indexOrganizations
       tags:
-        - organization
+        - Organizations
       parameters:
         - in: query
           name: filter
