@@ -1149,8 +1149,9 @@ paths:
     get:
       produces:
         - application/json
-      summary: List transportation service provider performances (TSPPs)
-      description: Returns a list of transportation service provider performances (TSPPs)
+      summary: List Transportation Service Provider Performances (TSPPs)
+      description:
+        $ref: paths/transportation-service-provider-performances/get/description.md
       operationId: indexTSPPs
       tags:
         - transportation_service_provider_performances
@@ -1184,15 +1185,16 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: office not found
+          description: Transportation Service Provider Performances (TSPPs) not found
         '500':
           description: server error
   /transportation-service-provider-performances/{tsppId}:
     get:
       produces:
         - application/json
-      summary: Fetch a specific tspp
-      description: Returns a single tspp
+      summary: Fetch a specific TSPP
+      description:
+        $ref: paths/transportation-service-provider-performances/{tsppId}/get/description.md
       operationId: getTSPP
       tags:
         - transportation_service_provider_performances
@@ -1212,7 +1214,7 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: tspp not found
+          description: Transportation Service Provider Performances (TSPPs) not found
         '500':
           description: server error
   /admin-users:
