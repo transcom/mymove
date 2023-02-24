@@ -30,7 +30,7 @@ func NewUpdateAdminUser(ctx *middleware.Context, handler UpdateAdminUserHandler)
 }
 
 /*
-	UpdateAdminUser swagger:route PATCH /admin-users/{adminUserId} admin_users updateAdminUser
+	UpdateAdminUser swagger:route PATCH /admin-users/{adminUserId} Admin users updateAdminUser
 
 Updates an admin user
 */
