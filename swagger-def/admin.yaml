@@ -39,7 +39,7 @@ tags:
     description: Information about transportation offices
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: office_users
+  - name: Office users
     description: Information about office users
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
@@ -1017,7 +1017,7 @@ paths:
       description: Returns a list of office users
       operationId: indexOfficeUsers
       tags:
-        - office_users
+        - Office users
       parameters:
         - in: query
           name: filter
@@ -1060,7 +1060,7 @@ paths:
       description: creates and returns an office user record
       operationId: createOfficeUser
       tags:
-        - office_users
+        - Office users
       parameters:
         - in: body
           name: officeUser
@@ -1086,7 +1086,7 @@ paths:
       description: Returns the given office user
       operationId: getOfficeUser
       tags:
-        - office_users
+        - Office users
       parameters:
         - in: path
           name: officeUserId
@@ -1114,7 +1114,7 @@ paths:
         - application/json
       operationId: updateOfficeUser
       tags:
-        - office_users
+        - Office users
       parameters:
         - in: path
           name: officeUserId
