@@ -77,7 +77,7 @@ const WeightCalculation = ({ type, firstValue, secondValue, thirdValue }) => {
 };
 
 const validationSchema = Yup.object({
-  ppmNetWeight: Yup.number().min(1, 'Authorized weight must be greater than or equal to 1').required('Required'),
+  ppmNetWeight: Yup.number().min(1, 'Net weight must be greater than or equal to 1').required('Required'),
   ppmNetWeightRemarks: Yup.string().required('Required'),
 });
 
@@ -155,7 +155,7 @@ const EditPPMNetWeight = ({
   return (
     <div className={styles.wrapper}>
       <div>
-        <h4 className={styles.header}>Edit PPM net weight</h4>
+        <h4 className={styles.mainHeader}>Edit PPM net weight</h4>
         {Boolean(showEditForm && hasExcessWeight) && (
           <WeightCalculation
             firstValue={totalBillableWeight}

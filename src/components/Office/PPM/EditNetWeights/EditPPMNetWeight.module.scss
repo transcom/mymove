@@ -85,6 +85,14 @@
 .wrapper {
   @include u-margin-top(2);
 }
+
+.mainHeader {
+  @include u-margin-bottom(2);
+  color: $base-darker;
+  font-weight: bold;
+  font-size: 17px;
+}
+
 .header {
   @include u-margin-bottom(0.5);
   color: $base-darker;
