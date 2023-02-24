@@ -10,9 +10,11 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	ppmdocumentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
@@ -71,7 +73,7 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerUnit() {
 
 		req := httptest.NewRequest("GET", endpoint, nil)
 
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
@@ -242,7 +244,7 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerIntegration() {
 
 		req := httptest.NewRequest("GET", endpoint, nil)
 
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 

@@ -9,6 +9,7 @@ import { updateMTOShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
 import { validatePostalCode } from 'utils/validation';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { MockProviders } from 'testUtils';
 
 const mockPush = jest.fn();
 
@@ -49,6 +50,7 @@ jest.mock('services/ghcApi', () => ({
 }));
 
 jest.mock('hooks/queries', () => ({
+  ...jest.requireActual('@tanstack/react-query'),
   useEditShipmentQueries: jest.fn(),
 }));
 
@@ -228,7 +230,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useEditShipmentQueries.mockReturnValue(loadingReturnValue);
 
-      render(<ServicesCounselingEditShipmentDetails {...props} />);
+      render(
+        <MockProviders>
+          <ServicesCounselingEditShipmentDetails {...props} />
+        </MockProviders>,
+      );
 
       const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
@@ -237,7 +243,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     it('renders the Something Went Wrong component when the query errors', async () => {
       useEditShipmentQueries.mockReturnValue(errorReturnValue);
 
-      render(<ServicesCounselingEditShipmentDetails {...props} />);
+      render(
+        <MockProviders>
+          <ServicesCounselingEditShipmentDetails {...props} />
+        </MockProviders>,
+      );
 
       const errorMessage = await screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
@@ -246,7 +256,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
   it('renders the Services Counseling Shipment Form', async () => {
     useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-    render(<ServicesCounselingEditShipmentDetails {...props} />);
+    render(
+      <MockProviders>
+        <ServicesCounselingEditShipmentDetails {...props} />
+      </MockProviders>,
+    );
 
     const h1 = await screen.getByRole('heading', { name: 'Edit shipment details', level: 1 });
     await waitFor(() => {
@@ -258,7 +272,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     updateMTOShipment.mockImplementation(() => Promise.resolve({}));
     const onUpdateMock = jest.fn();
 
-    render(<ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />);
+    render(
+      <MockProviders>
+        <ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />
+      </MockProviders>,
+    );
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
@@ -278,7 +296,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
     const onUpdateMock = jest.fn();
 
-    render(<ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />);
+    render(
+      <MockProviders>
+        <ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />)
+      </MockProviders>,
+    );
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
@@ -294,7 +316,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
   it('routes to the move details page when the cancel button is clicked', async () => {
     useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-    render(<ServicesCounselingEditShipmentDetails {...props} />);
+    render(
+      <MockProviders>
+        <ServicesCounselingEditShipmentDetails {...props} />
+      </MockProviders>,
+    );
 
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
 
@@ -315,7 +341,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
     it('renders the first page of the edit ppm Shipment Form with prefilled values', async () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
-      render(<ServicesCounselingEditShipmentDetails {...props} />);
+      render(
+        <MockProviders>
+          <ServicesCounselingEditShipmentDetails {...props} />
+        </MockProviders>,
+      );
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
       expect(await screen.getByRole('textbox', { name: 'Planned departure date' })).toHaveValue('28 Jun 2022');
@@ -363,7 +393,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         ],
       ])('Verify invalid %s field shows validation error', async (field, data, expectedError) => {
         useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
-        render(<ServicesCounselingEditShipmentDetails {...props} />);
+        render(
+          <MockProviders>
+            <ServicesCounselingEditShipmentDetails {...props} />
+          </MockProviders>,
+        );
 
         const sitExpected = document.getElementById('sitExpectedYes').parentElement;
         const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
@@ -390,7 +424,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
     it('Enables Save and Continue button when sit required fields are filled in', async () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
-      render(<ServicesCounselingEditShipmentDetails {...props} />);
+      render(
+        <MockProviders>
+          <ServicesCounselingEditShipmentDetails {...props} />
+        </MockProviders>,
+      );
 
       const sitExpected = document.getElementById('sitExpectedYes').parentElement;
       const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
@@ -414,8 +452,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       updateMoveCloseoutOffice.mockImplementation(() => Promise.resolve({}));
       validatePostalCode.mockImplementation(() => Promise.resolve(false));
       const onUpdateMock = jest.fn();
-
-      render(<ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />);
+      render(
+        <MockProviders>
+          <ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />
+        </MockProviders>,
+      );
 
       await waitFor(() => {
         expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('1,111');

@@ -9,7 +9,12 @@ import { selectMTOShipmentById } from 'store/entities/selectors';
 import Review from 'pages/MyMove/PPM/Closeout/Review/Review';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { customerRoutes } from 'constants/routes';
-import { deleteWeightTicket, deleteProGearWeightTicket, deleteMovingExpense } from 'services/internalApi';
+import {
+  deleteWeightTicket,
+  deleteProGearWeightTicket,
+  deleteMovingExpense,
+  getMTOShipmentsForMove,
+} from 'services/internalApi';
 import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import { createBaseProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
 import { createCompleteMovingExpense, createCompleteSITMovingExpense } from 'utils/test/factories/movingExpense';
@@ -44,6 +49,8 @@ const mockMTOShipment = {
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
 
+const weightTicketOne = createCompleteWeightTicket();
+const weightTicketTwo = createCompleteWeightTicket();
 const mockMTOShipmentWithWeightTicket = {
   id: mockMTOShipmentId,
   shipmentType: SHIPMENT_OPTIONS.PPM,
@@ -65,9 +72,39 @@ const mockMTOShipmentWithWeightTicket = {
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
-    weightTickets: [createCompleteWeightTicket(), createCompleteWeightTicket()],
+    weightTickets: [weightTicketOne, weightTicketTwo],
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
+};
+
+const mockMTOShipmentWithWeightTicketDeleted = {
+  mtoShipments: {
+    [mockMTOShipmentId]: {
+      id: mockMTOShipmentId,
+      shipmentType: SHIPMENT_OPTIONS.PPM,
+      ppmShipment: {
+        id: mockPPMShipmentId,
+        actualMoveDate: '2022-05-01',
+        actualPickupPostalCode: '10003',
+        actualDestinationPostalCode: '10004',
+        advanceReceived: true,
+        advanceAmountReceived: '6000000',
+        pickupPostalCode: '10001',
+        destinationPostalCode: '10002',
+        expectedDepartureDate: '2022-04-30',
+        advanceRequested: true,
+        advanceAmountRequested: 598700,
+        estimatedWeight: 4000,
+        estimatedIncentive: 1000000,
+        sitExpected: false,
+        hasProGear: false,
+        proGearWeight: null,
+        spouseProGearWeight: null,
+        weightTickets: [weightTicketTwo],
+      },
+      eTag: 'dGVzdGluZzIzNDQzMjQ',
+    },
+  },
 };
 
 const mockMTOShipmentWithIncompleteWeightTicket = {
@@ -96,6 +133,7 @@ const mockMTOShipmentWithIncompleteWeightTicket = {
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
 
+const proGearWeightOne = createBaseProGearWeightTicket();
 const mockMTOShipmentWithProGear = {
   id: mockMTOShipmentId,
   shipmentType: SHIPMENT_OPTIONS.PPM,
@@ -117,11 +155,43 @@ const mockMTOShipmentWithProGear = {
     hasProGear: true,
     proGearWeight: 100,
     spouseProGearWeight: null,
-    proGearWeightTickets: [createBaseProGearWeightTicket()],
+    proGearWeightTickets: [proGearWeightOne],
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
 
+const mockMTOShipmentWithProGearDeleted = {
+  mtoShipments: {
+    [mockMTOShipmentId]: {
+      id: mockMTOShipmentId,
+      shipmentType: SHIPMENT_OPTIONS.PPM,
+      ppmShipment: {
+        id: mockPPMShipmentId,
+        actualMoveDate: '2022-05-01',
+        actualPickupPostalCode: '10003',
+        actualDestinationPostalCode: '10004',
+        advanceReceived: true,
+        advanceAmountReceived: '6000000',
+        pickupPostalCode: '10001',
+        destinationPostalCode: '10002',
+        expectedDepartureDate: '2022-04-30',
+        advanceRequested: true,
+        advanceAmountRequested: 598700,
+        estimatedWeight: 4000,
+        estimatedIncentive: 1000000,
+        sitExpected: false,
+        hasProGear: true,
+        proGearWeight: 100,
+        spouseProGearWeight: null,
+        proGearWeightTickets: [],
+      },
+      eTag: 'dGVzdGluZzIzNDQzMjQ',
+    },
+  },
+};
+
+const expenseOne = createCompleteMovingExpense();
+const expenseTwo = createCompleteSITMovingExpense();
 const mockMTOShipmentWithExpenses = {
   id: mockMTOShipmentId,
   shipmentType: SHIPMENT_OPTIONS.PPM,
@@ -143,11 +213,40 @@ const mockMTOShipmentWithExpenses = {
     hasProGear: true,
     proGearWeight: 100,
     spouseProGearWeight: null,
-    movingExpenses: [createCompleteMovingExpense(), createCompleteSITMovingExpense()],
+    movingExpenses: [expenseOne, expenseTwo],
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
 
+const mockMTOShipmentWithExpensesDeleted = {
+  mtoShipments: {
+    [mockMTOShipmentId]: {
+      id: mockMTOShipmentId,
+      shipmentType: SHIPMENT_OPTIONS.PPM,
+      ppmShipment: {
+        id: mockPPMShipmentId,
+        actualMoveDate: '2022-05-01',
+        actualPickupPostalCode: '10003',
+        actualDestinationPostalCode: '10004',
+        advanceReceived: true,
+        advanceAmountReceived: '6000000',
+        pickupPostalCode: '10001',
+        destinationPostalCode: '10002',
+        expectedDepartureDate: '2022-04-30',
+        advanceRequested: true,
+        advanceAmountRequested: 598700,
+        estimatedWeight: 4000,
+        estimatedIncentive: 1000000,
+        sitExpected: false,
+        hasProGear: true,
+        proGearWeight: 100,
+        spouseProGearWeight: null,
+        movingExpenses: [expenseOne],
+      },
+      eTag: 'dGVzdGluZzIzNDQzMjQ',
+    },
+  },
+};
 const mockPush = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -165,6 +264,7 @@ jest.mock('services/internalApi', () => ({
   deleteWeightTicket: jest.fn(() => {}),
   deleteProGearWeightTicket: jest.fn(() => {}),
   deleteMovingExpense: jest.fn(() => {}),
+  getMTOShipmentsForMove: jest.fn(),
 }));
 
 jest.mock('store/entities/selectors', () => ({
@@ -407,6 +507,7 @@ describe('Review page', () => {
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithWeightTicket);
     const mockDeleteWeightTicket = jest.fn().mockResolvedValue({});
     deleteWeightTicket.mockImplementationOnce(mockDeleteWeightTicket);
+    getMTOShipmentsForMove.mockResolvedValue(mockMTOShipmentWithWeightTicketDeleted);
     render(<Review />, { wrapper: MockProviders });
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
@@ -419,7 +520,13 @@ describe('Review page', () => {
 
     const weightTicket = mockMTOShipmentWithWeightTicket.ppmShipment.weightTickets[0];
     await waitFor(() => {
-      expect(mockDeleteWeightTicket).toHaveBeenCalledWith(weightTicket.id, weightTicket.eTag);
+      expect(mockDeleteWeightTicket).toHaveBeenCalledWith(
+        mockMTOShipmentWithWeightTicket.ppmShipment.id,
+        weightTicket.id,
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByText('Trip 1 successfully deleted.'));
     });
   });
 
@@ -427,6 +534,7 @@ describe('Review page', () => {
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithProGear);
     const mockDeleteProGearWeightTicket = jest.fn().mockResolvedValue({});
     deleteProGearWeightTicket.mockImplementationOnce(mockDeleteProGearWeightTicket);
+    getMTOShipmentsForMove.mockResolvedValue(mockMTOShipmentWithProGearDeleted);
     render(<Review />, { wrapper: MockProviders });
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
@@ -439,7 +547,14 @@ describe('Review page', () => {
 
     const proGearWeightTicket = mockMTOShipmentWithProGear.ppmShipment.proGearWeightTickets[0];
     await waitFor(() => {
-      expect(mockDeleteProGearWeightTicket).toHaveBeenCalledWith(proGearWeightTicket.id, proGearWeightTicket.eTag);
+      expect(mockDeleteProGearWeightTicket).toHaveBeenCalledWith(
+        mockMTOShipmentWithWeightTicket.ppmShipment.id,
+        proGearWeightTicket.id,
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Set 1 successfully deleted.'));
     });
   });
 
@@ -447,6 +562,7 @@ describe('Review page', () => {
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithExpenses);
     const mockDeleteMovingExpense = jest.fn().mockResolvedValue({});
     deleteMovingExpense.mockImplementationOnce(mockDeleteMovingExpense);
+    getMTOShipmentsForMove.mockResolvedValue(mockMTOShipmentWithExpensesDeleted);
     render(<Review />, { wrapper: MockProviders });
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
@@ -459,7 +575,13 @@ describe('Review page', () => {
 
     const movingExpense = mockMTOShipmentWithExpenses.ppmShipment.movingExpenses[0];
     await waitFor(() => {
-      expect(mockDeleteMovingExpense).toHaveBeenCalledWith(movingExpense.id, movingExpense.eTag);
+      expect(mockDeleteMovingExpense).toHaveBeenCalledWith(
+        mockMTOShipmentWithWeightTicket.ppmShipment.id,
+        movingExpense.id,
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByText('Receipt 1 successfully deleted.'));
     });
   });
 });

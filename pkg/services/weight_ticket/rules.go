@@ -147,6 +147,26 @@ func verifyReasonAndStatusAreValid() weightTicketValidator {
 	})
 }
 
+func verifyAdjustedNetWeightAndNetWeightRemarksAreValid() weightTicketValidator {
+	return weightTicketValidatorFunc(func(_ appcontext.AppContext, newWeightTicket *models.WeightTicket, originalWeightTicket *models.WeightTicket) error {
+		verrs := validate.NewErrors()
+
+		if newWeightTicket.AdjustedNetWeight != nil {
+			if *newWeightTicket.AdjustedNetWeight < 0 {
+				verrs.Add("AdjustedNetWeight", "Adjusted Net Weight must have a value of at least 0")
+			} else if newWeightTicket.FullWeight != nil && *newWeightTicket.AdjustedNetWeight >= *newWeightTicket.FullWeight {
+				verrs.Add("AdjustedNetWeight", "Adjusted Net Weight cannot be greater than or equal to the full weight")
+			}
+
+			if newWeightTicket.NetWeightRemarks == nil || *newWeightTicket.NetWeightRemarks == "" {
+				verrs.Add("NetWeightRemarks", "Net Weight Remarks must exist when net weight is adjusted")
+			}
+		}
+
+		return verrs
+	})
+}
+
 func basicChecksForCreate() []weightTicketValidator {
 	return []weightTicketValidator{
 		checkID(),
@@ -168,5 +188,6 @@ func basicChecksForOffice() []weightTicketValidator {
 		checkID(),
 		checkRequiredFields(),
 		verifyReasonAndStatusAreValid(),
+		verifyAdjustedNetWeightAndNetWeightRemarksAreValid(),
 	}
 }

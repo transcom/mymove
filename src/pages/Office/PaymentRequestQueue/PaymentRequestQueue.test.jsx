@@ -1,6 +1,7 @@
 import React from 'react';
 import Select from 'react-select';
 import { mount } from 'enzyme';
+import { QueryClient } from '@tanstack/react-query';
 
 import PaymentRequestQueue from './PaymentRequestQueue';
 
@@ -58,9 +59,10 @@ describe('PaymentRequestQueue', () => {
   const requiredProps = {
     history: { push: jest.fn() },
   };
+  const client = new QueryClient();
 
   const wrapper = mount(
-    <MockProviders initialEntries={['invoicing/queue']}>
+    <MockProviders client={client} initialEntries={['invoicing/queue']}>
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
       <PaymentRequestQueue {...requiredProps} />
     </MockProviders>,

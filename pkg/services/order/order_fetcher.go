@@ -371,7 +371,7 @@ func submittedAtFilter(submittedAt *time.Time) QueryOption {
 func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	return func(query *pop.Query) {
 		if requestedMoveDate != nil {
-			query.Where("mto_shipments.requested_pickup_date = ?", *requestedMoveDate)
+			query.Where("(mto_shipments.requested_pickup_date = ? OR ppm_shipments.expected_departure_date = ?)", *requestedMoveDate, *requestedMoveDate)
 		}
 	}
 }
@@ -457,7 +457,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 		"submittedAt":             "moves.submitted_at",
 		"originDutyLocation":      "origin_dl.name",
 		"destinationDutyLocation": "dest_dl.name",
-		"requestedMoveDate":       "min(mto_shipments.requested_pickup_date)",
+		"requestedMoveDate":       "CASE WHEN COALESCE(MIN(mto_shipments.requested_pickup_date), 'infinity') <= COALESCE(MIN(ppm_shipments.expected_departure_date), 'infinity') THEN MIN(mto_shipments.requested_pickup_date) ELSE MIN(ppm_shipments.expected_departure_date) END",
 		"originGBLOC":             "origin_to.gbloc",
 		"ppmType":                 "moves.ppm_type",
 		"closeoutLocation":        "closeout_to.name",

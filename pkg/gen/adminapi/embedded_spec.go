@@ -24,21 +24,32 @@ func init() {
   "produces": [
     "application/json"
   ],
+  "schemes": [
+    "https"
+  ],
   "swagger": "2.0",
   "info": {
     "description": "The Admin API is a RESTful API that enables the Admin application for MilMove.\n\nAll endpoints are located under ` + "`" + `/admin/v1` + "`" + `.\n",
     "title": "MilMove Admin API",
+    "contact": {
+      "name": "MilMove AppEng",
+      "email": "support@movemil.pagerduty.com"
+    },
     "license": {
       "name": "MIT",
       "url": "https://github.com/transcom/mymove/blob/main/LICENSE.md"
     },
     "version": "1.0.0"
   },
+  "host": "admin.move.mil",
   "basePath": "/admin/v1",
   "paths": {
-    "/admin_users": {
+    "/admin-users": {
       "get": {
         "description": "Returns a list of admin users",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "admin_users"
         ],
@@ -103,6 +114,12 @@ func init() {
       },
       "post": {
         "description": "creates and returns an admin user record",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "admin_users"
         ],
@@ -114,7 +131,7 @@ func init() {
             "name": "adminUser",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/AdminUserCreatePayload"
+              "$ref": "#/definitions/AdminUserCreate"
             }
           }
         ],
@@ -140,9 +157,12 @@ func init() {
         }
       }
     },
-    "/admin_users/{adminUserId}": {
+    "/admin-users/{adminUserId}": {
       "get": {
         "description": "Returns a single admin user",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "admin_users"
         ],
@@ -179,6 +199,12 @@ func init() {
         }
       },
       "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "admin_users"
         ],
@@ -198,7 +224,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/AdminUserUpdatePayload"
+              "$ref": "#/definitions/AdminUserUpdate"
             }
           }
         ],
@@ -224,9 +250,12 @@ func init() {
         }
       }
     },
-    "/electronic_orders": {
+    "/electronic-orders": {
       "get": {
         "description": "Returns a list of electronic orders",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "electronic_order"
         ],
@@ -290,9 +319,12 @@ func init() {
         }
       }
     },
-    "/electronic_orders/totals": {
+    "/electronic-orders/totals": {
       "get": {
         "description": "Returns a list of record counts for orders",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "electronic_order"
         ],
@@ -341,6 +373,9 @@ func init() {
     "/moves": {
       "get": {
         "description": "Returns a list of moves",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "move"
         ],
@@ -404,6 +439,9 @@ func init() {
     "/moves/{moveID}": {
       "get": {
         "description": "Returns the given move and its relevant info",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "move"
         ],
@@ -441,6 +479,12 @@ func init() {
       },
       "patch": {
         "description": "Allows the user to change the ` + "`" + `show` + "`" + ` field on the selected field to either ` + "`" + `True` + "`" + ` or ` + "`" + `False` + "`" + `. A \"shown\" move will appear to all users as normal, a \"hidden\" move will not be returned or editable using any other endpoint (besides those in the Support API), and thus effectively deactivated.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "move"
         ],
@@ -460,7 +504,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MoveUpdatePayload"
+              "$ref": "#/definitions/MoveUpdate"
             }
           }
         ],
@@ -495,6 +539,9 @@ func init() {
     "/notifications": {
       "get": {
         "description": "Returns a list of notifications that have been sent to service members",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "notification"
         ],
@@ -555,9 +602,12 @@ func init() {
         }
       }
     },
-    "/office_users": {
+    "/office-users": {
       "get": {
         "description": "Returns a list of office users",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office_users"
         ],
@@ -619,6 +669,12 @@ func init() {
       },
       "post": {
         "description": "creates and returns an office user record",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office_users"
         ],
@@ -630,7 +686,7 @@ func init() {
             "name": "officeUser",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/OfficeUserCreatePayload"
+              "$ref": "#/definitions/OfficeUserCreate"
             }
           }
         ],
@@ -653,9 +709,12 @@ func init() {
         }
       }
     },
-    "/office_users/{officeUserId}": {
+    "/office-users/{officeUserId}": {
       "get": {
         "description": "Returns the given office user",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office_users"
         ],
@@ -692,6 +751,12 @@ func init() {
         }
       },
       "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office_users"
         ],
@@ -711,7 +776,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/OfficeUserUpdatePayload"
+              "$ref": "#/definitions/OfficeUserUpdate"
             }
           }
         ],
@@ -740,6 +805,9 @@ func init() {
     "/offices": {
       "get": {
         "description": "Returns a list of transportation offices",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office"
         ],
@@ -803,6 +871,9 @@ func init() {
     "/organizations": {
       "get": {
         "description": "Returns a list of organizations",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "organization"
         ],
@@ -866,9 +937,12 @@ func init() {
         }
       }
     },
-    "/transportation_service_provider_performances": {
+    "/transportation-service-provider-performances": {
       "get": {
         "description": "Returns a list of transportation service provider performances (TSPPs)",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "transportation_service_provider_performances"
         ],
@@ -929,9 +1003,12 @@ func init() {
         }
       }
     },
-    "/transportation_service_provider_performances/{tsppId}": {
+    "/transportation-service-provider-performances/{tsppId}": {
       "get": {
         "description": "Returns a single tspp",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "transportation_service_provider_performances"
         ],
@@ -971,6 +1048,9 @@ func init() {
     "/uploads/{uploadId}": {
       "get": {
         "description": "Returns the given upload and information about the uploader and move",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "upload"
         ],
@@ -1010,6 +1090,9 @@ func init() {
     "/users": {
       "get": {
         "description": "Returns a list of users",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "users"
         ],
@@ -1073,6 +1156,9 @@ func init() {
     "/users/{userId}": {
       "get": {
         "description": "Returns the given user and their sessions",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "users"
         ],
@@ -1109,6 +1195,12 @@ func init() {
         }
       },
       "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "users"
         ],
@@ -1128,7 +1220,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserUpdatePayload"
+              "$ref": "#/definitions/UserUpdate"
             }
           }
         ],
@@ -1163,9 +1255,12 @@ func init() {
         }
       }
     },
-    "/webhook_subscriptions": {
+    "/webhook-subscriptions": {
       "get": {
         "description": "Returns a list of webhook subscriptions",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "webhook_subscriptions"
         ],
@@ -1227,6 +1322,12 @@ func init() {
       },
       "post": {
         "description": "creates and returns a webhook subscription",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "webhook_subscriptions"
         ],
@@ -1264,9 +1365,12 @@ func init() {
         }
       }
     },
-    "/webhook_subscriptions/{webhookSubscriptionId}": {
+    "/webhook-subscriptions/{webhookSubscriptionId}": {
       "get": {
         "description": "Returns the given webhook subscription and its details",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "webhook_subscriptions"
         ],
@@ -1303,6 +1407,12 @@ func init() {
         }
       },
       "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "webhook_subscriptions"
         ],
@@ -1545,7 +1655,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -1569,7 +1680,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "userId": {
           "type": "string",
@@ -1577,7 +1689,7 @@ func init() {
         }
       }
     },
-    "AdminUserCreatePayload": {
+    "AdminUserCreate": {
       "type": "object",
       "properties": {
         "email": {
@@ -1600,7 +1712,7 @@ func init() {
         }
       }
     },
-    "AdminUserUpdatePayload": {
+    "AdminUserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -1685,7 +1797,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1702,7 +1815,8 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Updated at"
+          "title": "Updated at",
+          "readOnly": true
         }
       }
     },
@@ -1753,7 +1867,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1781,7 +1896,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -1801,7 +1917,7 @@ func init() {
         "SUBMITTED": "Submitted"
       }
     },
-    "MoveUpdatePayload": {
+    "MoveUpdate": {
       "type": "object",
       "required": [
         "show"
@@ -1831,7 +1947,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string"
@@ -1884,7 +2001,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -1922,7 +2040,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "userId": {
           "type": "string",
@@ -1930,7 +2049,7 @@ func init() {
         }
       }
     },
-    "OfficeUserCreatePayload": {
+    "OfficeUserCreate": {
       "type": "object",
       "properties": {
         "email": {
@@ -1988,7 +2107,7 @@ func init() {
         }
       }
     },
-    "OfficeUserUpdatePayload": {
+    "OfficeUserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -2049,7 +2168,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -2075,7 +2195,8 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Updated at"
+          "title": "Updated at",
+          "readOnly": true
         }
       }
     },
@@ -2097,7 +2218,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2114,7 +2236,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2165,7 +2288,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "gbloc": {
           "type": "string",
@@ -2202,7 +2326,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2236,7 +2361,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2288,7 +2414,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2312,7 +2439,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "filename": {
           "type": "string"
@@ -2402,7 +2530,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "currentAdminSessionId": {
           "type": "string",
@@ -2428,11 +2557,12 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
-    "UserUpdatePayload": {
+    "UserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -2491,7 +2621,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "eTag": {
           "type": "string",
@@ -2524,7 +2655,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2637,21 +2769,32 @@ func init() {
   "produces": [
     "application/json"
   ],
+  "schemes": [
+    "https"
+  ],
   "swagger": "2.0",
   "info": {
     "description": "The Admin API is a RESTful API that enables the Admin application for MilMove.\n\nAll endpoints are located under ` + "`" + `/admin/v1` + "`" + `.\n",
     "title": "MilMove Admin API",
+    "contact": {
+      "name": "MilMove AppEng",
+      "email": "support@movemil.pagerduty.com"
+    },
     "license": {
       "name": "MIT",
       "url": "https://github.com/transcom/mymove/blob/main/LICENSE.md"
     },
     "version": "1.0.0"
   },
+  "host": "admin.move.mil",
   "basePath": "/admin/v1",
   "paths": {
-    "/admin_users": {
+    "/admin-users": {
       "get": {
         "description": "Returns a list of admin users",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "admin_users"
         ],
@@ -2716,6 +2859,12 @@ func init() {
       },
       "post": {
         "description": "creates and returns an admin user record",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "admin_users"
         ],
@@ -2727,7 +2876,7 @@ func init() {
             "name": "adminUser",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/AdminUserCreatePayload"
+              "$ref": "#/definitions/AdminUserCreate"
             }
           }
         ],
@@ -2753,9 +2902,12 @@ func init() {
         }
       }
     },
-    "/admin_users/{adminUserId}": {
+    "/admin-users/{adminUserId}": {
       "get": {
         "description": "Returns a single admin user",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "admin_users"
         ],
@@ -2792,6 +2944,12 @@ func init() {
         }
       },
       "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "admin_users"
         ],
@@ -2811,7 +2969,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/AdminUserUpdatePayload"
+              "$ref": "#/definitions/AdminUserUpdate"
             }
           }
         ],
@@ -2837,9 +2995,12 @@ func init() {
         }
       }
     },
-    "/electronic_orders": {
+    "/electronic-orders": {
       "get": {
         "description": "Returns a list of electronic orders",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "electronic_order"
         ],
@@ -2903,9 +3064,12 @@ func init() {
         }
       }
     },
-    "/electronic_orders/totals": {
+    "/electronic-orders/totals": {
       "get": {
         "description": "Returns a list of record counts for orders",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "electronic_order"
         ],
@@ -2954,6 +3118,9 @@ func init() {
     "/moves": {
       "get": {
         "description": "Returns a list of moves",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "move"
         ],
@@ -3017,6 +3184,9 @@ func init() {
     "/moves/{moveID}": {
       "get": {
         "description": "Returns the given move and its relevant info",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "move"
         ],
@@ -3054,6 +3224,12 @@ func init() {
       },
       "patch": {
         "description": "Allows the user to change the ` + "`" + `show` + "`" + ` field on the selected field to either ` + "`" + `True` + "`" + ` or ` + "`" + `False` + "`" + `. A \"shown\" move will appear to all users as normal, a \"hidden\" move will not be returned or editable using any other endpoint (besides those in the Support API), and thus effectively deactivated.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "move"
         ],
@@ -3073,7 +3249,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MoveUpdatePayload"
+              "$ref": "#/definitions/MoveUpdate"
             }
           }
         ],
@@ -3108,6 +3284,9 @@ func init() {
     "/notifications": {
       "get": {
         "description": "Returns a list of notifications that have been sent to service members",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "notification"
         ],
@@ -3168,9 +3347,12 @@ func init() {
         }
       }
     },
-    "/office_users": {
+    "/office-users": {
       "get": {
         "description": "Returns a list of office users",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office_users"
         ],
@@ -3232,6 +3414,12 @@ func init() {
       },
       "post": {
         "description": "creates and returns an office user record",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office_users"
         ],
@@ -3243,7 +3431,7 @@ func init() {
             "name": "officeUser",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/OfficeUserCreatePayload"
+              "$ref": "#/definitions/OfficeUserCreate"
             }
           }
         ],
@@ -3266,9 +3454,12 @@ func init() {
         }
       }
     },
-    "/office_users/{officeUserId}": {
+    "/office-users/{officeUserId}": {
       "get": {
         "description": "Returns the given office user",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office_users"
         ],
@@ -3305,6 +3496,12 @@ func init() {
         }
       },
       "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office_users"
         ],
@@ -3324,7 +3521,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/OfficeUserUpdatePayload"
+              "$ref": "#/definitions/OfficeUserUpdate"
             }
           }
         ],
@@ -3353,6 +3550,9 @@ func init() {
     "/offices": {
       "get": {
         "description": "Returns a list of transportation offices",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "office"
         ],
@@ -3416,6 +3616,9 @@ func init() {
     "/organizations": {
       "get": {
         "description": "Returns a list of organizations",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "organization"
         ],
@@ -3479,9 +3682,12 @@ func init() {
         }
       }
     },
-    "/transportation_service_provider_performances": {
+    "/transportation-service-provider-performances": {
       "get": {
         "description": "Returns a list of transportation service provider performances (TSPPs)",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "transportation_service_provider_performances"
         ],
@@ -3542,9 +3748,12 @@ func init() {
         }
       }
     },
-    "/transportation_service_provider_performances/{tsppId}": {
+    "/transportation-service-provider-performances/{tsppId}": {
       "get": {
         "description": "Returns a single tspp",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "transportation_service_provider_performances"
         ],
@@ -3584,6 +3793,9 @@ func init() {
     "/uploads/{uploadId}": {
       "get": {
         "description": "Returns the given upload and information about the uploader and move",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "upload"
         ],
@@ -3623,6 +3835,9 @@ func init() {
     "/users": {
       "get": {
         "description": "Returns a list of users",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "users"
         ],
@@ -3686,6 +3901,9 @@ func init() {
     "/users/{userId}": {
       "get": {
         "description": "Returns the given user and their sessions",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "users"
         ],
@@ -3722,6 +3940,12 @@ func init() {
         }
       },
       "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "users"
         ],
@@ -3741,7 +3965,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserUpdatePayload"
+              "$ref": "#/definitions/UserUpdate"
             }
           }
         ],
@@ -3776,9 +4000,12 @@ func init() {
         }
       }
     },
-    "/webhook_subscriptions": {
+    "/webhook-subscriptions": {
       "get": {
         "description": "Returns a list of webhook subscriptions",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "webhook_subscriptions"
         ],
@@ -3840,6 +4067,12 @@ func init() {
       },
       "post": {
         "description": "creates and returns a webhook subscription",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "webhook_subscriptions"
         ],
@@ -3877,9 +4110,12 @@ func init() {
         }
       }
     },
-    "/webhook_subscriptions/{webhookSubscriptionId}": {
+    "/webhook-subscriptions/{webhookSubscriptionId}": {
       "get": {
         "description": "Returns the given webhook subscription and its details",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "webhook_subscriptions"
         ],
@@ -3916,6 +4152,12 @@ func init() {
         }
       },
       "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "webhook_subscriptions"
         ],
@@ -4158,7 +4400,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -4182,7 +4425,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "userId": {
           "type": "string",
@@ -4190,7 +4434,7 @@ func init() {
         }
       }
     },
-    "AdminUserCreatePayload": {
+    "AdminUserCreate": {
       "type": "object",
       "properties": {
         "email": {
@@ -4213,7 +4457,7 @@ func init() {
         }
       }
     },
-    "AdminUserUpdatePayload": {
+    "AdminUserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -4298,7 +4542,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -4315,7 +4560,8 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Updated at"
+          "title": "Updated at",
+          "readOnly": true
         }
       }
     },
@@ -4367,7 +4613,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -4395,7 +4642,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -4415,7 +4663,7 @@ func init() {
         "SUBMITTED": "Submitted"
       }
     },
-    "MoveUpdatePayload": {
+    "MoveUpdate": {
       "type": "object",
       "required": [
         "show"
@@ -4445,7 +4693,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string"
@@ -4498,7 +4747,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -4536,7 +4786,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "userId": {
           "type": "string",
@@ -4544,7 +4795,7 @@ func init() {
         }
       }
     },
-    "OfficeUserCreatePayload": {
+    "OfficeUserCreate": {
       "type": "object",
       "properties": {
         "email": {
@@ -4602,7 +4853,7 @@ func init() {
         }
       }
     },
-    "OfficeUserUpdatePayload": {
+    "OfficeUserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -4663,7 +4914,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -4689,7 +4941,8 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Updated at"
+          "title": "Updated at",
+          "readOnly": true
         }
       }
     },
@@ -4711,7 +4964,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -4728,7 +4982,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -4779,7 +5034,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "gbloc": {
           "type": "string",
@@ -4816,7 +5072,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -4850,7 +5107,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -4902,7 +5160,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -4926,7 +5185,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "filename": {
           "type": "string"
@@ -5016,7 +5276,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "currentAdminSessionId": {
           "type": "string",
@@ -5042,11 +5303,12 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
-    "UserUpdatePayload": {
+    "UserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -5108,7 +5370,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "eTag": {
           "type": "string",
@@ -5142,7 +5405,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },

@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"net/http/httptest"
 
+	"github.com/transcom/mymove/pkg/factory"
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -32,7 +34,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 		}
 
 		// Given: An office user
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		// Make a PPM
 		moveShow := true
@@ -102,7 +104,7 @@ func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 func (suite *HandlerSuite) TestShowQueueHandlerNotFound() {
 
 	// Given: An office user
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 	// And: the context contains the auth values
 	queueType := "queue_not_found"

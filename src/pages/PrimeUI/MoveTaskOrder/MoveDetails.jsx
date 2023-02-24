@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Alert, Button } from '@trussworks/react-uswds';
 import { Link, useParams, withRouter } from 'react-router-dom';
 import classnames from 'classnames';
-import { queryCache, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -29,7 +29,8 @@ const MoveDetails = ({ setFlashMessage }) => {
 
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
 
-  const [completeCounselingMutation] = useMutation(completeCounseling, {
+  const queryClient = useQueryClient();
+  const { mutate: completeCounselingMutation } = useMutation(completeCounseling, {
     onSuccess: () => {
       setFlashMessage(
         `MSG_COMPLETE_COUNSELING${moveCodeOrID}`,
@@ -39,8 +40,8 @@ const MoveDetails = ({ setFlashMessage }) => {
         true,
       );
 
-      queryCache.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
-      queryCache.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]).then(() => {});
+      queryClient.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
+      queryClient.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]).then(() => {});
     },
     onError: (error) => {
       const { response: { body } = {} } = error;
@@ -65,12 +66,12 @@ const MoveDetails = ({ setFlashMessage }) => {
     completeCounselingMutation({ moveTaskOrderID: moveTaskOrder.id, ifMatchETag: moveTaskOrder.eTag });
   };
 
-  const [deleteShipmentMutation] = useMutation(deleteShipment, {
+  const { mutate: deleteShipmentMutation } = useMutation(deleteShipment, {
     onSuccess: () => {
       setFlashMessage(`MSG_DELETE_SHIPMENT${moveCodeOrID}`, 'success', 'Successfully deleted shipment', '', true);
 
-      queryCache.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
-      queryCache.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]).then(() => {});
+      queryClient.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
+      queryClient.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]).then(() => {});
     },
     onError: (error) => {
       const { response: { body } = {} } = error;

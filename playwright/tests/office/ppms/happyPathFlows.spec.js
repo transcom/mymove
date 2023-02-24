@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, expect } = require('./scPpmTestFixture');
+import { test, expect } from './scPpmTestFixture';
 
 test.describe('Services counselor user', () => {
   test.beforeEach(async ({ scPpmPage }) => {
@@ -31,7 +31,7 @@ test.describe('Services counselor user', () => {
     await expect(page.getByRole('heading', { name: 'Estimated incentive: $10,000' })).toBeVisible();
 
     // Update page 2
-    scPpmPage.fillOutIncentiveAndAdvance();
+    await scPpmPage.fillOutIncentiveAndAdvance();
     await expect(page.locator('[data-testid="errorMessage"]')).toContainText('Required');
     await page.locator('[data-testid="counselor-remarks"]').type('Increased incentive to max');
     await page.locator('[data-testid="counselor-remarks"]').blur();
@@ -42,7 +42,7 @@ test.describe('Services counselor user', () => {
 
     // Expand details and verify information
     await expect(page.getByText('Your changes were saved.')).toBeVisible();
-    expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();
+    await expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();
     let shipmentContainer = page.locator('[data-testid="ShipmentContainer"]');
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
     await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('15 Mar 2020');
@@ -91,7 +91,7 @@ test.describe('Services counselor user', () => {
 
     // Expand details and verify information
     await expect(page.getByText('Your changes were saved.')).toBeVisible();
-    expect(page.locator('[data-testid="ShipmentContainer"]')).toHaveCount(2);
+    await expect(page.locator('[data-testid="ShipmentContainer"]')).toHaveCount(2);
     shipmentContainer = page.locator('[data-testid="ShipmentContainer"]').last();
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
     await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('09 Jun 2022');

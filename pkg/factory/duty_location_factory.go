@@ -38,29 +38,20 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 	}
 
 	// Find/create the DutyLocationAddress
-	var dlAddress models.Address
-	var tempAddressCustoms = customs
+	tempAddressCustoms := customs
 	result := findValidCustomization(customs, Addresses.DutyLocationAddress)
 	if result != nil {
-		dlAddress = result.Model.(models.Address)
 		tempAddressCustoms = convertCustomizationInList(tempAddressCustoms, Addresses.DutyLocationAddress, Address)
 	}
-	dlAddress = BuildAddress(db, tempAddressCustoms, []Trait{GetTraitAddress3})
+	dlAddress := BuildAddress(db, tempAddressCustoms, []Trait{GetTraitAddress3})
 
 	// Find/create the transportationOffice Model
-	var transportationOffice models.TransportationOffice
-	var tempTOAddressCustoms = customs
-	result = findValidCustomization(customs, TransportationOffice)
+	tempTOAddressCustoms := customs
 	dltoAddress := findValidCustomization(customs, Addresses.DutyLocationTOAddress)
-	if result != nil {
-		transportationOffice = result.Model.(models.TransportationOffice)
-	}
-
 	if dltoAddress != nil {
 		tempTOAddressCustoms = convertCustomizationInList(tempTOAddressCustoms, Addresses.DutyLocationTOAddress, Address)
 	}
-
-	transportationOffice = BuildTransportationOfficeWithPhoneLine(db, tempTOAddressCustoms, traits)
+	transportationOffice := BuildTransportationOfficeWithPhoneLine(db, tempTOAddressCustoms, traits)
 
 	// Build the required Tariff 400 NG Zip3 to correspond with the duty location address
 	FetchOrBuildTariff400ngZip3(db, []Customization{

@@ -234,14 +234,16 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		suite.MustSave(&mtoServiceItemDLH)
 
 		// ServiceItemParamNameActualPickupDate
-		serviceItemParamKey1 := testdatagen.FetchOrMakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameDistanceZip,
-				Description: "zip distance",
-				Type:        models.ServiceItemParamTypeInteger,
-				Origin:      models.ServiceItemParamOriginSystem,
+		serviceItemParamKey1 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNameDistanceZip,
+					Description: "zip distance",
+					Type:        models.ServiceItemParamTypeInteger,
+					Origin:      models.ServiceItemParamOriginSystem,
+				},
 			},
-		})
+		}, nil)
 
 		_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
 			ServiceParam: models.ServiceParam{

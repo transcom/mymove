@@ -45,7 +45,7 @@ func (o *IndexOfficeUsersURL) SetBasePath(bp string) {
 func (o *IndexOfficeUsersURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/office_users"
+	var _path = "/office-users"
 
 	_basePath := o._basePath
 	if _basePath == "" {

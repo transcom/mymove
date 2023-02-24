@@ -1,3 +1,0 @@
-email,firstName,middleInitials,lastName,telephone,transportationOfficeId,roles
-jason@example.com,Jason,T,Ash,206-555-8989,f69f315c-942a-4ef3-9427-7fee7883ce73,"transportation_invoicing_officer, services_counselor"
-riley@example.com,Riley,,Baker,703-555-4578,f69f315c-942a-4ef3-9427-7fee7883ce73,transportation_invoicing_officer

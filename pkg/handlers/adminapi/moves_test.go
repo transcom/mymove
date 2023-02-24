@@ -102,7 +102,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 		params := moveop.UpdateMoveParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/moves/%s", defaultMove.ID)),
 			MoveID:      *handlers.FmtUUID(defaultMove.ID),
-			Move: &adminmessages.MoveUpdatePayload{
+			Move: &adminmessages.MoveUpdate{
 				Show: &show,
 			},
 		}
@@ -125,7 +125,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 		params := moveop.UpdateMoveParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/moves/%s", badUUID)),
 			MoveID:      *handlers.FmtUUID(badUUID),
-			Move: &adminmessages.MoveUpdatePayload{
+			Move: &adminmessages.MoveUpdate{
 				Show: &show,
 			},
 		}

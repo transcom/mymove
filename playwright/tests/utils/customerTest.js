@@ -4,9 +4,9 @@
  * <https://playwright.dev/docs/test-fixtures>
  */
 // @ts-check
-const base = require('@playwright/test');
+import * as base from '@playwright/test';
 
-const { BaseTestPage } = require('./baseTest');
+import { BaseTestPage } from './baseTest';
 
 /**
  * devlocal auth user types
@@ -47,7 +47,26 @@ export class CustomerPage extends BaseTestPage {
       await base.expect(this.page.getByRole('heading', { name: 'Backup contact' })).toBeVisible();
     },
     home: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Leo Spacemen', level: 2 })).toBeVisible();
+      await base.expect(this.page.getByTestId('stepContainer1').getByText('Profile complete')).toBeVisible();
+    },
+    ordersDetails: async () => {
+      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Tell us about your move orders');
+    },
+    ordersUpload: async () => {
+      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Upload your orders');
+    },
+    aboutShipments: async () => {
+      await base
+        .expect(this.page.getByRole('heading', { level: 1 }))
+        .toHaveText('Things to know about selecting shipments');
+    },
+    selectShipmentType: async () => {
+      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('How should this shipment move?');
+    },
+    hhgShipment: async () => {
+      await base
+        .expect(this.page.getByRole('heading', { level: 1 }))
+        .toHaveText('Movers pack and transport this shipment');
     },
     ntsShipment: async () => {
       await base
@@ -112,7 +131,7 @@ export function useMobileViewport() {
 /**
  * @param {forEachViewportCallback} callbackfn
  */
-export async function forEachViewport(callbackfn) {
+export function forEachViewport(callbackfn) {
   const viewportsString = process.env.PLAYWRIGHT_VIEWPORTS || 'desktop mobile';
   const viewports = viewportsString.split(/\s+/);
   // use forEach to avoid

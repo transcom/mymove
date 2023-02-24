@@ -59,6 +59,7 @@ export const servicesCounselingRoutes = {
   MOVE_HISTORY_PATH: `${BASE_MOVE_PATH}/history`,
   CUSTOMER_SUPPORT_REMARKS_PATH: `/counseling/moves/:moveCode/customer-support-remarks`,
   SHIPMENT_REVIEW_PATH: `${BASE_MOVE_PATH}/shipments/:shipmentId/document-review`,
+  REVIEW_SHIPMENT_WEIGHTS_PATH: `${BASE_MOVE_PATH}/review-shipment-weights`,
 };
 
 export const tioRoutes = {

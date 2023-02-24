@@ -73,7 +73,7 @@ func (o *userUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, use
 
 		// If we find a matching Office User, update their status
 		if err == nil {
-			payload := adminmessages.OfficeUserUpdatePayload{
+			payload := adminmessages.OfficeUserUpdate{
 				Active: &user.Active,
 			}
 			_, verrs, err = o.officeUserUpdater.UpdateOfficeUser(appCtx, foundOfficeUser.ID, &payload)
@@ -90,7 +90,7 @@ func (o *userUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, use
 		err = o.builder.FetchOne(appCtx, &foundAdminUser, filters)
 		// If we find a matching Admin User, update their status
 		if err == nil {
-			payload := adminmessages.AdminUserUpdatePayload{
+			payload := adminmessages.AdminUserUpdate{
 				Active: &user.Active,
 			}
 			_, verrs, err = o.adminUserUpdater.UpdateAdminUser(appCtx, foundAdminUser.ID, &payload)

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useHistory, withRouter } from 'react-router-dom';
 import classnames from 'classnames';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { generatePath } from 'react-router';
 import { Alert } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
@@ -25,7 +25,7 @@ const CreateServiceItem = ({ setFlashMessage }) => {
 
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
 
-  const [createServiceItemMutation] = useMutation(createServiceItem, {
+  const { mutate: createServiceItemMutation } = useMutation(createServiceItem, {
     onSuccess: () => {
       setFlashMessage(
         `MSG_CREATE_SERVICE_ITEM_SUCCESS${moveCodeOrID}`,

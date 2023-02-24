@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useParams, useHistory } from 'react-router-dom';
-import { queryCache, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { generatePath } from 'react-router';
 import { func } from 'prop-types';
 import classnames from 'classnames';
@@ -307,10 +307,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   };
 
   // use mutation calls
-  const [mutateMoveStatus] = useMutation(updateMoveStatusServiceCounselingCompleted, {
+  const queryClient = useQueryClient();
+  const { mutate: mutateMoveStatus } = useMutation(updateMoveStatusServiceCounselingCompleted, {
     onSuccess: (data) => {
-      queryCache.setQueryData([MOVES, data.locator], data);
-      queryCache.invalidateQueries([MOVES, data.locator]);
+      queryClient.setQueryData([MOVES, data.locator], data);
+      queryClient.invalidateQueries([MOVES, data.locator]);
       setAlertMessage('Move submitted.');
       setAlertType('success');
     },
@@ -320,10 +321,10 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     },
   });
 
-  const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
+  const { mutate: mutateFinancialReview } = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
-      queryCache.setQueryData([MOVES, data.locator], data);
-      queryCache.invalidateQueries([MOVES, data.locator]);
+      queryClient.setQueryData([MOVES, data.locator], data);
+      queryClient.invalidateQueries([MOVES, data.locator]);
 
       if (data.financialReviewFlag) {
         setAlertMessage('Move flagged for financial review.');

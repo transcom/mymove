@@ -30,7 +30,7 @@ func NewIndexElectronicOrders(ctx *middleware.Context, handler IndexElectronicOr
 }
 
 /*
-	IndexElectronicOrders swagger:route GET /electronic_orders electronic_order indexElectronicOrders
+	IndexElectronicOrders swagger:route GET /electronic-orders electronic_order indexElectronicOrders
 
 # List electronic orders
 

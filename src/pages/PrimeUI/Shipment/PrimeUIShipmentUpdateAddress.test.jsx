@@ -8,6 +8,8 @@ import { updatePrimeMTOShipmentAddress } from '../../../services/primeApi';
 
 import PrimeUIShipmentUpdateAddress from './PrimeUIShipmentUpdateAddress';
 
+import { ReactQueryWrapper } from 'testUtils';
+
 const mockUseHistoryPush = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -135,7 +137,11 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
     it('renders the loading placeholder when the query is still loading', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(loadingReturnValue);
 
-      render(<PrimeUIShipmentUpdateAddress />);
+      render(
+        <ReactQueryWrapper>
+          <PrimeUIShipmentUpdateAddress />
+        </ReactQueryWrapper>,
+      );
 
       expect(await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 }));
     });
@@ -143,7 +149,11 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
     it('renders the Something Went Wrong component when the query has an error', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(errorReturnValue);
 
-      render(<PrimeUIShipmentUpdateAddress />);
+      render(
+        <ReactQueryWrapper>
+          <PrimeUIShipmentUpdateAddress />
+        </ReactQueryWrapper>,
+      );
 
       expect(await screen.getByText(/Something went wrong./));
     });
@@ -153,7 +163,11 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
     it('displays shipment pickup and destination address', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
 
-      render(<PrimeUIShipmentUpdateAddress />);
+      render(
+        <ReactQueryWrapper>
+          <PrimeUIShipmentUpdateAddress />
+        </ReactQueryWrapper>,
+      );
 
       const pageHeading = await screen.getByRole('heading', {
         name: 'Update Existing Pickup & Destination Address',
@@ -184,7 +198,11 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
     it('displays only pickup address form', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(noDestinationAddressReturnValue);
 
-      render(<PrimeUIShipmentUpdateAddress />);
+      render(
+        <ReactQueryWrapper>
+          <PrimeUIShipmentUpdateAddress />
+        </ReactQueryWrapper>,
+      );
 
       const pageHeading = await screen.getByRole('heading', {
         name: 'Update Existing Pickup & Destination Address',
@@ -213,7 +231,11 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
     it('displays only destination address form', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(noPickupAddressReturnValue);
 
-      render(<PrimeUIShipmentUpdateAddress />);
+      render(
+        <ReactQueryWrapper>
+          <PrimeUIShipmentUpdateAddress />
+        </ReactQueryWrapper>,
+      );
 
       const pageHeading = await screen.getByRole('heading', {
         name: 'Update Existing Pickup & Destination Address',
@@ -247,7 +269,11 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
         response: { body: { title: 'Error title', detail: 'Error detail' } },
       });
 
-      render(<PrimeUIShipmentUpdateAddress />);
+      render(
+        <ReactQueryWrapper>
+          <PrimeUIShipmentUpdateAddress />
+        </ReactQueryWrapper>,
+      );
 
       waitFor(async () => {
         expect(screen.getAllByRole('button', { name: 'Save' }).length).toBe(2);
@@ -261,7 +287,11 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       updatePrimeMTOShipmentAddress.mockRejectedValue('malformed api error response');
 
-      render(<PrimeUIShipmentUpdateAddress />);
+      render(
+        <ReactQueryWrapper>
+          <PrimeUIShipmentUpdateAddress />
+        </ReactQueryWrapper>,
+      );
 
       waitFor(async () => {
         expect(screen.getAllByRole('button', { name: 'Save' }).length).toBe(2);
@@ -290,7 +320,11 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
         eTag: '1234567890',
       });
 
-      render(<PrimeUIShipmentUpdateAddress />);
+      render(
+        <ReactQueryWrapper>
+          <PrimeUIShipmentUpdateAddress />
+        </ReactQueryWrapper>,
+      );
 
       await act(async () => {
         expect(screen.getAllByRole('button', { name: 'Save' }).length).toBe(2);

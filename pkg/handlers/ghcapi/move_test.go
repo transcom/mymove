@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moveservice "github.com/transcom/mymove/pkg/services/move"
@@ -105,7 +106,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			},
 		})
 		moveFetcher := moveservice.NewMoveFetcher()
-		requestOfficeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		requestOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		req = suite.AuthenticateOfficeRequest(req, requestOfficeUser)
@@ -515,7 +516,7 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 
 	setupTestData := func() (*http.Request, models.Move, models.TransportationOffice) {
 		move = testdatagen.MakeDefaultMove(suite.DB())
-		requestUser = testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		requestUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		transportationOffice = testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
 			TransportationOffice: models.TransportationOffice{
 				ProvidesCloseout: true,

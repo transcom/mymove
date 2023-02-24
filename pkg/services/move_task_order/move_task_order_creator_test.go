@@ -3,6 +3,7 @@ package movetaskorder_test
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -28,7 +29,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {
 	mtoCreator := NewMoveTaskOrderCreator(builder)
 
 	order := testdatagen.MakeDefaultOrder(suite.DB())
-	contractor := testdatagen.MakeDefaultContractor(suite.DB())
+	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	contractorID := contractor.ID
 	newMto := models.Move{
 		OrdersID:     order.ID,

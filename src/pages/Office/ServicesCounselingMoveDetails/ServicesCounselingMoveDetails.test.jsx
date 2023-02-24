@@ -3,7 +3,7 @@ import React from 'react';
 import { generatePath } from 'react-router';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { debug } from 'jest-preview';
+import { QueryClient } from '@tanstack/react-query';
 
 import ServicesCounselingMoveDetails from './ServicesCounselingMoveDetails';
 
@@ -398,15 +398,20 @@ const ppmShipmentQuery = {
 const detailsURL = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode: mockRequestedMoveCode });
 
 const renderMockedComponent = (props) => {
+  const client = new QueryClient();
   return render(
-    <MockProviders initialEntries={[detailsURL]}>
+    <MockProviders client={client} initialEntries={[detailsURL]}>
       <ServicesCounselingMoveDetails {...props} />
     </MockProviders>,
   );
 };
 
 const mockedComponent = (
-  <MockProviders initialEntries={[detailsURL]} permissions={[permissionTypes.updateShipment]}>
+  <MockProviders
+    client={new QueryClient()}
+    initialEntries={[detailsURL]}
+    permissions={[permissionTypes.updateShipment]}
+  >
     <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
   </MockProviders>
 );
@@ -568,7 +573,6 @@ describe('MoveDetails page', () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
       render(mockedComponent);
 
-      debug();
       const advanceStatusElement = screen.getAllByTestId('advanceRequestStatus')[0];
       expect(advanceStatusElement.parentElement).toHaveClass('missingInfoError');
     });

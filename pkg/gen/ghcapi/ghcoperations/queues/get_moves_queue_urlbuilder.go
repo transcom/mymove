@@ -24,6 +24,7 @@ type GetMovesQueueURL struct {
 	OriginDutyLocation      *string
 	Page                    *int64
 	PerPage                 *int64
+	RequestedMoveDate       *string
 	Sort                    *string
 	Status                  []string
 
@@ -131,6 +132,14 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 	}
 	if perPageQ != "" {
 		qs.Set("perPage", perPageQ)
+	}
+
+	var requestedMoveDateQ string
+	if o.RequestedMoveDate != nil {
+		requestedMoveDateQ = *o.RequestedMoveDate
+	}
+	if requestedMoveDateQ != "" {
+		qs.Set("requestedMoveDate", requestedMoveDateQ)
 	}
 
 	var sortQ string

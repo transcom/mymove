@@ -268,6 +268,10 @@ describe('RequestedShipments', () => {
           },
           normalize: false,
         },
+        {
+          onSuccess: expect.any(Function),
+          onError: expect.any(Function),
+        },
       ]);
     });
 

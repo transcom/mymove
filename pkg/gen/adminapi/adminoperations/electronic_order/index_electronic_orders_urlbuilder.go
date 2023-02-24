@@ -45,7 +45,7 @@ func (o *IndexElectronicOrdersURL) SetBasePath(bp string) {
 func (o *IndexElectronicOrdersURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/electronic_orders"
+	var _path = "/electronic-orders"
 
 	_basePath := o._basePath
 	if _basePath == "" {

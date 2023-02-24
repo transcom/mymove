@@ -8,7 +8,9 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -120,7 +122,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 	})
 
 	suite.Run("checkUpdateAllowed", func() {
-		servicesCounselor := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		servicesCounselor := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		servicesCounselorSession := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *servicesCounselor.UserID,
@@ -128,7 +130,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		}
 		servicesCounselorSession.Roles = append(servicesCounselorSession.Roles, servicesCounselor.User.Roles...)
 
-		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		tooSession := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
@@ -136,7 +138,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		}
 		tooSession.Roles = append(tooSession.Roles, too.User.Roles...)
 
-		tio := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		tio := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 		tioSession := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *tio.UserID,

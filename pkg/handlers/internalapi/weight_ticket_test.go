@@ -9,10 +9,12 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	weightticketops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -98,7 +100,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 
 		subtestData := makeCreateSubtestData(appCtx, false)
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		req := subtestData.params.HTTPRequest
 		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
@@ -210,6 +212,8 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 			MissingFullWeightTicket:  false,
 			OwnsTrailer:              true,
 			TrailerMeetsCriteria:     true,
+			AdjustedNetWeight:        handlers.FmtInt64(3999),
+			NetWeightRemarks:         "Adjusted net weight",
 		}
 
 		response := subtestData.handler.Handle(params)
@@ -219,6 +223,8 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		updatedWeightTicket := response.(*weightticketops.UpdateWeightTicketOK).Payload
 		suite.Equal(subtestData.weightTicket.ID.String(), updatedWeightTicket.ID.String())
 		suite.Equal(params.UpdateWeightTicketPayload.VehicleDescription, *updatedWeightTicket.VehicleDescription)
+		suite.Equal(params.UpdateWeightTicketPayload.AdjustedNetWeight, updatedWeightTicket.AdjustedNetWeight)
+		suite.Equal(params.UpdateWeightTicketPayload.NetWeightRemarks, *updatedWeightTicket.NetWeightRemarks)
 	})
 
 	suite.Run("PATCH failure -400 - nil body", func() {

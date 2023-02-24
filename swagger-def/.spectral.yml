@@ -134,7 +134,7 @@ rules:
     description: Definitions should be sorted alphabetically
     #message: "{{warn}}"
     severity: warn
-    given: $.definitions
+    given: $.definitions.~
     then:
       function: alphabetical
 

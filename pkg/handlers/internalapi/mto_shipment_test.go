@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
@@ -404,7 +405,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		subtestData := makeCreateSubtestData(appCtx)
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		req := subtestData.params.HTTPRequest
 		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1231,7 +1232,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.Run("PATCH failure - 403- permission denied - wrong application / user", func() {
 		appCtx := suite.AppContextForTest()
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
 
@@ -1489,7 +1490,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 	suite.Run("POST failure - 401 - permission denied - not authenticated", func() {
 		subtestData := suite.makeListSubtestData()
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		unauthorizedReq := suite.AuthenticateOfficeRequest(subtestData.params.HTTPRequest, officeUser)
 		unauthorizedParams := mtoshipmentops.ListMTOShipmentsParams{
 			HTTPRequest:     unauthorizedReq,
