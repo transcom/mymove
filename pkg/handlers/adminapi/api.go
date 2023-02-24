@@ -85,14 +85,14 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		pagination.NewPagination,
 	}
 
-	adminAPI.TransportationServiceProviderPerformancesIndexTSPPsHandler = IndexTSPPsHandler{
+	adminAPI.TransportationServiceProviderPerformancestspPsIndexTSPPsHandler = IndexTSPPsHandler{
 		handlerConfig,
 		tspop.NewTransportationServiceProviderPerformanceListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
-	adminAPI.TransportationServiceProviderPerformancesGetTSPPHandler = GetTSPPHandler{
+	adminAPI.TransportationServiceProviderPerformancestspPsGetTSPPHandler = GetTSPPHandler{
 		handlerConfig,
 		tspop.NewTransportationServiceProviderPerformanceFetcher(queryBuilder),
 		query.NewQueryFilter,
