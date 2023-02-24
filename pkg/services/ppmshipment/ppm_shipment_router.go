@@ -138,8 +138,8 @@ func (p *ppmShipmentRouter) SubmitReviewedDocuments(_ appcontext.AppContext, ppm
 		}
 	}
 
-	if len(ppmShipment.ProgearExpenses) >= 1 && !hasRejectedDocuments {
-		for _, progear := range ppmShipment.ProgearExpenses {
+	if len(ppmShipment.ProgearWeightTickets) >= 1 && !hasRejectedDocuments {
+		for _, progear := range ppmShipment.ProgearWeightTickets {
 			if progear.Status != nil && *progear.Status == models.PPMDocumentStatusRejected {
 				hasRejectedDocuments = true
 				break

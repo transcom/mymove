@@ -926,7 +926,7 @@ func PPMDocuments(storer storage.FileStorer, ppmDocuments *models.PPMDocuments) 
 	payload := &ghcmessages.PPMDocuments{
 		WeightTickets:        WeightTickets(storer, ppmDocuments.WeightTickets),
 		MovingExpenses:       MovingExpenses(storer, ppmDocuments.MovingExpenses),
-		ProGearWeightTickets: ProGearWeightTickets(storer, ppmDocuments.ProgearExpenses),
+		ProGearWeightTickets: ProGearWeightTickets(storer, ppmDocuments.ProgearWeightTickets),
 	}
 
 	return payload

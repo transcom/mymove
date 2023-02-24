@@ -56,8 +56,8 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerUnit() {
 		}
 
 		for i := 1; i < 4; i++ {
-			ppmShipment.ProgearExpenses = append(
-				ppmShipment.ProgearExpenses,
+			ppmShipment.ProgearWeightTickets = append(
+				ppmShipment.ProgearWeightTickets,
 				testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
 					ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
 					PPMShipment:   ppmShipment,
@@ -155,9 +155,9 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerUnit() {
 		params := setUpRequestAndParams()
 
 		ppmDocuments := models.PPMDocuments{
-			WeightTickets:   ppmShipment.WeightTickets,
-			MovingExpenses:  ppmShipment.MovingExpenses,
-			ProgearExpenses: ppmShipment.ProgearExpenses,
+			WeightTickets:        ppmShipment.WeightTickets,
+			MovingExpenses:       ppmShipment.MovingExpenses,
+			ProgearWeightTickets: ppmShipment.ProgearWeightTickets,
 		}
 
 		ppmDocumentFetcher := setUpMockPPMDocumentFetcher(&ppmDocuments, nil)
@@ -173,7 +173,7 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerUnit() {
 			suite.NoError(returnedPPMDocuments.Validate(strfmt.Default))
 
 			suite.Equal(len(ppmShipment.WeightTickets), len(returnedPPMDocuments.WeightTickets))
-			suite.Equal(len(ppmShipment.ProgearExpenses), len(returnedPPMDocuments.ProGearWeightTickets))
+			suite.Equal(len(ppmShipment.ProgearWeightTickets), len(returnedPPMDocuments.ProGearWeightTickets))
 			suite.Equal(len(ppmShipment.MovingExpenses), len(returnedPPMDocuments.MovingExpenses))
 
 			for i, returnedWeightTicket := range returnedPPMDocuments.WeightTickets {
@@ -185,7 +185,7 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerUnit() {
 			}
 
 			for i, returnedProGearWeightTicket := range returnedPPMDocuments.ProGearWeightTickets {
-				suite.Equal(ppmShipment.ProgearExpenses[i].ID.String(), returnedProGearWeightTicket.ID.String())
+				suite.Equal(ppmShipment.ProgearWeightTickets[i].ID.String(), returnedProGearWeightTicket.ID.String())
 			}
 		}
 	})
@@ -227,8 +227,8 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerIntegration() {
 		}
 
 		for i := 1; i < 4; i++ {
-			ppmShipment.ProgearExpenses = append(
-				ppmShipment.ProgearExpenses,
+			ppmShipment.ProgearWeightTickets = append(
+				ppmShipment.ProgearWeightTickets,
 				testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
 					ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
 					PPMShipment:   ppmShipment,
@@ -273,7 +273,7 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerIntegration() {
 			suite.NoError(returnedPPMDocuments.Validate(strfmt.Default))
 
 			suite.Equal(len(ppmShipment.WeightTickets), len(returnedPPMDocuments.WeightTickets))
-			suite.Equal(len(ppmShipment.ProgearExpenses), len(returnedPPMDocuments.ProGearWeightTickets))
+			suite.Equal(len(ppmShipment.ProgearWeightTickets), len(returnedPPMDocuments.ProGearWeightTickets))
 			suite.Equal(len(ppmShipment.MovingExpenses), len(returnedPPMDocuments.MovingExpenses))
 
 			for i, returnedWeightTicket := range returnedPPMDocuments.WeightTickets {
@@ -285,7 +285,7 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerIntegration() {
 			}
 
 			for i, returnedProGearWeightTicket := range returnedPPMDocuments.ProGearWeightTickets {
-				suite.Equal(ppmShipment.ProgearExpenses[i].ID.String(), returnedProGearWeightTicket.ID.String())
+				suite.Equal(ppmShipment.ProgearWeightTickets[i].ID.String(), returnedProGearWeightTicket.ID.String())
 			}
 		}
 	})
