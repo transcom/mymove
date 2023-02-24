@@ -47,7 +47,7 @@ tags:
     description: Information about organizations
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: transportation_service_provider_performances
+  - name: Transportation service provider performances (TSPPs)
     description: Information about Transportation Service Provider performances
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
@@ -1148,7 +1148,7 @@ paths:
       description: Returns a list of transportation service provider performances (TSPPs)
       operationId: indexTSPPs
       tags:
-        - transportation_service_provider_performances
+        - Transportation service provider performances (TSPPs)
       parameters:
         - in: query
           name: filter
@@ -1190,7 +1190,7 @@ paths:
       description: Returns a single tspp
       operationId: getTSPP
       tags:
-        - transportation_service_provider_performances
+        - Transportation service provider performances (TSPPs)
       parameters:
         - in: path
           name: tsppId
