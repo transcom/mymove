@@ -160,7 +160,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		upload.NewUploadInformationFetcher(),
 	}
 
-	adminAPI.NotificationIndexNotificationsHandler = IndexNotificationsHandler{
+	adminAPI.NotificationsIndexNotificationsHandler = IndexNotificationsHandler{
 		handlerConfig,
 		fetch.NewListFetcher(queryBuilder),
 		query.NewQueryFilter,
