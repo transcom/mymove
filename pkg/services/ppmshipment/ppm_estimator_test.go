@@ -831,7 +831,51 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.NotEqual(oldPPMShipment.FinalIncentive, *ppmFinal)
 		})
 
-		suite.Run("Sum Weights", func() {
+		// suite.Run("Final Incentive - Recalculate final incentive when adjustedNetWeight is present", func() {
+		// 	setupPricerData()
+		// 	moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+		// 	oldPPMShipment := testdatagen.MakeApprovedPPMShipmentWithActualInfo(suite.DB(), testdatagen.Assertions{
+		// 		PPMShipment: models.PPMShipment{
+		// 			ActualPickupPostalCode:      models.StringPointer("90210"),
+		// 			ActualDestinationPostalCode: models.StringPointer("30813"),
+		// 			ActualMoveDate:              models.TimePointer(moveDate),
+		// 			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+		// 			WeightTickets: models.WeightTickets{
+		// 				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+		// 			},
+		// 		},
+		// 	})
+
+		// 	newPPMShipment := oldPPMShipment
+		// 	adjustedNetWeight := unit.Pound(3000)
+		// 	newPPMShipment.WeightTickets = models.WeightTickets{
+		// 		testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+		// 			WeightTicket: models.WeightTicket{
+		// 				AdjustedNetWeight: &adjustedNetWeight,
+		// 			},
+		// 		}),
+		// 	}
+
+		// 	mockedPaymentRequestHelper.On(
+		// 		"FetchServiceParamsForServiceItems",
+		// 		mock.AnythingOfType("*appcontext.appContext"),
+		// 		mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+		// 	// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
+		// 	mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+		// 		"90210", "30813").Return(2294, nil)
+
+		// 	ppmFinal, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPMShipment)
+		// 	suite.NilOrNoVerrs(err)
+
+		// 	mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+		// 		"90210", "30813")
+		// 	mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+
+		// 	suite.NotEqual(oldPPMShipment.FinalIncentive, *ppmFinal)
+		// })
+
+		suite.Run("Sum Weights - sum weights for original shipment with standard weight ticket and for new shipment with rejected weight ticket", func() {
 			oldFullWeight := unit.Pound(10000)
 			oldEmptyWeight := unit.Pound(6000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
@@ -852,14 +896,251 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					},
 				},
 			})
+
 			newPPM := oldPPMShipment
 			rejected := models.PPMDocumentStatusRejected
 			newWeightTicket1 := newPPM.WeightTickets[0]
 			newWeightTicket1.Status = &rejected
 			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1}
+
+			//New weight should return zero since the only weight ticket included has a rejected status
 			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			suite.Equal(unit.Pound(0), newWeight)
+		})
+
+		suite.Run("Sum Weights - sum weights for original shipment with standard weight ticket and new shipment with standard weight ticket", func() {
+			oldFullWeight := unit.Pound(10000)
+			oldEmptyWeight := unit.Pound(6000)
+			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					ActualPickupPostalCode:      models.StringPointer("90210"),
+					ActualDestinationPostalCode: models.StringPointer("30813"),
+					ActualMoveDate:              models.TimePointer(moveDate),
+					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+					WeightTickets: models.WeightTickets{
+						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+							WeightTicket: models.WeightTicket{
+								FullWeight:  &oldFullWeight,
+								EmptyWeight: &oldEmptyWeight,
+							},
+						}),
+					},
+				},
+			})
+
+			newPPM := oldPPMShipment
+			newFullWeight := unit.Pound(8000)
+			newEmptyWeight := unit.Pound(3000)
+			newWeightTicket1 := newPPM.WeightTickets[0]
+			newWeightTicket1.FullWeight = &newFullWeight
+			newWeightTicket1.EmptyWeight = &newEmptyWeight
+			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1}
+
+			//Both PPM's have valid weight tickets so both should return properly calculated totals
+			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			suite.Equal(unit.Pound(4000), originalWeight)
+			suite.Equal(unit.Pound(5000), newWeight)
+		})
+
+		suite.Run("Sum Weights - sum weights for original shipment with standard weight ticket and new shipment with standard weight ticket & rejected ticket", func() {
+			oldFullWeight := unit.Pound(10000)
+			oldEmptyWeight := unit.Pound(6000)
+			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					ActualPickupPostalCode:      models.StringPointer("90210"),
+					ActualDestinationPostalCode: models.StringPointer("30813"),
+					ActualMoveDate:              models.TimePointer(moveDate),
+					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+					WeightTickets: models.WeightTickets{
+						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+							WeightTicket: models.WeightTicket{
+								FullWeight:  &oldFullWeight,
+								EmptyWeight: &oldEmptyWeight,
+							},
+						}),
+					},
+				},
+			})
+
+			newPPM := oldPPMShipment
+			newFullWeight1 := unit.Pound(8000)
+			newEmptyWeight1 := unit.Pound(3000)
+			newWeightTicket1 := newPPM.WeightTickets[0]
+			newWeightTicket1.FullWeight = &newFullWeight1
+			newWeightTicket1.EmptyWeight = &newEmptyWeight1
+
+			newFullWeight2 := unit.Pound(12000)
+			newEmptyWeight2 := unit.Pound(4000)
+			rejected := models.PPMDocumentStatusRejected
+			newWeightTicket2 := newPPM.WeightTickets[0]
+			newWeightTicket2.FullWeight = &newFullWeight2
+			newWeightTicket2.EmptyWeight = &newEmptyWeight2
+			newWeightTicket2.Status = &rejected
+
+			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
+
+			//Weight for rejected ticket should NOT be included in newWeight total
+			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			suite.Equal(unit.Pound(4000), originalWeight)
+			suite.Equal(unit.Pound(5000), newWeight)
+		})
+
+		suite.Run("Sum Weights - sum weights for original shipment with rejected weight ticket and new shipment with standard weight tickets", func() {
+			oldFullWeight := unit.Pound(10000)
+			oldEmptyWeight := unit.Pound(6000)
+			rejected := models.PPMDocumentStatusRejected
+			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					ActualPickupPostalCode:      models.StringPointer("90210"),
+					ActualDestinationPostalCode: models.StringPointer("30813"),
+					ActualMoveDate:              models.TimePointer(moveDate),
+					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+					WeightTickets: models.WeightTickets{
+						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+							WeightTicket: models.WeightTicket{
+								FullWeight:  &oldFullWeight,
+								EmptyWeight: &oldEmptyWeight,
+								Status:      &rejected,
+							},
+						}),
+					},
+				},
+			})
+
+			approved := models.PPMDocumentStatusApproved
+			newPPM := oldPPMShipment
+			newFullWeight1 := unit.Pound(8000)
+			newEmptyWeight1 := unit.Pound(3000)
+			newWeightTicket1 := newPPM.WeightTickets[0]
+			newWeightTicket1.FullWeight = &newFullWeight1
+			newWeightTicket1.EmptyWeight = &newEmptyWeight1
+			newWeightTicket1.Status = &approved
+
+			newFullWeight2 := unit.Pound(12000)
+			newEmptyWeight2 := unit.Pound(4000)
+			newWeightTicket2 := newPPM.WeightTickets[0]
+			newWeightTicket2.FullWeight = &newFullWeight2
+			newWeightTicket2.EmptyWeight = &newEmptyWeight2
+			newWeightTicket2.Status = &approved
+
+			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
+
+			//Weight for rejected ticket should NOT be included in oldWeight total
+			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			suite.Equal(unit.Pound(0), originalWeight)
+			suite.Equal(unit.Pound(13000), newWeight)
+		})
+
+		suite.Run("Sum Weights - sum weights for original shipment and new shipment with adjusted weight", func() {
+			oldFullWeight := unit.Pound(10000)
+			oldEmptyWeight := unit.Pound(6000)
+			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					ActualPickupPostalCode:      models.StringPointer("90210"),
+					ActualDestinationPostalCode: models.StringPointer("30813"),
+					ActualMoveDate:              models.TimePointer(moveDate),
+					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+					WeightTickets: models.WeightTickets{
+						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+							WeightTicket: models.WeightTicket{
+								FullWeight:  &oldFullWeight,
+								EmptyWeight: &oldEmptyWeight,
+							},
+						}),
+					},
+				},
+			})
+
+			approved := models.PPMDocumentStatusApproved
+			newPPM := oldPPMShipment
+			newFullWeight1 := unit.Pound(8000)
+			newEmptyWeight1 := unit.Pound(3000)
+			adjustedNetWeight1 := unit.Pound(4000)
+			newWeightTicket1 := newPPM.WeightTickets[0]
+			newWeightTicket1.FullWeight = &newFullWeight1
+			newWeightTicket1.EmptyWeight = &newEmptyWeight1
+			newWeightTicket1.AdjustedNetWeight = &adjustedNetWeight1
+			newWeightTicket1.Status = &approved
+
+			newFullWeight2 := unit.Pound(12000)
+			newEmptyWeight2 := unit.Pound(4000)
+			adjustedNetWeight2 := unit.Pound(5000)
+			newWeightTicket2 := newPPM.WeightTickets[0]
+			newWeightTicket2.FullWeight = &newFullWeight2
+			newWeightTicket2.EmptyWeight = &newEmptyWeight2
+			newWeightTicket2.AdjustedNetWeight = &adjustedNetWeight2
+			newWeightTicket2.Status = &approved
+
+			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
+
+			//Weight for rejected ticket should NOT be included in oldWeight total
+			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			suite.Equal(unit.Pound(4000), originalWeight)
+			//13000 comes from the full & empty weights being summed which we do not want in this scenario
+			suite.NotEqual(unit.Pound(13000), newWeight)
+			suite.Equal(unit.Pound(9000), newWeight)
+		})
+
+		suite.Run("Sum Weights - sum weights for original shipment and new shipment with 2 adjusted weights - one of them having a rejected status", func() {
+			oldFullWeight := unit.Pound(10000)
+			oldEmptyWeight := unit.Pound(6000)
+			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					ActualPickupPostalCode:      models.StringPointer("90210"),
+					ActualDestinationPostalCode: models.StringPointer("30813"),
+					ActualMoveDate:              models.TimePointer(moveDate),
+					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+					WeightTickets: models.WeightTickets{
+						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+							WeightTicket: models.WeightTicket{
+								FullWeight:  &oldFullWeight,
+								EmptyWeight: &oldEmptyWeight,
+							},
+						}),
+					},
+				},
+			})
+
+			newPPM := oldPPMShipment
+			approved := models.PPMDocumentStatusApproved
+			newFullWeight1 := unit.Pound(8000)
+			newEmptyWeight1 := unit.Pound(3000)
+			adjustedNetWeight1 := unit.Pound(4000)
+			newWeightTicket1 := newPPM.WeightTickets[0]
+			newWeightTicket1.FullWeight = &newFullWeight1
+			newWeightTicket1.EmptyWeight = &newEmptyWeight1
+			newWeightTicket1.AdjustedNetWeight = &adjustedNetWeight1
+			newWeightTicket1.Status = &approved
+
+			rejected := models.PPMDocumentStatusRejected
+			newFullWeight2 := unit.Pound(12000)
+			newEmptyWeight2 := unit.Pound(4000)
+			adjustedNetWeight2 := unit.Pound(5000)
+			newWeightTicket2 := newPPM.WeightTickets[0]
+			newWeightTicket2.FullWeight = &newFullWeight2
+			newWeightTicket2.EmptyWeight = &newEmptyWeight2
+			newWeightTicket2.AdjustedNetWeight = &adjustedNetWeight2
+			newWeightTicket2.Status = &rejected
+
+			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
+
+			//Weight for rejected ticket should NOT be included in oldWeight total
+			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			suite.Equal(unit.Pound(4000), originalWeight)
+			//13000 comes from the full & empty weights being summed which we do not want in this scenario
+			suite.NotEqual(unit.Pound(13000), newWeight)
+			suite.Equal(unit.Pound(4000), newWeight)
 		})
 
 		suite.Run("Should Skip Calculating Final Incentive - should return false when the move date is changed", func() {
@@ -932,7 +1213,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.Equal(false, skipCalculateFinalIncentive2)
 		})
 
-		suite.Run("Should Skip Calculating Final Incentive - should return false when adjustedNetWeight exists", func() {
+		suite.Run("Should Skip Calculating Final Incentive - should return false when adjustedNetWeight is taken into account", func() {
 			oldFullWeight := unit.Pound(10000)
 			oldEmptyWeight := unit.Pound(6000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
@@ -954,11 +1235,24 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				},
 			})
 
-			adjustedNetWeight := unit.Pound(3000)
 			newPPMShipment := oldPPMShipment
-			newPPMShipment.WeightTickets[0].AdjustedNetWeight = &adjustedNetWeight
+			newFullWeight := unit.Pound(10000)
+			newEmptyWeight := unit.Pound(3000)
+			adjustedNetWeight := unit.Pound(6000)
+			approved := models.PPMDocumentStatusApproved
+
+			newWeightTicket := newPPMShipment.WeightTickets[0]
+			newWeightTicket.FullWeight = &newFullWeight
+			newWeightTicket.EmptyWeight = &newEmptyWeight
+			newWeightTicket.AdjustedNetWeight = &adjustedNetWeight
+			newWeightTicket.Status = &approved
+			newPPMShipment.WeightTickets = models.WeightTickets{newWeightTicket}
 
 			originalTotalWeight, newTotalWeight := SumWeightTickets(oldPPMShipment, newPPMShipment)
+			suite.Equal(unit.Pound(4000), originalTotalWeight)
+			suite.Equal(unit.Pound(6000), newTotalWeight)
+
+			//Func should notice one of the total weights are different, triggering the recalculation
 			skipCalculateFinalIncentive := shouldSkipCalculatingFinalIncentive(&newPPMShipment, &oldPPMShipment, originalTotalWeight, newTotalWeight)
 			suite.Equal(false, skipCalculateFinalIncentive)
 		})
