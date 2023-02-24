@@ -155,7 +155,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
-	adminAPI.UploadGetUploadHandler = GetUploadHandler{
+	adminAPI.UploadsGetUploadHandler = GetUploadHandler{
 		handlerConfig,
 		upload.NewUploadInformationFetcher(),
 	}
