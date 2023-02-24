@@ -262,7 +262,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     await userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('../details');
+      expect(mockNavigate).toHaveBeenCalledWith('/counseling/moves/move123/details');
       expect(onUpdateMock).toHaveBeenCalledWith('success');
     });
   });
@@ -285,7 +285,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     await userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('../details');
+      expect(mockNavigate).toHaveBeenCalledWith('/counseling/moves/move123/details');
       expect(onUpdateMock).toHaveBeenCalledWith('error');
     });
   });
@@ -301,7 +301,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     await userEvent.click(cancelButton);
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('../details');
+      expect(mockNavigate).toHaveBeenCalledWith('/counseling/moves/move123/details');
     });
   });
 

@@ -6,7 +6,7 @@ import EvaluationViolations from './EvaluationViolations';
 
 import { useEvaluationReportShipmentListQueries, usePWSViolationsQueries } from 'hooks/queries';
 import { qaeCSRRoutes } from 'constants/routes';
-import { renderWithRouter } from 'testUtils';
+import { renderWithProviders } from 'testUtils';
 
 const mockMoveCode = 'A12345';
 const mockMoveId = '551dd01f-90cf-44d6-addb-ff919433dd61';
@@ -156,7 +156,7 @@ describe('EvaluationViolations', () => {
       reportViolations: [mockViolation],
     }));
 
-    renderWithRouter(
+    renderWithProviders(
       <EvaluationViolations {...{ customerInfo }} destinationDutyLocationPostalCode="12345" grade="E_4" />,
       mockRoutingOptions,
     );
