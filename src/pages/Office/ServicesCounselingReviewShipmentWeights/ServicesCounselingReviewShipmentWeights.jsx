@@ -1,9 +1,10 @@
 import React from 'react';
-import { Grid, GridContainer } from '@trussworks/react-uswds';
+import { Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 
 import { useReviewShipmentWeightsQuery } from 'hooks/queries';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
 import { useCalculatedEstimatedWeight, useCalculatedWeightRequested } from 'hooks/custom';
+import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 
 const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
@@ -19,7 +20,9 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
       <Grid row>
         <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.totalWeight} />
         <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal} />
-        <WeightDisplay heading="Max billable weight" weightValue={order.entitlement.authorizedWeight} />
+        <WeightDisplay heading="Max billable weight" weightValue={order.entitlement.authorizedWeight}>
+          {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) && <Tag>Risk of excess</Tag>}
+        </WeightDisplay>
         <WeightDisplay heading="Move weight (total)" weightValue={moveWeightTotal} />
       </Grid>
     </GridContainer>

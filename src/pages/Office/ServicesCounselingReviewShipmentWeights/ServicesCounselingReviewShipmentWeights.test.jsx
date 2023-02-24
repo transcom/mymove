@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import { missingSomeWeightQuery } from '../MoveTaskOrder/moveTaskOrderUnitTestData';
+import { missingSomeWeightQuery, riskOfExcessWeightQuery } from '../MoveTaskOrder/moveTaskOrderUnitTestData';
 
 import ServicesCounselingReviewShipmentWeights from './ServicesCounselingReviewShipmentWeights';
 
@@ -21,6 +21,7 @@ describe('Services Counseling Review Shipment Weights', () => {
     });
 
     it('displays the weight allowance', async () => {
+      useReviewShipmentWeightsQuery.mockReturnValue(missingSomeWeightQuery);
       render(<ServicesCounselingReviewShipmentWeights />);
 
       const weightDisplays = await screen.findAllByTestId('weight-display');
@@ -29,6 +30,7 @@ describe('Services Counseling Review Shipment Weights', () => {
     });
 
     it('displays the total estimated weight', async () => {
+      useReviewShipmentWeightsQuery.mockReturnValue(missingSomeWeightQuery);
       render(<ServicesCounselingReviewShipmentWeights />);
 
       const weightDisplays = await screen.findAllByTestId('weight-display');
@@ -37,6 +39,7 @@ describe('Services Counseling Review Shipment Weights', () => {
     });
 
     it('displays the max billable weight', async () => {
+      useReviewShipmentWeightsQuery.mockReturnValue(missingSomeWeightQuery);
       render(<ServicesCounselingReviewShipmentWeights />);
 
       const weightDisplays = await screen.findAllByTestId('weight-display');
@@ -45,11 +48,20 @@ describe('Services Counseling Review Shipment Weights', () => {
     });
 
     it('displays the total move weight', async () => {
+      useReviewShipmentWeightsQuery.mockReturnValue(missingSomeWeightQuery);
       render(<ServicesCounselingReviewShipmentWeights />);
 
       const weightDisplays = await screen.findAllByTestId('weight-display');
       const totalMoveWeight = weightDisplays[3];
       expect(totalMoveWeight).toHaveTextContent('125 lbs');
+    });
+
+    it('displays risk of excess tag', async () => {
+      useReviewShipmentWeightsQuery.mockReturnValue(riskOfExcessWeightQuery);
+      render(<ServicesCounselingReviewShipmentWeights />);
+
+      const riskOfExcessTag = screen.getByText(/Risk of excess/);
+      expect(riskOfExcessTag).toBeInTheDocument();
     });
   });
 });
