@@ -1361,8 +1361,9 @@ paths:
     get:
       produces:
         - application/json
-      summary: List transportation offices
-      description: Returns a list of transportation offices
+      summary: List Transportation Offices
+      description:
+        $ref: paths/offices/get/description.md
       operationId: indexOffices
       tags:
         - office
@@ -1396,7 +1397,7 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: office not found
+          description: Transportation Office not found
         '500':
           description: server error
   /electronic-orders:
