@@ -19,47 +19,47 @@ consumes:
 produces:
   - application/json
 tags:
-  - name: admin_users
+  - name: Admin users
     description: Information about Admin UI users
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: electronic_order
+  - name: Electronic orders
     description: Information about electronic orders
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: move
+  - name: Moves
     description: Information about moves
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: notification
+  - name: Notifications
     description: Information about notifications
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: office
+  - name: Transportation offices
     description: Information about transportation offices
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: office_users
+  - name: Office users
     description: Information about office users
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: organization
+  - name: Organizations
     description: Information about organizations
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: transportation_service_provider_performances
+  - name: Transportation service provider performances (TSPPs)
     description: Information about Transportation Service Provider performances
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: upload
+  - name: Uploads
     description: Information about uploads
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: users
+  - name: Users
     description: Information about users
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: webhook_subscriptions
+  - name: Webhook subscriptions
     description: Information about Webhook subscriptions
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
@@ -1017,7 +1017,7 @@ paths:
       description: Returns a list of office users
       operationId: indexOfficeUsers
       tags:
-        - office_users
+        - Office users
       parameters:
         - in: query
           name: filter
@@ -1060,7 +1060,7 @@ paths:
       description: creates and returns an office user record
       operationId: createOfficeUser
       tags:
-        - office_users
+        - Office users
       parameters:
         - in: body
           name: officeUser
@@ -1086,7 +1086,7 @@ paths:
       description: Returns the given office user
       operationId: getOfficeUser
       tags:
-        - office_users
+        - Office users
       parameters:
         - in: path
           name: officeUserId
@@ -1114,7 +1114,7 @@ paths:
         - application/json
       operationId: updateOfficeUser
       tags:
-        - office_users
+        - Office users
       parameters:
         - in: path
           name: officeUserId
@@ -1148,7 +1148,7 @@ paths:
       description: Returns a list of transportation service provider performances (TSPPs)
       operationId: indexTSPPs
       tags:
-        - transportation_service_provider_performances
+        - Transportation service provider performances (TSPPs)
       parameters:
         - in: query
           name: filter
@@ -1190,7 +1190,7 @@ paths:
       description: Returns a single tspp
       operationId: getTSPP
       tags:
-        - transportation_service_provider_performances
+        - Transportation service provider performances (TSPPs)
       parameters:
         - in: path
           name: tsppId
@@ -1218,7 +1218,7 @@ paths:
       description: Returns a list of admin users
       operationId: indexAdminUsers
       tags:
-        - admin_users
+        - Admin users
       parameters:
         - in: query
           name: filter
@@ -1263,7 +1263,7 @@ paths:
       description: creates and returns an admin user record
       operationId: createAdminUser
       tags:
-        - admin_users
+        - Admin users
       parameters:
         - in: body
           name: adminUser
@@ -1291,7 +1291,7 @@ paths:
       description: Returns a single admin user
       operationId: getAdminUser
       tags:
-        - admin_users
+        - Admin users
       parameters:
         - in: path
           name: adminUserId
@@ -1319,7 +1319,7 @@ paths:
         - application/json
       operationId: updateAdminUser
       tags:
-        - admin_users
+        - Admin users
       parameters:
         - in: path
           name: adminUserId
@@ -1353,7 +1353,7 @@ paths:
       description: Returns a list of transportation offices
       operationId: indexOffices
       tags:
-        - office
+        - Transportation offices
       parameters:
         - in: query
           name: filter
@@ -1395,7 +1395,7 @@ paths:
       description: Returns a list of electronic orders
       operationId: indexElectronicOrders
       tags:
-        - electronic_order
+        - Electronic orders
       parameters:
         - in: query
           name: filter
@@ -1439,7 +1439,7 @@ paths:
       description: Returns a list of record counts for orders
       operationId: getElectronicOrdersTotals
       tags:
-        - electronic_order
+        - Electronic orders
       parameters:
         - in: query
           name: filter
@@ -1472,7 +1472,7 @@ paths:
       description: Returns the given upload and information about the uploader and move
       operationId: getUpload
       tags:
-        - upload
+        - Uploads
       parameters:
         - in: path
           name: uploadId
@@ -1500,7 +1500,7 @@ paths:
       description: Returns a list of organizations
       operationId: indexOrganizations
       tags:
-        - organization
+        - Organizations
       parameters:
         - in: query
           name: filter
@@ -1544,7 +1544,7 @@ paths:
       description: Returns a list of notifications that have been sent to service members
       operationId: indexNotifications
       tags:
-        - notification
+        - Notifications
       parameters:
         - in: query
           name: filter
@@ -1586,7 +1586,7 @@ paths:
       description: Returns a list of moves
       operationId: indexMoves
       tags:
-        - move
+        - Moves
       parameters:
         - in: query
           name: filter
@@ -1628,7 +1628,7 @@ paths:
       description: Returns the given move and its relevant info
       operationId: getMove
       tags:
-        - move
+        - Moves
       parameters:
         - in: path
           name: moveID
@@ -1660,7 +1660,7 @@ paths:
         (besides those in the Support API), and thus effectively deactivated.
       operationId: updateMove
       tags:
-        - move
+        - Moves
       parameters:
         - in: path
           name: moveID
@@ -1698,7 +1698,7 @@ paths:
       description: Returns a list of users
       operationId: indexUsers
       tags:
-        - users
+        - Users
       parameters:
         - in: query
           name: filter
@@ -1740,7 +1740,7 @@ paths:
       description: Returns the given user and their sessions
       operationId: getUser
       tags:
-        - users
+        - Users
       parameters:
         - in: path
           name: userId
@@ -1768,7 +1768,7 @@ paths:
         - application/json
       operationId: updateUser
       tags:
-        - users
+        - Users
       parameters:
         - in: path
           name: userId
@@ -1808,7 +1808,7 @@ paths:
       description: Returns a list of webhook subscriptions
       operationId: indexWebhookSubscriptions
       tags:
-        - webhook_subscriptions
+        - Webhook subscriptions
       parameters:
         - in: query
           name: filter
@@ -1851,7 +1851,7 @@ paths:
       description: creates and returns a webhook subscription
       operationId: createWebhookSubscription
       tags:
-        - webhook_subscriptions
+        - Webhook subscriptions
       parameters:
         - in: body
           name: webhookSubscription
@@ -1879,7 +1879,7 @@ paths:
       description: Returns the given webhook subscription and its details
       operationId: getWebhookSubscription
       tags:
-        - webhook_subscriptions
+        - Webhook subscriptions
       parameters:
         - in: path
           name: webhookSubscriptionId
@@ -1907,7 +1907,7 @@ paths:
         - application/json
       operationId: updateWebhookSubscription
       tags:
-        - webhook_subscriptions
+        - Webhook subscriptions
       parameters:
         - in: path
           name: webhookSubscriptionId
