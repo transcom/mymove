@@ -31,7 +31,7 @@ tags:
     description: Information about moves
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: notification
+  - name: Notifications
     description: Information about notifications
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
@@ -1544,7 +1544,7 @@ paths:
       description: Returns a list of notifications that have been sent to service members
       operationId: indexNotifications
       tags:
-        - notification
+        - Notifications
       parameters:
         - in: query
           name: filter
