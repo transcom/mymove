@@ -27,8 +27,8 @@ func payloadForRole(r roles.Role) *adminmessages.Role {
 		ID:        handlers.FmtUUID(r.ID),
 		RoleType:  &roleType,
 		RoleName:  &roleName,
-		CreatedAt: handlers.FmtDateTime(r.CreatedAt),
-		UpdatedAt: handlers.FmtDateTime(r.UpdatedAt),
+		CreatedAt: *handlers.FmtDateTime(r.CreatedAt),
+		UpdatedAt: *handlers.FmtDateTime(r.UpdatedAt),
 	}
 }
 
@@ -46,8 +46,8 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 		Email:                  handlers.FmtString(o.Email),
 		TransportationOfficeID: handlers.FmtUUID(o.TransportationOfficeID),
 		Active:                 handlers.FmtBool(o.Active),
-		CreatedAt:              handlers.FmtDateTime(o.CreatedAt),
-		UpdatedAt:              handlers.FmtDateTime(o.UpdatedAt),
+		CreatedAt:              *handlers.FmtDateTime(o.CreatedAt),
+		UpdatedAt:              *handlers.FmtDateTime(o.UpdatedAt),
 	}
 	if o.UserID != nil {
 		userIDFmt := handlers.FmtUUID(*o.UserID)

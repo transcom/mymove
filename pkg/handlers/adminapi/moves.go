@@ -46,8 +46,8 @@ func payloadForMoveModel(move models.Move) *adminmessages.Move {
 		},
 		Status:    adminmessages.MoveStatus(move.Status),
 		Show:      &showMove,
-		CreatedAt: handlers.FmtDateTime(move.CreatedAt),
-		UpdatedAt: handlers.FmtDateTime(move.UpdatedAt),
+		CreatedAt: *handlers.FmtDateTime(move.CreatedAt),
+		UpdatedAt: *handlers.FmtDateTime(move.UpdatedAt),
 	}
 }
 

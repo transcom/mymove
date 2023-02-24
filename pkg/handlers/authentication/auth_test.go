@@ -368,7 +368,7 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddleware() {
 	suite.MustSave(&user)
 
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/admin/v1/office_users", nil)
+	req := httptest.NewRequest("GET", "/admin/v1/office-users", nil)
 
 	// And: the context contains the auth values
 	session := auth.Session{UserID: user.ID, IDToken: "fake Token", AdminUserID: uuid.Must(uuid.NewV4())}
@@ -394,7 +394,7 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddlewareUnauthorized() {
 
 	// Given: No logged in users
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/admin/v1/office_users", nil)
+	req := httptest.NewRequest("GET", "/admin/v1/office-users", nil)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 	middleware := AdminAuthMiddleware(suite.Logger())(handler)

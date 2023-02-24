@@ -42,7 +42,7 @@ func TestCapture(t *testing.T) {
 
 		req := &http.Request{
 			URL: &url.URL{
-				Path: "/admin/v1/admin_users",
+				Path: "/admin/v1/admin-users",
 			},
 			Method: "POST",
 		}
@@ -88,7 +88,7 @@ func TestCapture(t *testing.T) {
 
 		req := &http.Request{
 			URL: &url.URL{
-				Path: "/admin/v1/admin_users/778acee1-bb04-4ccf-80bf-eae3c66e8c22",
+				Path: "/admin/v1/admin-users/778acee1-bb04-4ccf-80bf-eae3c66e8c22",
 			},
 			Method: "PATCH",
 		}
@@ -198,7 +198,7 @@ func TestCaptureAccountStatus(t *testing.T) {
 
 	req := &http.Request{
 		URL: &url.URL{
-			Path: "/admin/v1/admin_users",
+			Path: "/admin/v1/admin-users",
 		},
 		Method: "POST",
 	}
