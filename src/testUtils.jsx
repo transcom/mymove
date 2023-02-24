@@ -64,10 +64,12 @@ export const renderWithRouterProp = (ui, options) => {
   const path = options?.path || '/';
   const params = options?.params || {};
   const navigate = options?.navigate || jest.fn();
+  const search = options?.search || '';
 
   const pathname = generatePath(path, params);
-  const router = { location: { pathname }, params, navigate };
+  const router = { location: { pathname, search }, params, navigate };
 
+  if (options?.includeProviders) return renderWithProviders(React.cloneElement(ui, { router: { ...router } }));
   return renderWithRouter(React.cloneElement(ui, { router: { ...router } }));
 };
 
