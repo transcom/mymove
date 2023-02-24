@@ -30,7 +30,7 @@ func NewUpdateUser(ctx *middleware.Context, handler UpdateUserHandler) *UpdateUs
 }
 
 /*
-	UpdateUser swagger:route PATCH /users/{userId} users updateUser
+	UpdateUser swagger:route PATCH /users/{userId} Users updateUser
 
 # Update a User's session or active status
 

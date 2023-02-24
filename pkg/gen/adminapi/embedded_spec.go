@@ -51,7 +51,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "admin_users"
+          "Admin users"
         ],
         "summary": "List Admin Users",
         "operationId": "indexAdminUsers",
@@ -121,7 +121,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "admin_users"
+          "Admin users"
         ],
         "summary": "create an Admin User",
         "operationId": "createAdminUser",
@@ -164,7 +164,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "admin_users"
+          "Admin users"
         ],
         "summary": "Fetch a specific Admin User",
         "operationId": "getAdminUser",
@@ -207,7 +207,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "admin_users"
+          "Admin users"
         ],
         "summary": "Updates an Admin User",
         "operationId": "updateAdminUser",
@@ -258,7 +258,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "electronic_order"
+          "Electronic orders"
         ],
         "summary": "List Electronic Orders",
         "operationId": "indexElectronicOrders",
@@ -327,7 +327,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "electronic_order"
+          "Electronic orders"
         ],
         "summary": "Get total counts for the orders stored in MilMove",
         "operationId": "getElectronicOrdersTotals",
@@ -378,7 +378,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "move"
+          "Moves"
         ],
         "summary": "List Moves",
         "operationId": "indexMoves",
@@ -444,7 +444,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "move"
+          "Moves"
         ],
         "summary": "Get information about a Move",
         "operationId": "getMove",
@@ -487,7 +487,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "move"
+          "Moves"
         ],
         "summary": "Toggle Move visibility",
         "operationId": "updateMove",
@@ -544,7 +544,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "notification"
+          "Notifications"
         ],
         "summary": "List Notifications",
         "operationId": "indexNotifications",
@@ -610,7 +610,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "office_users"
+          "Office users"
         ],
         "summary": "List of Office Users",
         "operationId": "indexOfficeUsers",
@@ -677,7 +677,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "office_users"
+          "Office users"
         ],
         "summary": "Create an Office User",
         "operationId": "createOfficeUser",
@@ -717,7 +717,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "office_users"
+          "Office users"
         ],
         "summary": "Get an Office User",
         "operationId": "getOfficeUser",
@@ -760,7 +760,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "office_users"
+          "Office users"
         ],
         "summary": "Updates an Office User",
         "operationId": "updateOfficeUser",
@@ -811,7 +811,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "office"
+          "Transportation offices"
         ],
         "summary": "List Transportation Offices",
         "operationId": "indexOffices",
@@ -877,7 +877,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "organization"
+          "Organizations"
         ],
         "summary": "List Organizations",
         "operationId": "indexOrganizations",
@@ -946,7 +946,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "transportation_service_provider_performances"
+          "Transportation service provider performances (TSPPs)"
         ],
         "summary": "List Transportation Service Provider Performances (TSPPs)",
         "operationId": "indexTSPPs",
@@ -1012,7 +1012,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "transportation_service_provider_performances"
+          "Transportation service provider performances (TSPPs)"
         ],
         "summary": "Fetch a specific TSPP",
         "operationId": "getTSPP",
@@ -1054,7 +1054,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "upload"
+          "Uploads"
         ],
         "summary": "Get information about an Upload",
         "operationId": "getUpload",
@@ -1096,7 +1096,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "users"
+          "Users"
         ],
         "summary": "List Users",
         "operationId": "indexUsers",
@@ -1162,7 +1162,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "users"
+          "Users"
         ],
         "summary": "Get information about a User",
         "operationId": "getUser",
@@ -1205,7 +1205,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "users"
+          "Users"
         ],
         "summary": "Update a User's session or active status",
         "operationId": "updateUser",
@@ -1265,7 +1265,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "webhook_subscriptions"
+          "Webhook subscriptions"
         ],
         "summary": "Lists Webhook Subscriptions",
         "operationId": "indexWebhookSubscriptions",
@@ -1332,7 +1332,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "webhook_subscriptions"
+          "Webhook subscriptions"
         ],
         "summary": "Create a Webhook Subscription",
         "operationId": "createWebhookSubscription",
@@ -1375,7 +1375,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "webhook_subscriptions"
+          "Webhook subscriptions"
         ],
         "summary": "Get information about a Webhook Subscription",
         "operationId": "getWebhookSubscription",
@@ -1418,7 +1418,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "webhook_subscriptions"
+          "Webhook subscriptions"
         ],
         "summary": "Update a Webhook Subscription",
         "operationId": "updateWebhookSubscription",
@@ -2689,77 +2689,77 @@ func init() {
   "tags": [
     {
       "description": "Information about Admin UI users",
-      "name": "admin_users",
+      "name": "Admin users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about electronic orders",
-      "name": "electronic_order",
+      "name": "Electronic orders",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about moves",
-      "name": "move",
+      "name": "Moves",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about notifications",
-      "name": "notification",
+      "name": "Notifications",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about transportation offices",
-      "name": "office",
+      "name": "Transportation offices",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about office users",
-      "name": "office_users",
+      "name": "Office users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about organizations",
-      "name": "organization",
+      "name": "Organizations",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about Transportation Service Provider performances",
-      "name": "transportation_service_provider_performances",
+      "name": "Transportation service provider performances (TSPPs)",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about uploads",
-      "name": "upload",
+      "name": "Uploads",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about users",
-      "name": "users",
+      "name": "Users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about Webhook subscriptions",
-      "name": "webhook_subscriptions",
+      "name": "Webhook subscriptions",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
@@ -2800,7 +2800,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "admin_users"
+          "Admin users"
         ],
         "summary": "List Admin Users",
         "operationId": "indexAdminUsers",
@@ -2870,7 +2870,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "admin_users"
+          "Admin users"
         ],
         "summary": "create an Admin User",
         "operationId": "createAdminUser",
@@ -2913,7 +2913,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "admin_users"
+          "Admin users"
         ],
         "summary": "Fetch a specific Admin User",
         "operationId": "getAdminUser",
@@ -2956,7 +2956,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "admin_users"
+          "Admin users"
         ],
         "summary": "Updates an Admin User",
         "operationId": "updateAdminUser",
@@ -3007,7 +3007,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "electronic_order"
+          "Electronic orders"
         ],
         "summary": "List Electronic Orders",
         "operationId": "indexElectronicOrders",
@@ -3076,7 +3076,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "electronic_order"
+          "Electronic orders"
         ],
         "summary": "Get total counts for the orders stored in MilMove",
         "operationId": "getElectronicOrdersTotals",
@@ -3127,7 +3127,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "move"
+          "Moves"
         ],
         "summary": "List Moves",
         "operationId": "indexMoves",
@@ -3193,7 +3193,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "move"
+          "Moves"
         ],
         "summary": "Get information about a Move",
         "operationId": "getMove",
@@ -3236,7 +3236,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "move"
+          "Moves"
         ],
         "summary": "Toggle Move visibility",
         "operationId": "updateMove",
@@ -3293,7 +3293,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "notification"
+          "Notifications"
         ],
         "summary": "List Notifications",
         "operationId": "indexNotifications",
@@ -3359,7 +3359,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "office_users"
+          "Office users"
         ],
         "summary": "List of Office Users",
         "operationId": "indexOfficeUsers",
@@ -3426,7 +3426,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "office_users"
+          "Office users"
         ],
         "summary": "Create an Office User",
         "operationId": "createOfficeUser",
@@ -3466,7 +3466,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "office_users"
+          "Office users"
         ],
         "summary": "Get an Office User",
         "operationId": "getOfficeUser",
@@ -3509,7 +3509,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "office_users"
+          "Office users"
         ],
         "summary": "Updates an Office User",
         "operationId": "updateOfficeUser",
@@ -3560,7 +3560,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "office"
+          "Transportation offices"
         ],
         "summary": "List Transportation Offices",
         "operationId": "indexOffices",
@@ -3626,7 +3626,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "organization"
+          "Organizations"
         ],
         "summary": "List Organizations",
         "operationId": "indexOrganizations",
@@ -3695,7 +3695,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "transportation_service_provider_performances"
+          "Transportation service provider performances (TSPPs)"
         ],
         "summary": "List Transportation Service Provider Performances (TSPPs)",
         "operationId": "indexTSPPs",
@@ -3761,7 +3761,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "transportation_service_provider_performances"
+          "Transportation service provider performances (TSPPs)"
         ],
         "summary": "Fetch a specific TSPP",
         "operationId": "getTSPP",
@@ -3803,7 +3803,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "upload"
+          "Uploads"
         ],
         "summary": "Get information about an Upload",
         "operationId": "getUpload",
@@ -3845,7 +3845,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "users"
+          "Users"
         ],
         "summary": "List Users",
         "operationId": "indexUsers",
@@ -3911,7 +3911,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "users"
+          "Users"
         ],
         "summary": "Get information about a User",
         "operationId": "getUser",
@@ -3954,7 +3954,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "users"
+          "Users"
         ],
         "summary": "Update a User's session or active status",
         "operationId": "updateUser",
@@ -4014,7 +4014,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "webhook_subscriptions"
+          "Webhook subscriptions"
         ],
         "summary": "Lists Webhook Subscriptions",
         "operationId": "indexWebhookSubscriptions",
@@ -4081,7 +4081,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "webhook_subscriptions"
+          "Webhook subscriptions"
         ],
         "summary": "Create a Webhook Subscription",
         "operationId": "createWebhookSubscription",
@@ -4124,7 +4124,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "webhook_subscriptions"
+          "Webhook subscriptions"
         ],
         "summary": "Get information about a Webhook Subscription",
         "operationId": "getWebhookSubscription",
@@ -4167,7 +4167,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "webhook_subscriptions"
+          "Webhook subscriptions"
         ],
         "summary": "Update a Webhook Subscription",
         "operationId": "updateWebhookSubscription",
@@ -5443,77 +5443,77 @@ func init() {
   "tags": [
     {
       "description": "Information about Admin UI users",
-      "name": "admin_users",
+      "name": "Admin users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about electronic orders",
-      "name": "electronic_order",
+      "name": "Electronic orders",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about moves",
-      "name": "move",
+      "name": "Moves",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about notifications",
-      "name": "notification",
+      "name": "Notifications",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about transportation offices",
-      "name": "office",
+      "name": "Transportation offices",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about office users",
-      "name": "office_users",
+      "name": "Office users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about organizations",
-      "name": "organization",
+      "name": "Organizations",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about Transportation Service Provider performances",
-      "name": "transportation_service_provider_performances",
+      "name": "Transportation service provider performances (TSPPs)",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about uploads",
-      "name": "upload",
+      "name": "Uploads",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about users",
-      "name": "users",
+      "name": "Users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
     },
     {
       "description": "Information about Webhook subscriptions",
-      "name": "webhook_subscriptions",
+      "name": "Webhook subscriptions",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }

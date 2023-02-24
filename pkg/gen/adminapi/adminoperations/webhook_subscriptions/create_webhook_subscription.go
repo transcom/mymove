@@ -30,7 +30,7 @@ func NewCreateWebhookSubscription(ctx *middleware.Context, handler CreateWebhook
 }
 
 /*
-	CreateWebhookSubscription swagger:route POST /webhook-subscriptions webhook_subscriptions createWebhookSubscription
+	CreateWebhookSubscription swagger:route POST /webhook-subscriptions Webhook subscriptions createWebhookSubscription
 
 # Create a Webhook Subscription
 

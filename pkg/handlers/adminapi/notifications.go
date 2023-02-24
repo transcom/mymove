@@ -6,7 +6,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	notificationsop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notification"
+	notificationsop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"

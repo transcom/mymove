@@ -71,41 +71,41 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		user.NewUserSessionRevocation(queryBuilder),
 	}
 
-	adminAPI.OfficeIndexOfficesHandler = IndexOfficesHandler{
+	adminAPI.TransportationOfficesIndexOfficesHandler = IndexOfficesHandler{
 		handlerConfig,
 		office.NewOfficeListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
-	adminAPI.OrganizationIndexOrganizationsHandler = IndexOrganizationsHandler{
+	adminAPI.OrganizationsIndexOrganizationsHandler = IndexOrganizationsHandler{
 		handlerConfig,
 		organization.NewOrganizationListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
-	adminAPI.TransportationServiceProviderPerformancesIndexTSPPsHandler = IndexTSPPsHandler{
+	adminAPI.TransportationServiceProviderPerformancestspPsIndexTSPPsHandler = IndexTSPPsHandler{
 		handlerConfig,
 		tspop.NewTransportationServiceProviderPerformanceListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
-	adminAPI.TransportationServiceProviderPerformancesGetTSPPHandler = GetTSPPHandler{
+	adminAPI.TransportationServiceProviderPerformancestspPsGetTSPPHandler = GetTSPPHandler{
 		handlerConfig,
 		tspop.NewTransportationServiceProviderPerformanceFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 
-	adminAPI.ElectronicOrderIndexElectronicOrdersHandler = IndexElectronicOrdersHandler{
+	adminAPI.ElectronicOrdersIndexElectronicOrdersHandler = IndexElectronicOrdersHandler{
 		handlerConfig,
 		electronicorder.NewElectronicOrderListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
-	adminAPI.ElectronicOrderGetElectronicOrdersTotalsHandler = GetElectronicOrdersTotalsHandler{
+	adminAPI.ElectronicOrdersGetElectronicOrdersTotalsHandler = GetElectronicOrdersTotalsHandler{
 		handlerConfig,
 		electronicorder.NewElectronicOrdersCategoricalCountsFetcher(queryBuilder),
 		query.NewQueryFilter,
@@ -155,19 +155,19 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
-	adminAPI.UploadGetUploadHandler = GetUploadHandler{
+	adminAPI.UploadsGetUploadHandler = GetUploadHandler{
 		handlerConfig,
 		upload.NewUploadInformationFetcher(),
 	}
 
-	adminAPI.NotificationIndexNotificationsHandler = IndexNotificationsHandler{
+	adminAPI.NotificationsIndexNotificationsHandler = IndexNotificationsHandler{
 		handlerConfig,
 		fetch.NewListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
-	adminAPI.MoveIndexMovesHandler = IndexMovesHandler{
+	adminAPI.MovesIndexMovesHandler = IndexMovesHandler{
 		handlerConfig,
 		move.NewMoveListFetcher(queryBuilder),
 		query.NewQueryFilter,
@@ -175,7 +175,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	}
 
 	moveRouter := move.NewMoveRouter()
-	adminAPI.MoveUpdateMoveHandler = UpdateMoveHandler{
+	adminAPI.MovesUpdateMoveHandler = UpdateMoveHandler{
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(
 			queryBuilder,
@@ -184,7 +184,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		),
 	}
 
-	adminAPI.MoveGetMoveHandler = GetMoveHandler{
+	adminAPI.MovesGetMoveHandler = GetMoveHandler{
 		handlerConfig,
 	}
 

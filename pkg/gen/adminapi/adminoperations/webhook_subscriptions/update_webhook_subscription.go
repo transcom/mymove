@@ -30,7 +30,7 @@ func NewUpdateWebhookSubscription(ctx *middleware.Context, handler UpdateWebhook
 }
 
 /*
-	UpdateWebhookSubscription swagger:route PATCH /webhook-subscriptions/{webhookSubscriptionId} webhook_subscriptions updateWebhookSubscription
+	UpdateWebhookSubscription swagger:route PATCH /webhook-subscriptions/{webhookSubscriptionId} Webhook subscriptions updateWebhookSubscription
 
 # Update a Webhook Subscription
 

@@ -19,47 +19,47 @@ consumes:
 produces:
   - application/json
 tags:
-  - name: admin_users
+  - name: Admin users
     description: Information about Admin UI users
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: electronic_order
+  - name: Electronic orders
     description: Information about electronic orders
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: move
+  - name: Moves
     description: Information about moves
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: notification
+  - name: Notifications
     description: Information about notifications
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: office
+  - name: Transportation offices
     description: Information about transportation offices
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: office_users
+  - name: Office users
     description: Information about office users
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: organization
+  - name: Organizations
     description: Information about organizations
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: transportation_service_provider_performances
+  - name: Transportation service provider performances (TSPPs)
     description: Information about Transportation Service Provider performances
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: upload
+  - name: Uploads
     description: Information about uploads
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: users
+  - name: Users
     description: Information about users
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: webhook_subscriptions
+  - name: Webhook subscriptions
     description: Information about Webhook subscriptions
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
@@ -1019,7 +1019,7 @@ paths:
         $ref: paths/office-users/get/description.md
       operationId: indexOfficeUsers
       tags:
-        - office_users
+        - Office users
       parameters:
         - in: query
           name: filter
@@ -1063,7 +1063,7 @@ paths:
         $ref: paths/office-users/post/description.md
       operationId: createOfficeUser
       tags:
-        - office_users
+        - Office users
       parameters:
         - in: body
           name: officeUser
@@ -1090,7 +1090,7 @@ paths:
         $ref: paths/office-users/{officeUserId}/get/description.md
       operationId: getOfficeUser
       tags:
-        - office_users
+        - Office users
       parameters:
         - in: path
           name: officeUserId
@@ -1120,7 +1120,7 @@ paths:
         $ref: paths/office-users/{officeUserId}/patch/description.md
       operationId: updateOfficeUser
       tags:
-        - office_users
+        - Office users
       parameters:
         - in: path
           name: officeUserId
@@ -1155,7 +1155,7 @@ paths:
         $ref: paths/transportation-service-provider-performances/get/description.md
       operationId: indexTSPPs
       tags:
-        - transportation_service_provider_performances
+        - Transportation service provider performances (TSPPs)
       parameters:
         - in: query
           name: filter
@@ -1198,7 +1198,7 @@ paths:
         $ref: paths/transportation-service-provider-performances/{tsppId}/get/description.md
       operationId: getTSPP
       tags:
-        - transportation_service_provider_performances
+        - Transportation service provider performances (TSPPs)
       parameters:
         - in: path
           name: tsppId
@@ -1227,7 +1227,7 @@ paths:
         $ref: paths/admin-users/get/description.md
       operationId: indexAdminUsers
       tags:
-        - admin_users
+        - Admin users
       parameters:
         - in: query
           name: filter
@@ -1273,7 +1273,7 @@ paths:
         $ref: paths/admin-users/post/description.md
       operationId: createAdminUser
       tags:
-        - admin_users
+        - Admin users
       parameters:
         - in: body
           name: adminUser
@@ -1302,7 +1302,7 @@ paths:
         $ref: paths/admin-users/{adminUserId}/get/description.md
       operationId: getAdminUser
       tags:
-        - admin_users
+        - Admin users
       parameters:
         - in: path
           name: adminUserId
@@ -1332,7 +1332,7 @@ paths:
         $ref: paths/admin-users/{adminUserId}/patch/description.md
       operationId: updateAdminUser
       tags:
-        - admin_users
+        - Admin users
       parameters:
         - in: path
           name: adminUserId
@@ -1367,7 +1367,7 @@ paths:
         $ref: paths/offices/get/description.md
       operationId: indexOffices
       tags:
-        - office
+        - Transportation offices
       parameters:
         - in: query
           name: filter
@@ -1410,7 +1410,7 @@ paths:
         $ref: paths/electronic-orders/get/description.md
       operationId: indexElectronicOrders
       tags:
-        - electronic_order
+        - Electronic orders
       parameters:
         - in: query
           name: filter
@@ -1455,7 +1455,7 @@ paths:
         $ref: paths/electronic-orders/totals/get/description.md
       operationId: getElectronicOrdersTotals
       tags:
-        - electronic_order
+        - Electronic orders
       parameters:
         - in: query
           name: filter
@@ -1489,7 +1489,7 @@ paths:
         $ref: paths/uploads/{uploadId}/get/description.md
       operationId: getUpload
       tags:
-        - upload
+        - Uploads
       parameters:
         - in: path
           name: uploadId
@@ -1518,7 +1518,7 @@ paths:
         $ref: paths/organizations/get/description.md
       operationId: indexOrganizations
       tags:
-        - organization
+        - Organizations
       parameters:
         - in: query
           name: filter
@@ -1563,7 +1563,7 @@ paths:
         $ref: paths/notifications/get/description.md
       operationId: indexNotifications
       tags:
-        - notification
+        - Notifications
       parameters:
         - in: query
           name: filter
@@ -1606,7 +1606,7 @@ paths:
         $ref: paths/moves/get/description.md
       operationId: indexMoves
       tags:
-        - move
+        - Moves
       parameters:
         - in: query
           name: filter
@@ -1649,7 +1649,7 @@ paths:
         $ref: paths/moves/{moveID}/get/description.md
       operationId: getMove
       tags:
-        - move
+        - Moves
       parameters:
         - in: path
           name: moveID
@@ -1679,7 +1679,7 @@ paths:
         $ref: paths/moves/{moveID}/patch/description.md
       operationId: updateMove
       tags:
-        - move
+        - Moves
       parameters:
         - in: path
           name: moveID
@@ -1718,7 +1718,7 @@ paths:
         $ref: paths/users/get/description.md
       operationId: indexUsers
       tags:
-        - users
+        - Users
       parameters:
         - in: query
           name: filter
@@ -1761,7 +1761,7 @@ paths:
         $ref: paths/users/{userId}/get/description.md
       operationId: getUser
       tags:
-        - users
+        - Users
       parameters:
         - in: path
           name: userId
@@ -1791,7 +1791,7 @@ paths:
         $ref: paths/users/{userId}/patch/description.md
       operationId: updateUser
       tags:
-        - users
+        - Users
       parameters:
         - in: path
           name: userId
@@ -1832,7 +1832,7 @@ paths:
         $ref: paths/webhook-subscriptions/get/description.md
       operationId: indexWebhookSubscriptions
       tags:
-        - webhook_subscriptions
+        - Webhook subscriptions
       parameters:
         - in: query
           name: filter
@@ -1876,7 +1876,7 @@ paths:
         $ref: paths/webhook-subscriptions/post/description.md
       operationId: createWebhookSubscription
       tags:
-        - webhook_subscriptions
+        - Webhook subscriptions
       parameters:
         - in: body
           name: webhookSubscription
@@ -1905,7 +1905,7 @@ paths:
         $ref: paths/webhook-subscriptions/{webhookSubscriptionId}/get/description.md
       operationId: getWebhookSubscription
       tags:
-        - webhook_subscriptions
+        - Webhook subscriptions
       parameters:
         - in: path
           name: webhookSubscriptionId
@@ -1935,7 +1935,7 @@ paths:
         $ref: paths/webhook-subscriptions/{webhookSubscriptionId}/patch/description.md
       operationId: updateWebhookSubscription
       tags:
-        - webhook_subscriptions
+        - Webhook subscriptions
       parameters:
         - in: path
           name: webhookSubscriptionId
