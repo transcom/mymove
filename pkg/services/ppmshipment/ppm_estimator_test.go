@@ -831,51 +831,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.NotEqual(oldPPMShipment.FinalIncentive, *ppmFinal)
 		})
 
-		// suite.Run("Final Incentive - Recalculate final incentive when adjustedNetWeight is present", func() {
-		// 	setupPricerData()
-		// 	moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-		// 	oldPPMShipment := testdatagen.MakeApprovedPPMShipmentWithActualInfo(suite.DB(), testdatagen.Assertions{
-		// 		PPMShipment: models.PPMShipment{
-		// 			ActualPickupPostalCode:      models.StringPointer("90210"),
-		// 			ActualDestinationPostalCode: models.StringPointer("30813"),
-		// 			ActualMoveDate:              models.TimePointer(moveDate),
-		// 			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-		// 			WeightTickets: models.WeightTickets{
-		// 				testdatagen.MakeDefaultWeightTicket(suite.DB()),
-		// 			},
-		// 		},
-		// 	})
-
-		// 	newPPMShipment := oldPPMShipment
-		// 	adjustedNetWeight := unit.Pound(3000)
-		// 	newPPMShipment.WeightTickets = models.WeightTickets{
-		// 		testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-		// 			WeightTicket: models.WeightTicket{
-		// 				AdjustedNetWeight: &adjustedNetWeight,
-		// 			},
-		// 		}),
-		// 	}
-
-		// 	mockedPaymentRequestHelper.On(
-		// 		"FetchServiceParamsForServiceItems",
-		// 		mock.AnythingOfType("*appcontext.appContext"),
-		// 		mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
-
-		// 	// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
-		// 	mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-		// 		"90210", "30813").Return(2294, nil)
-
-		// 	ppmFinal, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPMShipment)
-		// 	suite.NilOrNoVerrs(err)
-
-		// 	mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-		// 		"90210", "30813")
-		// 	mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
-
-		// 	suite.NotEqual(oldPPMShipment.FinalIncentive, *ppmFinal)
-		// })
-
-		suite.Run("Sum Weights - sum weights for original shipment with standard weight ticket and for new shipment with rejected weight ticket", func() {
+		suite.Run("Final Incentive - Success updating finalIncentive when adjusted net weight is taken into account", func() {
+			setupPricerData()
 			oldFullWeight := unit.Pound(10000)
 			oldEmptyWeight := unit.Pound(6000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
@@ -897,16 +854,49 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				},
 			})
 
+			oldPPMShipment.WeightTickets = models.WeightTickets{
+				oldPPMShipment.WeightTickets[0],
+				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+			}
+
 			newPPM := oldPPMShipment
 			rejected := models.PPMDocumentStatusRejected
-			newWeightTicket1 := newPPM.WeightTickets[0]
-			newWeightTicket1.Status = &rejected
-			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1}
+			approved := models.PPMDocumentStatusApproved
+			adjustedNetWeight := unit.Pound(3000)
 
-			//New weight should return zero since the only weight ticket included has a rejected status
+			newWeightTicket1 := newPPM.WeightTickets[0]
+			newWeightTicket1.AdjustedNetWeight = &adjustedNetWeight
+			newWeightTicket1.Status = &rejected
+
+			newWeightTicket2 := newPPM.WeightTickets[1]
+			newWeightTicket2.AdjustedNetWeight = &adjustedNetWeight
+			newWeightTicket2.Status = &approved
+
+			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
+
+			// At this point the updated weight tickets on the newPPMShipment could be saved to the DB
+			// the save is being omitted here to reduce DB calls in our test
+			mockedPaymentRequestHelper.On(
+				"FetchServiceParamsForServiceItems",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+			// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"90210", "30813").Return(2294, nil)
+
+			ppmFinal, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NilOrNoVerrs(err)
+
+			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"90210", "30813")
+			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+
 			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
-			suite.Equal(unit.Pound(4000), originalWeight)
-			suite.Equal(unit.Pound(0), newWeight)
+			suite.Equal(unit.Pound(8000), originalWeight)
+			suite.Equal(unit.Pound(3000), newWeight)
+			suite.Equal(unit.Cents(28661212), *ppmFinal)
+			suite.NotEqual(oldPPMShipment.FinalIncentive, *ppmFinal)
 		})
 
 		suite.Run("Sum Weights - sum weights for original shipment with standard weight ticket and new shipment with standard weight ticket", func() {
