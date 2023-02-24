@@ -3,6 +3,7 @@ package scenario
 import (
 	"fmt"
 	"log"
+	"sort"
 	"strings"
 	"time"
 
@@ -3744,7 +3745,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 
 	serviceItemDDDSIT = *updatedDDDSIT
 
-	for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDDFSIT, serviceItemDDASIT, serviceItemDDDSIT} {
+	for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDDASIT, serviceItemDDDSIT, serviceItemDDFSIT} {
 		_, updateErr := serviceItemUpdator.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
@@ -3895,8 +3896,14 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			Value:       destDepartureDate.Format("2006-01-02"),
 		}}
 
+	var debugString string
+	sort.SliceStable(serviceItems, func(i, j int) bool {
+		return serviceItems[i].ApprovedAt.String() < serviceItems[j].ApprovedAt.String()
+	})
 	paymentServiceItems := []models.PaymentServiceItem{}
 	for _, serviceItem := range serviceItems {
+		debugString += serviceItem.ReService.Code.String()
+		debugString += ", "
 		paymentItem := models.PaymentServiceItem{
 			MTOServiceItemID: serviceItem.ID,
 			MTOServiceItem:   serviceItem,
@@ -3909,6 +3916,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		paymentServiceItems = append(paymentServiceItems, paymentItem)
 	}
 
+	logger.Debug(debugString)
 	paymentRequest.PaymentServiceItems = paymentServiceItems
 	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest)
 
