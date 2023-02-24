@@ -71,7 +71,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		user.NewUserSessionRevocation(queryBuilder),
 	}
 
-	adminAPI.OfficeIndexOfficesHandler = IndexOfficesHandler{
+	adminAPI.TransportationOfficesIndexOfficesHandler = IndexOfficesHandler{
 		handlerConfig,
 		office.NewOfficeListFetcher(queryBuilder),
 		query.NewQueryFilter,
