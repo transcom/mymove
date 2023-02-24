@@ -255,8 +255,8 @@ const ShipmentForm = (props) => {
         moveCode,
         shipmentId: mtoShipment.id,
       });
-      const SCMoveViewPath = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode });
-      const TOOMoveViewPath = generatePath(tooRoutes.MOVE_VIEW_PATH, { moveCode });
+      const SCMoveViewPath = generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode });
+      const TOOMoveViewPath = generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode });
 
       submitHandler(updatePPMPayload, {
         onSuccess: () => {
