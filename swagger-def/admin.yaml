@@ -1221,8 +1221,9 @@ paths:
     get:
       produces:
         - application/json
-      summary: List admin users
-      description: Returns a list of admin users
+      summary: List Admin Users
+      description:
+        $ref: paths/admin-users/get/description.md
       operationId: indexAdminUsers
       tags:
         - admin_users
@@ -1258,7 +1259,7 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: admin users not found
+          description: Admin Users not found
         '500':
           description: server error
     post:
@@ -1266,15 +1267,16 @@ paths:
         - application/json
       produces:
         - application/json
-      summary: create an admin user
-      description: creates and returns an admin user record
+      summary: create an Admin User
+      description:
+        $ref: paths/admin-users/post/description.md
       operationId: createAdminUser
       tags:
         - admin_users
       parameters:
         - in: body
           name: adminUser
-          description: Admin user information
+          description: Admin User information
           schema:
             $ref: '#/definitions/AdminUserCreate'
       responses:
@@ -1287,15 +1289,16 @@ paths:
         '401':
           description: Must be authenticated to use this end point
         '403':
-          description: Not authorized to create an admin user
+          description: Not authorized to create an Admin User
         '500':
           description: Server error
   /admin-users/{adminUserId}:
     get:
       produces:
         - application/json
-      summary: Fetch a specific admin user
-      description: Returns a single admin user
+      summary: Fetch a specific Admin User
+      description:
+        $ref: paths/admin-users/{adminUserId}/get/description.md
       operationId: getAdminUser
       tags:
         - admin_users
@@ -1315,16 +1318,17 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: admin user not found
+          description: Admin User not found
         '500':
           description: server error
     patch:
-      summary: Updates an admin user
       consumes:
         - application/json
       produces:
         - application/json
-      description: Updates an admin user
+      summary: Updates an Admin User
+      description:
+        $ref: paths/admin-users/{adminUserId}/patch/description.md
       operationId: updateAdminUser
       tags:
         - admin_users
@@ -1336,7 +1340,7 @@ paths:
           required: true
         - in: body
           name: adminUser
-          description: Admin user information
+          description: Admin User information
           required: true
           schema:
             $ref: '#/definitions/AdminUserUpdate'
@@ -1350,7 +1354,7 @@ paths:
         '401':
           description: Must be authenticated to use this end point
         '403':
-          description: Not authorized to update an admin user
+          description: Not authorized to update an Admin User
         '500':
           description: Server error
   /offices:
