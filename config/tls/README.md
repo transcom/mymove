@@ -10,7 +10,7 @@ A description of the certificates in this directory will helpful:
 | `api.demo.dp3.us.chain.der.p7b` | Certificate chain for api.demo.dp3.us (non-ATO) |
 | `api.loadtest.dp3.us.crt` | Certificate for api.loadtest.dp3.us |
 | `api.loadtest.dp3.us.chain.der.p7b` | Certificate chain for api.loadtest.dp3.us (non-ATO) |
-| `Certificates_PKCS7_v5.9_DoD.der.p7b` | Certificate bundle containing all DoD root and intermediate certs. This file should not be directly referenced. |
+| `Certificates_PKCS7_v5.9_DoD.der.p7b` | |
 | `Certificates_PKCS7_v5.11_WCF.pem.p7b` | The collection of certs from which the dod-wcf-* certificates are derived. |
 | `devlocal-ca.key` | Devlocal CA Key |
 | `devlocal-ca.pem` | Devlocal CA PEM |
@@ -24,7 +24,7 @@ A description of the certificates in this directory will helpful:
 | `dod-wcf-root-ca-1-.pem` | DoD WCF Root CA 1 for allowing TLS connectivity to AWS services in the BCAP |
 | `ECA_Root_CA_4.cer` | ECA Root CA4. Issuer of IdenTrust ECA Component S23 |
 | `IdenTrust-ECA-S23.cer` | IdenTrust ECA Component S23 |
-| `milmove-cert-bundle.p7b` | CUSTOM p7b file that is currently a concatenation of `Certificates_PKCS7_v5.9_DoD.der.p7b`, `ECA_Root_CA_4.cer`, and `IdenTrust-ECA-S23.cer`. See documentation for how this is created: `https://dp3.atlassian.net/wiki/spaces/MT/pages/2012315653/RUNBOOK+Granting+New+Access+to+Staging+or+Prod+Environments#Dockerfile` |
+| `milmove-cert-bundle.p7b` | CUSTOM p7b file. See documentation `https://dp3.atlassian.net/wiki/spaces/MT/pages/2026405889/Draft+0067+Creating+P7B+Files` |
 
 ## DoD certificate authority package
 
