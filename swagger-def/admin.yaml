@@ -27,7 +27,7 @@ tags:
     description: Information about electronic orders
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: move
+  - name: Moves
     description: Information about moves
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
@@ -1586,7 +1586,7 @@ paths:
       description: Returns a list of moves
       operationId: indexMoves
       tags:
-        - move
+        - Moves
       parameters:
         - in: query
           name: filter
@@ -1628,7 +1628,7 @@ paths:
       description: Returns the given move and its relevant info
       operationId: getMove
       tags:
-        - move
+        - Moves
       parameters:
         - in: path
           name: moveID
@@ -1660,7 +1660,7 @@ paths:
         (besides those in the Support API), and thus effectively deactivated.
       operationId: updateMove
       tags:
-        - move
+        - Moves
       parameters:
         - in: path
           name: moveID
