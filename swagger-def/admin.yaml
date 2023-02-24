@@ -59,7 +59,7 @@ tags:
     description: Information about users
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: webhook_subscriptions
+  - name: Webhook subscriptions
     description: Information about Webhook subscriptions
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
@@ -1808,7 +1808,7 @@ paths:
       description: Returns a list of webhook subscriptions
       operationId: indexWebhookSubscriptions
       tags:
-        - webhook_subscriptions
+        - Webhook subscriptions
       parameters:
         - in: query
           name: filter
@@ -1851,7 +1851,7 @@ paths:
       description: creates and returns a webhook subscription
       operationId: createWebhookSubscription
       tags:
-        - webhook_subscriptions
+        - Webhook subscriptions
       parameters:
         - in: body
           name: webhookSubscription
@@ -1879,7 +1879,7 @@ paths:
       description: Returns the given webhook subscription and its details
       operationId: getWebhookSubscription
       tags:
-        - webhook_subscriptions
+        - Webhook subscriptions
       parameters:
         - in: path
           name: webhookSubscriptionId
@@ -1907,7 +1907,7 @@ paths:
         - application/json
       operationId: updateWebhookSubscription
       tags:
-        - webhook_subscriptions
+        - Webhook subscriptions
       parameters:
         - in: path
           name: webhookSubscriptionId
