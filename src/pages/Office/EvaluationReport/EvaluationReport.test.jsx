@@ -1,10 +1,10 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 
 import EvaluationReport from './EvaluationReport';
 
-import { MockRouting, renderWithRouter } from 'testUtils';
+import { renderWithProviders } from 'testUtils';
 import { useEvaluationReportShipmentListQueries } from 'hooks/queries';
 import { qaeCSRRoutes } from 'constants/routes';
 
@@ -136,7 +136,7 @@ describe('EvaluationReport', () => {
   it('renders the page components for shipment report', async () => {
     useEvaluationReportShipmentListQueries.mockReturnValue(mockShipmentData);
 
-    renderWithRouter(
+    renderWithProviders(
       <EvaluationReport
         customerInfo={mockCustomer}
         orders={mockOrders}
@@ -164,14 +164,13 @@ describe('EvaluationReport', () => {
 
   it('renders the page components for counseling report', async () => {
     useEvaluationReportShipmentListQueries.mockReturnValue(mockCounselingData);
-    render(
-      <MockRouting path={qaeCSRRoutes.BASE_EVALUATION_REPORT_PATH} params={routingParams}>
-        <EvaluationReport
-          grade={mockOrders.grade}
-          customerInfo={mockCustomer}
-          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
-        />
-      </MockRouting>,
+    renderWithProviders(
+      <EvaluationReport
+        grade={mockOrders.grade}
+        customerInfo={mockCustomer}
+        destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
+      />,
+      { path: qaeCSRRoutes.BASE_EVALUATION_REPORT_PATH, params: routingParams },
     );
 
     await waitFor(() => {

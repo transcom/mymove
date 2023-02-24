@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import QAEViolationsForm from './QAEViolationsForm';
 
-import { renderWithRouter } from 'testUtils';
+import { renderWithProviders } from 'testUtils';
 import { saveEvaluationReport, associateReportViolations, submitEvaluationReport } from 'services/ghcApi';
 import { useEvaluationReportShipmentListQueries } from 'hooks/queries';
 import { qaeCSRRoutes } from 'constants/routes';
@@ -174,7 +174,7 @@ const renderForm = (props) => {
     mtoShipments: mockShipmentData,
   };
 
-  return renderWithRouter(<QAEViolationsForm {...defaultProps} {...props} />, mockRoutingConfig);
+  return renderWithProviders(<QAEViolationsForm {...defaultProps} {...props} />, mockRoutingConfig);
 };
 
 beforeEach(() => {

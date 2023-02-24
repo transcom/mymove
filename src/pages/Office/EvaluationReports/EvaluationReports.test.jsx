@@ -4,7 +4,7 @@ import { screen } from '@testing-library/react';
 
 import EvaluationReports from './EvaluationReports';
 
-import { renderWithRouter } from 'testUtils';
+import { renderWithProviders } from 'testUtils';
 import { useEvaluationReportsQueries } from 'hooks/queries';
 import { qaeCSRRoutes } from 'constants/routes';
 
@@ -43,7 +43,7 @@ describe('EvaluationReports', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useEvaluationReportsQueries.mockReturnValue(loadingReturnValue);
 
-      renderWithRouter(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
+      renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
 
       const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
@@ -52,7 +52,7 @@ describe('EvaluationReports', () => {
     it('renders the Something Went Wrong component when the query errors', async () => {
       useEvaluationReportsQueries.mockReturnValue(errorReturnValue);
 
-      renderWithRouter(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
+      renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
 
       const errorMessage = await screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
@@ -69,7 +69,7 @@ describe('EvaluationReports', () => {
         shipments: [],
       });
 
-      renderWithRouter(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
+      renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
 
       const h1 = await screen.getByRole('heading', { name: 'Quality assurance reports', level: 1 });
       expect(h1).toBeInTheDocument();
@@ -90,7 +90,7 @@ describe('EvaluationReports', () => {
         showDeleteSuccess: true,
       });
 
-      renderWithRouter(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
+      renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
 
       const alert = await screen.getByText(/Your report has been deleted/);
       expect(alert).toBeInTheDocument();
