@@ -944,6 +944,8 @@ definitions:
 paths:
   /office_users:
     get:
+      produces:
+        - application/json
       summary: List office users
       description: Returns a list of office users
       operationId: indexOfficeUsers
@@ -983,6 +985,10 @@ paths:
         '500':
           description: server error
     post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
       summary: create an office user
       description: creates and returns an office user record
       operationId: createOfficeUser
@@ -1007,6 +1013,8 @@ paths:
           description: internal server error
   /office_users/{officeUserId}:
     get:
+      produces:
+        - application/json
       summary: Get an office user
       description: Returns the given office user
       operationId: getOfficeUser
@@ -1033,6 +1041,10 @@ paths:
           description: server error
     patch:
       summary: Updates an office user
+      consumes:
+        - application/json
+      produces:
+        - application/json
       operationId: updateOfficeUser
       tags:
         - office_users
@@ -1063,6 +1075,8 @@ paths:
           description: Server error
   /transportation_service_provider_performances:
     get:
+      produces:
+        - application/json
       summary: List transportation service provider performances (TSPPs)
       description: Returns a list of transportation service provider performances (TSPPs)
       operationId: indexTSPPs
@@ -1103,6 +1117,8 @@ paths:
           description: server error
   /transportation_service_provider_performances/{tsppId}:
     get:
+      produces:
+        - application/json
       summary: Fetch a specific tspp
       description: Returns a single tspp
       operationId: getTSPP
@@ -1129,6 +1145,8 @@ paths:
           description: server error
   /admin_users:
     get:
+      produces:
+        - application/json
       summary: List admin users
       description: Returns a list of admin users
       operationId: indexAdminUsers
@@ -1170,6 +1188,10 @@ paths:
         '500':
           description: server error
     post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
       summary: create an admin user
       description: creates and returns an admin user record
       operationId: createAdminUser
@@ -1196,6 +1218,8 @@ paths:
           description: Server error
   /admin_users/{adminUserId}:
     get:
+      produces:
+        - application/json
       summary: Fetch a specific admin user
       description: Returns a single admin user
       operationId: getAdminUser
@@ -1222,6 +1246,10 @@ paths:
           description: server error
     patch:
       summary: Updates an admin user
+      consumes:
+        - application/json
+      produces:
+        - application/json
       operationId: updateAdminUser
       tags:
         - admin_users
@@ -1252,6 +1280,8 @@ paths:
           description: Server error
   /offices:
     get:
+      produces:
+        - application/json
       summary: List transportation offices
       description: Returns a list of transportation offices
       operationId: indexOffices
@@ -1292,6 +1322,8 @@ paths:
           description: server error
   /electronic_orders:
     get:
+      produces:
+        - application/json
       summary: List electronic orders
       description: Returns a list of electronic orders
       operationId: indexElectronicOrders
@@ -1334,6 +1366,8 @@ paths:
           description: server error
   /electronic_orders/totals:
     get:
+      produces:
+        - application/json
       summary: Get total counts for the orders stored in MilMove
       description: Returns a list of record counts for orders
       operationId: getElectronicOrdersTotals
@@ -1365,6 +1399,8 @@ paths:
           description: server error
   /uploads/{uploadId}:
     get:
+      produces:
+        - application/json
       summary: Get information about an upload
       description: Returns the given upload and information about the uploader and move
       operationId: getUpload
@@ -1391,6 +1427,8 @@ paths:
           description: server error
   /organizations:
     get:
+      produces:
+        - application/json
       summary: List organizations
       description: Returns a list of organizations
       operationId: indexOrganizations
@@ -1433,6 +1471,8 @@ paths:
           description: server error
   /notifications:
     get:
+      produces:
+        - application/json
       summary: List notifications
       description: Returns a list of notifications that have been sent to service members
       operationId: indexNotifications
@@ -1473,6 +1513,8 @@ paths:
           description: server error
   /moves:
     get:
+      produces:
+        - application/json
       summary: List moves
       description: Returns a list of moves
       operationId: indexMoves
@@ -1513,6 +1555,8 @@ paths:
           description: server error
   /moves/{moveID}:
     get:
+      produces:
+        - application/json
       summary: Get information about a move
       description: Returns the given move and its relevant info
       operationId: getMove
@@ -1538,6 +1582,10 @@ paths:
         '500':
           description: Server error
     patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
       summary: Disables or re-enables a move
       description: >
         Allows the user to change the `show` field on the selected field to either `True` or `False`.
@@ -1577,6 +1625,8 @@ paths:
           description: Server error
   /users:
     get:
+      produces:
+        - application/json
       summary: List users
       description: Returns a list of users
       operationId: indexUsers
@@ -1617,6 +1667,8 @@ paths:
           description: server error
   /users/{userId}:
     get:
+      produces:
+        - application/json
       summary: Get information about a user
       description: Returns the given user and their sessions
       operationId: getUser
@@ -1643,6 +1695,10 @@ paths:
           description: server error
     patch:
       summary: Update a user's session or active status
+      consumes:
+        - application/json
+      produces:
+        - application/json
       operationId: updateUser
       tags:
         - users
@@ -1679,6 +1735,8 @@ paths:
           description: Server error
   /webhook_subscriptions:
     get:
+      produces:
+        - application/json
       summary: Lists webhook subscriptions
       description: Returns a list of webhook subscriptions
       operationId: indexWebhookSubscriptions
@@ -1718,6 +1776,10 @@ paths:
         '500':
           description: Server error
     post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
       summary: create a webhook subscription
       description: creates and returns a webhook subscription
       operationId: createWebhookSubscription
@@ -1744,6 +1806,8 @@ paths:
           description: Server error
   /webhook_subscriptions/{webhookSubscriptionId}:
     get:
+      produces:
+        - application/json
       summary: Get information about a webhook subscription
       description: Returns the given webhook subscription and its details
       operationId: getWebhookSubscription
@@ -1770,6 +1834,10 @@ paths:
           description: server error
     patch:
       summary: Update a webhook subscription
+      consumes:
+        - application/json
+      produces:
+        - application/json
       operationId: updateWebhookSubscription
       tags:
         - webhook_subscriptions
