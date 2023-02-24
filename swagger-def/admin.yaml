@@ -1600,8 +1600,9 @@ paths:
     get:
       produces:
         - application/json
-      summary: List moves
-      description: Returns a list of moves
+      summary: List Moves
+      description:
+        $ref: paths/moves/get/description.md
       operationId: indexMoves
       tags:
         - move
@@ -1635,15 +1636,16 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: not found
+          description: Moves not found
         '500':
           description: server error
   /moves/{moveID}:
     get:
       produces:
         - application/json
-      summary: Get information about a move
-      description: Returns the given move and its relevant info
+      summary: Get information about a Move
+      description:
+        $ref: paths/moves/{moveID}/get/description.md
       operationId: getMove
       tags:
         - move
@@ -1671,11 +1673,9 @@ paths:
         - application/json
       produces:
         - application/json
-      summary: Disables or re-enables a move
-      description: >
-        Allows the user to change the `show` field on the selected field to either `True` or `False`.
-        A "shown" move will appear to all users as normal, a "hidden" move will not be returned or editable using any other endpoint
-        (besides those in the Support API), and thus effectively deactivated.
+      summary: Toggle Move visibility
+      description:
+        $ref: paths/moves/{moveID}/patch/description.md
       operationId: updateMove
       tags:
         - move
@@ -1693,7 +1693,7 @@ paths:
             $ref: '#/definitions/MoveUpdate'
       responses:
         '200':
-          description: Successfully updated the Mov
+          description: Successfully updated the Move
           schema:
             $ref: '#/definitions/Move'
         '400':
@@ -1701,7 +1701,7 @@ paths:
         '401':
           description: Must be authenticated to use this endpoint
         '403':
-          description: Not authorized to update this move
+          description: Not authorized to update this Move
         '404':
           description: Move not found
         '422':
