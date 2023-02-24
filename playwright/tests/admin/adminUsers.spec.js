@@ -103,7 +103,7 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
   // go directly to the show page for the admin user because if we
   // have created more than 25 admin users, the user may not be on the
   // first page and we don't have a search functionality for admin users
-  await page.goto(`/system/admin_users/${adminUserId}/show`);
+  await page.goto(`/system/admin-users/${adminUserId}/show`);
   await adminPage.waitForAdminPageToLoad();
 
   await page.getByRole('button', { name: 'Edit' }).click();

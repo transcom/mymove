@@ -29,7 +29,7 @@ test.describe('Office Users List Page', () => {
 
     // now we'll come back to the office users page:
     await page.getByRole('menuitem', { name: 'Office users' }).click();
-    expect(page.url()).toContain('/system/office_users');
+    expect(page.url()).toContain('/system/office-users');
     await expect(page.locator('header')).toContainText('Office Users');
 
     const columnLabels = ['Id', 'Email', 'First name', 'Last name', 'Transportation Office', 'User Id', 'Active'];
@@ -43,7 +43,7 @@ test.describe('Office User Create Page', () => {
     await adminPage.signInAsNewAdminUser();
     // we tested the side nav in the previous test,
     // so let's work with the assumption that we were already redirected to this page:
-    expect(page.url()).toContain('/system/office_users');
+    expect(page.url()).toContain('/system/office-users');
 
     await page.getByRole('button', { name: 'Create' }).click();
     await expect(page.getByRole('heading', { name: 'Create Office Users' })).toBeVisible();
@@ -93,7 +93,7 @@ test.describe('Office Users Show Page', () => {
     await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
     await adminPage.signInAsNewAdminUser();
 
-    expect(page.url()).toContain('/system/office_users');
+    expect(page.url()).toContain('/system/office-users');
 
     await page.locator('tr[resource="office_users"]').first().click();
 
@@ -131,7 +131,7 @@ test.describe('Office Users Edit Page', () => {
 
     await adminPage.signInAsNewAdminUser();
 
-    expect(page.url()).toContain('/system/office_users');
+    expect(page.url()).toContain('/system/office-users');
     await searchForOfficeUser(page, email);
     await page.getByText(email).click();
     await adminPage.waitForAdminPageToLoad();
