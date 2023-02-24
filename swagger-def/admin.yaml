@@ -937,6 +937,7 @@ definitions:
       active:
         type: boolean
         x-nullable: true
+
   ValidationError:
     allOf:
       - $ref: '#/definitions/ClientError'
@@ -1712,8 +1713,9 @@ paths:
     get:
       produces:
         - application/json
-      summary: List users
-      description: Returns a list of users
+      summary: List Users
+      description:
+        $ref: paths/users/get/description.md
       operationId: indexUsers
       tags:
         - users
@@ -1747,15 +1749,16 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: users not found
+          description: Users not found
         '500':
           description: server error
   /users/{userId}:
     get:
       produces:
         - application/json
-      summary: Get information about a user
-      description: Returns the given user and their sessions
+      summary: Get information about a User
+      description:
+        $ref: paths/users/{userId}/get/description.md
       operationId: getUser
       tags:
         - users
@@ -1775,16 +1778,17 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: user not found
+          description: User not found
         '500':
           description: server error
     patch:
-      summary: Update a user's session or active status
+      summary: Update a User's session or active status
       consumes:
         - application/json
       produces:
         - application/json
-      description: Update a user's session or active status
+      description:
+        $ref: paths/users/{userId}/patch/description.md
       operationId: updateUser
       tags:
         - users
@@ -1810,7 +1814,7 @@ paths:
         '401':
           description: Must be authenticated to use this end point
         '403':
-          description: Not authorized to update this user
+          description: Not authorized to update this User
         '404':
           description: Not found
         '422':
