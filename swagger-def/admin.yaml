@@ -1512,8 +1512,9 @@ paths:
     get:
       produces:
         - application/json
-      summary: List organizations
-      description: Returns a list of organizations
+      summary: List Organizations
+      description:
+        $ref: paths/organizations/get/description.md
       operationId: indexOrganizations
       tags:
         - organization
@@ -1549,7 +1550,7 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: not found
+          description: Organizations not found
         '500':
           description: server error
   /notifications:
