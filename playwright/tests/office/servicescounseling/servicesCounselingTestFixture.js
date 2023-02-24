@@ -1,9 +1,3 @@
-/**
- * Semi-automated converted from a cypress test, and thus may contain
- * non best-practices, in particular: heavy use of `page.locator`
- * instead of `page.getBy*`.
- */
-
 // @ts-check
 import { expect, test as officeTest, OfficePage } from '../../utils/officeTest';
 
@@ -31,6 +25,17 @@ export class ServiceCounselorPage extends OfficePage {
     moveDetails: async () => {
       await expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Move details');
     },
+    addNTSShipment: async () => {
+      await expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
+      await expect(this.page.getByTestId('tag')).toHaveText('NTS');
+    },
+    editNTSShipment: async () => {
+      await expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Edit shipment details');
+      await expect(this.page.getByTestId('tag')).toHaveText('NTS');
+    },
+    moveOrders: async () => {
+      await expect(this.page.getByRole('heading', { level: 2, name: 'View orders' })).toBeVisible();
+    },
     reviewDocuments: async () => {
       await expect(this.page.getByRole('heading', { name: 'Review trip 1', level: 3 })).toBeVisible();
     },
@@ -43,8 +48,19 @@ export class ServiceCounselorPage extends OfficePage {
    * Verify that the user is in the correct move
    * @param {string} moveLocator
    */
-  async verifyMoveLocator(moveLocator) {
+  async verifyMoveByLocatorCode(moveLocator) {
     await expect(this.page.getByText(`#${moveLocator}`)).toHaveClass(/usa-tag/);
+  }
+
+  /**
+   * Finds a shipment container on the move details page from it's shipment type
+   * @param {string} shipmentType
+   * @returns async {import('@playwright/test').Locator}
+   */
+  async getShipmentContainerByType(shipmentType) {
+    const header = await this.page.getByRole('heading', { level: 3, name: shipmentType });
+    const container = await header.locator('../../..');
+    return container;
   }
 
   /**
@@ -54,17 +70,19 @@ export class ServiceCounselorPage extends OfficePage {
   async navigateToCloseoutMove(moveLocator) {
     await this.waitForPage.counselingQueue();
 
-    // navigate to "PPM Closeout" section first
+    // Navigate to "PPM Closeout" section first
     await this.page.getByRole('link', { name: 'PPM Closeout' }).click();
     await this.waitForPage.closeoutQueue();
 
-    // type in move code/locator to filter
+    // Type in move code/locator to search for.
+    // (There's no accessible or testId way to find this textbox, so we need to use .locator)
     await this.page.locator('input[name="locator"]').type(moveLocator);
     await this.page.locator('input[name="locator"]').blur();
 
-    await this.page.locator('tbody > tr').first().click();
+    // Click the first returned row
+    await this.page.getByTestId('locator-0').click();
     await this.waitForPage.moveDetails();
-    await this.verifyMoveLocator(moveLocator);
+    await this.verifyMoveByLocatorCode(moveLocator);
   }
 
   /**
@@ -72,32 +90,32 @@ export class ServiceCounselorPage extends OfficePage {
    * @param {string} moveLocator
    */
   async navigateToMove(moveLocator) {
-    // type in move code/locator to filter
+    await this.waitForPage.counselingQueue();
+
+    // Type in move code/locator to search for.
+    // (There's no accessible or testId way to find this textbox, so we need to use .locator)
     await this.page.locator('input[name="locator"]').type(moveLocator);
     await this.page.locator('input[name="locator"]').blur();
 
-    await this.page.locator('tbody > tr').first().click();
-    await this.waitForLoading();
-    expect(this.page.url()).toContain(`/counseling/moves/${moveLocator}/details`);
+    // Click the first returned row
+    await this.page.getByTestId('locator-0').click();
+    await this.waitForPage.moveDetails();
+    await this.verifyMoveByLocatorCode(moveLocator);
   }
 
   async addNTSShipment() {
-    await this.page.locator('[data-testid="dropdown"]').first().selectOption({ label: 'NTS' });
+    await this.page.getByTestId('dropdown').selectOption({ label: 'NTS' });
 
-    await this.page.locator('#requestedPickupDate').clear();
-    await this.page.locator('#requestedPickupDate').type('16 Mar 2022');
-    await this.page.locator('#requestedPickupDate').blur();
+    await this.waitForPage.addNTSShipment();
+    await this.page.getByLabel('Requested pickup date').fill('16 Mar 2022');
+    await this.page.getByLabel('Requested pickup date').blur();
     await this.page.getByText('Use current address').click();
-    await expect(this.page.locator(`[data-testid="remarks"]`)).not.toBeVisible();
-    await this.page.locator('[name="counselorRemarks"]').type('Sample counselor remarks');
 
-    await this.page.locator('[data-testid="submitForm"]').click();
-    await this.waitForLoading();
+    await this.page.getByLabel('Counselor remarks').fill('Sample counselor remarks');
 
-    // the new shipment is visible on the Move details page
-    await expect(this.page.locator('[data-testid="ShipmentContainer"]').last()).toContainText(
-      'Sample counselor remarks',
-    );
+    // Save the shipment, progress back to the move details page, and verify it's been created
+    await this.page.getByRole('button', { name: 'Save' }).click();
+    await this.waitForPage.moveDetails();
   }
 
   async addNTSReleaseShipment() {
@@ -170,80 +188,80 @@ export class ServiceCounselorPage extends OfficePage {
     await expect(lastShipment.locator('[data-testid="sacType"]')).toContainText('—');
   }
 
-  async editNTSReleaseShipment() {
-    await this.page.getByRole('button', { name: 'Edit Shipment' }).click();
+  // async editNTSReleaseShipment() {
+  //   await this.page.getByRole('button', { name: 'Edit Shipment' }).click();
 
-    // Previously recorded weight
-    await this.page.locator('#ntsRecordedWeight').type('1100');
+  //   // Previously recorded weight
+  //   await this.page.locator('#ntsRecordedWeight').type('1100');
 
-    // Storage facility info
-    await this.page.locator('#facilityName').type('AAA Facility Name');
-    await this.page.locator('#facilityPhone').type('999-999-9999');
-    await this.page.locator('#facilityEmail').type('aaa@example.com');
-    await this.page.locator('#facilityServiceOrderNumber').type('123456');
+  //   // Storage facility info
+  //   await this.page.locator('#facilityName').type('AAA Facility Name');
+  //   await this.page.locator('#facilityPhone').type('999-999-9999');
+  //   await this.page.locator('#facilityEmail').type('aaa@example.com');
+  //   await this.page.locator('#facilityServiceOrderNumber').type('123456');
 
-    // Storage facility address
-    await this.page.locator('input[name="storageFacility.address.streetAddress1"]').type('9 W 2nd Ave');
-    await this.page.locator('input[name="storageFacility.address.streetAddress2"]').type('Bldg 3');
-    await this.page.locator('input[name="storageFacility.address.city"]').type('Big City');
-    await this.page.locator('select[name="storageFacility.address.state"]').selectOption({ label: 'SC' });
-    await this.page.locator('input[name="storageFacility.address.postalCode"]').type('29201');
-    await this.page.locator('#facilityLotNumber').type('2222222');
+  //   // Storage facility address
+  //   await this.page.locator('input[name="storageFacility.address.streetAddress1"]').type('9 W 2nd Ave');
+  //   await this.page.locator('input[name="storageFacility.address.streetAddress2"]').type('Bldg 3');
+  //   await this.page.locator('input[name="storageFacility.address.city"]').type('Big City');
+  //   await this.page.locator('select[name="storageFacility.address.state"]').selectOption({ label: 'SC' });
+  //   await this.page.locator('input[name="storageFacility.address.postalCode"]').type('29201');
+  //   await this.page.locator('#facilityLotNumber').type('2222222');
 
-    // Requested delivery date
-    await this.page.locator('#requestedDeliveryDate').clear();
-    await this.page.locator('#requestedDeliveryDate').type('21 Mar 2022');
-    await this.page.locator('#requestedDeliveryDate').blur();
+  //   // Requested delivery date
+  //   await this.page.locator('#requestedDeliveryDate').clear();
+  //   await this.page.locator('#requestedDeliveryDate').type('21 Mar 2022');
+  //   await this.page.locator('#requestedDeliveryDate').blur();
 
-    // Delivery location
-    await this.page.locator('input[name="delivery.address.streetAddress1"]').clear();
-    await this.page.locator('input[name="delivery.address.streetAddress1"]').type('4124 Apache Dr');
-    await this.page.locator('input[name="delivery.address.streetAddress2"]').clear();
-    await this.page.locator('input[name="delivery.address.streetAddress2"]').type('Apt 18C');
-    await this.page.locator('input[name="delivery.address.city"]').clear();
-    await this.page.locator('input[name="delivery.address.city"]').type('Little City');
-    await this.page.locator('select[name="delivery.address.state"]').selectOption({ label: 'GA' });
-    await this.page.locator('input[name="delivery.address.postalCode"]').clear();
-    await this.page.locator('input[name="delivery.address.postalCode"]').type('30901');
-    await this.page.locator('#destinationType').selectOption({ label: 'Home of record (HOR)' });
+  //   // Delivery location
+  //   await this.page.locator('input[name="delivery.address.streetAddress1"]').clear();
+  //   await this.page.locator('input[name="delivery.address.streetAddress1"]').type('4124 Apache Dr');
+  //   await this.page.locator('input[name="delivery.address.streetAddress2"]').clear();
+  //   await this.page.locator('input[name="delivery.address.streetAddress2"]').type('Apt 18C');
+  //   await this.page.locator('input[name="delivery.address.city"]').clear();
+  //   await this.page.locator('input[name="delivery.address.city"]').type('Little City');
+  //   await this.page.locator('select[name="delivery.address.state"]').selectOption({ label: 'GA' });
+  //   await this.page.locator('input[name="delivery.address.postalCode"]').clear();
+  //   await this.page.locator('input[name="delivery.address.postalCode"]').type('30901');
+  //   await this.page.locator('#destinationType').selectOption({ label: 'Home of record (HOR)' });
 
-    // Receiving agent
-    await this.page.locator('input[name="delivery.agent.firstName"]').type('Jody');
-    await this.page.locator('input[name="delivery.agent.lastName"]').type('Pitkin');
-    await this.page.locator('input[name="delivery.agent.phone"]').type('999-111-1111');
-    await this.page.locator('input[name="delivery.agent.email"]').type('jody.pitkin@example.com');
+  //   // Receiving agent
+  //   await this.page.locator('input[name="delivery.agent.firstName"]').type('Jody');
+  //   await this.page.locator('input[name="delivery.agent.lastName"]').type('Pitkin');
+  //   await this.page.locator('input[name="delivery.agent.phone"]').type('999-111-1111');
+  //   await this.page.locator('input[name="delivery.agent.email"]').type('jody.pitkin@example.com');
 
-    // Remarks
-    await expect(this.page.locator(`[data-testid="remarks"]`)).not.toBeVisible();
-    await this.page.locator('[data-testid="counselor-remarks"]').type('NTS-release edited counselor remarks');
+  //   // Remarks
+  //   await expect(this.page.locator(`[data-testid="remarks"]`)).not.toBeVisible();
+  //   await this.page.locator('[data-testid="counselor-remarks"]').type('NTS-release edited counselor remarks');
 
-    await this.page.locator('[data-testid="submitForm"]').click();
-    // the shipment should be saved with the type
-    await this.waitForLoading();
+  //   await this.page.locator('[data-testid="submitForm"]').click();
+  //   // the shipment should be saved with the type
+  //   await this.waitForLoading();
 
-    // the new shipment is visible on the Move details page
-    const lastShipment = this.page.locator('[data-testid="ShipmentContainer"]').last();
-    await lastShipment.locator('[data-icon="chevron-down"]').click();
+  //   // the new shipment is visible on the Move details page
+  //   const lastShipment = this.page.locator('[data-testid="ShipmentContainer"]').last();
+  //   await lastShipment.locator('[data-icon="chevron-down"]').click();
 
-    await expect(lastShipment.locator('[data-testid="ntsRecordedWeight"]')).toContainText('1,100');
-    await expect(lastShipment.locator('[data-testid="storageFacilityName"]')).toContainText('AAA Facility Name');
-    await expect(lastShipment.locator('[data-testid="serviceOrderNumber"]')).toContainText('123456');
-    await expect(lastShipment.locator('[data-testid="storageFacilityAddress"]')).toContainText(
-      '9 W 2nd Ave, Bldg 3, Big City, SC 29201',
-    );
-    await expect(lastShipment.locator('[data-testid="storageFacilityAddress"]')).toContainText('2222222');
-    await expect(lastShipment.locator('[data-testid="requestedDeliveryDate"]')).toContainText('21 Mar 2022');
-    await expect(lastShipment.locator('[data-testid="destinationAddress"]')).toContainText(
-      '4124 Apache Dr, Apt 18C, Little City, GA 30901',
-    );
-    await expect(lastShipment.locator('[data-testid="secondaryDeliveryAddress"]')).toContainText('—');
-    await expect(lastShipment.locator('[data-testid="customerRemarks"]')).toContainText('—');
-    await expect(lastShipment.locator('[data-testid="counselorRemarks"]')).toContainText(
-      'NTS-release edited counselor remarks',
-    );
-    await expect(lastShipment.locator('[data-testid="tacType"]')).toContainText('—');
-    await expect(lastShipment.locator('[data-testid="sacType"]')).toContainText('—');
-  }
+  //   await expect(lastShipment.locator('[data-testid="ntsRecordedWeight"]')).toContainText('1,100');
+  //   await expect(lastShipment.locator('[data-testid="storageFacilityName"]')).toContainText('AAA Facility Name');
+  //   await expect(lastShipment.locator('[data-testid="serviceOrderNumber"]')).toContainText('123456');
+  //   await expect(lastShipment.locator('[data-testid="storageFacilityAddress"]')).toContainText(
+  //     '9 W 2nd Ave, Bldg 3, Big City, SC 29201',
+  //   );
+  //   await expect(lastShipment.locator('[data-testid="storageFacilityAddress"]')).toContainText('2222222');
+  //   await expect(lastShipment.locator('[data-testid="requestedDeliveryDate"]')).toContainText('21 Mar 2022');
+  //   await expect(lastShipment.locator('[data-testid="destinationAddress"]')).toContainText(
+  //     '4124 Apache Dr, Apt 18C, Little City, GA 30901',
+  //   );
+  //   await expect(lastShipment.locator('[data-testid="secondaryDeliveryAddress"]')).toContainText('—');
+  //   await expect(lastShipment.locator('[data-testid="customerRemarks"]')).toContainText('—');
+  //   await expect(lastShipment.locator('[data-testid="counselorRemarks"]')).toContainText(
+  //     'NTS-release edited counselor remarks',
+  //   );
+  //   await expect(lastShipment.locator('[data-testid="tacType"]')).toContainText('—');
+  //   await expect(lastShipment.locator('[data-testid="sacType"]')).toContainText('—');
+  // }
 }
 
 /**

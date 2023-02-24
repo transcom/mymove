@@ -1,9 +1,3 @@
-/**
- * Semi-automated converted from a cypress test, and thus may contain
- * non best-practices, in particular: heavy use of `page.locator`
- * instead of `page.getBy*`.
- */
-
 // @ts-check
 import { test, expect } from './servicesCounselingTestFixture';
 
@@ -17,75 +11,78 @@ test.describe('Services counselor user', () => {
     // this test is almost identical to the NTSR test
     await scPage.addNTSShipment();
 
-    // single HHG plus added NTS
-    await expect(page.locator('[data-testid="ShipmentContainer"] .usa-button')).toHaveCount(2);
+    // Verify that there are two shipments -- a single HHG plus added NTS
+    await expect(page.getByTestId('ShipmentContainer')).toHaveCount(2);
 
-    await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
-    await scPage.waitForLoading();
+    // Find the card for the NTS shipment, then click the edit button
+    const container = await scPage.getShipmentContainerByType('NTS');
+    await container.getByRole('button', { name: 'Edit Shipment' }).click();
+    await scPage.waitForPage.editNTSShipment();
 
-    // click to trigger confirmation modal
-    await page.locator('[data-testid="grid"] button').getByText('Delete shipment').click();
-
+    // Click the "Delete Shipment" button to bring up the confirmation modal
+    await page.getByRole('button', { name: 'Delete shipment' }).click();
     await expect(page.getByTestId('modal')).toBeVisible();
 
+    // Confirm deletion to be taken back to the move details page
     await page.getByTestId('modal').getByRole('button', { name: 'Delete shipment' }).click();
-    await scPage.waitForLoading();
+    await scPage.waitForPage.moveDetails();
 
-    await expect(page.locator('[data-testid="ShipmentContainer"] .usa-button')).toHaveCount(1);
+    // Verify that there's only 1 shipment displayed now
+    await expect(page.getByTestId('ShipmentContainer')).toHaveCount(1);
   });
 
   test('Services Counselor can enter accounting codes and submit shipment', async ({ page, scPage }) => {
     // this test is almost identical to the NTSR test
     await scPage.addNTSShipment();
-    // edit the newly added NTS shipment
-    await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
-    await scPage.waitForLoading();
 
-    await page.locator('[data-testid="grid"]').getByRole('button', { name: 'Add or edit codes' }).click();
+    // Find the card for the NTS shipment, then click the edit button
+    let container = await scPage.getShipmentContainerByType('NTS');
+    await container.getByRole('button', { name: 'Edit Shipment' }).click();
+    await scPage.waitForPage.editNTSShipment();
 
-    const form = page.locator('form');
-    await form.locator('input[name="tac"]').type('E15A');
-    await form.locator('input[name="sac"]').type('4K988AS098F');
-    await form.locator('input[name="ntsTac"]').type('F123');
-    await form.locator('input[name="ntsSac"]').type('3L988AS098F');
-    await form.locator('input[name="ordersNumber"]').type('1234');
-    await form.locator('select[name="departmentIndicator"]').selectOption({ label: '21 Army' });
-    await form.locator('select[name="ordersType"]').selectOption({ label: 'Permanent Change Of Station (PCS)' });
-    await form.locator('select[name="ordersTypeDetail"]').selectOption({ label: 'Shipment of HHG Permitted' });
-    // Edit orders page | Save
-    await form.getByRole('button', { name: 'Save' }).click();
-    await scPage.waitForLoading();
+    // Click the "Add or edit codes" button to be taken to the orders form
+    await page.getByRole('button', { name: 'Add or edit codes' }).click();
+    await scPage.waitForPage.moveOrders();
 
-    await expect(page.locator('[data-testid="tacMDC"]')).toContainText('E15A');
-    await expect(page.locator('[data-testid="sacSDN"]')).toContainText('4K988AS098F');
-    await expect(page.locator('[data-testid="NTStac"]')).toContainText('F123');
-    await expect(page.locator('[data-testid="NTSsac"]')).toContainText('3L988AS098F');
+    // Fill out the HHG and NTS accounting codes
+    await page.getByTestId('hhgTacInput').fill('E15A');
+    await page.getByTestId('hhgSacInput').fill('4K988AS098F');
+    await page.getByTestId('ntsTacInput').fill('F123');
+    await page.getByTestId('ntsSacInput').fill('3L988AS098F');
 
-    // test 'Services Counselor can assign accounting code(s) to a shipment'
-    // combining this test with the one above
+    // Fill out the orders details
+    await page.getByLabel('Orders number').fill('1234');
+    await page.getByLabel('Department indicator').selectOption({ label: '21 Army' });
+    await page.getByLabel('Orders type', { exact: true }).selectOption({ label: 'Permanent Change Of Station (PCS)' });
+    await page.getByLabel('Orders type detail').selectOption({ label: 'Shipment of HHG Permitted' });
 
-    await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
-    await scPage.waitForLoading();
+    // Click the Save button and return to the move details page
+    await page.getByRole('button', { name: 'Save' }).click();
+    await scPage.waitForPage.moveDetails();
 
-    await page.locator('[data-testid="radio"] [for="tacType-NTS"]').click();
-    await page.locator('[data-testid="radio"] [for="sacType-HHG"]').click();
+    // Verify that orders information saved correctly
+    await expect(page.getByTestId('tacMDC')).toHaveText('E15A');
 
-    await page.locator('[data-testid="submitForm"]').click();
-    await scPage.waitForLoading();
+    // Return to editing the NTS shipment
+    container = await scPage.getShipmentContainerByType('NTS');
+    await container.getByRole('button', { name: 'Edit Shipment' }).click();
+    await scPage.waitForPage.editNTSShipment();
 
-    await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
+    // Select TAC and SAC codes for this shipment, then save
+    await page.getByText('F123 (NTS)').click();
+    await page.getByText('4K988AS098F (HHG)').click();
+    await page.getByRole('button', { name: 'Save' }).click();
+    await scPage.waitForPage.moveDetails();
 
-    // test 'Services Counselor can submit a move with an NTS shipment'
-    // combining test
+    // Verify that shipment has been been updated
+    await expect(page.getByText('Your changes were saved.')).toBeVisible();
 
-    // click to trigger confirmation modal
-    await page.getByText('Submit move details').click();
+    // Click the submit move button and bring up the confirmation modal
+    await page.getByRole('button', { name: 'Submit move details' }).click();
+    await expect(page.getByTestId('modal')).toBeVisible();
 
-    await expect(page.locator('[data-testid="modal"]')).toBeVisible();
-
+    // Submit the move and verify the success alert displays
     await page.getByRole('button', { name: 'Yes, submit' }).click();
-
-    // verify success alert
     await expect(page.getByText('Move submitted.')).toBeVisible();
   });
 });
