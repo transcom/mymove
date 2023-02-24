@@ -1483,8 +1483,9 @@ paths:
     get:
       produces:
         - application/json
-      summary: Get information about an upload
-      description: Returns the given upload and information about the uploader and move
+      summary: Get information about an Upload
+      description:
+        $ref: paths/uploads/{uploadId}/get/description.md
       operationId: getUpload
       tags:
         - upload
@@ -1504,7 +1505,7 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: upload not found
+          description: Upload not found
         '500':
           description: server error
   /organizations:
