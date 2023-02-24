@@ -1013,8 +1013,9 @@ paths:
     get:
       produces:
         - application/json
-      summary: List office users
-      description: Returns a list of office users
+      summary: List of Office Users
+      description:
+        $ref: paths/office-users/get/description.md
       operationId: indexOfficeUsers
       tags:
         - office_users
@@ -1048,7 +1049,7 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: office not found
+          description: Office User not found
         '500':
           description: server error
     post:
@@ -1056,15 +1057,16 @@ paths:
         - application/json
       produces:
         - application/json
-      summary: create an office user
-      description: creates and returns an office user record
+      summary: Create an Office User
+      description:
+        $ref: paths/office-users/post/description.md
       operationId: createOfficeUser
       tags:
         - office_users
       parameters:
         - in: body
           name: officeUser
-          description: Office user information
+          description: Office User information
           schema:
             $ref: '#/definitions/OfficeUserCreate'
       responses:
@@ -1082,8 +1084,9 @@ paths:
     get:
       produces:
         - application/json
-      summary: Get an office user
-      description: Returns the given office user
+      summary: Get an Office User
+      description:
+        $ref: paths/office-users/{officeUserId}/get/description.md
       operationId: getOfficeUser
       tags:
         - office_users
@@ -1103,16 +1106,17 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: office not found
+          description: Office User not found
         '500':
           description: server error
     patch:
-      summary: Updates an office user
       consumes:
         - application/json
       produces:
         - application/json
-      description: Updates an office user
+      summary: Updates an Office User
+      description:
+        $ref: paths/office-users/{officeUserId}/patch/description.md
       operationId: updateOfficeUser
       tags:
         - office_users
@@ -1124,7 +1128,7 @@ paths:
           required: true
         - in: body
           name: officeUser
-          description: Office user information
+          description: Office User information
           required: true
           schema:
             $ref: '#/definitions/OfficeUserUpdate'
@@ -1138,7 +1142,7 @@ paths:
         '401':
           description: Must be authenticated to use this end point
         '403':
-          description: Not authorized to update an office user
+          description: Not authorized to update an Office User
         '500':
           description: Server error
   /transportation-service-provider-performances:
