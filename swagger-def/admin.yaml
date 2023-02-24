@@ -23,7 +23,7 @@ tags:
     description: Information about Admin UI users
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: electronic_order
+  - name: Electronic orders
     description: Information about electronic orders
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
@@ -1395,7 +1395,7 @@ paths:
       description: Returns a list of electronic orders
       operationId: indexElectronicOrders
       tags:
-        - electronic_order
+        - Electronic orders
       parameters:
         - in: query
           name: filter
@@ -1439,7 +1439,7 @@ paths:
       description: Returns a list of record counts for orders
       operationId: getElectronicOrdersTotals
       tags:
-        - electronic_order
+        - Electronic orders
       parameters:
         - in: query
           name: filter
