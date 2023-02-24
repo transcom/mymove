@@ -1,16 +1,24 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ConnectedReview from 'pages/MyMove/Review/Review';
-import { MockProviders } from 'testUtils';
+import { renderWithProviders } from 'testUtils';
 import MOVE_STATUSES from 'constants/moves';
 import { selectCurrentMove, selectMTOShipmentsForCurrentMove } from 'store/entities/selectors';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { customerRoutes } from 'constants/routes';
 
 // Mock the summary part of the review page since we're just testing the
 // navigation portion.
 jest.mock('components/Customer/Review/Summary/Summary', () => 'summary');
+
+// Explicitly setup navigate mock so we can verify it was called with correct pathing in tests
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
@@ -70,17 +78,9 @@ describe('Review page', () => {
     destinationZIP: '73523',
   };
 
-  const testProps = {
-    push: jest.fn(),
-    match: {
-      path: '/moves/:moveId/review',
-      url: '/moves/3a8c9f4f-7344-4f18-9ab5-0de3ef57b901/review',
-      isExact: true,
-      params: {
-        moveId: '3a8c9f4f-7344-4f18-9ab5-0de3ef57b901',
-      },
-    },
-  };
+  const mockParams = { moveId: '3a8c9f4f-7344-4f18-9ab5-0de3ef57b901' };
+  const mockPath = customerRoutes.MOVE_REVIEW_PATH;
+  const mockRoutingOptions = { path: mockPath, params: mockParams };
 
   const testFlashState = {
     flash: {
@@ -97,11 +97,7 @@ describe('Review page', () => {
 
   it('renders the Review Page', async () => {
     selectCurrentMove.mockImplementation(() => testDraftMove);
-    render(
-      <MockProviders>
-        <ConnectedReview {...testProps} />
-      </MockProviders>,
-    );
+    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
 
     await screen.findByRole('heading', { level: 1, name: 'Review your details' });
   });
@@ -109,11 +105,7 @@ describe('Review page', () => {
   it('Finish Later button goes back to the home page', async () => {
     selectCurrentMove.mockImplementation(() => testDraftMove);
 
-    render(
-      <MockProviders>
-        <ConnectedReview {...testProps} />
-      </MockProviders>,
-    );
+    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
 
     const backButton = screen.getByRole('button', { name: 'Finish later' });
 
@@ -121,18 +113,16 @@ describe('Review page', () => {
 
     await userEvent.click(backButton);
 
-    expect(testProps.push).toHaveBeenCalledWith('/');
+    screen.debug();
+
+    expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 
   it('next button goes to the Agreement page when move is in DRAFT status', async () => {
     selectCurrentMove.mockImplementation(() => testDraftMove);
     selectMTOShipmentsForCurrentMove.mockImplementation(() => [testCompletePPMShipment, testHHGShipment]);
 
-    render(
-      <MockProviders>
-        <ConnectedReview {...testProps} />
-      </MockProviders>,
-    );
+    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
 
     const submitButton = await screen.findByRole('button', { name: 'Next' });
 
@@ -140,18 +130,14 @@ describe('Review page', () => {
 
     await userEvent.click(submitButton);
 
-    expect(testProps.push).toHaveBeenCalledWith(`/moves/${testProps.match.params.moveId}/agreement`);
+    expect(mockNavigate).toHaveBeenCalledWith(`/moves/${mockParams.moveId}/agreement`);
   });
 
   it('next button goes to the Agreement page when move is in DRAFT status with only HHG shipment', async () => {
     selectCurrentMove.mockImplementation(() => testDraftMove);
     selectMTOShipmentsForCurrentMove.mockImplementation(() => [testHHGShipment]);
 
-    render(
-      <MockProviders>
-        <ConnectedReview {...testProps} />
-      </MockProviders>,
-    );
+    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
 
     const submitButton = await screen.findByRole('button', { name: 'Next' });
 
@@ -159,18 +145,14 @@ describe('Review page', () => {
 
     await userEvent.click(submitButton);
 
-    expect(testProps.push).toHaveBeenCalledWith(`/moves/${testProps.match.params.moveId}/agreement`);
+    expect(mockNavigate).toHaveBeenCalledWith(`/moves/${mockParams.moveId}/agreement`);
   });
 
   it('next button is disabled when a PPM shipment is in an incomplete state', async () => {
     selectCurrentMove.mockImplementation(() => testDraftMove);
     selectMTOShipmentsForCurrentMove.mockImplementation(() => [testIncompletePPMShipment, testHHGShipment]);
 
-    render(
-      <MockProviders>
-        <ConnectedReview {...testProps} />
-      </MockProviders>,
-    );
+    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
 
     const submitButton = await screen.findByRole('button', { name: 'Next' });
 
@@ -181,11 +163,7 @@ describe('Review page', () => {
     selectCurrentMove.mockImplementation(() => testDraftMove);
     selectMTOShipmentsForCurrentMove.mockImplementation(() => []);
 
-    render(
-      <MockProviders>
-        <ConnectedReview {...testProps} />
-      </MockProviders>,
-    );
+    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
 
     const submitButton = await screen.findByRole('button', { name: 'Next' });
 
@@ -195,11 +173,7 @@ describe('Review page', () => {
   it('return home button is displayed when move has been submitted', async () => {
     selectCurrentMove.mockImplementation(() => testSubmittedMove);
 
-    render(
-      <MockProviders>
-        <ConnectedReview {...testProps} />
-      </MockProviders>,
-    );
+    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
 
     expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
 
@@ -207,11 +181,7 @@ describe('Review page', () => {
   });
 
   it('renders the success alert flash message', async () => {
-    render(
-      <MockProviders initialState={testFlashState}>
-        <ConnectedReview {...testProps} />
-      </MockProviders>,
-    );
+    renderWithProviders(<ConnectedReview />, { ...mockRoutingOptions, initialState: testFlashState });
 
     expect(screen.getByRole('heading', { level: 4 })).toHaveTextContent('Details saved');
     expect(
