@@ -20,8 +20,8 @@ func payloadForElectronicOrderModel(o models.ElectronicOrder) *adminmessages.Ele
 		ID:           handlers.FmtUUID(o.ID),
 		Issuer:       adminmessages.NewIssuer(adminmessages.Issuer(o.Issuer)),
 		OrdersNumber: handlers.FmtString(o.OrdersNumber),
-		CreatedAt:    handlers.FmtDateTime(o.CreatedAt),
-		UpdatedAt:    handlers.FmtDateTime(o.UpdatedAt),
+		CreatedAt:    *handlers.FmtDateTime(o.CreatedAt),
+		UpdatedAt:    *handlers.FmtDateTime(o.UpdatedAt),
 	}
 }
 

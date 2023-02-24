@@ -42,7 +42,7 @@ func (o *GetElectronicOrdersTotalsURL) SetBasePath(bp string) {
 func (o *GetElectronicOrdersTotalsURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/electronic_orders/totals"
+	var _path = "/electronic-orders/totals"
 
 	_basePath := o._basePath
 	if _basePath == "" {

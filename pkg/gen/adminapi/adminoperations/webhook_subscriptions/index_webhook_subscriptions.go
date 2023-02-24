@@ -30,7 +30,7 @@ func NewIndexWebhookSubscriptions(ctx *middleware.Context, handler IndexWebhookS
 }
 
 /*
-	IndexWebhookSubscriptions swagger:route GET /webhook_subscriptions webhook_subscriptions indexWebhookSubscriptions
+	IndexWebhookSubscriptions swagger:route GET /webhook-subscriptions webhook_subscriptions indexWebhookSubscriptions
 
 # Lists webhook subscriptions
 

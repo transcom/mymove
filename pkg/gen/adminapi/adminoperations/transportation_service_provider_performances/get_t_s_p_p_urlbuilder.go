@@ -42,7 +42,7 @@ func (o *GetTSPPURL) SetBasePath(bp string) {
 func (o *GetTSPPURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/transportation_service_provider_performances/{tsppId}"
+	var _path = "/transportation-service-provider-performances/{tsppId}"
 
 	tsppID := o.TsppID.String()
 	if tsppID != "" {
