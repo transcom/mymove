@@ -42,6 +42,7 @@ var Entitlement CustomType = "Entitlement"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
+var ReService CustomType = "ReService"
 var ServiceItemParamKey CustomType = "ServiceItemParamKey"
 var ServiceMember CustomType = "ServiceMember"
 var StorageFacility CustomType = "StorageFacility"
@@ -62,6 +63,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.OfficePhoneLine":      OfficePhoneLine,
 	"models.OfficeUser":           OfficeUser,
 	"models.Order":                Order,
+	"models.ReService":            ReService,
 	"models.ServiceItemParamKey":  ServiceItemParamKey,
 	"models.ServiceMember":        ServiceMember,
 	"models.StorageFacility":      StorageFacility,
