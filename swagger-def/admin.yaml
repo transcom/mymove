@@ -1811,8 +1811,9 @@ paths:
     get:
       produces:
         - application/json
-      summary: Lists webhook subscriptions
-      description: Returns a list of webhook subscriptions
+      summary: Lists Webhook Subscriptions
+      description:
+        $ref: paths/webhook-subscriptions/get/description.md
       operationId: indexWebhookSubscriptions
       tags:
         - webhook_subscriptions
@@ -1846,7 +1847,7 @@ paths:
         '401':
           description: Not authenticated for this endpoint
         '404':
-          description: Webhook subscriptions not found
+          description: Webhook Subscriptions not found
         '500':
           description: Server error
     post:
@@ -1854,8 +1855,9 @@ paths:
         - application/json
       produces:
         - application/json
-      summary: create a webhook subscription
-      description: creates and returns a webhook subscription
+      summary: Create a Webhook Subscription
+      description:
+        $ref: paths/webhook-subscriptions/post/description.md
       operationId: createWebhookSubscription
       tags:
         - webhook_subscriptions
@@ -1867,7 +1869,7 @@ paths:
             $ref: '#/definitions/CreateWebhookSubscription'
       responses:
         '201':
-          description: Successfully created webhook subscription
+          description: Successfully created Webhook Subscription
           schema:
             $ref: '#/definitions/WebhookSubscription'
         '400':
@@ -1875,14 +1877,14 @@ paths:
         '401':
           description: Must be authenticated to use this end point
         '403':
-          description: Not authorized to create a webhook subscription
+          description: Not authorized to create a Webhook Subscription
         '500':
           description: Server error
   /webhook-subscriptions/{webhookSubscriptionId}:
     get:
       produces:
         - application/json
-      summary: Get information about a webhook subscription
+      summary: Get information about a Webhook Subscription
       description:
         $ref: paths/webhook-subscriptions/{webhookSubscriptionId}/get/description.md
       operationId: getWebhookSubscription
@@ -1904,11 +1906,11 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: subscription not found
+          description: Webhook Subscription not found
         '500':
           description: server error
     patch:
-      summary: Update a webhook subscription
+      summary: Update a Webhook Subscription
       consumes:
         - application/json
       produces:
@@ -1926,7 +1928,7 @@ paths:
           required: true
         - in: body
           name: WebhookSubscription
-          description: Webhook subscription information
+          description: Webhook Subscription information
           required: true
           schema:
             $ref: '#/definitions/WebhookSubscription'
@@ -1939,7 +1941,7 @@ paths:
             the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
       responses:
         '200':
-          description: Successfully updated webhook subscription
+          description: Successfully updated Webhook Subscription
           schema:
             $ref: '#/definitions/WebhookSubscription'
         '400':
@@ -1947,9 +1949,9 @@ paths:
         '401':
           description: Must be authenticated to use this end point
         '403':
-          description: Not authorized to update this webhook subscription
+          description: Not authorized to update this Webhook Subscription
         '404':
-          description: subscription not found
+          description: Webhook Subscription not found
         '412':
           description: Precondition failed
         '422':
