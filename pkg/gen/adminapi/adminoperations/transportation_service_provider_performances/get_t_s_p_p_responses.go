@@ -112,7 +112,7 @@ func (o *GetTSPPUnauthorized) WriteResponse(rw http.ResponseWriter, producer run
 const GetTSPPNotFoundCode int = 404
 
 /*
-GetTSPPNotFound tspp not found
+GetTSPPNotFound Transportation Service Provider Performances (TSPPs) not found
 
 swagger:response getTSPPNotFound
 */

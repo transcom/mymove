@@ -32,9 +32,10 @@ func NewIndexMoves(ctx *middleware.Context, handler IndexMovesHandler) *IndexMov
 /*
 	IndexMoves swagger:route GET /moves move indexMoves
 
-# List moves
+# List Moves
 
-Returns a list of moves
+This endpoint returns a list of Moves. Do not use this endpoint directly
+as it is meant to be used with the Admin UI exclusively.
 */
 type IndexMoves struct {
 	Context *middleware.Context

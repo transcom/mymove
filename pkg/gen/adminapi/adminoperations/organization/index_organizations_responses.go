@@ -137,7 +137,7 @@ func (o *IndexOrganizationsUnauthorized) WriteResponse(rw http.ResponseWriter, p
 const IndexOrganizationsNotFoundCode int = 404
 
 /*
-IndexOrganizationsNotFound not found
+IndexOrganizationsNotFound Organizations not found
 
 swagger:response indexOrganizationsNotFound
 */

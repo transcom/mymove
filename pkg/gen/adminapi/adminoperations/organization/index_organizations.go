@@ -32,9 +32,10 @@ func NewIndexOrganizations(ctx *middleware.Context, handler IndexOrganizationsHa
 /*
 	IndexOrganizations swagger:route GET /organizations organization indexOrganizations
 
-# List organizations
+# List Organizations
 
-Returns a list of organizations
+This endpoint returns a list of Organizations. Do not use this endpoint directly
+as it is meant to be used with the Admin UI exclusively.
 */
 type IndexOrganizations struct {
 	Context *middleware.Context

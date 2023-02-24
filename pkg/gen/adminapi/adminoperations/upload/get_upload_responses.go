@@ -112,7 +112,7 @@ func (o *GetUploadUnauthorized) WriteResponse(rw http.ResponseWriter, producer r
 const GetUploadNotFoundCode int = 404
 
 /*
-GetUploadNotFound upload not found
+GetUploadNotFound Upload not found
 
 swagger:response getUploadNotFound
 */

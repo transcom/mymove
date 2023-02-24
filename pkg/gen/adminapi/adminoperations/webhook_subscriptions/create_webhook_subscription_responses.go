@@ -17,7 +17,7 @@ import (
 const CreateWebhookSubscriptionCreatedCode int = 201
 
 /*
-CreateWebhookSubscriptionCreated Successfully created webhook subscription
+CreateWebhookSubscriptionCreated Successfully created Webhook Subscription
 
 swagger:response createWebhookSubscriptionCreated
 */
@@ -112,7 +112,7 @@ func (o *CreateWebhookSubscriptionUnauthorized) WriteResponse(rw http.ResponseWr
 const CreateWebhookSubscriptionForbiddenCode int = 403
 
 /*
-CreateWebhookSubscriptionForbidden Not authorized to create a webhook subscription
+CreateWebhookSubscriptionForbidden Not authorized to create a Webhook Subscription
 
 swagger:response createWebhookSubscriptionForbidden
 */

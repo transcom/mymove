@@ -32,9 +32,10 @@ func NewIndexElectronicOrders(ctx *middleware.Context, handler IndexElectronicOr
 /*
 	IndexElectronicOrders swagger:route GET /electronic-orders electronic_order indexElectronicOrders
 
-# List electronic orders
+# List Electronic Orders
 
-Returns a list of electronic orders
+This endpoint returns a list of Electronic Orders. Do not use this endpoint
+directly as it is meant to be used with the Admin UI exclusively.
 */
 type IndexElectronicOrders struct {
 	Context *middleware.Context

@@ -32,9 +32,10 @@ func NewIndexOffices(ctx *middleware.Context, handler IndexOfficesHandler) *Inde
 /*
 	IndexOffices swagger:route GET /offices office indexOffices
 
-# List transportation offices
+# List Transportation Offices
 
-Returns a list of transportation offices
+This endpoint returns a list of Transportation Offices. Do not use this endpoint
+directly as it is meant to be used with the Admin UI exclusively.
 */
 type IndexOffices struct {
 	Context *middleware.Context

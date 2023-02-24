@@ -32,9 +32,10 @@ func NewUpdateOfficeUser(ctx *middleware.Context, handler UpdateOfficeUserHandle
 /*
 	UpdateOfficeUser swagger:route PATCH /office-users/{officeUserId} office_users updateOfficeUser
 
-# Updates an office user
+# Updates an Office User
 
-Updates an office user
+This endpoint updates a single Office User by ID. Do not use this
+endpoint directly as it is meant to be used with the Admin UI exclusively.
 */
 type UpdateOfficeUser struct {
 	Context *middleware.Context

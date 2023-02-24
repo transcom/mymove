@@ -137,7 +137,7 @@ func (o *IndexTSPPsUnauthorized) WriteResponse(rw http.ResponseWriter, producer 
 const IndexTSPPsNotFoundCode int = 404
 
 /*
-IndexTSPPsNotFound office not found
+IndexTSPPsNotFound Transportation Service Provider Performances (TSPPs) not found
 
 swagger:response indexTSPPsNotFound
 */

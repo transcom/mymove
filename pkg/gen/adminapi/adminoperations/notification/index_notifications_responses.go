@@ -137,7 +137,7 @@ func (o *IndexNotificationsUnauthorized) WriteResponse(rw http.ResponseWriter, p
 const IndexNotificationsNotFoundCode int = 404
 
 /*
-IndexNotificationsNotFound not found
+IndexNotificationsNotFound Notifications not found
 
 swagger:response indexNotificationsNotFound
 */

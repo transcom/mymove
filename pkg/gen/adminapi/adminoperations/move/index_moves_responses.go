@@ -137,7 +137,7 @@ func (o *IndexMovesUnauthorized) WriteResponse(rw http.ResponseWriter, producer 
 const IndexMovesNotFoundCode int = 404
 
 /*
-IndexMovesNotFound not found
+IndexMovesNotFound Moves not found
 
 swagger:response indexMovesNotFound
 */

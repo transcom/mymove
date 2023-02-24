@@ -137,7 +137,7 @@ func (o *IndexUsersUnauthorized) WriteResponse(rw http.ResponseWriter, producer 
 const IndexUsersNotFoundCode int = 404
 
 /*
-IndexUsersNotFound users not found
+IndexUsersNotFound Users not found
 
 swagger:response indexUsersNotFound
 */

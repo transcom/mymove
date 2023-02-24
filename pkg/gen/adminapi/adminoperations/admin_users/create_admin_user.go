@@ -32,9 +32,11 @@ func NewCreateAdminUser(ctx *middleware.Context, handler CreateAdminUserHandler)
 /*
 	CreateAdminUser swagger:route POST /admin-users admin_users createAdminUser
 
-create an admin user
+create an Admin User
 
-creates and returns an admin user record
+This endpoint creates an Admin User record and return the created record in the
+`201` response. Do not use this endpoint directly as it is meant to be used with
+the Admin UI exclusively.
 */
 type CreateAdminUser struct {
 	Context *middleware.Context

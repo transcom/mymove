@@ -32,9 +32,10 @@ func NewUpdateAdminUser(ctx *middleware.Context, handler UpdateAdminUserHandler)
 /*
 	UpdateAdminUser swagger:route PATCH /admin-users/{adminUserId} admin_users updateAdminUser
 
-# Updates an admin user
+# Updates an Admin User
 
-Updates an admin user
+This endpoint updates a single Admin User by ID. Do not use this
+endpoint directly as it is meant to be used with the Admin UI exclusively.
 */
 type UpdateAdminUser struct {
 	Context *middleware.Context

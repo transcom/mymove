@@ -32,9 +32,11 @@ func NewIndexNotifications(ctx *middleware.Context, handler IndexNotificationsHa
 /*
 	IndexNotifications swagger:route GET /notifications notification indexNotifications
 
-# List notifications
+# List Notifications
 
-Returns a list of notifications that have been sent to service members
+This endpoint returns a list of Notifications that have been sent to Service
+Members. Do not use this endpoint directly as it is meant to be used with the
+Admin UI exclusively.
 */
 type IndexNotifications struct {
 	Context *middleware.Context

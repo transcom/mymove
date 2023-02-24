@@ -46,14 +46,14 @@ func init() {
   "paths": {
     "/admin-users": {
       "get": {
-        "description": "Returns a list of admin users",
+        "description": "This endpoint returns a list of Admin Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "admin_users"
         ],
-        "summary": "List admin users",
+        "summary": "List Admin Users",
         "operationId": "indexAdminUsers",
         "parameters": [
           {
@@ -105,7 +105,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "admin users not found"
+            "description": "Admin Users not found"
           },
           "500": {
             "description": "server error"
@@ -113,7 +113,7 @@ func init() {
         }
       },
       "post": {
-        "description": "creates and returns an admin user record",
+        "description": "This endpoint creates an Admin User record and return the created record in the\n` + "`" + `201` + "`" + ` response. Do not use this endpoint directly as it is meant to be used with\nthe Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -123,11 +123,11 @@ func init() {
         "tags": [
           "admin_users"
         ],
-        "summary": "create an admin user",
+        "summary": "create an Admin User",
         "operationId": "createAdminUser",
         "parameters": [
           {
-            "description": "Admin user information",
+            "description": "Admin User information",
             "name": "adminUser",
             "in": "body",
             "schema": {
@@ -149,7 +149,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to create an admin user"
+            "description": "Not authorized to create an Admin User"
           },
           "500": {
             "description": "Server error"
@@ -159,14 +159,14 @@ func init() {
     },
     "/admin-users/{adminUserId}": {
       "get": {
-        "description": "Returns a single admin user",
+        "description": "This endpoint returns a single Admin User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "admin_users"
         ],
-        "summary": "Fetch a specific admin user",
+        "summary": "Fetch a specific Admin User",
         "operationId": "getAdminUser",
         "parameters": [
           {
@@ -191,7 +191,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "admin user not found"
+            "description": "Admin User not found"
           },
           "500": {
             "description": "server error"
@@ -199,7 +199,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates an admin user",
+        "description": "This endpoint updates a single Admin User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -209,7 +209,7 @@ func init() {
         "tags": [
           "admin_users"
         ],
-        "summary": "Updates an admin user",
+        "summary": "Updates an Admin User",
         "operationId": "updateAdminUser",
         "parameters": [
           {
@@ -220,7 +220,7 @@ func init() {
             "required": true
           },
           {
-            "description": "Admin user information",
+            "description": "Admin User information",
             "name": "adminUser",
             "in": "body",
             "required": true,
@@ -243,7 +243,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update an admin user"
+            "description": "Not authorized to update an Admin User"
           },
           "500": {
             "description": "Server error"
@@ -253,14 +253,14 @@ func init() {
     },
     "/electronic-orders": {
       "get": {
-        "description": "Returns a list of electronic orders",
+        "description": "This endpoint returns a list of Electronic Orders. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "electronic_order"
         ],
-        "summary": "List electronic orders",
+        "summary": "List Electronic Orders",
         "operationId": "indexElectronicOrders",
         "parameters": [
           {
@@ -312,7 +312,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Electronic Order not found"
           },
           "500": {
             "description": "server error"
@@ -322,7 +322,7 @@ func init() {
     },
     "/electronic-orders/totals": {
       "get": {
-        "description": "Returns a list of record counts for orders",
+        "description": "This endpoint returns a list of record counts for Electronic Orders. Do not use\nthis endpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
@@ -363,7 +363,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Total count for Electronic Orders not found"
           },
           "500": {
             "description": "server error"
@@ -373,14 +373,14 @@ func init() {
     },
     "/moves": {
       "get": {
-        "description": "Returns a list of moves",
+        "description": "This endpoint returns a list of Moves. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "move"
         ],
-        "summary": "List moves",
+        "summary": "List Moves",
         "operationId": "indexMoves",
         "parameters": [
           {
@@ -429,7 +429,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Moves not found"
           },
           "500": {
             "description": "server error"
@@ -439,14 +439,14 @@ func init() {
     },
     "/moves/{moveID}": {
       "get": {
-        "description": "Returns the given move and its relevant info",
+        "description": "This endpoint returns a single Move by ID. Do not use this endpoint directly as\nit is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "move"
         ],
-        "summary": "Get information about a move",
+        "summary": "Get information about a Move",
         "operationId": "getMove",
         "parameters": [
           {
@@ -479,7 +479,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Allows the user to change the ` + "`" + `show` + "`" + ` field on the selected field to either ` + "`" + `True` + "`" + ` or ` + "`" + `False` + "`" + `. A \"shown\" move will appear to all users as normal, a \"hidden\" move will not be returned or editable using any other endpoint (besides those in the Support API), and thus effectively deactivated.\n",
+        "description": "This endpoint updates a single Move by ID. This allows the Admin User to change\nthe ` + "`" + `show` + "`" + ` field on the selected field to either ` + "`" + `True` + "`" + ` or ` + "`" + `False` + "`" + `. A \"shown\"\nMove will appear to all users as normal, a \"hidden\" Move will not be returned or\neditable using any other endpoint (besides those in the Support API), and thus\neffectively deactivated. Do not use this endpoint directly as it is meant to be\nused with the Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -489,7 +489,7 @@ func init() {
         "tags": [
           "move"
         ],
-        "summary": "Disables or re-enables a move",
+        "summary": "Toggle Move visibility",
         "operationId": "updateMove",
         "parameters": [
           {
@@ -511,7 +511,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated the Mov",
+            "description": "Successfully updated the Move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -523,7 +523,7 @@ func init() {
             "description": "Must be authenticated to use this endpoint"
           },
           "403": {
-            "description": "Not authorized to update this move"
+            "description": "Not authorized to update this Move"
           },
           "404": {
             "description": "Move not found"
@@ -539,14 +539,14 @@ func init() {
     },
     "/notifications": {
       "get": {
-        "description": "Returns a list of notifications that have been sent to service members",
+        "description": "This endpoint returns a list of Notifications that have been sent to Service\nMembers. Do not use this endpoint directly as it is meant to be used with the\nAdmin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "notification"
         ],
-        "summary": "List notifications",
+        "summary": "List Notifications",
         "operationId": "indexNotifications",
         "parameters": [
           {
@@ -595,7 +595,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Notifications not found"
           },
           "500": {
             "description": "server error"
@@ -605,14 +605,14 @@ func init() {
     },
     "/office-users": {
       "get": {
-        "description": "Returns a list of office users",
+        "description": "This endpoint returns a list of Office Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "office_users"
         ],
-        "summary": "List office users",
+        "summary": "List of Office Users",
         "operationId": "indexOfficeUsers",
         "parameters": [
           {
@@ -661,7 +661,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "Office User not found"
           },
           "500": {
             "description": "server error"
@@ -669,7 +669,7 @@ func init() {
         }
       },
       "post": {
-        "description": "creates and returns an office user record",
+        "description": "This endpoint creates an Office User record and return the created record in the\n` + "`" + `201` + "`" + ` response. If there are issues with the Office User information provided a\n` + "`" + `422` + "`" + ` response will occur with information about invalid fields and additional\ndetails. Do not use this endpoint directly as it is meant to be used with\nthe Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -679,11 +679,11 @@ func init() {
         "tags": [
           "office_users"
         ],
-        "summary": "create an office user",
+        "summary": "Create an Office User",
         "operationId": "createOfficeUser",
         "parameters": [
           {
-            "description": "Office user information",
+            "description": "Office User information",
             "name": "officeUser",
             "in": "body",
             "schema": {
@@ -712,14 +712,14 @@ func init() {
     },
     "/office-users/{officeUserId}": {
       "get": {
-        "description": "Returns the given office user",
+        "description": "This endpoint returns a single Office User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "office_users"
         ],
-        "summary": "Get an office user",
+        "summary": "Get an Office User",
         "operationId": "getOfficeUser",
         "parameters": [
           {
@@ -744,7 +744,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "Office User not found"
           },
           "500": {
             "description": "server error"
@@ -752,7 +752,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates an office user",
+        "description": "This endpoint updates a single Office User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -762,7 +762,7 @@ func init() {
         "tags": [
           "office_users"
         ],
-        "summary": "Updates an office user",
+        "summary": "Updates an Office User",
         "operationId": "updateOfficeUser",
         "parameters": [
           {
@@ -773,7 +773,7 @@ func init() {
             "required": true
           },
           {
-            "description": "Office user information",
+            "description": "Office User information",
             "name": "officeUser",
             "in": "body",
             "required": true,
@@ -796,7 +796,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update an office user"
+            "description": "Not authorized to update an Office User"
           },
           "500": {
             "description": "Server error"
@@ -806,14 +806,14 @@ func init() {
     },
     "/offices": {
       "get": {
-        "description": "Returns a list of transportation offices",
+        "description": "This endpoint returns a list of Transportation Offices. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "office"
         ],
-        "summary": "List transportation offices",
+        "summary": "List Transportation Offices",
         "operationId": "indexOffices",
         "parameters": [
           {
@@ -862,7 +862,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "Transportation Office not found"
           },
           "500": {
             "description": "server error"
@@ -872,14 +872,14 @@ func init() {
     },
     "/organizations": {
       "get": {
-        "description": "Returns a list of organizations",
+        "description": "This endpoint returns a list of Organizations. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "organization"
         ],
-        "summary": "List organizations",
+        "summary": "List Organizations",
         "operationId": "indexOrganizations",
         "parameters": [
           {
@@ -931,7 +931,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Organizations not found"
           },
           "500": {
             "description": "server error"
@@ -941,14 +941,14 @@ func init() {
     },
     "/transportation-service-provider-performances": {
       "get": {
-        "description": "Returns a list of transportation service provider performances (TSPPs)",
+        "description": "This endpoint returns a list of Transportation Service Provider Performances\n(TSPPs). Do not use this endpoint directly as it is meant to be used with the\nAdmin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "transportation_service_provider_performances"
         ],
-        "summary": "List transportation service provider performances (TSPPs)",
+        "summary": "List Transportation Service Provider Performances (TSPPs)",
         "operationId": "indexTSPPs",
         "parameters": [
           {
@@ -997,7 +997,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "Transportation Service Provider Performances (TSPPs) not found"
           },
           "500": {
             "description": "server error"
@@ -1007,14 +1007,14 @@ func init() {
     },
     "/transportation-service-provider-performances/{tsppId}": {
       "get": {
-        "description": "Returns a single tspp",
+        "description": "This endpoint creates a Transportation Service Provider Performances (TSPPs)\nrecord and return the created record in the ` + "`" + `201` + "`" + ` response. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "transportation_service_provider_performances"
         ],
-        "summary": "Fetch a specific tspp",
+        "summary": "Fetch a specific TSPP",
         "operationId": "getTSPP",
         "parameters": [
           {
@@ -1039,7 +1039,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "tspp not found"
+            "description": "Transportation Service Provider Performances (TSPPs) not found"
           },
           "500": {
             "description": "server error"
@@ -1049,14 +1049,14 @@ func init() {
     },
     "/uploads/{uploadId}": {
       "get": {
-        "description": "Returns the given upload and information about the uploader and move",
+        "description": "This endpoint returns a single Upload by ID containing the given Upload and\ninformation about the Uploader and Move. Do not use this endpoint directly as it\nis meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "upload"
         ],
-        "summary": "Get information about an upload",
+        "summary": "Get information about an Upload",
         "operationId": "getUpload",
         "parameters": [
           {
@@ -1081,7 +1081,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "upload not found"
+            "description": "Upload not found"
           },
           "500": {
             "description": "server error"
@@ -1091,14 +1091,14 @@ func init() {
     },
     "/users": {
       "get": {
-        "description": "Returns a list of users",
+        "description": "This endpoint returns a list of Users. Do not use this endpoint directly as it\nis meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "users"
         ],
-        "summary": "List users",
+        "summary": "List Users",
         "operationId": "indexUsers",
         "parameters": [
           {
@@ -1147,7 +1147,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "users not found"
+            "description": "Users not found"
           },
           "500": {
             "description": "server error"
@@ -1157,14 +1157,14 @@ func init() {
     },
     "/users/{userId}": {
       "get": {
-        "description": "Returns the given user and their sessions",
+        "description": "This endpoint returns a single User by ID. This also returns the User's sessions\nas well. Do not use this endpoint directly as it is meant to be used with the\nAdmin UI exclusively.\n\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "users"
         ],
-        "summary": "Get information about a user",
+        "summary": "Get information about a User",
         "operationId": "getUser",
         "parameters": [
           {
@@ -1189,7 +1189,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "user not found"
+            "description": "User not found"
           },
           "500": {
             "description": "server error"
@@ -1197,7 +1197,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Update a user's session or active status",
+        "description": "This endpoint updates a single User by ID. This can be used by the Admin User to\nupdate the User's session or the User's active status. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -1207,7 +1207,7 @@ func init() {
         "tags": [
           "users"
         ],
-        "summary": "Update a user's session or active status",
+        "summary": "Update a User's session or active status",
         "operationId": "updateUser",
         "parameters": [
           {
@@ -1241,7 +1241,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update this user"
+            "description": "Not authorized to update this User"
           },
           "404": {
             "description": "Not found"
@@ -1260,14 +1260,14 @@ func init() {
     },
     "/webhook-subscriptions": {
       "get": {
-        "description": "Returns a list of webhook subscriptions",
+        "description": "This endpoint returns a list of Webhook Subscriptions. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "webhook_subscriptions"
         ],
-        "summary": "Lists webhook subscriptions",
+        "summary": "Lists Webhook Subscriptions",
         "operationId": "indexWebhookSubscriptions",
         "parameters": [
           {
@@ -1316,7 +1316,7 @@ func init() {
             "description": "Not authenticated for this endpoint"
           },
           "404": {
-            "description": "Webhook subscriptions not found"
+            "description": "Webhook Subscriptions not found"
           },
           "500": {
             "description": "Server error"
@@ -1324,7 +1324,7 @@ func init() {
         }
       },
       "post": {
-        "description": "creates and returns a webhook subscription",
+        "description": "This endpoint creates a Webhook Subscription and returns the created record in\nthe ` + "`" + `201` + "`" + ` response. Do not use this endpoint directly as it is meant to be used\nwith the Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -1334,7 +1334,7 @@ func init() {
         "tags": [
           "webhook_subscriptions"
         ],
-        "summary": "create a webhook subscription",
+        "summary": "Create a Webhook Subscription",
         "operationId": "createWebhookSubscription",
         "parameters": [
           {
@@ -1348,7 +1348,7 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "Successfully created webhook subscription",
+            "description": "Successfully created Webhook Subscription",
             "schema": {
               "$ref": "#/definitions/WebhookSubscription"
             }
@@ -1360,7 +1360,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to create a webhook subscription"
+            "description": "Not authorized to create a Webhook Subscription"
           },
           "500": {
             "description": "Server error"
@@ -1370,14 +1370,14 @@ func init() {
     },
     "/webhook-subscriptions/{webhookSubscriptionId}": {
       "get": {
-        "description": "This endpoint returns a single WebhookSubscription by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI and not directly.\n",
+        "description": "This endpoint returns a single Webhook Subscription by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "webhook_subscriptions"
         ],
-        "summary": "Get information about a webhook subscription",
+        "summary": "Get information about a Webhook Subscription",
         "operationId": "getWebhookSubscription",
         "parameters": [
           {
@@ -1402,7 +1402,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "subscription not found"
+            "description": "Webhook Subscription not found"
           },
           "500": {
             "description": "server error"
@@ -1410,7 +1410,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "This endpoint updates a WebhookSubscription by ID. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI and not directly.\n",
+        "description": "This endpoint updates a single Webhook Subscription by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -1420,7 +1420,7 @@ func init() {
         "tags": [
           "webhook_subscriptions"
         ],
-        "summary": "Update a webhook subscription",
+        "summary": "Update a Webhook Subscription",
         "operationId": "updateWebhookSubscription",
         "parameters": [
           {
@@ -1431,7 +1431,7 @@ func init() {
             "required": true
           },
           {
-            "description": "Webhook subscription information",
+            "description": "Webhook Subscription information",
             "name": "WebhookSubscription",
             "in": "body",
             "required": true,
@@ -1449,7 +1449,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated webhook subscription",
+            "description": "Successfully updated Webhook Subscription",
             "schema": {
               "$ref": "#/definitions/WebhookSubscription"
             }
@@ -1461,10 +1461,10 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update this webhook subscription"
+            "description": "Not authorized to update this Webhook Subscription"
           },
           "404": {
-            "description": "subscription not found"
+            "description": "Webhook Subscription not found"
           },
           "412": {
             "description": "Precondition failed"
@@ -2795,14 +2795,14 @@ func init() {
   "paths": {
     "/admin-users": {
       "get": {
-        "description": "Returns a list of admin users",
+        "description": "This endpoint returns a list of Admin Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "admin_users"
         ],
-        "summary": "List admin users",
+        "summary": "List Admin Users",
         "operationId": "indexAdminUsers",
         "parameters": [
           {
@@ -2854,7 +2854,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "admin users not found"
+            "description": "Admin Users not found"
           },
           "500": {
             "description": "server error"
@@ -2862,7 +2862,7 @@ func init() {
         }
       },
       "post": {
-        "description": "creates and returns an admin user record",
+        "description": "This endpoint creates an Admin User record and return the created record in the\n` + "`" + `201` + "`" + ` response. Do not use this endpoint directly as it is meant to be used with\nthe Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -2872,11 +2872,11 @@ func init() {
         "tags": [
           "admin_users"
         ],
-        "summary": "create an admin user",
+        "summary": "create an Admin User",
         "operationId": "createAdminUser",
         "parameters": [
           {
-            "description": "Admin user information",
+            "description": "Admin User information",
             "name": "adminUser",
             "in": "body",
             "schema": {
@@ -2898,7 +2898,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to create an admin user"
+            "description": "Not authorized to create an Admin User"
           },
           "500": {
             "description": "Server error"
@@ -2908,14 +2908,14 @@ func init() {
     },
     "/admin-users/{adminUserId}": {
       "get": {
-        "description": "Returns a single admin user",
+        "description": "This endpoint returns a single Admin User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "admin_users"
         ],
-        "summary": "Fetch a specific admin user",
+        "summary": "Fetch a specific Admin User",
         "operationId": "getAdminUser",
         "parameters": [
           {
@@ -2940,7 +2940,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "admin user not found"
+            "description": "Admin User not found"
           },
           "500": {
             "description": "server error"
@@ -2948,7 +2948,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates an admin user",
+        "description": "This endpoint updates a single Admin User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -2958,7 +2958,7 @@ func init() {
         "tags": [
           "admin_users"
         ],
-        "summary": "Updates an admin user",
+        "summary": "Updates an Admin User",
         "operationId": "updateAdminUser",
         "parameters": [
           {
@@ -2969,7 +2969,7 @@ func init() {
             "required": true
           },
           {
-            "description": "Admin user information",
+            "description": "Admin User information",
             "name": "adminUser",
             "in": "body",
             "required": true,
@@ -2992,7 +2992,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update an admin user"
+            "description": "Not authorized to update an Admin User"
           },
           "500": {
             "description": "Server error"
@@ -3002,14 +3002,14 @@ func init() {
     },
     "/electronic-orders": {
       "get": {
-        "description": "Returns a list of electronic orders",
+        "description": "This endpoint returns a list of Electronic Orders. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "electronic_order"
         ],
-        "summary": "List electronic orders",
+        "summary": "List Electronic Orders",
         "operationId": "indexElectronicOrders",
         "parameters": [
           {
@@ -3061,7 +3061,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Electronic Order not found"
           },
           "500": {
             "description": "server error"
@@ -3071,7 +3071,7 @@ func init() {
     },
     "/electronic-orders/totals": {
       "get": {
-        "description": "Returns a list of record counts for orders",
+        "description": "This endpoint returns a list of record counts for Electronic Orders. Do not use\nthis endpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
@@ -3112,7 +3112,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Total count for Electronic Orders not found"
           },
           "500": {
             "description": "server error"
@@ -3122,14 +3122,14 @@ func init() {
     },
     "/moves": {
       "get": {
-        "description": "Returns a list of moves",
+        "description": "This endpoint returns a list of Moves. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "move"
         ],
-        "summary": "List moves",
+        "summary": "List Moves",
         "operationId": "indexMoves",
         "parameters": [
           {
@@ -3178,7 +3178,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Moves not found"
           },
           "500": {
             "description": "server error"
@@ -3188,14 +3188,14 @@ func init() {
     },
     "/moves/{moveID}": {
       "get": {
-        "description": "Returns the given move and its relevant info",
+        "description": "This endpoint returns a single Move by ID. Do not use this endpoint directly as\nit is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "move"
         ],
-        "summary": "Get information about a move",
+        "summary": "Get information about a Move",
         "operationId": "getMove",
         "parameters": [
           {
@@ -3228,7 +3228,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Allows the user to change the ` + "`" + `show` + "`" + ` field on the selected field to either ` + "`" + `True` + "`" + ` or ` + "`" + `False` + "`" + `. A \"shown\" move will appear to all users as normal, a \"hidden\" move will not be returned or editable using any other endpoint (besides those in the Support API), and thus effectively deactivated.\n",
+        "description": "This endpoint updates a single Move by ID. This allows the Admin User to change\nthe ` + "`" + `show` + "`" + ` field on the selected field to either ` + "`" + `True` + "`" + ` or ` + "`" + `False` + "`" + `. A \"shown\"\nMove will appear to all users as normal, a \"hidden\" Move will not be returned or\neditable using any other endpoint (besides those in the Support API), and thus\neffectively deactivated. Do not use this endpoint directly as it is meant to be\nused with the Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -3238,7 +3238,7 @@ func init() {
         "tags": [
           "move"
         ],
-        "summary": "Disables or re-enables a move",
+        "summary": "Toggle Move visibility",
         "operationId": "updateMove",
         "parameters": [
           {
@@ -3260,7 +3260,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated the Mov",
+            "description": "Successfully updated the Move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -3272,7 +3272,7 @@ func init() {
             "description": "Must be authenticated to use this endpoint"
           },
           "403": {
-            "description": "Not authorized to update this move"
+            "description": "Not authorized to update this Move"
           },
           "404": {
             "description": "Move not found"
@@ -3288,14 +3288,14 @@ func init() {
     },
     "/notifications": {
       "get": {
-        "description": "Returns a list of notifications that have been sent to service members",
+        "description": "This endpoint returns a list of Notifications that have been sent to Service\nMembers. Do not use this endpoint directly as it is meant to be used with the\nAdmin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "notification"
         ],
-        "summary": "List notifications",
+        "summary": "List Notifications",
         "operationId": "indexNotifications",
         "parameters": [
           {
@@ -3344,7 +3344,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Notifications not found"
           },
           "500": {
             "description": "server error"
@@ -3354,14 +3354,14 @@ func init() {
     },
     "/office-users": {
       "get": {
-        "description": "Returns a list of office users",
+        "description": "This endpoint returns a list of Office Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "office_users"
         ],
-        "summary": "List office users",
+        "summary": "List of Office Users",
         "operationId": "indexOfficeUsers",
         "parameters": [
           {
@@ -3410,7 +3410,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "Office User not found"
           },
           "500": {
             "description": "server error"
@@ -3418,7 +3418,7 @@ func init() {
         }
       },
       "post": {
-        "description": "creates and returns an office user record",
+        "description": "This endpoint creates an Office User record and return the created record in the\n` + "`" + `201` + "`" + ` response. If there are issues with the Office User information provided a\n` + "`" + `422` + "`" + ` response will occur with information about invalid fields and additional\ndetails. Do not use this endpoint directly as it is meant to be used with\nthe Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -3428,11 +3428,11 @@ func init() {
         "tags": [
           "office_users"
         ],
-        "summary": "create an office user",
+        "summary": "Create an Office User",
         "operationId": "createOfficeUser",
         "parameters": [
           {
-            "description": "Office user information",
+            "description": "Office User information",
             "name": "officeUser",
             "in": "body",
             "schema": {
@@ -3461,14 +3461,14 @@ func init() {
     },
     "/office-users/{officeUserId}": {
       "get": {
-        "description": "Returns the given office user",
+        "description": "This endpoint returns a single Office User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "office_users"
         ],
-        "summary": "Get an office user",
+        "summary": "Get an Office User",
         "operationId": "getOfficeUser",
         "parameters": [
           {
@@ -3493,7 +3493,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "Office User not found"
           },
           "500": {
             "description": "server error"
@@ -3501,7 +3501,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates an office user",
+        "description": "This endpoint updates a single Office User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -3511,7 +3511,7 @@ func init() {
         "tags": [
           "office_users"
         ],
-        "summary": "Updates an office user",
+        "summary": "Updates an Office User",
         "operationId": "updateOfficeUser",
         "parameters": [
           {
@@ -3522,7 +3522,7 @@ func init() {
             "required": true
           },
           {
-            "description": "Office user information",
+            "description": "Office User information",
             "name": "officeUser",
             "in": "body",
             "required": true,
@@ -3545,7 +3545,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update an office user"
+            "description": "Not authorized to update an Office User"
           },
           "500": {
             "description": "Server error"
@@ -3555,14 +3555,14 @@ func init() {
     },
     "/offices": {
       "get": {
-        "description": "Returns a list of transportation offices",
+        "description": "This endpoint returns a list of Transportation Offices. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "office"
         ],
-        "summary": "List transportation offices",
+        "summary": "List Transportation Offices",
         "operationId": "indexOffices",
         "parameters": [
           {
@@ -3611,7 +3611,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "Transportation Office not found"
           },
           "500": {
             "description": "server error"
@@ -3621,14 +3621,14 @@ func init() {
     },
     "/organizations": {
       "get": {
-        "description": "Returns a list of organizations",
+        "description": "This endpoint returns a list of Organizations. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "organization"
         ],
-        "summary": "List organizations",
+        "summary": "List Organizations",
         "operationId": "indexOrganizations",
         "parameters": [
           {
@@ -3680,7 +3680,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Organizations not found"
           },
           "500": {
             "description": "server error"
@@ -3690,14 +3690,14 @@ func init() {
     },
     "/transportation-service-provider-performances": {
       "get": {
-        "description": "Returns a list of transportation service provider performances (TSPPs)",
+        "description": "This endpoint returns a list of Transportation Service Provider Performances\n(TSPPs). Do not use this endpoint directly as it is meant to be used with the\nAdmin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "transportation_service_provider_performances"
         ],
-        "summary": "List transportation service provider performances (TSPPs)",
+        "summary": "List Transportation Service Provider Performances (TSPPs)",
         "operationId": "indexTSPPs",
         "parameters": [
           {
@@ -3746,7 +3746,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "Transportation Service Provider Performances (TSPPs) not found"
           },
           "500": {
             "description": "server error"
@@ -3756,14 +3756,14 @@ func init() {
     },
     "/transportation-service-provider-performances/{tsppId}": {
       "get": {
-        "description": "Returns a single tspp",
+        "description": "This endpoint creates a Transportation Service Provider Performances (TSPPs)\nrecord and return the created record in the ` + "`" + `201` + "`" + ` response. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "transportation_service_provider_performances"
         ],
-        "summary": "Fetch a specific tspp",
+        "summary": "Fetch a specific TSPP",
         "operationId": "getTSPP",
         "parameters": [
           {
@@ -3788,7 +3788,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "tspp not found"
+            "description": "Transportation Service Provider Performances (TSPPs) not found"
           },
           "500": {
             "description": "server error"
@@ -3798,14 +3798,14 @@ func init() {
     },
     "/uploads/{uploadId}": {
       "get": {
-        "description": "Returns the given upload and information about the uploader and move",
+        "description": "This endpoint returns a single Upload by ID containing the given Upload and\ninformation about the Uploader and Move. Do not use this endpoint directly as it\nis meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "upload"
         ],
-        "summary": "Get information about an upload",
+        "summary": "Get information about an Upload",
         "operationId": "getUpload",
         "parameters": [
           {
@@ -3830,7 +3830,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "upload not found"
+            "description": "Upload not found"
           },
           "500": {
             "description": "server error"
@@ -3840,14 +3840,14 @@ func init() {
     },
     "/users": {
       "get": {
-        "description": "Returns a list of users",
+        "description": "This endpoint returns a list of Users. Do not use this endpoint directly as it\nis meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "users"
         ],
-        "summary": "List users",
+        "summary": "List Users",
         "operationId": "indexUsers",
         "parameters": [
           {
@@ -3896,7 +3896,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "users not found"
+            "description": "Users not found"
           },
           "500": {
             "description": "server error"
@@ -3906,14 +3906,14 @@ func init() {
     },
     "/users/{userId}": {
       "get": {
-        "description": "Returns the given user and their sessions",
+        "description": "This endpoint returns a single User by ID. This also returns the User's sessions\nas well. Do not use this endpoint directly as it is meant to be used with the\nAdmin UI exclusively.\n\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "users"
         ],
-        "summary": "Get information about a user",
+        "summary": "Get information about a User",
         "operationId": "getUser",
         "parameters": [
           {
@@ -3938,7 +3938,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "user not found"
+            "description": "User not found"
           },
           "500": {
             "description": "server error"
@@ -3946,7 +3946,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Update a user's session or active status",
+        "description": "This endpoint updates a single User by ID. This can be used by the Admin User to\nupdate the User's session or the User's active status. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -3956,7 +3956,7 @@ func init() {
         "tags": [
           "users"
         ],
-        "summary": "Update a user's session or active status",
+        "summary": "Update a User's session or active status",
         "operationId": "updateUser",
         "parameters": [
           {
@@ -3990,7 +3990,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update this user"
+            "description": "Not authorized to update this User"
           },
           "404": {
             "description": "Not found"
@@ -4009,14 +4009,14 @@ func init() {
     },
     "/webhook-subscriptions": {
       "get": {
-        "description": "Returns a list of webhook subscriptions",
+        "description": "This endpoint returns a list of Webhook Subscriptions. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "webhook_subscriptions"
         ],
-        "summary": "Lists webhook subscriptions",
+        "summary": "Lists Webhook Subscriptions",
         "operationId": "indexWebhookSubscriptions",
         "parameters": [
           {
@@ -4065,7 +4065,7 @@ func init() {
             "description": "Not authenticated for this endpoint"
           },
           "404": {
-            "description": "Webhook subscriptions not found"
+            "description": "Webhook Subscriptions not found"
           },
           "500": {
             "description": "Server error"
@@ -4073,7 +4073,7 @@ func init() {
         }
       },
       "post": {
-        "description": "creates and returns a webhook subscription",
+        "description": "This endpoint creates a Webhook Subscription and returns the created record in\nthe ` + "`" + `201` + "`" + ` response. Do not use this endpoint directly as it is meant to be used\nwith the Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -4083,7 +4083,7 @@ func init() {
         "tags": [
           "webhook_subscriptions"
         ],
-        "summary": "create a webhook subscription",
+        "summary": "Create a Webhook Subscription",
         "operationId": "createWebhookSubscription",
         "parameters": [
           {
@@ -4097,7 +4097,7 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "Successfully created webhook subscription",
+            "description": "Successfully created Webhook Subscription",
             "schema": {
               "$ref": "#/definitions/WebhookSubscription"
             }
@@ -4109,7 +4109,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to create a webhook subscription"
+            "description": "Not authorized to create a Webhook Subscription"
           },
           "500": {
             "description": "Server error"
@@ -4119,14 +4119,14 @@ func init() {
     },
     "/webhook-subscriptions/{webhookSubscriptionId}": {
       "get": {
-        "description": "This endpoint returns a single WebhookSubscription by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI and not directly.\n",
+        "description": "This endpoint returns a single Webhook Subscription by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "webhook_subscriptions"
         ],
-        "summary": "Get information about a webhook subscription",
+        "summary": "Get information about a Webhook Subscription",
         "operationId": "getWebhookSubscription",
         "parameters": [
           {
@@ -4151,7 +4151,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "subscription not found"
+            "description": "Webhook Subscription not found"
           },
           "500": {
             "description": "server error"
@@ -4159,7 +4159,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "This endpoint updates a WebhookSubscription by ID. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI and not directly.\n",
+        "description": "This endpoint updates a single Webhook Subscription by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -4169,7 +4169,7 @@ func init() {
         "tags": [
           "webhook_subscriptions"
         ],
-        "summary": "Update a webhook subscription",
+        "summary": "Update a Webhook Subscription",
         "operationId": "updateWebhookSubscription",
         "parameters": [
           {
@@ -4180,7 +4180,7 @@ func init() {
             "required": true
           },
           {
-            "description": "Webhook subscription information",
+            "description": "Webhook Subscription information",
             "name": "WebhookSubscription",
             "in": "body",
             "required": true,
@@ -4198,7 +4198,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated webhook subscription",
+            "description": "Successfully updated Webhook Subscription",
             "schema": {
               "$ref": "#/definitions/WebhookSubscription"
             }
@@ -4210,10 +4210,10 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update this webhook subscription"
+            "description": "Not authorized to update this Webhook Subscription"
           },
           "404": {
-            "description": "subscription not found"
+            "description": "Webhook Subscription not found"
           },
           "412": {
             "description": "Precondition failed"

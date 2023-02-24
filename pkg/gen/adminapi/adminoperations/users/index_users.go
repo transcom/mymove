@@ -32,9 +32,10 @@ func NewIndexUsers(ctx *middleware.Context, handler IndexUsersHandler) *IndexUse
 /*
 	IndexUsers swagger:route GET /users users indexUsers
 
-# List users
+# List Users
 
-Returns a list of users
+This endpoint returns a list of Users. Do not use this endpoint directly as it
+is meant to be used with the Admin UI exclusively.
 */
 type IndexUsers struct {
 	Context *middleware.Context

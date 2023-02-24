@@ -33,7 +33,7 @@ type CreateOfficeUserParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*Office user information
+	/*Office User information
 	  In: body
 	*/
 	OfficeUser *adminmessages.OfficeUserCreate

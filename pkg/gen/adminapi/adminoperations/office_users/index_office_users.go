@@ -32,9 +32,10 @@ func NewIndexOfficeUsers(ctx *middleware.Context, handler IndexOfficeUsersHandle
 /*
 	IndexOfficeUsers swagger:route GET /office-users office_users indexOfficeUsers
 
-# List office users
+# List of Office Users
 
-Returns a list of office users
+This endpoint returns a list of Office Users. Do not use this endpoint directly
+as it is meant to be used with the Admin UI exclusively.
 */
 type IndexOfficeUsers struct {
 	Context *middleware.Context

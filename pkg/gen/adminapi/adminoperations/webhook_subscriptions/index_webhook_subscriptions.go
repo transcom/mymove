@@ -32,9 +32,10 @@ func NewIndexWebhookSubscriptions(ctx *middleware.Context, handler IndexWebhookS
 /*
 	IndexWebhookSubscriptions swagger:route GET /webhook-subscriptions webhook_subscriptions indexWebhookSubscriptions
 
-# Lists webhook subscriptions
+# Lists Webhook Subscriptions
 
-Returns a list of webhook subscriptions
+This endpoint returns a list of Webhook Subscriptions. Do not use this endpoint
+directly as it is meant to be used with the Admin UI exclusively.
 */
 type IndexWebhookSubscriptions struct {
 	Context *middleware.Context

@@ -32,9 +32,11 @@ func NewGetUser(ctx *middleware.Context, handler GetUserHandler) *GetUser {
 /*
 	GetUser swagger:route GET /users/{userId} users getUser
 
-# Get information about a user
+# Get information about a User
 
-Returns the given user and their sessions
+This endpoint returns a single User by ID. This also returns the User's sessions
+as well. Do not use this endpoint directly as it is meant to be used with the
+Admin UI exclusively.
 */
 type GetUser struct {
 	Context *middleware.Context

@@ -32,9 +32,11 @@ func NewIndexTSPPs(ctx *middleware.Context, handler IndexTSPPsHandler) *IndexTSP
 /*
 	IndexTSPPs swagger:route GET /transportation-service-provider-performances transportation_service_provider_performances indexTSPPs
 
-List transportation service provider performances (TSPPs)
+List Transportation Service Provider Performances (TSPPs)
 
-Returns a list of transportation service provider performances (TSPPs)
+This endpoint returns a list of Transportation Service Provider Performances
+(TSPPs). Do not use this endpoint directly as it is meant to be used with the
+Admin UI exclusively.
 */
 type IndexTSPPs struct {
 	Context *middleware.Context

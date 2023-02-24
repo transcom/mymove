@@ -32,9 +32,11 @@ func NewGetTSPP(ctx *middleware.Context, handler GetTSPPHandler) *GetTSPP {
 /*
 	GetTSPP swagger:route GET /transportation-service-provider-performances/{tsppId} transportation_service_provider_performances getTSPP
 
-# Fetch a specific tspp
+# Fetch a specific TSPP
 
-Returns a single tspp
+This endpoint creates a Transportation Service Provider Performances (TSPPs)
+record and return the created record in the `201` response. Do not use this
+endpoint directly as it is meant to be used with the Admin UI exclusively.
 */
 type GetTSPP struct {
 	Context *middleware.Context
