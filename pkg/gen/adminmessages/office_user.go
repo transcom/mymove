@@ -26,8 +26,9 @@ type OfficeUser struct {
 
 	// created at
 	// Required: true
+	// Read Only: true
 	// Format: date-time
-	CreatedAt *strfmt.DateTime `json:"createdAt"`
+	CreatedAt strfmt.DateTime `json:"createdAt"`
 
 	// email
 	// Required: true
@@ -68,8 +69,9 @@ type OfficeUser struct {
 
 	// updated at
 	// Required: true
+	// Read Only: true
 	// Format: date-time
-	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
+	UpdatedAt strfmt.DateTime `json:"updatedAt"`
 
 	// user Id
 	// Format: uuid
@@ -145,7 +147,7 @@ func (m *OfficeUser) validateActive(formats strfmt.Registry) error {
 
 func (m *OfficeUser) validateCreatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("createdAt", "body", m.CreatedAt); err != nil {
+	if err := validate.Required("createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
 		return err
 	}
 
@@ -264,7 +266,7 @@ func (m *OfficeUser) validateTransportationOfficeID(formats strfmt.Registry) err
 
 func (m *OfficeUser) validateUpdatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("updatedAt", "body", m.UpdatedAt); err != nil {
+	if err := validate.Required("updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 
@@ -291,13 +293,30 @@ func (m *OfficeUser) validateUserID(formats strfmt.Registry) error {
 func (m *OfficeUser) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateRoles(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *OfficeUser) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -316,6 +335,15 @@ func (m *OfficeUser) contextValidateRoles(ctx context.Context, formats strfmt.Re
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *OfficeUser) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
+		return err
 	}
 
 	return nil

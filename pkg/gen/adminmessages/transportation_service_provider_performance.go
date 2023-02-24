@@ -26,8 +26,9 @@ type TransportationServiceProviderPerformance struct {
 
 	// created at
 	// Required: true
+	// Read Only: true
 	// Format: date-time
-	CreatedAt *strfmt.DateTime `json:"createdAt"`
+	CreatedAt strfmt.DateTime `json:"createdAt"`
 
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -88,8 +89,9 @@ type TransportationServiceProviderPerformance struct {
 
 	// updated at
 	// Required: true
+	// Read Only: true
 	// Format: date-time
-	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
+	UpdatedAt strfmt.DateTime `json:"updatedAt"`
 }
 
 // Validate validates this transportation service provider performance
@@ -165,7 +167,7 @@ func (m *TransportationServiceProviderPerformance) validateBestValueScore(format
 
 func (m *TransportationServiceProviderPerformance) validateCreatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("createdAt", "body", m.CreatedAt); err != nil {
+	if err := validate.Required("createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
 		return err
 	}
 
@@ -296,7 +298,7 @@ func (m *TransportationServiceProviderPerformance) validateTransportationService
 
 func (m *TransportationServiceProviderPerformance) validateUpdatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("updatedAt", "body", m.UpdatedAt); err != nil {
+	if err := validate.Required("updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 
@@ -307,8 +309,39 @@ func (m *TransportationServiceProviderPerformance) validateUpdatedAt(formats str
 	return nil
 }
 
-// ContextValidate validates this transportation service provider performance based on context it is used
+// ContextValidate validate this transportation service provider performance based on the context it is used
 func (m *TransportationServiceProviderPerformance) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *TransportationServiceProviderPerformance) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *TransportationServiceProviderPerformance) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -1655,7 +1655,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -1679,7 +1680,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "userId": {
           "type": "string",
@@ -1795,7 +1797,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1812,7 +1815,8 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Updated at"
+          "title": "Updated at",
+          "readOnly": true
         }
       }
     },
@@ -1863,7 +1867,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1891,7 +1896,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -1941,7 +1947,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string"
@@ -1994,7 +2001,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -2032,7 +2040,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "userId": {
           "type": "string",
@@ -2159,7 +2168,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -2185,7 +2195,8 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Updated at"
+          "title": "Updated at",
+          "readOnly": true
         }
       }
     },
@@ -2207,7 +2218,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2224,7 +2236,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2275,7 +2288,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "gbloc": {
           "type": "string",
@@ -2312,7 +2326,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2346,7 +2361,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2398,7 +2414,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2422,7 +2439,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "filename": {
           "type": "string"
@@ -2512,7 +2530,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "currentAdminSessionId": {
           "type": "string",
@@ -2538,7 +2557,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2601,7 +2621,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "eTag": {
           "type": "string",
@@ -2634,7 +2655,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -4299,7 +4321,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -4323,7 +4346,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "userId": {
           "type": "string",
@@ -4439,7 +4463,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -4456,7 +4481,8 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Updated at"
+          "title": "Updated at",
+          "readOnly": true
         }
       }
     },
@@ -4508,7 +4534,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -4536,7 +4563,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -4586,7 +4614,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string"
@@ -4639,7 +4668,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -4677,7 +4707,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "userId": {
           "type": "string",
@@ -4804,7 +4835,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -4830,7 +4862,8 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Updated at"
+          "title": "Updated at",
+          "readOnly": true
         }
       }
     },
@@ -4852,7 +4885,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -4869,7 +4903,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -4920,7 +4955,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "gbloc": {
           "type": "string",
@@ -4957,7 +4993,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -4991,7 +5028,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -5043,7 +5081,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -5067,7 +5106,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "filename": {
           "type": "string"
@@ -5157,7 +5197,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "currentAdminSessionId": {
           "type": "string",
@@ -5183,7 +5224,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -5249,7 +5291,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "eTag": {
           "type": "string",
@@ -5283,7 +5326,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },

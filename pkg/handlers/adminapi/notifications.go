@@ -20,7 +20,7 @@ func payloadForNotificationModel(n models.Notification) *adminmessages.Notificat
 		ServiceMemberID:  handlers.FmtUUID(n.ServiceMemberID),
 		SesMessageID:     handlers.FmtString(n.SESMessageID),
 		NotificationType: handlers.FmtString(string(n.NotificationType)),
-		CreatedAt:        handlers.FmtDateTime(n.CreatedAt),
+		CreatedAt:        *handlers.FmtDateTime(n.CreatedAt),
 		Email:            handlers.FmtString(n.ServiceMember.User.LoginGovEmail),
 	}
 }
