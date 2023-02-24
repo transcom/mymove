@@ -48,7 +48,7 @@ test.describe('Office User Create Page', () => {
     await page.getByRole('button', { name: 'Create' }).click();
     await expect(page.getByRole('heading', { name: 'Create Office Users' })).toBeVisible();
 
-    expect(page.url()).toContain('/system/office_users/create');
+    expect(page.url()).toContain('/system/office-users/create');
 
     // we need to add the date to the email so that it is unique every time (only one record per email allowed in db)
     const testEmail = `cy.admin_user.${Date.now()}@example.com`;
@@ -95,7 +95,7 @@ test.describe('Office Users Show Page', () => {
 
     expect(page.url()).toContain('/system/office-users');
 
-    await page.locator('tr[resource="office_users"]').first().click();
+    await page.locator('tr[resource="office-users"]').first().click();
 
     // check that the office user's name is shown in the page title
     const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();

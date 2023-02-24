@@ -62,7 +62,7 @@ test('Admin Users Show Page', async ({ page, adminPage }) => {
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
   // click on first row
-  await page.locator('tr[resource="admin_users"]').first().click();
+  await page.locator('tr[resource="admin-users"]').first().click();
   await adminPage.waitForAdminPageToLoad();
 
   const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();
