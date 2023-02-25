@@ -34,9 +34,9 @@ func NewGetTSPP(ctx *middleware.Context, handler GetTSPPHandler) *GetTSPP {
 
 # Fetch a specific TSPP
 
-This endpoint creates a Transportation Service Provider Performances (TSPPs)
-record and return the created record in the `201` response. Do not use this
-endpoint directly as it is meant to be used with the Admin UI exclusively.
+This endpoint returns a single Transportation Service Provider Performances
+(TSPPs) record by ID. Do not use this endpoint directly as it is meant to be
+used with the Admin UI exclusively.
 */
 type GetTSPP struct {
 	Context *middleware.Context

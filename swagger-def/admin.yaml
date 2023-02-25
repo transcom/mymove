@@ -1268,7 +1268,7 @@ paths:
         - application/json
       produces:
         - application/json
-      summary: create an Admin User
+      summary: Create an Admin User
       description:
         $ref: paths/admin-users/post/description.md
       operationId: createAdminUser
@@ -1782,11 +1782,11 @@ paths:
         '500':
           description: server error
     patch:
-      summary: Update a User's session or active status
       consumes:
         - application/json
       produces:
         - application/json
+      summary: Update a User's session or active status
       description:
         $ref: paths/users/{userId}/patch/description.md
       operationId: updateUser
@@ -1926,11 +1926,11 @@ paths:
         '500':
           description: server error
     patch:
-      summary: Update a Webhook Subscription
       consumes:
         - application/json
       produces:
         - application/json
+      summary: Update a Webhook Subscription
       description:
         $ref: paths/webhook-subscriptions/{webhookSubscriptionId}/patch/description.md
       operationId: updateWebhookSubscription

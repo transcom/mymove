@@ -113,7 +113,7 @@ func init() {
         }
       },
       "post": {
-        "description": "This endpoint creates an Admin User record and return the created record in the\n` + "`" + `201` + "`" + ` response. Do not use this endpoint directly as it is meant to be used with\nthe Admin UI exclusively.\n",
+        "description": "This endpoint creates an Admin User record and returns the created record in the\n` + "`" + `201` + "`" + ` response. Do not use this endpoint directly as it is meant to be used with\nthe Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -123,7 +123,7 @@ func init() {
         "tags": [
           "Admin users"
         ],
-        "summary": "create an Admin User",
+        "summary": "Create an Admin User",
         "operationId": "createAdminUser",
         "parameters": [
           {
@@ -669,7 +669,7 @@ func init() {
         }
       },
       "post": {
-        "description": "This endpoint creates an Office User record and return the created record in the\n` + "`" + `201` + "`" + ` response. If there are issues with the Office User information provided a\n` + "`" + `422` + "`" + ` response will occur with information about invalid fields and additional\ndetails. Do not use this endpoint directly as it is meant to be used with\nthe Admin UI exclusively.\n",
+        "description": "This endpoint creates an Office User record and returns the created record in\nthe ` + "`" + `201` + "`" + ` response. If there are issues with the Office User information\nprovided a ` + "`" + `422` + "`" + ` response will occur with information about invalid fields and\nadditional details. Do not use this endpoint directly as it is meant to be used\nwith the Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -1007,7 +1007,7 @@ func init() {
     },
     "/transportation-service-provider-performances/{tsppId}": {
       "get": {
-        "description": "This endpoint creates a Transportation Service Provider Performances (TSPPs)\nrecord and return the created record in the ` + "`" + `201` + "`" + ` response. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "description": "This endpoint returns a single Transportation Service Provider Performances\n(TSPPs) record by ID. Do not use this endpoint directly as it is meant to be\nused with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],
@@ -2862,7 +2862,7 @@ func init() {
         }
       },
       "post": {
-        "description": "This endpoint creates an Admin User record and return the created record in the\n` + "`" + `201` + "`" + ` response. Do not use this endpoint directly as it is meant to be used with\nthe Admin UI exclusively.\n",
+        "description": "This endpoint creates an Admin User record and returns the created record in the\n` + "`" + `201` + "`" + ` response. Do not use this endpoint directly as it is meant to be used with\nthe Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -2872,7 +2872,7 @@ func init() {
         "tags": [
           "Admin users"
         ],
-        "summary": "create an Admin User",
+        "summary": "Create an Admin User",
         "operationId": "createAdminUser",
         "parameters": [
           {
@@ -3418,7 +3418,7 @@ func init() {
         }
       },
       "post": {
-        "description": "This endpoint creates an Office User record and return the created record in the\n` + "`" + `201` + "`" + ` response. If there are issues with the Office User information provided a\n` + "`" + `422` + "`" + ` response will occur with information about invalid fields and additional\ndetails. Do not use this endpoint directly as it is meant to be used with\nthe Admin UI exclusively.\n",
+        "description": "This endpoint creates an Office User record and returns the created record in\nthe ` + "`" + `201` + "`" + ` response. If there are issues with the Office User information\nprovided a ` + "`" + `422` + "`" + ` response will occur with information about invalid fields and\nadditional details. Do not use this endpoint directly as it is meant to be used\nwith the Admin UI exclusively.\n",
         "consumes": [
           "application/json"
         ],
@@ -3756,7 +3756,7 @@ func init() {
     },
     "/transportation-service-provider-performances/{tsppId}": {
       "get": {
-        "description": "This endpoint creates a Transportation Service Provider Performances (TSPPs)\nrecord and return the created record in the ` + "`" + `201` + "`" + ` response. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "description": "This endpoint returns a single Transportation Service Provider Performances\n(TSPPs) record by ID. Do not use this endpoint directly as it is meant to be\nused with the Admin UI exclusively.\n",
         "produces": [
           "application/json"
         ],

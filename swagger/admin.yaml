@@ -1072,19 +1072,18 @@ paths:
         - application/json
       summary: Create an Office User
       description: >
-        This endpoint creates an Office User record and return the created
-        record in the
+        This endpoint creates an Office User record and returns the created
+        record in
 
-        `201` response. If there are issues with the Office User information
-        provided a
+        the `201` response. If there are issues with the Office User information
 
-        `422` response will occur with information about invalid fields and
-        additional
+        provided a `422` response will occur with information about invalid
+        fields and
 
-        details. Do not use this endpoint directly as it is meant to be used
-        with
+        additional details. Do not use this endpoint directly as it is meant to
+        be used
 
-        the Admin UI exclusively.
+        with the Admin UI exclusively.
       operationId: createOfficeUser
       tags:
         - Office users
@@ -1231,14 +1230,13 @@ paths:
         - application/json
       summary: Fetch a specific TSPP
       description: >
-        This endpoint creates a Transportation Service Provider Performances
-        (TSPPs)
+        This endpoint returns a single Transportation Service Provider
+        Performances
 
-        record and return the created record in the `201` response. Do not use
-        this
+        (TSPPs) record by ID. Do not use this endpoint directly as it is meant
+        to be
 
-        endpoint directly as it is meant to be used with the Admin UI
-        exclusively.
+        used with the Admin UI exclusively.
       operationId: getTSPP
       tags:
         - Transportation service provider performances (TSPPs)
@@ -1314,10 +1312,10 @@ paths:
         - application/json
       produces:
         - application/json
-      summary: create an Admin User
+      summary: Create an Admin User
       description: >
-        This endpoint creates an Admin User record and return the created record
-        in the
+        This endpoint creates an Admin User record and returns the created
+        record in the
 
         `201` response. Do not use this endpoint directly as it is meant to be
         used with
@@ -1894,11 +1892,11 @@ paths:
         '500':
           description: server error
     patch:
-      summary: Update a User's session or active status
       consumes:
         - application/json
       produces:
         - application/json
+      summary: Update a User's session or active status
       description: >
         This endpoint updates a single User by ID. This can be used by the Admin
         User to
@@ -2057,11 +2055,11 @@ paths:
         '500':
           description: server error
     patch:
-      summary: Update a Webhook Subscription
       consumes:
         - application/json
       produces:
         - application/json
+      summary: Update a Webhook Subscription
       description: >
         This endpoint updates a single Webhook Subscription by ID. Do not use
         this
