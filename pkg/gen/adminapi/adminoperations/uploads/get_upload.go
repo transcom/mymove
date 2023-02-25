@@ -32,9 +32,11 @@ func NewGetUpload(ctx *middleware.Context, handler GetUploadHandler) *GetUpload 
 /*
 	GetUpload swagger:route GET /uploads/{uploadId} Uploads getUpload
 
-# Get information about an upload
+# Get information about an Upload
 
-Returns the given upload and information about the uploader and move
+This endpoint returns a single Upload by ID containing the given Upload and
+information about the Uploader and Move. Do not use this endpoint directly as it
+is meant to be used with the Admin UI exclusively.
 */
 type GetUpload struct {
 	Context *middleware.Context

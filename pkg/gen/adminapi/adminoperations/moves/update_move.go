@@ -32,9 +32,14 @@ func NewUpdateMove(ctx *middleware.Context, handler UpdateMoveHandler) *UpdateMo
 /*
 	UpdateMove swagger:route PATCH /moves/{moveID} Moves updateMove
 
-# Disables or re-enables a move
+# Toggle Move visibility
 
-Allows the user to change the `show` field on the selected field to either `True` or `False`. A "shown" move will appear to all users as normal, a "hidden" move will not be returned or editable using any other endpoint (besides those in the Support API), and thus effectively deactivated.
+This endpoint updates a single Move by ID. This allows the Admin User to change
+the `show` field on the selected field to either `True` or `False`. A "shown"
+Move will appear to all users as normal, a "hidden" Move will not be returned or
+editable using any other endpoint (besides those in the Support API), and thus
+effectively deactivated. Do not use this endpoint directly as it is meant to be
+used with the Admin UI exclusively.
 */
 type UpdateMove struct {
 	Context *middleware.Context

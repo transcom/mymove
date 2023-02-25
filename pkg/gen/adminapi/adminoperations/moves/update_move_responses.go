@@ -17,7 +17,7 @@ import (
 const UpdateMoveOKCode int = 200
 
 /*
-UpdateMoveOK Successfully updated the Mov
+UpdateMoveOK Successfully updated the Move
 
 swagger:response updateMoveOK
 */
@@ -112,7 +112,7 @@ func (o *UpdateMoveUnauthorized) WriteResponse(rw http.ResponseWriter, producer 
 const UpdateMoveForbiddenCode int = 403
 
 /*
-UpdateMoveForbidden Not authorized to update this move
+UpdateMoveForbidden Not authorized to update this Move
 
 swagger:response updateMoveForbidden
 */

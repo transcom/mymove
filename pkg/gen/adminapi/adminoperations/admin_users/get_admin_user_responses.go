@@ -112,7 +112,7 @@ func (o *GetAdminUserUnauthorized) WriteResponse(rw http.ResponseWriter, produce
 const GetAdminUserNotFoundCode int = 404
 
 /*
-GetAdminUserNotFound admin user not found
+GetAdminUserNotFound Admin User not found
 
 swagger:response getAdminUserNotFound
 */

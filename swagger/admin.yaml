@@ -1023,8 +1023,12 @@ paths:
     get:
       produces:
         - application/json
-      summary: List office users
-      description: Returns a list of office users
+      summary: List of Office Users
+      description: >
+        This endpoint returns a list of Office Users. Do not use this endpoint
+        directly
+
+        as it is meant to be used with the Admin UI exclusively.
       operationId: indexOfficeUsers
       tags:
         - Office users
@@ -1058,7 +1062,7 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: office not found
+          description: Office User not found
         '500':
           description: server error
     post:
@@ -1066,15 +1070,27 @@ paths:
         - application/json
       produces:
         - application/json
-      summary: create an office user
-      description: creates and returns an office user record
+      summary: Create an Office User
+      description: >
+        This endpoint creates an Office User record and returns the created
+        record in
+
+        the `201` response. If there are issues with the Office User information
+
+        provided a `422` response will occur with information about invalid
+        fields and
+
+        additional details. Do not use this endpoint directly as it is meant to
+        be used
+
+        with the Admin UI exclusively.
       operationId: createOfficeUser
       tags:
         - Office users
       parameters:
         - in: body
           name: officeUser
-          description: Office user information
+          description: Office User information
           schema:
             $ref: '#/definitions/OfficeUserCreate'
       responses:
@@ -1092,8 +1108,12 @@ paths:
     get:
       produces:
         - application/json
-      summary: Get an office user
-      description: Returns the given office user
+      summary: Get an Office User
+      description: >
+        This endpoint returns a single Office User by ID. Do not use this
+
+        endpoint directly as it is meant to be used with the Admin UI
+        exclusively.
       operationId: getOfficeUser
       tags:
         - Office users
@@ -1113,15 +1133,20 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: office not found
+          description: Office User not found
         '500':
           description: server error
     patch:
-      summary: Updates an office user
       consumes:
         - application/json
       produces:
         - application/json
+      summary: Updates an Office User
+      description: >
+        This endpoint updates a single Office User by ID. Do not use this
+
+        endpoint directly as it is meant to be used with the Admin UI
+        exclusively.
       operationId: updateOfficeUser
       tags:
         - Office users
@@ -1133,7 +1158,7 @@ paths:
           required: true
         - in: body
           name: officeUser
-          description: Office user information
+          description: Office User information
           required: true
           schema:
             $ref: '#/definitions/OfficeUserUpdate'
@@ -1147,15 +1172,22 @@ paths:
         '401':
           description: Must be authenticated to use this end point
         '403':
-          description: Not authorized to update an office user
+          description: Not authorized to update an Office User
         '500':
           description: Server error
   /transportation-service-provider-performances:
     get:
       produces:
         - application/json
-      summary: List transportation service provider performances (TSPPs)
-      description: Returns a list of transportation service provider performances (TSPPs)
+      summary: List Transportation Service Provider Performances (TSPPs)
+      description: >
+        This endpoint returns a list of Transportation Service Provider
+        Performances
+
+        (TSPPs). Do not use this endpoint directly as it is meant to be used
+        with the
+
+        Admin UI exclusively.
       operationId: indexTSPPs
       tags:
         - Transportation service provider performances (TSPPs)
@@ -1189,15 +1221,22 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: office not found
+          description: Transportation Service Provider Performances (TSPPs) not found
         '500':
           description: server error
   /transportation-service-provider-performances/{tsppId}:
     get:
       produces:
         - application/json
-      summary: Fetch a specific tspp
-      description: Returns a single tspp
+      summary: Fetch a specific TSPP
+      description: >
+        This endpoint returns a single Transportation Service Provider
+        Performances
+
+        (TSPPs) record by ID. Do not use this endpoint directly as it is meant
+        to be
+
+        used with the Admin UI exclusively.
       operationId: getTSPP
       tags:
         - Transportation service provider performances (TSPPs)
@@ -1217,15 +1256,19 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: tspp not found
+          description: Transportation Service Provider Performances (TSPPs) not found
         '500':
           description: server error
   /admin-users:
     get:
       produces:
         - application/json
-      summary: List admin users
-      description: Returns a list of admin users
+      summary: List Admin Users
+      description: >
+        This endpoint returns a list of Admin Users. Do not use this endpoint
+        directly
+
+        as it is meant to be used with the Admin UI exclusively.
       operationId: indexAdminUsers
       tags:
         - Admin users
@@ -1261,7 +1304,7 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: admin users not found
+          description: Admin Users not found
         '500':
           description: server error
     post:
@@ -1269,15 +1312,22 @@ paths:
         - application/json
       produces:
         - application/json
-      summary: create an admin user
-      description: creates and returns an admin user record
+      summary: Create an Admin User
+      description: >
+        This endpoint creates an Admin User record and returns the created
+        record in the
+
+        `201` response. Do not use this endpoint directly as it is meant to be
+        used with
+
+        the Admin UI exclusively.
       operationId: createAdminUser
       tags:
         - Admin users
       parameters:
         - in: body
           name: adminUser
-          description: Admin user information
+          description: Admin User information
           schema:
             $ref: '#/definitions/AdminUserCreate'
       responses:
@@ -1290,15 +1340,19 @@ paths:
         '401':
           description: Must be authenticated to use this end point
         '403':
-          description: Not authorized to create an admin user
+          description: Not authorized to create an Admin User
         '500':
           description: Server error
   /admin-users/{adminUserId}:
     get:
       produces:
         - application/json
-      summary: Fetch a specific admin user
-      description: Returns a single admin user
+      summary: Fetch a specific Admin User
+      description: >
+        This endpoint returns a single Admin User by ID. Do not use this
+
+        endpoint directly as it is meant to be used with the Admin UI
+        exclusively.
       operationId: getAdminUser
       tags:
         - Admin users
@@ -1318,15 +1372,20 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: admin user not found
+          description: Admin User not found
         '500':
           description: server error
     patch:
-      summary: Updates an admin user
       consumes:
         - application/json
       produces:
         - application/json
+      summary: Updates an Admin User
+      description: >
+        This endpoint updates a single Admin User by ID. Do not use this
+
+        endpoint directly as it is meant to be used with the Admin UI
+        exclusively.
       operationId: updateAdminUser
       tags:
         - Admin users
@@ -1338,7 +1397,7 @@ paths:
           required: true
         - in: body
           name: adminUser
-          description: Admin user information
+          description: Admin User information
           required: true
           schema:
             $ref: '#/definitions/AdminUserUpdate'
@@ -1352,15 +1411,19 @@ paths:
         '401':
           description: Must be authenticated to use this end point
         '403':
-          description: Not authorized to update an admin user
+          description: Not authorized to update an Admin User
         '500':
           description: Server error
   /offices:
     get:
       produces:
         - application/json
-      summary: List transportation offices
-      description: Returns a list of transportation offices
+      summary: List Transportation Offices
+      description: >
+        This endpoint returns a list of Transportation Offices. Do not use this
+        endpoint
+
+        directly as it is meant to be used with the Admin UI exclusively.
       operationId: indexOffices
       tags:
         - Transportation offices
@@ -1394,15 +1457,19 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: office not found
+          description: Transportation Office not found
         '500':
           description: server error
   /electronic-orders:
     get:
       produces:
         - application/json
-      summary: List electronic orders
-      description: Returns a list of electronic orders
+      summary: List Electronic Orders
+      description: >
+        This endpoint returns a list of Electronic Orders. Do not use this
+        endpoint
+
+        directly as it is meant to be used with the Admin UI exclusively.
       operationId: indexElectronicOrders
       tags:
         - Electronic orders
@@ -1438,7 +1505,7 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: not found
+          description: Electronic Order not found
         '500':
           description: server error
   /electronic-orders/totals:
@@ -1446,7 +1513,12 @@ paths:
       produces:
         - application/json
       summary: Get total counts for the orders stored in MilMove
-      description: Returns a list of record counts for orders
+      description: >
+        This endpoint returns a list of record counts for Electronic Orders. Do
+        not use
+
+        this endpoint directly as it is meant to be used with the Admin UI
+        exclusively.
       operationId: getElectronicOrdersTotals
       tags:
         - Electronic orders
@@ -1471,15 +1543,22 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: not found
+          description: Total count for Electronic Orders not found
         '500':
           description: server error
   /uploads/{uploadId}:
     get:
       produces:
         - application/json
-      summary: Get information about an upload
-      description: Returns the given upload and information about the uploader and move
+      summary: Get information about an Upload
+      description: >
+        This endpoint returns a single Upload by ID containing the given Upload
+        and
+
+        information about the Uploader and Move. Do not use this endpoint
+        directly as it
+
+        is meant to be used with the Admin UI exclusively.
       operationId: getUpload
       tags:
         - Uploads
@@ -1499,15 +1578,19 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: upload not found
+          description: Upload not found
         '500':
           description: server error
   /organizations:
     get:
       produces:
         - application/json
-      summary: List organizations
-      description: Returns a list of organizations
+      summary: List Organizations
+      description: >
+        This endpoint returns a list of Organizations. Do not use this endpoint
+        directly
+
+        as it is meant to be used with the Admin UI exclusively.
       operationId: indexOrganizations
       tags:
         - Organizations
@@ -1543,15 +1626,22 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: not found
+          description: Organizations not found
         '500':
           description: server error
   /notifications:
     get:
       produces:
         - application/json
-      summary: List notifications
-      description: Returns a list of notifications that have been sent to service members
+      summary: List Notifications
+      description: >
+        This endpoint returns a list of Notifications that have been sent to
+        Service
+
+        Members. Do not use this endpoint directly as it is meant to be used
+        with the
+
+        Admin UI exclusively.
       operationId: indexNotifications
       tags:
         - Notifications
@@ -1585,15 +1675,17 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: not found
+          description: Notifications not found
         '500':
           description: server error
   /moves:
     get:
       produces:
         - application/json
-      summary: List moves
-      description: Returns a list of moves
+      summary: List Moves
+      description: |
+        This endpoint returns a list of Moves. Do not use this endpoint directly
+        as it is meant to be used with the Admin UI exclusively.
       operationId: indexMoves
       tags:
         - Moves
@@ -1627,15 +1719,19 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: not found
+          description: Moves not found
         '500':
           description: server error
   /moves/{moveID}:
     get:
       produces:
         - application/json
-      summary: Get information about a move
-      description: Returns the given move and its relevant info
+      summary: Get information about a Move
+      description: >
+        This endpoint returns a single Move by ID. Do not use this endpoint
+        directly as
+
+        it is meant to be used with the Admin UI exclusively.
       operationId: getMove
       tags:
         - Moves
@@ -1663,13 +1759,24 @@ paths:
         - application/json
       produces:
         - application/json
-      summary: Disables or re-enables a move
+      summary: Toggle Move visibility
       description: >
-        Allows the user to change the `show` field on the selected field to
-        either `True` or `False`. A "shown" move will appear to all users as
-        normal, a "hidden" move will not be returned or editable using any other
-        endpoint (besides those in the Support API), and thus effectively
-        deactivated.
+        This endpoint updates a single Move by ID. This allows the Admin User to
+        change
+
+        the `show` field on the selected field to either `True` or `False`. A
+        "shown"
+
+        Move will appear to all users as normal, a "hidden" Move will not be
+        returned or
+
+        editable using any other endpoint (besides those in the Support API),
+        and thus
+
+        effectively deactivated. Do not use this endpoint directly as it is
+        meant to be
+
+        used with the Admin UI exclusively.
       operationId: updateMove
       tags:
         - Moves
@@ -1687,7 +1794,7 @@ paths:
             $ref: '#/definitions/MoveUpdate'
       responses:
         '200':
-          description: Successfully updated the Mov
+          description: Successfully updated the Move
           schema:
             $ref: '#/definitions/Move'
         '400':
@@ -1695,7 +1802,7 @@ paths:
         '401':
           description: Must be authenticated to use this endpoint
         '403':
-          description: Not authorized to update this move
+          description: Not authorized to update this Move
         '404':
           description: Move not found
         '422':
@@ -1706,8 +1813,12 @@ paths:
     get:
       produces:
         - application/json
-      summary: List users
-      description: Returns a list of users
+      summary: List Users
+      description: >
+        This endpoint returns a list of Users. Do not use this endpoint directly
+        as it
+
+        is meant to be used with the Admin UI exclusively.
       operationId: indexUsers
       tags:
         - Users
@@ -1741,15 +1852,23 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: users not found
+          description: Users not found
         '500':
           description: server error
   /users/{userId}:
     get:
       produces:
         - application/json
-      summary: Get information about a user
-      description: Returns the given user and their sessions
+      summary: Get information about a User
+      description: >+
+        This endpoint returns a single User by ID. This also returns the User's
+        sessions
+
+        as well. Do not use this endpoint directly as it is meant to be used
+        with the
+
+        Admin UI exclusively.
+
       operationId: getUser
       tags:
         - Users
@@ -1769,15 +1888,23 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: user not found
+          description: User not found
         '500':
           description: server error
     patch:
-      summary: Update a user's session or active status
       consumes:
         - application/json
       produces:
         - application/json
+      summary: Update a User's session or active status
+      description: >
+        This endpoint updates a single User by ID. This can be used by the Admin
+        User to
+
+        update the User's session or the User's active status. Do not use this
+        endpoint
+
+        directly as it is meant to be used with the Admin UI exclusively.
       operationId: updateUser
       tags:
         - Users
@@ -1803,7 +1930,7 @@ paths:
         '401':
           description: Must be authenticated to use this end point
         '403':
-          description: Not authorized to update this user
+          description: Not authorized to update this User
         '404':
           description: Not found
         '422':
@@ -1816,8 +1943,12 @@ paths:
     get:
       produces:
         - application/json
-      summary: Lists webhook subscriptions
-      description: Returns a list of webhook subscriptions
+      summary: Lists Webhook Subscriptions
+      description: >
+        This endpoint returns a list of Webhook Subscriptions. Do not use this
+        endpoint
+
+        directly as it is meant to be used with the Admin UI exclusively.
       operationId: indexWebhookSubscriptions
       tags:
         - Webhook subscriptions
@@ -1851,7 +1982,7 @@ paths:
         '401':
           description: Not authenticated for this endpoint
         '404':
-          description: Webhook subscriptions not found
+          description: Webhook Subscriptions not found
         '500':
           description: Server error
     post:
@@ -1859,8 +1990,15 @@ paths:
         - application/json
       produces:
         - application/json
-      summary: create a webhook subscription
-      description: creates and returns a webhook subscription
+      summary: Create a Webhook Subscription
+      description: >
+        This endpoint creates a Webhook Subscription and returns the created
+        record in
+
+        the `201` response. Do not use this endpoint directly as it is meant to
+        be used
+
+        with the Admin UI exclusively.
       operationId: createWebhookSubscription
       tags:
         - Webhook subscriptions
@@ -1872,7 +2010,7 @@ paths:
             $ref: '#/definitions/CreateWebhookSubscription'
       responses:
         '201':
-          description: Successfully created webhook subscription
+          description: Successfully created Webhook Subscription
           schema:
             $ref: '#/definitions/WebhookSubscription'
         '400':
@@ -1880,15 +2018,20 @@ paths:
         '401':
           description: Must be authenticated to use this end point
         '403':
-          description: Not authorized to create a webhook subscription
+          description: Not authorized to create a Webhook Subscription
         '500':
           description: Server error
   /webhook-subscriptions/{webhookSubscriptionId}:
     get:
       produces:
         - application/json
-      summary: Get information about a webhook subscription
-      description: Returns the given webhook subscription and its details
+      summary: Get information about a Webhook Subscription
+      description: >
+        This endpoint returns a single Webhook Subscription by ID. Do not use
+        this
+
+        endpoint directly as it is meant to be used with the Admin UI
+        exclusively.
       operationId: getWebhookSubscription
       tags:
         - Webhook subscriptions
@@ -1908,15 +2051,21 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: subscription not found
+          description: Webhook Subscription not found
         '500':
           description: server error
     patch:
-      summary: Update a webhook subscription
       consumes:
         - application/json
       produces:
         - application/json
+      summary: Update a Webhook Subscription
+      description: >
+        This endpoint updates a single Webhook Subscription by ID. Do not use
+        this
+
+        endpoint directly as it is meant to be used with the Admin UI
+        exclusively.
       operationId: updateWebhookSubscription
       tags:
         - Webhook subscriptions
@@ -1928,7 +2077,7 @@ paths:
           required: true
         - in: body
           name: WebhookSubscription
-          description: Webhook subscription information
+          description: Webhook Subscription information
           required: true
           schema:
             $ref: '#/definitions/WebhookSubscription'
@@ -1943,7 +2092,7 @@ paths:
             error.
       responses:
         '200':
-          description: Successfully updated webhook subscription
+          description: Successfully updated Webhook Subscription
           schema:
             $ref: '#/definitions/WebhookSubscription'
         '400':
@@ -1951,9 +2100,9 @@ paths:
         '401':
           description: Must be authenticated to use this end point
         '403':
-          description: Not authorized to update this webhook subscription
+          description: Not authorized to update this Webhook Subscription
         '404':
-          description: subscription not found
+          description: Webhook Subscription not found
         '412':
           description: Precondition failed
         '422':
