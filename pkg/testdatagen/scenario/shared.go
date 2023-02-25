@@ -3,6 +3,7 @@ package scenario
 import (
 	"fmt"
 	"log"
+	"sort"
 	"strings"
 	"time"
 
@@ -3744,7 +3745,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 
 	serviceItemDDDSIT = *updatedDDDSIT
 
-	for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDDFSIT, serviceItemDDASIT, serviceItemDDDSIT} {
+	for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDDASIT, serviceItemDDDSIT, serviceItemDDFSIT} {
 		_, updateErr := serviceItemUpdator.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
@@ -3895,8 +3896,16 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			Value:       destDepartureDate.Format("2006-01-02"),
 		}}
 
+	// Ordering the service items based on approved date to ensure the DDFSIT is after the DOASIT.
+	// This avoids a flaky error when we create the service item parameters.
+	sort.SliceStable(serviceItems, func(i, j int) bool {
+		return serviceItems[i].ApprovedAt.String() < serviceItems[j].ApprovedAt.String()
+	})
 	paymentServiceItems := []models.PaymentServiceItem{}
+	var serviceItemOrderString string
 	for _, serviceItem := range serviceItems {
+		serviceItemOrderString += serviceItem.ReService.Code.String()
+		serviceItemOrderString += ", "
 		paymentItem := models.PaymentServiceItem{
 			MTOServiceItemID: serviceItem.ID,
 			MTOServiceItem:   serviceItem,
@@ -3909,6 +3918,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		paymentServiceItems = append(paymentServiceItems, paymentItem)
 	}
 
+	logger.Debug(serviceItemOrderString)
 	paymentRequest.PaymentServiceItems = paymentServiceItems
 	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest)
 
