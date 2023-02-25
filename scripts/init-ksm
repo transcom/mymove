@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+InitKeeperConfig() {
+  ksm_token=$1
+
+  ksm profile init "${ksm_token}"
+}
+
+# Will not run if sourced from another script.
+# This is done so this script may be tested.
+if [ "${0#*"$TEST_ENV"}" = "$0" ]; then
+    InitKeeperConfig "$@"
+fi

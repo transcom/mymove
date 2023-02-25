@@ -803,6 +803,9 @@ jobs:
           name: Keeper Install
           command: sudo scripts/install-ksm
       - run:
+          name: Keeper init
+          command: scripts/init-ksm $KSM_MYMOVE_PIPELINE2_TOKEN
+      - run:
           name: Test Keeper Export
           command: sudo scripts/export-ksm-secret TEST_EXPORT_LOGIN keeper://rR6DtKpYd8ajEIKZGaq26g/field/login
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV

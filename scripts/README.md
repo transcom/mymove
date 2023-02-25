@@ -95,23 +95,24 @@ committing.
 
 These scripts are primarily used for CircleCI workflows.
 
-| Script Name                        | Description                                                                                             |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `check-deployed-commit`            | checks that the deployed commit and given commit match.                                                 |
-| `check-generated-code`             | checks that the generated code has not changed                                                          |
-| `check-tls-pair`                   | checks that the TLS CERT and KEY match using openssl                                                    |
-| `circleci-announce-broken-branch`  | announce that a branch is broken                                                                        |
-| `compare-deployed-commit`          | checks that the given commit is ahead of the currently deployed commit                                  |
-| `do-exclusively`                   | CircleCI's current recommendation for roughly serializing a subset of build commands for a given branch |
-| `ecr-describe-image-scan-findings` | Checks an uploaded image scan results                                                                   |
-| `ecs-deploy-service-container`     | Updates the named service with the given name, image, and environment.                                  |
-| `ecs-deploy-task-container`        | Updates the named task with the given name, image, and environment.                                     |
-| `ecs-restart-services`             | Restarted the ECS services associated with the given environment.                                       |
-| `ecs-run-app-migrations-container` | Creates and runs a migration task using the given container definition.                                 |
-| `export-ksm-secret`                | Exports a secret from Keeper Secrets Manager.                                                           |
-| `install-ksm`                      | Installs Keeper Secrets Manager. Only supports installation on Alpine and Linux                         |
-| `rds-snapshot-app-db`              | Creates a snapshot of the app database for the given environment.                                       |
-| `push-storybook-assets`            | Pushes static build of Story Book to AWS S3 for hosting.                                                |
+| Script Name                        | Description                                                                                                  |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `check-deployed-commit`            | checks that the deployed commit and given commit match.                                                      |
+| `check-generated-code`             | checks that the generated code has not changed                                                               |
+| `check-tls-pair`                   | checks that the TLS CERT and KEY match using openssl                                                         |
+| `circleci-announce-broken-branch`  | announce that a branch is broken                                                                             |
+| `compare-deployed-commit`          | checks that the given commit is ahead of the currently deployed commit                                       |
+| `do-exclusively`                   | CircleCI's current recommendation for roughly serializing a subset of build commands for a given branch      |
+| `ecr-describe-image-scan-findings` | Checks an uploaded image scan results                                                                        |
+| `ecs-deploy-service-container`     | Updates the named service with the given name, image, and environment.                                       |
+| `ecs-deploy-task-container`        | Updates the named task with the given name, image, and environment.                                          |
+| `ecs-restart-services`             | Restarted the ECS services associated with the given environment.                                            |
+| `ecs-run-app-migrations-container` | Creates and runs a migration task using the given container definition.                                      |
+| `init-ksm`                         | Initializes the keeper secrets manager with whatever corresponding Application's one time token given to it. |
+| `export-ksm-secret`                | Exports a secret from Keeper Secrets Manager.                                                                |
+| `install-ksm`                      | Installs Keeper Secrets Manager. Only supports installation on Alpine and Linux.                             |
+| `rds-snapshot-app-db`              | Creates a snapshot of the app database for the given environment.                                            |
+| `push-storybook-assets`            | Pushes static build of Story Book to AWS S3 for hosting.                                                     |
 
 ## Development Scripts
 
