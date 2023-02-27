@@ -5,7 +5,7 @@ import { render, screen } from '@testing-library/react';
 import ServicesCounselingQueue from './ServicesCounselingQueue';
 
 import { useUserQueries, useServicesCounselingQueueQueries, useServicesCounselingQueuePPMQueries } from 'hooks/queries';
-import { MockProviders } from 'testUtils';
+import { MockProviders, MockRouting } from 'testUtils';
 import { MOVE_STATUSES } from 'shared/constants';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -16,6 +16,15 @@ jest.mock('hooks/queries', () => ({
   useServicesCounselingQueuePPMQueries: jest.fn(),
 }));
 
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  Navigate: (props) => {
+    mockNavigate(props?.to);
+    return null;
+  },
+}));
+const pagePath = '/:queueType/*';
 const serviceCounselorUser = {
   isLoading: false,
   isError: false,
@@ -146,14 +155,18 @@ const serviceCounselingCompletedMoves = {
   },
 };
 
+afterEach(() => {
+  jest.resetAllMocks();
+});
+
 describe('ServicesCounselingQueue', () => {
   describe('no moves in service counseling statuses', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
     useServicesCounselingQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
     const wrapper = mount(
-      <MockProviders initialEntries={[servicesCounselingRoutes.DEFAULT_QUEUE_PATH]}>
+      <MockRouting path={pagePath} params={{ queueType: 'counseling' }}>
         <ServicesCounselingQueue />
-      </MockProviders>,
+      </MockRouting>,
     );
 
     it('displays move header with count', () => {
@@ -173,9 +186,9 @@ describe('ServicesCounselingQueue', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
     useServicesCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
     const wrapper = mount(
-      <MockProviders initialEntries={[servicesCounselingRoutes.DEFAULT_QUEUE_PATH]}>
+      <MockRouting path={pagePath} params={{ queueType: 'counseling' }}>
         <ServicesCounselingQueue />
-      </MockProviders>,
+      </MockRouting>,
     );
 
     it('displays move header with needs service counseling count', () => {
@@ -258,9 +271,9 @@ describe('ServicesCounselingQueue', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
     useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
     const wrapper = mount(
-      <MockProviders initialEntries={[servicesCounselingRoutes.DEFAULT_QUEUE_PATH]}>
+      <MockRouting path={pagePath} params={{ queueType: 'counseling' }}>
         <ServicesCounselingQueue />
-      </MockProviders>,
+      </MockRouting>,
     );
 
     it('displays move header with needs service counseling count', () => {
@@ -283,18 +296,38 @@ describe('ServicesCounselingQueue', () => {
 
   describe('service counseling tab routing', () => {
     it.each([
-      ['counselor', servicesCounselingRoutes.DEFAULT_QUEUE_PATH, true, serviceCounselorUser],
+      ['counseling', servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH, serviceCounselorUser],
+      ['closeout', servicesCounselingRoutes.BASE_QUEUE_CLOSEOUT_PATH, serviceCounselorUserForCloseout],
+    ])(
+      'a %s user accessing the SC queue default path gets redirected appropriately to %s',
+      (userDescription, expectedPath, user) => {
+        //  ['closeout', servicesCounselingRoutes.DEFAULT_QUEUE_PATH, false, serviceCounselorUserForCloseout],
+
+        useUserQueries.mockReturnValue(user);
+        useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
+        useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
+        render(
+          <MockProviders initialEntries={[servicesCounselingRoutes.DEFAULT_QUEUE_PATH]}>
+            <ServicesCounselingQueue />
+          </MockProviders>,
+        );
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1);
+        expect(mockNavigate).toHaveBeenCalledWith(expectedPath);
+      },
+    );
+
+    it.each([
       ['counselor', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, true, serviceCounselorUser],
       ['counselor', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, false, serviceCounselorUser],
-      ['closeout', servicesCounselingRoutes.DEFAULT_QUEUE_PATH, false, serviceCounselorUserForCloseout],
       ['closeout', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, true, serviceCounselorUserForCloseout],
       ['closeout', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, false, serviceCounselorUserForCloseout],
-    ])('a %s user accessing path "%s"', (userDescription, path, showsCounselingTab, user) => {
+    ])('a %s user accessing path "%s"', (userDescription, queueType, showsCounselingTab, user) => {
       useUserQueries.mockReturnValue(user);
       useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
       useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
       render(
-        <MockProviders initialEntries={[path]}>
+        <MockProviders path={pagePath} params={{ queueType }}>
           <ServicesCounselingQueue />
         </MockProviders>,
       );
