@@ -810,7 +810,7 @@ jobs:
           command: sudo scripts/export-ksm-secret TEST_EXPORT_LOGIN keeper://rR6DtKpYd8ajEIKZGaq26g/field/login
       - run:
           name: Export KSM ecrets
-          command: source ksm-secrets-export
+          command: source $BASH_ENV
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Install dependencies
