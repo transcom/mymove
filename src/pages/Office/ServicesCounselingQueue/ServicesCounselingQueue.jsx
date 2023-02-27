@@ -21,6 +21,7 @@ import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import NotFound from 'components/NotFound/NotFound';
 
 const counselingColumns = () => [
   createHeader('ID', 'id'),
@@ -220,25 +221,29 @@ const ServicesCounselingQueue = () => {
       </div>
     );
   }
-  return (
-    <div className={styles.ServicesCounselingQueue}>
-      <TableQueue
-        className={styles.ServicesCounseling}
-        showTabs
-        showFilters
-        showPagination
-        manualSortBy
-        defaultCanSort
-        defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
-        disableMultiSort
-        disableSortBy={false}
-        columns={counselingColumns()}
-        title="Moves"
-        handleClick={handleClick}
-        useQueries={useServicesCounselingQueueQueries}
-      />
-    </div>
-  );
+  if (queueType === 'counseling') {
+    return (
+      <div className={styles.ServicesCounselingQueue}>
+        <TableQueue
+          className={styles.ServicesCounseling}
+          showTabs
+          showFilters
+          showPagination
+          manualSortBy
+          defaultCanSort
+          defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
+          disableMultiSort
+          disableSortBy={false}
+          columns={counselingColumns()}
+          title="Moves"
+          handleClick={handleClick}
+          useQueries={useServicesCounselingQueueQueries}
+        />
+      </div>
+    );
+  }
+
+  return <NotFound />;
 };
 
 export default ServicesCounselingQueue;
