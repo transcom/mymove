@@ -1374,18 +1374,22 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
 		for _, shipment := range move.MTOShipments {
 			if queueIncludeShipmentStatus(shipment.Status) && shipment.DeletedAt == nil {
-				// if the pickup date is not set, set it using the RequestedPickupDate or ExpectedDepartureDate based on which is present
-				// if the pickup date is already set and the RequestedPickupDate or ExpectedDepartureDate comes before the set pickup date, update it
+				// if the pickup date is not set, set it using the RequestedPickupDate, ExpectedDepartureDate, or RequestedDeliveryDate based on which is present
+				// if the pickup date is already set and the RequestedPickupDate, ExpectedDepartureDate, or RequestedDeliveryDate comes before the set pickup date, update it
 				if earliestRequestedPickup == nil {
-					if shipment.RequestedPickupDate != nil {
+					if shipment.RequestedPickupDate != nil { // for HHG and NTS
 						earliestRequestedPickup = shipment.RequestedPickupDate
-					} else if shipment.PPMShipment != nil {
+					} else if shipment.PPMShipment != nil { // for PPM
 						earliestRequestedPickup = &shipment.PPMShipment.ExpectedDepartureDate
+					} else if shipment.RequestedDeliveryDate != nil { // for NTS-release
+						earliestRequestedPickup = shipment.RequestedDeliveryDate
 					}
 				} else if shipment.RequestedPickupDate != nil && shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
 					earliestRequestedPickup = shipment.RequestedPickupDate
 				} else if shipment.PPMShipment != nil && shipment.PPMShipment.ExpectedDepartureDate.Before(*earliestRequestedPickup) {
 					earliestRequestedPickup = &shipment.PPMShipment.ExpectedDepartureDate
+				} else if shipment.RequestedDeliveryDate != nil && shipment.RequestedDeliveryDate.Before(*earliestRequestedPickup) {
+					earliestRequestedPickup = shipment.RequestedDeliveryDate
 				}
 				validMTOShipments = append(validMTOShipments, shipment)
 			}
