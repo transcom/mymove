@@ -1,5 +1,5 @@
 import React from 'react';
-import { generatePath, Routes, Route, useNavigate, Navigate, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, Navigate, useParams } from 'react-router-dom';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
@@ -192,26 +192,36 @@ const ServicesCounselingQueue = () => {
   const inPPMCloseoutGBLOC = officeUserGBLOC === 'TVCB' || officeUserGBLOC === 'NAVY' || officeUserGBLOC === 'USCG';
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+  if (!queueType) {
+    return inPPMCloseoutGBLOC ? (
+      <Navigate to={servicesCounselingRoutes.BASE_QUEUE_CLOSEOUT_PATH} />
+    ) : (
+      <Navigate to={servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH} />
+    );
+  }
 
-  const closeoutQueue = (
-    <TableQueue
-      showTabs
-      showFilters
-      showPagination
-      manualSortBy
-      defaultCanSort
-      defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
-      disableMultiSort
-      disableSortBy={false}
-      columns={closeoutColumns(inPPMCloseoutGBLOC)}
-      title="Moves"
-      handleClick={handleClick}
-      useQueries={useServicesCounselingQueuePPMQueries}
-    />
-  );
-
-  const counselingQueue = (
-    <div>
+  if (queueType === 'PPM-closeout') {
+    return (
+      <div className={styles.ServicesCounselingQueue}>
+        <TableQueue
+          showTabs
+          showFilters
+          showPagination
+          manualSortBy
+          defaultCanSort
+          defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
+          disableMultiSort
+          disableSortBy={false}
+          columns={closeoutColumns(inPPMCloseoutGBLOC)}
+          title="Moves"
+          handleClick={handleClick}
+          useQueries={useServicesCounselingQueuePPMQueries}
+        />
+      </div>
+    );
+  }
+  return (
+    <div className={styles.ServicesCounselingQueue}>
       <TableQueue
         className={styles.ServicesCounseling}
         showTabs
@@ -227,25 +237,6 @@ const ServicesCounselingQueue = () => {
         handleClick={handleClick}
         useQueries={useServicesCounselingQueueQueries}
       />
-    </div>
-  );
-
-  let defaultElement;
-  if (queueType) {
-    defaultElement = queueType === 'PPM-closeout' ? closeoutQueue : counselingQueue;
-  } else {
-    defaultElement = inPPMCloseoutGBLOC ? <Navigate to="/PPM-closeout" /> : <Navigate to="/counseling" />;
-  }
-
-  return (
-    // TODO: Pull out header count and add new move button
-    <div className={styles.ServicesCounselingQueue}>
-      <Routes>
-        <Route path="PPM-closeout" element={closeoutQueue} />
-        <Route path={servicesCounselingRoutes.QUEUE_COUNSELING_PATH} end element={counselingQueue} />
-        <Route path={servicesCounselingRoutes.QUEUE_VIEW_PATH} end element={counselingQueue} />
-        <Route path="/" end element={defaultElement} />
-      </Routes>
     </div>
   );
 };
