@@ -137,7 +137,7 @@ func (o *IndexWebhookSubscriptionsUnauthorized) WriteResponse(rw http.ResponseWr
 const IndexWebhookSubscriptionsNotFoundCode int = 404
 
 /*
-IndexWebhookSubscriptionsNotFound Webhook subscriptions not found
+IndexWebhookSubscriptionsNotFound Webhook Subscriptions not found
 
 swagger:response indexWebhookSubscriptionsNotFound
 */

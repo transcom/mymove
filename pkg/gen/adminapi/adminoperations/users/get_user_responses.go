@@ -112,7 +112,7 @@ func (o *GetUserUnauthorized) WriteResponse(rw http.ResponseWriter, producer run
 const GetUserNotFoundCode int = 404
 
 /*
-GetUserNotFound user not found
+GetUserNotFound User not found
 
 swagger:response getUserNotFound
 */
