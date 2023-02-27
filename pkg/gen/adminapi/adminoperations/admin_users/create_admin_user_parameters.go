@@ -33,7 +33,7 @@ type CreateAdminUserParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*Admin user information
+	/*Admin User information
 	  In: body
 	*/
 	AdminUser *adminmessages.AdminUserCreate

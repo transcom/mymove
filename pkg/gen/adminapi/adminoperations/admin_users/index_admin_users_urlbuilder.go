@@ -45,7 +45,7 @@ func (o *IndexAdminUsersURL) SetBasePath(bp string) {
 func (o *IndexAdminUsersURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/admin_users"
+	var _path = "/admin-users"
 
 	_basePath := o._basePath
 	if _basePath == "" {

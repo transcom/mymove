@@ -9,7 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	moveop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/move"
+	moveop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/moves"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	mtoserviceitemops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/handlers"

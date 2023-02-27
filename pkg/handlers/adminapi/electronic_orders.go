@@ -7,7 +7,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	electronicorderop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
+	electronicorderop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_orders"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"

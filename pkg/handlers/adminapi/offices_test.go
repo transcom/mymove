@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/factory"
-	officeop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
+	transportation_officesop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -22,7 +22,7 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 	// test that everything is wired up
 	suite.Run("integration test ok response", func() {
 		to := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-		params := officeop.IndexOfficesParams{
+		params := transportation_officesop.IndexOfficesParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/offices"),
 		}
 		queryBuilder := query.NewQueryBuilder()
@@ -35,14 +35,14 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 
 		response := handler.Handle(params)
 
-		suite.IsType(&officeop.IndexOfficesOK{}, response)
-		okResponse := response.(*officeop.IndexOfficesOK)
+		suite.IsType(&transportation_officesop.IndexOfficesOK{}, response)
+		okResponse := response.(*transportation_officesop.IndexOfficesOK)
 		suite.Len(okResponse.Payload, 1)
 		suite.Equal(to.ID.String(), okResponse.Payload[0].ID.String())
 	})
 
 	suite.Run("unsuccesful response when fetch fails", func() {
-		params := officeop.IndexOfficesParams{
+		params := transportation_officesop.IndexOfficesParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/offices"),
 		}
 		expectedError := models.ErrFetchNotFound
