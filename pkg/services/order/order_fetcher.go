@@ -372,7 +372,7 @@ func submittedAtFilter(submittedAt *time.Time) QueryOption {
 func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	return func(query *pop.Query) {
 		if requestedMoveDate != nil {
-			query.Where("(mto_shipments.requested_pickup_date = ? OR ppm_shipments.expected_departure_date = ?)", *requestedMoveDate, *requestedMoveDate)
+			query.Where("(mto_shipments.requested_pickup_date = ? OR ppm_shipments.expected_departure_date = ? OR (mto_shipments.shipment_type = 'HHG_OUTOF_NTS_DOMESTIC' AND mto_shipments.requested_delivery_date = ?))", *requestedMoveDate, *requestedMoveDate, *requestedMoveDate)
 		}
 	}
 }
