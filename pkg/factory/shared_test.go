@@ -424,12 +424,6 @@ func (suite *FactorySuite) TestSetupCustomizations() {
 						StreetAddress1: streetAddress,
 					},
 				},
-				{
-					Model: controlObject{
-						isValid: false,
-					},
-					Type: &control,
-				},
 			},
 			// User and ServiceMember customization
 			[]Trait{
@@ -437,8 +431,8 @@ func (suite *FactorySuite) TestSetupCustomizations() {
 			},
 		)
 
-		// Expect to get 4 customizations, address, user, servicemember and control
-		suite.Len(result, 4)
+		// Expect to get 3 customizations, address, user, servicemember
+		suite.Len(result, 3)
 
 		// Find Address, check details
 		_, custom := findCustomWithIdx(result, Address)
@@ -486,36 +480,6 @@ func (suite *FactorySuite) TestSetupCustomizations() {
 
 }
 func (suite *FactorySuite) TestValidateCustomizations() {
-	suite.Run("Control obj added if missing", func() {
-		// Under test:       setupCustomizations
-		// Set up:           Create some customizations without a control object
-		// Expected outcome: A control object should be added to the list
-
-		customs := getTraitActiveArmy()
-		suite.Len(customs, 2)
-
-		customs = setupCustomizations(customs, nil)
-		suite.Len(customs, 3) // ← one was added
-		_, controlCustom := findCustomWithIdx(customs, control)
-		suite.NotNil(controlCustom)
-	})
-
-	suite.Run("Control obj not added if not missing", func() {
-		// Under test:       setupCustomizations
-		// Set up:           Create some customizations with a control object
-		// Expected outcome: No objects should be added to the list
-		customs := getTraitActiveArmy()
-		customs = append(customs, Customization{
-			Model: controlObject{},
-			Type:  &control,
-		})
-		suite.Len(customs, 3)
-
-		customs = setupCustomizations(customs, nil)
-		suite.Len(customs, 3) // ← nothing added
-		_, controlCustom := findCustomWithIdx(customs, control)
-		suite.NotNil(controlCustom)
-	})
 
 	suite.Run("Pass if customizations not repeated", func() {
 		// Under test:       uniqueCustomizations checks that there's only one

@@ -112,7 +112,7 @@ func (o *CreateAdminUserUnauthorized) WriteResponse(rw http.ResponseWriter, prod
 const CreateAdminUserForbiddenCode int = 403
 
 /*
-CreateAdminUserForbidden Not authorized to create an admin user
+CreateAdminUserForbidden Not authorized to create an Admin User
 
 swagger:response createAdminUserForbidden
 */
