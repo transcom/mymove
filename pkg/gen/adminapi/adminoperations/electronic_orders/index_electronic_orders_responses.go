@@ -137,7 +137,7 @@ func (o *IndexElectronicOrdersUnauthorized) WriteResponse(rw http.ResponseWriter
 const IndexElectronicOrdersNotFoundCode int = 404
 
 /*
-IndexElectronicOrdersNotFound not found
+IndexElectronicOrdersNotFound Electronic Order not found
 
 swagger:response indexElectronicOrdersNotFound
 */

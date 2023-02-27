@@ -115,7 +115,7 @@ func (o *GetElectronicOrdersTotalsUnauthorized) WriteResponse(rw http.ResponseWr
 const GetElectronicOrdersTotalsNotFoundCode int = 404
 
 /*
-GetElectronicOrdersTotalsNotFound not found
+GetElectronicOrdersTotalsNotFound Total count for Electronic Orders not found
 
 swagger:response getElectronicOrdersTotalsNotFound
 */

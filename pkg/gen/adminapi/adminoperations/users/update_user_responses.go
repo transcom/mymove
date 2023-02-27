@@ -112,7 +112,7 @@ func (o *UpdateUserUnauthorized) WriteResponse(rw http.ResponseWriter, producer 
 const UpdateUserForbiddenCode int = 403
 
 /*
-UpdateUserForbidden Not authorized to update this user
+UpdateUserForbidden Not authorized to update this User
 
 swagger:response updateUserForbidden
 */
