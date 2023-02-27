@@ -36,15 +36,19 @@ export const useCalculatedWeightRequested = (mtoShipments) => {
   }, [mtoShipments]);
 };
 
+export const calculateEstimatedWeight = (mtoShipments) => {
+  if (mtoShipments?.some((s) => includedStatusesForCalculatingWeights(s.status) && s.primeEstimatedWeight)) {
+    return mtoShipments
+      ?.filter((s) => includedStatusesForCalculatingWeights(s.status) && s.primeEstimatedWeight)
+      .reduce((prev, current) => {
+        return prev + current.primeEstimatedWeight;
+      }, 0);
+  }
+  return null;
+};
+
 export const useCalculatedEstimatedWeight = (mtoShipments) => {
   return useMemo(() => {
-    if (mtoShipments?.some((s) => includedStatusesForCalculatingWeights(s.status) && s.primeEstimatedWeight)) {
-      return mtoShipments
-        ?.filter((s) => includedStatusesForCalculatingWeights(s.status) && s.primeEstimatedWeight)
-        .reduce((prev, current) => {
-          return prev + current.primeEstimatedWeight;
-        }, 0);
-    }
-    return null;
+    return calculateEstimatedWeight(mtoShipments);
   }, [mtoShipments]);
 };

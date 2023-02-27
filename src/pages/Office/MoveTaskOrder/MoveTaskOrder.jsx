@@ -48,7 +48,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
 import { MatchShape } from 'types/router';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
-import { useCalculatedEstimatedWeight, useCalculatedWeightRequested } from 'hooks/custom';
+import { calculateEstimatedWeight, useCalculatedWeightRequested } from 'hooks/custom';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
@@ -100,6 +100,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [activeSection, setActiveSection] = useState('');
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
   const [unapprovedSITExtensionForShipment, setUnApprovedSITExtensionForShipment] = useState({});
+  const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
   const [externalVendorShipmentCount, setExternalVendorShipmentCount] = useState(0);
 
   const nonShipmentSections = useMemo(() => {
@@ -117,7 +118,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
   const order = Object.values(orders)?.[0];
-  const estimatedWeightTotal = useCalculatedEstimatedWeight(mtoShipments);
 
   const shipmentServiceItems = useMemo(() => {
     const serviceItemsForShipment = {};
@@ -498,6 +498,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   }, [mtoShipments]);
 
   useEffect(() => {
+    setEstimatedWeightTotal(calculateEstimatedWeight(mtoShipments));
     let excessBillableWeightCount = 0;
     const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
 
@@ -514,7 +515,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   }, [
     estimatedWeightTotal,
     move?.excess_weight_acknowledged_at,
+    mtoShipments,
     order?.entitlement.totalWeight,
+    setEstimatedWeightTotal,
     setExcessWeightRiskCount,
   ]);
 

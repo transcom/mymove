@@ -1,18 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import { useReviewShipmentWeightsQuery } from 'hooks/queries';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
-import { useCalculatedEstimatedWeight, useCalculatedWeightRequested } from 'hooks/custom';
+import { calculateEstimatedWeight, useCalculatedWeightRequested } from 'hooks/custom';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 
 const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
-  const estimatedWeightTotal = useCalculatedEstimatedWeight(mtoShipments);
+  const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
   const moveWeightTotal = useCalculatedWeightRequested(mtoShipments);
   const order = Object.values(orders)?.[0];
+
+  useEffect(() => {
+    setEstimatedWeightTotal(calculateEstimatedWeight(mtoShipments));
+  }, [mtoShipments]);
 
   return (
     <div className={styles.tabContent}>

@@ -31,7 +31,7 @@ import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
-import { useCalculatedEstimatedWeight } from 'hooks/custom';
+import { calculateEstimatedWeight } from 'hooks/custom';
 
 const errorIfMissing = {
   HHG_INTO_NTS_DOMESTIC: [
@@ -61,8 +61,6 @@ const MoveDetails = ({
   const history = useHistory();
 
   const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
-
-  const estimatedWeight = useCalculatedEstimatedWeight(mtoShipments);
 
   // for now we are only showing dest type on retiree and separatee orders
   let isRetirementOrSeparation = false;
@@ -172,6 +170,7 @@ const MoveDetails = ({
   }, [approvedOrCanceledShipments, mtoServiceItems, setUnapprovedServiceItemCount]);
 
   useEffect(() => {
+    const estimatedWeight = calculateEstimatedWeight(mtoShipments);
     const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
 
     if (hasRiskOfExcess(estimatedWeight, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
@@ -179,7 +178,7 @@ const MoveDetails = ({
     } else {
       setExcessWeightRiskCount(0);
     }
-  }, [estimatedWeight, move?.excess_weight_acknowledged_at, order?.entitlement.totalWeight, setExcessWeightRiskCount]);
+  }, [move?.excess_weight_acknowledged_at, mtoShipments, order?.entitlement.totalWeight, setExcessWeightRiskCount]);
 
   useEffect(() => {
     let unapprovedSITExtensionCount = 0;
