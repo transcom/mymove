@@ -26,8 +26,8 @@ require (
 	github.com/go-swagger/go-swagger v0.30.4
 	github.com/gobuffalo/envy v1.10.2
 	github.com/gobuffalo/fizz v1.14.4
-	github.com/gobuffalo/flect v0.3.0
-	github.com/gobuffalo/pop/v6 v6.1.0
+	github.com/gobuffalo/flect v1.0.0
+	github.com/gobuffalo/pop/v6 v6.1.1
 	github.com/gobuffalo/validate/v3 v3.3.3
 	github.com/gocarina/gocsv v0.0.0-20221216233619-1fea7ae8d380
 	github.com/gofrs/uuid v4.4.0+incompatible
@@ -117,7 +117,7 @@ require (
 	github.com/go-openapi/jsonreference v0.20.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-sql-driver/mysql v1.6.0 // indirect
+	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/gobuffalo/attrs v1.0.3 // indirect
 	github.com/gobuffalo/genny/v2 v2.1.0 // indirect
 	github.com/gobuffalo/github_flavored_markdown v1.1.3 // indirect
@@ -125,7 +125,7 @@ require (
 	github.com/gobuffalo/logger v1.0.7 // indirect
 	github.com/gobuffalo/nulls v0.4.2 // indirect
 	github.com/gobuffalo/packd v1.0.2 // indirect
-	github.com/gobuffalo/plush/v4 v4.1.16 // indirect
+	github.com/gobuffalo/plush/v4 v4.1.18 // indirect
 	github.com/gobuffalo/tags/v3 v3.1.4 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/btree v1.0.0 // indirect
