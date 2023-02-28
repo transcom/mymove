@@ -14,4 +14,5 @@ module.exports = (app) => {
   app.use(createProxyMiddleware('/logout', { target: 'http://milmovelocal:8080/' }));
   app.use(createProxyMiddleware('/downloads', { target: 'http://milmovelocal:8080/' }));
   app.use(createProxyMiddleware('/debug/**', { target: 'http://milmovelocal:8080/' }));
+  app.use(createProxyMiddleware('/client/**', { target: 'http://milmovelocal:8080/' }));
 };

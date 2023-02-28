@@ -9,6 +9,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { isOfficeSite, isAdminSite } from 'shared/constants';
 import { store, persistor } from 'shared/store';
 import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminContext } from 'shared/AppContext';
+import { configureLogger } from 'utils/milmoveLog';
 import { detectFlags } from 'utils/featureFlags';
 import '../icons';
 import 'shared/shared.css';
@@ -31,6 +32,9 @@ const SystemAdmin = lazy(() => import('scenes/SystemAdmin'));
 
 const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
 
+const loggingType = process.env.REACT_APP_ERROR_LOGGING || 'none';
+const loggingLevel = process.env.REACT_APP_ERROR_LOGGING_LEVEL || 'unknown';
+
 const officeContext = { ...defaultOfficeContext, flags };
 const myMoveContext = { ...defaultMyMoveContext, flags };
 const adminContext = { ...defaultAdminContext, flags };
@@ -52,7 +56,9 @@ const officeQueryConfig = new QueryClient({
 });
 
 const App = () => {
-  if (isOfficeSite)
+  if (isOfficeSite) {
+    configureLogger('office', { loggingType, loggingLevel });
+
     return (
       <QueryClientProvider client={officeQueryConfig}>
         <Provider store={store}>
@@ -72,8 +78,9 @@ const App = () => {
         </Provider>
       </QueryClientProvider>
     );
-
-  if (isAdminSite)
+  }
+  if (isAdminSite) {
+    configureLogger('admin', { loggingType, loggingLevel });
     return (
       <AppContext.Provider value={adminContext}>
         <BrowserRouter>
@@ -84,7 +91,9 @@ const App = () => {
         </BrowserRouter>
       </AppContext.Provider>
     );
+  }
 
+  configureLogger('my', { loggingType, loggingLevel });
   return (
     <Provider store={store}>
       <AppContext.Provider value={myMoveContext}>

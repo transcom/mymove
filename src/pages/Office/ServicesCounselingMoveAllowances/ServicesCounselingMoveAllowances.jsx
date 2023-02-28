@@ -10,7 +10,7 @@ import * as Yup from 'yup';
 import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -69,7 +69,7 @@ const ServicesCounselingMoveAllowances = () => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 

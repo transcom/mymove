@@ -2,13 +2,11 @@ import React, { Fragment } from 'react';
 import classNames from 'classnames';
 import { Field } from 'redux-form';
 import { isNil } from 'lodash';
+import { milmoveLogger } from 'utils/milmoveLog';
 
 import * as normalizer from './reduxFieldNormalizer';
 import validator from './validator';
 import SingleDatePicker from './SingleDatePicker';
-
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
-
 export const ALWAYS_REQUIRED_KEY = 'x-always-required';
 
 // ---- Parsers -----
@@ -209,8 +207,7 @@ const renderInputField = ({
   }
 
   if (componentNameOverride && customComponent) {
-    milmoveLog(
-      MILMOVE_LOG_LEVEL.ERROR,
+    milmoveLogger.error(
       'You should not have specified a componentNameOverride as well as a customComponent. For: ',
       title,
     );
@@ -408,14 +405,12 @@ const createSchemaField = (
       fieldProps = configureEmailField(swaggerField, fieldProps);
     } else {
       if (swaggerField.pattern) {
-        milmoveLog(
-          MILMOVE_LOG_LEVEL.ERROR,
+        milmoveLogger.error(
           'This swagger field contains a pattern but does not have a custom "format" property',
           fieldName,
           swaggerField,
         );
-        milmoveLog(
-          MILMOVE_LOG_LEVEL.ERROR,
+        milmoveLogger.error(
           "Since it's not feasible to generate a sensible error message from a regex, please add a new format and matching validator",
         );
         fieldProps.validate.push(validator.patternMatches(swaggerField.pattern, swaggerField.example));
@@ -427,7 +422,7 @@ const createSchemaField = (
       fieldProps = configureTextField(swaggerField, fieldProps);
     }
   } else {
-    milmoveLog(MILMOVE_LOG_LEVEL.ERROR, 'ERROR: This is an unimplemented type in our JSONSchemaForm implementation');
+    milmoveLogger.error('This is an unimplemented type in our JSONSchemaForm implementation');
   }
   return (
     <Field

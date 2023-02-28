@@ -53,6 +53,9 @@ type Config struct {
 	// What is the maximum body size that should be accepted?
 	MaxBodySize int64
 
+	// Should serve client collector endpoint?
+	ServeClientCollector bool
+
 	// Should the swagger ui be served? Generally only enabled in development
 	ServeSwaggerUI bool
 
@@ -267,6 +270,20 @@ func mountStaticRoutes(appCtx appcontext.AppContext, routingConfig *Config, site
 	// } else {
 	// 	site.Method("GET", "/swagger-ui/", http.NotFoundHandler())
 	// }
+}
+
+func mountCollectorRoutes(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
+	if routingConfig.ServeClientCollector {
+		appCtx.Logger().Info("client logging service is enabled")
+		clientLogHandler := handlers.NewClientLogHandler(appCtx)
+		clientCollectorHandler := handlers.NewClientCollectorHandler(appCtx)
+		site.Route("/client", func(r chi.Router) {
+			r.Use(middleware.RequestLogger())
+			r.Post("/log", clientLogHandler)
+			r.Post("/collector", clientCollectorHandler)
+		})
+	}
+
 }
 
 func mountPrimeAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
@@ -572,6 +589,7 @@ func newMilRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	mountLocalStorageRoute(appCtx, routingConfig, site)
 	mountStaticRoutes(appCtx, routingConfig, site)
 	mountTestharnessAPI(appCtx, routingConfig, site)
+	mountCollectorRoutes(appCtx, routingConfig, site)
 
 	milSessionManager := routingConfig.HandlerConfig.SessionManagers().Mil
 	mountSessionRoutes(appCtx, routingConfig, site, milSessionManager,
@@ -594,6 +612,7 @@ func newOfficeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	mountLocalStorageRoute(appCtx, routingConfig, site)
 	mountStaticRoutes(appCtx, routingConfig, site)
 	mountTestharnessAPI(appCtx, routingConfig, site)
+	mountCollectorRoutes(appCtx, routingConfig, site)
 
 	officeSessionManager := routingConfig.HandlerConfig.SessionManagers().Office
 	mountSessionRoutes(appCtx, routingConfig, site, officeSessionManager,
@@ -617,13 +636,14 @@ func newAdminRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	mountHealthRoute(appCtx, redisPool, routingConfig, site)
 	mountStaticRoutes(appCtx, routingConfig, site)
 	mountTestharnessAPI(appCtx, routingConfig, site)
-	// debug routes can go anywhere, but the admin site seems most appropriate
+	mountCollectorRoutes(appCtx, routingConfig, site)
 
 	adminSessionManager := routingConfig.HandlerConfig.SessionManagers().Admin
 	mountSessionRoutes(appCtx, routingConfig, site, adminSessionManager,
 		func(sessionRoute chi.Router) {
 			mountInternalAPI(appCtx, routingConfig, sessionRoute)
 			mountAdminAPI(appCtx, routingConfig, sessionRoute)
+			// debug routes can go anywhere, but the admin site seems most appropriate
 			mountDebugRoutes(appCtx, routingConfig, sessionRoute)
 		},
 	)

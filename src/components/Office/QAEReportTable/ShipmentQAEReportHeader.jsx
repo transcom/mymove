@@ -11,7 +11,7 @@ import styles from './ShipmentQAEReportHeader.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatEvaluationReportShipmentAddress, formatShortIDWithPound } from 'utils/formatters';
 import { ShipmentShape } from 'types/shipment';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 import { createShipmentEvaluationReport } from 'services/ghcApi';
 import { SHIPMENT_EVALUATION_REPORTS } from 'constants/queryKeys';
 import Restricted from 'components/Restricted/Restricted';
@@ -28,7 +28,7 @@ const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode }
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 

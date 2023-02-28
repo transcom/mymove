@@ -1,6 +1,6 @@
 import queryString from 'query-string';
 
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 
 // Simple feature toggling for client-side code.
 //
@@ -65,7 +65,7 @@ const environmentFlags = {
 const validateFlag = (name) => {
   // Warn if the value being fetched was never set.
   if (Object.keys(defaultFlags).indexOf(name) === -1) {
-    milmoveLog(MILMOVE_LOG_LEVEL.WARN, `'${name}' is not a valid flag name.`);
+    milmoveLogger.warn(`'${name}' is not a valid flag name.`);
     return false;
   }
   return true;

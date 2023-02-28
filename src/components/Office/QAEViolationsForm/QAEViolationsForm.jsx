@@ -16,7 +16,7 @@ import ViolationsAccordion from 'components/Office/ViolationsAccordion/Violation
 import ConnectedEvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
 import { saveEvaluationReport, associateReportViolations, submitEvaluationReport } from 'services/ghcApi';
 import { DatePickerInput } from 'components/form/fields';
-import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 import { EvaluationReportShape, ReportViolationShape, PWSViolationShape, CustomerShape, ShipmentShape } from 'types';
 import { formatDateForSwagger } from 'shared/dates';
 
@@ -36,7 +36,7 @@ const QAEViolationsForm = ({
   const { mutate: mutateEvaluationReport } = useMutation(saveEvaluationReport, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
     onSuccess: async () => {
       await queryClient.refetchQueries([EVALUATION_REPORT, reportId]);
@@ -46,14 +46,14 @@ const QAEViolationsForm = ({
   const { mutate: submitEvaluationReportMutation } = useMutation(submitEvaluationReport, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
   const { mutate: mutateReportViolations } = useMutation(associateReportViolations, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
     onSuccess: async () => {
       await queryClient.refetchQueries([REPORT_VIOLATIONS, reportId]);

@@ -120,7 +120,7 @@ func Init(logger *zap.Logger, config *Config) (func(), sdktrace.SpanExporter, sd
 
 	sampler := sdktrace.TraceIDRatioBased(config.SamplingFraction)
 	resourceAttrs := []attribute.KeyValue{
-		semconv.ServiceNameKey.String("milmove"),
+		semconv.ServiceNameKey.String("milmove-server"),
 		semconv.DeploymentEnvironmentKey.String(config.EnvironmentName)}
 
 	// Instantiate a new ECS resource detector

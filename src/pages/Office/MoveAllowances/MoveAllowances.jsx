@@ -10,8 +10,8 @@ import * as Yup from 'yup';
 import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { tooRoutes, tioRoutes } from 'constants/routes';
+import { milmoveLogger } from 'utils/milmoveLog';
 import { updateAllowance } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -81,7 +81,7 @@ const MoveAllowances = () => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
