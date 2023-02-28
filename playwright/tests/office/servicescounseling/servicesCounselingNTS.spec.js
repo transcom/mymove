@@ -36,7 +36,7 @@ test.describe('Services counselor user', () => {
     await scPage.addNTSShipment();
 
     // Find the card for the NTS shipment, then click the edit button
-    let container = await scPage.getShipmentContainerByType('NTS');
+    const container = await scPage.getShipmentContainerByType('NTS');
     await container.getByRole('button', { name: 'Edit Shipment' }).click();
     await scPage.waitForPage.editNTSShipment();
 
@@ -64,7 +64,6 @@ test.describe('Services counselor user', () => {
     await expect(page.getByTestId('tacMDC')).toHaveText('E15A');
 
     // Return to editing the NTS shipment
-    container = await scPage.getShipmentContainerByType('NTS');
     await container.getByRole('button', { name: 'Edit Shipment' }).click();
     await scPage.waitForPage.editNTSShipment();
 
