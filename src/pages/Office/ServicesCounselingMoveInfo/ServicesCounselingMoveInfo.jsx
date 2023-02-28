@@ -52,7 +52,7 @@ const ServicesCounselingMoveInfo = () => {
     }
   };
 
-  // Clear the alter when route changes
+  // Clear the alert when route changes
   const location = useLocation();
   useEffect(() => {
     if (
@@ -206,16 +206,13 @@ const ServicesCounselingMoveInfo = () => {
           <Route
             path={servicesCounselingRoutes.SHIPMENT_REVIEW_PATH}
             exact
-            render={(props) => (
-              // eslint-disable-next-line react/jsx-props-no-spreading
-              <ReviewDocuments {...props} onUpdate={onInfoSavedUpdate} />
-            )}
+            element={<ReviewDocuments onUpdate={onInfoSavedUpdate} />}
           />
 
           <Route
             path={servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH}
             exact
-            render={() => <ServicesCounselingReviewShipmentWeights moveCode={moveCode} />}
+            element={<ServicesCounselingReviewShipmentWeights moveCode={moveCode} />}
           />
 
           {/* TODO - clarify role/tab access */}
