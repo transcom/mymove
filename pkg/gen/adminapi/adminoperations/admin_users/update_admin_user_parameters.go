@@ -35,7 +35,7 @@ type UpdateAdminUserParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*Admin user information
+	/*Admin User information
 	  Required: true
 	  In: body
 	*/

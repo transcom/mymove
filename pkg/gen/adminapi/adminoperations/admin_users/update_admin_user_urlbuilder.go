@@ -42,7 +42,7 @@ func (o *UpdateAdminUserURL) SetBasePath(bp string) {
 func (o *UpdateAdminUserURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/admin_users/{adminUserId}"
+	var _path = "/admin-users/{adminUserId}"
 
 	adminUserID := o.AdminUserID.String()
 	if adminUserID != "" {

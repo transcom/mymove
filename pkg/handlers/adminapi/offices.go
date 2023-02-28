@@ -6,7 +6,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	officeop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
+	transportation_officesop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -41,7 +41,7 @@ var officesFilterConverters = map[string]func(string) []services.QueryFilter{
 }
 
 // Handle retrieves a list of office users
-func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middleware.Responder {
+func (h IndexOfficesHandler) Handle(params transportation_officesop.IndexOfficesParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
@@ -68,6 +68,6 @@ func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middlewa
 				payload[i] = payloadForOfficeModel(s)
 			}
 
-			return officeop.NewIndexOfficesOK().WithContentRange(fmt.Sprintf("offices %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficesCount, totalOfficesCount)).WithPayload(payload), nil
+			return transportation_officesop.NewIndexOfficesOK().WithContentRange(fmt.Sprintf("offices %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficesCount, totalOfficesCount)).WithPayload(payload), nil
 		})
 }
