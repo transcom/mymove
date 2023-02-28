@@ -642,7 +642,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		containerDefinitions = append(containerDefinitions,
 			&ecs.ContainerDefinition{
 				Name:      aws.String("otel-" + containerDefName),
-				Image:     aws.String("public.ecr.aws/aws-observability/aws-otel-collector:v0.24.0"),
+				Image:     aws.String("public.ecr.aws/aws-observability/aws-otel-collector:v0.26.1"),
 				Essential: aws.Bool(true),
 				Command: aws.StringSlice([]string{
 					"--config=/etc/ecs/container-insights/otel-task-metrics-config.yaml",
