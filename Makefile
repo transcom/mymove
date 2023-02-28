@@ -352,7 +352,7 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 		--laddr 127.0.0.1 --port "$(GIN_PORT)" \
 		--excludeDir node_modules \
 		--immediate \
-		--buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
+		--buildArgs "-ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
 		serve \
 		2>&1 | tee -a log/dev.log
 
