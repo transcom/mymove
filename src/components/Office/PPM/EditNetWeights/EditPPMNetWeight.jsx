@@ -77,7 +77,7 @@ const WeightCalculation = ({ type, firstValue, secondValue, thirdValue }) => {
 };
 
 const validationSchema = Yup.object({
-  ppmNetWeight: Yup.number().min(1, 'Net weight must be greater than or equal to 1').required('Required'),
+  ppmNetWeight: Yup.number().min(1, 'Net weight must be 0 lbs or greater').required('Required'),
   ppmNetWeightRemarks: Yup.string().required('Required'),
 });
 

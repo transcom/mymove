@@ -83,7 +83,7 @@ describe('EditNetPPMWeight', () => {
       await act(() => userEvent.clear(textInput));
       expect(screen.getByText('Required'));
       await act(() => userEvent.type(textInput, '0'));
-      expect(screen.getByText('Net weight must be greater than or equal to 1'));
+      expect(screen.getByText('Net weight must be 0 lbs or greater'));
       await act(() => userEvent.type(textInput, '1000'));
       // Remarks
       const remarksField = await screen.findByTestId('formRemarks');
