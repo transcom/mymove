@@ -279,6 +279,14 @@ func mountCollectorRoutes(appCtx appcontext.AppContext, routingConfig *Config, s
 		site.Route("/client", func(r chi.Router) {
 			r.Use(middleware.RequestLogger())
 			r.Post("/log", clientLogHandler)
+			clientCollectorHandler, err := handlers.NewClientTelemetryHandler(appCtx,
+				routingConfig.HandlerConfig.TelemetryConfig())
+			if err != nil {
+				appCtx.Logger().Info("client telemetry collector is disabled")
+			} else {
+				appCtx.Logger().Info("client telemetry collector is enabled")
+				r.Method("POST", "/collector", clientCollectorHandler)
+			}
 		})
 	}
 }

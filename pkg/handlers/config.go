@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/telemetry"
 	"github.com/transcom/mymove/pkg/trace"
 )
 
@@ -49,6 +50,8 @@ type HandlerConfig interface {
 	GetTraceIDFromRequest(r *http.Request) uuid.UUID
 
 	FeatureFlagFetcher() services.FeatureFlagFetcher
+
+	TelemetryConfig() *telemetry.Config
 }
 
 // A single Config is passed to each handler. This should be
@@ -70,6 +73,7 @@ type Config struct {
 	appNames              auth.ApplicationServername
 	sessionManagers       auth.AppSessionManagers
 	featureFlagFetcher    services.FeatureFlagFetcher
+	telemetryConfig       *telemetry.Config
 }
 
 // NewHandlerConfig returns a new HandlerConfig interface with its
@@ -90,6 +94,7 @@ func NewHandlerConfig(
 	appNames auth.ApplicationServername,
 	sessionManagers auth.AppSessionManagers,
 	featureFlagFetcher services.FeatureFlagFetcher,
+	telemetryConfig *telemetry.Config,
 ) HandlerConfig {
 	return &Config{
 		db:                    db,
@@ -107,6 +112,7 @@ func NewHandlerConfig(
 		appNames:              appNames,
 		sessionManagers:       sessionManagers,
 		featureFlagFetcher:    featureFlagFetcher,
+		telemetryConfig:       telemetryConfig,
 	}
 }
 
@@ -228,6 +234,16 @@ func (c *Config) SetAppNames(appNames auth.ApplicationServername) {
 // SessionManagers returns the auth AppSessionManagers
 func (c *Config) SessionManagers() auth.AppSessionManagers {
 	return c.sessionManagers
+}
+
+// TelemetryConfig returns the telemetry configuration
+func (c *Config) TelemetryConfig() *telemetry.Config {
+	return c.telemetryConfig
+}
+
+// SetTelemetryConfig sets the telemetry configuration
+func (c *Config) SetTelemetryConfig(config *telemetry.Config) {
+	c.telemetryConfig = config
 }
 
 // NotificationSender returns the sender to use in the current context

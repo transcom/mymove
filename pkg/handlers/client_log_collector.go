@@ -4,12 +4,64 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/telemetry"
 )
+
+type LoggingTransport struct {
+	f func(req *http.Request) (*http.Response, error)
+}
+
+func (lt *LoggingTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	return lt.f(req)
+}
+
+// NewClientTelemetryHandler creates a handler for receiving client
+// telemetry and forwarding it to the aws otel collector
+func NewClientTelemetryHandler(appCtx appcontext.AppContext, telemetryConfig *telemetry.Config) (http.Handler, error) {
+	telemetryURL, err := url.Parse(telemetryConfig.HTTPEndpoint)
+	if err != nil {
+		appCtx.Logger().Error("Cannot create client collector handler",
+			zap.String("httpEndpoint", telemetryConfig.HTTPEndpoint),
+			zap.Error(err),
+		)
+		return nil, err
+	}
+
+	director := func(req *http.Request) {
+		req.URL = telemetryURL
+		req.RequestURI = telemetryURL.Path
+		if req.RequestURI == "" {
+			req.RequestURI = "/"
+		}
+		if _, ok := req.Header["User-Agent"]; !ok {
+			// explicitly disable User-Agent so it's not set to default value
+			req.Header.Set("User-Agent", "")
+		}
+	}
+
+	defaultTransport := http.DefaultTransport
+	transport := &LoggingTransport{
+		f: func(req *http.Request) (*http.Response, error) {
+			return defaultTransport.RoundTrip(req)
+		},
+	}
+	reverseProxy := httputil.ReverseProxy{
+		Director:  director,
+		Transport: transport,
+	}
+	rHandler := func(w http.ResponseWriter, r *http.Request) {
+		reverseProxy.ServeHTTP(w, r)
+	}
+
+	return http.HandlerFunc(rHandler), nil
+}
 
 type ClientLoggerStats struct {
 	DroppedLogsCount int `json:"droppedLogsCount"`

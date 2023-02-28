@@ -419,7 +419,7 @@ func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 	}
 }
 
-func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool *redis.Pool, isDevOrTest bool, tlsConfig *tls.Config) *routing.Config {
+func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool *redis.Pool, isDevOrTest bool, tlsConfig *tls.Config, telemetryConfig *telemetry.Config) *routing.Config {
 	routingConfig := &routing.Config{}
 
 	// always use the OS Filesystem when serving for real
@@ -564,6 +564,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		appNames,
 		sessionManagers,
 		featureFlagFetcher,
+		telemetryConfig,
 	)
 
 	initializeRouteOptions(v, routingConfig)
@@ -677,7 +678,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	tlsConfig := initializeTLSConfig(appCtx, v)
 
 	// build the routing configuration
-	routingConfig := buildRoutingConfig(appCtx, v, redisPool, isDevOrTest, tlsConfig)
+	routingConfig := buildRoutingConfig(appCtx, v, redisPool, isDevOrTest, tlsConfig, telemetryConfig)
 
 	listenInterface := v.GetString(cli.InterfaceFlag)
 

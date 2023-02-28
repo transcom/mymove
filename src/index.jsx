@@ -6,12 +6,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import { configureGlobalLogger } from './utils/milmoveLog';
+import { configureTelemetry } from './utils/telemetry';
 import App from './App';
 // import registerServiceWorker from './registerServiceWorker';
 import './index.scss';
 
 // configure the global logger once
 configureGlobalLogger();
+// configure telemetry once
+configureTelemetry();
 
 ReactDOM.render(<App />, document.getElementById('root'));
 
