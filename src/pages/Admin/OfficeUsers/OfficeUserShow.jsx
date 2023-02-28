@@ -44,7 +44,7 @@ const OfficeUserShow = () => {
         <TextField source="telephone" />
         <BooleanField source="active" />
         <ArrayField source="roles">
-          <Datagrid>
+          <Datagrid bulkActionButtons={false}>
             <TextField source="roleName" />
           </Datagrid>
         </ArrayField>
