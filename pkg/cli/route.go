@@ -70,7 +70,7 @@ func CheckRoute(v *viper.Viper) error {
 			EnvironmentDemo,
 			EnvironmentLoadtest,
 			EnvironmentReview,
-			EnvironmentStaging,
+			EnvironmentStg, // WARN: This is enabled only while the DTOD service is down.
 		}
 		if environment := v.GetString(EnvironmentFlag); !stringSliceContains(allowedEnvironments, environment) {
 			return errors.Errorf("cannot mock DTOD with the '%s' environment, only in %v", environment, allowedEnvironments)
