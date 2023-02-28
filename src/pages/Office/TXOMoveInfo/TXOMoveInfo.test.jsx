@@ -219,7 +219,7 @@ describe('TXO Move Info Container', () => {
 
     it('should handle the Move Details route', () => {
       const wrapper = mount(
-        <MockProviders path={tooRoutes.VIEW_MOVE_PATH}>
+        <MockProviders path={tooRoutes.MOVE_VIEW_PATH}>
           <TXOMoveInfo />
         </MockProviders>,
       );

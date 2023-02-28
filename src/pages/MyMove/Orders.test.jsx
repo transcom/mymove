@@ -163,15 +163,6 @@ describe('Orders page', () => {
   };
 
   describe('if there are no current orders', () => {
-    it('does not load orders on mount', async () => {
-      const { queryByRole } = renderWithRouterProp(<Orders {...testProps} />);
-
-      await waitFor(() => {
-        expect(queryByRole('heading', { name: 'Tell us about your move orders', level: 1 })).toBeInTheDocument();
-        expect(getOrdersForServiceMember).not.toHaveBeenCalled();
-      });
-    });
-
     it('next button creates the orders and goes to the Upload Orders step', async () => {
       const testOrdersValues = {
         id: 'newOrdersId',
@@ -237,6 +228,14 @@ describe('Orders page', () => {
       expect(getServiceMember).toHaveBeenCalledWith(testProps.serviceMemberId);
       expect(testProps.updateServiceMember).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith('/orders/upload');
+    });
+
+    it('does not load orders on mount', async () => {
+      const { queryByRole } = renderWithRouterProp(<Orders {...testProps} />);
+      await waitFor(() => {
+        expect(queryByRole('heading', { name: 'Tell us about your move orders', level: 1 })).toBeInTheDocument();
+        expect(getOrdersForServiceMember).not.toHaveBeenCalled();
+      });
     });
   });
 
