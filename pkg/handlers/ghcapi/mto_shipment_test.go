@@ -522,14 +522,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			models.ReServiceCodeDUPK,
 		}
 		for _, serviceCode := range reServiceCodes {
-			testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-				ReService: models.ReService{
-					Code:      serviceCode,
-					Name:      "test",
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				},
-			})
+			factory.BuildReServiceByCode(suite.DB(), serviceCode)
 		}
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)

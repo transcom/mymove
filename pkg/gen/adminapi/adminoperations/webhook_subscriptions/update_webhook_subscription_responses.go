@@ -17,7 +17,7 @@ import (
 const UpdateWebhookSubscriptionOKCode int = 200
 
 /*
-UpdateWebhookSubscriptionOK Successfully updated webhook subscription
+UpdateWebhookSubscriptionOK Successfully updated Webhook Subscription
 
 swagger:response updateWebhookSubscriptionOK
 */
@@ -112,7 +112,7 @@ func (o *UpdateWebhookSubscriptionUnauthorized) WriteResponse(rw http.ResponseWr
 const UpdateWebhookSubscriptionForbiddenCode int = 403
 
 /*
-UpdateWebhookSubscriptionForbidden Not authorized to update this webhook subscription
+UpdateWebhookSubscriptionForbidden Not authorized to update this Webhook Subscription
 
 swagger:response updateWebhookSubscriptionForbidden
 */
@@ -137,7 +137,7 @@ func (o *UpdateWebhookSubscriptionForbidden) WriteResponse(rw http.ResponseWrite
 const UpdateWebhookSubscriptionNotFoundCode int = 404
 
 /*
-UpdateWebhookSubscriptionNotFound subscription not found
+UpdateWebhookSubscriptionNotFound Webhook Subscription not found
 
 swagger:response updateWebhookSubscriptionNotFound
 */

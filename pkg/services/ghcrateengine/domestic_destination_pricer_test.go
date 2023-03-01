@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -318,14 +319,14 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticDestinationData() {
 			},
 		})
 
-	domesticDestinationService := testdatagen.MakeReService(suite.DB(),
-		testdatagen.Assertions{
-			ReService: models.ReService{
+	domesticDestinationService := factory.BuildReService(suite.DB(), []factory.Customization{
+		{
+			Model: models.ReService{
 				Code: models.ReServiceCodeDDP,
 				Name: "Dom. Destination Price",
 			},
-		})
-
+		},
+	}, nil)
 	domesticDestinationPrice := models.ReDomesticServiceAreaPrice{
 		ContractID:            contractYear.Contract.ID,
 		DomesticServiceAreaID: serviceArea.ID,

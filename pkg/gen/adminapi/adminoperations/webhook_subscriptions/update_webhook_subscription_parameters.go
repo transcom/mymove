@@ -41,7 +41,7 @@ type UpdateWebhookSubscriptionParams struct {
 	  In: header
 	*/
 	IfMatch string
-	/*Webhook subscription information
+	/*Webhook Subscription information
 	  Required: true
 	  In: body
 	*/

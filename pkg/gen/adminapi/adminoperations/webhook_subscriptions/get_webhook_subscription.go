@@ -30,11 +30,12 @@ func NewGetWebhookSubscription(ctx *middleware.Context, handler GetWebhookSubscr
 }
 
 /*
-	GetWebhookSubscription swagger:route GET /webhook-subscriptions/{webhookSubscriptionId} webhook_subscriptions getWebhookSubscription
+	GetWebhookSubscription swagger:route GET /webhook-subscriptions/{webhookSubscriptionId} Webhook subscriptions getWebhookSubscription
 
-# Get information about a webhook subscription
+# Get information about a Webhook Subscription
 
-Returns the given webhook subscription and its details
+This endpoint returns a single Webhook Subscription by ID. Do not use this
+endpoint directly as it is meant to be used with the Admin UI exclusively.
 */
 type GetWebhookSubscription struct {
 	Context *middleware.Context

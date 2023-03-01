@@ -1,11 +1,11 @@
 package auth
 
 import (
-	"log"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest"
 )
 
 const (
@@ -39,10 +39,8 @@ type authSuite struct {
 }
 
 func TestAuthSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
+	logger := zaptest.NewLogger(t)
+
 	hs := &authSuite{logger: logger}
 	suite.Run(t, hs)
 }

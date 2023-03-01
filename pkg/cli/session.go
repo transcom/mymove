@@ -36,7 +36,7 @@ func CheckSession(v *viper.Viper) error {
 func ValidateSessionTimeout(v *viper.Viper, flagname string) error {
 	timeout := v.GetInt(flagname)
 
-	if v.GetString(EnvironmentFlag) == EnvironmentProd {
+	if v.GetString(EnvironmentFlag) == EnvironmentPrd {
 		if timeout < 15 || timeout > 60 {
 			return errors.Errorf("%s must be an integer between 15 and 60, got %d", SessionIdleTimeoutInMinutesFlag, timeout)
 		}

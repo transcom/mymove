@@ -788,14 +788,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 	setupTestData := func() {
 		for i := range expectedReServiceCodes {
-			testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-				ReService: models.ReService{
-					Code:      expectedReServiceCodes[i],
-					Name:      "test",
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				},
-			})
+			factory.BuildReServiceByCode(suite.DB(), expectedReServiceCodes[i])
 		}
 
 		mto = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
@@ -1005,11 +998,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.Assert().False(verrs.HasAny())
 		suite.NoError(err)
 
-		testdatagen.FetchOrMakeReService(appCtx.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDNPK,
-			},
-		})
+		factory.BuildReServiceByCode(appCtx.DB(), models.ReServiceCodeDNPK)
 
 		// This is testing that the Required Delivery Date is calculated correctly.
 		// In order for the Required Delivery Date to be calculated, the following conditions must be true:

@@ -46,11 +46,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		subtestData.mtoShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 		})
-		testdatagen.MakeDOFSITReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"),
-			},
-		})
+		factory.BuildDOFSITReService(suite.DB())
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		reason := "lorem ipsum"
 		sitEntryDate := time.Now()
@@ -371,16 +367,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 		})
-		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDCRT,
-			},
-		})
-		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDUCRT,
-			},
-		})
+		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDCRT)
+		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDUCRT)
 		subtestData.req = httptest.NewRequest("POST", "/mto-service-items", nil)
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
@@ -527,7 +515,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		subtestData.mtoShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: subtestData.mto,
 		})
-		testdatagen.MakeDOFSITReService(suite.DB(), testdatagen.Assertions{})
+		factory.BuildDOFSITReService(suite.DB())
 
 		reason := "lorem ipsum"
 		sitEntryDate := time.Now()
@@ -690,7 +678,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 		})
-		testdatagen.MakeDOFSITReService(suite.DB(), testdatagen.Assertions{})
+		factory.BuildDOFSITReService(suite.DB())
 		reason := "lorem ipsum"
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
@@ -767,7 +755,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		subtestData.mtoShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 		})
-		testdatagen.MakeDOFSITReService(suite.DB(), testdatagen.Assertions{})
+		factory.BuildDOFSITReService(suite.DB())
 		reason := "lorem ipsum"
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
@@ -936,7 +924,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		subtestData.mtoShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: subtestData.mto,
 		})
-		testdatagen.MakeDDFSITReService(suite.DB())
+		factory.BuildDDFSITReService(suite.DB())
 
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		subtestData.mtoServiceItem = models.MTOServiceItem{

@@ -112,7 +112,7 @@ func (o *GetWebhookSubscriptionUnauthorized) WriteResponse(rw http.ResponseWrite
 const GetWebhookSubscriptionNotFoundCode int = 404
 
 /*
-GetWebhookSubscriptionNotFound subscription not found
+GetWebhookSubscriptionNotFound Webhook Subscription not found
 
 swagger:response getWebhookSubscriptionNotFound
 */

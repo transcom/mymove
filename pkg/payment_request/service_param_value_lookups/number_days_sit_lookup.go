@@ -27,7 +27,7 @@ func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *Servi
 		return "", err
 	}
 
-	_, _, err = fetchAndVerifyMTOShipmentSITDates(mtoShipmentSITPaymentServiceItems, keyData.MTOServiceItem)
+	_, _, err = fetchAndVerifyMTOShipmentSITDates(appCtx, mtoShipmentSITPaymentServiceItems, keyData.MTOServiceItem)
 	if err != nil {
 		return "", err
 	}
@@ -161,7 +161,7 @@ func calculateNumberSITAdditionalDays(paymentServiceItem models.PaymentServiceIt
 	return int(days), nil
 }
 
-func fetchAndVerifyMTOShipmentSITDates(mtoShipmentSITPaymentServiceItems models.PaymentServiceItems, mtoServiceItem models.MTOServiceItem) (time.Time, time.Time, error) {
+func fetchAndVerifyMTOShipmentSITDates(appCtx appcontext.AppContext, mtoShipmentSITPaymentServiceItems models.PaymentServiceItems, mtoServiceItem models.MTOServiceItem) (time.Time, time.Time, error) {
 	var originSITEntryDate time.Time
 	var destinationSITEntryDate time.Time
 
@@ -181,6 +181,7 @@ func fetchAndVerifyMTOShipmentSITDates(mtoShipmentSITPaymentServiceItems models.
 			}
 		} else if isDomesticDestination(mtoShipmentSITPaymentServiceItem.MTOServiceItem) {
 			if isDomesticDestination(mtoServiceItem) {
+				appCtx.Logger().Debug(fmt.Sprintf("Type of Service Item: %v", mtoServiceItem.ReService.Code.String()))
 				if mtoShipmentSITPaymentServiceItem.MTOServiceItem.SITDepartureDate != nil && mtoShipmentSITPaymentServiceItem.MTOServiceItem.ID != mtoServiceItem.ID {
 					return time.Time{}, time.Time{}, fmt.Errorf("MTO Shipment %v already has a Destination MTO Service Item %v with a SIT Departure Date of %v", mtoServiceItem.MTOShipmentID, mtoShipmentSITPaymentServiceItem.ID, mtoShipmentSITPaymentServiceItem.MTOServiceItem.SITDepartureDate)
 				} else if mtoShipmentSITPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {

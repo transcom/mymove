@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -104,7 +105,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
-		query = appCtx.DB().Q().EagerPreload(
+		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
 			"Orders.ServiceMember",
 			"Orders.NewDutyLocation.Address",
 			"Orders.OriginDutyLocation.Address",
@@ -118,7 +119,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			Where("show = ?", swag.Bool(true))
 	} else {
-		query = appCtx.DB().Q().EagerPreload(
+		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
 			"Orders.ServiceMember",
 			"Orders.NewDutyLocation.Address",
 			"Orders.OriginDutyLocation.Address",
