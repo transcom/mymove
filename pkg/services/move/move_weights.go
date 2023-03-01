@@ -110,7 +110,7 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 		if updatedShipment.PrimeEstimatedWeight != nil {
 			estimatedWeightTotal += updatedShipment.PrimeEstimatedWeight.Int()
 		}
-		if updatedShipment.PPMShipment != nil && updatedShipment.PPMShipment.EstimatedWeight != nil && updatedShipment.PPMShipment.Status != models.PPMShipmentStatusDraft {
+		if updatedShipment.PPMShipment != nil && updatedShipment.PPMShipment.EstimatedWeight != nil {
 			estimatedWeightTotal += updatedShipment.PPMShipment.EstimatedWeight.Int()
 		}
 	}
@@ -123,7 +123,7 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 				if shipment.PrimeEstimatedWeight != nil {
 					estimatedWeightTotal += shipment.PrimeEstimatedWeight.Int()
 				}
-				if shipment.PPMShipment != nil && shipment.PPMShipment.EstimatedWeight != nil && shipment.PPMShipment.Status != models.PPMShipmentStatusDraft {
+				if shipment.PPMShipment != nil && shipment.PPMShipment.EstimatedWeight != nil {
 					estimatedWeightTotal += shipment.PPMShipment.EstimatedWeight.Int()
 				}
 			}
