@@ -82,11 +82,7 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		// ServiceItemParamNameEIAFuelPrice
 
 		// FSC
-		reService1 := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeFSC,
-			},
-		})
+		reService1 := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeFSC)
 
 		// FSC
 		mtoServiceItemFSC := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
