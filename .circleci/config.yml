@@ -13,10 +13,10 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-b0321830e60511e17258e2d29abbc0dd8cf95d81
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-264febcfc76c5a5cd15d2fc4e29fc312bb405103
 
   # the cypress image to use
-  cypress: &cypress milmove/circleci-docker:milmove-cypress-b0321830e60511e17258e2d29abbc0dd8cf95d81
+  cypress: &cypress milmove/circleci-docker:milmove-cypress-264febcfc76c5a5cd15d2fc4e29fc312bb405103
 
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
