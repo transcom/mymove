@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest"
 
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -57,10 +58,7 @@ func setupMockFileSystem() *afero.HttpFs {
 }
 
 func TestSpaHandlerSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
+	logger := zaptest.NewLogger(t)
 
 	mfs := setupMockFileSystem()
 
