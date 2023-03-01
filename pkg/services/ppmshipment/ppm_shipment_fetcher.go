@@ -115,15 +115,15 @@ func loadPPMAssociations(appCtx appcontext.AppContext, ppmShipment *models.PPMSh
 
 	ppmShipment.ProgearWeightTickets = ppmShipment.ProgearWeightTickets.FilterDeleted()
 	for i := range ppmShipment.ProgearWeightTickets {
-		progearExpense := &ppmShipment.ProgearWeightTickets[i]
-		err := appCtx.DB().Load(progearExpense,
+		progearWeightTicket := &ppmShipment.ProgearWeightTickets[i]
+		err := appCtx.DB().Load(progearWeightTicket,
 			"Document.UserUploads.Upload")
 
 		if err != nil {
 			return apperror.NewQueryError("ProgearWeightTickets", err, "failed to load ProgearWeightTickets document uploads")
 		}
 
-		progearExpense.Document.UserUploads = progearExpense.Document.UserUploads.FilterDeleted()
+		progearWeightTicket.Document.UserUploads = progearWeightTicket.Document.UserUploads.FilterDeleted()
 	}
 
 	ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterDeleted()
