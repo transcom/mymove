@@ -449,11 +449,6 @@ func gblocFilterForPPMCloseoutForNavyMarineAndCG(gbloc *string) QueryOption {
 }
 
 func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption {
-	requestedMoveDateOrder := `CASE
-		WHEN COALESCE(MIN(mto_shipments.requested_pickup_date), 'infinity') <= COALESCE(MIN(ppm_shipments.expected_departure_date), 'infinity') AND COALESCE(MIN(mto_shipments.requested_pickup_date), 'infinity') <= COALESCE(MIN(mto_shipments.requested_delivery_date), 'infinity') THEN MIN(mto_shipments.requested_pickup_date)
-		WHEN COALESCE(MIN(ppm_shipments.expected_departure_date), 'infinity') <= COALESCE(MIN(mto_shipments.requested_pickup_date), 'infinity') AND COALESCE(MIN(ppm_shipments.expected_departure_date), 'infinity') <= COALESCE(MIN(mto_shipments.requested_delivery_date), 'infinity') THEN MIN(ppm_shipments.expected_departure_date)
-		WHEN COALESCE(MIN(mto_shipments.requested_delivery_date), 'infinity') <= COALESCE(MIN(mto_shipments.requested_pickup_date), 'infinity') AND COALESCE(MIN(mto_shipments.requested_delivery_date), 'infinity') <= COALESCE(MIN(ppm_shipments.expected_departure_date), 'infinity') THEN MIN(mto_shipments.requested_delivery_date)
- 	END`
 	parameters := map[string]string{
 		"lastName":                "service_members.last_name",
 		"dodID":                   "service_members.edipi",
@@ -463,7 +458,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 		"submittedAt":             "moves.submitted_at",
 		"originDutyLocation":      "origin_dl.name",
 		"destinationDutyLocation": "dest_dl.name",
-		"requestedMoveDate":       requestedMoveDateOrder,
+		"requestedMoveDate":       "LEAST(COALESCE(MIN(mto_shipments.requested_pickup_date), 'infinity'), COALESCE(MIN(ppm_shipments.expected_departure_date), 'infinity'), COALESCE(MIN(mto_shipments.requested_delivery_date), 'infinity'))",
 		"originGBLOC":             "origin_to.gbloc",
 		"ppmType":                 "moves.ppm_type",
 		"closeoutLocation":        "closeout_to.name",
