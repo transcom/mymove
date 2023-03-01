@@ -3,6 +3,7 @@ package serviceparamvaluelookups
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -64,33 +65,41 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 
 	setupTestData := func() {
 
-		reServiceDOFSIT = testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-				Name: "Dom. Origin 1st Day SIT",
+		reServiceDOFSIT = factory.BuildReService(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+					Name: "Dom. Origin 1st Day SIT",
+				},
 			},
-		})
+		}, nil)
 
-		reServiceDOASIT = testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
-				Name: "Dom. Origin Add'l SIT",
+		reServiceDOASIT = factory.BuildReService(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOASIT,
+					Name: "Dom. Origin Add'l SIT",
+				},
 			},
-		})
+		}, nil)
 
-		reServiceDDFSIT := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-				Name: "Dom. Destination 1st Day SIT",
+		reServiceDDFSIT := factory.BuildReService(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+					Name: "Dom. Destination 1st Day SIT",
+				},
 			},
-		})
+		}, nil)
 
-		reServiceDDASIT = testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDASIT,
-				Name: "Dom. Destination Add'l SIT",
+		reServiceDDASIT = factory.BuildReService(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDASIT,
+					Name: "Dom. Destination Add'l SIT",
+				},
 			},
-		})
+		}, nil)
 
 		moveTaskOrderOne = testdatagen.MakeDefaultMove(suite.DB())
 		moveTaskOrderTwo = testdatagen.MakeDefaultMove(suite.DB())

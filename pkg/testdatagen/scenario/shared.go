@@ -917,6 +917,138 @@ func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUpl
 	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
 }
 
+func createApprovedMoveWithPPMExcessWeight(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveInfo MoveCreatorInfo) (models.Move, models.PPMShipment) {
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          uuid.Must(uuid.NewV4()),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			AdvanceStatus:               (*models.PPMAdvanceStatus)(models.StringPointer(string(models.PPMAdvanceStatusApproved))),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	weightTicketAssertions := testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		WeightTicket: models.WeightTicket{
+			EmptyWeight: models.PoundPointer(unit.Pound(1000)),
+			FullWeight:  models.PoundPointer(unit.Pound(20000)),
+		},
+	}
+	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+
+	return move, shipment
+}
+
+func createApprovedMoveWithPPMExcessWeightsAnd2WeightTickets(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	move, shipment := createApprovedMoveWithPPMExcessWeight(appCtx, userUploader,
+		MoveCreatorInfo{
+			UserID:      uuid.Must(uuid.NewV4()),
+			Email:       "excessweights2WTs@ppm.approved",
+			SmID:        uuid.Must(uuid.NewV4()),
+			FirstName:   "Two Weight Tickets",
+			LastName:    "ExcessWeights",
+			MoveID:      uuid.Must(uuid.NewV4()),
+			MoveLocator: "XSWT02",
+		})
+	secondWeightTicketAssertions := testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		WeightTicket: models.WeightTicket{
+			EmptyWeight: models.PoundPointer(unit.Pound(1000)),
+			FullWeight:  models.PoundPointer(unit.Pound(20000)),
+		},
+	}
+	testdatagen.MakeWeightTicket(appCtx.DB(), secondWeightTicketAssertions)
+}
+
+func createApprovedMoveWith2PPMShipmentsAndExcessWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	move, _ := createApprovedMoveWithPPMExcessWeight(appCtx, userUploader,
+		MoveCreatorInfo{
+			UserID:      uuid.Must(uuid.NewV4()),
+			Email:       "excessweights2PPMs@ppm.approved",
+			SmID:        uuid.Must(uuid.NewV4()),
+			FirstName:   "Two PPMs",
+			LastName:    "ExcessWeights",
+			MoveID:      uuid.Must(uuid.NewV4()),
+			MoveLocator: "XSWT03",
+		})
+	secondPPMShipment := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		PPMShipment: models.PPMShipment{
+			ID: uuid.Must(uuid.NewV4()),
+		},
+	})
+	secondWeightTicketAssertions := testdatagen.Assertions{
+		PPMShipment:   secondPPMShipment,
+		ServiceMember: move.Orders.ServiceMember,
+		WeightTicket: models.WeightTicket{
+			EmptyWeight: models.PoundPointer(unit.Pound(1000)),
+			FullWeight:  models.PoundPointer(unit.Pound(20000)),
+		},
+	}
+	testdatagen.MakeWeightTicket(appCtx.DB(), secondWeightTicketAssertions)
+}
+
+func createApprovedMoveWithPPMAndHHGShipmentsAndExcessWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	move, _ := createApprovedMoveWithPPMExcessWeight(appCtx, userUploader,
+		MoveCreatorInfo{
+			UserID:      uuid.Must(uuid.NewV4()),
+			Email:       "excessweightsPPMandHHG@ppm.approved",
+			SmID:        uuid.Must(uuid.NewV4()),
+			FirstName:   "PPM & HHG",
+			LastName:    "ExcessWeights",
+			MoveID:      uuid.Must(uuid.NewV4()),
+			MoveLocator: "XSWT04",
+		})
+	testdatagen.MakeBaseMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+}
+func createApprovedMoveWithAllShipmentTypesAndExcessWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	move, _ := createApprovedMoveWithPPMExcessWeight(appCtx, userUploader,
+		MoveCreatorInfo{
+			UserID:      uuid.Must(uuid.NewV4()),
+			Email:       "excessweightsPPMandHHG@ppm.approved",
+			SmID:        uuid.Must(uuid.NewV4()),
+			FirstName:   "PPM & HHG",
+			LastName:    "ExcessWeights",
+			MoveID:      uuid.Must(uuid.NewV4()),
+			MoveLocator: "XSWT05",
+		})
+	testdatagen.MakeBaseMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+	testdatagen.MakeBaseMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+	testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+	testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+}
+
 func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
 		UserID:      testdatagen.ConvertUUIDStringToUUID("f8af6fb0-101e-489c-9d9c-051931c52cf7"),

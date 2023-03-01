@@ -50,35 +50,11 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 	subtestData.mtoShipment1.PrimeEstimatedWeight = &subtestData.estimatedWeight
 	suite.MustSave(&subtestData.mtoShipment1)
 
-	reServiceDLH := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDLH,
-		},
-	})
-
-	reServiceDOP := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOP,
-		},
-	})
-
-	reServiceMS := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeMS,
-		},
-	})
-
-	reServiceDCRT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDCRT,
-		},
-	})
-
-	reServiceDOSHUT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOSHUT,
-		},
-	})
+	reServiceDLH := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
+	reServiceDOP := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
+	reServiceMS := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
+	reServiceDCRT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDCRT)
+	reServiceDOSHUT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
 
 	// DLH
 	subtestData.mtoServiceItemShip1DLH = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
