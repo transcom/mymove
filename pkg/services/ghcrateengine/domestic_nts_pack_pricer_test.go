@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -114,13 +115,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackPrices(schedule int,
 			},
 		})
 
-	packService := testdatagen.MakeReService(suite.DB(),
-		testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDPK,
-			},
-		})
-
+	packService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
 	otherPrice := models.ReDomesticOtherPrice{
 		ContractID:   contractYear.Contract.ID,
 		ServiceID:    packService.ID,
@@ -131,13 +126,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackPrices(schedule int,
 
 	suite.MustSave(&otherPrice)
 
-	ntsPackService := testdatagen.MakeReService(suite.DB(),
-		testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDNPK,
-			},
-		})
-
+	ntsPackService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDNPK)
 	shipmentTypePrice := models.ReShipmentTypePrice{
 		ContractID: contractYear.Contract.ID,
 		ServiceID:  ntsPackService.ID,

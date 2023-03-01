@@ -18,6 +18,7 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { DatePickerInput, DropdownInput } from 'components/form/fields';
 import { Form } from 'components/form/Form';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import DestinationZIPInfo from 'components/Office/DestinationZIPInfo/DestinationZIPInfo';
 import OriginZIPInfo from 'components/Office/OriginZIPInfo/OriginZIPInfo';
 import ShipmentAccountingCodes from 'components/Office/ShipmentAccountingCodes/ShipmentAccountingCodes';
@@ -205,18 +206,34 @@ const ShipmentForm = (props) => {
                 shipmentId: newMTOShipment.id,
               });
               if (formValues.closeoutOffice.id) {
-                mutateMoveCloseoutOffice({
-                  locator: moveCode,
-                  ifMatchETag: move.eTag,
-                  body: { closeoutOfficeId: formValues.closeoutOffice.id },
-                });
+                mutateMoveCloseoutOffice(
+                  {
+                    locator: moveCode,
+                    ifMatchETag: move.eTag,
+                    body: { closeoutOfficeId: formValues.closeoutOffice.id },
+                  },
+                  {
+                    onSuccess: () => {
+                      actions.setSubmitting(false);
+                      history.replace(currentPath);
+                      history.push(advancePath);
+                      setErrorMessage(null);
+                      onUpdate('success');
+                    },
+                    onError: () => {
+                      actions.setSubmitting(false);
+                      setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
+                    },
+                  },
+                );
+              } else {
+                history.replace(currentPath);
+                history.push(advancePath);
               }
-              history.replace(currentPath);
-              history.push(advancePath);
             },
             onError: () => {
               actions.setSubmitting(false);
-              setErrorMessage(`A server error occurred adding the shipment`);
+              setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
             },
           },
         );
@@ -254,12 +271,13 @@ const ShipmentForm = (props) => {
               {
                 onSuccess: () => {
                   actions.setSubmitting(false);
+                  setErrorMessage(null);
                   history.push(advancePath);
                   onUpdate('success');
                 },
                 onError: () => {
-                  history.push(SCMoveViewPath);
-                  onUpdate('error');
+                  actions.setSubmitting(false);
+                  setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
                 },
               },
             );
@@ -278,6 +296,10 @@ const ShipmentForm = (props) => {
             history.push(TOOMoveViewPath);
             onUpdate('success');
           }
+        },
+        onError: () => {
+          actions.setSubmitting(false);
+          setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
         },
       });
       return;
@@ -346,7 +368,7 @@ const ShipmentForm = (props) => {
             history.push(moveDetailsPath);
           },
           onError: () => {
-            setErrorMessage(`A server error occurred adding the shipment`);
+            setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
           },
         },
       );
@@ -360,8 +382,7 @@ const ShipmentForm = (props) => {
           onUpdate('success');
         },
         onError: () => {
-          history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
-          onUpdate('error');
+          setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
         },
       });
     }
@@ -372,7 +393,7 @@ const ShipmentForm = (props) => {
           history.push(moveDetailsPath);
         },
         onError: () => {
-          setErrorMessage('A server error occurred editing the shipment details');
+          setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
         },
       });
     }
@@ -426,6 +447,7 @@ const ShipmentForm = (props) => {
               onClose={setIsCancelModalVisible}
               onSubmit={handleDeleteShipment}
             />
+            <NotificationScrollToTop dependency={errorMessage} />
             {errorMessage && (
               <Alert type="error" headingLevel="h4" heading="An error occurred">
                 {errorMessage}

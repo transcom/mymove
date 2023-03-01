@@ -289,19 +289,8 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			models.ReServiceCodeDOFSIT,
 		}
 
-		var reServiceCode models.ReService
-		if err := appCtx.DB().Where("code = $1", expectedReServiceCodes[0]).First(&reServiceCode); err != nil {
-			// Something is truncating these when all server tests run, but we need some values for reServices
-			for _, serviceCode := range expectedReServiceCodes {
-				testdatagen.MakeReService(appCtx.DB(), testdatagen.Assertions{
-					ReService: models.ReService{
-						Code:      serviceCode,
-						Name:      "test",
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					},
-				})
-			}
+		for _, serviceCode := range expectedReServiceCodes {
+			factory.BuildReServiceByCode(appCtx.DB(), serviceCode)
 		}
 
 		serviceItemsList := []models.MTOServiceItem{

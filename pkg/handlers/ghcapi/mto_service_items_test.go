@@ -35,12 +35,14 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	setupTestData := func() (models.User, models.MTOServiceItems) {
 		mto := testdatagen.MakeDefaultMove(suite.DB())
 		mtoID = mto.ID
-		reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				ID:   reServiceID,
-				Code: "TEST10000",
+		reService := factory.BuildReService(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					ID:   reServiceID,
+					Code: "TEST10000",
+				},
 			},
-		})
+		}, nil)
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{ID: mtoShipmentID},
 		})

@@ -50,14 +50,14 @@ func (f *ppmDocumentFetcher) GetPPMDocuments(appCtx appcontext.AppContext, mtoSh
 		).
 		InnerJoin("ppm_shipments ppm", "ppm.id = progear_weight_tickets.ppm_shipment_id").
 		Where("ppm.shipment_id = ? AND ppm.deleted_at IS NULL", mtoShipmentID).
-		All(&documents.ProgearExpenses)
+		All(&documents.ProgearWeightTickets)
 
 	if err != nil {
 		return nil, apperror.NewQueryError("ProgearWeightTicket", err, "unable to search for ProgearWeightTickets")
 	}
 
-	for i := range documents.ProgearExpenses {
-		documents.ProgearExpenses[i].Document.UserUploads = documents.ProgearExpenses[i].Document.UserUploads.FilterDeleted()
+	for i := range documents.ProgearWeightTickets {
+		documents.ProgearWeightTickets[i].Document.UserUploads = documents.ProgearWeightTickets[i].Document.UserUploads.FilterDeleted()
 	}
 
 	err = appCtx.DB().
