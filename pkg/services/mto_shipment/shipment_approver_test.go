@@ -70,18 +70,8 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		models.ReServiceCodeDUPK,
 	}
 
-	var reServiceCode models.ReService
-	if err := suite.DB().Where("code = $1", subtestData.reServiceCodes[0]).First(&reServiceCode); err != nil {
-		for _, serviceCode := range subtestData.reServiceCodes {
-			testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-				ReService: models.ReService{
-					Code:      serviceCode,
-					Name:      "test",
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				},
-			})
-		}
+	for _, serviceCode := range subtestData.reServiceCodes {
+		factory.BuildReServiceByCode(suite.DB(), serviceCode)
 	}
 
 	subtestData.mockedShipmentRouter = &shipmentmocks.ShipmentRouter{}
@@ -377,11 +367,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		}
 
 		for _, serviceCode := range expectedReServiceCodes {
-			testdatagen.FetchOrMakeReService(appCtx.DB(), testdatagen.Assertions{
-				ReService: models.ReService{
-					Code: serviceCode,
-				},
-			})
+			factory.FetchOrBuildReServiceByCode(appCtx.DB(), serviceCode)
 		}
 
 		// This is testing that the Required Delivery Date is calculated correctly.

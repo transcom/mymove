@@ -3,7 +3,6 @@ package supportapi
 import (
 	"fmt"
 	"net/http/httptest"
-	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -56,14 +55,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			models.ReServiceCodeDUPK,
 		}
 		for _, serviceCode := range reServiceCodes {
-			testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-				ReService: models.ReService{
-					Code:      serviceCode,
-					Name:      "test",
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				},
-			})
+			factory.FetchOrBuildReServiceByCode(suite.DB(), serviceCode)
 		}
 
 		return mtoShipment

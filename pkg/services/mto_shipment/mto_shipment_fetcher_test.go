@@ -211,8 +211,8 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		suite.Len(actualPPMShipment.MovingExpenses, 1)
 		suite.Len(actualPPMShipment.MovingExpenses[0].Document.UserUploads, 1)
 
-		suite.Len(actualPPMShipment.ProgearExpenses, 1)
-		suite.Len(actualPPMShipment.ProgearExpenses[0].Document.UserUploads, 1)
+		suite.Len(actualPPMShipment.ProgearWeightTickets, 1)
+		suite.Len(actualPPMShipment.ProgearWeightTickets[0].Document.UserUploads, 1)
 	})
 }
 
