@@ -8,6 +8,7 @@
 import * as path from 'path';
 
 import { expect } from '@playwright/test';
+import { injectAxe, checkA11y } from 'axe-playwright';
 
 import { TestHarness } from './testharness';
 
@@ -51,6 +52,8 @@ export class BaseTestPage {
   async signInAsNewUser(userType) {
     await this.page.goto('/devlocal-auth/login');
     await this.page.locator(`button[data-hook="new-user-login-${userType}"]`).click();
+    // Axe must be injected after page.goto to enable a11y checks later: https://github.com/abhinaba-ghosh/axe-playwright#injectaxe
+    await injectAxe(this.page);
   }
 
   /**
@@ -61,6 +64,8 @@ export class BaseTestPage {
   async signInAsUserWithId(userId) {
     await this.page.goto('/devlocal-auth/login');
     await this.page.locator(`button[value="${userId}"]`).click();
+    // Axe must be injected after page.goto to enable a11y checks later: https://github.com/abhinaba-ghosh/axe-playwright#injectaxe
+    await injectAxe(this.page);
   }
 
   /**
@@ -86,6 +91,29 @@ export class BaseTestPage {
     await actionLink.click();
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(filePath);
+  }
+
+  /**
+   * Run an accessibility audit against the page in its current state
+   *
+   */
+
+  async runAccessibilityAudit() {
+    if (process.env.A11Y_AUDIT) {
+      await checkA11y(
+        this.page,
+        undefined,
+        {
+          detailedReport: true,
+          detailedReportOptions: {
+            html: true,
+          },
+        },
+        // skip failures
+        true,
+        'default',
+      );
+    }
   }
 }
 

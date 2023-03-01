@@ -1209,7 +1209,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		// Add service items to our shipment
 		// Create a service item in the db, associate with the shipment
-		reService := testdatagen.MakeDDFSITReService(suite.DB())
+		reService := factory.BuildDDFSITReService(suite.DB())
 		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				ID: shipment.MoveTaskOrderID,

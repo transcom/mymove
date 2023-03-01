@@ -408,11 +408,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 	})
 
 	// MS price data
-	msService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeMS,
-		},
-	})
+	msService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 	msTaskOrderFee := models.ReTaskOrderFee{
 		ContractYearID: contractYear.ID,
 		ServiceID:      msService.ID,
@@ -421,11 +417,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 	suite.MustSave(&msTaskOrderFee)
 
 	// CS price data
-	csService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeCS,
-		},
-	})
+	csService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 	csTaskOrderFee := models.ReTaskOrderFee{
 		ContractYearID: contractYear.ID,
 		ServiceID:      csService.ID,
@@ -474,11 +466,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 	suite.MustSave(&ghcDieselFuelPrice)
 
 	//  Domestic Origin Price Service
-	domOriginPriceService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOP,
-		},
-	})
+	domOriginPriceService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
 
 	domServiceAreaPriceDOP := models.ReDomesticServiceAreaPrice{
 		ContractID:            contractYear.Contract.ID,
@@ -493,11 +481,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 	suite.MustSave(&domServiceAreaPriceDOP)
 
 	// Domestic Pack
-	dpkService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDPK,
-		},
-	})
+	dpkService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
 
 	// Domestic Other Price
 	domOtherPriceDPK := models.ReDomesticOtherPrice{

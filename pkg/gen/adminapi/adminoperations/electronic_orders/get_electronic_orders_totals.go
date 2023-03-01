@@ -34,7 +34,8 @@ func NewGetElectronicOrdersTotals(ctx *middleware.Context, handler GetElectronic
 
 # Get total counts for the orders stored in MilMove
 
-Returns a list of record counts for orders
+This endpoint returns a list of record counts for Electronic Orders. Do not use
+this endpoint directly as it is meant to be used with the Admin UI exclusively.
 */
 type GetElectronicOrdersTotals struct {
 	Context *middleware.Context

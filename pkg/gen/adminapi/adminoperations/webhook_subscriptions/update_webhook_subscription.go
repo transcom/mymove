@@ -32,7 +32,10 @@ func NewUpdateWebhookSubscription(ctx *middleware.Context, handler UpdateWebhook
 /*
 	UpdateWebhookSubscription swagger:route PATCH /webhook-subscriptions/{webhookSubscriptionId} Webhook subscriptions updateWebhookSubscription
 
-Update a webhook subscription
+# Update a Webhook Subscription
+
+This endpoint updates a single Webhook Subscription by ID. Do not use this
+endpoint directly as it is meant to be used with the Admin UI exclusively.
 */
 type UpdateWebhookSubscription struct {
 	Context *middleware.Context

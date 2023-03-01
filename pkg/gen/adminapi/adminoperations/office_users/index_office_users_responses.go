@@ -137,7 +137,7 @@ func (o *IndexOfficeUsersUnauthorized) WriteResponse(rw http.ResponseWriter, pro
 const IndexOfficeUsersNotFoundCode int = 404
 
 /*
-IndexOfficeUsersNotFound office not found
+IndexOfficeUsersNotFound Office User not found
 
 swagger:response indexOfficeUsersNotFound
 */

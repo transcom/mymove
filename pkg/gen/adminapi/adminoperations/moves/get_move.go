@@ -32,9 +32,10 @@ func NewGetMove(ctx *middleware.Context, handler GetMoveHandler) *GetMove {
 /*
 	GetMove swagger:route GET /moves/{moveID} Moves getMove
 
-# Get information about a move
+# Get information about a Move
 
-Returns the given move and its relevant info
+This endpoint returns a single Move by ID. Do not use this endpoint directly as
+it is meant to be used with the Admin UI exclusively.
 */
 type GetMove struct {
 	Context *middleware.Context
