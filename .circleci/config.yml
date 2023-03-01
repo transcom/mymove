@@ -803,14 +803,14 @@ jobs:
           name: Keeper Install
           command: sudo scripts/install-ksm
       - run:
-          name: Keeper init
+          name: Keeper Init
           command: ksm profile import $CIRCLECI_KEEPER_TOKEN
       - run:
           name: Test Keeper Export
-          command: sudo scripts/export-ksm-secret TEST_EXPORT_LOGIN keeper://rR6DtKpYd8ajEIKZGaq26g/field/login
-      - run:
-          name: Export KSM ecrets
-          command: source $BASH_ENV
+          command: ksm secret notation keeper://rR6DtKpYd8ajEIKZGaq26g/field/login
+      #- run:
+      #    name: Export KSM ecrets
+      #    command: source $BASH_ENV
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Install dependencies
