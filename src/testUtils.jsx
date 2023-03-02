@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { node, shape, arrayOf, string, bool } from 'prop-types';
 import { Provider } from 'react-redux';
 import { RouterProvider, createMemoryRouter, generatePath } from 'react-router-dom';
@@ -6,7 +6,6 @@ import { render } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { configureStore } from 'shared/store';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
 
 // Helper function to create a react-router memory router with the provided options
@@ -14,7 +13,7 @@ const createMockRouter = ({ path, params, routes, initialEntries, children }) =>
   const mockRoutes = [
     {
       path: path || '/',
-      element: <Suspense fallback={<LoadingPlaceholder />}>{children}</Suspense>,
+      element: children,
     },
   ];
 
@@ -69,8 +68,11 @@ export const renderWithRouterProp = (ui, options) => {
   const pathname = generatePath(path, params);
   const router = { location: { pathname, search }, params, navigate };
 
-  if (options?.includeProviders) return renderWithProviders(React.cloneElement(ui, { router: { ...router } }));
-  return renderWithRouter(React.cloneElement(ui, { router: { ...router } }));
+  const routingOptions = { ...options, path, params, navigate, search };
+  if (options?.includeProviders)
+    return renderWithProviders(React.cloneElement(ui, { router: { ...router } }), routingOptions);
+
+  return renderWithRouter(React.cloneElement(ui, { router: { ...router } }), routingOptions);
 };
 
 /** Wrap the provided children with a mock router using the provided options. */
