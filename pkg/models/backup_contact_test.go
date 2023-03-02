@@ -1,13 +1,27 @@
 package models_test
 
 import (
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) Test_BackupContactCreate() {
-	serviceMember := testdatagen.MakeStubbedServiceMember(suite.DB())
+	serviceMember := factory.BuildServiceMember(nil, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		},
+		{
+			Model: models.User{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		},
+	}, nil)
 
 	newContact := models.BackupContact{
 		ServiceMemberID: serviceMember.ID,
