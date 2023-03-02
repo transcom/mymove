@@ -6763,6 +6763,10 @@ definitions:
         x-nullable: true
         format: date
         type: string
+      actualDeliveryDate:
+        x-nullable: true
+        format: date
+        type: string
       requestedDeliveryDate:
         format: date
         type: string
