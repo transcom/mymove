@@ -1151,3 +1151,12 @@ anti_virus: ## Scan repo with anti-virus service
 #
 
 default: help
+
+.PHONY: prepare_deploy_for_exp
+prepare_deploy_for_exp:  ## Replace placeholders in config to deploy to exp env
+	sed -E -i '' "s:(&dp3-branch) placeholder_branch_name:\1 $(GIT_BRANCH):" .circleci/config.yml
+	sed -E -i '' "s:(&integration-ignore-branch) placeholder_branch_name:\1 $(GIT_BRANCH):" .circleci/config.yml
+	sed -E -i '' "s:(&integration-mtls-ignore-branch) placeholder_branch_name:\1 $(GIT_BRANCH):" .circleci/config.yml
+	sed -E -i '' "s:(&client-ignore-branch) placeholder_branch_name:\1 $(GIT_BRANCH):" .circleci/config.yml
+	sed -E -i '' "s:(&server-ignore-branch) placeholder_branch_name:\1 $(GIT_BRANCH):" .circleci/config.yml
+	sed -E -i '' "s:(&dp3-env) placeholder_env:\1 exp:" .circleci/config.yml
