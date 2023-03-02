@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 
-import styles from '../TXOMoveInfo/TXOTab.module.scss';
+import tabStyles from '../TXOMoveInfo/TXOTab.module.scss';
+
+import styles from './ServicesCounselingReviewShipmentWeights.module.scss';
 
 import { useReviewShipmentWeightsQuery } from 'hooks/queries';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
@@ -19,19 +21,19 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
   }, [mtoShipments]);
 
   return (
-    <div className={styles.tabContent}>
+    <div className={tabStyles.tabContent}>
       <GridContainer>
         <Grid row>
           <h1>Review shipment weights</h1>
         </Grid>
-        <Grid row>
+        <div className={styles.weightHeader} id="move-weights">
           <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.totalWeight} />
           <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal} />
           <WeightDisplay heading="Max billable weight" weightValue={order.entitlement.authorizedWeight}>
             {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) && <Tag>Risk of excess</Tag>}
           </WeightDisplay>
           <WeightDisplay heading="Move weight (total)" weightValue={moveWeightTotal} />
-        </Grid>
+        </div>
       </GridContainer>
     </div>
   );
