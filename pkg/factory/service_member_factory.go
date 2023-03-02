@@ -2,6 +2,7 @@ package factory
 
 import (
 	"github.com/gobuffalo/pop/v6"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -57,4 +58,20 @@ func BuildServiceMember(db *pop.Connection, customs []Customization, traits []Tr
 	}
 
 	return serviceMember
+}
+
+// GetTraitStubbedServiceMember is a sample GetTraitFunc
+func GetTraitStubbedServiceMember() []Customization {
+	return []Customization{
+		{
+			Model: models.ServiceMember{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		},
+		{
+			Model: models.User{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		},
+	}
 }

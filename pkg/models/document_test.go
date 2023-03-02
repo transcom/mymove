@@ -12,18 +12,7 @@ import (
 )
 
 func (suite *ModelSuite) Test_DocumentCreate() {
-	serviceMember := factory.BuildServiceMember(nil, []factory.Customization{
-		{
-			Model: models.ServiceMember{
-				ID: uuid.Must(uuid.NewV4()),
-			},
-		},
-		{
-			Model: models.User{
-				ID: uuid.Must(uuid.NewV4()),
-			},
-		},
-	}, nil)
+	serviceMember := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.GetTraitStubbedServiceMember})
 
 	document := models.Document{
 		ServiceMemberID: serviceMember.ID,
