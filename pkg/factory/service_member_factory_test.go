@@ -43,6 +43,7 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		suite.Equal(defaultServiceMember.LastName, serviceMember.LastName)
 		suite.Equal(defaultServiceMember.Rank, serviceMember.Rank)
 		suite.Equal(defaultServiceMember.PersonalEmail, serviceMember.PersonalEmail)
+		suite.Equal(defaultServiceMember.Telephone, serviceMember.Telephone)
 		suite.Equal(defaultServiceMember.Affiliation, serviceMember.Affiliation)
 
 		// Check that address was hooked in
@@ -58,12 +59,21 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		// Set up:          Create a Service Member and pass custom fields
 		// Expected outcome:serviceMember should be created with custom fields
 		// SETUP
+		customRank := models.ServiceMemberRankE3
+		customAffiliation := models.AffiliationAIRFORCE
+
 		customServiceMember := models.ServiceMember{
 			FirstName:          models.StringPointer("Gregory"),
 			LastName:           models.StringPointer("Van der Heide"),
 			Telephone:          models.StringPointer("999-999-9999"),
 			SecondaryTelephone: models.StringPointer("123-555-9999"),
 			PersonalEmail:      models.StringPointer("peyton@example.com"),
+			Rank:               &customRank,
+			Edipi:              models.StringPointer("1000011111"),
+			Affiliation:        &customAffiliation,
+			Suffix:             models.StringPointer("Random suffix string"),
+			PhoneIsPreferred:   models.BoolPointer(false),
+			EmailIsPreferred:   models.BoolPointer(false),
 		}
 
 		customAddress := models.Address{
@@ -87,6 +97,12 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		suite.Equal(customServiceMember.Telephone, serviceMember.Telephone)
 		suite.Equal(customServiceMember.SecondaryTelephone, serviceMember.SecondaryTelephone)
 		suite.Equal(customServiceMember.PersonalEmail, serviceMember.PersonalEmail)
+		suite.Equal(customServiceMember.Rank, serviceMember.Rank)
+		suite.Equal(customServiceMember.Edipi, serviceMember.Edipi)
+		suite.Equal(customServiceMember.Affiliation, serviceMember.Affiliation)
+		suite.Equal(customServiceMember.Suffix, serviceMember.Suffix)
+		suite.Equal(customServiceMember.PhoneIsPreferred, serviceMember.PhoneIsPreferred)
+		suite.Equal(customServiceMember.EmailIsPreferred, serviceMember.EmailIsPreferred)
 
 		// Check that address was customized
 		suite.Equal(customAddress.StreetAddress1, serviceMember.ResidentialAddress.StreetAddress1)
