@@ -157,6 +157,20 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createApprovedMoveWithPPMWithAboutFormComplete6(appCtx, userUploader)
 		createApprovedMoveWithPPM2(appCtx, userUploader)
 		createApprovedMoveWithPPMWeightTicket(appCtx, userUploader)
+		createApprovedMoveWithPPMExcessWeight(appCtx, userUploader,
+			MoveCreatorInfo{
+				UserID:      uuid.Must(uuid.NewV4()),
+				Email:       "excessweightsPPM@ppm.approved",
+				SmID:        uuid.Must(uuid.NewV4()),
+				FirstName:   "PPM",
+				LastName:    "ExcessWeights",
+				MoveID:      uuid.Must(uuid.NewV4()),
+				MoveLocator: "XSWT01",
+			})
+		createApprovedMoveWithPPMExcessWeightsAnd2WeightTickets(appCtx, userUploader)
+		createApprovedMoveWith2PPMShipmentsAndExcessWeights(appCtx, userUploader)
+		createApprovedMoveWithPPMAndHHGShipmentsAndExcessWeights(appCtx, userUploader)
+		createApprovedMoveWithAllShipmentTypesAndExcessWeights(appCtx, userUploader)
 		createApprovedMoveWithPPMMovingExpense(appCtx, nil, userUploader)
 		createApprovedMoveWithPPMProgearWeightTicket(appCtx, userUploader)
 		createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)

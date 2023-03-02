@@ -926,7 +926,7 @@ func PPMDocuments(storer storage.FileStorer, ppmDocuments *models.PPMDocuments) 
 	payload := &ghcmessages.PPMDocuments{
 		WeightTickets:        WeightTickets(storer, ppmDocuments.WeightTickets),
 		MovingExpenses:       MovingExpenses(storer, ppmDocuments.MovingExpenses),
-		ProGearWeightTickets: ProGearWeightTickets(storer, ppmDocuments.ProgearExpenses),
+		ProGearWeightTickets: ProGearWeightTickets(storer, ppmDocuments.ProgearWeightTickets),
 	}
 
 	return payload
@@ -1373,7 +1373,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		var earliestRequestedPickup *time.Time
 		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
 		for _, shipment := range move.MTOShipments {
-			if queueIncludeShipmentStatus(shipment.Status) {
+			if queueIncludeShipmentStatus(shipment.Status) && shipment.DeletedAt == nil {
 				// if the pickup date is not set, set it using the RequestedPickupDate or ExpectedDepartureDate based on which is present
 				// if the pickup date is already set and the RequestedPickupDate or ExpectedDepartureDate comes before the set pickup date, update it
 				if earliestRequestedPickup == nil {

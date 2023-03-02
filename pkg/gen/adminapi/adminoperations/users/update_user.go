@@ -30,9 +30,13 @@ func NewUpdateUser(ctx *middleware.Context, handler UpdateUserHandler) *UpdateUs
 }
 
 /*
-	UpdateUser swagger:route PATCH /users/{userId} users updateUser
+	UpdateUser swagger:route PATCH /users/{userId} Users updateUser
 
-Update a user's session or active status
+# Update a User's session or active status
+
+This endpoint updates a single User by ID. This can be used by the Admin User to
+update the User's session or the User's active status. Do not use this endpoint
+directly as it is meant to be used with the Admin UI exclusively.
 */
 type UpdateUser struct {
 	Context *middleware.Context

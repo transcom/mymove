@@ -2,7 +2,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { debug } from 'jest-preview';
 
 import ShipmentForm from './ShipmentForm';
 
@@ -11,6 +10,7 @@ import { ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { MockProviders } from 'testUtils';
+import { validatePostalCode } from 'utils/validation';
 
 const mockPush = jest.fn();
 
@@ -128,6 +128,11 @@ const defaultPropsSeparation = {
   destinationType: 'HOME_OF_SELECTION',
   orderType: ORDERS_TYPE.SEPARATION,
 };
+
+jest.mock('utils/validation', () => ({
+  ...jest.requireActual('utils/validation'),
+  validatePostalCode: jest.fn(),
+}));
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -506,7 +511,7 @@ describe('ShipmentForm component', () => {
       await userEvent.click(screen.getByTestId('clearSelection-sacType'));
       const saveButton = screen.getByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
-      await userEvent.click(saveButton);
+      await userEvent.click(saveButton); //
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalledWith(
@@ -543,7 +548,7 @@ describe('ShipmentForm component', () => {
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
-      await userEvent.click(saveButton);
+      await userEvent.click(saveButton); //
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalledWith(
@@ -680,7 +685,6 @@ describe('ShipmentForm component', () => {
       const saveButton = screen.getByRole('button', { name: 'Save' });
 
       expect(saveButton).not.toBeDisabled();
-      debug();
 
       await userEvent.click(saveButton);
 
@@ -688,7 +692,80 @@ describe('ShipmentForm component', () => {
         expect(mockSubmitHandler).toHaveBeenCalled();
       });
 
-      expect(await screen.findByText('A server error occurred editing the shipment details')).toBeInTheDocument();
+      expect(
+        await screen.findByText('Something went wrong, and your changes were not saved. Please try again.'),
+      ).toBeInTheDocument();
+      expect(defaultProps.history.push).not.toHaveBeenCalled();
+    });
+
+    it('shows an error if the submitHandler returns an error when editing a PPM', async () => {
+      const mockSubmitHandler = jest.fn((payload, { onError }) => {
+        // fire onError handler on form
+        onError();
+      });
+      validatePostalCode.mockImplementation(() => Promise.resolve(false));
+
+      render(
+        <MockProviders>
+          <ShipmentForm
+            {...defaultProps}
+            shipmentType={SHIPMENT_OPTIONS.PPM}
+            mtoShipment={mockPPMShipment}
+            submitHandler={mockSubmitHandler}
+            isCreatePage={false}
+          />
+        </MockProviders>,
+      );
+
+      const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
+      expect(saveButton).not.toBeDisabled();
+      await userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(mockSubmitHandler).toHaveBeenCalled();
+      });
+
+      expect(
+        await screen.findByText('Something went wrong, and your changes were not saved. Please try again.'),
+      ).toBeInTheDocument();
+      expect(defaultProps.history.push).not.toHaveBeenCalled();
+    });
+
+    it('shows an error if the submitHandler returns an error when creating a PPM', async () => {
+      const mockSubmitHandler = jest.fn((payload, { onError }) => {
+        // fire onError handler on form
+        onError();
+      });
+      validatePostalCode.mockImplementation(() => Promise.resolve(false));
+
+      render(
+        <MockProviders>
+          <ShipmentForm
+            {...defaultProps}
+            shipmentType={SHIPMENT_OPTIONS.PPM}
+            mtoShipment={mockPPMShipment}
+            submitHandler={mockSubmitHandler}
+            isCreatePage
+          />
+        </MockProviders>,
+      );
+
+      await userEvent.type(screen.getByLabelText('Planned departure date'), '26 Mar 2022');
+      await userEvent.type(screen.getByLabelText('Origin ZIP'), '90210');
+      await userEvent.type(screen.getByLabelText('Destination ZIP'), '90210');
+      await userEvent.type(screen.getByLabelText('Estimated PPM weight'), '1000');
+
+      const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
+      expect(saveButton).not.toBeDisabled();
+      await userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(mockSubmitHandler).toHaveBeenCalled();
+      });
+
+      expect(
+        await screen.findByText('Something went wrong, and your changes were not saved. Please try again.'),
+      ).toBeInTheDocument();
       expect(defaultProps.history.push).not.toHaveBeenCalled();
     });
 

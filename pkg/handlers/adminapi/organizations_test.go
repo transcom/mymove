@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
+	organizationop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -19,7 +19,7 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 	// test that everything is wired up
 	suite.Run("integration test ok response", func() {
 		org := testdatagen.MakeDefaultOrganization(suite.DB())
-		params := organization.IndexOrganizationsParams{
+		params := organizationop.IndexOrganizationsParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/organizations"),
 		}
 		queryBuilder := query.NewQueryBuilder()
@@ -32,14 +32,14 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 
 		response := handler.Handle(params)
 
-		suite.IsType(&organization.IndexOrganizationsOK{}, response)
-		okResponse := response.(*organization.IndexOrganizationsOK)
+		suite.IsType(&organizationop.IndexOrganizationsOK{}, response)
+		okResponse := response.(*organizationop.IndexOrganizationsOK)
 		suite.Len(okResponse.Payload, 1)
 		suite.Equal(org.ID.String(), okResponse.Payload[0].ID.String())
 	})
 
 	suite.Run("unsuccesful response when fetch fails", func() {
-		params := organization.IndexOrganizationsParams{
+		params := organizationop.IndexOrganizationsParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/organizations"),
 		}
 		expectedError := models.ErrFetchNotFound

@@ -8,7 +8,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 type SimplePopSuite struct {
@@ -110,19 +109,19 @@ func (suite *PreloadedPopSuite) SetupSuite() {
 	suite.PreloadData(func() {
 		// Loads some data into database
 		// ReServiceCodeCS
-		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: suite.ReServices[0],
-		})
+		factory.BuildReService(suite.DB(), []factory.Customization{
+			{Model: suite.ReServices[0]},
+		}, nil)
 
 		// ReServiceCodeMS
-		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: suite.ReServices[1],
-		})
+		factory.BuildReService(suite.DB(), []factory.Customization{
+			{Model: suite.ReServices[1]},
+		}, nil)
 
 		// ReServiceCodeDCRT
-		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: suite.ReServices[2],
-		})
+		factory.BuildReService(suite.DB(), []factory.Customization{
+			{Model: suite.ReServices[2]},
+		}, nil)
 	})
 
 }
@@ -169,11 +168,7 @@ func (suite *PreloadedPopSuite) TestRunAlt() {
 			suite.NoError(err, "Reservice %s not found", reservice.Code)
 		}
 		// Add a DUCRT ReService, this should not exist outside this subtest
-		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDUCRT,
-			},
-		})
+		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDUCRT)
 
 	})
 	suite.Run("Run a test to check that subtests are isolated", func() {

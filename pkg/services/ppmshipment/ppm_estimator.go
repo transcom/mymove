@@ -39,7 +39,7 @@ func NewEstimatePPM(planner route.Planner, paymentRequestHelper paymentrequesthe
 	}
 }
 
-// EstimateIncentiveWithDefaultChecks func that returns the estimate hard coded to 12K (because it'll be clear that the value is coming from teh service)
+// EstimateIncentiveWithDefaultChecks func that returns the estimate hard coded to 12K (because it'll be clear that the value is coming from the service)
 func (f *estimatePPM) EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, *unit.Cents, error) {
 	return f.estimateIncentive(appCtx, oldPPMShipment, newPPMShipment, f.checks...)
 }
@@ -56,7 +56,8 @@ func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShi
 }
 
 func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment, originalTotalWeight unit.Pound, newTotalWeight unit.Pound) bool {
-	// if oldPPMShipment field value is nil we know that the value has been updated and we should return false
+	// If oldPPMShipment field value is nil we know that the value has been updated and we should return false - the adjusted net weight is accounted for in the
+	// SumWeightTickets function and the change in weight is then checked with `newTotalWeight == originalTotalWeight`
 	return (oldPPMShipment.ActualMoveDate != nil && newPPMShipment.ActualMoveDate.Equal(*oldPPMShipment.ActualMoveDate)) &&
 		(oldPPMShipment.ActualPickupPostalCode != nil && *newPPMShipment.ActualPickupPostalCode == *oldPPMShipment.ActualPickupPostalCode) &&
 		(oldPPMShipment.ActualDestinationPostalCode != nil && *newPPMShipment.ActualDestinationPostalCode == *oldPPMShipment.ActualDestinationPostalCode) &&
@@ -192,23 +193,24 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 func SumWeightTickets(ppmShipment, newPPMShipment models.PPMShipment) (originalTotalWeight, newTotalWeight unit.Pound) {
 	if len(ppmShipment.WeightTickets) >= 1 {
 		for _, weightTicket := range ppmShipment.WeightTickets {
-			if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
-				if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
-					originalTotalWeight += 0
-				} else {
-					originalTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
-				}
+			if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
+				originalTotalWeight += 0
+			} else if weightTicket.AdjustedNetWeight != nil {
+				originalTotalWeight += *weightTicket.AdjustedNetWeight
+			} else if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+				originalTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
 			}
 		}
 	}
+
 	if len(newPPMShipment.WeightTickets) >= 1 {
 		for _, weightTicket := range newPPMShipment.WeightTickets {
-			if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
-				if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
-					newTotalWeight += 0
-				} else {
-					newTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
-				}
+			if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
+				newTotalWeight += 0
+			} else if weightTicket.AdjustedNetWeight != nil {
+				newTotalWeight += *weightTicket.AdjustedNetWeight
+			} else if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+				newTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
 			}
 		}
 	}

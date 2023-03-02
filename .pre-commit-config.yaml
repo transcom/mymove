@@ -111,6 +111,15 @@ repos:
 
   - repo: local
     hooks:
+      - id: playwright_tsc
+        name: playwright_tsc
+        entry: node_modules/.bin/tsc -p playwright/tests/tsconfig.json
+        language: node
+        files: ^playwright/tests/.*\.js$
+        pass_filenames: false
+
+  - repo: local
+    hooks:
       - id: swagger
         name: Swagger
         entry: scripts/pre-commit-swagger-validate
@@ -163,7 +172,7 @@ repos:
         name: Spectral yaml linter
         entry: scripts/lint-yaml-with-spectral
         language: script
-        files: swagger/(support|prime).yaml
+        files: swagger/(admin|prime|support).yaml
         types: [yaml]
 
   - repo: local
