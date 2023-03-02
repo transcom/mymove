@@ -993,6 +993,10 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		payload.ActualPickupDate = handlers.FmtDatePtr(mtoShipment.ActualPickupDate)
 	}
 
+	if mtoShipment.ActualDeliveryDate != nil && !mtoShipment.ActualDeliveryDate.IsZero() {
+		payload.ActualDeliveryDate = handlers.FmtDatePtr(mtoShipment.ActualDeliveryDate)
+	}
+
 	if mtoShipment.RequestedDeliveryDate != nil && !mtoShipment.RequestedDeliveryDate.IsZero() {
 		payload.RequestedDeliveryDate = *handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate)
 	}
