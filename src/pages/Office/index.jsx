@@ -177,17 +177,13 @@ export class OfficeApp extends Component {
                     {/* 404 */}
                     <Route
                       path="*"
-                      element={
-                        (loginIsLoading && <LoadingPlaceholder />) ||
-                        (!userIsLoggedIn && <Navigate to="/sign-in" replace />)
-                      }
+                      element={(loginIsLoading && <LoadingPlaceholder />) || <Navigate to="/sign-in" replace />}
                     />
                   </Routes>
                 )}
                 {!hasError && userIsLoggedIn && (
                   // Auth Routes
                   <Routes>
-                    <Route path="/sign-in" element={<SignIn />} />
                     <Route path="/invalid-permissions" element={<InvalidPermissions />} />
 
                     {/* TXO */}
@@ -219,19 +215,19 @@ export class OfficeApp extends Component {
                           <ServicesCounselingAddShipment />
                         </PrivateRoute>
                       }
-                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
 
-                    <Route
-                      path="/:queueType/*"
-                      end
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <ServicesCounselingQueue />
-                        </PrivateRoute>
-                      }
-                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
-                    />
+                    {activeRole === roleTypes.SERVICES_COUNSELOR && (
+                      <Route
+                        path="/:queueType/*"
+                        end
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                            <ServicesCounselingQueue />
+                          </PrivateRoute>
+                        }
+                      />
+                    )}
 
                     <Route
                       key="servicesCounselingMoveInfoRoute"
