@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 // import { func, number, string, bool } from 'prop-types';
@@ -6,9 +7,14 @@ import { Button, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 
 import styles from './EditPPMNetWeight.module.scss';
 
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import { formatWeight } from 'utils/formatters';
+import { calculateNetWeightForWeightTicket, calculateTotalNetWeightForWeightTickets } from 'utils/ppmCloseout';
+import { useCalculatedWeightRequested } from 'hooks/custom';
+import { useReviewShipmentWeightsQuery } from 'hooks/queries';
 
 // Labels & constants
 
@@ -20,6 +26,10 @@ const weightLabels = {
   [CALCULATION_TYPE.NET_WEIGHT]: {
     firstLabel: ' | original weight',
     secondLabel: ' | to fit within weight allowance',
+  },
+  [CALCULATION_TYPE.REDUCE_WEIGHT]: {
+    firstLabel: ' | original weight',
+    secondLabel: ' | to reduce excess weight',
   },
   [CALCULATION_TYPE.EXCESS_WEIGHT]: {
     firstLabel: 'Move weight (total)',
@@ -46,7 +56,7 @@ const ErrorIndicator = ({ children, hasErrors }) => {
   );
 };
 
-const WeightCalculation = ({ type, firstValue, secondValue, thirdValue }) => {
+const WeightCalculationHint = ({ type, firstValue, secondValue, thirdValue }) => {
   const { firstLabel, secondLabel, thirdLabel } = weightLabels[type];
   return (
     <>
@@ -77,7 +87,7 @@ const WeightCalculation = ({ type, firstValue, secondValue, thirdValue }) => {
 };
 
 const validationSchema = Yup.object({
-  ppmNetWeight: Yup.number().min(1, 'Net weight must be 0 lbs or greater').required('Required'),
+  ppmNetWeight: Yup.number().min(0, 'Net weight must be 0 lbs or greater').required('Required'),
   ppmNetWeightRemarks: Yup.string().required('Required'),
 });
 
@@ -135,30 +145,34 @@ const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => (
   </Formik>
 );
 
-const EditPPMNetWeight = ({
-  ppmNetWeightRemarks,
-  billableWeight,
-  // estimatedWeight,
-  originalWeight,
-  maxBillableWeight,
-  totalBillableWeight,
-  weightAllowance,
-}) => {
+const EditPPMNetWeight = ({ netWeightRemarks, moveCode, weightTicket }) => {
   const [showEditForm, setShowEditForm] = useState(false);
+  const { mtoShipments, orders, isLoading, isError } = useReviewShipmentWeightsQuery(moveCode);
+
+  const queryClient = useQueryClient();
   const toggleEditForm = () => {
     setShowEditForm(!showEditForm);
   };
-  const toFitValue = maxBillableWeight - totalBillableWeight + billableWeight;
-  const excessWeight = totalBillableWeight - weightAllowance;
+  const weightAllowance = 8000; // orders?.entitlement?.weight_allowance ?? 0;
+  // Original weight is the full weight - empty weight
+  const originalWeight = 4500; // calculateNetWeightForWeightTicket(weightTicket);
+  // moveWeightTotal = Sum of all ppm weights + sum of all non-ppm shipments
+  const moveWeightTotal = 10000;
+  // maybe better to calculate move weight total on backend
+  const excessWeight = moveWeightTotal - weightAllowance;
   const hasExcessWeight = Boolean(excessWeight > 0);
+  const toFitValue = hasExcessWeight ? Math.min(excessWeight, originalWeight) : 0;
   const showWarning = Boolean(hasExcessWeight && !showEditForm);
+  // // Handle loading and error states
+  // if (isLoading) return <LoadingPlaceholder />;
+  // if (isError) return <SomethingWentWrong />;
   return (
     <div className={styles.wrapper}>
       <div>
         <h4 className={styles.mainHeader}>Edit PPM net weight</h4>
         {Boolean(showEditForm && hasExcessWeight) && (
-          <WeightCalculation
-            firstValue={totalBillableWeight}
+          <WeightCalculationHint
+            firstValue={moveWeightTotal}
             secondValue={weightAllowance}
             thirdValue={excessWeight}
             type={CALCULATION_TYPE.EXCESS_WEIGHT}
@@ -169,14 +183,18 @@ const EditPPMNetWeight = ({
         {showWarning && <div className={styles.warnings} />}
         <div>
           <h5 className={styles.header}>Net weight</h5>
-          <WeightCalculation firstValue={originalWeight} secondValue={toFitValue} type={CALCULATION_TYPE.NET_WEIGHT} />
+          <WeightCalculationHint
+            firstValue={originalWeight}
+            secondValue={toFitValue}
+            type={CALCULATION_TYPE.NET_WEIGHT}
+          />
           {!showEditForm ? (
             <div className={styles.wrapper}>
               {formatWeight(originalWeight)}
-              {ppmNetWeightRemarks && (
+              {netWeightRemarks && (
                 <>
                   <h5 className={styles.remarksHeader}>Remarks</h5>
-                  <p className={styles.remarks}>{ppmNetWeightRemarks}</p>
+                  <p className={styles.remarks}>{netWeightRemarks}</p>
                 </>
               )}
               <Button onClick={toggleEditForm} className={styles.editButton}>
@@ -185,7 +203,7 @@ const EditPPMNetWeight = ({
             </div>
           ) : (
             <EditPPMNetWeightForm
-              initialValues={{ ppmNetWeight: String(originalWeight), ppmNetWeightRemarks }}
+              initialValues={{ ppmNetWeight: String(originalWeight), netWeightRemarks }}
               onCancel={toggleEditForm}
             />
           )}
