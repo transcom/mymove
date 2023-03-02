@@ -107,9 +107,9 @@
     "test:debug": "react-app-rewired --inspect-brk test --runInBand --env=jsdom",
     "test:coverage": "react-app-rewired test --coverage --reporters=default --reporters=jest-junit --env=jsdom --coverageDirectory=coverage --runInBand --watchAll=false",
     "test:e2e": "playwright test --trace=on",
-    "prettier": "prettier --write --loglevel warn 'src/**/*.{js,jsx}'",
-    "prettier-ci": "prettier --check 'src/**/*.{js,jsx}'",
-    "lint": "eslint --ext .js,.jsx --max-warnings=0 src",
+    "prettier": "prettier --write --loglevel warn 'src/**/*.{js,jsx}' playwright/tests/**/*.js'",
+    "prettier-ci": "prettier --check 'src/**/*.{js,jsx}' playwright/tests/**/*.js",
+    "lint": "eslint --ext .js,.jsx --max-warnings=0 src playwright/tests",
     "lint:production": "NODE_ENV=production yarn lint",
     "test:lint-rules": "jest eslint-plugin-ato/tests",
     "storybook": "start-storybook -p 6006",
@@ -145,6 +145,8 @@
     "@testing-library/react": "^12.1.5",
     "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^14.4.3",
+    "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "@typescript-eslint/parser": "^5.54.0",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.8.0",
     "danger": "^11.2.3",
     "danger-plugin-jira-issue": "^1.4.1",
@@ -169,7 +171,8 @@
     "react-scripts": "5.0.1",
     "react-select-event": "^5.5.1",
     "react-test-renderer": "^17.0.1",
-    "source-map-explorer": "^2.5.3"
+    "source-map-explorer": "^2.5.3",
+    "typescript": "^4.9.5"
   },
   "browserslist": [
     ">0.2%",
