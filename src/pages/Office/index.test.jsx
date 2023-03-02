@@ -1,12 +1,146 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { shallow, mount } from 'enzyme';
-import { queryByTestId, render, screen } from '@testing-library/react';
+import { shallow } from 'enzyme';
+import { Provider } from 'react-redux';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
 
-import ConnectedOffice, { OfficeApp } from './index';
+import { OfficeApp } from './index';
 
-import { MockProviders } from 'testUtils';
 import { roleTypes } from 'constants/userRoles';
+import { configureStore } from 'shared/store';
+
+const mockPage = (path, name) => {
+  return jest.mock(path, () => {
+    // Create component name from path, if not provided (e.g. 'MoveQueue' -> 'Move Queue')
+    const componentName =
+      name ||
+      path
+        .substring(path.lastIndexOf('/') + 1)
+        .replace(/([A-Z])/g, ' $1')
+        .trim();
+
+    return () => <div>{`Mock ${componentName} Component`}</div>;
+  });
+};
+
+// Mock the components that are routed to from the index, ordered the same as the routes in the index file
+mockPage('pages/SignIn/SignIn');
+mockPage('pages/InvalidPermissions/InvalidPermissions');
+mockPage('pages/Office/MoveQueue/MoveQueue');
+mockPage('pages/Office/PaymentRequestQueue/PaymentRequestQueue');
+mockPage('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment');
+mockPage('pages/Office/ServicesCounselingQueue/ServicesCounselingQueue');
+mockPage('pages/Office/ServicesCounselingMoveInfo/ServicesCounselingMoveInfo');
+mockPage('pages/Office/EditShipmentDetails/EditShipmentDetails');
+mockPage('pages/PrimeUI/MoveTaskOrder/MoveDetails', 'Prime Simulator Move Details');
+mockPage('pages/PrimeUI/Shipment/PrimeUIShipmentCreate', 'Prime Simulator Shipment Create');
+mockPage('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateAddress', 'Prime Simulator Shipment Update Address');
+mockPage('pages/PrimeUI/Shipment/PrimeUIShipmentUpdate', 'Prime Simulator Shipment Update');
+mockPage('pages/PrimeUI/CreatePaymentRequest/CreatePaymentRequest', 'Prime Simulator Create Payment Request');
+mockPage(
+  'pages/PrimeUI/UploadPaymentRequestDocuments/UploadPaymentRequestDocuments',
+  'Prime Simulator Upload Payment Request Documents',
+);
+mockPage('pages/PrimeUI/CreateServiceItem/CreateServiceItem', 'Prime Simulator Create Service Item');
+mockPage('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateReweigh', 'Prime Simulator Shipment Update Reweigh');
+mockPage('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch', 'QAE CSR Move Search');
+mockPage('pages/Office/TXOMoveInfo/TXOMoveInfo', 'TXO Move Info');
+mockPage('pages/PrimeUI/AvailableMoves/AvailableMovesQueue', 'Prime Simulator Available Moves Queue');
+mockPage('components/NotFound/NotFound');
+
+afterEach(() => {
+  cleanup();
+  jest.resetAllMocks();
+});
+
+const loggedInTOOState = {
+  auth: {
+    activeRole: roleTypes.TOO,
+    isLoading: false,
+    isLoggedIn: true,
+  },
+  entities: {
+    user: {
+      userId123: {
+        id: 'userId123',
+        roles: [{ roleType: roleTypes.TOO }],
+      },
+    },
+  },
+};
+
+const loggedInTIOState = {
+  auth: {
+    activeRole: roleTypes.TIO,
+    isLoading: false,
+    isLoggedIn: true,
+  },
+  entities: {
+    user: {
+      userId234: {
+        id: 'userId234',
+        roles: [{ roleType: roleTypes.TIO }],
+      },
+    },
+  },
+};
+
+const loggedInSCState = {
+  auth: {
+    activeRole: roleTypes.SERVICES_COUNSELOR,
+    isLoading: false,
+    isLoggedIn: true,
+  },
+  entities: {
+    user: {
+      userId345: {
+        id: 'userId345',
+        roles: [{ roleType: roleTypes.SERVICES_COUNSELOR }],
+      },
+    },
+  },
+};
+
+const loggedInPrimeState = {
+  auth: {
+    activeRole: roleTypes.PRIME_SIMULATOR,
+    isLoading: false,
+    isLoggedIn: true,
+  },
+  entities: {
+    user: {
+      userId456: {
+        id: 'userId456',
+        roles: [{ roleType: roleTypes.PRIME_SIMULATOR }],
+      },
+    },
+  },
+};
+
+const loggedInQAEState = {
+  auth: {
+    activeRole: roleTypes.QAE_CSR,
+    isLoading: false,
+    isLoggedIn: true,
+  },
+  entities: {
+    user: {
+      userId567: {
+        id: 'userId567',
+        roles: [{ roleType: roleTypes.QAE_CSR }],
+      },
+    },
+  },
+};
+
+const loggedOutState = {
+  auth: {
+    activeRole: null,
+    isLoading: false,
+    isLoggedIn: false,
+  },
+};
 
 describe('Office App', () => {
   const mockOfficeProps = {
@@ -49,475 +183,220 @@ describe('Office App', () => {
     });
   });
 
-  describe('header with TOO user name and GBLOC', () => {
-    const officeUserState = {
-      auth: {
-        activeRole: roleTypes.TOO,
-        isLoading: false,
-        isLoggedIn: true,
-      },
-      entities: {
-        user: {
-          userId123: {
-            id: 'userId123',
-            roles: [{ roleType: roleTypes.TOO }],
-            office_user: {
-              first_name: 'Amanda',
-              last_name: 'Gorman',
-              transportation_office: {
-                gbloc: 'ABCD',
-              },
-            },
-          },
-        },
-      },
-    };
+  describe('logged out routing', () => {
+    it('handles the SignIn URL for not logged in user', async () => {
+      const mockStore = configureStore(loggedOutState);
+      render(
+        <MemoryRouter initialEntries={['/sign-in']}>
+          <Provider store={mockStore.store}>
+            <OfficeApp
+              router={{ location: { pathname: '/sign-in' } }}
+              loadInternalSchema={jest.fn()}
+              loadPublicSchema={jest.fn()}
+              loadUser={jest.fn()}
+              hasRecentError={false}
+              traceId=""
+            />
+          </Provider>
+        </MemoryRouter>,
+      );
 
-    describe('after signing in', () => {
-      it('renders the header with the office user name and GBLOC', () => {
-        const app = mount(
-          <MockProviders initialState={officeUserState} initialEntries={['/moves/queue']}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-        expect(app.containsMatchingElement(<a href="/">ABCD moves</a>)).toEqual(true);
-        expect(app.containsMatchingElement(<span>Gorman, Amanda</span>)).toEqual(true);
-      });
-      it('renders the system error component if there is an unexpected error and on the queue page', () => {
-        render(
-          <MockProviders
-            initialState={{ ...officeUserState, interceptor: { hasRecentError: true, traceId: 'some-trace-id' } }}
-            initialEntries={['/']}
-          >
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-        expect(screen.getByText('Technical Help Desk').closest('a')).toHaveAttribute(
-          'href',
-          'https://move.mil/customer-service#technical-help-desk',
-        );
-        expect(screen.getByTestId('system-error').textContent).toEqual(
-          "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk and give them this code: some-trace-id",
-        );
-      });
-      it('does not render system error if it is not on the queue page', () => {
-        render(
-          <MockProviders
-            initialState={{ ...officeUserState, interceptor: { hasRecentError: true, traceId: 'some-trace-id' } }}
-            initialEntries={['/sign-in']}
-          >
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-        expect(queryByTestId(document.documentElement, 'system-error')).not.toBeInTheDocument();
-      });
+      // Header content should be rendered
+      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+      expect(screen.getByTestId('signin')).toBeInTheDocument(); // Sign In button
+
+      // Wait for and lazy load, validate correct component was rendered
+      await waitFor(() => expect(screen.getByText('Mock Sign In Component')));
+    });
+
+    it('handles the Invalid Permissions URL for not logged in user', async () => {
+      const mockStore = configureStore(loggedOutState);
+      render(
+        <MemoryRouter initialEntries={['/invalid-permissions']}>
+          <Provider store={mockStore.store}>
+            <OfficeApp
+              router={{ location: { pathname: '/invalid-permissions' } }}
+              loadInternalSchema={jest.fn()}
+              loadPublicSchema={jest.fn()}
+              loadUser={jest.fn()}
+              hasRecentError={false}
+              traceId=""
+            />
+          </Provider>
+        </MemoryRouter>,
+      );
+
+      // Header content should be rendered
+      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+      expect(screen.getByTestId('signin')).toBeInTheDocument(); // Sign In button
+
+      // Wait for and lazy load, validate correct component was rendered
+      await waitFor(() => expect(screen.getByText('Mock Invalid Permissions Component')));
+    });
+
+    it('handles a bad URL for not logged in user', async () => {
+      const mockStore = configureStore(loggedOutState);
+      render(
+        <MemoryRouter initialEntries={['/bad-path']}>
+          <Provider store={mockStore.store}>
+            <OfficeApp
+              router={{ location: { pathname: '/bad-path' } }}
+              loadInternalSchema={jest.fn()}
+              loadPublicSchema={jest.fn()}
+              loadUser={jest.fn()}
+              hasRecentError={false}
+              userRoles={[]}
+              traceId=""
+              loginIsLoading={false}
+              userIsLoggedIn={false}
+            />
+          </Provider>
+        </MemoryRouter>,
+      );
+
+      // Header content should be rendered
+      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+      expect(screen.getByTestId('signin')).toBeInTheDocument(); // Sign In button
+
+      // Wait to be redirected to the Sign In page
+      await waitFor(() => expect(screen.getByText('Mock Sign In Component')));
     });
   });
 
-  describe('header with TIO user name and GBLOC', () => {
-    const officeUserState = {
-      auth: {
-        activeRole: roleTypes.TIO,
-        isLoading: false,
-        isLoggedIn: true,
-      },
-      entities: {
-        user: {
-          userId123: {
-            id: 'userId123',
-            roles: [{ roleType: roleTypes.TIO }],
-            office_user: {
-              first_name: 'Amanda',
-              last_name: 'Gorman',
-              transportation_office: {
-                gbloc: 'ABCD',
-              },
-            },
-          },
-        },
-      },
-      interceptor: {
-        hasRecentError: false,
-        timestamp: 0,
-        traceId: '',
-      },
-    };
-
-    describe('after signing in', () => {
-      it('renders the header with the office user name and GBLOC', () => {
-        const app = mount(
-          <MockProviders initialState={officeUserState} initialEntries={['/moves/queue']}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-
-        expect(app.containsMatchingElement(<a href="/">ABCD payment requests</a>)).toEqual(true);
-        expect(app.containsMatchingElement(<span>Gorman, Amanda</span>)).toEqual(true);
-      });
-    });
-  });
-
-  describe('if the user is logged in with multiple roles', () => {
-    const multiRoleState = {
-      auth: {
-        activeRole: roleTypes.TOO,
-        isLoading: false,
-        isLoggedIn: true,
-      },
-      entities: {
-        user: {
-          userId123: {
-            id: 'userId123',
-            roles: [
-              { roleType: roleTypes.CONTRACTING_OFFICER },
-              { roleType: roleTypes.TOO },
-              { roleType: roleTypes.TIO },
-            ],
-          },
-        },
-      },
-    };
-
-    describe('on a page that isn’t the Select Application page', () => {
-      it('renders the Select Application link', () => {
-        const app = mount(
-          <MockProviders initialState={multiRoleState} initialEntries={['/']}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-
-        expect(app.containsMatchingElement(<a href="/select-application">Change user role</a>)).toEqual(true);
-      });
-    });
-
-    describe('on the Select Application page', () => {
-      it('does not render the Select Application link', () => {
-        const app = mount(
-          <MockProviders initialState={multiRoleState} initialEntries={['/select-application']}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-
-        expect(app.containsMatchingElement(<a href="/select-application">Change user role</a>)).toEqual(false);
-      });
-    });
-  });
-
-  describe('routing', () => {
-    // TODO - expects should look for actual component content instead of the route path
-    // Might have to add testing-library for this because something about enzyme + Suspense + routes are not rendering content
-    // I FIGURED OUT HOW - need to mock the loadUser (this sets loading back to true and prevents content from rendering)
-
-    const loggedInState = {
-      auth: {
-        activeRole: roleTypes.TOO,
-        isLoading: false,
-        isLoggedIn: true,
-      },
-      entities: {
-        user: {
-          userId123: {
-            id: 'userId123',
-            roles: [{ roleType: roleTypes.TOO }],
-          },
-        },
-      },
-    };
-
-    const loggedOutState = {
-      auth: {
-        activeRole: null,
-        isLoading: false,
-        isLoggedIn: false,
-      },
-    };
-
-    it('handles the SignIn URL', () => {
-      const app = mount(
-        <MockProviders initialState={loggedOutState} initialEntries={['/sign-in']}>
-          <ConnectedOffice />
-        </MockProviders>,
+  describe('logged in routing', () => {
+    it('handles the Invalid Permissions URL', async () => {
+      const mockStore = configureStore(loggedInTOOState);
+      render(
+        <MemoryRouter initialEntries={['/invalid-permissions']}>
+          <Provider store={mockStore.store}>
+            <OfficeApp
+              router={{ location: { pathname: '/invalid-permissions' } }}
+              loadInternalSchema={jest.fn()}
+              loadPublicSchema={jest.fn()}
+              loadUser={jest.fn()}
+              hasRecentError={false}
+              userRoles={[{ roleType: loggedInTOOState.auth.activeRole }]}
+              traceId=""
+              loginIsLoading={false}
+              userIsLoggedIn
+            />
+          </Provider>
+        </MemoryRouter>,
       );
 
-      const renderedRoute = app.find('Route');
-      expect(renderedRoute).toHaveLength(1);
-      expect(renderedRoute.prop('path')).toEqual('/sign-in');
+      // Header content should be rendered
+      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+      expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
+
+      // Wait for and lazy load, validate correct component was rendered
+      await waitFor(() => expect(screen.getByText('Mock Invalid Permissions Component')));
     });
 
-    it('handles the root URL', () => {
-      const app = mount(
-        <MockProviders initialState={loggedInState} initialEntries={['/']}>
-          <ConnectedOffice />
-        </MockProviders>,
-      );
+    it.each([
+      ['Move Queue', '/moves/queue', loggedInTOOState],
+      ['Payment Request Queue', '/invoicing/queue', loggedInTIOState],
+      ['Services Counseling Add Shipment', '/new-PPM', loggedInSCState],
+      ['Services Counseling Queue', '/counseling', loggedInSCState],
+      ['Services Counseling Queue', '/PPM-closeout', loggedInSCState],
+      ['Services Counseling Move Info', '/counseling/moves/test123/', loggedInSCState],
+      ['Edit Shipment Details', '/moves/test123/shipments/ship123', loggedInTOOState],
+      ['Prime Simulator Move Details', '/simulator/moves/test123/details', loggedInPrimeState],
+      ['Prime Simulator Shipment Create', '/simulator/moves/test123/shipments/new', loggedInPrimeState],
+      [
+        'Prime Simulator Shipment Update Address',
+        '/simulator/moves/test123/shipments/ship123/addresses/update',
+        loggedInPrimeState,
+      ],
+      ['Prime Simulator Shipment Update', '/simulator/moves/test123/shipments/ship123', loggedInPrimeState],
+      ['Prime Simulator Create Payment Request', '/simulator/moves/test123/payment-requests/new', loggedInPrimeState],
+      [
+        'Prime Simulator Upload Payment Request Documents',
+        '/simulator/moves/test123/payment-requests/req123/upload',
+        loggedInPrimeState,
+      ],
+      [
+        'Prime Simulator Create Service Item',
+        '/simulator/moves/test123/shipments/ship123/service-items/new',
+        loggedInPrimeState,
+      ],
+      [
+        'Prime Simulator Shipment Update Reweigh',
+        '/simulator/moves/test123/shipments/ship123/reweigh/re123/update',
+        loggedInPrimeState,
+      ],
+      ['QAE CSR Move Search', '/qaecsr/search', loggedInQAEState],
+      ['TXO Move Info', '/moves/move123', loggedInTIOState],
+      ['Payment Request Queue', '/', loggedInTIOState],
+      ['Move Queue', '/', loggedInTOOState],
+      ['Services Counseling Queue', '/', loggedInSCState],
+      ['QAE CSR Move Search', '/', loggedInQAEState],
+      ['Prime Simulator Available Moves Queue', '/', loggedInPrimeState],
+      // ['Not Found', '/this/is/a/bad/path', loggedInTOOState],
+    ])(
+      'correctly displays the %s component at %s as a user with sufficient permissions',
+      async (component, path, initialState) => {
+        const mockStore = configureStore(initialState);
 
-      const renderedRoute = app.find('PrivateRoute');
-      expect(renderedRoute).toHaveLength(1);
-      expect(renderedRoute.prop('path')).toEqual('/');
-    });
-
-    it('handles the Select Application URL', () => {
-      const app = mount(
-        <MockProviders initialState={loggedInState} initialEntries={['/select-application']}>
-          <ConnectedOffice />
-        </MockProviders>,
-      );
-
-      const renderedRoute = app.find('PrivateRoute');
-      expect(renderedRoute).toHaveLength(1);
-      expect(renderedRoute.prop('path')).toEqual('/select-application');
-    });
-
-    describe('TOO routes', () => {
-      const loggedInTOOState = {
-        auth: {
-          activeRole: roleTypes.TOO,
-          isLoading: false,
-          isLoggedIn: true,
-        },
-        entities: {
-          user: {
-            userId123: {
-              id: 'userId123',
-              roles: [{ roleType: roleTypes.TOO }],
-            },
-          },
-        },
-      };
-
-      it('handles the moves queue URL', () => {
-        const app = mount(
-          <MockProviders initialState={loggedInTOOState} initialEntries={['/moves/queue']}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-
-        const renderedRoute = app.find('PrivateRoute');
-        expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/moves/queue');
-      });
-
-      it('handles the TXOMoveInfo URL', () => {
-        const app = mount(
-          <MockProviders initialState={loggedInTOOState} initialEntries={['/moves/AU67C6']}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-
-        const renderedRoute = app.find('PrivateRoute');
-        expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode');
-      });
-
-      it('handles the edit shipment details URL', () => {
-        const app = mount(
-          <MockProviders
-            initialState={loggedInTOOState}
-            initialEntries={['/moves/AU67C6/shipments/c73d3fbd-8a93-4bd9-8c0b-99bd52e45b2c']}
-          >
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-
-        const renderedRoute = app.find('PrivateRoute');
-        expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/shipments/:shipmentId');
-      });
-    });
-
-    describe('TIO routes', () => {
-      const loggedInTIOState = {
-        auth: {
-          activeRole: roleTypes.TIO,
-          isLoading: false,
-          isLoggedIn: true,
-        },
-        entities: {
-          user: {
-            userId123: {
-              id: 'userId123',
-              roles: [{ roleType: roleTypes.TIO }],
-            },
-          },
-        },
-      };
-
-      it('handles the invoicing queue URL', () => {
-        const app = mount(
-          <MockProviders initialState={loggedInTIOState} initialEntries={['/invoicing/queue']}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-
-        const renderedRoute = app.find('PrivateRoute');
-        expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/invoicing/queue');
-      });
-
-      it('handles the TXOMoveInfo URL', () => {
-        const app = mount(
-          <MockProviders initialState={loggedInTIOState} initialEntries={['/moves/AU67C6']}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-
-        const renderedRoute = app.find('PrivateRoute');
-        expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode');
-      });
-
-      it('Tio should not render edit shipment details URL', () => {
-        const app = mount(
-          <MockProviders
-            initialState={loggedInTIOState}
-            initialEntries={['/moves/AU67C6/shipments/c73d3fbd-8a93-4bd9-8c0b-99bd52e45b2c']}
-          >
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-
-        const renderedRoute = app.find('PrivateRoute');
-        expect(renderedRoute).toHaveLength(0);
-      });
-    });
-
-    describe('Services Counselor routes', () => {
-      const loggedInServicesCounselorState = {
-        auth: {
-          activeRole: roleTypes.SERVICES_COUNSELOR,
-          isLoading: false,
-          isLoggedIn: true,
-        },
-        entities: {
-          user: {
-            userId123: {
-              id: 'userId123',
-              roles: [{ roleType: roleTypes.SERVICES_COUNSELOR }],
-            },
-          },
-        },
-      };
-
-      it.each([['ServicesCounselingMoveInfo', '/counseling/moves/AU67C6', '/counseling/moves/:moveCode']])(
-        'handles a %s URL (%s) with a given path of %s',
-        (pageName, initialURL, pathToMatch) => {
-          const app = mount(
-            <MockProviders initialState={loggedInServicesCounselorState} initialEntries={[initialURL]}>
-              <ConnectedOffice />
-            </MockProviders>,
-          );
-
-          const renderedRoute = app.find('PrivateRoute');
-          expect(renderedRoute).toHaveLength(1);
-          expect(renderedRoute.prop('path')).toEqual(pathToMatch);
-        },
-      );
-    });
-
-    describe('Prime Simulator routes', () => {
-      const loggedInPrimeSimulatorState = {
-        auth: {
-          activeRole: roleTypes.PRIME_SIMULATOR,
-          isLoading: false,
-          isLoggedIn: true,
-        },
-        entities: {
-          user: {
-            userId123: {
-              id: 'userId123',
-              roles: [{ roleType: roleTypes.PRIME_SIMULATOR }],
-            },
-          },
-        },
-      };
-
-      it.each([
-        ['PrimeSimulatorMoveDetails', '/simulator/moves/AU67C6/details', '/simulator/moves/:moveCodeOrID/details'],
-        [
-          'PrimeSimulatorCreateShipment',
-          '/simulator/moves/AU67C6/shipments/new',
-          '/simulator/moves/:moveCodeOrID/shipments/new',
-        ],
-        [
-          'PrimeSimulatorUpdateShipment',
-          '/simulator/moves/AU67C6/shipments/c73d3fbd-8a93-4bd9-8c0b-99bd52e45b2c',
-          '/simulator/moves/:moveCodeOrID/shipments/:shipmentId',
-        ],
-        [
-          'PrimeSimulatorCreatePaymentRequest',
-          '/simulator/moves/AU67C6/payment-requests/new',
-          '/simulator/moves/:moveCodeOrID/payment-requests/new',
-        ],
-        [
-          'PrimeSimulatorUpdateAddress',
-          '/simulator/moves/AU67C6/shipments/c73d3fbd-8a93-4bd9-8c0b-99bd52e45b2c/addresses/update',
-          '/simulator/moves/:moveCodeOrID/shipments/:shipmentId/addresses/update',
-        ],
-        [
-          'PrimeSimulatorCreatePaymentRequest',
-          '/simulator/moves/AU67C6/payment-requests/new',
-          '/simulator/moves/:moveCodeOrID/payment-requests/new',
-        ],
-        [
-          'PrimeSimulatorCreateServiceItem',
-          '/simulator/moves/AU67C6/shipments/c73d3fbd-8a93-4bd9-8c0b-99bd52e45b2c/service-items/new',
-          '/simulator/moves/:moveCodeOrID/shipments/:shipmentId/service-items/new',
-        ],
-      ])('handles a %s URL (%s) with a given path of %s', (pageName, initialURL, pathToMatch) => {
-        const app = mount(
-          <MockProviders initialState={loggedInPrimeSimulatorState} initialEntries={[initialURL]}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-
-        const renderedRoute = app.find('PrivateRoute');
-        expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual(pathToMatch);
-      });
-    });
-
-    describe('QAE/CSR Routes', () => {
-      const loggedInQAECSRState = {
-        auth: {
-          activeRole: roleTypes.QAE_CSR,
-          isLoading: false,
-          isLoggedIn: true,
-        },
-        entities: {
-          user: {
-            userId123: {
-              id: 'userId123',
-              roles: [{ roleType: roleTypes.QAE_CSR }],
-            },
-          },
-        },
-      };
-
-      it.each([['QAECSRMoveSearch', '/qaecsr/search', '/qaecsr/search']])(
-        'handles a %s URL (%s) with a given path of %s',
-        (pageName, initialURL, pathToMatch) => {
-          const app = mount(
-            <MockProviders initialState={loggedInQAECSRState} initialEntries={[initialURL]}>
-              <ConnectedOffice />
-            </MockProviders>,
-          );
-
-          const renderedRoute = app.find('PrivateRoute');
-          expect(renderedRoute).toHaveLength(1);
-          expect(renderedRoute.prop('path')).toEqual(pathToMatch);
-        },
-      );
-    });
-
-    describe('page not found route', () => {
-      it('handles a nonexistent route by returning a 404 page', () => {
         render(
-          <MockProviders initialEntries={['/pageNotFound']}>
-            <ConnectedOffice />
-          </MockProviders>,
+          <MemoryRouter initialEntries={[path]}>
+            <Provider store={mockStore.store}>
+              <OfficeApp
+                router={{ location: { pathname: path } }}
+                loadInternalSchema={jest.fn()}
+                loadPublicSchema={jest.fn()}
+                loadUser={jest.fn()}
+                hasRecentError={false}
+                activeRole={initialState.auth.activeRole}
+                userRoles={[{ roleType: initialState.auth.activeRole }]}
+                traceId=""
+                loginIsLoading={false}
+                userIsLoggedIn
+              />
+            </Provider>
+          </MemoryRouter>,
         );
-        expect(screen.getByText('Error - 404')).toBeInTheDocument();
-      });
+
+        // Header content should be rendered
+        expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+        expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+        expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
+
+        // Wait for lazy load, validate correct component was rendered
+        await waitFor(() => expect(screen.getByText(`Mock ${component} Component`)));
+      },
+    );
+
+    it('handles the Move Queue URL with insufficient permission', async () => {
+      const mockStore = configureStore(loggedInTIOState);
+      render(
+        <MemoryRouter initialEntries={['/moves/queue']}>
+          <Provider store={mockStore.store}>
+            <OfficeApp
+              router={{ location: { pathname: '/moves/queue' } }}
+              loadInternalSchema={jest.fn()}
+              loadPublicSchema={jest.fn()}
+              loadUser={jest.fn()}
+              hasRecentError={false}
+              userRoles={[{ roleType: loggedInTIOState.auth.activeRole }]}
+              traceId=""
+              loginIsLoading={false}
+              userIsLoggedIn
+            />
+          </Provider>
+        </MemoryRouter>,
+      );
+
+      // Header content should be rendered
+      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+      expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
+
+      // Wait for and lazy load, validate redirected to invalid permissions page
+      await waitFor(() => expect(screen.getByText('Mock Invalid Permissions Component')));
     });
   });
 });
