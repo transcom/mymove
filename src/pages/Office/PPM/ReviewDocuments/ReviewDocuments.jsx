@@ -17,6 +17,8 @@ import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentVi
 import { usePPMShipmentDocsQueries } from 'hooks/queries';
 import ReviewWeightTicket from 'components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket';
 import { DOCUMENTS } from 'constants/queryKeys';
+import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
+import ReviewExpense from 'components/Office/PPM/ReviewExpense/ReviewExpense';
 
 // TODO: This should be in src/constants/ppms.js, but it's causing a lot of errors in unrelated tests, so I'll leave
 //  this here for now.
@@ -123,6 +125,10 @@ export const ReviewDocuments = ({ match }) => {
       // TODO: This is a workaround until we add the ability to work with other document types
       if (documentSets[newDocumentSetIndex].documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET) {
         setDocumentSetIndex(newDocumentSetIndex);
+      } else if (documentSets[newDocumentSetIndex].documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
+        setDocumentSetIndex(newDocumentSetIndex);
+      } else if (documentSets[newDocumentSetIndex].documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE) {
+        setDocumentSetIndex(newDocumentSetIndex);
       } else {
         setShowOverview(true);
       }
@@ -148,6 +154,50 @@ export const ReviewDocuments = ({ match }) => {
 
   const currentDocumentSet = documentSets[documentSetIndex];
   const disableBackButton = documentSetIndex === 0 && !showOverview;
+
+  const documentSetsType = () => {
+    const docsType = currentDocumentSet.documentSetType;
+    switch (docsType) {
+      case DOCUMENT_TYPES.WEIGHT_TICKET:
+        return (
+          <ReviewWeightTicket
+            weightTicket={currentDocumentSet.documentSet}
+            ppmNumber={1}
+            tripNumber={currentDocumentSet.tripNumber}
+            mtoShipment={mtoShipment}
+            onError={onError}
+            onSuccess={onSuccess}
+            formRef={formRef}
+          />
+        );
+      case DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET:
+        return (
+          <ReviewProGear
+            proGear={currentDocumentSet.documentSet}
+            ppmNumber={1}
+            tripNumber={currentDocumentSet.tripNumber}
+            mtoShipment={mtoShipment}
+            onError={onError}
+            onSuccess={onSuccess}
+            formRef={formRef}
+          />
+        );
+      case DOCUMENT_TYPES.MOVING_EXPENSE:
+        return (
+          <ReviewExpense
+            expense={currentDocumentSet.documentSet}
+            ppmNumber={1}
+            tripNumber={currentDocumentSet.tripNumber}
+            mtoShipment={mtoShipment}
+            onError={onError}
+            onSuccess={onSuccess}
+            formRef={formRef}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
@@ -176,17 +226,7 @@ export const ReviewDocuments = ({ match }) => {
                 formRef={formRef}
               />
             ) : (
-              currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
-                <ReviewWeightTicket
-                  weightTicket={currentDocumentSet.documentSet}
-                  ppmNumber={1}
-                  tripNumber={currentDocumentSet.tripNumber}
-                  mtoShipment={mtoShipment}
-                  onError={onError}
-                  onSuccess={onSuccess}
-                  formRef={formRef}
-                />
-              )
+              documentSetsType()
             ))}
         </DocumentViewerSidebar.Content>
         <DocumentViewerSidebar.Footer>
