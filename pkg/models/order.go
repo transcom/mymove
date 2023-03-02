@@ -64,6 +64,7 @@ type Order struct {
 	UploadedAmendedOrders       *Document                          `belongs_to:"documents" fk_id:"uploaded_amended_orders_id"`
 	UploadedAmendedOrdersID     *uuid.UUID                         `json:"uploaded_amended_orders_id" db:"uploaded_amended_orders_id"`
 	AmendedOrdersAcknowledgedAt *time.Time                         `json:"amended_orders_acknowledged_at" db:"amended_orders_acknowledged_at"`
+	OriginDutyLocationGBLOC     *string                            `json:"origin_duty_location_gbloc" db:"gbloc"`
 }
 
 // Orders is not required by pop and may be deleted
@@ -89,6 +90,7 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&OptionalRegexMatch{Name: "TransportationAccountingCode", Field: o.TAC, Expr: `\A([A-Za-z0-9]){4}\z`, Message: "TAC must be exactly 4 alphanumeric characters."},
 		&validators.UUIDIsPresent{Field: o.UploadedOrdersID, Name: "UploadedOrdersID"},
 		&OptionalUUIDIsPresent{Field: o.UploadedAmendedOrdersID, Name: "UploadedAmendedOrdersID"},
+		&StringIsNilOrNotBlank{Field: o.OriginDutyLocationGBLOC, Name: "OriginDutyLocationGBLOC"},
 	), nil
 }
 

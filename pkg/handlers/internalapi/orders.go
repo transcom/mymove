@@ -139,6 +139,11 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			originDutyLocation := serviceMember.DutyLocation
+			originDutyLocationGBLOC := serviceMember.DutyLocation.TransportationOffice.Gbloc
+			if *serviceMember.Affiliation == "MARINES" {
+				originDutyLocationGBLOC = "USMC"
+			}
+
 			grade := (*string)(serviceMember.Rank)
 
 			weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents)
@@ -185,6 +190,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				&originDutyLocation,
 				grade,
 				&entitlement,
+				&originDutyLocationGBLOC,
 			)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err

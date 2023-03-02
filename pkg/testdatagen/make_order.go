@@ -76,6 +76,10 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		originDutyLocation = MakeDutyLocation(db, assertions)
 	}
 
+	originDutyLocationGBLOC := originDutyLocation.TransportationOffice.Gbloc
+	if *sm.Affiliation == "MARINES" {
+		originDutyLocationGBLOC = "USMC"
+	}
 	orderTypeDetail := assertions.Order.OrdersTypeDetail
 	hhgPermittedString := internalmessages.OrdersTypeDetail("HHG_PERMITTED")
 	if orderTypeDetail == nil || *orderTypeDetail == "" {
@@ -106,6 +110,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		OriginDutyLocation:      &originDutyLocation,
 		OriginDutyLocationID:    &originDutyLocation.ID,
 		OrdersTypeDetail:        orderTypeDetail,
+		OriginDutyLocationGBLOC: &originDutyLocationGBLOC,
 	}
 
 	// Overwrite values with those from assertions
@@ -181,33 +186,38 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 		originDutyLocation = MakeDutyLocation(db, assertions)
 	}
 
+	originDutyLocationGBLOC := originDutyLocation.TransportationOffice.Gbloc
+	if *sm.Affiliation == "MARINES" {
+		originDutyLocationGBLOC = "USMC"
+	}
 	var orderTypeDetail *internalmessages.OrdersTypeDetail
 	if assertions.Order.OrdersTypeDetail != nil {
 		orderTypeDetail = assertions.Order.OrdersTypeDetail
 	}
 
 	order := models.Order{
-		ServiceMember:        sm,
-		ServiceMemberID:      sm.ID,
-		NewDutyLocation:      dutyLocation,
-		NewDutyLocationID:    dutyLocation.ID,
-		UploadedOrders:       document,
-		UploadedOrdersID:     document.ID,
-		IssueDate:            time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
-		ReportByDate:         time.Date(TestYear, time.August, 1, 0, 0, 0, 0, time.UTC),
-		OrdersType:           internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-		OrdersNumber:         ordersNumber,
-		HasDependents:        hasDependents,
-		SpouseHasProGear:     spouseHasProGear,
-		Status:               models.OrderStatusDRAFT,
-		TAC:                  TAC,
-		DepartmentIndicator:  departmentIndicator,
-		Grade:                &grade,
-		Entitlement:          &entitlement,
-		EntitlementID:        &entitlement.ID,
-		OriginDutyLocation:   &originDutyLocation,
-		OriginDutyLocationID: &originDutyLocation.ID,
-		OrdersTypeDetail:     orderTypeDetail,
+		ServiceMember:           sm,
+		ServiceMemberID:         sm.ID,
+		NewDutyLocation:         dutyLocation,
+		NewDutyLocationID:       dutyLocation.ID,
+		UploadedOrders:          document,
+		UploadedOrdersID:        document.ID,
+		IssueDate:               time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+		ReportByDate:            time.Date(TestYear, time.August, 1, 0, 0, 0, 0, time.UTC),
+		OrdersType:              internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:            ordersNumber,
+		HasDependents:           hasDependents,
+		SpouseHasProGear:        spouseHasProGear,
+		Status:                  models.OrderStatusDRAFT,
+		TAC:                     TAC,
+		DepartmentIndicator:     departmentIndicator,
+		Grade:                   &grade,
+		Entitlement:             &entitlement,
+		EntitlementID:           &entitlement.ID,
+		OriginDutyLocation:      &originDutyLocation,
+		OriginDutyLocationID:    &originDutyLocation.ID,
+		OrdersTypeDetail:        orderTypeDetail,
+		OriginDutyLocationGBLOC: &originDutyLocationGBLOC,
 	}
 
 	// Overwrite values with those from assertions
@@ -261,25 +271,31 @@ func MakeOrderWithoutUpload(db *pop.Connection, assertions Assertions) models.Or
 		originDutyLocation = MakeDutyLocation(db, assertions)
 	}
 
+	originDutyLocationGBLOC := originDutyLocation.TransportationOffice.Gbloc
+	if *sm.Affiliation == "MARINES" {
+		originDutyLocationGBLOC = "USMC"
+	}
+
 	order := models.Order{
-		ServiceMember:        sm,
-		ServiceMemberID:      sm.ID,
-		NewDutyLocation:      dutyLocation,
-		NewDutyLocationID:    dutyLocation.ID,
-		UploadedOrders:       document,
-		UploadedOrdersID:     document.ID,
-		IssueDate:            time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
-		ReportByDate:         time.Date(TestYear, time.August, 1, 0, 0, 0, 0, time.UTC),
-		OrdersType:           internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-		OrdersNumber:         ordersNumber,
-		HasDependents:        hasDependents,
-		SpouseHasProGear:     spouseHasProGear,
-		Status:               models.OrderStatusDRAFT,
-		Grade:                &grade,
-		Entitlement:          &entitlement,
-		EntitlementID:        &entitlement.ID,
-		OriginDutyLocation:   &originDutyLocation,
-		OriginDutyLocationID: &originDutyLocation.ID,
+		ServiceMember:           sm,
+		ServiceMemberID:         sm.ID,
+		NewDutyLocation:         dutyLocation,
+		NewDutyLocationID:       dutyLocation.ID,
+		UploadedOrders:          document,
+		UploadedOrdersID:        document.ID,
+		IssueDate:               time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+		ReportByDate:            time.Date(TestYear, time.August, 1, 0, 0, 0, 0, time.UTC),
+		OrdersType:              internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:            ordersNumber,
+		HasDependents:           hasDependents,
+		SpouseHasProGear:        spouseHasProGear,
+		Status:                  models.OrderStatusDRAFT,
+		Grade:                   &grade,
+		Entitlement:             &entitlement,
+		EntitlementID:           &entitlement.ID,
+		OriginDutyLocation:      &originDutyLocation,
+		OriginDutyLocationID:    &originDutyLocation.ID,
+		OriginDutyLocationGBLOC: &originDutyLocationGBLOC,
 	}
 
 	// Overwrite values with those from assertions

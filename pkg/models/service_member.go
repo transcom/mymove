@@ -224,7 +224,8 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	departmentIndicator *string,
 	originDutyLocation *DutyLocation,
 	grade *string,
-	entitlement *Entitlement) (Order, *validate.Errors, error) {
+	entitlement *Entitlement,
+	originDutyLocationGBLOC *string) (Order, *validate.Errors, error) {
 
 	var newOrders Order
 	responseVErrors := validate.NewErrors()
@@ -244,25 +245,26 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 		}
 
 		newOrders = Order{
-			ServiceMemberID:     s.ID,
-			ServiceMember:       s,
-			IssueDate:           issueDate,
-			ReportByDate:        reportByDate,
-			OrdersType:          ordersType,
-			HasDependents:       hasDependents,
-			SpouseHasProGear:    spouseHasProGear,
-			NewDutyLocationID:   newDutyLocation.ID,
-			NewDutyLocation:     newDutyLocation,
-			UploadedOrders:      uploadedOrders,
-			UploadedOrdersID:    uploadedOrders.ID,
-			Status:              OrderStatusDRAFT,
-			OrdersNumber:        ordersNumber,
-			TAC:                 tac,
-			SAC:                 sac,
-			DepartmentIndicator: departmentIndicator,
-			Grade:               grade,
-			OriginDutyLocation:  originDutyLocation,
-			Entitlement:         entitlement,
+			ServiceMemberID:         s.ID,
+			ServiceMember:           s,
+			IssueDate:               issueDate,
+			ReportByDate:            reportByDate,
+			OrdersType:              ordersType,
+			HasDependents:           hasDependents,
+			SpouseHasProGear:        spouseHasProGear,
+			NewDutyLocationID:       newDutyLocation.ID,
+			NewDutyLocation:         newDutyLocation,
+			UploadedOrders:          uploadedOrders,
+			UploadedOrdersID:        uploadedOrders.ID,
+			Status:                  OrderStatusDRAFT,
+			OrdersNumber:            ordersNumber,
+			TAC:                     tac,
+			SAC:                     sac,
+			DepartmentIndicator:     departmentIndicator,
+			Grade:                   grade,
+			OriginDutyLocation:      originDutyLocation,
+			Entitlement:             entitlement,
+			OriginDutyLocationGBLOC: originDutyLocationGBLOC,
 		}
 
 		verrs, err = txnAppCtx.DB().ValidateAndCreate(&newOrders)
