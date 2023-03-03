@@ -125,8 +125,8 @@ const PrimeUIShipmentCreateForm = () => {
               />
               <MaskedTextField
                 label="Spouse Pro Gear Weight (lbs)"
-                id="ppmShipment.spouseProGearWeightInput"
-                name="ppmShipment.spouseProGearWeight"
+                id="ppmShipment.spouseInput"
+                name="ppmShipment.spouse"
                 mask={Number}
                 scale={0} // digits after point, 0 for integers
                 signed={false} // disallow negative
