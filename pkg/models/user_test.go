@@ -269,12 +269,14 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 				},
 			}}, nil)
 
-		testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
-			ServiceMember: ServiceMember{
-				UserID: user.ID,
-				User:   user,
+		factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: ServiceMember{
+					UserID: user.ID,
+					User:   user,
+				},
 			},
-		})
+		}, nil)
 
 		// This service member will be filtered out from the result because we haven't overridden the default email
 		factory.BuildServiceMember(suite.DB(), nil, nil)

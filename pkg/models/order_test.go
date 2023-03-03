@@ -161,7 +161,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	})
 
 	suite.Run("fetch not found due to bad id", func() {
-		sm := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{})
+		sm := factory.BuildServiceMember(suite.DB(), nil, nil)
 		session := &auth.Session{
 			ApplicationName: auth.MilApp,
 			UserID:          sm.UserID,

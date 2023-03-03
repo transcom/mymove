@@ -447,13 +447,15 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 	}, nil)
 
 	rank := models.ServiceMemberRankE4
-	serviceMember := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			Rank:           &rank,
-			DutyLocationID: &dutyLocation.ID,
-			DutyLocation:   dutyLocation,
+	serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Rank:           &rank,
+				DutyLocationID: &dutyLocation.ID,
+				DutyLocation:   dutyLocation,
+			},
 		},
-	})
+	}, nil)
 
 	newDutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 		{
