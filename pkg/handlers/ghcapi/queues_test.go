@@ -806,7 +806,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
-	serviceUser := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 	serviceUser.User.Roles = append(serviceUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeCustomer,
 	})

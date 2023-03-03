@@ -16,7 +16,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
-	customer := testdatagen.MakeDefaultServiceMember(suite.DB())
+	customer := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	request := httptest.NewRequest("GET", "/customer/{customerID}", nil)
 	params := customerops.GetCustomerParams{

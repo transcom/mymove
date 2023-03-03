@@ -167,7 +167,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 
 		user := factory.BuildDefaultUser(suite.DB())
 
-		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 		dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 		dutyLocation2 := factory.FetchOrBuildOrdersDutyLocation(suite.DB())

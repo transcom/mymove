@@ -60,8 +60,8 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 
 func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 	// Given: Servicemember trying to load another
-	notLoggedInUser := testdatagen.MakeDefaultServiceMember(suite.DB())
-	loggedInUser := testdatagen.MakeDefaultServiceMember(suite.DB())
+	notLoggedInUser := factory.BuildServiceMember(suite.DB(), nil, nil)
+	loggedInUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/service_members/%s", notLoggedInUser.ID.String()), nil)
 	req = suite.AuthenticateRequest(req, loggedInUser)

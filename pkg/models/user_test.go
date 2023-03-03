@@ -101,7 +101,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
 
-	bob := testdatagen.MakeDefaultServiceMember(suite.DB())
+	bob := factory.BuildServiceMember(suite.DB(), nil, nil)
 	identity, err = FetchUserIdentity(suite.DB(), bob.User.LoginGovUUID.String())
 	suite.Nil(err, "loading bob's identity")
 	suite.NotNil(identity)
@@ -277,7 +277,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 		})
 
 		// This service member will be filtered out from the result because we haven't overridden the default email
-		testdatagen.MakeDefaultServiceMember(suite.DB())
+		factory.BuildServiceMember(suite.DB(), nil, nil)
 
 		identities, err := FetchAppUserIdentities(suite.DB(), auth.MilApp, 5)
 

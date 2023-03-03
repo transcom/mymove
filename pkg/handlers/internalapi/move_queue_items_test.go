@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 	for _, queueType := range statusToQueueMap {
 
 		// Given: A non-office user
-		user := testdatagen.MakeDefaultServiceMember(suite.DB())
+		user := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 		// And: the context contains the auth values
 		path := "/queues/" + queueType

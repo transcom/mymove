@@ -178,7 +178,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	suite.Run("forbidden user cannot fetch order", func() {
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
 		// User is forbidden from fetching order
-		serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
+		serviceMember2 := factory.BuildServiceMember(suite.DB(), nil, nil)
 		session := &auth.Session{
 			ApplicationName: auth.MilApp,
 			UserID:          serviceMember2.UserID,
@@ -239,7 +239,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 }
 
 func (suite *ModelSuite) TestFetchOrderNotForUser() {
-	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceMember1 := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
@@ -284,7 +284,7 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 }
 
 func (suite *ModelSuite) TestOrderStateMachine() {
-	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceMember1 := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)

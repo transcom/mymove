@@ -81,7 +81,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	makeCreateSubtestData := func(appCtx appcontext.AppContext) (subtestData mtoCreateSubtestData) {
 		db := appCtx.DB()
 
-		subtestData.serviceMember = testdatagen.MakeDefaultServiceMember(db)
+		subtestData.serviceMember = factory.BuildServiceMember(db, nil, nil)
 
 		mto := testdatagen.MakeMove(db, testdatagen.Assertions{
 			Order: models.Order{
