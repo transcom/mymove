@@ -9,13 +9,14 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 	setupForTest := func(appCtx appcontext.AppContext, overrides *models.ProgearWeightTicket, hasdocFiles bool) *models.ProgearWeightTicket {
-		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
 
 		baseDocumentAssertions := testdatagen.Assertions{

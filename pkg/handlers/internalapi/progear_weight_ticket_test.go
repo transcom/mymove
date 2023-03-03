@@ -375,7 +375,7 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 
 		subtestData := makeDeleteSubtestData(appCtx, false)
 
-		otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+		otherServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 		req := subtestData.params.HTTPRequest
 		unauthorizedReq := suite.AuthenticateRequest(req, otherServiceMember)

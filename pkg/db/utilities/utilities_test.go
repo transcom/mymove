@@ -66,7 +66,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithoutAssociatio
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithAssociations() {
 	// model without deleted_at with associations
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 	suite.MustSave(&serviceMember)
 
 	err := utilities.SoftDestroy(suite.DB(), &serviceMember)
@@ -95,7 +95,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasOneAssocia
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasManyAssociations() {
 	// model with deleted_at with "has many" associations
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{
 		Document: models.Document{

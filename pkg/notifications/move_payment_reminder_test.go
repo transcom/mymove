@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -170,7 +171,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
-	sm := testdatagen.MakeDefaultServiceMember(suite.DB())
+	sm := factory.BuildServiceMember(suite.DB(), nil, nil)
 	ei := PaymentReminderEmailInfo{
 		ServiceMemberID: sm.ID,
 	}

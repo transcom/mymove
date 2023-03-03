@@ -77,7 +77,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	// And: another logged in user
-	anotherUser := testdatagen.MakeDefaultServiceMember(suite.DB())
+	anotherUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	// And: the context contains a different user
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -104,7 +104,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	// Given: a logged in user and no Move
-	user := testdatagen.MakeDefaultServiceMember(suite.DB())
+	user := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	moveUUID := uuid.Must(uuid.NewV4())
 
@@ -223,7 +223,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	// And: another logged in user
-	anotherUser := testdatagen.MakeDefaultServiceMember(suite.DB())
+	anotherUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	// And: the context contains the auth values for not logged-in user
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
@@ -562,7 +562,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 	// Given: a set of orders, a move, user and servicemember
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	// And: another logged in user
-	anotherUser := testdatagen.MakeDefaultServiceMember(suite.DB())
+	anotherUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	// And: the context contains the auth values for not logged-in user
 	req := httptest.NewRequest("GET", "/moves/some_id/", nil)
