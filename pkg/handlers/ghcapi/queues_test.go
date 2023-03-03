@@ -583,23 +583,25 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	hhgMoveType := models.SelectedMoveTypeHHG
 	// Default Origin Duty Location GBLOC is LKNQ
 
-	serviceMember1 := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
-		Stub: true,
-		ServiceMember: models.ServiceMember{
-			FirstName: models.StringPointer("Zoya"),
-			LastName:  models.StringPointer("Darvish"),
-			Edipi:     models.StringPointer("11111"),
+	serviceMember1 := factory.BuildServiceMember(nil, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				FirstName: models.StringPointer("Zoya"),
+				LastName:  models.StringPointer("Darvish"),
+				Edipi:     models.StringPointer("11111"),
+			},
 		},
-	})
+	}, nil)
 
-	serviceMember2 := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
-		Stub: true,
-		ServiceMember: models.ServiceMember{
-			FirstName: models.StringPointer("Owen"),
-			LastName:  models.StringPointer("Nance"),
-			Edipi:     models.StringPointer("22222"),
+	serviceMember2 := factory.BuildServiceMember(nil, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				FirstName: models.StringPointer("Owen"),
+				LastName:  models.StringPointer("Nance"),
+				Edipi:     models.StringPointer("22222"),
+			},
 		},
-	})
+	}, nil)
 
 	move1 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
