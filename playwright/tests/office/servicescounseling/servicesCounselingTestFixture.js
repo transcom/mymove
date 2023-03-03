@@ -17,7 +17,7 @@ export class ServiceCounselorPage extends OfficePage {
       // eslint-disable-next-line security/detect-object-injection
       this.waitForPage[key] = async () => {
         await value();
-        this.runAccessibilityAudit();
+        await this.runAccessibilityAudit();
       };
     });
   }
@@ -188,7 +188,7 @@ const scFixtures = {
   scPage: async ({ officePage }, use) => {
     const scPage = new ServiceCounselorPage(officePage);
     await scPage.signInAsNewServicesCounselorUser();
-    use(scPage);
+    await use(scPage);
   },
 };
 
