@@ -1,78 +1,83 @@
-version: '3.0'
+version: '3.7'
+x-default-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "5m"
+    max-file: "2"
 
 services:
-  collector:
-    image: otel/opentelemetry-collector-contrib
-    container_name: collector
-    hostname: collector
-    command: ["--config=/etc/collector-config.yaml"]
+  # Jaeger
+  jaeger:
+    image: jaegertracing/all-in-one
+    container_name: jaeger
+    command:
+      - "--memory.max-traces"
+      - "10000"
+      - "--query.base-path"
+      - "/jaeger/ui"
+      - "--prometheus.server-url"
+      - "http://prometheus:9090"
+    deploy:
+      resources:
+        limits:
+          memory: 275M
+    restart: unless-stopped
+    ports:
+      - "16686:16686"                     # Jaeger UI
+      - "4317"                            # OTLP gRPC default port
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - METRICS_STORAGE_TYPE=prometheus
+    logging: *logging
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:9.1.0
+    container_name: grafana
     volumes:
-      - ./config/telemetry/collector-config.dev.yaml:/etc/collector-config.yaml
+      - ./config/telemetry/grafana.ini:/etc/grafana/grafana.ini
+      - ./config/telemetry/provisioning/:/etc/grafana/provisioning/
     ports:
-      - "13133:13133"
-      - "55680:55680"
-    depends_on:
-      apm-server:
-        condition: service_healthy
+      - "3333:3000"
+    logging: *logging
 
-  apm-server:
-    image: docker.elastic.co/apm/apm-server:7.14.0
-    container_name: apm-server
-    hostname: apm-server
+  # OpenTelemetry Collector
+  otelcol:
+    image: otel/opentelemetry-collector-contrib:0.70.0
+    container_name: otel-col
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+    restart: unless-stopped
+    command: [ "--config=/etc/otelcol-config.yml", "--config=/etc/otelcol-config-extras.yml" ]
+    volumes:
+      - ./config/telemetry/otelcol-config.yml:/etc/otelcol-config.yml
+      - ./config/telemetry/otelcol-config-extras.yml:/etc/otelcol-config-extras.yml
+    ports:
+      - "4317:4317"     # OTLP over gRPC receiver
+      - "4318:4318"     # OTLP over HTTP receiver
+      - "9464"          # Prometheus exporter
+      - "8888"          # metrics endpoint
     depends_on:
-      elasticsearch:
-        condition: service_healthy
-      kibana:
-        condition: service_healthy
-    cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
-    cap_drop: ["ALL"]
-    ports:
-    - 8200:8200
-    command: >
-       apm-server -e
-         -E apm-server.rum.enabled=true
-         -E setup.kibana.host=kibana:5601
-         -E setup.template.settings.index.number_of_replicas=0
-         -E apm-server.kibana.enabled=true
-         -E apm-server.kibana.host=kibana:5601
-         -E output.elasticsearch.hosts=["elasticsearch:9200"]
-    healthcheck:
-      interval: 10s
-      retries: 20
-      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8200/
+      - jaeger
+    logging: *logging
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
-    container_name: elasticsearch
-    environment:
-    - node.name=es01
-    - bootstrap.memory_lock=true
-    - cluster.name=docker-cluster
-    - discovery.type=single-node
-    - ES_JAVA_OPTS=-Xms1g -Xmx1g
-    ulimits:
-      memlock:
-        hard: -1
-        soft: -1
+  # Prometheus
+  prometheus:
+    image: quay.io/prometheus/prometheus:v2.34.0
+    container_name: prometheus
+    command:
+      - --web.console.templates=/etc/prometheus/consoles
+      - --web.console.libraries=/etc/prometheus/console_libraries
+      - --storage.tsdb.retention.time=1h
+      - --config.file=/etc/prometheus/prometheus-config.yaml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+      - --web.route-prefix=/
+      - --enable-feature=exemplar-storage
+    volumes:
+      - ./config/telemetry/prometheus-config.yaml:/etc/prometheus/prometheus-config.yaml
     ports:
-    - 9200:9200
-    healthcheck:
-      interval: 10s
-      retries: 20
-      test: curl -s http://localhost:9200/_cluster/health | grep -vq '"status":"red"'
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.14.0
-    container_name: kibana
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    environment:
-      ELASTICSEARCH_URL: http://elasticsearch:9200
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-    ports:
-    - 5601:5601
-    healthcheck:
-      interval: 10s
-      retries: 20
-      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:5601/api/status
+      - "9090:9090"
+    logging: *logging
