@@ -13,6 +13,13 @@ export class ServiceCounselorPage extends OfficePage {
    */
   constructor(officePage) {
     super(officePage.page, officePage.request);
+    Object.entries(this.waitForPage).forEach(([key, value]) => {
+      // eslint-disable-next-line security/detect-object-injection
+      this.waitForPage[key] = async () => {
+        await value();
+        await this.runAccessibilityAudit();
+      };
+    });
   }
 
   waitForPage = {
@@ -181,7 +188,7 @@ const scFixtures = {
   scPage: async ({ officePage }, use) => {
     const scPage = new ServiceCounselorPage(officePage);
     await scPage.signInAsNewServicesCounselorUser();
-    use(scPage);
+    await use(scPage);
   },
 };
 
