@@ -11,7 +11,6 @@
 /coverage
 coverage.out
 __snapshots__
-cypress/cypress
 
 # production
 /build
@@ -60,17 +59,12 @@ public/swagger-ui/*
 !public/swagger-ui/admin.html
 !public/swagger-ui/ghc.html
 
-# Cypress integration tests
-cypress/videos
-cypress/screenshots
-cypress/results
-cypress/reports
-
 # Playwright integration tests
 playwright/.cache
 playwright/html-report
 playwright/results
 playwright-report
+playwright-results.xml
 
 # XLSX backup files
 ~$*.xlsx

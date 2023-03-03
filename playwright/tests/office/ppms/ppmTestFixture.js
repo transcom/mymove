@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { expect, test, ServiceCounselorPage } from '../servicescounseling/servicesCounselingTestFixture';
+import { expect, test as scTest, ServiceCounselorPage } from '../servicescounseling/servicesCounselingTestFixture';
 
 /**
  * PpmPage test fixture
@@ -13,6 +13,15 @@ import { expect, test, ServiceCounselorPage } from '../servicescounseling/servic
  * @extends ServiceCounselorPage
  */
 export class PpmPage extends ServiceCounselorPage {
+  /**
+   * @param {Object} options
+   * @param {string} [options.estimatedWeight=4000]
+   * @param {boolean} [options.hasProGear=false]
+   * @param {string} [options.proGearWeight=1000]
+   * @param {string} [options.spouseProGearWeight=500]
+   *
+   * @returns Promise<void>
+   */
   async fillOutWeight(options = {}) {
     const {
       estimatedWeight = '4000',
@@ -33,6 +42,16 @@ export class PpmPage extends ServiceCounselorPage {
     }
   }
 
+  /**
+   * @param {Object} options
+   * @param {boolean} [options.hasSit=true]
+   * @param {string} [options.sitEstimatedWeight=1000]
+   * @param {string} [options.sitEstimatedEntryDate='01 Mar 2020']
+   * @param {string} [options.sitEstimatedDepartureDate='31 Mar 2020']
+   * @param {string} [options.sitLocation='Destination']
+   *
+   * @returns Promise<void>
+   */
   async fillOutSitExpected(options = {}) {
     const {
       hasSit = true,
@@ -56,6 +75,14 @@ export class PpmPage extends ServiceCounselorPage {
     }
   }
 
+  /**
+   * @param {Object} options
+   * @param {string} [options.expectedDepartureDate='09 Jun 2022']
+   * @param {string} [options.pickupPostalCode=90210]
+   * @param {string} [options.secondPickupPostalCode='07003']
+   *
+   * @returns Promise<void>
+   */
   async fillOutOriginInfo(options = {}) {
     const {
       expectedDepartureDate = '09 Jun 2022',
@@ -73,6 +100,13 @@ export class PpmPage extends ServiceCounselorPage {
     }
   }
 
+  /**
+   * @param {Object} options
+   * @param {string} [options.destinationPostalCode=76127]
+   * @param {string} [options.secondDestinationPostalCode=08540]
+   *
+   * @returns Promise<void>
+   */
   async fillOutDestinationInfo(options = {}) {
     const { destinationPostalCode = '76127', secondDestinationPostalCode = '08540' } = options;
 
@@ -84,6 +118,13 @@ export class PpmPage extends ServiceCounselorPage {
     }
   }
 
+  /**
+   * @param {Object} options
+   * @param {boolean} [options.hasAdvance=true]
+   * @param {string} [options.advance=6000]
+   *
+   * @returns Promise<void>
+   */
   async fillOutIncentiveAndAdvance(options = {}) {
     const { hasAdvance = true, advance = '6000' } = options;
 
@@ -97,6 +138,22 @@ export class PpmPage extends ServiceCounselorPage {
   }
 }
 
-export { expect, test };
+/**
+ * @typedef {object} PpmPageTestArgs - ppm page test args
+ * @property {PpmPage} ppmPage    -  ppm page
+ */
+
+/** @type {import('@playwright/test').Fixtures<PpmPageTestArgs, {}, import('../../utils/officeTest').OfficePageTestArgs, import('@playwright/test').PlaywrightWorkerArgs>} */
+const ppmFixtures = {
+  ppmPage: async ({ officePage }, use) => {
+    const ppmPage = new PpmPage(officePage);
+    await ppmPage.signInAsNewServicesCounselorUser();
+    await use(ppmPage);
+  },
+};
+
+export const test = scTest.extend(ppmFixtures);
+
+export { expect };
 
 export default PpmPage;
