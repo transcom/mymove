@@ -5,15 +5,15 @@
  */
 
 // @ts-check
-import { test, expect } from './scPpmTestFixture';
+import { test, expect } from './ppmTestFixture';
 
 test.describe('Services counselor user', () => {
-  test.beforeEach(async ({ scPpmPage }) => {
-    const move = await scPpmPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
-    await scPpmPage.navigateToMove(move.locator);
+  test.beforeEach(async ({ ppmPage }) => {
+    const move = await ppmPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
+    await ppmPage.navigateToMove(move.locator);
   });
 
-  test('is able to add a new PPM shipment', async ({ page, scPpmPage }) => {
+  test('is able to add a new PPM shipment', async ({ page, ppmPage }) => {
     // Delete existing shipment
     await page.locator('[data-testid="ShipmentContainer"] .usa-button').click();
     await page.locator('[data-testid="grid"] button').getByText('Delete shipment').click();
@@ -27,22 +27,22 @@ test.describe('Services counselor user', () => {
     await page.locator('[data-testid="dropdown"]').first().selectOption({ label: 'PPM' });
 
     // Fill out page one
-    await scPpmPage.fillOutOriginInfo();
-    await scPpmPage.fillOutDestinationInfo();
-    await scPpmPage.fillOutWeight({ hasProGear: true });
-    await scPpmPage.selectDutyLocation('JPPSO NORTHWEST', 'closeoutOffice');
+    await ppmPage.fillOutOriginInfo();
+    await ppmPage.fillOutDestinationInfo();
+    await ppmPage.fillOutWeight({ hasProGear: true });
+    await ppmPage.selectDutyLocation('JPPSO NORTHWEST', 'closeoutOffice');
 
     await page.locator('[data-testid="submitForm"]').click();
-    await scPpmPage.waitForLoading();
+    await ppmPage.waitForLoading();
 
     // Fill out page two
     await expect(page.getByText('Incentive & advance')).toBeVisible();
-    await scPpmPage.fillOutIncentiveAndAdvance({ advance: '5987' });
+    await ppmPage.fillOutIncentiveAndAdvance({ advance: '5987' });
     await page.locator('[data-testid="counselor-remarks"]').type('The requested advance amount has been added.');
     await page.locator('[data-testid="counselor-remarks"]').blur();
 
     await page.locator('[data-testid="submitForm"]').click();
-    await scPpmPage.waitForLoading();
+    await ppmPage.waitForLoading();
 
     // Confirm new shipment is visible
     await expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();

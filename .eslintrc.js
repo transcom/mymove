@@ -9,6 +9,10 @@ module.exports = {
     'plugin:you-dont-need-lodash-underscore/compatible',
   ],
   root: true,
+  parserOptions: {
+    tsconfigRootDir: __dirname,
+    project: ['./playwright/tests/tsconfig.json'],
+  },
   rules: {
     'prettier/prettier': 'error',
     'no-only-tests/no-only-tests': 'error',
@@ -111,7 +115,13 @@ module.exports = {
     },
     {
       files: ['playwright/**/*.js*'],
+      plugins: ['@typescript-eslint/eslint-plugin'],
+      extends: [
+        'plugin:@typescript-eslint/eslint-recommended', // removes redundant warnings between TS & ESLint
+        'plugin:@typescript-eslint/recommended', // rules specific to typescript, e.g., writing interfaces
+      ],
       rules: {
+        '@typescript-eslint/no-floating-promises': 'error',
         'no-restricted-syntax': 'off',
         'no-await-in-loop': 'off',
       },

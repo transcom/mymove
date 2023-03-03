@@ -33,6 +33,12 @@ export class TestHarness {
    */
 
   /**
+   * @typedef {Object} WebhookSubscription
+   * @property {string} ID
+   * @property {string} SubscriberID
+   */
+
+  /**
    * call the test harness build
    *
    * @param {string} action
@@ -264,7 +270,7 @@ export class TestHarness {
 
   /**
    * Use testharness to build unsubmitted ppm move
-   * @returns {Promise<Object>}
+   * @returns {Promise<Move>}
    */
   async buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights() {
     return this.buildDefault('UnSubmittedMoveWithPPMShipmentThroughEstimatedWeights');
@@ -272,7 +278,7 @@ export class TestHarness {
 
   /**
    * Use testharness to build unsubmitted ppm move
-   * @returns {Promise<Object>}
+   * @returns {Promise<Move>}
    */
   async buildApprovedMoveWithPPMWithAboutFormComplete() {
     return this.buildDefault('ApprovedMoveWithPPMWithAboutFormComplete');
@@ -280,7 +286,7 @@ export class TestHarness {
 
   /**
    * Use testharness to build unsubmitted move with multiple ppm shipments
-   * @returns {Promise<Object>}
+   * @returns {Promise<Move>}
    */
   async buildUnsubmittedMoveWithMultipleFullPPMShipmentComplete() {
     return this.buildDefault('UnsubmittedMoveWithMultipleFullPPMShipmentComplete');
@@ -288,7 +294,7 @@ export class TestHarness {
 
   /**
    * Use testharness to build approved move with ppm progear
-   * @returns {Promise<Object>}
+   * @returns {Promise<Move>}
    */
   async buildApprovedMoveWithPPMProgearWeightTicket() {
     return this.buildDefault('ApprovedMoveWithPPMProgearWeightTicket');
@@ -304,7 +310,7 @@ export class TestHarness {
 
   /**
    * Use testharness to build approved move with ppm moving expenses
-   * @returns {Promise<Object>}
+   * @returns {Promise<Move>}
    */
   async buildApprovedMoveWithPPMMovingExpense() {
     return this.buildDefault('ApprovedMoveWithPPMMovingExpense');
@@ -312,7 +318,7 @@ export class TestHarness {
 
   /**
    * Use testharness to build draft move with ppm departure date
-   * @returns {Promise<Object>}
+   * @returns {Promise<Move>}
    */
   async buildDraftMoveWithPPMWithDepartureDate() {
     return this.buildDefault('DraftMoveWithPPMWithDepartureDate');
@@ -335,14 +341,14 @@ export class TestHarness {
   }
 
   /**
-   * @returns {Promise<Object>}
+   * @returns {Promise<Move>}
    */
   async buildPrimeSimulatorMoveNeedsShipmentUpdate() {
     return this.buildDefault('PrimeSimulatorMoveNeedsShipmentUpdate');
   }
 
   /**
-   * @returns {Promise<Object>}
+   * @returns {Promise<WebhookSubscription>}
    */
   async buildWebhookSubscription() {
     return this.buildDefault('WebhookSubscription');

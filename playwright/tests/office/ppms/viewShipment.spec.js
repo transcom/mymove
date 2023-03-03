@@ -5,12 +5,12 @@
  */
 
 // @ts-check
-import { test, expect } from './scPpmTestFixture';
+import { test, expect } from './ppmTestFixture';
 
 test.describe('Services counselor user', () => {
-  test.beforeEach(async ({ scPpmPage }) => {
-    const move = await scPpmPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
-    await scPpmPage.navigateToMove(move.locator);
+  test.beforeEach(async ({ ppmPage }) => {
+    const move = await ppmPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
+    await ppmPage.navigateToMove(move.locator);
   });
 
   test('is able to click on move and submit after using the move code filter', async ({ page }) => {

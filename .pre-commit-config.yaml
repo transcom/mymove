@@ -50,7 +50,7 @@ repos:
         exclude: ^public/swagger-ui/
 
   - repo: https://github.com/golangci/golangci-lint
-    rev: v1.50.1
+    rev: v1.51.2
     hooks:
       - id: golangci-lint
         entry: bash -c 'exec golangci-lint run ${GOLANGCI_LINT_VERBOSE} -j=${GOLANGCI_LINT_CONCURRENCY:-1}' # custom bash so we can override concurrency for faster dev runs
@@ -108,6 +108,15 @@ repos:
             config-overrides.js|
             .happo.js
           )
+
+  - repo: local
+    hooks:
+      - id: playwright_tsc
+        name: playwright_tsc
+        entry: node_modules/.bin/tsc -p playwright/tests/tsconfig.json
+        language: node
+        files: ^playwright/tests/.*\.js$
+        pass_filenames: false
 
   - repo: local
     hooks:
