@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { withRouter, Link } from 'react-router-dom';
+import { withRouter, Link, generatePath } from 'react-router-dom';
 import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
@@ -57,6 +57,7 @@ import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import { tooRoutes } from 'constants/routes';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
@@ -725,8 +726,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                 externalVendorShipmentCount > 0 && <br />}
               {externalVendorShipmentCount > 0 && (
                 <small>
-                  {externalVendorShipmentCount} shipment not moved by GHC prime.{' '}
-                  <Link className="usa-link" to={`/moves/${moveCode}`}>
+                  {externalVendorShipmentCount} shipment{externalVendorShipmentCount > 1 && 's'} not moved by GHC prime.{' '}
+                  <Link className="usa-link" to={generatePath(tooRoutes.MOVE_VIEW_PATH, { moveCode })}>
                     View move details
                   </Link>
                 </small>
