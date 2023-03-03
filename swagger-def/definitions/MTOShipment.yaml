@@ -53,6 +53,7 @@ properties:
     type: string
   actualDeliveryDate:
     x-nullable: true
+    description: The actual date that the shipment was delivered to the destination address by the Prime
     format: date
     type: string
   requestedDeliveryDate:
