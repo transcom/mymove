@@ -9,7 +9,7 @@ import styles from './EditPPMNetWeight.module.scss';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import { formatWeight } from 'utils/formatters';
-import { calculateNetWeightForWeightTicket } from 'utils/ppmCloseout';
+import {calculateNetWeightForWeightTicket} from 'utils/shipmentWeights';
 import { useCalculatedWeightRequested } from 'hooks/custom';
 
 // Labels & constants
@@ -63,12 +63,12 @@ const WeightCalculationHint = ({ type, firstValue, secondValue, thirdValue }) =>
             <strong className={styles.value}>{formatWeight(firstValue)}</strong>
             <span className={styles.label}> {firstLabel}</span>
           </div>
-          {secondValue && (
+          {secondValue && 
             <div className={styles.calculations}>
               <strong className={styles.value}>{formatWeight(secondValue)}</strong>
               <span className={styles.label}> {secondLabel}</span>
             </div>
-          )}
+          }
         </div>
       </FlexContainer>
       {thirdValue && (
@@ -155,11 +155,13 @@ const EditPPMNetWeight = ({ netWeightRemarks, weightTicket, weightAllowance, shi
   const originalWeight = calculateNetWeightForWeightTicket(weightTicket);
   // moveWeightTotal = Sum of all ppm weights + sum of all non-ppm shipments
   const moveWeightTotal = useCalculatedWeightRequested(shipments);
-  // maybe better to calculate move weight total on backend
   const excessWeight = moveWeightTotal - weightAllowance;
   const hasExcessWeight = Boolean(excessWeight > 0);
-  const toFitValue = hasExcessWeight ? Math.min(excessWeight, originalWeight) : null;
+  // To-do: Once new netWeights can be saved, the toFit value should use that value here if its availble over using original weight
+  const netWeight = originalWeight
+  const toFitValue = hasExcessWeight ? -Math.min(excessWeight, netWeight) : null;
   const showWarning = Boolean(hasExcessWeight && !showEditForm);
+  const showReduceWeight = Boolean(-originalWeight === toFitValue)
   return (
     <div className={styles.wrapper}>
       <div>
@@ -180,11 +182,11 @@ const EditPPMNetWeight = ({ netWeightRemarks, weightTicket, weightAllowance, shi
           <WeightCalculationHint
             firstValue={originalWeight}
             secondValue={toFitValue}
-            type={CALCULATION_TYPE.NET_WEIGHT}
+            type={showReduceWeight ? CALCULATION_TYPE.REDUCE_WEIGHT : CALCULATION_TYPE.NET_WEIGHT}
           />
           {!showEditForm ? (
             <div className={styles.wrapper}>
-              {formatWeight(originalWeight)}
+              {formatWeight(netWeight)}
               {netWeightRemarks && (
                 <>
                   <h5 className={styles.remarksHeader}>Remarks</h5>
@@ -197,7 +199,7 @@ const EditPPMNetWeight = ({ netWeightRemarks, weightTicket, weightAllowance, shi
             </div>
           ) : (
             <EditPPMNetWeightForm
-              initialValues={{ ppmNetWeight: String(originalWeight), netWeightRemarks }}
+              initialValues={{ ppmNetWeight: String(netWeight), netWeightRemarks }}
               onCancel={toggleEditForm}
             />
           )}
