@@ -1,0 +1,14 @@
+@import 'shared/styles/_basics';
+
+.weightHeader {
+  display: flex;
+  justify-content: space-evenly;
+  @include u-margin-bottom(3);
+  > div {
+    flex: 1 1 0px;
+  }
+}
+
+.weightDisplay {
+  flex: 1 1 0px;
+}
