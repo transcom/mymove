@@ -66,6 +66,7 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
   }
 
   const handleSubmit = (values) => {
+    // console.log(values);
     const payload = {
       ppmShipmentId: proGear.ppmShipmentId,
       belongsToSelf: values.belongsToSelf,
