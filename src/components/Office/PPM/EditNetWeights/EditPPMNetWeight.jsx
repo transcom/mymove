@@ -176,7 +176,7 @@ const EditPPMNetWeight = ({ netWeightRemarks, weightTicket, weightAllowance, shi
         )}
       </div>
       <FlexContainer className={styles.netWeightContainer}>
-        {showWarning && <div className={styles.warnings} />}
+        {showWarning && <div className={styles.warnings} data-testid="warning" />}
         <div>
           <h5 className={styles.header}>Net weight</h5>
           <WeightCalculationHint
