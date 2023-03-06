@@ -1374,19 +1374,11 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
 		for _, shipment := range move.MTOShipments {
 			if queueIncludeShipmentStatus(shipment.Status) && shipment.DeletedAt == nil {
-				// if the pickup date is not set, set it using the RequestedPickupDate or ExpectedDepartureDate based on which is present
-				// if the pickup date is already set and the RequestedPickupDate or ExpectedDepartureDate comes before the set pickup date, update it
-				if earliestRequestedPickup == nil {
-					if shipment.RequestedPickupDate != nil {
-						earliestRequestedPickup = shipment.RequestedPickupDate
-					} else if shipment.PPMShipment != nil {
-						earliestRequestedPickup = &shipment.PPMShipment.ExpectedDepartureDate
-					}
-				} else if shipment.RequestedPickupDate != nil && shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
-					earliestRequestedPickup = shipment.RequestedPickupDate
-				} else if shipment.PPMShipment != nil && shipment.PPMShipment.ExpectedDepartureDate.Before(*earliestRequestedPickup) {
-					earliestRequestedPickup = &shipment.PPMShipment.ExpectedDepartureDate
+				earliestDateInCurrentShipment := findEarliestDate(shipment)
+				if earliestRequestedPickup == nil || (earliestDateInCurrentShipment != nil && earliestDateInCurrentShipment.Before(*earliestRequestedPickup)) {
+					earliestRequestedPickup = earliestDateInCurrentShipment
 				}
+
 				validMTOShipments = append(validMTOShipments, shipment)
 			}
 		}
@@ -1443,6 +1435,28 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		}
 	}
 	return &queueMoves
+}
+
+func findEarliestDate(shipment models.MTOShipment) (earliestDate *time.Time) {
+	var possibleValues []*time.Time
+
+	if shipment.RequestedPickupDate != nil {
+		possibleValues = append(possibleValues, shipment.RequestedPickupDate)
+	}
+	if shipment.RequestedDeliveryDate != nil {
+		possibleValues = append(possibleValues, shipment.RequestedDeliveryDate)
+	}
+	if shipment.PPMShipment != nil {
+		possibleValues = append(possibleValues, &shipment.PPMShipment.ExpectedDepartureDate)
+	}
+
+	for _, date := range possibleValues {
+		if earliestDate == nil || date.Before(*earliestDate) {
+			earliestDate = date
+		}
+	}
+
+	return earliestDate
 }
 
 var (
