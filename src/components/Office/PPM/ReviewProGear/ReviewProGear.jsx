@@ -193,7 +193,7 @@ export default function ReviewProGear({ ppmShipment, proGear, tripNumber, ppmNum
                             placeholder="Type something"
                           />
                           <CharacterCount />
-                          <p className={styles.characters}>500 characters</p>
+                          <p className={styles.characters}>{500 - values.rejectionReason.length} characters</p>
                         </>
                       )}
                     </FormGroup>
