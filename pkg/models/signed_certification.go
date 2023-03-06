@@ -50,7 +50,6 @@ type SignedCertification struct {
 	Date                     time.Time                `json:"date" db:"date"`
 }
 
-// SignedCertifications is not required by pop and may be deleted
 type SignedCertifications []SignedCertification
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate,

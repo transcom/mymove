@@ -28,11 +28,9 @@ type Tariff400ngLinehaulRate struct {
 	EffectiveDateUpper time.Time  `json:"effective_date_upper" db:"effective_date_upper"`
 }
 
-// Tariff400ngLinehaulRates is not required by pop and may be deleted
 type Tariff400ngLinehaulRates []Tariff400ngLinehaulRate
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (t *Tariff400ngLinehaulRate) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.IntIsPresent{Field: t.DistanceMilesLower, Name: "DistanceMilesLower"},

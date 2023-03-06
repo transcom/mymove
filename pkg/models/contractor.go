@@ -23,25 +23,12 @@ type Contractor struct {
 type Contractors []Contractor
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (c *Contractor) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: string(c.Name), Name: "Name"},
 		&validators.StringIsPresent{Field: string(c.Type), Name: "Type"},
 		&validators.StringIsPresent{Field: string(c.ContractNumber), Name: "ContractNumber"},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (c *Contractor) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (c *Contractor) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }
 
 // FetchGHCPrimeTestContractor returns a test contractor for dev

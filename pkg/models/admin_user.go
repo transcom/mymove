@@ -50,16 +50,13 @@ type AdminUser struct {
 	Active         bool         `json:"active" db:"active"`
 }
 
-// String is not required by pop and may be deleted
 func (a AdminUser) String() string {
 	ja, _ := json.Marshal(a)
 	return string(ja)
 }
 
-// AdminUsers is not required by pop and may be deleted
 type AdminUsers []AdminUser
 
-// String is not required by pop and may be deleted
 func (a AdminUsers) String() string {
 	ja, _ := json.Marshal(a)
 	return string(ja)
@@ -93,7 +90,6 @@ func (v *RoleInclusion) IsValid(errors *validate.Errors) {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (a *AdminUser) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: a.FirstName, Name: "FirstName"},
@@ -101,16 +97,4 @@ func (a *AdminUser) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: a.Email, Name: "Email"},
 		&RoleInclusion{Field: a.Role, Name: "Role", List: new(AdminRole).ValidRoles()},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (a *AdminUser) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (a *AdminUser) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }

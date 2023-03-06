@@ -30,11 +30,9 @@ type ReDomesticLinehaulPrice struct {
 	DomesticServiceArea ReDomesticServiceArea `belongs_to:"re_domestic_service_area" fk_id:"domestic_service_area_id"`
 }
 
-// ReDomesticLinehaulPrices is not required by pop and may be deleted
 type ReDomesticLinehaulPrices []ReDomesticLinehaulPrice
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (r *ReDomesticLinehaulPrice) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},

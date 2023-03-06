@@ -73,7 +73,6 @@ type PaymentServiceItem struct {
 	PaymentServiceItemParams PaymentServiceItemParams `has_many:"payment_service_item_params" fk_id:"payment_service_item_id"`
 }
 
-// PaymentServiceItems is not required by pop and may be deleted
 type PaymentServiceItems []PaymentServiceItem
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

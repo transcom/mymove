@@ -33,11 +33,9 @@ type Tariff400ngServiceArea struct {
 	SITPDSchedule    int        `json:"sit_pd_schedule" db:"sit_pd_schedule"`
 }
 
-// Tariff400ngServiceAreas is not required by pop and may be deleted
 type Tariff400ngServiceAreas []Tariff400ngServiceArea
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (t *Tariff400ngServiceArea) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: t.Name, Name: "Name"},

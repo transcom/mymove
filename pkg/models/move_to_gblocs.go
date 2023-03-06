@@ -11,7 +11,6 @@ type MoveToGBLOC struct {
 	GBLOC  *string   `db:"gbloc"`
 }
 
-// MoveToGBLOCs is not required by pop and may be deleted
 type MoveToGBLOCs []MoveToGBLOC
 
 // TableName overrides the table name used by Pop.

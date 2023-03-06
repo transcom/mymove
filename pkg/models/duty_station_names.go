@@ -16,5 +16,4 @@ type DutyLocationName struct {
 	DutyLocation   DutyLocation `belongs_to:"duty_locations" fk_id:"duty_location_id"`
 }
 
-// DutyLocationNames is not required by pop and may be deleted
 type DutyLocationNames []DutyLocationName

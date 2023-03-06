@@ -24,7 +24,6 @@ type TrafficDistributionList struct {
 	CodeOfService     string    `json:"code_of_service" db:"code_of_service"`
 }
 
-// TrafficDistributionLists is not required by pop and may be deleted
 type TrafficDistributionLists []TrafficDistributionList
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

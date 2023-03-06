@@ -25,11 +25,9 @@ type ReTaskOrderFee struct {
 	Service      ReService      `belongs_to:"re_service" fk_id:"service_id"`
 }
 
-// ReTaskOrderFees is not required by pop and may be deleted
 type ReTaskOrderFees []ReTaskOrderFee
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (r *ReTaskOrderFee) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.ContractYearID, Name: "ContractYearID"},

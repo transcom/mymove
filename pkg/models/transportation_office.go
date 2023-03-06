@@ -32,29 +32,15 @@ type TransportationOffice struct {
 	ProvidesCloseout bool                  `json:"provides_ppm_closeout" db:"provides_ppm_closeout"`
 }
 
-// TransportationOffices is not required by pop and may be deleted
 type TransportationOffices []TransportationOffice
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (t *TransportationOffice) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	verrs := validate.Validate(
 		&validators.StringIsPresent{Field: t.Name, Name: "Name"},
 		&validators.UUIDIsPresent{Field: t.AddressID, Name: "AddressID"},
 	)
 	return verrs, nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (t *TransportationOffice) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (t *TransportationOffice) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }
 
 // FetchNearestTransportationOffice fetches the nearest transportation office

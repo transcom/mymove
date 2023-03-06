@@ -353,7 +353,6 @@ type ServiceItemParamKey struct {
 	UpdatedAt   time.Time              `db:"updated_at"`
 }
 
-// ServiceItemParamKeys is not required by pop and may be deleted
 type ServiceItemParamKeys []ServiceItemParamKey
 
 // Validate validates a ServiceItemParamKey

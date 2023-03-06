@@ -18,11 +18,9 @@ type ReContract struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
-// ReContracts is not required by pop and may be deleted
 type ReContracts []ReContract
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (r *ReContract) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: r.Code, Name: "Code"},

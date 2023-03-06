@@ -27,28 +27,14 @@ type DutyLocation struct {
 	ProvidesServicesCounseling bool                          `json:"provides_services_counseling" db:"provides_services_counseling"`
 }
 
-// DutyLocations is not required by pop and may be deleted
 type DutyLocations []DutyLocation
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (d *DutyLocation) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: d.Name, Name: "Name"},
 		&validators.UUIDIsPresent{Field: d.AddressID, Name: "AddressID"},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (d *DutyLocation) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (d *DutyLocation) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }
 
 // DutyLocationTransportInfo contains all info needed for notifications emails

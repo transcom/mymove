@@ -19,7 +19,6 @@ type Tariff400ngZip5RateArea struct {
 	RateArea  string    `json:"rate_area" db:"rate_area"`
 }
 
-// Tariff400ngZip5RateAreas is not required by pop and may be deleted
 type Tariff400ngZip5RateAreas []Tariff400ngZip5RateArea
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

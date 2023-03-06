@@ -66,7 +66,6 @@ type Order struct {
 	AmendedOrdersAcknowledgedAt *time.Time                         `json:"amended_orders_acknowledged_at" db:"amended_orders_acknowledged_at"`
 }
 
-// Orders is not required by pop and may be deleted
 type Orders []Order
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

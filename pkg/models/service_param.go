@@ -23,7 +23,6 @@ type ServiceParam struct {
 	ServiceItemParamKey ServiceItemParamKey `belongs_to:"service_item_param_key" fk_id:"service_item_param_key_id"`
 }
 
-// ServiceParams is not required by pop and may be deleted
 type ServiceParams []ServiceParam
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

@@ -29,7 +29,6 @@ type TransportationServiceProvider struct {
 	PocClaimsPhone           *string   `json:"poc_claims_phone" db:"poc_claims_phone"`
 }
 
-// TransportationServiceProviders is not required by pop and may be deleted
 type TransportationServiceProviders []TransportationServiceProvider
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

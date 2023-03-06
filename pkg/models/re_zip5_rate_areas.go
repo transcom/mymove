@@ -23,11 +23,9 @@ type ReZip5RateArea struct {
 	RateArea ReRateArea `belongs_to:"re_rate_areas" fk_id:"rate_area_id"`
 }
 
-// ReZip5RateAreas is not required by pop and may be deleted
 type ReZip5RateAreas []ReZip5RateArea
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (r *ReZip5RateArea) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},

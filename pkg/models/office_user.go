@@ -27,11 +27,9 @@ type OfficeUser struct {
 	Active                 bool                 `json:"active" db:"active"`
 }
 
-// OfficeUsers is not required by pop and may be deleted
 type OfficeUsers []OfficeUser
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (o *OfficeUser) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 	return validate.Validate(
@@ -41,18 +39,6 @@ func (o *OfficeUser) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: o.Telephone, Name: "Telephone"},
 		&validators.UUIDIsPresent{Field: o.TransportationOfficeID, Name: "TransportationOfficeID"},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (o *OfficeUser) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (o *OfficeUser) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }
 
 // FetchOfficeUserByEmail looks for an office user with a specific email

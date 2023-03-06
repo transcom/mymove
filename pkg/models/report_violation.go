@@ -14,7 +14,6 @@ type ReportViolation struct {
 	ViolationID uuid.UUID        `json:"violation_id" db:"violation_id"`
 }
 
-// EvaluationReports is not required by pop and may be deleted
 type ReportViolations []ReportViolation
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

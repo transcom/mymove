@@ -65,7 +65,6 @@ type EvaluationReport struct {
 	ReportViolations                   ReportViolations                `json:"report_violation,omitempty" fk_id:"report_id" has_many:"report_violation"`
 }
 
-// EvaluationReports is not required by pop and may be deleted
 type EvaluationReports []EvaluationReport
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

@@ -50,7 +50,6 @@ type AuditHistory struct {
 	ActionTstampClk time.Time `json:"action_tstamp_clk" db:"action_tstamp_clk"`
 }
 
-// AuditHistories is not required by pop and may be deleted
 type AuditHistories []AuditHistory
 
 // Value returns a JSON value (from JSONMap to JSON string)

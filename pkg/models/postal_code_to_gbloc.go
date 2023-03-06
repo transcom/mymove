@@ -15,5 +15,4 @@ type PostalCodeToGBLOC struct {
 	UpdatedAt  time.Time `db:"updated_at"`
 }
 
-// PostalCodeToGBLOCs is not required by pop and may be deleted
 type PostalCodeToGBLOCs []PostalCodeToGBLOC

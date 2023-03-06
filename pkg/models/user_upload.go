@@ -26,7 +26,6 @@ type UserUpload struct {
 	DeletedAt  *time.Time `db:"deleted_at"`
 }
 
-// UserUploads is not required by pop and may be deleted
 type UserUploads []UserUpload
 
 func (u UserUploads) FilterDeleted() UserUploads {
