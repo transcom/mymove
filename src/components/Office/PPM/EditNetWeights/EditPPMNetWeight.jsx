@@ -17,6 +17,7 @@ import { useCalculatedWeightRequested } from 'hooks/custom';
 const CALCULATION_TYPE = {
   NET_WEIGHT: 'NET_WEIGHT',
   EXCESS_WEIGHT: 'EXCESS_WEIGHT',
+  REDUCE_WEIGHT: 'REDUCE_WEIGHT',
 };
 const weightLabels = {
   [CALCULATION_TYPE.NET_WEIGHT]: {

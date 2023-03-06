@@ -81,7 +81,7 @@ describe('EditNetPPMWeight', () => {
     expect(screen.getAllByText('1,000 lbs')).toHaveLength(2);
     expect(screen.getAllByRole('button', { name: 'Edit' }));
   });
-  it('renders correct labels and no caluculations if there is no excess weight', async () => {
+  it('renders correct labels and no calculations if there is no excess weight', async () => {
     await render(<EditPPMNetWeight {...defaultProps} />);
     expect(screen.getAllByText('1,000 lbs')).toHaveLength(2);
     expect(screen.queryByText('| to fit within weight allowance')).not.toBeInTheDocument();
