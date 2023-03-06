@@ -11,7 +11,7 @@ jest.mock('formik', () => ({
 }));
 
 const shipments = [
-  // moveWeightTotal = 8000
+  // moveWeightTotal = 7000
   { primeActualWeight: 1000, reweigh: null, status: 'APPROVED' },
   { primeActualWeight: 2000, reweigh: { weight: 3000 }, status: 'APPROVED' },
   {
@@ -35,6 +35,7 @@ const shipments = [
 ];
 
 const defaultProps = {
+  // moveWeightTotal = 7000
   netWeightRemarks: '',
   weightAllowance: 9000,
   weightTicket: { fullWeight: 1200, emptyWeight: 200 },
@@ -42,6 +43,7 @@ const defaultProps = {
 };
 
 const excessWeight = {
+  // moveWeightTotal = 9500
   ...defaultProps,
   weightTicket: { fullWeight: 2700, emptyWeight: 200 },
   shipments: [
@@ -53,11 +55,11 @@ const excessWeight = {
       status: 'APPROVED',
     },
   ],
-  // moveWeightTotal = 9500
 };
 
 const reduceWeight = {
-  ...defaultProps, // moveWeightTotal = 10000
+  // moveWeightTotal = 10000
+  ...defaultProps,
   shipments: [
     ...shipments,
     {
