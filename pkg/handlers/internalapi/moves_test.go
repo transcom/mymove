@@ -450,10 +450,12 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 	serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
-				Rank:           &rank,
-				DutyLocationID: &dutyLocation.ID,
-				DutyLocation:   dutyLocation,
+				Rank: &rank,
 			},
+		},
+		{
+			Model:    dutyLocation,
+			LinkOnly: true,
 		},
 	}, nil)
 

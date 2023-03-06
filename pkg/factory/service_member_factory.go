@@ -24,11 +24,29 @@ func BuildServiceMember(db *pop.Connection, customs []Customization, traits []Tr
 		}
 	}
 
+	// Find/create the ResidentialAddress
+	tempResAddressCustoms := customs
+	result := findValidCustomization(customs, Addresses.ResidentialAddress)
+	if result != nil {
+		tempResAddressCustoms = convertCustomizationInList(tempResAddressCustoms, Addresses.ResidentialAddress, Address)
+	}
+
+	resAddress := BuildAddress(db, tempResAddressCustoms, nil)
+
+	// Find/create the BackupMailingAddress
+	tempBackupAddressCustoms := customs
+	backupAddressResult := findValidCustomization(customs, Addresses.BackupMailingAddress)
+	if backupAddressResult != nil {
+		tempBackupAddressCustoms = convertCustomizationInList(tempBackupAddressCustoms, Addresses.BackupMailingAddress, Address)
+	}
+
+	backupAddress := BuildAddress(db, tempBackupAddressCustoms, nil)
+
 	// Find/create the user model
 	user := BuildUser(db, customs, traits)
 
-	// Find/create the address model
-	currentAddress := BuildAddress(db, customs, traits)
+	// Find/create the dutyLocation model
+	dutyLocation := BuildDutyLocation(db, customs, traits)
 
 	email := "leo_spaceman_sm@example.com"
 	agency := models.AffiliationARMY
@@ -37,17 +55,21 @@ func BuildServiceMember(db *pop.Connection, customs []Customization, traits []Tr
 	randomEdipi := RandomEdipi()
 
 	serviceMember := models.ServiceMember{
-		UserID:               user.ID,
-		User:                 user,
-		Edipi:                models.StringPointer(randomEdipi),
-		Affiliation:          &agency,
-		FirstName:            models.StringPointer("Leo"),
-		LastName:             models.StringPointer("Spacemen"),
-		Telephone:            models.StringPointer("212-123-4567"),
-		PersonalEmail:        &email,
-		ResidentialAddressID: &currentAddress.ID,
-		ResidentialAddress:   &currentAddress,
-		Rank:                 &rank,
+		UserID:                 user.ID,
+		User:                   user,
+		Edipi:                  models.StringPointer(randomEdipi),
+		Affiliation:            &agency,
+		FirstName:              models.StringPointer("Leo"),
+		LastName:               models.StringPointer("Spacemen"),
+		Telephone:              models.StringPointer("212-123-4567"),
+		PersonalEmail:          &email,
+		ResidentialAddressID:   &resAddress.ID,
+		ResidentialAddress:     &resAddress,
+		BackupMailingAddressID: &backupAddress.ID,
+		BackupMailingAddress:   &backupAddress,
+		DutyLocationID:         &dutyLocation.ID,
+		DutyLocation:           dutyLocation,
+		Rank:                   &rank,
 	}
 
 	// Overwrite values with those from customizations

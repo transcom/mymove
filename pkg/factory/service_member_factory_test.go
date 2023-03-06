@@ -111,6 +111,64 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		suite.Equal(customUser.LoginGovEmail, serviceMember.User.LoginGovEmail)
 	})
 
+	suite.Run("Successful creation of service member with customized residential and backup mailing address", func() {
+		// Under test:      BuildServiceMember
+		// Set up:          Create a Service Member with unique residential address and backup mailing address
+		// Expected outcome:serviceMember should be created with custom residential address different from address attached backup mailing address
+
+		// SETUP
+		customRank := models.ServiceMemberRankE3
+		customAffiliation := models.AffiliationAIRFORCE
+
+		customResidentialAddress := models.Address{
+			StreetAddress1: "123 Any Street",
+		}
+
+		customBackupMailingAddress := models.Address{
+			StreetAddress1: "456 Something Else Street",
+		}
+
+		customServiceMember := models.ServiceMember{
+			FirstName:          models.StringPointer("Gregory"),
+			LastName:           models.StringPointer("Van der Heide"),
+			Telephone:          models.StringPointer("999-999-9999"),
+			SecondaryTelephone: models.StringPointer("123-555-9999"),
+			PersonalEmail:      models.StringPointer("peyton@example.com"),
+			Rank:               &customRank,
+			Edipi:              models.StringPointer("1000011111"),
+			Affiliation:        &customAffiliation,
+			Suffix:             models.StringPointer("Random suffix string"),
+			PhoneIsPreferred:   models.BoolPointer(false),
+			EmailIsPreferred:   models.BoolPointer(false),
+		}
+
+		// CALL FUNCTION UNDER TEST
+		serviceMember := BuildServiceMember(suite.DB(), []Customization{
+			{Model: customServiceMember},
+			{Model: customResidentialAddress, Type: &Addresses.ResidentialAddress},
+			{Model: customBackupMailingAddress, Type: &Addresses.BackupMailingAddress},
+		}, nil)
+
+		// VALIDATE RESULTS
+		suite.Equal(customServiceMember.FirstName, serviceMember.FirstName)
+		suite.Equal(customServiceMember.LastName, serviceMember.LastName)
+		suite.Equal(customServiceMember.Telephone, serviceMember.Telephone)
+		suite.Equal(customServiceMember.SecondaryTelephone, serviceMember.SecondaryTelephone)
+		suite.Equal(customServiceMember.PersonalEmail, serviceMember.PersonalEmail)
+		suite.Equal(customServiceMember.Rank, serviceMember.Rank)
+		suite.Equal(customServiceMember.Edipi, serviceMember.Edipi)
+		suite.Equal(customServiceMember.Affiliation, serviceMember.Affiliation)
+		suite.Equal(customServiceMember.Suffix, serviceMember.Suffix)
+		suite.Equal(customServiceMember.PhoneIsPreferred, serviceMember.PhoneIsPreferred)
+		suite.Equal(customServiceMember.EmailIsPreferred, serviceMember.EmailIsPreferred)
+
+		// Check that Residential Address was customized
+		suite.Equal(customResidentialAddress.StreetAddress1, serviceMember.ResidentialAddress.StreetAddress1)
+
+		// Check that Residential Address & Backup Mailing Address are different
+		suite.NotEqual(serviceMember.ResidentialAddress.StreetAddress1, serviceMember.BackupMailingAddress.StreetAddress1)
+	})
+
 	suite.Run("Successful return of linkOnly ServiceMember", func() {
 		// Under test:       BuildServiceMember
 		// Set up:           Pass in a linkOnly serviceMember
