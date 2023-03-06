@@ -1242,6 +1242,7 @@ definitions:
           Prime contracter will need to contact the TOO to change it.
         type: integer
         example: 4500
+        minimum: 1
       customerRemarks:
         description: >
           The customer can use the customer remarks field to inform the services
@@ -2142,6 +2143,7 @@ definitions:
           Prime contracter will need to contact the TOO to change it.
         type: integer
         example: 4500
+        minimum: 1
       primeEstimatedWeightRecordedDate:
         description: >-
           The date when the Prime contractor recorded the shipment's estimated
@@ -2157,6 +2159,7 @@ definitions:
           picks up, and weighs a customer's shipment.
         type: integer
         example: 4500
+        minimum: 1
       ntsRecordedWeight:
         description: >-
           The previously recorded weight for the NTS Shipment. Used for NTS
@@ -2979,12 +2982,14 @@ definitions:
           Prime contracter will need to contact the TOO to change it.
         type: integer
         example: 4500
+        minimum: 1
       primeActualWeight:
         description: >-
           The actual weight of the shipment, provided after the Prime packs,
           picks up, and weighs a customer's shipment.
         type: integer
         example: 4500
+        minimum: 1
       ntsRecordedWeight:
         description: >-
           The previously recorded weight for the NTS Shipment. Used for NTS
