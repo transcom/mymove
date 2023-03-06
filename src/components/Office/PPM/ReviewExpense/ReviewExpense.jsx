@@ -143,11 +143,7 @@ export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNum
                 Review {expenseName.toLowerCase()} {tripNumber}
               </h3>
               <p>Add a review for this {expenseName.toLowerCase()}</p>
-              <ErrorMessage display={!!errors?.status && !!touched?.status}>
-                {touched?.status ? 'true' : 'false'}
-                {errors?.status ? 'true' : 'false'}
-                {errors.status}
-              </ErrorMessage>
+              <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
               <Fieldset>
                 <div
                   className={classnames(approveRejectStyles.statusOption, {

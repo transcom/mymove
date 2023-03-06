@@ -28,9 +28,12 @@ jest.mock('react-router-dom', () => ({
 }));
 
 const mockPatchWeightTicket = jest.fn();
+const mockPatchExpense = jest.fn();
+
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   patchWeightTicket: (options) => mockPatchWeightTicket(options),
+  patchExpense: (options) => mockPatchExpense(options),
 }));
 
 // prevents react-fileviewer from throwing errors without mocking relevant DOM elements
@@ -352,10 +355,26 @@ describe('ReviewDocuments', () => {
     //  ensures the app doesn't fail. As we implement the progear and moving expenses, we can update this test to
     //  reflect the actual behavior, or remove it in favor of other ones.
     it('handles moving from weight tickets the summary page when there are multiple types of documents', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
+      // TODO: this is being used to test expenses without proGear implemented yet
+      const usePPMShipmentDocsQueriesReturnValueWithoutProGear = {
+        ...usePPMShipmentDocsQueriesReturnValueAllDocs,
+        mtoShipment,
+        documents: {
+          MovingExpenses: [...mtoShipment.ppmShipment.movingExpenses],
+          ProGearWeightTickets: [],
+          WeightTickets: [...mtoShipment.ppmShipment.weightTickets],
+        },
+      };
+
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithoutProGear);
 
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
 
+      expect(await screen.findByRole('heading', { name: 'Trip 1', level: 3 })).toBeInTheDocument();
+      await userEvent.click(screen.getByLabelText('Accept'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(await screen.findByRole('heading', { name: 'Receipt 1', level: 3 })).toBeInTheDocument();
       await userEvent.click(screen.getByLabelText('Accept'));
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
