@@ -1,5 +1,8 @@
 /* eslint-disable import/prefer-default-export */
 import { useQueries, useQuery } from '@tanstack/react-query';
+import { generatePath } from 'react-router';
+
+import { servicesCounselingRoutes } from '../constants/routes';
 
 import {
   getPaymentRequest,
@@ -260,6 +263,11 @@ export const useReviewShipmentWeightsQuery = (moveCode) => {
           // Shove the weight tickets into the corresponding ppmShipment object
           const shipment = mtoShipments.find((s) => s.id === shipmentID);
           shipment.ppmShipment.weightTickets = data.WeightTickets;
+          // Attach the review url to each ppm shipment
+          shipment.ppmShipment.reviewURL = generatePath(servicesCounselingRoutes.SHIPMENT_REVIEW_PATH, {
+            moveCode,
+            shipmentId: shipment.id,
+          });
         },
       };
     }),
