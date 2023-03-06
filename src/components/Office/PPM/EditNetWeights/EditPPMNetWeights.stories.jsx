@@ -71,7 +71,7 @@ export const EditPPMNetWeightReduceWeight = Template.bind({});
 EditPPMNetWeightReduceWeight.args = {
   netWeightRemarks: '',
   weightAllowance: 5000,
-  weightTicket: {fullWeight: 100, emptyWeight: 100 },
+  weightTicket: {fullWeight: 1200, emptyWeight: 200},
   shipments: [
     { primeActualWeight: 1200, reweigh: null, status: 'APPROVED' },
     { primeActualWeight: 6000, reweigh: { weight: 5000 }, status: 'APPROVED' },
