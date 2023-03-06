@@ -16,6 +16,7 @@ import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import { usePPMShipmentDocsQueries } from 'hooks/queries';
 import ReviewWeightTicket from 'components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket';
+import ReviewExpense from 'components/Office/PPM/ReviewExpense/ReviewExpense';
 import { DOCUMENTS } from 'constants/queryKeys';
 
 // TODO: This should be in src/constants/ppms.js, but it's causing a lot of errors in unrelated tests, so I'll leave
@@ -120,12 +121,7 @@ export const ReviewDocuments = ({ match }) => {
     if (documentSetIndex < documentSets.length - 1) {
       const newDocumentSetIndex = documentSetIndex + 1;
 
-      // TODO: This is a workaround until we add the ability to work with other document types
-      if (documentSets[newDocumentSetIndex].documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET) {
-        setDocumentSetIndex(newDocumentSetIndex);
-      } else {
-        setShowOverview(true);
-      }
+      setDocumentSetIndex(newDocumentSetIndex);
     } else {
       setShowOverview(true);
     }
@@ -176,17 +172,31 @@ export const ReviewDocuments = ({ match }) => {
                 formRef={formRef}
               />
             ) : (
-              currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
-                <ReviewWeightTicket
-                  weightTicket={currentDocumentSet.documentSet}
-                  ppmNumber={1}
-                  tripNumber={currentDocumentSet.tripNumber}
-                  mtoShipment={mtoShipment}
-                  onError={onError}
-                  onSuccess={onSuccess}
-                  formRef={formRef}
-                />
-              )
+              <>
+                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
+                  <ReviewWeightTicket
+                    weightTicket={currentDocumentSet.documentSet}
+                    ppmNumber={1}
+                    tripNumber={currentDocumentSet.tripNumber}
+                    mtoShipment={mtoShipment}
+                    onError={onError}
+                    onSuccess={onSuccess}
+                    formRef={formRef}
+                  />
+                )}
+                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
+                  <ReviewExpense
+                    expense={currentDocumentSet.documentSet}
+                    ppmNumber={1}
+                    tripNumber={currentDocumentSet.tripNumber}
+                    mtoShipment={mtoShipment}
+                    onError={onError}
+                    onSuccess={onSuccess}
+                    formRef={formRef}
+                  />
+                )}
+                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && <div>pro-gear</div>}
+              </>
             ))}
         </DocumentViewerSidebar.Content>
         <DocumentViewerSidebar.Footer>
