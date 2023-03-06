@@ -271,10 +271,8 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 
 		factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{
-				Model: ServiceMember{
-					UserID: user.ID,
-					User:   user,
-				},
+				Model:    user,
+				LinkOnly: true,
 			},
 		}, nil)
 

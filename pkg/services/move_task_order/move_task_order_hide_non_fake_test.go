@@ -38,11 +38,21 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 					SecondaryTelephone: models.StringPointer("123-555-9999"),
 					PersonalEmail:      models.StringPointer("peyton@example.com"),
 
-					ResidentialAddressID:   &validAddress1.ID,
-					ResidentialAddress:     &validAddress1,
-					BackupMailingAddressID: &validAddress2.ID,
-					BackupMailingAddress:   &validAddress2,
+					//ResidentialAddressID:   &validAddress1.ID,
+					//ResidentialAddress:     &validAddress1,
+					//BackupMailingAddressID: &validAddress2.ID,
+					//BackupMailingAddress:   &validAddress2,
 				},
+			},
+			{
+				Model:    validAddress1,
+				Type:     &factory.Addresses.ResidentialAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    validAddress2,
+				Type:     &factory.Addresses.BackupMailingAddress,
+				LinkOnly: true,
 			},
 		}, nil)
 		return serviceMember
@@ -136,14 +146,22 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeServic
 		sm := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceMember{
-					FirstName:            models.StringPointer("Peyton"),
-					LastName:             models.StringPointer("Wing"),
-					Telephone:            models.StringPointer("999-999-9999"),
-					SecondaryTelephone:   models.StringPointer("999-999-9999"),
-					PersonalEmail:        models.StringPointer("peyton@example.com"),
-					ResidentialAddress:   &address1,
-					BackupMailingAddress: &address2,
+					FirstName:          models.StringPointer("Peyton"),
+					LastName:           models.StringPointer("Wing"),
+					Telephone:          models.StringPointer("999-999-9999"),
+					SecondaryTelephone: models.StringPointer("999-999-9999"),
+					PersonalEmail:      models.StringPointer("peyton@example.com"),
 				},
+			},
+			{
+				Model:    address1,
+				Type:     &factory.Addresses.ResidentialAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    address2,
+				Type:     &factory.Addresses.BackupMailingAddress,
+				LinkOnly: true,
 			}}, nil)
 		result, reasons, err := IsValidFakeModelServiceMember(sm)
 		suite.NoError(err)
@@ -195,16 +213,17 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeServic
 			},
 		}, nil)
 		validServiceMember := models.ServiceMember{
-			FirstName:            models.StringPointer("Peyton"),
-			LastName:             models.StringPointer("Wing"),
-			Telephone:            models.StringPointer("999-999-9999"),
-			SecondaryTelephone:   models.StringPointer("999-999-9999"),
-			PersonalEmail:        models.StringPointer("peyton@example.com"),
-			ResidentialAddress:   &address1,
-			BackupMailingAddress: &address2,
+			FirstName:          models.StringPointer("Peyton"),
+			LastName:           models.StringPointer("Wing"),
+			Telephone:          models.StringPointer("999-999-9999"),
+			SecondaryTelephone: models.StringPointer("999-999-9999"),
+			PersonalEmail:      models.StringPointer("peyton@example.com"),
 		}
 
 		invalidData := validServiceMember
+		invalidResAddress := address1
+		invalidBackupAddress := address2
+
 		if index == 0 {
 			invalidData.FirstName = models.StringPointer("Britney")
 		} else if index == 1 {
@@ -216,13 +235,23 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeServic
 		} else if index == 4 {
 			invalidData.PersonalEmail = models.StringPointer("peyton@gmail.com")
 		} else if index == 5 {
-			invalidData.ResidentialAddress = &invalidAddress1
+			invalidResAddress = invalidAddress1
 		} else if index == 6 {
-			invalidData.BackupMailingAddress = &invalidAddress2
+			invalidBackupAddress = invalidAddress2
 		}
 
 		invalidSm := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{Model: invalidData},
+			{
+				Model:    invalidResAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.ResidentialAddress,
+			},
+			{
+				Model:    invalidBackupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.BackupMailingAddress,
+			},
 		}, nil)
 		return invalidSm, invalidFields[index]
 	}
