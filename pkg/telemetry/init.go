@@ -33,6 +33,7 @@ import (
 type Config struct {
 	Enabled          bool
 	Endpoint         string
+	HTTPEndpoint     string
 	UseXrayID        bool
 	SamplingFraction float64
 	CollectSeconds   int
@@ -45,20 +46,28 @@ const (
 	defaultCollectSeconds = 30
 )
 
+func configNoopTelemetry(logger *zap.Logger) {
+	otel.SetTracerProvider(trace.NewNoopTracerProvider())
+	otel.SetMeterProvider(noop.NewMeterProvider())
+	logger.Info("opentelemetry not enabled")
+}
+
 // Init sets up open telemetry as specified by config. It returns a
 // shutdown function, and also the span and metric exporters. The
 // latter two are useful in testing, but would almost certainly be
 // ignored in production
+//
+// If setting up telemetry fails, the failures will be logged, but it
+// will not prevent the server from starting. Thus, no error is
+// returned here
 func Init(logger *zap.Logger, config *Config) (func(), sdktrace.SpanExporter, sdkmetric.Exporter) {
-	ctx := context.Background()
-	var shutdown = func() {}
 
-	logger.Info("Configuring tracing", zap.Any("TelemetryConfig", config))
+	ctx := context.Background()
+	shutdown := func() {}
+
+	logger.Info("Configuring open telemetry", zap.Any("TelemetryConfig", config))
 	if !config.Enabled {
-		tp := trace.NewNoopTracerProvider()
-		otel.SetTracerProvider(tp)
-		otel.SetMeterProvider(noop.NewMeterProvider())
-		logger.Info("opentelemetry not enabled")
+		configNoopTelemetry(logger)
 		return shutdown, nil, nil
 	}
 
@@ -76,6 +85,7 @@ func Init(logger *zap.Logger, config *Config) (func(), sdktrace.SpanExporter, sd
 
 	var err error
 
+	// overloading Endpoint this way isn't great
 	switch config.Endpoint {
 	case "memory":
 		spanExporter = tracetest.NewInMemoryExporter()
@@ -86,13 +96,20 @@ func Init(logger *zap.Logger, config *Config) (func(), sdktrace.SpanExporter, sd
 			stdouttrace.WithWriter(os.Stdout))
 		if err != nil {
 			logger.Error("unable to create otel stdout span exporter", zap.Error(err))
-			break
+			// setting up telemetry is not fatal to server startup
+			return shutdown, nil, nil
 		}
-		// seems that maybe stdoutmetric now pretty prints by default?
+		// stdoutmetric now pretty prints by default
 		metricExporter, err = stdoutmetric.New()
 		if err != nil {
+			// setting up telemetry is not fatal to server startup
 			logger.Error("unable to create otel stdout metric exporter", zap.Error(err))
-			break
+			shutdownErr := spanExporter.Shutdown(ctx)
+			if shutdownErr != nil {
+				logger.Error("unable to shutdown stdout span exporter", zap.Error(shutdownErr))
+			}
+			configNoopTelemetry(logger)
+			return shutdown, nil, nil
 		}
 	default:
 		spanClient := otlptracegrpc.NewClient(
@@ -101,16 +118,18 @@ func Init(logger *zap.Logger, config *Config) (func(), sdktrace.SpanExporter, sd
 		)
 		spanExporter, err = otlptrace.New(ctx, spanClient)
 		if err != nil {
+			// setting up telemetry is not fatal to server startup
 			logger.Error("failed to create otel trace exporter", zap.Error(err))
-			break
+			return shutdown, nil, nil
 		}
 		metricExporter, err = otlpmetricgrpc.New(ctx,
 			otlpmetricgrpc.WithInsecure(),
 			otlpmetricgrpc.WithEndpoint(config.Endpoint),
 		)
 		if err != nil {
+			// setting up telemetry is not fatal to server startup
 			logger.Error("failed to create otel metric client", zap.Error(err))
-			break
+			return shutdown, nil, nil
 		}
 
 	}
@@ -127,7 +146,12 @@ func Init(logger *zap.Logger, config *Config) (func(), sdktrace.SpanExporter, sd
 	ecsResourceDetector := ecs.NewResourceDetector()
 	ecsResource, err := ecsResourceDetector.Detect(ctx)
 	if err != nil {
-		logger.Error("failed to create ECS resource detector", zap.Error(err))
+		logger.Warn("failed to create ECS resource detector", zap.Error(err))
+	} else {
+		if ecsResource.Attributes() != nil {
+			logger.Info("ECS resource for telemetry", zap.Any("attributes", ecsResource.Attributes()))
+			resourceAttrs = append(resourceAttrs, ecsResource.Attributes()...)
+		}
 	}
 
 	var idGenerator sdktrace.IDGenerator
@@ -136,10 +160,6 @@ func Init(logger *zap.Logger, config *Config) (func(), sdktrace.SpanExporter, sd
 	// but they are technically orthogonal
 	if config.UseXrayID {
 		idGenerator = xray.NewIDGenerator()
-	}
-	if ecsResource.Attributes() != nil {
-		logger.Info("ECS resource for telemetry", zap.Any("attributes", ecsResource.Attributes()))
-		resourceAttrs = append(resourceAttrs, ecsResource.Attributes()...)
 	}
 
 	// only add a single sdktrace.WithResource option, as adding more

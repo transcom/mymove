@@ -43,7 +43,7 @@ func (suite *TelemetrySuite) TestInitConfigStdoutTrace() {
 	}()
 
 	r, fakeStdout, err := os.Pipe()
-	suite.NoError(err)
+	suite.Assert().NoError(err)
 	os.Stdout = fakeStdout
 
 	shutdownFn, _, _ := Init(suite.Logger(), config)

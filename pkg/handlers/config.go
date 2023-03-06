@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/telemetry"
 	"github.com/transcom/mymove/pkg/trace"
 )
 
@@ -43,6 +44,7 @@ type HandlerConfig interface {
 	UseSecureCookie() bool
 	AppNames() auth.ApplicationServername
 	SessionManagers() auth.AppSessionManagers
+	TelemetryConfig() *telemetry.Config
 	GetFeatureFlag(name string) bool
 
 	GexSender() services.GexSender
@@ -74,6 +76,7 @@ type Config struct {
 	useSecureCookie       bool
 	appNames              auth.ApplicationServername
 	sessionManagers       auth.AppSessionManagers
+	telemetryConfig       *telemetry.Config
 	featureFlags          map[string]bool
 }
 
@@ -94,6 +97,7 @@ func NewHandlerConfig(
 	useSecureCookie bool,
 	appNames auth.ApplicationServername,
 	sessionManagers auth.AppSessionManagers,
+	telemetryConfig *telemetry.Config,
 	featureFlags []FeatureFlag,
 ) HandlerConfig {
 	featureFlagMap := make(map[string]bool)
@@ -115,6 +119,7 @@ func NewHandlerConfig(
 		useSecureCookie:       useSecureCookie,
 		appNames:              appNames,
 		sessionManagers:       sessionManagers,
+		telemetryConfig:       telemetryConfig,
 		featureFlags:          featureFlagMap,
 	}
 }
@@ -237,6 +242,16 @@ func (c *Config) SetAppNames(appNames auth.ApplicationServername) {
 // SessionManagers returns the auth AppSessionManagers
 func (c *Config) SessionManagers() auth.AppSessionManagers {
 	return c.sessionManagers
+}
+
+// TelemetryConfig returns the auth AppSessionManagers
+func (c *Config) TelemetryConfig() *telemetry.Config {
+	return c.telemetryConfig
+}
+
+// SetTelemetryConfig returns the auth AppSessionManagers
+func (c *Config) SetTelemetryConfig(config *telemetry.Config) {
+	c.telemetryConfig = config
 }
 
 // NotificationSender returns the sender to use in the current context

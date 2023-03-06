@@ -6,10 +6,11 @@ import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { isOfficeSite, isAdminSite } from 'shared/constants';
+import { isOfficeSite, isAdminSite, serviceName } from 'shared/constants';
 import { store, persistor } from 'shared/store';
 import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminContext } from 'shared/AppContext';
 import { configureLogger } from 'utils/milmoveLog';
+import { configureTelemetry } from 'utils/telemetry';
 import { detectFlags } from 'utils/featureFlags';
 import '../icons';
 import 'shared/shared.css';
@@ -56,9 +57,10 @@ const officeQueryConfig = new QueryClient({
 });
 
 const App = () => {
-  if (isOfficeSite) {
-    configureLogger('office', { loggingType, loggingLevel });
+  configureLogger(serviceName(), { loggingType, loggingLevel });
+  configureTelemetry(serviceName());
 
+  if (isOfficeSite) {
     return (
       <QueryClientProvider client={officeQueryConfig}>
         <Provider store={store}>
@@ -80,7 +82,6 @@ const App = () => {
     );
   }
   if (isAdminSite) {
-    configureLogger('admin', { loggingType, loggingLevel });
     return (
       <AppContext.Provider value={adminContext}>
         <BrowserRouter>
@@ -93,7 +94,6 @@ const App = () => {
     );
   }
 
-  configureLogger('my', { loggingType, loggingLevel });
   return (
     <Provider store={store}>
       <AppContext.Provider value={myMoveContext}>

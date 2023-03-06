@@ -412,7 +412,7 @@ func initializeTLSConfig(appCtx appcontext.AppContext, v *viper.Viper) *tls.Conf
 
 func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 	routingConfig.MaxBodySize = v.GetInt64(cli.MaxBodySizeFlag)
-	routingConfig.ServeClientCollector = true // DREW DEBUG
+	routingConfig.ServeClientCollector = v.GetBool(cli.ServeClientCollectorFlag)
 
 	routingConfig.ServeSwaggerUI = v.GetBool(cli.ServeSwaggerUIFlag)
 	routingConfig.ServeOrders = v.GetBool(cli.ServeOrdersFlag)
@@ -454,7 +454,7 @@ func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 	}
 }
 
-func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool *redis.Pool, awsSession *awssession.Session, isDevOrTest bool, tlsConfig *tls.Config) *routing.Config {
+func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool *redis.Pool, awsSession *awssession.Session, isDevOrTest bool, tlsConfig *tls.Config, telemetryConfig *telemetry.Config) *routing.Config {
 	routingConfig := &routing.Config{}
 
 	// always use the OS Filesystem when serving for real
@@ -593,6 +593,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		useSecureCookie,
 		appNames,
 		sessionManagers,
+		telemetryConfig,
 		[]handlers.FeatureFlag{},
 	)
 
@@ -711,7 +712,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// build the routing configuration
 	routingConfig := buildRoutingConfig(appCtx, v, redisPool, session,
-		isDevOrTest, tlsConfig)
+		isDevOrTest, tlsConfig, telemetryConfig)
 
 	listenInterface := v.GetString(cli.InterfaceFlag)
 

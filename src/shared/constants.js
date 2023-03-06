@@ -6,6 +6,11 @@ export const mobileSize = 481;
 export const isProduction = process.env.NODE_ENV === 'production';
 export const isDevelopment = process.env.NODE_ENV === 'development' || process.env.REACT_APP_NODE_ENV === 'development';
 export const isTest = process.env.NODE_ENV === 'test';
+
+export const gitBranch = process.env.REACT_APP_GIT_BRANCH || 'unknown';
+export const gitSha = process.env.REACT_APP_GIT_COMMIT || 'unknown';
+export const isTelemetryEnabled = process.env.REACT_APP_TELEMETRY_ENABLED === 'true';
+
 export const NULL_UUID = '00000000-0000-0000-0000-000000000000';
 export const ppmInfoPacket = '/downloads/ppm_info_sheet.pdf';
 
@@ -13,6 +18,16 @@ export const hostname = window && window.location && window.location.hostname;
 export const isMilmoveSite = hostname.startsWith('my') || hostname.startsWith('mil') || '';
 export const isOfficeSite = hostname.startsWith('office') || '';
 export const isAdminSite = hostname.startsWith('admin') || '';
+
+export function serviceName() {
+  if (isAdminSite) {
+    return 'admin';
+  }
+  if (isOfficeSite) {
+    return 'office';
+  }
+  return 'my';
+}
 
 export const titleCase = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);

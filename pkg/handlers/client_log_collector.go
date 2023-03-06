@@ -4,24 +4,97 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/telemetry"
 )
+
+type LoggingTransport struct {
+	f func(req *http.Request) (*http.Response, error)
+}
+
+func (lt *LoggingTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	return lt.f(req)
+}
 
 // NewClientCollectorHandler creates a handler for receiving client
 // telemetry and forwarding it to the aws otel collector
-func NewClientCollectorHandler(appCtx appcontext.AppContext) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		data, err := io.ReadAll(r.Body)
-		if err != nil {
-			appCtx.Logger().Error("client logs handler error", zap.Error(err))
-			return
-		}
-		appCtx.Logger().Info("DREW DEBUG CLIENT LOGGING",
-			zap.String("data", string(data)))
+func NewClientCollectorHandler(appCtx appcontext.AppContext, telemetryConfig *telemetry.Config) (http.Handler, error) {
+	telemetryUrl, err := url.Parse(telemetryConfig.HTTPEndpoint)
+	if err != nil {
+		appCtx.Logger().Error("Cannot create client collector handler",
+			zap.String("httpEndpoint", telemetryConfig.HTTPEndpoint),
+			zap.Error(err),
+		)
+		return nil, err
 	}
+
+	director := func(req *http.Request) {
+		rAppCtx := appcontext.NewAppContextFromContext(req.Context(), appCtx)
+		rAppCtx.Logger().Info("DREW DEBUG original request",
+			zap.Any("req.Header", req.Header),
+			zap.Any("req.RequestURI", req.RequestURI),
+			zap.Any("req.URL", req.URL),
+		)
+		req.URL = telemetryUrl
+		req.RequestURI = telemetryUrl.Path
+		if req.RequestURI == "" {
+			req.RequestURI = "/"
+		}
+		if _, ok := req.Header["User-Agent"]; !ok {
+			// explicitly disable User-Agent so it's not set to default value
+			req.Header.Set("User-Agent", "")
+		}
+		rAppCtx.Logger().Info("DREW DEBUG new request",
+			zap.Any("req.Header", req.Header),
+			zap.Any("req.RequestURI", req.RequestURI),
+			zap.Any("req.URL", req.URL),
+		)
+	}
+
+	defaultTransport := http.DefaultTransport
+	transport := &LoggingTransport{
+		f: func(req *http.Request) (*http.Response, error) {
+			rAppCtx := appcontext.NewAppContextFromContext(req.Context(), appCtx)
+			resp, err := defaultTransport.RoundTrip(req)
+			var status string
+			if err != nil && resp != nil {
+				status = resp.Status
+			}
+			rAppCtx.Logger().Info("DREW DEBUG roundtrip",
+				zap.Any("req.Header", req.Header),
+				zap.Any("req.RequestURI", req.RequestURI),
+				zap.Any("req.URL", req.URL),
+				zap.Any("resp.Status", status),
+				zap.Error(err),
+			)
+			return resp, err
+		},
+	}
+	reverseProxy := httputil.ReverseProxy{
+		Director:  director,
+		Transport: transport,
+	}
+	rHandler := func(w http.ResponseWriter, r *http.Request) {
+		rAppCtx := appcontext.NewAppContextFromContext(r.Context(), appCtx)
+		rAppCtx.Logger().Info("DREW DEBUG client collector")
+		reverseProxy.ServeHTTP(w, r)
+	}
+
+	return http.HandlerFunc(rHandler), nil
+	// return func(w http.ResponseWriter, r *http.Request) {
+	// 	data, err := io.ReadAll(r.Body)
+	// 	if err != nil {
+	// 		appCtx.Logger().Error("client logs handler error", zap.Error(err))
+	// 		return
+	// 	}
+	// 	appCtx.Logger().Info("DREW DEBUG CLIENT LOGGING",
+	// 		zap.String("data", string(data)))
+	// }
 }
 
 type ClientLoggerStats struct {

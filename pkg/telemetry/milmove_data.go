@@ -136,8 +136,8 @@ func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Me
 			defer lock.Unlock()
 
 			now := time.Now()
-
-			// round to nearest second
+			// round to the nearest second so if the diff to the
+			// minDuration is less than a second, all is well
 			diff := now.Sub(lastStats).Round(time.Second)
 			if diff < minDuration {
 				appCtx.Logger().Warn("Skipping data telemetry update")

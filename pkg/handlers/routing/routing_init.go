@@ -274,16 +274,21 @@ func mountStaticRoutes(appCtx appcontext.AppContext, routingConfig *Config, site
 
 func mountCollectorRoutes(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	if routingConfig.ServeClientCollector {
-		appCtx.Logger().Info("client logging service is enabled")
+		appCtx.Logger().Info("client collecting service is enabled")
 		clientLogHandler := handlers.NewClientLogHandler(appCtx)
-		clientCollectorHandler := handlers.NewClientCollectorHandler(appCtx)
 		site.Route("/client", func(r chi.Router) {
 			r.Use(middleware.RequestLogger())
 			r.Post("/log", clientLogHandler)
-			r.Post("/collector", clientCollectorHandler)
+			clientCollectorHandler, err := handlers.NewClientCollectorHandler(appCtx,
+				routingConfig.HandlerConfig.TelemetryConfig())
+			if err != nil {
+				appCtx.Logger().Info("client telemetry collector is disabled")
+			} else {
+				appCtx.Logger().Info("client telemetry collector is enabled")
+				r.Method("POST", "/collector", clientCollectorHandler)
+			}
 		})
 	}
-
 }
 
 func mountPrimeAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {

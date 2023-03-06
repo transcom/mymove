@@ -12,9 +12,10 @@ import (
 const (
 	// TelemetryEnabledFlag is the Trace Enable Flag
 	TelemetryEnabledFlag string = "telemetry-enabled"
-	// TelemetryEndpointFlag configures the endpoint used for open
-	// telemetry tracing
+	// TelemetryEndpointFlag configures the endpoint to send OTEL messages
 	TelemetryEndpointFlag string = "telemetry-endpoint"
+	// TelemetryGRPCEndpointFlag configures the endpoint to send OTEL HTTP messages
+	TelemetryHTTPEndpointFlag string = "telemetry-http-endpoint"
 	// TelemetryUseXrayIDFlag enables using AWS Xray Trace IDs for open telemetry
 	TelemetryUseXrayIDFlag string = "telemetry-use-xray-id"
 	// TelemetrySamplingFractionFlag configures the percent of traces to sample
@@ -31,7 +32,8 @@ const (
 // InitTelemetryFlags initializes the open telemetry flags
 func InitTelemetryFlags(flag *pflag.FlagSet) {
 	flag.Bool(TelemetryEnabledFlag, false, "Is open telemetry tracing enabled")
-	flag.String(TelemetryEndpointFlag, "stdout", "open telemetry tracing endpoint")
+	flag.String(TelemetryEndpointFlag, "", "open telemetry GRPC tracing endpoint")
+	flag.String(TelemetryHTTPEndpointFlag, "", "open telemetry HTTP tracing endpoint")
 	flag.Bool(TelemetryUseXrayIDFlag, false, "Using AWS Xray Trace IDs")
 	flag.Float64(TelemetrySamplingFractionFlag, 0.5, "Percent of traces to sample")
 	flag.Int(TelemetryCollectSecondsFlag, 30, "Metric collection period in seconds")
@@ -47,6 +49,7 @@ func CheckTelemetry(v *viper.Viper) (*telemetry.Config, error) {
 		return config, nil
 	}
 	config.Endpoint = v.GetString(TelemetryEndpointFlag)
+	config.HTTPEndpoint = v.GetString(TelemetryHTTPEndpointFlag)
 	config.UseXrayID = v.GetBool(TelemetryUseXrayIDFlag)
 	config.SamplingFraction = v.GetFloat64(TelemetrySamplingFractionFlag)
 	if config.SamplingFraction < 0 || config.SamplingFraction > 1 {
