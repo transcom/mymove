@@ -34,7 +34,6 @@ export const PPMReviewWeightsTableColumns = [
       isFilterable: false,
     },
   ),
-  // TODO get url for row
   createHeader('Weight ticket', (row) => <a href={row.ppmShipment.reviewURL}> Review Documents </a>, {
     id: 'weightTicket',
     isFilterable: false,
