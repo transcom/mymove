@@ -2,6 +2,7 @@ import React from 'react';
 import { node } from 'prop-types';
 
 import EditPPMNetWeight from './EditPPMNetWeight';
+
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 
 export default {
@@ -71,7 +72,7 @@ export const EditPPMNetWeightReduceWeight = Template.bind({});
 EditPPMNetWeightReduceWeight.args = {
   netWeightRemarks: '',
   weightAllowance: 5000,
-  weightTicket: {fullWeight: 1200, emptyWeight: 200},
+  weightTicket: { fullWeight: 1200, emptyWeight: 200 },
   shipments: [
     { primeActualWeight: 1200, reweigh: null, status: 'APPROVED' },
     { primeActualWeight: 6000, reweigh: { weight: 5000 }, status: 'APPROVED' },
