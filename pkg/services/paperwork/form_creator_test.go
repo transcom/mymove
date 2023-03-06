@@ -25,7 +25,6 @@ import (
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/paperwork/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.ShipmentSummaryWorksheetPage1Values {
@@ -52,11 +51,9 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 	moveID := move.ID
 	serviceMemberID := move.Orders.ServiceMemberID
 
-	netWeight := unit.Pound(10000)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			MoveID:              move.ID,
-			NetWeight:           &netWeight,
 			HasRequestedAdvance: true,
 		},
 	})
