@@ -25,7 +25,10 @@ export const PPMReviewWeightsTableColumns = [
         <div
           className={`${styles['review-shipment-weights-table-row']} ${styles['review-shipment-weights-table-row-PPM']}`}
         >
-          <strong>{shipmentTypes[row.shipmentType]}</strong>{' '}
+          <strong>
+            {shipmentTypes[row.shipmentType]}
+            {row.showNumber && ` ${row.shipmentNumber}`}
+          </strong>{' '}
         </div>
       );
     },
@@ -135,7 +138,10 @@ export const NonPPMTableColumns = [
       });
       return (
         <div className={`${styles['review-shipment-weights-table-row']} ${shipmentClassName}`}>
-          <strong>{shipmentTypes[row.shipmentType]}</strong>{' '}
+          <strong>
+            {shipmentTypes[row.shipmentType]}
+            {row.showNumber && ` ${row.shipmentNumber}`}
+          </strong>{' '}
         </div>
       );
     },

@@ -34,6 +34,8 @@ PPMShipments.args = {
   tableData: [
     {
       shipmentType: 'PPM',
+      showNumber: true,
+      shipmentNumber: 1,
       ppmShipment: {
         actualMoveDate: '02-Dec-22',
         actualPickupPostalCode: '90210',
@@ -54,6 +56,8 @@ PPMShipments.args = {
     },
     {
       shipmentType: 'PPM',
+      showNumber: true,
+      shipmentNumber: 2,
       ppmShipment: {
         actualMoveDate: '02-Dec-22',
         actualPickupPostalCode: '90210',
