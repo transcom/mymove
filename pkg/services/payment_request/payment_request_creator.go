@@ -379,6 +379,9 @@ func (p *paymentRequestCreator) createPaymentServiceItem(appCtx appcontext.AppCo
 			return models.PaymentServiceItem{}, models.MTOServiceItem{}, apperror.NewQueryError("MTOServiceItem", err, fmt.Sprintf("could not fetch MTOServiceItem with ID [%s]", paymentServiceItem.MTOServiceItemID.String()))
 		}
 	}
+	if mtoServiceItem.Status != models.MTOServiceItemStatusApproved {
+		return models.PaymentServiceItem{}, models.MTOServiceItem{}, apperror.NewNotFoundError(paymentServiceItem.MTOServiceItemID, "for MTO Service Item")
+	}
 
 	paymentServiceItem.MTOServiceItemID = mtoServiceItem.ID
 	paymentServiceItem.MTOServiceItem = mtoServiceItem
