@@ -16,9 +16,9 @@ import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import { usePPMShipmentDocsQueries } from 'hooks/queries';
 import ReviewWeightTicket from 'components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket';
+import ReviewExpense from 'components/Office/PPM/ReviewExpense/ReviewExpense';
 import { DOCUMENTS } from 'constants/queryKeys';
 import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
-import ReviewExpense from 'components/Office/PPM/ReviewExpense/ReviewExpense';
 
 // TODO: This should be in src/constants/ppms.js, but it's causing a lot of errors in unrelated tests, so I'll leave
 //  this here for now.
@@ -120,6 +120,7 @@ export const ReviewDocuments = ({ match }) => {
 
     if (documentSetIndex < documentSets.length - 1) {
       const newDocumentSetIndex = documentSetIndex + 1;
+
       setDocumentSetIndex(newDocumentSetIndex);
     } else {
       setShowOverview(true);
@@ -183,6 +184,7 @@ export const ReviewDocuments = ({ match }) => {
                     formRef={formRef}
                   />
                 )}
+
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
                   <ReviewProGear
                     proGear={currentDocumentSet.documentSet}
@@ -205,6 +207,7 @@ export const ReviewDocuments = ({ match }) => {
                     formRef={formRef}
                   />
                 )}
+                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && <div>pro-gear</div>}
               </>
             ))}
         </DocumentViewerSidebar.Content>
