@@ -1597,6 +1597,8 @@ paths:
       description: Changes the status of a line item for a move by ID
       operationId: updateMTOServiceItemStatus
       summary: Change the status of a line item for a move by ID
+      x-permissions:
+        - update.MTOServiceItem
   /move-task-orders/{moveTaskOrderID}/status:
     patch:
       consumes:
