@@ -16,13 +16,15 @@ import { selectMTOShipmentById } from 'store/entities/selectors';
 import ReviewItems from 'components/Customer/PPM/Closeout/ReviewItems/ReviewItems';
 import {
   calculateTotalMovingExpensesAmount,
-  calculateTotalNetWeightForProGearWeightTickets,
-  calculateTotalNetWeightForWeightTickets,
   formatAboutYourPPMItem,
   formatExpenseItems,
   formatProGearItems,
   formatWeightTicketItems,
 } from 'utils/ppmCloseout';
+import {
+  calculateTotalNetWeightForProGearWeightTickets,
+  calculateTotalNetWeightForWeightTickets,
+} from 'utils/shipmentWeights';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { formatCents, formatWeight } from 'utils/formatters';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
