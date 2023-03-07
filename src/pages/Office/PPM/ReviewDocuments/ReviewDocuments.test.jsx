@@ -402,5 +402,41 @@ describe('ReviewDocuments', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       expect(screen.getByText('Add a reason why this pro-gear is rejected'));
     });
+    it('shows an error when a rejected expense is submitted with no reason', async () => {
+      const usePPMShipmentDocsQueriesReturnValueExpensesOnly = {
+        ...usePPMShipmentDocsQueriesReturnValueAllDocs,
+        mtoShipment,
+        documents: {
+          MovingExpenses: [...mtoShipment.ppmShipment.movingExpenses],
+          ProGearWeightTickets: [],
+          WeightTickets: [],
+        },
+      };
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueExpensesOnly);
+
+      render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
+      await userEvent.click(screen.getByLabelText('Reject'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(screen.getByText('Add a reason why this receipt is rejected')).toBeInTheDocument();
+    });
+
+    it('shows an error when an excluded expense is submitted with no reason', async () => {
+      const usePPMShipmentDocsQueriesReturnValueExpensesOnly = {
+        ...usePPMShipmentDocsQueriesReturnValueAllDocs,
+        mtoShipment,
+        documents: {
+          MovingExpenses: [...mtoShipment.ppmShipment.movingExpenses],
+          ProGearWeightTickets: [],
+          WeightTickets: [],
+        },
+      };
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueExpensesOnly);
+
+      render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
+      await userEvent.click(screen.getByLabelText('Exclude'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      expect(screen.getByText('Add a reason why this receipt is excluded')).toBeInTheDocument();
+    });
   });
 });

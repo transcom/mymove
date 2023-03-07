@@ -98,7 +98,14 @@ export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNum
         enableReinitialize
         validateOnMount
       >
-        {({ handleChange, errors, touched, values }) => {
+        {({ handleChange, errors, setFieldError, setFieldTouched, setFieldValue, touched, values }) => {
+          const handleApprovalChange = (event) => {
+            handleChange(event);
+            setFieldValue('reason', '');
+            setFieldTouched('reason', false, false);
+            setFieldError('reason', null);
+          };
+
           const daysInSIT =
             values.sitStartDate && values.sitEndDate && !errors.sitStartDate && !errors.sitEndDate
               ? moment(values.sitEndDate, 'DD MMM YYYY').diff(moment(values.sitStartDate, 'DD MMM YYYY'), 'days')
@@ -156,7 +163,7 @@ export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNum
                     value={ppmDocumentStatus.APPROVED}
                     name="status"
                     label="Accept"
-                    onChange={handleChange}
+                    onChange={handleApprovalChange}
                     data-testid="acceptRadio"
                   />
                 </div>
@@ -178,6 +185,7 @@ export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNum
                   {values.status === ppmDocumentStatus.EXCLUDED && (
                     <FormGroup className={styles.reason}>
                       <Label htmlFor={`excludeReason-${expense?.id}`}>Reason</Label>
+                      <ErrorMessage display={!!errors?.reason && !!touched?.reason}>{errors.reason}</ErrorMessage>
                       <Textarea
                         id={`excludeReason-${expense?.id}`}
                         name="reason"
@@ -207,6 +215,7 @@ export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNum
                   {values.status === ppmDocumentStatus.REJECTED && (
                     <FormGroup className={styles.reason}>
                       <Label htmlFor={`rejectReason-${expense?.id}`}>Reason</Label>
+                      <ErrorMessage display={!!errors?.reason && !!touched?.reason}>{errors.reason}</ErrorMessage>
                       <Textarea
                         id={`rejectReason-${expense?.id}`}
                         name="reason"
