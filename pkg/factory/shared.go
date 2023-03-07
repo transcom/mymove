@@ -348,7 +348,7 @@ func findValidCustomization(customs []Customization, customType CustomType) *Cus
 	}
 
 	// Else check that the customization is valid
-	if err := checkNestedModels(*custom); err != nil {
+	if err := checkNestedModels(*custom); err != nil && !custom.LinkOnly {
 		log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", *custom.Type, err))
 	}
 	return custom
