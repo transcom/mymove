@@ -3,12 +3,8 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import { SHIPMENT_OPTIONS } from '../../../../shared/constants';
 
-import ReviewShipmentWeightsTable, {
-  PPMReviewWeightsTableColumns,
-  ProGearTableColumns,
-  NonPPMTableColumns,
-  NoRowsMessages,
-} from './ReviewShipmentWeightsTable';
+import ReviewShipmentWeightsTable from './ReviewShipmentWeightsTable';
+import { NonPPMTableColumns, NoRowsMessages, PPMReviewWeightsTableColumns, ProGearTableColumns } from './helpers';
 
 export default {
   title: 'Office Components / PPM / Review Shipment Weights Table',
