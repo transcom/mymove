@@ -689,10 +689,6 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 			DestinationAddress:   &destinationAddress,
 		},
 	})
-	for i := range mtoServiceItems {
-		mtoServiceItems[i].Status = models.MTOServiceItemStatusApproved
-		suite.MustSave(&mtoServiceItems[i])
-	}
 
 	publicationDate := moveTaskOrder.MTOShipments[0].ActualPickupDate.AddDate(0, 0, -3) // 3 days earlier
 	ghcDieselFuelPrice := models.GHCDieselFuelPrice{
