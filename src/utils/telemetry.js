@@ -5,6 +5,7 @@ import { ZoneContextManager } from '@opentelemetry/context-zone';
 import { Resource } from '@opentelemetry/resources';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-document-load';
 import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
 
@@ -57,7 +58,7 @@ export function configureTelemetry(serviceName) {
 
     registerInstrumentations({
       // the SwaggerClient uses fetch under the hood
-      instrumentations: [new FetchInstrumentation()],
+      instrumentations: [new DocumentLoadInstrumentation(), new FetchInstrumentation()],
     });
   }
 }

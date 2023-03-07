@@ -24,7 +24,7 @@ func (lt *LoggingTransport) RoundTrip(req *http.Request) (*http.Response, error)
 // NewClientCollectorHandler creates a handler for receiving client
 // telemetry and forwarding it to the aws otel collector
 func NewClientCollectorHandler(appCtx appcontext.AppContext, telemetryConfig *telemetry.Config) (http.Handler, error) {
-	telemetryUrl, err := url.Parse(telemetryConfig.HTTPEndpoint)
+	telemetryURL, err := url.Parse(telemetryConfig.HTTPEndpoint)
 	if err != nil {
 		appCtx.Logger().Error("Cannot create client collector handler",
 			zap.String("httpEndpoint", telemetryConfig.HTTPEndpoint),
@@ -40,8 +40,8 @@ func NewClientCollectorHandler(appCtx appcontext.AppContext, telemetryConfig *te
 			zap.Any("req.RequestURI", req.RequestURI),
 			zap.Any("req.URL", req.URL),
 		)
-		req.URL = telemetryUrl
-		req.RequestURI = telemetryUrl.Path
+		req.URL = telemetryURL
+		req.RequestURI = telemetryURL.Path
 		if req.RequestURI == "" {
 			req.RequestURI = "/"
 		}
