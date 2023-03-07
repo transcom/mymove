@@ -9,18 +9,63 @@ import { calculateTotalNetWeightForWeightTickets } from '../../../../utils/shipm
 
 import styles from './ReviewShipmentWeightsTable.module.scss';
 
-const DASH = '—';
+export const DASH = '—';
 
-function shipmentTypeCellDisplayHelper(row) {
-  const shipmentClassName = classnames({
-    [styles[`review-shipment-weights-table-row-NTS-release`]]: row.shipmentType === SHIPMENT_OPTIONS.NTSR,
-    [styles[`review-shipment-weights-table-row-NTS`]]: row.shipmentType === SHIPMENT_OPTIONS.NTS,
-    [styles[`review-shipment-weights-table-row-HHG`]]:
-      row.shipmentType === SHIPMENT_OPTIONS.HHG ||
-      row.shipmentType === SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC ||
-      row.shipmentType === SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
-    [styles[`review-shipment-weights-table-row-PPM`]]: row.shipmentType === SHIPMENT_OPTIONS.PPM,
+export function addShipmentNumbersToTableData(tableData, determineShipmentNumbers) {
+  if (!determineShipmentNumbers) {
+    return tableData;
+  }
+  const shipments = tableData;
+  const shipmentNumbersByType = {};
+  const shipmentCountByType = {};
+
+  // Count up each shipment type in the table data.
+  shipments.forEach((shipment) => {
+    const { shipmentType } = shipment;
+    if (shipmentCountByType[shipmentType]) {
+      shipmentCountByType[shipmentType] += 1;
+    } else {
+      shipmentCountByType[shipmentType] = 1;
+    }
   });
+
+  // Add the shipmentNumber and showNumber vars
+  // to each shipment in the table data
+  const modifiedTableData = shipments.map((shipment) => {
+    const { shipmentType } = shipment;
+
+    // Determine the number for each shipment.
+    if (shipmentNumbersByType[shipmentType]) {
+      shipmentNumbersByType[shipmentType] += 1;
+    } else {
+      shipmentNumbersByType[shipmentType] = 1;
+    }
+    const shipmentNumber = shipmentNumbersByType[shipmentType];
+
+    // We only show the number for the shipment
+    // if there are more than one of that type in the table data.
+    const showNumber = shipmentCountByType[shipmentType] > 1;
+
+    return { ...shipment, showNumber, shipmentNumber };
+  });
+  return modifiedTableData;
+}
+
+export function determineTableRowClassname(shipmentType) {
+  return classnames({
+    [styles[`review-shipment-weights-table-row-NTS-release`]]: shipmentType === SHIPMENT_OPTIONS.NTSR,
+    [styles[`review-shipment-weights-table-row-NTS`]]: shipmentType === SHIPMENT_OPTIONS.NTS,
+    [styles[`review-shipment-weights-table-row-HHG`]]:
+      shipmentType === SHIPMENT_OPTIONS.HHG ||
+      shipmentType === SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC ||
+      shipmentType === SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+    [styles[`review-shipment-weights-table-row-PPM`]]: shipmentType === SHIPMENT_OPTIONS.PPM,
+  });
+}
+
+export const ShipmentTypeCell = (props) => {
+  const { row } = props;
+  const shipmentClassName = determineTableRowClassname(row.shipmentType);
   return (
     <div className={`${styles['review-shipment-weights-table-row']} ${shipmentClassName}`}>
       <strong>
@@ -29,9 +74,9 @@ function shipmentTypeCellDisplayHelper(row) {
       </strong>{' '}
     </div>
   );
-}
+};
 
-function estimatedWeightCellDisplayHelper(row) {
+export function estimatedWeightDisplayHelper(row) {
   let estimatedWeight;
   switch (row.shipmentType) {
     // Estimated weight doesn't apply to NTSR shipments
@@ -47,7 +92,7 @@ function estimatedWeightCellDisplayHelper(row) {
   return estimatedWeight ? formatWeight(estimatedWeight) : DASH;
 }
 
-function actualWeightCellDisplayHelper(row) {
+export function actualWeightDisplayHelper(row) {
   if (!row?.reweigh?.weight && !row?.primeActualWeight) {
     return DASH;
   }
@@ -68,7 +113,7 @@ export const NoRowsMessages = {
 };
 
 export const PPMReviewWeightsTableColumns = [
-  createHeader('', (row) => shipmentTypeCellDisplayHelper(row), {
+  createHeader('', (row) => <ShipmentTypeCell row={row} />, {
     id: 'shipmentType',
     isFilterable: false,
   }),
@@ -93,7 +138,7 @@ export const PPMReviewWeightsTableColumns = [
     },
   ),
   createHeader(
-    'Estimated Weight',
+    'Estimated weight',
     (row) => (row.ppmShipment.estimatedWeight > 0 ? formatWeight(row.ppmShipment.estimatedWeight) : DASH),
     {
       id: 'estimatedWeight',
@@ -101,7 +146,7 @@ export const PPMReviewWeightsTableColumns = [
     },
   ),
   createHeader(
-    'Net Weight',
+    'Net weight',
     (row) => {
       const calculatedNetWeight = calculateTotalNetWeightForWeightTickets(row.ppmShipment?.weightTickets);
       return calculatedNetWeight > 0 ? formatWeight(calculatedNetWeight) : DASH;
@@ -112,7 +157,7 @@ export const PPMReviewWeightsTableColumns = [
     },
   ),
   createHeader(
-    'Departure Date',
+    'Departure date',
     (row) =>
       row.ppmShipment.expectedDepartureDate
         ? formatReviewShipmentWeightsDate(row.ppmShipment.expectedDepartureDate)
@@ -160,11 +205,11 @@ export const ProGearTableColumns = [
 ];
 
 export const NonPPMTableColumns = [
-  createHeader('', (row) => shipmentTypeCellDisplayHelper(row), {
+  createHeader('', (row) => <ShipmentTypeCell row={row} />, {
     id: 'shipmentType',
     isFilterable: false,
   }),
-  createHeader('Estimated Weight', (row) => estimatedWeightCellDisplayHelper(row), {
+  createHeader('Estimated weight', (row) => estimatedWeightDisplayHelper(row), {
     id: 'estimatedWeight',
     isFilterable: false,
   }),
@@ -180,7 +225,7 @@ export const NonPPMTableColumns = [
       isFilterable: false,
     },
   ),
-  createHeader('Actual weight', (row) => actualWeightCellDisplayHelper(row), {
+  createHeader('Actual weight', (row) => actualWeightDisplayHelper(row), {
     id: 'actualWeight',
     isFilterable: false,
   }),
@@ -193,3 +238,21 @@ export const NonPPMTableColumns = [
     },
   ),
 ];
+
+export const PPMReviewWeightsTableConfig = {
+  tableColumns: PPMReviewWeightsTableColumns,
+  noRowsMsg: NoRowsMessages.PPM,
+  determineShipmentNumbers: true,
+};
+
+export const ProGearReviewWeightsTableConfig = {
+  tableColumns: ProGearTableColumns,
+  noRowsMsg: null,
+  determineShipmentNumbers: false,
+};
+
+export const NonPPMReviewWeightsTableConfig = {
+  tableColumns: NonPPMTableColumns,
+  noRowsMsg: NoRowsMessages.NonPPM,
+  determineShipmentNumbers: true,
+};

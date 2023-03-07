@@ -4,7 +4,11 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { SHIPMENT_OPTIONS } from '../../../../shared/constants';
 
 import ReviewShipmentWeightsTable from './ReviewShipmentWeightsTable';
-import { NonPPMTableColumns, NoRowsMessages, PPMReviewWeightsTableColumns, ProGearTableColumns } from './helpers';
+import {
+  PPMReviewWeightsTableConfig,
+  ProGearReviewWeightsTableConfig,
+  NonPPMReviewWeightsTableConfig,
+} from './helpers';
 
 export default {
   title: 'Office Components / PPM / Review Shipment Weights Table',
@@ -30,8 +34,6 @@ PPMShipments.args = {
   tableData: [
     {
       shipmentType: 'PPM',
-      showNumber: true,
-      shipmentNumber: 1,
       ppmShipment: {
         actualMoveDate: '02-Dec-22',
         actualPickupPostalCode: '90210',
@@ -52,8 +54,6 @@ PPMShipments.args = {
     },
     {
       shipmentType: 'PPM',
-      showNumber: true,
-      shipmentNumber: 2,
       ppmShipment: {
         actualMoveDate: '02-Dec-22',
         actualPickupPostalCode: '90210',
@@ -72,16 +72,34 @@ PPMShipments.args = {
         ],
       },
     },
+    {
+      shipmentType: 'PPM',
+      ppmShipment: {
+        actualMoveDate: '02-Dec-22',
+        actualPickupPostalCode: '90210',
+        actualDestinationPostalCode: '94611',
+        hasReceivedAdvance: true,
+        advanceAmountReceived: 2000,
+        proGearWeight: 600,
+        spouseProGearWeight: null,
+        estimatedWeight: 1000,
+        expectedDepartureDate: '04-Apr-23',
+        weightTickets: [
+          {
+            emptyWeight: 1000,
+            fullWeight: 2000,
+          },
+        ],
+      },
+    },
   ],
-  tableColumns: PPMReviewWeightsTableColumns,
-  noRowsMsg: NoRowsMessages.PPM,
+  tableConfig: PPMReviewWeightsTableConfig,
 };
 
 export const PPMShipmentsNoRows = Template.bind({});
 PPMShipmentsNoRows.args = {
   tableData: [],
-  tableColumns: PPMReviewWeightsTableColumns,
-  noRowsMsg: NoRowsMessages.PPM,
+  tableConfig: PPMReviewWeightsTableConfig,
 };
 
 export const ProGearWeights = Template.bind({});
@@ -94,7 +112,7 @@ ProGearWeights.args = {
       },
     },
   ],
-  tableColumns: ProGearTableColumns,
+  tableConfig: ProGearReviewWeightsTableConfig,
 };
 
 export const NonPPMShipments = Template.bind({});
@@ -116,6 +134,10 @@ NonPPMShipments.args = {
       primeActualWeight: 3500,
     },
     {
+      shipmentType: SHIPMENT_OPTIONS.NTSR,
+      primeActualWeight: 1200,
+    },
+    {
       shipmentType: SHIPMENT_OPTIONS.NTS,
       ntsRecordedWeight: 1500,
       calculatedBillableWeight: 2000,
@@ -127,13 +149,11 @@ NonPPMShipments.args = {
       actualDeliveryDate: '04-Apr-23',
     },
   ],
-  tableColumns: NonPPMTableColumns,
-  noRowsMsg: NoRowsMessages.NonPPM,
+  tableConfig: NonPPMReviewWeightsTableConfig,
 };
 
 export const NonPPMShipmentsNoRows = Template.bind({});
 NonPPMShipmentsNoRows.args = {
   tableData: [],
-  tableColumns: NonPPMTableColumns,
-  noRowsMsg: NoRowsMessages.NonPPM,
+  tableConfig: NonPPMReviewWeightsTableConfig,
 };

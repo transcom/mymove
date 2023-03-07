@@ -2,16 +2,20 @@ import React from 'react';
 import { useFilters, usePagination, useSortBy, useTable } from 'react-table';
 
 import styles from './ReviewShipmentWeightsTable.module.scss';
+import { addShipmentNumbersToTableData } from './helpers';
 
 import Table from 'components/Table/Table';
 
 const ReviewShipmentWeightsTable = (props) => {
-  const { tableColumns, tableData, noRowsMsg } = props;
+  const { tableData, tableConfig } = props;
+  const { tableColumns, noRowsMsg, determineShipmentNumbers } = tableConfig;
+
+  const reviewWeightsData = addShipmentNumbersToTableData(tableData, determineShipmentNumbers);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
       columns: tableColumns,
-      data: tableData,
+      data: reviewWeightsData,
       manualFilters: false,
       manualPagination: false,
       manualSortBy: false,
@@ -28,7 +32,7 @@ const ReviewShipmentWeightsTable = (props) => {
     usePagination,
   );
   return (
-    <div data-testid="review-shipment-weights-table" className={styles.ReviewShipmentWeightsTable}>
+    <div data-testid="reviewShipmentWeightsTable" className={styles.ReviewShipmentWeightsTable}>
       {rows.length > 0 ? (
         <div className={styles.tableContainer}>
           <Table
