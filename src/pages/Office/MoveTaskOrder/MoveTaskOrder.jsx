@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { withRouter, Link, generatePath } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
@@ -48,7 +48,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
 import { MatchShape } from 'types/router';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
-import { calculateEstimatedWeight, useCalculatedWeightRequested } from 'hooks/custom';
+import { includedStatusesForCalculatingWeights, useCalculatedWeightRequested } from 'hooks/custom';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
@@ -57,7 +57,6 @@ import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
-import { tooRoutes } from 'constants/routes';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
@@ -118,6 +117,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   } = props;
 
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
+
   const order = Object.values(orders)?.[0];
 
   const shipmentServiceItems = useMemo(() => {
@@ -499,9 +499,19 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   }, [mtoShipments]);
 
   useEffect(() => {
-    setEstimatedWeightTotal(calculateEstimatedWeight(mtoShipments));
+    let estimatedWeightCalc = null;
     let excessBillableWeightCount = 0;
     const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
+
+    if (mtoShipments?.some((s) => s.primeEstimatedWeight && includedStatusesForCalculatingWeights(s.status))) {
+      estimatedWeightCalc = mtoShipments
+        ?.filter((s) => s.primeEstimatedWeight && includedStatusesForCalculatingWeights(s.status))
+        .reduce((prev, current) => {
+          return prev + current.primeEstimatedWeight;
+        }, 0);
+    }
+
+    setEstimatedWeightTotal(estimatedWeightCalc);
 
     if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
       excessBillableWeightCount = 1;
@@ -513,14 +523,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     const showWeightAlert = !riskOfExcessAcknowledged && !!excessBillableWeightCount;
 
     setIsWeightAlertVisible(showWeightAlert);
-  }, [
-    estimatedWeightTotal,
-    move?.excess_weight_acknowledged_at,
-    mtoShipments,
-    order?.entitlement.totalWeight,
-    setEstimatedWeightTotal,
-    setExcessWeightRiskCount,
-  ]);
+  }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, move]);
 
   // Edge case of diversion shipments being counted twice
   const moveWeightTotal = useCalculatedWeightRequested(mtoShipments);
@@ -726,8 +729,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                 externalVendorShipmentCount > 0 && <br />}
               {externalVendorShipmentCount > 0 && (
                 <small>
-                  {externalVendorShipmentCount} shipment{externalVendorShipmentCount > 1 && 's'} not moved by GHC prime.{' '}
-                  <Link className="usa-link" to={generatePath(tooRoutes.MOVE_VIEW_PATH, { moveCode })}>
+                  {externalVendorShipmentCount} shipment not moved by GHC prime.{' '}
+                  <Link className="usa-link" to={`/moves/${moveCode}`}>
                     View move details
                   </Link>
                 </small>

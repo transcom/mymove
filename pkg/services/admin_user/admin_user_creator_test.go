@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func setUpMockNotificationSender() notifications.NotificationSender {
@@ -45,7 +46,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 				},
 			}}, nil)
 
-		organization := factory.BuildOrganization(suite.DB(), nil, nil)
+		organization := testdatagen.MakeDefaultOrganization(suite.DB())
 		userInfo := models.AdminUser{
 			LastName:       "Spaceman",
 			FirstName:      "Leo",

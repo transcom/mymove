@@ -107,25 +107,15 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 	// incoming payload that will be saved after
 	estimatedWeightTotal := 0
 	if updatedShipment.Status == models.MTOShipmentStatusApproved {
-		if updatedShipment.PrimeEstimatedWeight != nil {
-			estimatedWeightTotal += updatedShipment.PrimeEstimatedWeight.Int()
-		}
-		if updatedShipment.PPMShipment != nil && updatedShipment.PPMShipment.EstimatedWeight != nil {
-			estimatedWeightTotal += updatedShipment.PPMShipment.EstimatedWeight.Int()
-		}
+		estimatedWeightTotal = updatedShipment.PrimeEstimatedWeight.Int()
 	}
-
 	for _, shipment := range move.MTOShipments {
 		// We should avoid counting shipments that haven't been approved yet and will need to account for diversions
 		// and cancellations factoring into the estimated weight total.
 		if shipment.Status == models.MTOShipmentStatusApproved && shipment.PrimeEstimatedWeight != nil {
 			if shipment.ID != updatedShipment.ID {
-				if shipment.PrimeEstimatedWeight != nil {
-					estimatedWeightTotal += shipment.PrimeEstimatedWeight.Int()
-				}
-				if shipment.PPMShipment != nil && shipment.PPMShipment.EstimatedWeight != nil {
-					estimatedWeightTotal += shipment.PPMShipment.EstimatedWeight.Int()
-				}
+				estimatedWeightTotal += shipment.PrimeEstimatedWeight.Int()
+
 			}
 		}
 	}

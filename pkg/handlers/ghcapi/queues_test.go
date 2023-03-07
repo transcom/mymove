@@ -1173,9 +1173,8 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: subtestData.needsCounselingMove,
 		MTOShipment: models.MTOShipment{
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedPickupDate,
-			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate: &requestedPickupDate,
+			Status:              models.MTOShipmentStatusSubmitted,
 		},
 	})
 
@@ -1186,9 +1185,8 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	subtestData.needsCounselingEarliestShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: subtestData.needsCounselingMove,
 		MTOShipment: models.MTOShipment{
-			RequestedPickupDate:   &earlierRequestedPickup,
-			RequestedDeliveryDate: &requestedPickupDate,
-			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate: &earlierRequestedPickup,
+			Status:              models.MTOShipmentStatusSubmitted,
 		},
 	})
 

@@ -352,7 +352,7 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 		--laddr 127.0.0.1 --port "$(GIN_PORT)" \
 		--excludeDir node_modules \
 		--immediate \
-		--buildArgs "-ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
+		--buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
 		serve \
 		2>&1 | tee -a log/dev.log
 
@@ -1048,7 +1048,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-f08007fa9006b0b3fe3b8660ddfa27fd07c98a08 bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-314bd6870544a433eacfe83cf3039d549d13be41 bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images

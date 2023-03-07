@@ -134,15 +134,6 @@ jest.mock('services/ghcApi', () => ({
           },
         ],
       },
-      {
-        id: 'c3',
-        shipmentType: 'PPM',
-        ppmShipment: {
-          id: 'p1',
-          shipmentId: 'c3',
-          estimatedWeight: 100,
-        },
-      },
     ]);
   },
   getMTOServiceItems: (key, id, normalize) => {
@@ -292,7 +283,7 @@ jest.mock('services/ghcApi', () => ({
       ],
     }),
   getPPMDocuments: (key, shipmentID) => {
-    if (shipmentID !== 'c3') {
+    if (shipmentID !== 'a1') {
       return { MovingExpenses: [], ProGearWeightTickets: [], WeightTickets: [] };
     }
     return Promise.resolve({
@@ -433,15 +424,6 @@ describe('usePaymentRequestQueries', () => {
             },
           ],
         },
-        {
-          id: 'c3',
-          shipmentType: 'PPM',
-          ppmShipment: {
-            id: 'p1',
-            shipmentId: 'c3',
-            estimatedWeight: 100,
-          },
-        },
       ],
       shipmentsPaymentSITBalance: {
         a1: {
@@ -580,15 +562,6 @@ describe('useMoveDetailsQueries', () => {
             },
           ],
         },
-        {
-          id: 'c3',
-          shipmentType: 'PPM',
-          ppmShipment: {
-            id: 'p1',
-            shipmentId: 'c3',
-            estimatedWeight: 100,
-          },
-        },
       ],
       mtoServiceItems: [
         {
@@ -683,15 +656,6 @@ describe('useMoveTaskOrderQueries', () => {
             },
           ],
         },
-        {
-          id: 'c3',
-          shipmentType: 'PPM',
-          ppmShipment: {
-            id: 'p1',
-            shipmentId: 'c3',
-            estimatedWeight: 100,
-          },
-        },
       ],
       mtoServiceItems: [
         {
@@ -783,15 +747,6 @@ describe('useEditShipmentQueries', () => {
               reServiceName: serviceItemCodes.DUPK,
             },
           ],
-        },
-        {
-          id: 'c3',
-          shipmentType: 'PPM',
-          ppmShipment: {
-            id: 'p1',
-            shipmentId: 'c3',
-            estimatedWeight: 100,
-          },
         },
       ],
       isLoading: false,
@@ -1069,26 +1024,24 @@ describe('useReviewShipmentWeightsQuery', () => {
             },
           ],
         },
+      ],
+      documents: [
         {
-          id: 'c3',
-          shipmentType: 'PPM',
-          ppmShipment: {
-            id: 'p1',
-            shipmentId: 'c3',
-            estimatedWeight: 100,
-            weightTickets: [
-              {
-                emptyWeight: 14500,
-                fullWeight: 18500,
-                id: 'ppmDoc1',
-                missingEmptyWeightTicket: false,
-                missingFullWeightTicket: false,
-                ownsTrailer: false,
-                vehicleDescription: '2022 Honda CR-V Hybrid',
-              },
-            ],
-          },
+          MovingExpenses: [],
+          ProGearWeightTickets: [],
+          WeightTickets: [
+            {
+              emptyWeight: 14500,
+              fullWeight: 18500,
+              id: 'ppmDoc1',
+              missingEmptyWeightTicket: false,
+              missingFullWeightTicket: false,
+              ownsTrailer: false,
+              vehicleDescription: '2022 Honda CR-V Hybrid',
+            },
+          ],
         },
+        { MovingExpenses: [], ProGearWeightTickets: [], WeightTickets: [] },
       ],
       isLoading: false,
       isError: false,

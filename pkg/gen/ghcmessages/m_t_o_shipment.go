@@ -19,10 +19,6 @@ import (
 // swagger:model MTOShipment
 type MTOShipment struct {
 
-	// The actual date that the shipment was delivered to the destination address by the Prime
-	// Format: date
-	ActualDeliveryDate *strfmt.Date `json:"actualDeliveryDate,omitempty"`
-
 	// actual pickup date
 	// Format: date
 	ActualPickupDate *strfmt.Date `json:"actualPickupDate,omitempty"`
@@ -186,10 +182,6 @@ type MTOShipment struct {
 func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateActualDeliveryDate(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateActualPickupDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -305,18 +297,6 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *MTOShipment) validateActualDeliveryDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.ActualDeliveryDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("actualDeliveryDate", "body", "date", m.ActualDeliveryDate.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 

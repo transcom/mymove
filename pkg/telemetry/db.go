@@ -42,46 +42,46 @@ func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) {
 	dbMeter := meterProvider.Meter("github.com/transcom/mymove/db",
 		metric.WithInstrumentationVersion(dbTelemetryVersion))
 
-	poolInUse, _ := dbMeter.Int64ObservableUpDownCounter(dbPoolInUseName, instrument.WithDescription(dbPoolInUseDesc))
+	poolInUse, _ := dbMeter.AsyncInt64().UpDownCounter(dbPoolInUseName, instrument.WithDescription(dbPoolInUseDesc))
+	poolInUseInst := []instrument.Asynchronous{poolInUse}
 
-	_, err := dbMeter.RegisterCallback(
-		func(ctx context.Context, observer metric.Observer) error {
+	err := dbMeter.RegisterCallback(poolInUseInst,
+		func(ctx context.Context) {
 			dbStats, dberr := stats.DBStats(appCtx)
 			if dberr == nil {
-				observer.ObserveInt64(poolInUse, int64(dbStats.InUse))
+				poolInUse.Observe(ctx, int64(dbStats.InUse))
 			}
-			return dberr
-		}, poolInUse)
+		})
 
 	if err != nil {
 		appCtx.Logger().Fatal("Failed to start db instrumentation", zap.Error(err))
 	}
 
-	poolIdle, _ := dbMeter.Int64ObservableUpDownCounter(dbPoolIdleName, instrument.WithDescription(dbPoolIdleDesc))
+	poolIdle, _ := dbMeter.AsyncInt64().UpDownCounter(dbPoolIdleName, instrument.WithDescription(dbPoolIdleDesc))
+	poolIdleInst := []instrument.Asynchronous{poolIdle}
 
-	_, err = dbMeter.RegisterCallback(
-		func(ctx context.Context, observer metric.Observer) error {
+	err = dbMeter.RegisterCallback(poolIdleInst,
+		func(ctx context.Context) {
 			dbStats, dberr := stats.DBStats(appCtx)
 			if dberr == nil {
-				observer.ObserveInt64(poolIdle, int64(dbStats.Idle))
+				poolIdle.Observe(ctx, int64(dbStats.Idle))
 			}
-			return dberr
-		}, poolIdle)
+		})
 
 	if err != nil {
 		appCtx.Logger().Fatal("Failed to start db instrumentation", zap.Error(err))
 	}
 
-	dbWait, _ := dbMeter.Int64ObservableUpDownCounter(dbWaitDurationName, instrument.WithDescription(dbWaitDurationDesc))
+	dbWait, _ := dbMeter.AsyncInt64().UpDownCounter(dbWaitDurationName, instrument.WithDescription(dbWaitDurationDesc))
+	dbWaitInst := []instrument.Asynchronous{dbWait}
 
-	_, err = dbMeter.RegisterCallback(
-		func(ctx context.Context, observer metric.Observer) error {
+	err = dbMeter.RegisterCallback(dbWaitInst,
+		func(ctx context.Context) {
 			dbStats, dberr := stats.DBStats(appCtx)
 			if dberr == nil {
-				observer.ObserveInt64(dbWait, int64(dbStats.WaitDuration))
+				dbWait.Observe(ctx, int64(dbStats.WaitDuration))
 			}
-			return dberr
-		}, dbWait)
+		})
 
 	if err != nil {
 		appCtx.Logger().Fatal("Failed to start db instrumentation", zap.Error(err))
