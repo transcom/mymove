@@ -36,6 +36,7 @@
     "filepond-plugin-image-preview": "^4.6.11",
     "filepond-polyfill": "^1.0.2",
     "formik": "^2.4.2",
+    "hoist-non-react-statics": "^3.3.2",
     "http-proxy-middleware": "^2.0.6",
     "https-browserify": "^1.0.0",
     "is-mobile": "4.0.0",

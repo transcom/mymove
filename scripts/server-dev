@@ -37,6 +37,7 @@ if args.flipt:
 if args.telemetry:
     os.environ["TELEMETRY_ENABLED"] = "true"
     os.environ["TELEMETRY_ENDPOINT"] = "localhost:4317"
+    os.environ["TELEMETRY_HTTP_ENDPOINT"] = "http://localhost:4318/v1/traces"
     os.environ["DB_INSTRUMENTED"] = "true"
     os.environ["SERVE_CLIENT_COLLECTOR"] = "true"
 

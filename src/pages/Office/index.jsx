@@ -39,7 +39,10 @@ import { RouterShape, UserRolesShape } from 'types/index';
 import { servicesCounselingRoutes, primeSimulatorRoutes, tooRoutes, qaeCSRRoutes } from 'constants/routes';
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
+import { withOtelReactRouterV6Routing } from 'components/ThirdParty/OtelRoutes';
 import withRouter from 'utils/routing';
+
+const OtelRoutes = withOtelReactRouterV6Routing(Routes);
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -180,7 +183,7 @@ export class OfficeApp extends Component {
               <Suspense fallback={<LoadingPlaceholder />}>
                 {!userIsLoggedIn && (
                   // No Auth Routes
-                  <Routes>
+                  <OtelRoutes>
                     <Route path="/sign-in" element={<SignIn />} />
                     <Route path="/invalid-permissions" element={<InvalidPermissions />} />
 
@@ -189,11 +192,11 @@ export class OfficeApp extends Component {
                       path="*"
                       element={(loginIsLoading && <LoadingPlaceholder />) || <Navigate to="/sign-in" replace />}
                     />
-                  </Routes>
+                  </OtelRoutes>
                 )}
                 {!hasError && userIsLoggedIn && (
                   // Auth Routes
-                  <Routes>
+                  <OtelRoutes>
                     <Route path="/invalid-permissions" element={<InvalidPermissions />} />
 
                     {/* TXO */}
@@ -390,7 +393,7 @@ export class OfficeApp extends Component {
 
                     {/* 404 */}
                     <Route path="*" element={<NotFound />} />
-                  </Routes>
+                  </OtelRoutes>
                 )}
               </Suspense>
             </main>

@@ -21,12 +21,12 @@ export const isAdminSite = hostname.startsWith('admin') || '';
 
 export function serviceName() {
   if (isAdminSite) {
-    return 'admin';
+    return 'admin-client';
   }
   if (isOfficeSite) {
-    return 'office';
+    return 'office-client';
   }
-  return 'my';
+  return 'my-client';
 }
 
 export const titleCase = (str) => {
