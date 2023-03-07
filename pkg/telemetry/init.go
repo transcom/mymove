@@ -2,7 +2,6 @@ package telemetry
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"time"
 
@@ -116,16 +115,6 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	resourceAttrs := []attribute.KeyValue{
 		semconv.ServiceNameKey.String("milmove"),
 		semconv.DeploymentEnvironmentKey.String(config.EnvironmentName)}
-	var idGenerator sdktrace.IDGenerator
-	if config.UseXrayID {
-		idGenerator = xray.NewIDGenerator()
-
-		// unfortunately, this logic is shared with cmd/ecs-deploy/task_def.go
-		awsLogGroupName := fmt.Sprintf("ecs-tasks-app-%s", config.EnvironmentName)
-		resourceAttrs = append(resourceAttrs,
-			semconv.AWSLogGroupNamesKey.StringSlice([]string{awsLogGroupName}))
-	}
-	milmoveResource := resource.NewWithAttributes(semconv.SchemaURL, resourceAttrs...)
 
 	// Instantiate a new ECS resource detector
 	ecsResourceDetector := ecs.NewResourceDetector()
@@ -134,8 +123,22 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		logger.Error("failed to create ECS resource detector", zap.Error(err))
 	}
 
+	var idGenerator sdktrace.IDGenerator
+
+	// we could consider automatically using xray if running in ECS,
+	// but they are technically orthogonal
+	if config.UseXrayID {
+		idGenerator = xray.NewIDGenerator()
+	}
+	if ecsResource.Attributes() != nil {
+		resourceAttrs = append(resourceAttrs, ecsResource.Attributes()...)
+	}
+
+	// only add a single sdktrace.WithResource option, as adding more
+	// than one just overwrites earlier resources
+	milmoveResource := resource.NewWithAttributes(semconv.SchemaURL, resourceAttrs...)
+
 	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithResource(ecsResource),
 		sdktrace.WithResource(milmoveResource),
 		sdktrace.WithSampler(sampler),
 		sdktrace.WithIDGenerator(idGenerator),
@@ -152,7 +155,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		sdkmetric.WithInterval(time.Duration(collectSeconds)*time.Second),
 	)
 	mp := sdkmetric.NewMeterProvider(
-		sdkmetric.WithResource(ecsResource),
+		sdkmetric.WithResource(milmoveResource),
 		sdkmetric.WithReader(pr),
 	)
 
