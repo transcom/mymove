@@ -148,7 +148,6 @@ export const ReviewDocuments = ({ match }) => {
   };
 
   const onContinue = () => {
-    // console.log(formRef.current);
     setServerError(null);
     if (formRef.current) {
       formRef.current.handleSubmit();
