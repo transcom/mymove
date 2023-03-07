@@ -28,6 +28,11 @@ type ReZip3 struct {
 	RateArea            *ReRateArea           `belongs_to:"re_rate_areas" fk_id:"rate_area_id"`
 }
 
+// TableName overrides the table name used by Pop.
+func (r ReZip3) TableName() string {
+	return "re_zip3s"
+}
+
 type ReZip3s []ReZip3
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

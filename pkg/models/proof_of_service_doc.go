@@ -21,6 +21,11 @@ type ProofOfServiceDoc struct {
 	PrimeUploads   PrimeUploads   `has_many:"prime_uploads" fk_id:"proof_of_service_docs_id" order_by:"created_at asc"`
 }
 
+// TableName overrides the table name used by Pop.
+func (p ProofOfServiceDoc) TableName() string {
+	return "proof_of_service_docs"
+}
+
 type ProofOfServiceDocs []ProofOfServiceDoc
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

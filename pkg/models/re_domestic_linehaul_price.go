@@ -30,6 +30,11 @@ type ReDomesticLinehaulPrice struct {
 	DomesticServiceArea ReDomesticServiceArea `belongs_to:"re_domestic_service_area" fk_id:"domestic_service_area_id"`
 }
 
+// TableName overrides the table name used by Pop.
+func (r ReDomesticLinehaulPrice) TableName() string {
+	return "re_domestic_linehaul_prices"
+}
+
 type ReDomesticLinehaulPrices []ReDomesticLinehaulPrice
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

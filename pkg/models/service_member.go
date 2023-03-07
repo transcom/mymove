@@ -66,6 +66,11 @@ type ServiceMember struct {
 	DutyLocation           DutyLocation              `belongs_to:"duty_locations" fk_id:"duty_location_id"`
 }
 
+// TableName overrides the table name used by Pop.
+func (s ServiceMember) TableName() string {
+	return "service_members"
+}
+
 type ServiceMembers []ServiceMember
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

@@ -19,6 +19,11 @@ type Contractor struct {
 	CreatedAt      time.Time `json:"created_at" db:"created_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (c Contractor) TableName() string {
+	return "contractors"
+}
+
 // Contractors is a slice of Contractor objects
 type Contractors []Contractor
 

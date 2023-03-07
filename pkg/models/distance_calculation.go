@@ -29,6 +29,11 @@ type DistanceCalculation struct {
 	UpdatedAt            time.Time `json:"updated_at" db:"updated_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (d DistanceCalculation) TableName() string {
+	return "distance_calculations"
+}
+
 // NewDistanceCalculation performs a distance calculation and returns the resulting DistanceCalculation model
 func NewDistanceCalculation(appCtx appcontext.AppContext, planner distanceCalculator, origin Address, destination Address, useZipOnly bool) (DistanceCalculation, error) {
 

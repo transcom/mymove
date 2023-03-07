@@ -44,6 +44,11 @@ type ReIntlAccessorialPrice struct {
 	Service  ReService  `belongs_to:"re_service" fk_id:"service_id"`
 }
 
+// TableName overrides the table name used by Pop.
+func (r ReIntlAccessorialPrice) TableName() string {
+	return "re_intl_accessorial_prices"
+}
+
 type ReIntlAccessorialPrices []ReIntlAccessorialPrice
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

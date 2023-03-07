@@ -27,6 +27,11 @@ type DutyLocation struct {
 	ProvidesServicesCounseling bool                          `json:"provides_services_counseling" db:"provides_services_counseling"`
 }
 
+// TableName overrides the table name used by Pop.
+func (d DutyLocation) TableName() string {
+	return "duty_locations"
+}
+
 type DutyLocations []DutyLocation
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

@@ -33,6 +33,11 @@ type Tariff400ngServiceArea struct {
 	SITPDSchedule    int        `json:"sit_pd_schedule" db:"sit_pd_schedule"`
 }
 
+// TableName overrides the table name used by Pop.
+func (t Tariff400ngServiceArea) TableName() string {
+	return "tariff400ng_service_areas"
+}
+
 type Tariff400ngServiceAreas []Tariff400ngServiceArea
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

@@ -66,6 +66,11 @@ type Order struct {
 	AmendedOrdersAcknowledgedAt *time.Time                         `json:"amended_orders_acknowledged_at" db:"amended_orders_acknowledged_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (o Order) TableName() string {
+	return "orders"
+}
+
 type Orders []Order
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

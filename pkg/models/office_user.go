@@ -27,11 +27,15 @@ type OfficeUser struct {
 	Active                 bool                 `json:"active" db:"active"`
 }
 
+// TableName overrides the table name used by Pop.
+func (o OfficeUser) TableName() string {
+	return "office_users"
+}
+
 type OfficeUsers []OfficeUser
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (o *OfficeUser) Validate(tx *pop.Connection) (*validate.Errors, error) {
-
 	return validate.Validate(
 		&validators.EmailIsPresent{Field: o.Email, Name: "Email"},
 		&validators.StringIsPresent{Field: o.LastName, Name: "LastName"},

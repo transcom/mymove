@@ -50,6 +50,9 @@ type AuditHistory struct {
 	ActionTstampClk time.Time `json:"action_tstamp_clk" db:"action_tstamp_clk"`
 }
 
+// Not defining a TableName here yet because the AuditHistory struct already has a TableName field,
+// but you can't have both a field and a method with the same name for a struct.
+
 type AuditHistories []AuditHistory
 
 // Value returns a JSON value (from JSONMap to JSON string)

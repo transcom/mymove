@@ -16,4 +16,9 @@ type DutyLocationName struct {
 	DutyLocation   DutyLocation `belongs_to:"duty_locations" fk_id:"duty_location_id"`
 }
 
+// TableName overrides the table name used by Pop.
+func (d DutyLocationName) TableName() string {
+	return "duty_location_names"
+}
+
 type DutyLocationNames []DutyLocationName

@@ -202,6 +202,11 @@ type ElectronicOrdersRevision struct {
 	Comments              *string                     `json:"comments" db:"comments"`
 }
 
+// TableName overrides the table name used by Pop.
+func (e ElectronicOrdersRevision) TableName() string {
+	return "electronic_orders_revisions"
+}
+
 func (e ElectronicOrdersRevision) String() string {
 	je, _ := json.Marshal(e)
 	return string(je)

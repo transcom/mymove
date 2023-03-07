@@ -26,6 +26,11 @@ type PrimeUpload struct {
 	DeletedAt           *time.Time        `db:"deleted_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (u PrimeUpload) TableName() string {
+	return "prime_uploads"
+}
+
 type PrimeUploads []PrimeUpload
 
 // UploadsFromPrimeUploads return a slice of uploads given a slice of prime uploads

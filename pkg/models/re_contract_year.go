@@ -25,6 +25,11 @@ type ReContractYear struct {
 	Contract ReContract `belongs_to:"re_contract" fk_id:"contract_id"`
 }
 
+// TableName overrides the table name used by Pop.
+func (r ReContractYear) TableName() string {
+	return "re_contract_years"
+}
+
 type ReContractYears []ReContractYear
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

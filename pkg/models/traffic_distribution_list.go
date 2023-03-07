@@ -24,6 +24,11 @@ type TrafficDistributionList struct {
 	CodeOfService     string    `json:"code_of_service" db:"code_of_service"`
 }
 
+// TableName overrides the table name used by Pop.
+func (t TrafficDistributionList) TableName() string {
+	return "traffic_distribution_lists"
+}
+
 type TrafficDistributionLists []TrafficDistributionList
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

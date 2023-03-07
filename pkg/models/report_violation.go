@@ -14,6 +14,11 @@ type ReportViolation struct {
 	ViolationID uuid.UUID        `json:"violation_id" db:"violation_id"`
 }
 
+// TableName overrides the table name used by Pop.
+func (r ReportViolation) TableName() string {
+	return "report_violations"
+}
+
 type ReportViolations []ReportViolation
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
@@ -23,8 +28,4 @@ func (r *ReportViolation) Validate(tx *pop.Connection) (*validate.Errors, error)
 	verrs := validate.Validate(vs...)
 
 	return verrs, nil
-}
-
-func (r *ReportViolation) TableName() string {
-	return "report_violations"
 }

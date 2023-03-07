@@ -37,6 +37,11 @@ type BackupContact struct {
 	Phone           *string                 `json:"phone" db:"phone"`
 }
 
+// TableName overrides the table name used by Pop.
+func (b BackupContact) TableName() string {
+	return "backup_contacts"
+}
+
 type BackupContacts []BackupContact
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

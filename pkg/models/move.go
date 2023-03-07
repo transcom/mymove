@@ -114,6 +114,11 @@ type Move struct {
 	CloseoutOffice               *TransportationOffice     `belongs_to:"transportation_offices" fk_id:"closeout_office_id"`
 }
 
+// TableName overrides the table name used by Pop.
+func (m Move) TableName() string {
+	return "moves"
+}
+
 // MoveOptions is used when creating new moves based on parameters
 type MoveOptions struct {
 	SelectedType *SelectedMoveType

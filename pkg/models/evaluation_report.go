@@ -65,6 +65,11 @@ type EvaluationReport struct {
 	ReportViolations                   ReportViolations                `json:"report_violation,omitempty" fk_id:"report_id" has_many:"report_violation"`
 }
 
+// TableName overrides the table name used by Pop.
+func (r EvaluationReport) TableName() string {
+	return "evaluation_reports"
+}
+
 type EvaluationReports []EvaluationReport
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
@@ -90,8 +95,4 @@ func (r *EvaluationReport) Validate(tx *pop.Connection) (*validate.Errors, error
 		verrs.Add(validators.GenerateKey("ShipmentID"), "If report type is SHIPMENT, ShipmentID must not be null")
 	}
 	return verrs, nil
-}
-
-func (r *EvaluationReport) TableName() string {
-	return "evaluation_reports"
 }

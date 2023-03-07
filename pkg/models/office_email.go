@@ -20,6 +20,11 @@ type OfficeEmail struct {
 	UpdatedAt              time.Time            `json:"updated_at" db:"updated_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (o OfficeEmail) TableName() string {
+	return "office_emails"
+}
+
 type OfficeEmails []OfficeEmail
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

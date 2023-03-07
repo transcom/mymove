@@ -129,6 +129,11 @@ type ReService struct {
 	UpdatedAt time.Time     `json:"updated_at" db:"updated_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (r ReService) TableName() string {
+	return "re_services"
+}
+
 type ReServices []ReService
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

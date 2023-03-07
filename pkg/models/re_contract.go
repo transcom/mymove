@@ -18,6 +18,11 @@ type ReContract struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (r ReContract) TableName() string {
+	return "re_contracts"
+}
+
 type ReContracts []ReContract
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

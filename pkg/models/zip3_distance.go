@@ -22,6 +22,11 @@ type Zip3Distance struct {
 	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (z Zip3Distance) TableName() string {
+	return "zip3_distances"
+}
+
 type Zip3Distances []Zip3Distance
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

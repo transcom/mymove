@@ -11,7 +11,7 @@ import (
 )
 
 // TransportationOffice is a PPPO, PPSO or JPPSO. If it is its own shipping office, ShippingOffice will be nil,
-// otherwise its a pointer to the actual shipping office.
+// otherwise it's a pointer to the actual shipping office.
 type TransportationOffice struct {
 	ID               uuid.UUID             `json:"id" db:"id"`
 	ShippingOfficeID *uuid.UUID            `json:"shipping_office_id" db:"shipping_office_id"`
@@ -30,6 +30,11 @@ type TransportationOffice struct {
 	CreatedAt        time.Time             `json:"created_at" db:"created_at"`
 	UpdatedAt        time.Time             `json:"updated_at" db:"updated_at"`
 	ProvidesCloseout bool                  `json:"provides_ppm_closeout" db:"provides_ppm_closeout"`
+}
+
+// TableName overrides the table name used by Pop.
+func (t TransportationOffice) TableName() string {
+	return "transportation_offices"
 }
 
 type TransportationOffices []TransportationOffice

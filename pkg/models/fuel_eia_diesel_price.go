@@ -28,6 +28,11 @@ type FuelEIADieselPrice struct {
 	BaselineRate                int64           `json:"baseline_rate" db:"baseline_rate"`
 }
 
+// TableName overrides the table name used by Pop.
+func (f FuelEIADieselPrice) TableName() string {
+	return "fuel_eia_diesel_prices"
+}
+
 func (f FuelEIADieselPrice) String() string {
 	jf, _ := json.Marshal(f)
 	return string(jf)

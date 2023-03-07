@@ -73,6 +73,11 @@ type PaymentRequest struct {
 	RecalculationOfPaymentRequest *PaymentRequest     `belongs_to:"payment_requests" fk_id:"recalculation_of_payment_request_id"`
 }
 
+// TableName overrides the table name used by Pop.
+func (p PaymentRequest) TableName() string {
+	return "payment_requests"
+}
+
 // PaymentRequests is a slice of PaymentRequest
 type PaymentRequests []PaymentRequest
 

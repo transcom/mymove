@@ -32,6 +32,11 @@ type ClientCert struct {
 	UserID                      uuid.UUID `db:"user_id"`
 }
 
+// TableName overrides the table name used by Pop.
+func (c ClientCert) TableName() string {
+	return "client_certs"
+}
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (c *ClientCert) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(

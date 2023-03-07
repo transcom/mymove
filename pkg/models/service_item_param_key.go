@@ -353,6 +353,11 @@ type ServiceItemParamKey struct {
 	UpdatedAt   time.Time              `db:"updated_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (s ServiceItemParamKey) TableName() string {
+	return "service_item_param_keys"
+}
+
 type ServiceItemParamKeys []ServiceItemParamKey
 
 // Validate validates a ServiceItemParamKey

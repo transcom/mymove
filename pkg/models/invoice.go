@@ -44,6 +44,11 @@ type Invoice struct {
 	UserUpload    *UserUpload   `belongs_to:"user_uploads" fk_id:"user_upload_id"`
 }
 
+// TableName overrides the table name used by Pop.
+func (i Invoice) TableName() string {
+	return "invoices"
+}
+
 // Invoices is an array of invoices
 type Invoices []Invoice
 

@@ -54,6 +54,11 @@ type Reimbursement struct {
 	RequestedDate   *time.Time          `json:"requested_date" db:"requested_date"`
 }
 
+// TableName overrides the table name used by Pop.
+func (r Reimbursement) TableName() string {
+	return "archived_reimbursements"
+}
+
 // State Machine
 // Avoid calling Reimbursement.Status = ... ever. Use these methods to change the state.
 
@@ -164,8 +169,4 @@ func FetchReimbursement(db *pop.Connection, session *auth.Session, id uuid.UUID)
 	}
 
 	return &reimbursement, nil
-}
-
-func (r Reimbursement) TableName() string {
-	return "archived_reimbursements"
 }

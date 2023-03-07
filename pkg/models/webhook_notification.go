@@ -45,6 +45,11 @@ type WebhookNotification struct {
 	FirstAttemptedAt *time.Time                `db:"first_attempted_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (w WebhookNotification) TableName() string {
+	return "webhook_notifications"
+}
+
 func (w WebhookNotification) String() string {
 	jw, _ := json.Marshal(w)
 	return string(jw)

@@ -27,6 +27,11 @@ type Address struct {
 	Country        *string   `json:"country" db:"country"`
 }
 
+// TableName overrides the table name used by Pop.
+func (a Address) TableName() string {
+	return "addresses"
+}
+
 // GetAddressID facilitates grabbing the ID from an address that may be nil
 func GetAddressID(address *Address) *uuid.UUID {
 	var response *uuid.UUID
@@ -54,8 +59,6 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 	}
 	return response
 }
-
-type Addresses []Address
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (a *Address) Validate(tx *pop.Connection) (*validate.Errors, error) {

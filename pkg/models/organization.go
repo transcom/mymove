@@ -20,6 +20,11 @@ type Organization struct {
 	PocPhone  *string   `json:"poc_phone" db:"poc_phone"`
 }
 
+// TableName overrides the table name used by Pop.
+func (o Organization) TableName() string {
+	return "organizations"
+}
+
 func (o Organization) String() string {
 	jo, _ := json.Marshal(o)
 	return string(jo)

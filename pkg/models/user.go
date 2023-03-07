@@ -28,6 +28,11 @@ type User struct {
 	CurrentMilSessionID    string      `json:"current_mil_session_id" db:"current_mil_session_id"`
 }
 
+// TableName overrides the table name used by Pop.
+func (u User) TableName() string {
+	return "users"
+}
+
 type Users []User
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

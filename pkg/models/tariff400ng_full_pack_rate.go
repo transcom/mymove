@@ -25,6 +25,11 @@ type Tariff400ngFullPackRate struct {
 	EffectiveDateUpper time.Time  `json:"effective_date_upper" db:"effective_date_upper"`
 }
 
+// TableName overrides the table name used by Pop.
+func (t Tariff400ngFullPackRate) TableName() string {
+	return "tariff400ng_full_pack_rates"
+}
+
 type Tariff400ngFullPackRates []Tariff400ngFullPackRate
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

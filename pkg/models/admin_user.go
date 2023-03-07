@@ -50,6 +50,11 @@ type AdminUser struct {
 	Active         bool         `json:"active" db:"active"`
 }
 
+// TableName overrides the table name used by Pop.
+func (a AdminUser) TableName() string {
+	return "admin_users"
+}
+
 func (a AdminUser) String() string {
 	ja, _ := json.Marshal(a)
 	return string(ja)

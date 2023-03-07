@@ -24,6 +24,11 @@ type ReShipmentTypePrice struct {
 	Service  ReService  `belongs_to:"re_service" fk_id:"service_id"`
 }
 
+// TableName overrides the table name used by Pop.
+func (r ReShipmentTypePrice) TableName() string {
+	return "re_shipment_type_prices"
+}
+
 type ReShipmentTypePrices []ReShipmentTypePrice
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

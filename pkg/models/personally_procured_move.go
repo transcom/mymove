@@ -80,6 +80,11 @@ type PersonallyProcuredMove struct {
 	HasProGearOverThousand        *ProGearStatus `json:"has_pro_gear_over_thousand" db:"has_pro_gear_over_thousand"`
 }
 
+// TableName overrides the table name used by Pop.
+func (p PersonallyProcuredMove) TableName() string {
+	return "personally_procured_moves"
+}
+
 // PersonallyProcuredMoves is a list of PPMs
 type PersonallyProcuredMoves []PersonallyProcuredMove
 

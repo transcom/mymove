@@ -38,6 +38,11 @@ type ElectronicOrder struct {
 	Revisions    ElectronicOrdersRevisions `has_many:"electronic_orders_revisions" fk_id:"electronic_order_id" order_by:"seq_num asc"`
 }
 
+// TableName overrides the table name used by Pop.
+func (e ElectronicOrder) TableName() string {
+	return "electronic_orders"
+}
+
 func (e ElectronicOrder) String() string {
 	je, _ := json.Marshal(e)
 	return string(je)

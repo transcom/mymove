@@ -19,6 +19,11 @@ type Tariff400ngZip5RateArea struct {
 	RateArea  string    `json:"rate_area" db:"rate_area"`
 }
 
+// TableName overrides the table name used by Pop.
+func (t Tariff400ngZip5RateArea) TableName() string {
+	return "tariff400ng_zip5_rate_areas"
+}
+
 type Tariff400ngZip5RateAreas []Tariff400ngZip5RateArea
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
