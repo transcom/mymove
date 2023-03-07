@@ -239,6 +239,72 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 		suite.Nil(verrs)
 		suite.EqualError(err, "could not determine excess weight entitlement without dependents authorization value")
 	})
+
+	suite.Run("qualifies move for excess weight when an approved shipment with PPM weights is greater than threshold", func() {
+		// The default weight allotment for this move is 8000 and the threshold is 90% of that
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		//Default estimatedWeight for ppm is 4000
+		ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+		now := time.Now()
+		pickupDate := now.AddDate(0, 0, 10)
+		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:              models.MTOShipmentStatusApproved,
+				ApprovedDate:        &now,
+				ScheduledPickupDate: &pickupDate,
+				PPMShipment:         &ppmShipment,
+			},
+			Move: approvedMove,
+		})
+
+		primeEstimatedWeight := unit.Pound(3200)
+		approvedShipment.PrimeEstimatedWeight = &primeEstimatedWeight
+		//When accounting for PPM weight, the sum should exceed the 90% threshold
+		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, approvedShipment)
+
+		suite.Nil(verrs)
+		suite.NoError(err)
+
+		suite.Nil(approvedMove.ExcessWeightQualifiedAt)
+		suite.NotNil(updatedMove.ExcessWeightQualifiedAt)
+
+		err = suite.DB().Reload(&approvedMove)
+		suite.NoError(err)
+		suite.NotNil(approvedMove.ExcessWeightQualifiedAt)
+	})
+
+	suite.Run("does not flag move for excess weight when an approved shipment with PPM weights is below the threshold", func() {
+		// The default weight allotment for this move is 8000 and the threshold is 90% of that
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		//Default estimatedWeight for ppm is 4000
+		ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+		now := time.Now()
+		pickupDate := now.AddDate(0, 0, 10)
+		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:              models.MTOShipmentStatusApproved,
+				ApprovedDate:        &now,
+				ScheduledPickupDate: &pickupDate,
+				PPMShipment:         &ppmShipment,
+			},
+			Move: approvedMove,
+		})
+
+		primeEstimatedWeight := unit.Pound(3199)
+		approvedShipment.PrimeEstimatedWeight = &primeEstimatedWeight
+		//When accounting for PPM weight, the sum should NOT exceed the 90% threshold
+		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, approvedShipment)
+
+		suite.Nil(verrs)
+		suite.NoError(err)
+
+		suite.Nil(approvedMove.ExcessWeightQualifiedAt)
+		suite.Nil(updatedMove.ExcessWeightQualifiedAt)
+
+		err = suite.DB().Reload(&approvedMove)
+		suite.NoError(err)
+		suite.Nil(approvedMove.ExcessWeightQualifiedAt)
+	})
 }
 
 func (suite *MoveServiceSuite) TestAutoReweigh() {
