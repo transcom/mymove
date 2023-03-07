@@ -31,6 +31,7 @@ import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
+import { calculateEstimatedWeight } from 'hooks/custom';
 
 const errorIfMissing = {
   HHG_INTO_NTS_DOMESTIC: [
@@ -169,23 +170,15 @@ const MoveDetails = ({
   }, [approvedOrCanceledShipments, mtoServiceItems, setUnapprovedServiceItemCount]);
 
   useEffect(() => {
-    let estimatedWeightCalc = null;
+    const estimatedWeight = calculateEstimatedWeight(mtoShipments);
     const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
 
-    if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
-      estimatedWeightCalc = mtoShipments
-        ?.filter((s) => s.primeEstimatedWeight && s.status === shipmentStatuses.APPROVED)
-        .reduce((prev, current) => {
-          return prev + current.primeEstimatedWeight;
-        }, 0);
-    }
-
-    if (hasRiskOfExcess(estimatedWeightCalc, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
+    if (hasRiskOfExcess(estimatedWeight, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
       setExcessWeightRiskCount(1);
     } else {
       setExcessWeightRiskCount(0);
     }
-  }, [mtoShipments, setExcessWeightRiskCount, order, move]);
+  }, [move?.excess_weight_acknowledged_at, mtoShipments, order?.entitlement.totalWeight, setExcessWeightRiskCount]);
 
   useEffect(() => {
     let unapprovedSITExtensionCount = 0;
