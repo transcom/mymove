@@ -822,7 +822,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
-		suite.IsType(&paymentrequestop.CreatePaymentRequestNotFound{}, response)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestConflict{}, response)
 	})
 
 	suite.Run("fail to create payment request with rejected service item", func() {
@@ -869,7 +869,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
-		suite.IsType(&paymentrequestop.CreatePaymentRequestNotFound{}, response)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestConflict{}, response)
 	})
 }
 

@@ -776,8 +776,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest)
 		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(fmt.Sprintf("ID: %s not found for MTO Service Item", mtoServiceItemSubmitted.ID), err.Error())
+		suite.IsType(apperror.ConflictError{}, err)
 	})
 	suite.Run("Given a submitted (not approved) service item, the create should fail", func() {
 		invalidPaymentRequest := models.PaymentRequest{
@@ -791,8 +790,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest)
 		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(fmt.Sprintf("ID: %s not found for MTO Service Item", mtoServiceItemRejected.ID), err.Error())
+		suite.IsType(apperror.ConflictError{}, err)
 	})
 	suite.Run("Given a non-existent service item param key id, the create should fail", func() {
 		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")

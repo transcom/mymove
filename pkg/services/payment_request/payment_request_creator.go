@@ -114,6 +114,9 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 				if _, ok := err.(apperror.NotFoundError); ok {
 					return err
 				}
+				if _, ok := err.(apperror.ConflictError); ok {
+					return err
+				}
 
 				return fmt.Errorf("failure creating payment service item: %w for %s", err, errMessageString)
 			}
@@ -380,7 +383,7 @@ func (p *paymentRequestCreator) createPaymentServiceItem(appCtx appcontext.AppCo
 		}
 	}
 	if mtoServiceItem.Status != models.MTOServiceItemStatusApproved {
-		return models.PaymentServiceItem{}, models.MTOServiceItem{}, apperror.NewNotFoundError(paymentServiceItem.MTOServiceItemID, "for MTO Service Item")
+		return models.PaymentServiceItem{}, models.MTOServiceItem{}, apperror.NewConflictError(paymentServiceItem.MTOServiceItemID, "Service Item is not approved")
 	}
 
 	paymentServiceItem.MTOServiceItemID = mtoServiceItem.ID
