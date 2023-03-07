@@ -3,7 +3,7 @@ import { number } from 'prop-types';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { CharacterCount, Form, FormGroup, Label, Radio, Button, Textarea } from '@trussworks/react-uswds';
+import { Form, FormGroup, Label, Radio, Button, Textarea } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
 
 import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
@@ -192,7 +192,6 @@ export default function ReviewProGear({ ppmShipment, proGear, tripNumber, ppmNum
                             value={values.rejectionReason}
                             placeholder="Type something"
                           />
-                          <CharacterCount />
                           <p className={styles.characters}>{500 - values.rejectionReason.length} characters</p>
                         </>
                       )}
