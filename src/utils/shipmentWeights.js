@@ -7,6 +7,12 @@ import returnLowestValue from './returnLowestValue';
 export function shipmentIsOverweight(estimatedWeight, weightCap) {
   return weightCap > estimatedWeight * 1.1;
 }
+export const getShipmentEstimatedWeight = (shipment) => {
+  if (shipment.ppmShipment) {
+    return shipment.ppmShipment.estimatedWeight ?? 0;
+  }
+  return shipment.primeEstimatedWeight ?? 0;
+};
 
 export const calculateNetWeightForWeightTicket = (weightTicket) => {
   if (
