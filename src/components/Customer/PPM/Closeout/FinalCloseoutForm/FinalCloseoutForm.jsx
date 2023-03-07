@@ -13,7 +13,7 @@ import { formatCents, formatWeight } from 'utils/formatters';
 import { calculateTotalMovingExpensesAmount } from 'utils/ppmCloseout';
 import {
   calculateTotalNetWeightForProGearWeightTickets,
-  calculateTotalNetWeightForWeightTickets,
+  getTotalNetWeightForWeightTickets,
 } from 'utils/shipmentWeights';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
@@ -25,7 +25,7 @@ const validationSchema = Yup.object().shape({
 });
 
 const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, selectedMove }) => {
-  const totalNetWeight = calculateTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
+  const totalNetWeight = getTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
   const totalProGearWeight = calculateTotalNetWeightForProGearWeightTickets(
     mtoShipment?.ppmShipment?.proGearWeightTickets,
   );

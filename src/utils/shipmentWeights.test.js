@@ -1,13 +1,14 @@
 import {
   calculateNetWeightForProGearWeightTicket,
-  calculateNetWeightForWeightTicket,
+  calculateWeightTicketWeightDifference,
   calculateNonPPMShipmentNetWeight,
   calculatePPMShipmentNetWeight,
   calculateShipmentNetWeight,
   calculateTotalNetWeightForProGearWeightTickets,
-  calculateTotalNetWeightForWeightTickets,
+  getTotalNetWeightForWeightTickets,
   getShipmentEstimatedWeight,
   shipmentIsOverweight,
+  getWeightTicketNetWeight,
 } from './shipmentWeights';
 import { createCompleteProGearWeightTicket } from './test/factories/proGearWeightTicket';
 import { createCompleteWeightTicket } from './test/factories/weightTicket';
@@ -52,7 +53,7 @@ describe('calculateNetWeightForWeightTicket', () => {
         },
       );
 
-      expect(calculateNetWeightForWeightTicket(weightTicket)).toEqual(expectedNetWeight);
+      expect(calculateWeightTicketWeightDifference(weightTicket)).toEqual(expectedNetWeight);
     },
   );
 });
@@ -151,6 +152,13 @@ describe('calculateTotalNetWeightForWeightTickets', () => {
       ],
       0,
     ],
+    [
+      [
+        { emptyWeight: 'not a number', fullWeight: 'not a number' },
+        { emptyWeight: 'not a number', fullWeight: 'not a number', adjustedNetWeight: 1000 },
+      ],
+      1000,
+    ],
     [[], 0],
   ])(`calculates total net weight properly`, (weightTicketsFields, expectedNetWeight) => {
     const weightTickets = [];
@@ -159,7 +167,18 @@ describe('calculateTotalNetWeightForWeightTickets', () => {
       weightTickets.push(createCompleteWeightTicket({}, fieldOverrides));
     });
 
-    expect(calculateTotalNetWeightForWeightTickets(weightTickets)).toEqual(expectedNetWeight);
+    expect(getTotalNetWeightForWeightTickets(weightTickets)).toEqual(expectedNetWeight);
+  });
+});
+
+describe('getWeightTicketNetWeight', () => {
+  it('returns the adjusted net weight if present', () => {
+    const weightTicket = { emptyWeight: 4, fullWeight: 10, adjustedNetWeight: 1000 };
+    expect(getWeightTicketNetWeight(weightTicket)).toEqual(1000);
+  });
+  it('returns the calculated weight difference if the net weight has not been adjusted', () => {
+    const weightTicket = { emptyWeight: 4, fullWeight: 10, adjustedNetWeight: null };
+    expect(getWeightTicketNetWeight(weightTicket)).toEqual(6);
   });
 });
 
