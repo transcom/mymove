@@ -20,6 +20,7 @@ export const AdminUserType = 'admin';
 class AdminPage extends BaseTestPage {
   /**
    * Wait for the loading placeholder to go away
+   * @returns {Promise<void>}
    */
   async waitForLoading() {
     await base.expect(this.page.locator('h2[data-name="loading-placeholder"]')).toHaveCount(0);
@@ -28,8 +29,8 @@ class AdminPage extends BaseTestPage {
 
   /**
    * wait for the admin page to finish loading
+   * @returns {Promise<void>}
    */
-
   async waitForAdminPageToLoad() {
     // ensure the admin page has fully loaded before moving on
     await base.expect(this.page.locator('a:has-text("Logout")')).toHaveCount(1, { timeout: 10000 });
@@ -39,6 +40,7 @@ class AdminPage extends BaseTestPage {
 
   /**
    * Create a new admin user and sign in as them
+   * @returns {Promise<void>}
    */
   async signInAsNewAdminUser() {
     await this.signInAsNewUser(AdminUserType);
@@ -46,6 +48,11 @@ class AdminPage extends BaseTestPage {
   }
 
   /**
+   * @param {import('aria-query').ARIARole} role
+   * @param {Array<string>} labels
+   * @param {Object} options
+   * @param {boolean} [options.exact=true]
+   * @returns {Promise<void>}
    */
   async expectRoleLabelsByText(role, labels, options = { exact: true }) {
     for (const label of labels) {
@@ -54,6 +61,11 @@ class AdminPage extends BaseTestPage {
   }
 
   /**
+   * @param {string} locator
+   * @param {Array<string>} labels
+   * @param {Object} options
+   * @param {boolean} [options.exact=true]
+   * @returns {Promise<void>}
    */
   async expectLocatorLabelsByText(locator, labels, options = { exact: true }) {
     for (const label of labels) {

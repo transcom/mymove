@@ -10,11 +10,11 @@ import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import { ShipmentShape } from 'types/shipment';
 import { MoveShape } from 'types/customerShapes';
 import { formatCents, formatWeight } from 'utils/formatters';
+import { calculateTotalMovingExpensesAmount } from 'utils/ppmCloseout';
 import {
-  calculateTotalMovingExpensesAmount,
   calculateTotalNetWeightForProGearWeightTickets,
   calculateTotalNetWeightForWeightTickets,
-} from 'utils/ppmCloseout';
+} from 'utils/shipmentWeights';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
 import affiliations from 'content/serviceMemberAgencies';
