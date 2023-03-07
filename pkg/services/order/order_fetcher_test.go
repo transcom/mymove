@@ -1327,6 +1327,8 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 				},
 			},
 		}, nil)
+
+		zanyGbloc := testdatagen.MakePostalCodeToGBLOC(suite.DB(), dutyLocationAddress2.PostalCode, "ZANY")
 		originDutyLocation2 := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
 				Model: models.DutyLocation{
@@ -1337,8 +1339,12 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 				Model:    dutyLocationAddress2,
 				LinkOnly: true,
 			},
+			{
+				Model: models.TransportationOffice{
+					Gbloc: zanyGbloc.GBLOC,
+				},
+			},
 		}, nil)
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(), dutyLocationAddress2.PostalCode, "ZANY")
 
 		// Create a second move from the ZANY gbloc
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
@@ -1347,8 +1353,9 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 				Locator: "ZZ1234",
 			},
 			Order: models.Order{
-				OriginDutyLocation:   &originDutyLocation2,
-				OriginDutyLocationID: &originDutyLocation2.ID,
+				OriginDutyLocation:      &originDutyLocation2,
+				OriginDutyLocationID:    &originDutyLocation2.ID,
+				OriginDutyLocationGBLOC: &originDutyLocation2.TransportationOffice.Gbloc,
 			},
 		})
 

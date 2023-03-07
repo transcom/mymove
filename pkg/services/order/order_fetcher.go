@@ -129,7 +129,6 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"MTOShipments",
 			"MTOServiceItems",
 			"ShipmentGBLOC",
-			"OriginDutyLocationGBLOC",
 			"MTOShipments.PPMShipment",
 			"CloseoutOffice",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
@@ -141,7 +140,6 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
 			// and we don't want it to get hidden from services counselors.
 			LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
-			InnerJoin("origin_duty_location_to_gbloc as o_gbloc", "o_gbloc.move_id = moves.id").
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			Where("show = ?", swag.Bool(true)).
 			Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
@@ -411,7 +409,7 @@ func gblocFilterForSC(gbloc *string) QueryOption {
 	// The SC should only see moves where the origin duty location's GBLOC matches the given GBLOC.
 	return func(query *pop.Query) {
 		if gbloc != nil {
-			query.Where("o_gbloc.gbloc = ?", *gbloc)
+			query.Where("orders.gbloc = ?", *gbloc)
 		}
 	}
 }
@@ -423,7 +421,7 @@ func gblocFilterForTOO(gbloc *string) QueryOption {
 	return func(query *pop.Query) {
 		if gbloc != nil {
 			// Note: extra parens necessary to keep precedence correct when AND'ing all filters together.
-			query.Where("((mto_shipments.shipment_type != ? AND move_to_gbloc.gbloc = ?) OR (mto_shipments.shipment_type = ? AND o_gbloc.gbloc = ?))",
+			query.Where("((mto_shipments.shipment_type != ? AND move_to_gbloc.gbloc = ?) OR (mto_shipments.shipment_type = ? AND orders.gbloc = ?))",
 				models.MTOShipmentTypeHHGOutOfNTSDom, *gbloc, models.MTOShipmentTypeHHGOutOfNTSDom, *gbloc)
 		}
 	}
