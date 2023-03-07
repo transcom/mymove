@@ -42,34 +42,20 @@ const validationSchema = Yup.object().shape({
 export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNumber, onError, onSuccess, formRef }) {
   const [canEditRejection, setCanEditRejection] = useState(true);
 
-  const { belongsToSelf, description, hasWeightTickets, weight, status, reason } = proGear || {};
-  const ppmShipment = mtoShipment?.ppmShipment;
   const { mutate: patchProGearMutation } = useMutation(patchProGearWeightTicket, {
     onSuccess,
     onError,
   });
+  const ppmShipment = mtoShipment?.ppmShipment;
 
-  let proGearValue;
-  if (belongsToSelf === true) {
-    proGearValue = 'true';
-  }
-  if (belongsToSelf === false) {
-    proGearValue = 'false';
-  }
+  const { belongsToSelf, description, hasWeightTickets, weight, status, reason } = proGear || {};
 
-  let missingWeightTicketValue;
-  if (hasWeightTickets === true) {
-    missingWeightTicketValue = 'true';
-  }
-  if (hasWeightTickets === false) {
-    missingWeightTicketValue = 'false';
-  }
+  const proGearValue = belongsToSelf === true ? 'true' : 'false';
 
   const handleSubmit = (values) => {
-    // console.log(values);
     const payload = {
       ppmShipmentId: proGear.ppmShipmentId,
-      belongsToSelf: values.belongsToSelf,
+      belongsToSelf: values.belongsToSelf === 'true',
       missingWeightTicket: proGear.hasWeightTickets,
       weight: parseInt(values.proGearWeight, 10),
       reason: values.status === 'APPROVED' ? null : values.rejectionReason,
@@ -81,7 +67,16 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
       payload,
       eTag: proGear.eTag,
     });
+    console.log('payload', payload);
   };
+
+  let missingWeightTicketValue;
+  if (hasWeightTickets === true) {
+    missingWeightTicketValue = 'true';
+  }
+  if (hasWeightTickets === false) {
+    missingWeightTicketValue = 'false';
+  }
 
   const initialValues = {
     belongsToSelf: proGearValue,
@@ -91,6 +86,8 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
     description: description ? `${description}` : '',
     proGearWeight: weight ? `${weight}` : '',
   };
+
+  console.log('initial values', initialValues);
 
   useEffect(() => {
     if (formRef?.current) {
@@ -109,7 +106,7 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
         enableReinitialize
         validateOnMount
       >
-        {({ handleChange, errors, touched, values }) => {
+        {({ handleChange, errors, touched, setFieldValue, setFieldTouched, setFieldError, values }) => {
           const handleApprovalChange = (event) => {
             handleChange(event);
             setCanEditRejection(true);
@@ -247,8 +244,6 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
                             value={values.rejectionReason}
                             placeholder="Type something"
                           />
-                          {/* <CharacterCount /> */}
-                          {/* <p className={styles.characters}>500 characters</p> */}
                           <div className={styles.hint}>{500 - values.rejectionReason.length} characters</div>
                         </>
                       )}
@@ -275,8 +270,6 @@ ReviewProGear.propTypes = {
 };
 
 ReviewProGear.defaultProps = {
-  // proGear: undefined,
-  // ppmShipment: undefined,
   proGear: null,
   ppmShipment: null,
   mtoShipment: null,
