@@ -3,9 +3,9 @@ import classnames from 'classnames';
 
 import { formatReviewShipmentWeightsDate, formatWeight } from '../../../../utils/formatters';
 import { shipmentTypes } from '../../../../constants/shipments';
-import { calculateTotalNetWeightForWeightTickets } from '../../../../utils/ppmCloseout';
 import { createHeader } from '../../../Table/utils';
 import { SHIPMENT_OPTIONS } from '../../../../shared/constants';
+import { calculateTotalNetWeightForWeightTickets } from '../../../../utils/shipmentWeights';
 
 import styles from './ReviewShipmentWeightsTable.module.scss';
 
