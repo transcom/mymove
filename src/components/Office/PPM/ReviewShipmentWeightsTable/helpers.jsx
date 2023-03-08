@@ -51,7 +51,7 @@ export function addShipmentNumbersToTableData(tableData, determineShipmentNumber
 }
 
 export function determineTableRowClassname(shipmentType) {
-  let shipmentClassname;
+  let shipmentClassname = '';
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.NTSR:
       shipmentClassname = styles[`review-shipment-weights-table-row-NTS-release`];
