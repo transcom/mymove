@@ -188,9 +188,10 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
                     checked={values.status === ppmDocumentStatus.APPROVED}
                     value={ppmDocumentStatus.APPROVED}
                     name="status"
-                    label="Approve"
+                    label="Accept"
                     onChange={handleApprovalChange}
                     data-testid="approveRadio"
+                    className={styles.acceptRadio}
                   />
                 </div>
                 <div
@@ -206,6 +207,7 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
                     label="Reject"
                     onChange={handleChange}
                     data-testid="rejectRadio"
+                    className={styles.rejectRadio}
                   />
 
                   {values.status === ppmDocumentStatus.REJECTED && (

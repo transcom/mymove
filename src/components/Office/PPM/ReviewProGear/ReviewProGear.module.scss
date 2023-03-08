@@ -18,6 +18,7 @@
   h2 {
     @include u-margin-top(1);
     @include u-margin-bottom(1);
+    color: $base-darkest;
   }
 
   .tripNumber {
@@ -30,6 +31,8 @@
 
   .displayValue {
     @include u-margin-bottom(2);
+    color: $base-darkest;
+    @include u-font-size('body', 'xs');
   }
 
   :global(.usa-legend) {
@@ -52,4 +55,48 @@
   div.reject {
     @include u-margin-top(2);
   }
+
+  :global(.usa-radio__label) {
+    color: $base-darkest;
+    @include u-font-size('body', 'xs');
+  }
+
+  p {
+    color: $base-darkest;
+  }
+
+  .statusOption {
+    :global {
+      .usa-radio__label {
+        font-weight: bold;
+      }
+    }
+  }
+
+
+  :global(.usa-input) {
+      color: $base-darkest;
+      @include u-font-size('body', 'xs');
+  }
+
+  .hint {
+    color: $base-darker;
+    font-size: 13px;
+    line-height: 18px;
+    @include u-margin-top(1);
+    @include u-margin-bottom(0);
+  }
+
+  .acceptRadio {
+    label {
+      @include u-text('bold');
+    }
+  }
+
+  .rejectRadio {
+    label {
+      @include u-text('bold');
+    }
+  }
+
 }
