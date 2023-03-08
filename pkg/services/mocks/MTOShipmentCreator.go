@@ -19,6 +19,10 @@ func (_m *MTOShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, MT
 	ret := _m.Called(appCtx, MTOShipment)
 
 	var r0 *models.MTOShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, MTOShipment)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) *models.MTOShipment); ok {
 		r0 = rf(appCtx, MTOShipment)
 	} else {
@@ -27,7 +31,6 @@ func (_m *MTOShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, MT
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
 		r1 = rf(appCtx, MTOShipment)
 	} else {

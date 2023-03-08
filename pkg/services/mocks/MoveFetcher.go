@@ -21,6 +21,10 @@ func (_m *MoveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, s
 	ret := _m.Called(appCtx, locator, searchParams)
 
 	var r0 *models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, *services.MoveFetcherParams) (*models.Move, error)); ok {
+		return rf(appCtx, locator, searchParams)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, *services.MoveFetcherParams) *models.Move); ok {
 		r0 = rf(appCtx, locator, searchParams)
 	} else {
@@ -29,7 +33,6 @@ func (_m *MoveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, s
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, *services.MoveFetcherParams) error); ok {
 		r1 = rf(appCtx, locator, searchParams)
 	} else {

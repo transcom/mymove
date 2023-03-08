@@ -19,6 +19,10 @@ func (_m *MTOAgentUpdater) UpdateMTOAgentBasic(appCtx appcontext.AppContext, mto
 	ret := _m.Called(appCtx, mtoAgent, eTag)
 
 	var r0 *models.MTOAgent
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOAgent, string) (*models.MTOAgent, error)); ok {
+		return rf(appCtx, mtoAgent, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOAgent, string) *models.MTOAgent); ok {
 		r0 = rf(appCtx, mtoAgent, eTag)
 	} else {
@@ -27,7 +31,6 @@ func (_m *MTOAgentUpdater) UpdateMTOAgentBasic(appCtx appcontext.AppContext, mto
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOAgent, string) error); ok {
 		r1 = rf(appCtx, mtoAgent, eTag)
 	} else {
@@ -42,6 +45,10 @@ func (_m *MTOAgentUpdater) UpdateMTOAgentPrime(appCtx appcontext.AppContext, mto
 	ret := _m.Called(appCtx, mtoAgent, eTag)
 
 	var r0 *models.MTOAgent
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOAgent, string) (*models.MTOAgent, error)); ok {
+		return rf(appCtx, mtoAgent, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOAgent, string) *models.MTOAgent); ok {
 		r0 = rf(appCtx, mtoAgent, eTag)
 	} else {
@@ -50,7 +57,6 @@ func (_m *MTOAgentUpdater) UpdateMTOAgentPrime(appCtx appcontext.AppContext, mto
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOAgent, string) error); ok {
 		r1 = rf(appCtx, mtoAgent, eTag)
 	} else {

@@ -19,6 +19,10 @@ func (_m *MovingExpenseUpdater) UpdateMovingExpense(appCtx appcontext.AppContext
 	ret := _m.Called(appCtx, movingExpense, eTag)
 
 	var r0 *models.MovingExpense
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MovingExpense, string) (*models.MovingExpense, error)); ok {
+		return rf(appCtx, movingExpense, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MovingExpense, string) *models.MovingExpense); ok {
 		r0 = rf(appCtx, movingExpense, eTag)
 	} else {
@@ -27,7 +31,6 @@ func (_m *MovingExpenseUpdater) UpdateMovingExpense(appCtx appcontext.AppContext
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.MovingExpense, string) error); ok {
 		r1 = rf(appCtx, movingExpense, eTag)
 	} else {

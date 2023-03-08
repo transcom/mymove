@@ -20,6 +20,10 @@ func (_m *CustomerSupportRemarkUpdater) UpdateCustomerSupportRemark(appCtx appco
 	ret := _m.Called(appCtx, params)
 
 	var r0 *models.CustomerSupportRemark
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams) (*models.CustomerSupportRemark, error)); ok {
+		return rf(appCtx, params)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams) *models.CustomerSupportRemark); ok {
 		r0 = rf(appCtx, params)
 	} else {
@@ -28,7 +32,6 @@ func (_m *CustomerSupportRemarkUpdater) UpdateCustomerSupportRemark(appCtx appco
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams) error); ok {
 		r1 = rf(appCtx, params)
 	} else {

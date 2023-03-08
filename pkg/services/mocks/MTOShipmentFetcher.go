@@ -28,6 +28,10 @@ func (_m *MTOShipmentFetcher) GetShipment(appCtx appcontext.AppContext, shipment
 	ret := _m.Called(_ca...)
 
 	var r0 *models.MTOShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, ...string) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, shipmentID, eagerAssociations...)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, ...string) *models.MTOShipment); ok {
 		r0 = rf(appCtx, shipmentID, eagerAssociations...)
 	} else {
@@ -36,7 +40,6 @@ func (_m *MTOShipmentFetcher) GetShipment(appCtx appcontext.AppContext, shipment
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, ...string) error); ok {
 		r1 = rf(appCtx, shipmentID, eagerAssociations...)
 	} else {
@@ -51,6 +54,10 @@ func (_m *MTOShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, mov
 	ret := _m.Called(appCtx, moveID)
 
 	var r0 []models.MTOShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) ([]models.MTOShipment, error)); ok {
+		return rf(appCtx, moveID)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) []models.MTOShipment); ok {
 		r0 = rf(appCtx, moveID)
 	} else {
@@ -59,7 +66,6 @@ func (_m *MTOShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, mov
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, moveID)
 	} else {
