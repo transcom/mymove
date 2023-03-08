@@ -5902,6 +5902,12 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualDeliveryDate": {
+          "description": "The actual date that the shipment was delivered to the destination address by the Prime",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "actualPickupDate": {
           "type": "string",
           "format": "date",
@@ -16355,6 +16361,12 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualDeliveryDate": {
+          "description": "The actual date that the shipment was delivered to the destination address by the Prime",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "actualPickupDate": {
           "type": "string",
           "format": "date",
