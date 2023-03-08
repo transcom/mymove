@@ -1,12 +1,14 @@
 import {
   calculateNetWeightForProGearWeightTicket,
-  calculateNetWeightForWeightTicket,
+  calculateWeightTicketWeightDifference,
   calculateNonPPMShipmentNetWeight,
   calculatePPMShipmentNetWeight,
   calculateShipmentNetWeight,
   calculateTotalNetWeightForProGearWeightTickets,
-  calculateTotalNetWeightForWeightTickets,
+  getTotalNetWeightForWeightTickets,
+  getShipmentEstimatedWeight,
   shipmentIsOverweight,
+  getWeightTicketNetWeight,
 } from './shipmentWeights';
 import { createCompleteProGearWeightTicket } from './test/factories/proGearWeightTicket';
 import { createCompleteWeightTicket } from './test/factories/weightTicket';
@@ -51,7 +53,7 @@ describe('calculateNetWeightForWeightTicket', () => {
         },
       );
 
-      expect(calculateNetWeightForWeightTicket(weightTicket)).toEqual(expectedNetWeight);
+      expect(calculateWeightTicketWeightDifference(weightTicket)).toEqual(expectedNetWeight);
     },
   );
 });
@@ -150,6 +152,13 @@ describe('calculateTotalNetWeightForWeightTickets', () => {
       ],
       0,
     ],
+    [
+      [
+        { emptyWeight: 'not a number', fullWeight: 'not a number' },
+        { emptyWeight: 'not a number', fullWeight: 'not a number', adjustedNetWeight: 1000 },
+      ],
+      1000,
+    ],
     [[], 0],
   ])(`calculates total net weight properly`, (weightTicketsFields, expectedNetWeight) => {
     const weightTickets = [];
@@ -158,7 +167,18 @@ describe('calculateTotalNetWeightForWeightTickets', () => {
       weightTickets.push(createCompleteWeightTicket({}, fieldOverrides));
     });
 
-    expect(calculateTotalNetWeightForWeightTickets(weightTickets)).toEqual(expectedNetWeight);
+    expect(getTotalNetWeightForWeightTickets(weightTickets)).toEqual(expectedNetWeight);
+  });
+});
+
+describe('getWeightTicketNetWeight', () => {
+  it('returns the adjusted net weight if present', () => {
+    const weightTicket = { emptyWeight: 4, fullWeight: 10, adjustedNetWeight: 1000 };
+    expect(getWeightTicketNetWeight(weightTicket)).toEqual(1000);
+  });
+  it('returns the calculated weight difference if the net weight has not been adjusted', () => {
+    const weightTicket = { emptyWeight: 4, fullWeight: 10, adjustedNetWeight: null };
+    expect(getWeightTicketNetWeight(weightTicket)).toEqual(6);
   });
 });
 
@@ -206,7 +226,7 @@ describe('calculateTotalNetWeightForProGearWeightTickets', () => {
   });
 });
 
-describe('Calculating shipment weights', () => {
+describe('Calculating shipment net weights', () => {
   const ppmShipments = [
     {
       ppmShipment: {
@@ -278,5 +298,67 @@ describe('Calculating shipment weights', () => {
       .map((s) => calculateShipmentNetWeight(s))
       .reduce((accumulator, current) => accumulator + current, 0);
     expect(totalMoveWeight).toEqual(netWeightOfPPMShipments + netWeightOfNonPPMShipments);
+  });
+});
+
+describe('Calculating shipment estimated weights', () => {
+  const ppmShipments = [
+    {
+      ppmShipment: {
+        estimatedWeight: 5000,
+      },
+    },
+    {
+      ppmShipment: {
+        estimatedWeight: 11000,
+      },
+    },
+    {
+      ppmShipment: {
+        weightTickets: [
+          { emptyWeight: 14000, fullWeight: 19000 },
+          { emptyWeight: 12000, fullWeight: 18000 },
+          { emptyWeight: 10000, fullWeight: 20000 },
+        ],
+      },
+    },
+  ];
+
+  const hhgShipments = [
+    {
+      primeEstimatedWeight: 10,
+    },
+    {
+      primeEstimatedWeight: 2000,
+    },
+    {
+      primeEstimatedWeight: 100,
+    },
+    {
+      primeEstimatedWeight: 1000,
+    },
+    {
+      reweigh: {
+        weight: 3000,
+      },
+    },
+  ];
+
+  it('gets the estimated weight of a ppm shipment properly', () => {
+    expect(getShipmentEstimatedWeight(ppmShipments[0])).toEqual(5000);
+  });
+
+  it('gets the estimated weight of a non-ppm shipment properly', () => {
+    expect(getShipmentEstimatedWeight(hhgShipments[0])).toEqual(10);
+  });
+
+  it('calculates the sum net weight of a move with varied shipment types', () => {
+    const estimatedWeightOfPPMShipments = 16000;
+    const estimatedWeightOfNonPPMShipments = 3110;
+
+    const totalEstimatedWeight = [...ppmShipments, ...hhgShipments]
+      .map((s) => getShipmentEstimatedWeight(s))
+      .reduce((accumulator, current) => accumulator + current, 0);
+    expect(totalEstimatedWeight).toEqual(estimatedWeightOfPPMShipments + estimatedWeightOfNonPPMShipments);
   });
 });
