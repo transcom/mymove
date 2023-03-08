@@ -29,27 +29,31 @@ const Template = (args) => <ReviewExpense {...args} />;
 
 export const Blank = Template.bind({});
 Blank.args = {
-  ppmShipment: {
-    actualMoveDate: '2022-04-30',
-    actualPickupPostalCode: '90210',
-    actualDestinationPostalCode: '94611',
-    hasReceivedAdvance: true,
-    advanceAmountReceived: 60000,
+  mtoShipment: {
+    ppmShipment: {
+      actualMoveDate: '2022-04-30',
+      actualPickupPostalCode: '90210',
+      actualDestinationPostalCode: '94611',
+      hasReceivedAdvance: true,
+      advanceAmountReceived: 60000,
+    },
   },
-  expenseNumber: 1,
+  tripNumber: 1,
   ppmNumber: 1,
 };
 
 export const NonStorage = Template.bind({});
 NonStorage.args = {
-  ppmShipment: {
-    actualMoveDate: '2022-04-30',
-    actualPickupPostalCode: '90210',
-    actualDestinationPostalCode: '94611',
-    hasReceivedAdvance: true,
-    advanceAmountReceived: 60000,
+  mtoShipment: {
+    ppmShipment: {
+      actualMoveDate: '2022-04-30',
+      actualPickupPostalCode: '90210',
+      actualDestinationPostalCode: '94611',
+      hasReceivedAdvance: true,
+      advanceAmountReceived: 60000,
+    },
   },
-  expenseNumber: 1,
+  tripNumber: 1,
   ppmNumber: 1,
   expense: {
     movingExpenseType: expenseTypes.PACKING_MATERIALS,
@@ -60,14 +64,16 @@ NonStorage.args = {
 
 export const Storage = Template.bind({});
 Storage.args = {
-  ppmShipment: {
-    actualMoveDate: '2022-04-30',
-    actualPickupPostalCode: '90210',
-    actualDestinationPostalCode: '94611',
-    hasReceivedAdvance: true,
-    advanceAmountReceived: 60000,
+  mtoShipment: {
+    ppmShipment: {
+      actualMoveDate: '2022-04-30',
+      actualPickupPostalCode: '90210',
+      actualDestinationPostalCode: '94611',
+      hasReceivedAdvance: true,
+      advanceAmountReceived: 60000,
+    },
   },
-  expenseNumber: 1,
+  tripNumber: 1,
   ppmNumber: 1,
   expense: {
     movingExpenseType: expenseTypes.STORAGE,
