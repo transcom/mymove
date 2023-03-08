@@ -7,7 +7,7 @@ require (
 	github.com/XSAM/otelsql v0.20.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20221223131519-238b052508b6
 	github.com/alexedwards/scs/v2 v2.5.1
-	github.com/aws/aws-sdk-go v1.44.214
+	github.com/aws/aws-sdk-go v1.44.216
 	github.com/benbjohnson/clock v1.3.0
 	github.com/codegangsta/gin v0.0.0-20211113050330-71f90109db02
 	github.com/disintegration/imaging v1.6.2
@@ -51,8 +51,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.5
 	github.com/pterm/pterm v0.12.55
-	github.com/rickar/cal/v2 v2.1.11
-	github.com/spf13/afero v1.9.3
+	github.com/rickar/cal/v2 v2.1.12
+	github.com/spf13/afero v1.9.5
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
