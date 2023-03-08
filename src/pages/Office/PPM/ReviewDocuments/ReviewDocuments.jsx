@@ -123,17 +123,7 @@ export const ReviewDocuments = ({ match }) => {
 
     if (documentSetIndex < documentSets.length - 1) {
       const newDocumentSetIndex = documentSetIndex + 1;
-
-      // TODO: This is a workaround until we add the ability to work with other document types
-      if (documentSets[newDocumentSetIndex].documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET) {
-        setDocumentSetIndex(newDocumentSetIndex);
-      } else if (documentSets[newDocumentSetIndex].documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
-        setDocumentSetIndex(newDocumentSetIndex);
-      } else if (documentSets[newDocumentSetIndex].documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE) {
-        setDocumentSetIndex(newDocumentSetIndex);
-      } else {
-        setShowOverview(true);
-      }
+      setDocumentSetIndex(newDocumentSetIndex);
     } else {
       setShowOverview(true);
     }
@@ -241,6 +231,7 @@ export const ReviewDocuments = ({ match }) => {
               />
             ) : (
               documentSetsType()
+              // NEED TO LOOK AT REVIEW EXPENSES PR & DECIDE WHICH APPROACH IS MORE FITTING
               // <>
               //   {currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
               //     <ReviewWeightTicket

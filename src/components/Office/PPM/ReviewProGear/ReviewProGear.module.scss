@@ -3,6 +3,8 @@
 
 .reviewProGear {
   @include u-padding(2);
+  background-color: $bg-white;
+  position: relative;
 
   hr {
     @include u-margin-top(2);
