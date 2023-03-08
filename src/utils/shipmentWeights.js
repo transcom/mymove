@@ -46,9 +46,11 @@ export const getWeightTicketNetWeight = (weightTicket) => {
 };
 
 export const getTotalNetWeightForWeightTickets = (weightTickets = []) => {
-  return weightTickets.reduce((prev, curr) => {
-    return prev + getWeightTicketNetWeight(curr);
-  }, 0);
+  return weightTickets
+    ? weightTickets.reduce((prev, curr) => {
+        return prev + getWeightTicketNetWeight(curr);
+      }, 0)
+    : 0;
 };
 
 export const calculatePPMShipmentNetWeight = (shipment) => {

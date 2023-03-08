@@ -24,8 +24,8 @@ export const useCalculatedTotalBillableWeight = (mtoShipments) => {
   }, [mtoShipments]);
 };
 
-export const useCalculatedWeightRequested = (mtoShipments) => {
-  return useMemo(() => {
+export const calculateWeightRequested = (mtoShipments) => {
+  if (mtoShipments?.some((s) => includedStatusesForCalculatingWeights(s.status) && calculateShipmentNetWeight(s))) {
     return (
       mtoShipments
         ?.filter((s) => includedStatusesForCalculatingWeights(s.status))
@@ -33,6 +33,13 @@ export const useCalculatedWeightRequested = (mtoShipments) => {
           return prev + (calculateShipmentNetWeight(current) || 0);
         }, 0) || null
     );
+  }
+  return null;
+};
+
+export const useCalculatedWeightRequested = (mtoShipments) => {
+  return useMemo(() => {
+    return calculateWeightRequested(mtoShipments);
   }, [mtoShipments]);
 };
 
