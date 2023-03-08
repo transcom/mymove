@@ -17,7 +17,6 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	paperworkforms "github.com/transcom/mymove/pkg/paperwork"
@@ -25,12 +24,13 @@ import (
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/paperwork/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.ShipmentSummaryWorksheetPage1Values {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
+	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
 	moveType := models.SelectedMoveTypeHHGPPM
 
@@ -51,9 +51,11 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 	moveID := move.ID
 	serviceMemberID := move.Orders.ServiceMemberID
 
+	netWeight := unit.Pound(10000)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			MoveID:              move.ID,
+			NetWeight:           &netWeight,
 			HasRequestedAdvance: true,
 		},
 	})
