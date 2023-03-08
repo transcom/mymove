@@ -54,10 +54,8 @@ func MakeOfficeUserWithTOOAndTIO(appCtx appcontext.AppContext) models.User {
 
 	factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
 		{
-			Model: models.ServiceMember{
-				User:   user,
-				UserID: user.ID,
-			},
+			Model:    user,
+			LinkOnly: true,
 		},
 	}, nil)
 
