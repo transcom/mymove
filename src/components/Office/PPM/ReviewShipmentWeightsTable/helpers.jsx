@@ -117,7 +117,7 @@ export function actualWeightDisplayHelper(row) {
   return actualWeight > 0 ? formatWeight(actualWeight) : DASH;
 }
 
-export const noRowsMessages = {
+export const NO_ROWS_MESSAGES = {
   PPM: 'No PPM shipments have been created for this move.',
   NonPPM: 'No HHG, NTS, or NTS-Release shipments have been created for this move.',
 };
@@ -251,7 +251,7 @@ export const nonPPMTableColumns = [
 
 export const PPMReviewWeightsTableConfig = {
   tableColumns: PPMReviewWeightsTableColumns,
-  noRowsMsg: noRowsMessages.PPM,
+  noRowsMsg: NO_ROWS_MESSAGES.PPM,
   determineShipmentNumbers: true,
 };
 
@@ -263,6 +263,6 @@ export const proGearReviewWeightsTableConfig = {
 
 export const nonPPMReviewWeightsTableConfig = {
   tableColumns: nonPPMTableColumns,
-  noRowsMsg: noRowsMessages.NonPPM,
+  noRowsMsg: NO_ROWS_MESSAGES.NonPPM,
   determineShipmentNumbers: true,
 };
