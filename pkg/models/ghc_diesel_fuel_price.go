@@ -20,15 +20,15 @@ type GHCDieselFuelPrice struct {
 	PublicationDate       time.Time       `json:"publication_date" db:"publication_date"`
 }
 
+// TableName overrides the table name used by Pop.
+func (g GHCDieselFuelPrice) TableName() string {
+	return "ghc_diesel_fuel_prices"
+}
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (g *GHCDieselFuelPrice) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.IntIsPresent{Field: g.FuelPriceInMillicents.Int(), Name: "FuelPriceInMillicents"},
 		&validators.TimeIsPresent{Field: g.PublicationDate, Name: "PublicationDate"},
 	), nil
-}
-
-// TableName overrides the table name used by Pop.
-func (g GHCDieselFuelPrice) TableName() string {
-	return "ghc_diesel_fuel_prices"
 }

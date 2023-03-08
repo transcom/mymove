@@ -8,20 +8,26 @@ import styles from './ServicesCounselingReviewShipmentWeights.module.scss';
 
 import { useReviewShipmentWeightsQuery } from 'hooks/queries';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
-import { calculateEstimatedWeight, useCalculatedWeightRequested } from 'hooks/custom';
+import { calculateEstimatedWeight, calculateWeightRequested } from 'hooks/custom';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { servicesCounselingRoutes } from 'constants/routes';
 
 const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
-  const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
+  const { orders, mtoShipments, documents } = useReviewShipmentWeightsQuery(moveCode);
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
   const [externalVendorShipmentCount, setExternalVendorShipmentCount] = useState(0);
-  const moveWeightTotal = useCalculatedWeightRequested(mtoShipments);
+  const [moveWeightTotal, setMoveWeightTotal] = useState(null);
   const order = Object.values(orders)?.[0];
 
   useEffect(() => {
     setEstimatedWeightTotal(calculateEstimatedWeight(mtoShipments));
   }, [mtoShipments]);
+
+  // documents are a dependency of this useEffect because they are appended to the mtoShipments
+  // to calculate the net weight, but this doesn't trigger the useEffect automatically
+  useEffect(() => {
+    setMoveWeightTotal(calculateWeightRequested(mtoShipments));
+  }, [mtoShipments, documents]);
 
   useEffect(() => {
     if (mtoShipments) {

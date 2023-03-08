@@ -21,6 +21,11 @@ type EDIProcessing struct {
 	UpdatedAt        time.Time `db:"updated_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (e EDIProcessing) TableName() string {
+	return "edi_processings"
+}
+
 // EDIProcessings is a slice of notification structs
 type EDIProcessings []EDIProcessing
 
@@ -32,11 +37,6 @@ func (e *EDIProcessing) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.TimeIsPresent{Field: e.ProcessStartedAt, Name: "ProcessStartedAt"},
 		&validators.TimeIsPresent{Field: e.ProcessEndedAt, Name: "ProcessEndedAt"},
 	), nil
-}
-
-// TableName overrides the table name used by Pop.
-func (e *EDIProcessing) TableName() string {
-	return "edi_processings"
 }
 
 // MarshalLogObject is required to be able to zap.Object log this model.

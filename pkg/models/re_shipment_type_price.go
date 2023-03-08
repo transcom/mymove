@@ -24,11 +24,14 @@ type ReShipmentTypePrice struct {
 	Service  ReService  `belongs_to:"re_service" fk_id:"service_id"`
 }
 
-// ReShipmentTypePrices is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (r ReShipmentTypePrice) TableName() string {
+	return "re_shipment_type_prices"
+}
+
 type ReShipmentTypePrices []ReShipmentTypePrice
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (r *ReShipmentTypePrice) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},

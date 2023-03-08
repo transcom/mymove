@@ -39,6 +39,11 @@ type WeightTicket struct {
 	NetWeightRemarks                  *string            `json:"net_weight_remarks" db:"net_weight_remarks"`
 }
 
+// TableName overrides the table name used by Pop.
+func (w WeightTicket) TableName() string {
+	return "weight_tickets"
+}
+
 type WeightTickets []WeightTicket
 
 func (e WeightTickets) FilterDeleted() WeightTickets {

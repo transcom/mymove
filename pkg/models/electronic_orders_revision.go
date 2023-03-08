@@ -202,23 +202,24 @@ type ElectronicOrdersRevision struct {
 	Comments              *string                     `json:"comments" db:"comments"`
 }
 
-// String is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (e ElectronicOrdersRevision) TableName() string {
+	return "electronic_orders_revisions"
+}
+
 func (e ElectronicOrdersRevision) String() string {
 	je, _ := json.Marshal(e)
 	return string(je)
 }
 
-// ElectronicOrdersRevisions is not required by pop and may be deleted
 type ElectronicOrdersRevisions []ElectronicOrdersRevision
 
-// String is not required by pop and may be deleted
 func (e ElectronicOrdersRevisions) String() string {
 	je, _ := json.Marshal(e)
 	return string(je)
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (e *ElectronicOrdersRevision) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: e.ElectronicOrderID, Name: "ElectronicOrderID"},
@@ -321,16 +322,4 @@ func (e *ElectronicOrdersRevision) Validate(tx *pop.Connection) (*validate.Error
 		&StringIsNilOrNotBlank{Field: e.UbSDN, Name: "UbSDN"},
 		&StringIsNilOrNotBlank{Field: e.UbLOA, Name: "UbLOA"},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (e *ElectronicOrdersRevision) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (e *ElectronicOrdersRevision) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }

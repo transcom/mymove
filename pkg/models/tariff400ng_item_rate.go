@@ -25,8 +25,12 @@ type Tariff400ngItemRate struct {
 	UpdatedAt          time.Time  `json:"updated_at" db:"updated_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (t Tariff400ngItemRate) TableName() string {
+	return "tariff400ng_item_rates"
+}
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (t *Tariff400ngItemRate) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: t.Code, Name: "Code"},

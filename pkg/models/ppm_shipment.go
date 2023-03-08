@@ -120,10 +120,10 @@ type PPMShipment struct {
 	SignedCertification            *SignedCertification `has_one:"signed_certification" fk_id:"ppm_id"`
 }
 
-// PPMShipments is a list of PPMs
-type PPMShipments []PPMShipment
-
-// TableName overrides the table name used by Pop. By default it tries using the name `ppmshipments`.
+// TableName overrides the table name used by Pop.
 func (p PPMShipment) TableName() string {
 	return "ppm_shipments"
 }
+
+// PPMShipments is a list of PPMs
+type PPMShipments []PPMShipment

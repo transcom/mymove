@@ -18,6 +18,11 @@ type PaymentRequestToInterchangeControlNumber struct {
 	PaymentRequest PaymentRequest `belongs_to:"payment_requests" fk_id:"payment_request_id"`
 }
 
+// TableName overrides the table name used by Pop.
+func (p PaymentRequestToInterchangeControlNumber) TableName() string {
+	return "payment_request_to_interchange_control_numbers"
+}
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (p *PaymentRequestToInterchangeControlNumber) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
