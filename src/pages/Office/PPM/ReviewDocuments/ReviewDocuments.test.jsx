@@ -374,7 +374,7 @@ describe('ReviewDocuments', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
       expect(await screen.findByRole('heading', { name: 'Pro-gear 1', level: 3 })).toBeInTheDocument();
-      await userEvent.click(screen.getByLabelText('Approve'));
+      await userEvent.click(screen.getByLabelText('Accept'));
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
       expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
