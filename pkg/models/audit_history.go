@@ -18,10 +18,10 @@ type AuditHistory struct {
 	// Database schema audited table for this event is in
 	SchemaName string `json:"schema_name" db:"schema_name"`
 	// name of database table that was changed
-	// Note: naming this "Table" instead of "TableName" in the struct so we can have a "TableName"
+	// Note: naming this "AuditedTable" instead of "TableName" in the struct so we can have a "TableName"
 	// method as well on this struct to override the default Pop table name algorithm.  Go won't let
 	// you have both.  Leaving the database column name and swagger field name the same for now.
-	Table string `json:"table_name" db:"table_name"`
+	AuditedTable string `json:"table_name" db:"table_name"`
 	// relation OID. Table OID (object identifier). Changes with drop/create
 	RelID int64 `json:"rel_id" db:"relid"`
 	// id column for the tableName where the data was changed

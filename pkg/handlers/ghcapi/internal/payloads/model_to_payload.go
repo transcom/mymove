@@ -327,7 +327,7 @@ func MoveAuditHistory(logger *zap.Logger, auditHistory models.AuditHistory) *ghc
 		Context:              removeEscapeJSONtoArray(logger, auditHistory.Context),
 		ContextID:            auditHistory.ContextID,
 		StatementOnly:        auditHistory.StatementOnly,
-		TableName:            auditHistory.Table,
+		TableName:            auditHistory.AuditedTable,
 		SchemaName:           auditHistory.SchemaName,
 		TransactionID:        auditHistory.TransactionID,
 	}
