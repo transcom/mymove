@@ -35,7 +35,7 @@ func getMoveHistoryForTest() models.MoveHistory {
 			{
 				ID:              uuid.Must(uuid.NewV4()),
 				SchemaName:      "",
-				TableName:       "orders",
+				Table:           "orders",
 				RelID:           16879,
 				ObjectID:        &localUUID,
 				SessionUserID:   &localUUID,
@@ -101,7 +101,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		suite.Equal(maudit.ObjectID.String(), paudit.ObjectID.String())
 		suite.Equal(maudit.SessionUserID.String(), paudit.SessionUserID.String())
 		suite.Equal(maudit.SchemaName, paudit.SchemaName)
-		suite.Equal(maudit.TableName, paudit.TableName)
+		suite.Equal(maudit.Table, paudit.TableName)
 		suite.Equal(maudit.RelID, paudit.RelID)
 		suite.Equal(maudit.Action, paudit.Action)
 		suite.Equal(maudit.EventName, paudit.EventName)

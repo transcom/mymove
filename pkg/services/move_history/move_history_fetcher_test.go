@@ -104,7 +104,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 
 		for _, h := range moveHistory.AuditHistories {
 
-			if h.TableName == "addresses" {
+			if h.Table == "addresses" {
 				if *h.ObjectID == updateAddress.ID {
 					if h.OldData != nil {
 						oldData := removeEscapeJSONtoObject(h.OldData)
@@ -132,7 +132,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 						}
 					}
 				}
-			} else if h.TableName == "orders" {
+			} else if h.Table == "orders" {
 				if *h.ObjectID == approvedMove.Orders.ID {
 					if h.OldData != nil {
 						oldData := removeEscapeJSONtoObject(h.OldData)
@@ -147,21 +147,21 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 						}
 					}
 				}
-			} else if h.TableName == "mto_agents" {
+			} else if h.Table == "mto_agents" {
 				if h.ChangedData != nil {
 					changedData := removeEscapeJSONtoObject(h.ChangedData)
 					if changedData["agent_type"] == string(models.MTOAgentReceiving) {
 						verifyNewAgent = true
 					}
 				}
-			} else if h.TableName == "entitlements" {
+			} else if h.Table == "entitlements" {
 				if h.ChangedData != nil {
 					oldData := removeEscapeJSONtoObject(h.OldData)
 					if authorizedWeight, ok := oldData["authorized_weight"]; !ok || authorizedWeight == nil {
 						verifyDBAuthorizedWeight = true
 					}
 				}
-			} else if h.TableName == "moves" {
+			} else if h.Table == "moves" {
 				if h.OldData != nil {
 					oldData := removeEscapeJSONtoObject(h.OldData)
 					if tioRemarks, ok := oldData["tio_remarks"]; !ok || tioRemarks == nil {
@@ -364,7 +364,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		suite.NotEmpty(moveHistoryData.AuditHistories, "AuditHistories should not be empty")
 		verifyServiceItemStatusContext := false
 		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "mto_service_items" {
+			if h.Table == "mto_service_items" {
 				if *h.ObjectID == updatedServiceItem.ID {
 					if h.Context != nil {
 						context := removeEscapeJSONtoArray(h.Context)
@@ -421,7 +421,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		verifyPaymentRequestContext := false
 
 		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "payment_requests" {
+			if h.Table == "payment_requests" {
 				if *h.ObjectID == approvedPaymentRequest.ID {
 					if h.ChangedData != nil {
 						verifyPaymentRequestHistoryFound = true
@@ -468,7 +468,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		verifyReweighContext := false
 
 		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "reweighs" && *h.ObjectID == createdReweigh.ID {
+			if h.Table == "reweighs" && *h.ObjectID == createdReweigh.ID {
 				verifyReweighHistoryFound = true
 				if h.Context != nil {
 					context := removeEscapeJSONtoArray(h.Context)
@@ -526,7 +526,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		verifyServiceItemDimensionContext := false
 
 		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "mto_service_item_dimensions" {
+			if h.Table == "mto_service_item_dimensions" {
 				if h.ChangedData != nil {
 					changedData := removeEscapeJSONtoObject(h.ChangedData)
 					if changedData["type"] == "ITEM" {
@@ -594,7 +594,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		verifyServiceItemDimensionsHistoryFound := false
 
 		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "mto_service_item_customer_contacts" {
+			if h.Table == "mto_service_item_customer_contacts" {
 				if h.ChangedData != nil {
 					changedData := removeEscapeJSONtoObject(h.ChangedData)
 					if changedData["time_military"] == "0815Z" {
@@ -621,7 +621,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		verifyServiceMemberContextFound := false
 
 		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "service_members" && *h.ObjectID == serviceMember.ID {
+			if h.Table == "service_members" && *h.ObjectID == serviceMember.ID {
 				verifyServiceMemberHistoryFound = true
 
 				if h.Context != nil {
@@ -678,7 +678,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		verifyEventNameNotFound := false
 
 		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "mto_agents" {
+			if h.Table == "mto_agents" {
 				if h.EventName != nil && *h.EventName == eventNameToFind {
 					verifyEventNameFound = true
 				}
@@ -899,7 +899,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		foundProofOfServiceDoc := false
 		foundPaymentRequestIDInContext := false
 		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "proof_of_service_docs" && *h.ObjectID == proofOfServiceDoc.ID {
+			if h.Table == "proof_of_service_docs" && *h.ObjectID == proofOfServiceDoc.ID {
 				foundProofOfServiceDoc = true
 
 				if h.Context != nil {
@@ -952,7 +952,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		suite.NoError(err)
 
 		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "addresses" {
+			if h.Table == "addresses" {
 				if h.Context != nil {
 					context := removeEscapeJSONtoArray(h.Context)
 					if context != nil && context[0]["shipment_type"] == string(approvedShipment.ShipmentType) && context[0]["shipment_id_abbr"] == shipmentIDAbbr {
@@ -1003,7 +1003,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		suite.NoError(err)
 
 		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "addresses" && *h.ContextID == serviceMember.ID.String() {
+			if h.Table == "addresses" && *h.ContextID == serviceMember.ID.String() {
 				if h.Context != nil {
 					context := removeEscapeJSONtoArray(h.Context)
 					if context[0]["address_type"] == "residentialAddress" {
@@ -1044,7 +1044,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		suite.NoError(err)
 
 		for _, h := range moveHistoryData.AuditHistories {
-			if h.TableName == "backup_contacts" && *h.ObjectID == backupContact.ID {
+			if h.Table == "backup_contacts" && *h.ObjectID == backupContact.ID {
 				foundBackupContact = true
 				break
 			}
