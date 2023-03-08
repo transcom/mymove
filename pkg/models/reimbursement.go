@@ -54,6 +54,11 @@ type Reimbursement struct {
 	RequestedDate   *time.Time          `json:"requested_date" db:"requested_date"`
 }
 
+// TableName overrides the table name used by Pop.
+func (r Reimbursement) TableName() string {
+	return "archived_reimbursements"
+}
+
 // State Machine
 // Avoid calling Reimbursement.Status = ... ever. Use these methods to change the state.
 
@@ -122,11 +127,9 @@ func BuildRequestedReimbursement(requestedAmount unit.Cents, methodOfReceipt Met
 	}
 }
 
-// Reimbursements is not required by pop and may be deleted
 type Reimbursements []Reimbursement
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (r *Reimbursement) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	if r == nil {
 		return validate.NewErrors(), nil
@@ -153,18 +156,6 @@ func (r *Reimbursement) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (r *Reimbursement) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (r *Reimbursement) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
 // FetchReimbursement Fetches and Validates a Reimbursement model
 func FetchReimbursement(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Reimbursement, error) {
 	var reimbursement Reimbursement
@@ -178,8 +169,4 @@ func FetchReimbursement(db *pop.Connection, session *auth.Session, id uuid.UUID)
 	}
 
 	return &reimbursement, nil
-}
-
-func (r Reimbursement) TableName() string {
-	return "archived_reimbursements"
 }

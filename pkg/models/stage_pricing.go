@@ -12,10 +12,20 @@ type StageDomesticServiceArea struct {
 	Zip3s             string `db:"zip3s" csv:"zip3s"`
 }
 
+// TableName overrides the table name used by Pop.
+func (s StageDomesticServiceArea) TableName() string {
+	return "stage_domestic_service_areas"
+}
+
 // StageInternationalServiceArea is the stage international service area
 type StageInternationalServiceArea struct {
 	RateArea   string `db:"rate_area" csv:"rate_area"`
 	RateAreaID string `db:"rate_area_id" csv:"rate_area_id"`
+}
+
+// TableName overrides the table name used by Pop.
+func (s StageInternationalServiceArea) TableName() string {
+	return "stage_international_service_areas"
 }
 
 //
@@ -36,6 +46,11 @@ type StageDomesticLinehaulPrice struct {
 	Rate              string `db:"rate" csv:"rate"`
 }
 
+// TableName overrides the table name used by Pop.
+func (s StageDomesticLinehaulPrice) TableName() string {
+	return "stage_domestic_linehaul_prices"
+}
+
 //
 // Tab 2b: Domestic Service Area Prices
 //
@@ -53,6 +68,11 @@ type StageDomesticServiceAreaPrice struct {
 	OriginDestinationSITAddlDays          string `db:"origin_destination_sit_addl_days" csv:"origin_destination_sit_addl_days"`
 }
 
+// TableName overrides the table name used by Pop.
+func (s StageDomesticServiceAreaPrice) TableName() string {
+	return "stage_domestic_service_area_prices"
+}
+
 //
 // Tab 2c: Other Domestic Prices
 //
@@ -65,12 +85,22 @@ type StageDomesticOtherPackPrice struct {
 	PeakPricePerCwt    string `db:"peak_price_per_cwt" csv:"peak_price_per_cwt"`
 }
 
+// TableName overrides the table name used by Pop.
+func (s StageDomesticOtherPackPrice) TableName() string {
+	return "stage_domestic_other_pack_prices"
+}
+
 // StageDomesticOtherSitPrice is  the stage domestic other SIT price
 type StageDomesticOtherSitPrice struct {
 	SITPickupDeliverySchedule string `db:"sit_pickup_delivery_schedule" csv:"sit_pickup_delivery_schedule"`
 	ServiceProvided           string `db:"service_provided" csv:"service_provided"`
 	NonPeakPricePerCwt        string `db:"non_peak_price_per_cwt" csv:"non_peak_price_per_cwt"`
 	PeakPricePerCwt           string `db:"peak_price_per_cwt" csv:"peak_price_per_cwt"`
+}
+
+// TableName overrides the table name used by Pop.
+func (s StageDomesticOtherSitPrice) TableName() string {
+	return "stage_domestic_other_sit_prices"
 }
 
 //
@@ -88,6 +118,11 @@ type StageOconusToOconusPrice struct {
 	UBPrice                    string `db:"ub_price" csv:"ub_price"`
 }
 
+// TableName overrides the table name used by Pop.
+func (s StageOconusToOconusPrice) TableName() string {
+	return "stage_oconus_to_oconus_prices"
+}
+
 //
 // Tab 3b: CONUS to OCONUS Prices
 //
@@ -103,6 +138,11 @@ type StageConusToOconusPrice struct {
 	UBPrice                     string `db:"ub_price" csv:"ub_price"`
 }
 
+// TableName overrides the table name used by Pop.
+func (s StageConusToOconusPrice) TableName() string {
+	return "stage_conus_to_oconus_prices"
+}
+
 //
 // Tab 3c: OCONUS to CONUS Prices
 //
@@ -116,6 +156,11 @@ type StageOconusToConusPrice struct {
 	Season                           string `db:"season" csv:"season"`
 	HHGShippingLinehaulPrice         string `db:"hhg_shipping_linehaul_price" csv:"hhg_shipping_linehaul_price"`
 	UBPrice                          string `db:"ub_price" csv:"ub_price"`
+}
+
+// TableName overrides the table name used by Pop.
+func (s StageOconusToConusPrice) TableName() string {
+	return "stage_oconus_to_conus_prices"
 }
 
 //
@@ -137,6 +182,11 @@ type StageOtherIntlPrice struct {
 	Season                                string `db:"season" csv:"season"`
 }
 
+// TableName overrides the table name used by Pop.
+func (s StageOtherIntlPrice) TableName() string {
+	return "stage_other_intl_prices"
+}
+
 //
 // Tab 3e: Non-Standard Location Prices
 //
@@ -153,6 +203,11 @@ type StageNonStandardLocnPrice struct {
 	UBPrice         string `db:"ub_price" csv:"ub_price"`
 }
 
+// TableName overrides the table name used by Pop.
+func (s StageNonStandardLocnPrice) TableName() string {
+	return "stage_non_standard_locn_prices"
+}
+
 //
 // Tab 4a: Management, Counseling, and Transition Prices
 //
@@ -163,16 +218,31 @@ type StageShipmentManagementServicesPrice struct {
 	PricePerTaskOrder string `db:"price_per_task_order" csv:"price_per_task_order"`
 }
 
+// TableName overrides the table name used by Pop.
+func (s StageShipmentManagementServicesPrice) TableName() string {
+	return "stage_shipment_management_services_prices"
+}
+
 // StageCounselingServicesPrice is the stage counseling service price
 type StageCounselingServicesPrice struct {
 	ContractYear      string `db:"contract_year" csv:"contract_year"`
 	PricePerTaskOrder string `db:"price_per_task_order" csv:"price_per_task_order"`
 }
 
+// TableName overrides the table name used by Pop.
+func (s StageCounselingServicesPrice) TableName() string {
+	return "stage_counseling_services_prices"
+}
+
 // StageTransitionPrice is the stage transition price
 type StageTransitionPrice struct {
 	ContractYear      string `db:"contract_year" csv:"contract_year"`
 	PricePerTaskOrder string `db:"price_total_cost" csv:"price_total_cost"`
+}
+
+// TableName overrides the table name used by Pop.
+func (s StageTransitionPrice) TableName() string {
+	return "stage_transition_prices"
 }
 
 //
@@ -186,6 +256,11 @@ type StageDomesticMoveAccessorialPrice struct {
 	PricePerUnit     string `db:"price_per_unit" csv:"price_per_unit"`
 }
 
+// TableName overrides the table name used by Pop.
+func (s StageDomesticMoveAccessorialPrice) TableName() string {
+	return "stage_domestic_move_accessorial_prices"
+}
+
 // StageInternationalMoveAccessorialPrice is the stage international move accessorial price
 type StageInternationalMoveAccessorialPrice struct {
 	Market          string `db:"market" csv:"market"`
@@ -193,11 +268,21 @@ type StageInternationalMoveAccessorialPrice struct {
 	PricePerUnit    string `db:"price_per_unit" csv:"price_per_unit"`
 }
 
+// TableName overrides the table name used by Pop.
+func (s StageInternationalMoveAccessorialPrice) TableName() string {
+	return "stage_international_move_accessorial_prices"
+}
+
 // StageDomesticInternationalAdditionalPrice is the stage domestic international additional price
 type StageDomesticInternationalAdditionalPrice struct {
 	Market       string `db:"market" csv:"market"`
 	ShipmentType string `db:"shipment_type" csv:"shipment_type"`
 	Factor       string `db:"factor" csv:"factor"`
+}
+
+// TableName overrides the table name used by Pop.
+func (s StageDomesticInternationalAdditionalPrice) TableName() string {
+	return "stage_domestic_international_additional_prices"
 }
 
 //
@@ -210,4 +295,9 @@ type StagePriceEscalationDiscount struct {
 	ForecastingAdjustment string `db:"forecasting_adjustment" csv:"forecasting_adjustment"`
 	Discount              string `db:"discount" csv:"discount"`
 	PriceEscalation       string `db:"price_escalation" csv:"price_escalation"`
+}
+
+// TableName overrides the table name used by Pop.
+func (s StagePriceEscalationDiscount) TableName() string {
+	return "stage_price_escalation_discounts"
 }

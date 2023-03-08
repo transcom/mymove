@@ -28,11 +28,14 @@ type ReZip3 struct {
 	RateArea            *ReRateArea           `belongs_to:"re_rate_areas" fk_id:"rate_area_id"`
 }
 
-// ReZip3s is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (r ReZip3) TableName() string {
+	return "re_zip3s"
+}
+
 type ReZip3s []ReZip3
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (r *ReZip3) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringLengthInRange{Field: r.Zip3, Name: "Zip3", Min: 3, Max: 3},

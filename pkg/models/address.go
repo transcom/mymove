@@ -27,6 +27,11 @@ type Address struct {
 	Country        *string   `json:"country" db:"country"`
 }
 
+// TableName overrides the table name used by Pop.
+func (a Address) TableName() string {
+	return "addresses"
+}
+
 // GetAddressID facilitates grabbing the ID from an address that may be nil
 func GetAddressID(address *Address) *uuid.UUID {
 	var response *uuid.UUID
@@ -55,11 +60,7 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 	return response
 }
 
-// Addresses is not required by pop and may be deleted
-type Addresses []Address
-
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (a *Address) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: a.StreetAddress1, Name: "StreetAddress1"},
@@ -67,18 +68,6 @@ func (a *Address) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: a.State, Name: "State"},
 		&validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (a *Address) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (a *Address) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }
 
 // MarshalLogObject is required to be able to zap.Object log TDLs

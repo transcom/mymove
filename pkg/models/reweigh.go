@@ -46,6 +46,11 @@ type Reweigh struct {
 	UpdatedAt              time.Time        `db:"updated_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (r Reweigh) TableName() string {
+	return "reweighs"
+}
+
 // Validate ensures the reweigh fields have the required and optional valid values prior to saving
 func (r *Reweigh) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
