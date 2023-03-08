@@ -5,9 +5,9 @@ import { SHIPMENT_OPTIONS } from '../../../../shared/constants';
 
 import ReviewShipmentWeightsTable from './ReviewShipmentWeightsTable';
 import {
-  NonPPMReviewWeightsTableConfig,
+  nonPPMReviewWeightsTableConfig,
   PPMReviewWeightsTableConfig,
-  ProGearReviewWeightsTableConfig,
+  proGearReviewWeightsTableConfig,
 } from './helpers';
 
 import { MockProviders } from 'testUtils';
@@ -50,7 +50,7 @@ const ProGearProps = {
       },
     },
   ],
-  tableConfig: ProGearReviewWeightsTableConfig,
+  tableConfig: proGearReviewWeightsTableConfig,
 };
 const NonPPMProps = {
   tableData: [
@@ -66,7 +66,7 @@ const NonPPMProps = {
       actualDeliveryDate: '04-Apr-23',
     },
   ],
-  tableConfig: NonPPMReviewWeightsTableConfig,
+  tableConfig: nonPPMReviewWeightsTableConfig,
 };
 
 describe('ReviewShipmentWeight component', () => {

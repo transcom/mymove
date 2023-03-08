@@ -6,8 +6,8 @@ import { SHIPMENT_OPTIONS } from '../../../../shared/constants';
 import ReviewShipmentWeightsTable from './ReviewShipmentWeightsTable';
 import {
   PPMReviewWeightsTableConfig,
-  ProGearReviewWeightsTableConfig,
-  NonPPMReviewWeightsTableConfig,
+  proGearReviewWeightsTableConfig,
+  nonPPMReviewWeightsTableConfig,
 } from './helpers';
 
 export default {
@@ -112,7 +112,7 @@ ProGearWeights.args = {
       },
     },
   ],
-  tableConfig: ProGearReviewWeightsTableConfig,
+  tableConfig: proGearReviewWeightsTableConfig,
 };
 
 export const NonPPMShipments = Template.bind({});
@@ -149,11 +149,11 @@ NonPPMShipments.args = {
       actualDeliveryDate: '04-Apr-23',
     },
   ],
-  tableConfig: NonPPMReviewWeightsTableConfig,
+  tableConfig: nonPPMReviewWeightsTableConfig,
 };
 
 export const NonPPMShipmentsNoRows = Template.bind({});
 NonPPMShipmentsNoRows.args = {
   tableData: [],
-  tableConfig: NonPPMReviewWeightsTableConfig,
+  tableConfig: nonPPMReviewWeightsTableConfig,
 };

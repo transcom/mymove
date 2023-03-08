@@ -1,5 +1,4 @@
 import React from 'react';
-import classnames from 'classnames';
 
 import { formatReviewShipmentWeightsDate, formatWeight } from '../../../../utils/formatters';
 import { shipmentTypes } from '../../../../constants/shipments';
@@ -52,15 +51,26 @@ export function addShipmentNumbersToTableData(tableData, determineShipmentNumber
 }
 
 export function determineTableRowClassname(shipmentType) {
-  return classnames({
-    [styles[`review-shipment-weights-table-row-NTS-release`]]: shipmentType === SHIPMENT_OPTIONS.NTSR,
-    [styles[`review-shipment-weights-table-row-NTS`]]: shipmentType === SHIPMENT_OPTIONS.NTS,
-    [styles[`review-shipment-weights-table-row-HHG`]]:
-      shipmentType === SHIPMENT_OPTIONS.HHG ||
-      shipmentType === SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC ||
-      shipmentType === SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
-    [styles[`review-shipment-weights-table-row-PPM`]]: shipmentType === SHIPMENT_OPTIONS.PPM,
-  });
+  let shipmentClassname;
+  switch (shipmentType) {
+    case SHIPMENT_OPTIONS.NTSR:
+      shipmentClassname = styles[`review-shipment-weights-table-row-NTS-release`];
+      break;
+    case SHIPMENT_OPTIONS.NTS:
+      shipmentClassname = styles[`review-shipment-weights-table-row-NTS`];
+      break;
+    case SHIPMENT_OPTIONS.HHG:
+    case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
+    case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
+      shipmentClassname = styles[`review-shipment-weights-table-row-HHG`];
+      break;
+    case SHIPMENT_OPTIONS.PPM:
+      shipmentClassname = styles[`review-shipment-weights-table-row-PPM`];
+      break;
+    default:
+      break;
+  }
+  return shipmentClassname;
 }
 
 export const ShipmentTypeCell = (props) => {
@@ -107,7 +117,7 @@ export function actualWeightDisplayHelper(row) {
   return actualWeight > 0 ? formatWeight(actualWeight) : DASH;
 }
 
-export const NoRowsMessages = {
+export const noRowsMessages = {
   PPM: 'No PPM shipments have been created for this move.',
   NonPPM: 'No HHG, NTS, or NTS-Release shipments have been created for this move.',
 };
@@ -169,7 +179,7 @@ export const PPMReviewWeightsTableColumns = [
   ),
 ];
 
-export const ProGearTableColumns = [
+export const proGearTableColumns = [
   createHeader(
     '',
     () => {
@@ -204,7 +214,7 @@ export const ProGearTableColumns = [
   ),
 ];
 
-export const NonPPMTableColumns = [
+export const nonPPMTableColumns = [
   createHeader('', (row) => <ShipmentTypeCell row={row} />, {
     id: 'shipmentType',
     isFilterable: false,
@@ -241,18 +251,18 @@ export const NonPPMTableColumns = [
 
 export const PPMReviewWeightsTableConfig = {
   tableColumns: PPMReviewWeightsTableColumns,
-  noRowsMsg: NoRowsMessages.PPM,
+  noRowsMsg: noRowsMessages.PPM,
   determineShipmentNumbers: true,
 };
 
-export const ProGearReviewWeightsTableConfig = {
-  tableColumns: ProGearTableColumns,
+export const proGearReviewWeightsTableConfig = {
+  tableColumns: proGearTableColumns,
   noRowsMsg: null,
   determineShipmentNumbers: false,
 };
 
-export const NonPPMReviewWeightsTableConfig = {
-  tableColumns: NonPPMTableColumns,
-  noRowsMsg: NoRowsMessages.NonPPM,
+export const nonPPMReviewWeightsTableConfig = {
+  tableColumns: nonPPMTableColumns,
+  noRowsMsg: noRowsMessages.NonPPM,
   determineShipmentNumbers: true,
 };
