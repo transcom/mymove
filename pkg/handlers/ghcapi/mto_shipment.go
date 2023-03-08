@@ -55,12 +55,11 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			if err != nil {
 				return handleError(err)
 			}
-			mtoShipments := models.MTOShipments(shipments)
 
 			shipmentSITStatuses := h.CalculateShipmentsSITStatuses(appCtx, shipments)
 
 			sitStatusPayload := payloads.SITStatuses(shipmentSITStatuses)
-			payload := payloads.MTOShipments(h.FileStorer(), &mtoShipments, sitStatusPayload)
+			payload := payloads.MTOShipments(h.FileStorer(), (*models.MTOShipments)(&shipments), sitStatusPayload)
 			return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload), nil
 		})
 }

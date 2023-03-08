@@ -47,6 +47,7 @@ properties:
   requestedPickupDate:
     format: date
     type: string
+    x-nullable: true
   actualPickupDate:
     x-nullable: true
     format: date
@@ -54,6 +55,7 @@ properties:
   requestedDeliveryDate:
     format: date
     type: string
+    x-nullable: true
   requiredDeliveryDate:
     x-nullable: true
     format: date
