@@ -43,6 +43,11 @@ type Role struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (r Role) TableName() string {
+	return "roles"
+}
+
 // Roles is a slice of Role objects
 type Roles []Role
 
