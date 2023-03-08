@@ -6,8 +6,7 @@ import { addShipmentNumbersToTableData } from './helpers';
 
 import Table from 'components/Table/Table';
 
-const ReviewShipmentWeightsTable = (props) => {
-  const { tableData, tableConfig } = props;
+const ReviewShipmentWeightsTable = ({ tableData, tableConfig }) => {
   const { tableColumns, noRowsMsg, determineShipmentNumbers } = tableConfig;
 
   const reviewWeightsData = addShipmentNumbersToTableData(tableData, determineShipmentNumbers);
