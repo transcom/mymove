@@ -77,7 +77,7 @@ describe('ReviewProGear component', () => {
 
       expect(screen.getByRole('heading', { level: 3, name: 'Review pro-gear 1' })).toBeInTheDocument();
       expect(screen.getByText('Add a review for this pro-gear')).toBeInTheDocument();
-      expect(screen.getByLabelText('Approve')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Accept')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Reject')).toBeInstanceOf(HTMLInputElement);
     });
 
@@ -130,7 +130,7 @@ describe('ReviewProGear component', () => {
       });
       await fireEvent.click(screen.getByLabelText('Reject'));
       expect(screen.getByLabelText('Reason')).toBeInstanceOf(HTMLTextAreaElement);
-      await fireEvent.click(screen.getByLabelText('Approve'));
+      await fireEvent.click(screen.getByLabelText('Accept'));
       expect(screen.queryByLabelText('Reason')).not.toBeInTheDocument();
     });
   });
