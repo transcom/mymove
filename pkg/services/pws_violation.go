@@ -7,7 +7,7 @@ import (
 
 // PWSViolationsFetcher is the exported interface for fetching office remarks for a move.
 //
-//go:generate mockery --name PWSViolationsFetcher --disable-version-string
+//go:generate mockery --name PWSViolationsFetcher
 type PWSViolationsFetcher interface {
 	GetPWSViolations(appCtx appcontext.AppContext) (*models.PWSViolations, error)
 }
