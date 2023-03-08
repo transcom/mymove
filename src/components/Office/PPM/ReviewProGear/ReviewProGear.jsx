@@ -21,8 +21,7 @@ import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
 
 const validationSchema = Yup.object().shape({
-  // selfProGear: Yup.bool().required('Required'),
-  // belongsToSelf: Yup.bool().required('Required'),
+  belongsToSelf: Yup.bool().required('Required'),
   proGearWeight: Yup.number()
     .min(0, 'Enter a weight 0 lbs or greater')
     .when('missingWeightTicket', {
@@ -52,11 +51,20 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
 
   const proGearValue = belongsToSelf === true ? 'true' : 'false';
 
+  const missingWeightTicketValue = hasWeightTickets === true ? 'false' : 'true';
+
   const handleSubmit = (values) => {
+    let hasWeightTicketValue;
+    if (values.missingWeightTicket === 'true') {
+      hasWeightTicketValue = false;
+    }
+    if (values.missingWeightTicket === 'false') {
+      hasWeightTicketValue = true;
+    }
     const payload = {
       ppmShipmentId: proGear.ppmShipmentId,
       belongsToSelf: values.belongsToSelf === 'true',
-      missingWeightTicket: proGear.hasWeightTickets,
+      hasWeightTickets: hasWeightTicketValue,
       weight: parseInt(values.proGearWeight, 10),
       reason: values.status === 'APPROVED' ? null : values.rejectionReason,
       status: values.status,
@@ -67,16 +75,7 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
       payload,
       eTag: proGear.eTag,
     });
-    console.log('payload', payload);
   };
-
-  let missingWeightTicketValue;
-  if (hasWeightTickets === true) {
-    missingWeightTicketValue = 'true';
-  }
-  if (hasWeightTickets === false) {
-    missingWeightTicketValue = 'false';
-  }
 
   const initialValues = {
     belongsToSelf: proGearValue,
@@ -86,8 +85,6 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
     description: description ? `${description}` : '',
     proGearWeight: weight ? `${weight}` : '',
   };
-
-  console.log('initial values', initialValues);
 
   useEffect(() => {
     if (formRef?.current) {
@@ -106,7 +103,7 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
         enableReinitialize
         validateOnMount
       >
-        {({ handleChange, errors, touched, setFieldValue, setFieldTouched, setFieldError, values }) => {
+        {({ handleChange, errors, touched, values }) => {
           const handleApprovalChange = (event) => {
             handleChange(event);
             setCanEditRejection(true);
@@ -157,6 +154,7 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
                     label="Constructed weight"
                     name="missingWeightTicket"
                     value="true"
+                    data-testid="constructed-weight"
                     checked={values.missingWeightTicket === 'true'}
                   />
                 </Fieldset>
@@ -174,6 +172,7 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
+                data-testid="pro-gear weight value"
               />
               <h3 className={styles.reviewHeader}>Review pro-gear {tripNumber}</h3>
               <p>Add a review for this pro-gear</p>
