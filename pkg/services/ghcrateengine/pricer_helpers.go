@@ -230,6 +230,10 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 
 	// 1) Zip3 to same zip3
 	if zip3Original == zip3Actual {
+
+		if zipOriginal == zipActual {
+			distance = 1
+		}
 		// Do a normal shorthaul calculation
 		shorthaulPricer := NewDomesticShorthaulPricer()
 		totalPriceCents, displayParams, err := shorthaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea)
