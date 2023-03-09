@@ -94,16 +94,6 @@ const PrimeUIShipmentUpdatePPMForm = () => {
         thousandsSeparator=","
         lazy={false} // immediate masking evaluation
       />
-      <MaskedTextField
-        label="Net Weight (lbs)"
-        id="ppmShipment.netWeightInput"
-        name="ppmShipment.netWeight"
-        mask={Number}
-        scale={0} // digits after point, 0 for integers
-        signed={false} // disallow negative
-        thousandsSeparator=","
-        lazy={false} // immediate masking evaluation
-      />
       <CheckboxField label="Has Pro Gear" id="ppmShipment.hasProGearInput" name="ppmShipment.hasProGear" />
       {hasProGear && (
         <>
