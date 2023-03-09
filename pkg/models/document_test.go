@@ -11,7 +11,7 @@ import (
 )
 
 func (suite *ModelSuite) Test_DocumentCreate() {
-	serviceMember := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.ServiceMemberSetIDs})
+	serviceMember := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.GetTraitServiceMemberSetIDs})
 
 	document := models.Document{
 		ServiceMemberID: serviceMember.ID,

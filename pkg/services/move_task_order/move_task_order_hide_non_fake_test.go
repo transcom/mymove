@@ -37,11 +37,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 					Telephone:          models.StringPointer("999-999-9999"),
 					SecondaryTelephone: models.StringPointer("123-555-9999"),
 					PersonalEmail:      models.StringPointer("peyton@example.com"),
-
-					//ResidentialAddressID:   &validAddress1.ID,
-					//ResidentialAddress:     &validAddress1,
-					//BackupMailingAddressID: &validAddress2.ID,
-					//BackupMailingAddress:   &validAddress2,
 				},
 			},
 			{

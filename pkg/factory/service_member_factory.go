@@ -82,9 +82,9 @@ func BuildServiceMember(db *pop.Connection, customs []Customization, traits []Tr
 	return serviceMember
 }
 
-// ServiceMemberSetIDs is a sample GetTraitFunc
+// GetTraitServiceMemberSetIDs is a sample GetTraitFunc
 // that sets ids for both ServiceMember and User models
-func ServiceMemberSetIDs() []Customization {
+func GetTraitServiceMemberSetIDs() []Customization {
 	return []Customization{
 		{
 			Model: models.ServiceMember{

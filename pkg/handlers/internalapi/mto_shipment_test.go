@@ -1633,8 +1633,8 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 403 when servicemember ID doesn't match shipment", func() {
-		sm1 := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.ServiceMemberSetIDs})
-		sm2 := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.ServiceMemberSetIDs})
+		sm1 := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.GetTraitServiceMemberSetIDs})
+		sm2 := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.GetTraitServiceMemberSetIDs})
 		order := testdatagen.MakeDefaultOrder(suite.DB())
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: order,

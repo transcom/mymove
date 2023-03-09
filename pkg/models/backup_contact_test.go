@@ -7,7 +7,7 @@ import (
 )
 
 func (suite *ModelSuite) Test_BackupContactCreate() {
-	serviceMember := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.ServiceMemberSetIDs})
+	serviceMember := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.GetTraitServiceMemberSetIDs})
 
 	newContact := models.BackupContact{
 		ServiceMemberID: serviceMember.ID,
