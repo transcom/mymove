@@ -28,15 +28,20 @@ type ReIntlOtherPrice struct {
 	RateArea ReRateArea `belongs_to:"re_rate_area" fk_id:"rate_area_id"`
 }
 
+// TableName overrides the table name used by Pop.
+func (r ReIntlOtherPrice) TableName() string {
+	return "re_intl_other_prices"
+}
+
 // ReIntlOtherPrices is a slice of ReIntlOtherPrice
 type ReIntlOtherPrices []ReIntlOtherPrice
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (p *ReIntlOtherPrice) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (r *ReIntlOtherPrice) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.UUIDIsPresent{Field: p.ContractID, Name: "ContractID"},
-		&validators.UUIDIsPresent{Field: p.ServiceID, Name: "ServiceID"},
-		&validators.UUIDIsPresent{Field: p.RateAreaID, Name: "RateAreaID"},
-		&validators.IntIsGreaterThan{Field: p.PerUnitCents.Int(), Name: "PerUnitCents", Compared: 0},
+		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},
+		&validators.UUIDIsPresent{Field: r.ServiceID, Name: "ServiceID"},
+		&validators.UUIDIsPresent{Field: r.RateAreaID, Name: "RateAreaID"},
+		&validators.IntIsGreaterThan{Field: r.PerUnitCents.Int(), Name: "PerUnitCents", Compared: 0},
 	), nil
 }

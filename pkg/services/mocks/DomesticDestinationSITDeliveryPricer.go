@@ -25,13 +25,17 @@ func (_m *DomesticDestinationSITDeliveryPricer) Price(appCtx appcontext.AppConte
 	ret := _m.Called(appCtx, contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipDest, zipSITDest, distance)
 
 	var r0 unit.Cents
+	var r1 services.PricingDisplayParams
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, string, int, string, string, unit.Miles) (unit.Cents, services.PricingDisplayParams, error)); ok {
+		return rf(appCtx, contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipDest, zipSITDest, distance)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, string, int, string, string, unit.Miles) unit.Cents); ok {
 		r0 = rf(appCtx, contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipDest, zipSITDest, distance)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 services.PricingDisplayParams
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, unit.Pound, string, int, string, string, unit.Miles) services.PricingDisplayParams); ok {
 		r1 = rf(appCtx, contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipDest, zipSITDest, distance)
 	} else {
@@ -40,7 +44,6 @@ func (_m *DomesticDestinationSITDeliveryPricer) Price(appCtx appcontext.AppConte
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time, unit.Pound, string, int, string, string, unit.Miles) error); ok {
 		r2 = rf(appCtx, contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipDest, zipSITDest, distance)
 	} else {
@@ -55,13 +58,17 @@ func (_m *DomesticDestinationSITDeliveryPricer) PriceUsingParams(appCtx appconte
 	ret := _m.Called(appCtx, params)
 
 	var r0 unit.Cents
+	var r1 services.PricingDisplayParams
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error)); ok {
+		return rf(appCtx, params)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentServiceItemParams) unit.Cents); ok {
 		r0 = rf(appCtx, params)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 services.PricingDisplayParams
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PaymentServiceItemParams) services.PricingDisplayParams); ok {
 		r1 = rf(appCtx, params)
 	} else {
@@ -70,7 +77,6 @@ func (_m *DomesticDestinationSITDeliveryPricer) PriceUsingParams(appCtx appconte
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, models.PaymentServiceItemParams) error); ok {
 		r2 = rf(appCtx, params)
 	} else {

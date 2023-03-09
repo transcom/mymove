@@ -56,6 +56,11 @@ type MTOServiceItem struct {
 	RejectedAt                    *time.Time                     `db:"rejected_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (m MTOServiceItem) TableName() string {
+	return "mto_service_items"
+}
+
 // MTOServiceItems is a slice containing MTOServiceItems
 type MTOServiceItems []MTOServiceItem
 
@@ -75,9 +80,4 @@ func (m *MTOServiceItem) Validate(tx *pop.Connection) (*validate.Errors, error) 
 	vs = append(vs, &StringIsNilOrNotBlank{Field: m.Description, Name: "Description"})
 
 	return validate.Validate(vs...), nil
-}
-
-// TableName overrides the table name used by Pop.
-func (m MTOServiceItem) TableName() string {
-	return "mto_service_items"
 }

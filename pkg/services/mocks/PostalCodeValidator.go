@@ -19,13 +19,16 @@ func (_m *PostalCodeValidator) ValidatePostalCode(appCtx appcontext.AppContext, 
 	ret := _m.Called(appCtx, postalCode, postalCodeType)
 
 	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, services.PostalCodeType) (bool, error)); ok {
+		return rf(appCtx, postalCode, postalCodeType)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, services.PostalCodeType) bool); ok {
 		r0 = rf(appCtx, postalCode, postalCodeType)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, services.PostalCodeType) error); ok {
 		r1 = rf(appCtx, postalCode, postalCodeType)
 	} else {

@@ -36,6 +36,11 @@ type WebhookSubscription struct {
 	UpdatedAt    time.Time                 `db:"updated_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (wS WebhookSubscription) TableName() string {
+	return "webhook_subscriptions"
+}
+
 // WebhookSubscriptions is an array of webhook subscriptions
 type WebhookSubscriptions []WebhookSubscription
 
@@ -51,9 +56,4 @@ func (wS *WebhookSubscription) Validate(tx *pop.Connection) (*validate.Errors, e
 			string(WebhookSubscriptionStatusFailing),
 		}},
 	), nil
-}
-
-// TableName overrides the table name used by Pop.
-func (wS *WebhookSubscription) TableName() string {
-	return "webhook_subscriptions"
 }

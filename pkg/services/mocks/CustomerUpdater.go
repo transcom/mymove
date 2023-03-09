@@ -19,6 +19,10 @@ func (_m *CustomerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag str
 	ret := _m.Called(appCtx, eTag, customer)
 
 	var r0 *models.ServiceMember
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, models.ServiceMember) (*models.ServiceMember, error)); ok {
+		return rf(appCtx, eTag, customer)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, models.ServiceMember) *models.ServiceMember); ok {
 		r0 = rf(appCtx, eTag, customer)
 	} else {
@@ -27,7 +31,6 @@ func (_m *CustomerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag str
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, models.ServiceMember) error); ok {
 		r1 = rf(appCtx, eTag, customer)
 	} else {

@@ -33,6 +33,10 @@ func (_m *MoveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, mov
 	ret := _m.Called(appCtx, move)
 
 	var r0 *models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.Move) (*models.Move, error)); ok {
+		return rf(appCtx, move)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.Move) *models.Move); ok {
 		r0 = rf(appCtx, move)
 	} else {
@@ -41,7 +45,6 @@ func (_m *MoveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, mov
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.Move) error); ok {
 		r1 = rf(appCtx, move)
 	} else {

@@ -25,6 +25,11 @@ func (_m *AdminUserUpdater) UpdateAdminUser(appCtx appcontext.AppContext, id uui
 	ret := _m.Called(appCtx, id, payload)
 
 	var r0 *models.AdminUser
+	var r1 *validate.Errors
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *adminmessages.AdminUserUpdate) (*models.AdminUser, *validate.Errors, error)); ok {
+		return rf(appCtx, id, payload)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *adminmessages.AdminUserUpdate) *models.AdminUser); ok {
 		r0 = rf(appCtx, id, payload)
 	} else {
@@ -33,7 +38,6 @@ func (_m *AdminUserUpdater) UpdateAdminUser(appCtx appcontext.AppContext, id uui
 		}
 	}
 
-	var r1 *validate.Errors
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *adminmessages.AdminUserUpdate) *validate.Errors); ok {
 		r1 = rf(appCtx, id, payload)
 	} else {
@@ -42,7 +46,6 @@ func (_m *AdminUserUpdater) UpdateAdminUser(appCtx appcontext.AppContext, id uui
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *adminmessages.AdminUserUpdate) error); ok {
 		r2 = rf(appCtx, id, payload)
 	} else {

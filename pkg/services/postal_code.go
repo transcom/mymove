@@ -13,7 +13,7 @@ const (
 
 // PostalCodeValidator is the service object interface for ValidatePostalCode
 //
-//go:generate mockery --name PostalCodeValidator --disable-version-string
+//go:generate mockery --name PostalCodeValidator
 type PostalCodeValidator interface {
 	ValidatePostalCode(appCtx appcontext.AppContext, postalCode string, postalCodeType PostalCodeType) (bool, error)
 }

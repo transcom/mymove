@@ -21,6 +21,10 @@ func (_m *PPMShipmentUpdatedSubmitter) SubmitUpdatedCustomerCloseOut(appCtx appc
 	ret := _m.Called(appCtx, ppmShipmentID, signedCertification, eTag)
 
 	var r0 *models.PPMShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.SignedCertification, string) (*models.PPMShipment, error)); ok {
+		return rf(appCtx, ppmShipmentID, signedCertification, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.SignedCertification, string) *models.PPMShipment); ok {
 		r0 = rf(appCtx, ppmShipmentID, signedCertification, eTag)
 	} else {
@@ -29,7 +33,6 @@ func (_m *PPMShipmentUpdatedSubmitter) SubmitUpdatedCustomerCloseOut(appCtx appc
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.SignedCertification, string) error); ok {
 		r1 = rf(appCtx, ppmShipmentID, signedCertification, eTag)
 	} else {

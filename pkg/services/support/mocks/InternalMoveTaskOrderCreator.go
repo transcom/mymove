@@ -21,6 +21,10 @@ func (_m *InternalMoveTaskOrderCreator) InternalCreateMoveTaskOrder(appCtx appco
 	ret := _m.Called(appCtx, moveTaskOrder)
 
 	var r0 *models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, supportmessages.MoveTaskOrder) (*models.Move, error)); ok {
+		return rf(appCtx, moveTaskOrder)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, supportmessages.MoveTaskOrder) *models.Move); ok {
 		r0 = rf(appCtx, moveTaskOrder)
 	} else {
@@ -29,7 +33,6 @@ func (_m *InternalMoveTaskOrderCreator) InternalCreateMoveTaskOrder(appCtx appco
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, supportmessages.MoveTaskOrder) error); ok {
 		r1 = rf(appCtx, moveTaskOrder)
 	} else {

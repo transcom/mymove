@@ -12,6 +12,6 @@ type OriginDutyLocationToGBLOC struct {
 }
 
 // TableName overrides the table name used by Pop.
-func (m OriginDutyLocationToGBLOC) TableName() string {
+func (o OriginDutyLocationToGBLOC) TableName() string {
 	return "origin_duty_location_to_gbloc"
 }

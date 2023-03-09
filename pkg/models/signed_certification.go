@@ -50,7 +50,11 @@ type SignedCertification struct {
 	Date                     time.Time                `json:"date" db:"date"`
 }
 
-// SignedCertifications is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (s SignedCertification) TableName() string {
+	return "signed_certifications"
+}
+
 type SignedCertifications []SignedCertification
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate,

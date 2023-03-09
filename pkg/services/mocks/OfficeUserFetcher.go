@@ -21,13 +21,16 @@ func (_m *OfficeUserFetcher) FetchOfficeUser(appCtx appcontext.AppContext, filte
 	ret := _m.Called(appCtx, filters)
 
 	var r0 models.OfficeUser
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) (models.OfficeUser, error)); ok {
+		return rf(appCtx, filters)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) models.OfficeUser); ok {
 		r0 = rf(appCtx, filters)
 	} else {
 		r0 = ret.Get(0).(models.OfficeUser)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []services.QueryFilter) error); ok {
 		r1 = rf(appCtx, filters)
 	} else {

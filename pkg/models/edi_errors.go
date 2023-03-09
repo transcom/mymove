@@ -23,6 +23,11 @@ type EdiError struct {
 	EDIType                    EDIType                                  `json:"edi_type" db:"edi_type"`
 }
 
+// TableName overrides the table name used by Pop.
+func (e EdiError) TableName() string {
+	return "edi_errors"
+}
+
 // EdiErrors is a list of EDI Error
 type EdiErrors []EdiError
 
