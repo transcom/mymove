@@ -140,9 +140,6 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			}
 			originDutyLocation := serviceMember.DutyLocation
 			originDutyLocationGBLOC := serviceMember.DutyLocation.TransportationOffice.Gbloc
-			if *serviceMember.Affiliation == "MARINES" {
-				originDutyLocationGBLOC = "USMC"
-			}
 
 			grade := (*string)(serviceMember.Rank)
 

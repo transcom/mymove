@@ -77,9 +77,6 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	}
 
 	originDutyLocationGBLOC := originDutyLocation.TransportationOffice.Gbloc
-	if *sm.Affiliation == "MARINES" {
-		originDutyLocationGBLOC = "USMC"
-	}
 	orderTypeDetail := assertions.Order.OrdersTypeDetail
 	hhgPermittedString := internalmessages.OrdersTypeDetail("HHG_PERMITTED")
 	if orderTypeDetail == nil || *orderTypeDetail == "" {
@@ -187,9 +184,6 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 	}
 
 	originDutyLocationGBLOC := originDutyLocation.TransportationOffice.Gbloc
-	if *sm.Affiliation == "MARINES" {
-		originDutyLocationGBLOC = "USMC"
-	}
 	var orderTypeDetail *internalmessages.OrdersTypeDetail
 	if assertions.Order.OrdersTypeDetail != nil {
 		orderTypeDetail = assertions.Order.OrdersTypeDetail

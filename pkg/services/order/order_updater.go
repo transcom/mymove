@@ -544,6 +544,10 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		order.OriginDutyLocationID = &originDutyLocation.ID
 		order.OriginDutyLocation = &originDutyLocation
 
+		// if originDutyLocation.TransportationOffice.Gbloc != "" {
+		// 	order.OriginDutyLocationGBLOC = &originDutyLocation.TransportationOffice.Gbloc
+		// }
+
 		order.ServiceMember.DutyLocationID = &originDutyLocation.ID
 		order.ServiceMember.DutyLocation = originDutyLocation
 	}

@@ -1296,18 +1296,18 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 		// TESTCASE SCENARIO
 		// Under test: OrderFetcher.ListOrders function
 		// Mocked:     None
-		// Set up:     We create 2 moves with different GBLOCs, LKNQ and ZANY. Both moves require service counseling
-		//             We create an office user with the GBLOC LKNQ
+		// Set up:     We create 2 moves with different GBLOCs, KKFA and ZANY. Both moves require service counseling
+		//             We create an office user with the GBLOC KKFA
 		//             Then we request a list of moves sorted by GBLOC, ascending for service counseling
 		// Expected outcome:
-		//             We expect only the move that matches the counselors GBLOC - aka the LKNQ move.
+		//             We expect only the move that matches the counselors GBLOC - aka the KKFA move.
 
 		// Create a services counselor (default GBLOC is KKFA)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		// Create a move with Origin LKNQ, needs service couseling
+		// Create a move with Origin KKFA, needs service couseling
 		hhgMoveType := models.SelectedMoveTypeHHG
-		lknqMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		kkfaMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				SelectedMoveType: &hhgMoveType,
 				Status:           models.MoveStatusNeedsServiceCounseling,
@@ -1369,7 +1369,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 		// Expect only LKNQ move to be returned
 		suite.NoError(err)
 		suite.Equal(1, len(moves))
-		suite.Equal(lknqMove.ID, moves[0].ID)
+		suite.Equal(kkfaMove.ID, moves[0].ID)
 	})
 }
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {

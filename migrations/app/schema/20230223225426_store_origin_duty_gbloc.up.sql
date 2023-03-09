@@ -8,14 +8,6 @@ COMMENT ON COLUMN orders.gbloc IS 'Services Counselor and TIO users from transpo
 
 
 -- Backfill gbloc data
--- Start with USMC cases
-UPDATE orders
-SET gbloc = 'USMC'
-WHERE orders.service_member_id IN (
-    SELECT id FROM service_members WHERE affiliation = 'MARINES'
-);
-
--- Update the remaining orders records. Use the query currently used to define origin_duty_location_to_gbloc view
 UPDATE orders
 SET gbloc = (
     SELECT pctg.gbloc
