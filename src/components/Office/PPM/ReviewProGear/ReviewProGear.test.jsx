@@ -73,7 +73,7 @@ describe('ReviewProGear component', () => {
       expect(screen.getByLabelText('Weight tickets')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Constructed weight')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByTestId('pro-gear weight value')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Constructed pro-gear weight')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByRole('heading', { level: 3, name: 'Review pro-gear 1' })).toBeInTheDocument();
       expect(screen.getByText('Add a review for this pro-gear')).toBeInTheDocument();
@@ -102,7 +102,7 @@ describe('ReviewProGear component', () => {
         </MockProviders>,
       );
       await waitFor(() => {
-        expect(screen.getByTestId('constructed-weight')).toBeChecked();
+        expect(screen.getByLabelText('Constructed weight')).toBeChecked();
         expect(screen.getByText('Constructed pro-gear weight')).toBeInTheDocument();
       });
     });

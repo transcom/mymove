@@ -13,7 +13,7 @@ import styles from './ReviewProGear.module.scss';
 
 import { ErrorMessage } from 'components/form';
 import { patchProGearWeightTicket } from 'services/ghcApi';
-import { PPMShipmentShape, ProGearTicketShape, ShipmentShape } from 'types/shipment';
+import { ProGearTicketShape, ShipmentShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
@@ -66,7 +66,7 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
       belongsToSelf: values.belongsToSelf === 'true',
       hasWeightTickets: hasWeightTicketValue,
       weight: parseInt(values.proGearWeight, 10),
-      reason: values.status === 'APPROVED' ? null : values.rejectionReason,
+      reason: values.status === ppmDocumentStatus.APPROVED ? null : values.rejectionReason,
       status: values.status,
     };
     patchProGearMutation({
@@ -154,7 +154,6 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
                     label="Constructed weight"
                     name="missingWeightTicket"
                     value="true"
-                    data-testid="constructed-weight"
                     checked={values.missingWeightTicket === 'true'}
                   />
                 </Fieldset>
@@ -172,7 +171,6 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
-                data-testid="pro-gear weight value"
               />
               <h3 className={styles.reviewHeader}>Review pro-gear {tripNumber}</h3>
               <p>Add a review for this pro-gear</p>
@@ -262,7 +260,6 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
 
 ReviewProGear.propTypes = {
   proGear: ProGearTicketShape,
-  ppmShipment: PPMShipmentShape,
   mtoShipment: ShipmentShape,
   tripNumber: number.isRequired,
   ppmNumber: number.isRequired,
@@ -272,7 +269,6 @@ ReviewProGear.propTypes = {
 
 ReviewProGear.defaultProps = {
   proGear: null,
-  ppmShipment: null,
   mtoShipment: null,
   onSuccess: null,
   formRef: null,

@@ -65,15 +65,6 @@
     color: $base-darkest;
   }
 
-  .statusOption {
-    :global {
-      .usa-radio__label {
-        font-weight: bold;
-      }
-    }
-  }
-
-
   :global(.usa-input) {
       color: $base-darkest;
       @include u-font-size('body', 'xs');
@@ -87,13 +78,7 @@
     @include u-margin-bottom(0);
   }
 
-  .acceptRadio {
-    label {
-      @include u-text('bold');
-    }
-  }
-
-  .rejectRadio {
+  .acceptRadio, .rejectRadio {
     label {
       @include u-text('bold');
     }

@@ -92,10 +92,7 @@ export const ReviewDocuments = ({ match }) => {
   const history = useHistory();
 
   const formRef = useRef();
-
-  const weightTicketPanelRef = useRef();
-  const proGearRef = useRef();
-  const expenseRef = useRef();
+  const mainRef = useRef();
 
   const [serverError, setServerError] = useState(null);
   const [showOverview, setShowOverview] = useState(false);
@@ -147,62 +144,6 @@ export const ReviewDocuments = ({ match }) => {
   const currentDocumentSet = documentSets[documentSetIndex];
   const disableBackButton = documentSetIndex === 0 && !showOverview;
 
-  const documentSetsType = () => {
-    const docsType = currentDocumentSet.documentSetType;
-    switch (docsType) {
-      case DOCUMENT_TYPES.WEIGHT_TICKET:
-        return (
-          <ReviewWeightTicket
-            weightTicket={currentDocumentSet.documentSet}
-            ppmNumber={1}
-            tripNumber={currentDocumentSet.tripNumber}
-            mtoShipment={mtoShipment}
-            onError={onError}
-            onSuccess={onSuccess}
-            formRef={formRef}
-          />
-        );
-      case DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET:
-        return (
-          <ReviewProGear
-            proGear={currentDocumentSet.documentSet}
-            ppmNumber={1}
-            tripNumber={currentDocumentSet.tripNumber}
-            mtoShipment={mtoShipment}
-            onError={onError}
-            onSuccess={onSuccess}
-            formRef={formRef}
-          />
-        );
-      case DOCUMENT_TYPES.MOVING_EXPENSE:
-        return (
-          <ReviewExpense
-            expense={currentDocumentSet.documentSet}
-            ppmNumber={1}
-            tripNumber={currentDocumentSet.tripNumber}
-            mtoShipment={mtoShipment}
-            onError={onError}
-            onSuccess={onSuccess}
-            formRef={formRef}
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
-  const setFormRef = () => {
-    let docRef;
-    if (currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET) {
-      docRef = weightTicketPanelRef;
-    } else if (currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
-      docRef = proGearRef;
-    } else {
-      docRef = expenseRef;
-    }
-    return docRef;
-  };
-
   return (
     <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
@@ -215,8 +156,8 @@ export const ReviewDocuments = ({ match }) => {
         supertitle={`${documentSetIndex + 1} of ${documentSets.length} Document Sets`}
         defaultH3
       >
-        <DocumentViewerSidebar.Content mainRef={setFormRef()}>
-          <NotificationScrollToTop dependency={documentSetIndex || serverError} target={setFormRef().current} />
+        <DocumentViewerSidebar.Content mainRef={mainRef}>
+          <NotificationScrollToTop dependency={documentSetIndex || serverError} target={mainRef.current} />
           <ErrorMessage display={!!serverError}>{serverError}</ErrorMessage>
           {documentSets &&
             (showOverview ? (
@@ -230,43 +171,41 @@ export const ReviewDocuments = ({ match }) => {
                 formRef={formRef}
               />
             ) : (
-              documentSetsType()
-              // NEED TO LOOK AT REVIEW EXPENSES PR & DECIDE WHICH APPROACH IS MORE FITTING
-              // <>
-              //   {currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
-              //     <ReviewWeightTicket
-              //       weightTicket={currentDocumentSet.documentSet}
-              //       ppmNumber={1}
-              //       tripNumber={currentDocumentSet.tripNumber}
-              //       mtoShipment={mtoShipment}
-              //       onError={onError}
-              //       onSuccess={onSuccess}
-              //       formRef={formRef}
-              //     />
-              //   )}
-              //   {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PRO_GEAR && (
-              //     <ReviewProGear
-              //       proGear={currentDocumentSet.documentSet}
-              //       ppmNumber={1}
-              //       tripNumber={currentDocumentSet.tripNumber}
-              //       mtoShipment={mtoShipment}
-              //       onError={onError}
-              //       onSuccess={onSuccess}
-              //       formRef={formRef}
-              //     />
-              //   )}
-              //   {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
-              //     <ReviewExpense
-              //       expense={currentDocumentSet.documentSet}
-              //       ppmNumber={1}
-              //       tripNumber={currentDocumentSet.tripNumber}
-              //       mtoShipment={mtoShipment}
-              //       onError={onError}
-              //       onSuccess={onSuccess}
-              //       formRef={formRef}
-              //     />
-              //   )}
-              // </>
+              <>
+                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
+                  <ReviewWeightTicket
+                    weightTicket={currentDocumentSet.documentSet}
+                    ppmNumber={1}
+                    tripNumber={currentDocumentSet.tripNumber}
+                    mtoShipment={mtoShipment}
+                    onError={onError}
+                    onSuccess={onSuccess}
+                    formRef={formRef}
+                  />
+                )}
+                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
+                  <ReviewProGear
+                    proGear={currentDocumentSet.documentSet}
+                    ppmNumber={1}
+                    tripNumber={currentDocumentSet.tripNumber}
+                    mtoShipment={mtoShipment}
+                    onError={onError}
+                    onSuccess={onSuccess}
+                    formRef={formRef}
+                  />
+                )}
+                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
+                  <ReviewExpense
+                    expense={currentDocumentSet.documentSet}
+                    ppmNumber={1}
+                    tripNumber={currentDocumentSet.tripNumber}
+                    mtoShipment={mtoShipment}
+                    onError={onError}
+                    onSuccess={onSuccess}
+                    formRef={formRef}
+                  />
+                )}
+              </>
             ))}
         </DocumentViewerSidebar.Content>
         <DocumentViewerSidebar.Footer>
