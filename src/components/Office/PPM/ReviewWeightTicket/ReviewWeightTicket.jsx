@@ -70,7 +70,7 @@ export default function ReviewWeightTicket({
       missingFullWeightTicket: weightTicket.missingFullWeightTicket,
       ownsTrailer,
       trailerMeetsCriteria,
-      reason: values.status === 'APPROVED' ? null : values.rejectionReason,
+      reason: values.status === ppmDocumentStatus.APPROVED ? null : values.rejectionReason,
       status: values.status,
     };
     patchWeightTicketMutation({

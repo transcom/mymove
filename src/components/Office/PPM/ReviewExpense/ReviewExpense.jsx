@@ -77,7 +77,7 @@ export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNum
       paidWithGtcc: values.paidWithGtcc,
       sitStartDate: formatDate(values.sitStartDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
       sitEndDate: formatDate(values.sitEndDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
-      reason: values.status === 'APPROVED' ? null : values.reason,
+      reason: values.status === ppmDocumentStatus.APPROVED ? null : values.reason,
       status: values.status,
     };
     patchExpenseMutation({
