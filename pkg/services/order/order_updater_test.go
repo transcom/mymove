@@ -93,10 +93,18 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		move := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
 		order := move.Orders
 
+		updatedGbloc := testdatagen.MakePostalCodeToGBLOC(suite.DB(), "89898", "UUUU")
+
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
 		updatedDestinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
-		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: updatedGbloc.GBLOC,
+				},
+			},
+		}, nil)
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -139,6 +147,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.EqualValues(&updatedOriginDutyLocation.ID, fetchedSM.DutyLocationID)
 		suite.EqualValues(updatedOriginDutyLocation.ID, fetchedSM.DutyLocation.ID)
 		suite.EqualValues(updatedOriginDutyLocation.Name, fetchedSM.DutyLocation.Name)
+		suite.EqualValues(updatedOriginDutyLocation.TransportationOffice.Gbloc, updatedOrder.OriginDutyLocationGBLOC)
 
 		var moveInDB models.Move
 		err = suite.DB().Find(&moveInDB, move.ID)
