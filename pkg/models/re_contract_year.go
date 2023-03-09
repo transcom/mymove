@@ -25,11 +25,14 @@ type ReContractYear struct {
 	Contract ReContract `belongs_to:"re_contract" fk_id:"contract_id"`
 }
 
-// ReContractYears is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (r ReContractYear) TableName() string {
+	return "re_contract_years"
+}
+
 type ReContractYears []ReContractYear
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (r *ReContractYear) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},

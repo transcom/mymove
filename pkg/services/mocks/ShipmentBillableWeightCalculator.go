@@ -19,13 +19,16 @@ func (_m *ShipmentBillableWeightCalculator) CalculateShipmentBillableWeight(ship
 	ret := _m.Called(shipment)
 
 	var r0 services.BillableWeightInputs
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*models.MTOShipment) (services.BillableWeightInputs, error)); ok {
+		return rf(shipment)
+	}
 	if rf, ok := ret.Get(0).(func(*models.MTOShipment) services.BillableWeightInputs); ok {
 		r0 = rf(shipment)
 	} else {
 		r0 = ret.Get(0).(services.BillableWeightInputs)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(*models.MTOShipment) error); ok {
 		r1 = rf(shipment)
 	} else {

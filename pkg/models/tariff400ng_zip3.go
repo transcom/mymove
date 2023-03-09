@@ -23,11 +23,14 @@ type Tariff400ngZip3 struct {
 	Region        string    `json:"region" db:"region"`
 }
 
-// Tariff400ngZip3s is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (t Tariff400ngZip3) TableName() string {
+	return "tariff400ng_zip3s"
+}
+
 type Tariff400ngZip3s []Tariff400ngZip3
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (t *Tariff400ngZip3) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringLengthInRange{Field: t.Zip3, Name: "Zip3", Min: 3, Max: 3},

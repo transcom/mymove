@@ -23,8 +23,9 @@ type PWSViolation struct {
 	AdditionalDataElem   string               `db:"additional_data_elem"`
 }
 
-type PWSViolations []PWSViolation
-
+// TableName overrides the table name used by Pop.
 func (p PWSViolation) TableName() string {
 	return "pws_violations"
 }
+
+type PWSViolations []PWSViolation

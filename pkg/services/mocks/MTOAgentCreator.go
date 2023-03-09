@@ -19,6 +19,10 @@ func (_m *MTOAgentCreator) CreateMTOAgentPrime(appCtx appcontext.AppContext, mto
 	ret := _m.Called(appCtx, mtoAgent)
 
 	var r0 *models.MTOAgent
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOAgent) (*models.MTOAgent, error)); ok {
+		return rf(appCtx, mtoAgent)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOAgent) *models.MTOAgent); ok {
 		r0 = rf(appCtx, mtoAgent)
 	} else {
@@ -27,7 +31,6 @@ func (_m *MTOAgentCreator) CreateMTOAgentPrime(appCtx appcontext.AppContext, mto
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOAgent) error); ok {
 		r1 = rf(appCtx, mtoAgent)
 	} else {

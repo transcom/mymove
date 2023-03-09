@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { shipmentStatuses } from 'constants/shipments';
-import { calculateShipmentNetWeight } from 'utils/shipmentWeights';
+import { calculateShipmentNetWeight, getShipmentEstimatedWeight } from 'utils/shipmentWeights';
 
 // only sum estimated/actual/reweigh weights for shipments in these statuses
 export const includedStatusesForCalculatingWeights = (status) => {
@@ -24,8 +24,8 @@ export const useCalculatedTotalBillableWeight = (mtoShipments) => {
   }, [mtoShipments]);
 };
 
-export const useCalculatedWeightRequested = (mtoShipments) => {
-  return useMemo(() => {
+export const calculateWeightRequested = (mtoShipments) => {
+  if (mtoShipments?.some((s) => includedStatusesForCalculatingWeights(s.status) && calculateShipmentNetWeight(s))) {
     return (
       mtoShipments
         ?.filter((s) => includedStatusesForCalculatingWeights(s.status))
@@ -33,15 +33,22 @@ export const useCalculatedWeightRequested = (mtoShipments) => {
           return prev + (calculateShipmentNetWeight(current) || 0);
         }, 0) || null
     );
+  }
+  return null;
+};
+
+export const useCalculatedWeightRequested = (mtoShipments) => {
+  return useMemo(() => {
+    return calculateWeightRequested(mtoShipments);
   }, [mtoShipments]);
 };
 
 export const calculateEstimatedWeight = (mtoShipments) => {
-  if (mtoShipments?.some((s) => includedStatusesForCalculatingWeights(s.status) && s.primeEstimatedWeight)) {
+  if (mtoShipments?.some((s) => includedStatusesForCalculatingWeights(s.status) && getShipmentEstimatedWeight(s))) {
     return mtoShipments
-      ?.filter((s) => includedStatusesForCalculatingWeights(s.status) && s.primeEstimatedWeight)
+      ?.filter((s) => includedStatusesForCalculatingWeights(s.status) && getShipmentEstimatedWeight(s))
       .reduce((prev, current) => {
-        return prev + current.primeEstimatedWeight;
+        return prev + getShipmentEstimatedWeight(current);
       }, 0);
   }
   return null;

@@ -19,6 +19,10 @@ func (_m *EvaluationReportCreator) CreateEvaluationReport(appCtx appcontext.AppC
 	ret := _m.Called(appCtx, evaluationReport, locator)
 
 	var r0 *models.EvaluationReport
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.EvaluationReport, string) (*models.EvaluationReport, error)); ok {
+		return rf(appCtx, evaluationReport, locator)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.EvaluationReport, string) *models.EvaluationReport); ok {
 		r0 = rf(appCtx, evaluationReport, locator)
 	} else {
@@ -27,7 +31,6 @@ func (_m *EvaluationReportCreator) CreateEvaluationReport(appCtx appcontext.AppC
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.EvaluationReport, string) error); ok {
 		r1 = rf(appCtx, evaluationReport, locator)
 	} else {

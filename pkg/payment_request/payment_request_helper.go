@@ -5,7 +5,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-//go:generate mockery --name Helper --disable-version-string
+//go:generate mockery --name Helper
 type Helper interface {
 	FetchServiceParamList(appCtx appcontext.AppContext, mtoServiceItem models.MTOServiceItem) (models.ServiceParams, error)
 	FetchServiceParamsForServiceItems(appCtx appcontext.AppContext, mtoServiceItems []models.MTOServiceItem) (models.ServiceParams, error)

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/flect/name"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/lib/pq"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -47,7 +48,14 @@ func (c tableFromSliceCreator) CreateTableFromSlice(appCtx appcontext.AppContext
 		builder.WriteString("TEMP ")
 	}
 	builder.WriteString("TABLE ")
-	tableName := name.Tableize(elementType.Name())
+
+	var tableName string
+	if modelTable, ok := reflect.New(elementType).Interface().(pop.TableNameAble); ok {
+		tableName = modelTable.TableName()
+	} else {
+		tableName = name.Tableize(elementType.Name())
+	}
+
 	builder.WriteString(tableName)
 	builder.WriteString("(")
 	numFields := elementType.NumField()

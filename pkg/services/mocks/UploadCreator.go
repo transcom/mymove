@@ -22,6 +22,10 @@ func (_m *UploadCreator) CreateUpload(appCtx appcontext.AppContext, file io.Read
 	ret := _m.Called(appCtx, file, uploadFilename, uploadType)
 
 	var r0 *models.Upload
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, io.ReadCloser, string, models.UploadType) (*models.Upload, error)); ok {
+		return rf(appCtx, file, uploadFilename, uploadType)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, io.ReadCloser, string, models.UploadType) *models.Upload); ok {
 		r0 = rf(appCtx, file, uploadFilename, uploadType)
 	} else {
@@ -30,7 +34,6 @@ func (_m *UploadCreator) CreateUpload(appCtx appcontext.AppContext, file io.Read
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, io.ReadCloser, string, models.UploadType) error); ok {
 		r1 = rf(appCtx, file, uploadFilename, uploadType)
 	} else {

@@ -21,6 +21,10 @@ func (_m *WeightTicketFetcher) GetWeightTicket(appCtx appcontext.AppContext, wei
 	ret := _m.Called(appCtx, weightTicketID)
 
 	var r0 *models.WeightTicket
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.WeightTicket, error)); ok {
+		return rf(appCtx, weightTicketID)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.WeightTicket); ok {
 		r0 = rf(appCtx, weightTicketID)
 	} else {
@@ -29,7 +33,6 @@ func (_m *WeightTicketFetcher) GetWeightTicket(appCtx appcontext.AppContext, wei
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, weightTicketID)
 	} else {

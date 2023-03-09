@@ -66,27 +66,18 @@ type ServiceMember struct {
 	DutyLocation           DutyLocation              `belongs_to:"duty_locations" fk_id:"duty_location_id"`
 }
 
-// ServiceMembers is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (s ServiceMember) TableName() string {
+	return "service_members"
+}
+
 type ServiceMembers []ServiceMember
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (s *ServiceMember) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: s.UserID, Name: "UserID"},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (s *ServiceMember) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }
 
 // FetchServiceMemberForUser returns a service member only if it is allowed for the given user to access that service member.

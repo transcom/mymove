@@ -67,7 +67,11 @@ type Order struct {
 	OriginDutyLocationGBLOC     *string                            `json:"origin_duty_location_gbloc" db:"gbloc"`
 }
 
-// Orders is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (o Order) TableName() string {
+	return "orders"
+}
+
 type Orders []Order
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

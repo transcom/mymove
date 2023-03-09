@@ -23,6 +23,11 @@ func (_m *AdminUserCreator) CreateAdminUser(appCtx appcontext.AppContext, user *
 	ret := _m.Called(appCtx, user, organizationIDFilter)
 
 	var r0 *models.AdminUser
+	var r1 *validate.Errors
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.AdminUser, []services.QueryFilter) (*models.AdminUser, *validate.Errors, error)); ok {
+		return rf(appCtx, user, organizationIDFilter)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.AdminUser, []services.QueryFilter) *models.AdminUser); ok {
 		r0 = rf(appCtx, user, organizationIDFilter)
 	} else {
@@ -31,7 +36,6 @@ func (_m *AdminUserCreator) CreateAdminUser(appCtx appcontext.AppContext, user *
 		}
 	}
 
-	var r1 *validate.Errors
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.AdminUser, []services.QueryFilter) *validate.Errors); ok {
 		r1 = rf(appCtx, user, organizationIDFilter)
 	} else {
@@ -40,7 +44,6 @@ func (_m *AdminUserCreator) CreateAdminUser(appCtx appcontext.AppContext, user *
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *models.AdminUser, []services.QueryFilter) error); ok {
 		r2 = rf(appCtx, user, organizationIDFilter)
 	} else {

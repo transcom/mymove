@@ -23,11 +23,14 @@ type ReRateArea struct {
 	Contract ReContract `belongs_to:"re_contract" fk_id:"contract_id"`
 }
 
-// ReRateAreas is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (r ReRateArea) TableName() string {
+	return "re_rate_areas"
+}
+
 type ReRateAreas []ReRateArea
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (r *ReRateArea) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},

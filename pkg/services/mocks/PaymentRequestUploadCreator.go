@@ -24,6 +24,10 @@ func (_m *PaymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext
 	ret := _m.Called(appCtx, file, paymentRequestID, userID, filename)
 
 	var r0 *models.Upload
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, io.ReadCloser, uuid.UUID, uuid.UUID, string) (*models.Upload, error)); ok {
+		return rf(appCtx, file, paymentRequestID, userID, filename)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, io.ReadCloser, uuid.UUID, uuid.UUID, string) *models.Upload); ok {
 		r0 = rf(appCtx, file, paymentRequestID, userID, filename)
 	} else {
@@ -32,7 +36,6 @@ func (_m *PaymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, io.ReadCloser, uuid.UUID, uuid.UUID, string) error); ok {
 		r1 = rf(appCtx, file, paymentRequestID, userID, filename)
 	} else {

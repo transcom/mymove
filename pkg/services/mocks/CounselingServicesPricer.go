@@ -25,13 +25,17 @@ func (_m *CounselingServicesPricer) Price(appCtx appcontext.AppContext, contract
 	ret := _m.Called(appCtx, contractCode, mtoAvailableToPrimeAt)
 
 	var r0 unit.Cents
+	var r1 services.PricingDisplayParams
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time) (unit.Cents, services.PricingDisplayParams, error)); ok {
+		return rf(appCtx, contractCode, mtoAvailableToPrimeAt)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time) unit.Cents); ok {
 		r0 = rf(appCtx, contractCode, mtoAvailableToPrimeAt)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 services.PricingDisplayParams
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time) services.PricingDisplayParams); ok {
 		r1 = rf(appCtx, contractCode, mtoAvailableToPrimeAt)
 	} else {
@@ -40,7 +44,6 @@ func (_m *CounselingServicesPricer) Price(appCtx appcontext.AppContext, contract
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time) error); ok {
 		r2 = rf(appCtx, contractCode, mtoAvailableToPrimeAt)
 	} else {
@@ -55,13 +58,17 @@ func (_m *CounselingServicesPricer) PriceUsingParams(appCtx appcontext.AppContex
 	ret := _m.Called(appCtx, params)
 
 	var r0 unit.Cents
+	var r1 services.PricingDisplayParams
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error)); ok {
+		return rf(appCtx, params)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentServiceItemParams) unit.Cents); ok {
 		r0 = rf(appCtx, params)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 services.PricingDisplayParams
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PaymentServiceItemParams) services.PricingDisplayParams); ok {
 		r1 = rf(appCtx, params)
 	} else {
@@ -70,7 +77,6 @@ func (_m *CounselingServicesPricer) PriceUsingParams(appCtx appcontext.AppContex
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, models.PaymentServiceItemParams) error); ok {
 		r2 = rf(appCtx, params)
 	} else {

@@ -22,6 +22,11 @@ type StorageFacility struct {
 	DeletedAt    *time.Time `json:"deleted_at" db:"deleted_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (f StorageFacility) TableName() string {
+	return "storage_facilities"
+}
+
 type StorageFacilities []StorageFacility
 
 func (f *StorageFacility) Validate(tx *pop.Connection) (*validate.Errors, error) {
