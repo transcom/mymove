@@ -107,7 +107,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				Agents:               nil,
 				CustomerRemarks:      nil,
 				PointOfContact:       "John Doe",
-				PrimeEstimatedWeight: 1200,
+				PrimeEstimatedWeight: handlers.FmtInt64(1200),
 				RequestedPickupDate:  handlers.FmtDatePtr(swag.Time(time.Now())),
 				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
@@ -248,7 +248,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			Body: &primemessages.CreateMTOShipment{
 				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
 				PointOfContact:       "John Doe",
-				PrimeEstimatedWeight: 1200,
+				PrimeEstimatedWeight: handlers.FmtInt64(1200),
 				RequestedPickupDate:  handlers.FmtDatePtr(swag.Time(time.Now())),
 				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
@@ -288,7 +288,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			Body: &primemessages.CreateMTOShipment{
 				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
 				PointOfContact:       "John Doe",
-				PrimeEstimatedWeight: 1200,
+				PrimeEstimatedWeight: handlers.FmtInt64(1200),
 				Agents:               primemessages.MTOAgents{agent},
 				RequestedPickupDate:  handlers.FmtDatePtr(swag.Time(time.Now())),
 				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
@@ -325,7 +325,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			Body: &primemessages.CreateMTOShipment{
 				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
 				PointOfContact:       "John Doe",
-				PrimeEstimatedWeight: 1200,
+				PrimeEstimatedWeight: handlers.FmtInt64(1200),
 				RequestedPickupDate:  handlers.FmtDatePtr(swag.Time(time.Now())),
 				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
@@ -365,7 +365,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			Body: &primemessages.CreateMTOShipment{
 				MoveTaskOrderID:      &badID,
 				PointOfContact:       "John Doe",
-				PrimeEstimatedWeight: 1200,
+				PrimeEstimatedWeight: handlers.FmtInt64(1200),
 				RequestedPickupDate:  handlers.FmtDatePtr(swag.Time(time.Now())),
 				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
@@ -420,7 +420,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			Body: &primemessages.CreateMTOShipment{
 				MoveTaskOrderID:      handlers.FmtUUID(unavailableMove.ID),
 				PointOfContact:       "John Doe",
-				PrimeEstimatedWeight: 1200,
+				PrimeEstimatedWeight: handlers.FmtInt64(1200),
 				RequestedPickupDate:  handlers.FmtDatePtr(swag.Time(time.Now())),
 				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
@@ -474,7 +474,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			Body: &primemessages.CreateMTOShipment{
 				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
 				PointOfContact:       "John Doe",
-				PrimeEstimatedWeight: 1200,
+				PrimeEstimatedWeight: handlers.FmtInt64(1200),
 				RequestedPickupDate:  handlers.FmtDatePtr(swag.Time(time.Now())),
 				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
 			},
@@ -985,8 +985,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			HTTPRequest:   minimalReq,
 			MtoShipmentID: *handlers.FmtUUID(minimalShipment.ID),
 			Body: &primemessages.UpdateMTOShipment{
-				PrimeEstimatedWeight: int64(primeEstimatedWeight), // New estimated weight
-				PrimeActualWeight:    int64(primeActualWeight),    // New actual weight
+				PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight), // New estimated weight
+				PrimeActualWeight:    int64(primeActualWeight),                    // New actual weight
 			},
 			IfMatch: eTag,
 		}
@@ -1008,7 +1008,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		// Confirm changes to weights
 		suite.Equal(int64(primeActualWeight), okPayload.PrimeActualWeight)
-		suite.Equal(int64(primeEstimatedWeight), okPayload.PrimeEstimatedWeight)
+		suite.Equal(int64(primeEstimatedWeight), *okPayload.PrimeEstimatedWeight)
 		// Confirm primeEstimatedWeightRecordedDate was added
 		suite.NotNil(okPayload.PrimeEstimatedWeightRecordedDate)
 		// Confirm PATCH working as expected; non-updated value still exists
@@ -1045,8 +1045,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			HTTPRequest:   minimalReq,
 			MtoShipmentID: *handlers.FmtUUID(minimalShipment.ID),
 			Body: &primemessages.UpdateMTOShipment{
-				PrimeEstimatedWeight: int64(primeEstimatedWeight), // New estimated weight
-				PrimeActualWeight:    int64(primeActualWeight),    // New actual weight
+				PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight), // New estimated weight
+				PrimeActualWeight:    int64(primeActualWeight),                    // New actual weight
 			},
 			IfMatch: etag.GenerateEtag(minimalShipment.UpdatedAt),
 		}
@@ -1066,7 +1066,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.NotNil(minimalShipment.PrimeEstimatedWeight)
 
 		// Attempt to update again
-		params.Body.PrimeEstimatedWeight = int64(primeEstimatedWeight + 100)
+		updatedEstimatedWeight := primeEstimatedWeight + 100
+		params.Body.PrimeEstimatedWeight = handlers.FmtPoundPtr(&updatedEstimatedWeight)
 		params.IfMatch = etag.GenerateEtag(minimalShipment.UpdatedAt)
 
 		// CALL FUNCTION UNDER TEST
@@ -1108,7 +1109,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		// Create an update with updated weights
 		mtoShipment := primemessages.UpdateMTOShipment{
-			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
 			PrimeActualWeight:    int64(primeActualWeight),
 		}
 
@@ -1570,7 +1571,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		})
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		payload := primemessages.UpdateMTOShipment{
-			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
 		}
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
@@ -1607,7 +1608,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		})
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		payload := primemessages.UpdateMTOShipment{
-			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
 		}
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 
@@ -1686,11 +1687,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			payload  primemessages.UpdateMTOShipment
 		}{
 			{hhgShipment, primemessages.UpdateMTOShipment{
-				PrimeEstimatedWeight: int64(primeEstimatedWeight),
+				PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
 				ScheduledPickupDate:  &schedDate,
 			}},
 			{ntsShipment, primemessages.UpdateMTOShipment{
-				PrimeEstimatedWeight: int64(primeEstimatedWeight),
+				PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
 				ScheduledPickupDate:  &schedDate,
 			}},
 			{ntsrShipment, primemessages.UpdateMTOShipment{
@@ -1828,7 +1829,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		tenDaysFromNow := now.AddDate(0, 0, 11)
 		schedDate := strfmt.Date(tenDaysFromNow)
 		payload := primemessages.UpdateMTOShipment{
-			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
 			ScheduledPickupDate:  &schedDate,
 		}
 
@@ -1895,7 +1896,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		tenDaysFromNow := now.AddDate(0, 0, 11)
 		schedDate := strfmt.Date(tenDaysFromNow)
 		payload := primemessages.UpdateMTOShipment{
-			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
 			ScheduledPickupDate:  &schedDate,
 		}
 
@@ -1949,7 +1950,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		})
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		payload := primemessages.UpdateMTOShipment{
-			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
 		}
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
@@ -1988,7 +1989,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		})
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		payload := primemessages.UpdateMTOShipment{
-			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
 		}
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
@@ -2034,7 +2035,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		})
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		payload := primemessages.UpdateMTOShipment{
-			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
 		}
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
@@ -2073,7 +2074,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		})
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		payload := primemessages.UpdateMTOShipment{
-			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
 		}
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)

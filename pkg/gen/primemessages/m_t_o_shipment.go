@@ -135,7 +135,7 @@ type MTOShipment struct {
 	//
 	// Example: 4500
 	// Minimum: 1
-	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+	PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
 	// The date when the Prime contractor recorded the shipment's estimated weight.
 	// Read Only: true
@@ -258,7 +258,7 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
 
-		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+		PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
 		PrimeEstimatedWeightRecordedDate *strfmt.Date `json:"primeEstimatedWeightRecordedDate"`
 
@@ -468,7 +468,7 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
 
-		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+		PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
 		PrimeEstimatedWeightRecordedDate *strfmt.Date `json:"primeEstimatedWeightRecordedDate"`
 
@@ -902,7 +902,7 @@ func (m *MTOShipment) validatePrimeEstimatedWeight(formats strfmt.Registry) erro
 		return nil
 	}
 
-	if err := validate.MinimumInt("primeEstimatedWeight", "body", m.PrimeEstimatedWeight, 1, false); err != nil {
+	if err := validate.MinimumInt("primeEstimatedWeight", "body", *m.PrimeEstimatedWeight, 1, false); err != nil {
 		return err
 	}
 

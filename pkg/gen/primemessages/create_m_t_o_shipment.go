@@ -75,7 +75,7 @@ type CreateMTOShipment struct {
 	//
 	// Example: 4500
 	// Minimum: 1
-	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+	PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
 	// The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.
 	//
@@ -124,7 +124,7 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 
 		PpmShipment *CreatePPMShipment `json:"ppmShipment,omitempty"`
 
-		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+		PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
 		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
@@ -220,7 +220,7 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 
 		PpmShipment *CreatePPMShipment `json:"ppmShipment,omitempty"`
 
-		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+		PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
 		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
@@ -404,7 +404,7 @@ func (m *CreateMTOShipment) validatePrimeEstimatedWeight(formats strfmt.Registry
 		return nil
 	}
 
-	if err := validate.MinimumInt("primeEstimatedWeight", "body", m.PrimeEstimatedWeight, 1, false); err != nil {
+	if err := validate.MinimumInt("primeEstimatedWeight", "body", *m.PrimeEstimatedWeight, 1, false); err != nil {
 		return err
 	}
 

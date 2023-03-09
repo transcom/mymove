@@ -79,7 +79,7 @@ type UpdateMTOShipment struct {
 	//
 	// Example: 4500
 	// Minimum: 1
-	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+	PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
 	// The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.
 	// Format: date
@@ -283,7 +283,7 @@ func (m *UpdateMTOShipment) validatePrimeEstimatedWeight(formats strfmt.Registry
 		return nil
 	}
 
-	if err := validate.MinimumInt("primeEstimatedWeight", "body", m.PrimeEstimatedWeight, 1, false); err != nil {
+	if err := validate.MinimumInt("primeEstimatedWeight", "body", *m.PrimeEstimatedWeight, 1, false); err != nil {
 		return err
 	}
 
