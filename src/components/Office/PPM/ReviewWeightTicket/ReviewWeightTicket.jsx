@@ -7,6 +7,7 @@ import { Alert, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswd
 import * as Yup from 'yup';
 
 import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
+import EditPPMNetWeight from '../EditNetWeights/EditPPMNetWeight';
 
 import styles from './ReviewWeightTicket.module.scss';
 
@@ -17,7 +18,7 @@ import Fieldset from 'shared/Fieldset';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
-import { formatWeight } from 'utils/formatters';
+/* import { formatWeight } from 'utils/formatters'; */
 import ppmDocumentStatus from 'constants/ppms';
 
 const validationSchema = Yup.object().shape({
@@ -184,12 +185,17 @@ export default function ReviewWeightTicket({
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
               />
-              <Label id="netWeightLabel" className={styles.label}>
-                Net weight
-              </Label>
-              <div aria-labelledby="netWeightLabel" className={styles.displayValue}>
-                {formatWeight(values.fullWeight - values.emptyWeight)}
-              </div>
+
+              <EditPPMNetWeight
+                netWeightRemarks=""
+                weightTicket={{
+                  fullWeight: values.fullWeight,
+                  emptyWeight: values.emptyWeight,
+                }}
+                weightAllowance={5000}
+                shipments={[]}
+              />
+
               <FormGroup>
                 <Fieldset>
                   <legend className="usa-label">Did they use a trailer they owned?</legend>
