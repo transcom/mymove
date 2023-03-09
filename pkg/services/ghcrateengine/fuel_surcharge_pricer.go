@@ -86,6 +86,10 @@ func (p fuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, para
 		return unit.Cents(0), nil, err
 	}
 
+	if distance == 0 {
+		distance = 1
+	}
+
 	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
 	if err != nil {
 		return unit.Cents(0), nil, err
