@@ -19,6 +19,10 @@ func (_m *ShipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipment
 	ret := _m.Called(appCtx, shipmentID)
 
 	var r0 uuid.UUID
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (uuid.UUID, error)); ok {
+		return rf(appCtx, shipmentID)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) uuid.UUID); ok {
 		r0 = rf(appCtx, shipmentID)
 	} else {
@@ -27,7 +31,6 @@ func (_m *ShipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipment
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, shipmentID)
 	} else {

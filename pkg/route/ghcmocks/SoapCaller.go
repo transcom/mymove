@@ -17,6 +17,10 @@ func (_m *SoapCaller) Call(m string, p gosoap.SoapParams) (*gosoap.Response, err
 	ret := _m.Called(m, p)
 
 	var r0 *gosoap.Response
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, gosoap.SoapParams) (*gosoap.Response, error)); ok {
+		return rf(m, p)
+	}
 	if rf, ok := ret.Get(0).(func(string, gosoap.SoapParams) *gosoap.Response); ok {
 		r0 = rf(m, p)
 	} else {
@@ -25,7 +29,6 @@ func (_m *SoapCaller) Call(m string, p gosoap.SoapParams) (*gosoap.Response, err
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(string, gosoap.SoapParams) error); ok {
 		r1 = rf(m, p)
 	} else {

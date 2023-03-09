@@ -21,13 +21,16 @@ func (_m *ShipmentSITStatus) CalculateShipmentSITAllowance(appCtx appcontext.App
 	ret := _m.Called(appCtx, shipment)
 
 	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOShipment) (int, error)); ok {
+		return rf(appCtx, shipment)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOShipment) int); ok {
 		r0 = rf(appCtx, shipment)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.MTOShipment) error); ok {
 		r1 = rf(appCtx, shipment)
 	} else {
@@ -42,6 +45,10 @@ func (_m *ShipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppCon
 	ret := _m.Called(appCtx, shipment)
 
 	var r0 *services.SITStatus
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOShipment) (*services.SITStatus, error)); ok {
+		return rf(appCtx, shipment)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOShipment) *services.SITStatus); ok {
 		r0 = rf(appCtx, shipment)
 	} else {
@@ -50,7 +57,6 @@ func (_m *ShipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppCon
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.MTOShipment) error); ok {
 		r1 = rf(appCtx, shipment)
 	} else {

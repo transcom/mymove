@@ -21,13 +21,16 @@ func (_m *MTOShipmentUpdater) MTOShipmentsMTOAvailableToPrime(appCtx appcontext.
 	ret := _m.Called(appCtx, mtoShipmentID)
 
 	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (bool, error)); ok {
+		return rf(appCtx, mtoShipmentID)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) bool); ok {
 		r0 = rf(appCtx, mtoShipmentID)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, mtoShipmentID)
 	} else {
@@ -42,6 +45,10 @@ func (_m *MTOShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mt
 	ret := _m.Called(appCtx, mtoShipment, eTag)
 
 	var r0 *models.MTOShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, mtoShipment, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string) *models.MTOShipment); ok {
 		r0 = rf(appCtx, mtoShipment, eTag)
 	} else {
@@ -50,7 +57,6 @@ func (_m *MTOShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mt
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, string) error); ok {
 		r1 = rf(appCtx, mtoShipment, eTag)
 	} else {

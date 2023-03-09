@@ -19,6 +19,10 @@ func (_m *Helper) FetchServiceParamList(appCtx appcontext.AppContext, mtoService
 	ret := _m.Called(appCtx, mtoServiceItem)
 
 	var r0 models.ServiceParams
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOServiceItem) (models.ServiceParams, error)); ok {
+		return rf(appCtx, mtoServiceItem)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOServiceItem) models.ServiceParams); ok {
 		r0 = rf(appCtx, mtoServiceItem)
 	} else {
@@ -27,7 +31,6 @@ func (_m *Helper) FetchServiceParamList(appCtx appcontext.AppContext, mtoService
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.MTOServiceItem) error); ok {
 		r1 = rf(appCtx, mtoServiceItem)
 	} else {
@@ -42,6 +45,10 @@ func (_m *Helper) FetchServiceParamsForServiceItems(appCtx appcontext.AppContext
 	ret := _m.Called(appCtx, mtoServiceItems)
 
 	var r0 models.ServiceParams
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []models.MTOServiceItem) (models.ServiceParams, error)); ok {
+		return rf(appCtx, mtoServiceItems)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []models.MTOServiceItem) models.ServiceParams); ok {
 		r0 = rf(appCtx, mtoServiceItems)
 	} else {
@@ -50,7 +57,6 @@ func (_m *Helper) FetchServiceParamsForServiceItems(appCtx appcontext.AppContext
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []models.MTOServiceItem) error); ok {
 		r1 = rf(appCtx, mtoServiceItems)
 	} else {

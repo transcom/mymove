@@ -21,6 +21,11 @@ func (_m *MoveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, par
 	ret := _m.Called(appCtx, params)
 
 	var r0 *models.MoveHistory
+	var r1 int64
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.FetchMoveHistoryParams) (*models.MoveHistory, int64, error)); ok {
+		return rf(appCtx, params)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.FetchMoveHistoryParams) *models.MoveHistory); ok {
 		r0 = rf(appCtx, params)
 	} else {
@@ -29,14 +34,12 @@ func (_m *MoveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, par
 		}
 	}
 
-	var r1 int64
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.FetchMoveHistoryParams) int64); ok {
 		r1 = rf(appCtx, params)
 	} else {
 		r1 = ret.Get(1).(int64)
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *services.FetchMoveHistoryParams) error); ok {
 		r2 = rf(appCtx, params)
 	} else {

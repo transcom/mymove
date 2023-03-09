@@ -7,12 +7,12 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-//go:generate mockery --name ReportViolationFetcher --disable-version-string
+//go:generate mockery --name ReportViolationFetcher
 type ReportViolationFetcher interface {
 	FetchReportViolationsByReportID(appCtx appcontext.AppContext, reportID uuid.UUID) (models.ReportViolations, error)
 }
 
-//go:generate mockery --name ReportViolationsCreator --disable-version-string
+//go:generate mockery --name ReportViolationsCreator
 type ReportViolationsCreator interface {
 	AssociateReportViolations(appCtx appcontext.AppContext, reportViolations *models.ReportViolations, reportID uuid.UUID) error
 }

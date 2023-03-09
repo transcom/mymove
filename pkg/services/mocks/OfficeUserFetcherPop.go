@@ -21,13 +21,16 @@ func (_m *OfficeUserFetcherPop) FetchOfficeUserByID(appCtx appcontext.AppContext
 	ret := _m.Called(appCtx, id)
 
 	var r0 models.OfficeUser
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (models.OfficeUser, error)); ok {
+		return rf(appCtx, id)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) models.OfficeUser); ok {
 		r0 = rf(appCtx, id)
 	} else {
 		r0 = ret.Get(0).(models.OfficeUser)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, id)
 	} else {

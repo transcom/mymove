@@ -7,7 +7,7 @@ import (
 
 // MTOAgentUpdater is the service object interface for UpdateMTOAgent
 //
-//go:generate mockery --name MTOAgentUpdater --disable-version-string
+//go:generate mockery --name MTOAgentUpdater
 type MTOAgentUpdater interface {
 	UpdateMTOAgentBasic(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error)
 	UpdateMTOAgentPrime(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error)
@@ -15,7 +15,7 @@ type MTOAgentUpdater interface {
 
 // MTOAgentCreator is the service object interface for CreateMTOAgent
 //
-//go:generate mockery --name MTOAgentCreator --disable-version-string
+//go:generate mockery --name MTOAgentCreator
 type MTOAgentCreator interface {
 	CreateMTOAgentPrime(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent) (*models.MTOAgent, error)
 }

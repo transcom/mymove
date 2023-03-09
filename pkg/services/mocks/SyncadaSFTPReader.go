@@ -21,13 +21,16 @@ func (_m *SyncadaSFTPReader) FetchAndProcessSyncadaFiles(appCtx appcontext.AppCo
 	ret := _m.Called(appCtx, pickupPath, lastRead, processor)
 
 	var r0 time.Time
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, services.SyncadaFileProcessor) (time.Time, error)); ok {
+		return rf(appCtx, pickupPath, lastRead, processor)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, services.SyncadaFileProcessor) time.Time); ok {
 		r0 = rf(appCtx, pickupPath, lastRead, processor)
 	} else {
 		r0 = ret.Get(0).(time.Time)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, services.SyncadaFileProcessor) error); ok {
 		r1 = rf(appCtx, pickupPath, lastRead, processor)
 	} else {

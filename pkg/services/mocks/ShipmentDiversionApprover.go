@@ -21,6 +21,10 @@ func (_m *ShipmentDiversionApprover) ApproveShipmentDiversion(appCtx appcontext.
 	ret := _m.Called(appCtx, shipmentID, eTag)
 
 	var r0 *models.MTOShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, shipmentID, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) *models.MTOShipment); ok {
 		r0 = rf(appCtx, shipmentID, eTag)
 	} else {
@@ -29,7 +33,6 @@ func (_m *ShipmentDiversionApprover) ApproveShipmentDiversion(appCtx appcontext.
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string) error); ok {
 		r1 = rf(appCtx, shipmentID, eTag)
 	} else {
