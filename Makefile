@@ -1150,4 +1150,39 @@ anti_virus: ## Scan repo with anti-virus service
 # ----- END ANTI VIRUS TARGETS -----
 #
 
+#
+# ----- START NON-ATO DEPLOYMENT TARGETS -----
+#
+
+.PHONY: prepare_for_deploy
+prepare_for_deploy:  ## Replace placeholders in config to deploy to a non-ATO env. Requires DEPLOY_ENV to be set to exp, loadtest, or demo.
+ifeq ($(DEPLOY_ENV), exp)
+	@echo "Preparing for deploy to experimental"
+else ifeq ($(DEPLOY_ENV), loadtest)
+	@echo "Preparing for deploy to loadtest"
+else ifeq ($(DEPLOY_ENV), demo)
+	@echo "Preparing for deploy to demo"
+else
+	$(error DEPLOY_ENV must be exp, loadtest, or demo)
+endif
+	sed -E -i '' "s#(&dp3-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml
+	sed -E -i '' "s#(&integration-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml
+	sed -E -i '' "s#(&integration-mtls-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml
+	sed -E -i '' "s#(&client-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml
+	sed -E -i '' "s#(&server-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml
+	sed -E -i '' "s#(&dp3-env) placeholder_env#\1 $(DEPLOY_ENV)#" .circleci/config.yml
+
+.PHONY: restore_from_deploy
+restore_from_deploy:  ## Restore placeholders in config after deploy to a non-ATO env
+	sed -E -i '' "s#(&dp3-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .circleci/config.yml
+	sed -E -i '' "s#(&integration-ignore-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .circleci/config.yml
+	sed -E -i '' "s#(&integration-mtls-ignore-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .circleci/config.yml
+	sed -E -i '' "s#(&client-ignore-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .circleci/config.yml
+	sed -E -i '' "s#(&server-ignore-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .circleci/config.yml
+	sed -E -i '' "s#(&dp3-env) (exp|loadtest|demo)#\1 placeholder_env#" .circleci/config.yml
+
+#
+# ----- END NON-ATO DEPLOYMENT TARGETS -----
+#
+
 default: help
