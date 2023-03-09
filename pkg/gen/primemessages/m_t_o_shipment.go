@@ -129,7 +129,7 @@ type MTOShipment struct {
 	// The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
 	// Example: 4500
 	// Minimum: 1
-	PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
+	PrimeActualWeight *int64 `json:"primeActualWeight,omitempty"`
 
 	// The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.
 	//
@@ -256,7 +256,7 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		PpmShipment *PPMShipment `json:"ppmShipment,omitempty"`
 
-		PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
+		PrimeActualWeight *int64 `json:"primeActualWeight,omitempty"`
 
 		PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
@@ -466,7 +466,7 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		PpmShipment *PPMShipment `json:"ppmShipment,omitempty"`
 
-		PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
+		PrimeActualWeight *int64 `json:"primeActualWeight,omitempty"`
 
 		PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
@@ -890,7 +890,7 @@ func (m *MTOShipment) validatePrimeActualWeight(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MinimumInt("primeActualWeight", "body", m.PrimeActualWeight, 1, false); err != nil {
+	if err := validate.MinimumInt("primeActualWeight", "body", *m.PrimeActualWeight, 1, false); err != nil {
 		return err
 	}
 

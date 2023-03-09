@@ -1900,6 +1900,7 @@ definitions:
         type: integer
         example: 4500
         minimum: 1
+        x-nullable: true
       ntsRecordedWeight:
         description: The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
         type: integer
@@ -2644,6 +2645,7 @@ definitions:
         type: integer
         example: 4500
         minimum: 1
+        x-nullable: true
       ntsRecordedWeight:
         description: The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
         type: integer

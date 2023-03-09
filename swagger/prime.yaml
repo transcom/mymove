@@ -2162,6 +2162,7 @@ definitions:
         type: integer
         example: 4500
         minimum: 1
+        x-nullable: true
       ntsRecordedWeight:
         description: >-
           The previously recorded weight for the NTS Shipment. Used for NTS
@@ -2993,6 +2994,7 @@ definitions:
         type: integer
         example: 4500
         minimum: 1
+        x-nullable: true
       ntsRecordedWeight:
         description: >-
           The previously recorded weight for the NTS Shipment. Used for NTS

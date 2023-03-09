@@ -493,7 +493,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	}
 
 	if mtoShipment.PrimeActualWeight != nil {
-		payload.PrimeActualWeight = int64(*mtoShipment.PrimeActualWeight)
+		payload.PrimeActualWeight = handlers.FmtInt64(mtoShipment.PrimeActualWeight.Int64())
 	}
 
 	if mtoShipment.NTSRecordedWeight != nil {

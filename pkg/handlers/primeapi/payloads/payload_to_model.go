@@ -245,8 +245,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mt
 		CounselorRemarks:           mtoShipment.CounselorRemarks,
 	}
 
-	if mtoShipment.PrimeActualWeight > 0 {
-		actualWeight := unit.Pound(mtoShipment.PrimeActualWeight)
+	if mtoShipment.PrimeActualWeight != nil {
+		actualWeight := unit.Pound(*mtoShipment.PrimeActualWeight)
 		model.PrimeActualWeight = &actualWeight
 	}
 

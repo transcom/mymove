@@ -986,7 +986,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			MtoShipmentID: *handlers.FmtUUID(minimalShipment.ID),
 			Body: &primemessages.UpdateMTOShipment{
 				PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight), // New estimated weight
-				PrimeActualWeight:    int64(primeActualWeight),                    // New actual weight
+				PrimeActualWeight:    handlers.FmtPoundPtr(&primeActualWeight),    // New actual weight
 			},
 			IfMatch: eTag,
 		}
@@ -1007,7 +1007,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(minimalShipment.ID.String(), okPayload.ID.String())
 
 		// Confirm changes to weights
-		suite.Equal(int64(primeActualWeight), okPayload.PrimeActualWeight)
+		suite.Equal(int64(primeActualWeight), *okPayload.PrimeActualWeight)
 		suite.Equal(int64(primeEstimatedWeight), *okPayload.PrimeEstimatedWeight)
 		// Confirm primeEstimatedWeightRecordedDate was added
 		suite.NotNil(okPayload.PrimeEstimatedWeightRecordedDate)
@@ -1046,7 +1046,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			MtoShipmentID: *handlers.FmtUUID(minimalShipment.ID),
 			Body: &primemessages.UpdateMTOShipment{
 				PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight), // New estimated weight
-				PrimeActualWeight:    int64(primeActualWeight),                    // New actual weight
+				PrimeActualWeight:    handlers.FmtPoundPtr(&primeActualWeight),    // New actual weight
 			},
 			IfMatch: etag.GenerateEtag(minimalShipment.UpdatedAt),
 		}
@@ -1110,7 +1110,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Create an update with updated weights
 		mtoShipment := primemessages.UpdateMTOShipment{
 			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
-			PrimeActualWeight:    int64(primeActualWeight),
+			PrimeActualWeight:    handlers.FmtPoundPtr(&primeActualWeight),
 		}
 
 		// Create request to UpdateMTOShipment

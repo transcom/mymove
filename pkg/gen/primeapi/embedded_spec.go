@@ -2423,6 +2423,7 @@ func init() {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
           "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeight": {
@@ -3688,6 +3689,7 @@ func init() {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
           "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeight": {
@@ -6799,6 +6801,7 @@ func init() {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
           "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeight": {
@@ -8067,6 +8070,7 @@ func init() {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
           "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeight": {
