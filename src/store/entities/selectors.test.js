@@ -1352,7 +1352,6 @@ describe('selectWeightTicketAndIndexById', () => {
               hasReceivedAdvance: false,
               hasRequestedAdvance: true,
               id: 'b9ae4c25-1376-4b9b-8781-106b5ae7ecab',
-              netWeight: null,
               pickupPostalCode: '90210',
               proGearWeight: 1987,
               reviewedAt: null,
