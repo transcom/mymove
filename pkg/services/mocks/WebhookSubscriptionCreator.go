@@ -21,6 +21,11 @@ func (_m *WebhookSubscriptionCreator) CreateWebhookSubscription(appCtx appcontex
 	ret := _m.Called(appCtx, subscription)
 
 	var r0 *models.WebhookSubscription
+	var r1 *validate.Errors
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.WebhookSubscription) (*models.WebhookSubscription, *validate.Errors, error)); ok {
+		return rf(appCtx, subscription)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.WebhookSubscription) *models.WebhookSubscription); ok {
 		r0 = rf(appCtx, subscription)
 	} else {
@@ -29,7 +34,6 @@ func (_m *WebhookSubscriptionCreator) CreateWebhookSubscription(appCtx appcontex
 		}
 	}
 
-	var r1 *validate.Errors
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.WebhookSubscription) *validate.Errors); ok {
 		r1 = rf(appCtx, subscription)
 	} else {
@@ -38,7 +42,6 @@ func (_m *WebhookSubscriptionCreator) CreateWebhookSubscription(appCtx appcontex
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *models.WebhookSubscription) error); ok {
 		r2 = rf(appCtx, subscription)
 	} else {

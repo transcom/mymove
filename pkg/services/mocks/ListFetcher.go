@@ -19,13 +19,16 @@ func (_m *ListFetcher) FetchRecordCount(appCtx appcontext.AppContext, model inte
 	ret := _m.Called(appCtx, model, filters)
 
 	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, interface{}, []services.QueryFilter) (int, error)); ok {
+		return rf(appCtx, model, filters)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, interface{}, []services.QueryFilter) int); ok {
 		r0 = rf(appCtx, model, filters)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, interface{}, []services.QueryFilter) error); ok {
 		r1 = rf(appCtx, model, filters)
 	} else {

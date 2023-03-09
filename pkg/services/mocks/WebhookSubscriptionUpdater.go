@@ -19,6 +19,10 @@ func (_m *WebhookSubscriptionUpdater) UpdateWebhookSubscription(appCtx appcontex
 	ret := _m.Called(appCtx, webhooksubscription, severity, eTag)
 
 	var r0 *models.WebhookSubscription
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.WebhookSubscription, *int64, *string) (*models.WebhookSubscription, error)); ok {
+		return rf(appCtx, webhooksubscription, severity, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.WebhookSubscription, *int64, *string) *models.WebhookSubscription); ok {
 		r0 = rf(appCtx, webhooksubscription, severity, eTag)
 	} else {
@@ -27,7 +31,6 @@ func (_m *WebhookSubscriptionUpdater) UpdateWebhookSubscription(appCtx appcontex
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.WebhookSubscription, *int64, *string) error); ok {
 		r1 = rf(appCtx, webhooksubscription, severity, eTag)
 	} else {

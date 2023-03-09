@@ -19,6 +19,10 @@ func (_m *ElectronicOrderCategoryCountFetcher) FetchElectronicOrderCategoricalCo
 	ret := _m.Called(appCtx, filters, andFilters)
 
 	var r0 map[interface{}]int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter, *[]services.QueryFilter) (map[interface{}]int, error)); ok {
+		return rf(appCtx, filters, andFilters)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter, *[]services.QueryFilter) map[interface{}]int); ok {
 		r0 = rf(appCtx, filters, andFilters)
 	} else {
@@ -27,7 +31,6 @@ func (_m *ElectronicOrderCategoryCountFetcher) FetchElectronicOrderCategoricalCo
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []services.QueryFilter, *[]services.QueryFilter) error); ok {
 		r1 = rf(appCtx, filters, andFilters)
 	} else {

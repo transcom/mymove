@@ -21,6 +21,11 @@ func (_m *MoveTaskOrderCreator) CreateMoveTaskOrder(appCtx appcontext.AppContext
 	ret := _m.Called(appCtx, moveTaskOrder)
 
 	var r0 *models.Move
+	var r1 *validate.Errors
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move) (*models.Move, *validate.Errors, error)); ok {
+		return rf(appCtx, moveTaskOrder)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move) *models.Move); ok {
 		r0 = rf(appCtx, moveTaskOrder)
 	} else {
@@ -29,7 +34,6 @@ func (_m *MoveTaskOrderCreator) CreateMoveTaskOrder(appCtx appcontext.AppContext
 		}
 	}
 
-	var r1 *validate.Errors
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.Move) *validate.Errors); ok {
 		r1 = rf(appCtx, moveTaskOrder)
 	} else {
@@ -38,7 +42,6 @@ func (_m *MoveTaskOrderCreator) CreateMoveTaskOrder(appCtx appcontext.AppContext
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *models.Move) error); ok {
 		r2 = rf(appCtx, moveTaskOrder)
 	} else {

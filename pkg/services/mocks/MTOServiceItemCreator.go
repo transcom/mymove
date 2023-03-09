@@ -21,6 +21,11 @@ func (_m *MTOServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppConte
 	ret := _m.Called(appCtx, serviceItem)
 
 	var r0 *models.MTOServiceItems
+	var r1 *validate.Errors
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error)); ok {
+		return rf(appCtx, serviceItem)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem) *models.MTOServiceItems); ok {
 		r0 = rf(appCtx, serviceItem)
 	} else {
@@ -29,7 +34,6 @@ func (_m *MTOServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppConte
 		}
 	}
 
-	var r1 *validate.Errors
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOServiceItem) *validate.Errors); ok {
 		r1 = rf(appCtx, serviceItem)
 	} else {
@@ -38,7 +42,6 @@ func (_m *MTOServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppConte
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *models.MTOServiceItem) error); ok {
 		r2 = rf(appCtx, serviceItem)
 	} else {

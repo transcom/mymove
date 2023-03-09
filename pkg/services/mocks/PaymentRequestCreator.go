@@ -19,6 +19,10 @@ func (_m *PaymentRequestCreator) CreatePaymentRequestCheck(appCtx appcontext.App
 	ret := _m.Called(appCtx, paymentRequest)
 
 	var r0 *models.PaymentRequest
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PaymentRequest) (*models.PaymentRequest, error)); ok {
+		return rf(appCtx, paymentRequest)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PaymentRequest) *models.PaymentRequest); ok {
 		r0 = rf(appCtx, paymentRequest)
 	} else {
@@ -27,7 +31,6 @@ func (_m *PaymentRequestCreator) CreatePaymentRequestCheck(appCtx appcontext.App
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.PaymentRequest) error); ok {
 		r1 = rf(appCtx, paymentRequest)
 	} else {

@@ -21,6 +21,10 @@ func (_m *ShipmentsPaymentSITBalance) ListShipmentPaymentSITBalance(appCtx appco
 	ret := _m.Called(appCtx, paymentRequestID)
 
 	var r0 []services.ShipmentPaymentSITBalance
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) ([]services.ShipmentPaymentSITBalance, error)); ok {
+		return rf(appCtx, paymentRequestID)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) []services.ShipmentPaymentSITBalance); ok {
 		r0 = rf(appCtx, paymentRequestID)
 	} else {
@@ -29,7 +33,6 @@ func (_m *ShipmentsPaymentSITBalance) ListShipmentPaymentSITBalance(appCtx appco
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, paymentRequestID)
 	} else {

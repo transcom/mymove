@@ -21,6 +21,10 @@ func (_m *PPMShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.
 	ret := _m.Called(appCtx, ppmShipmentID)
 
 	var r0 *models.PPMShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.PPMShipment, error)); ok {
+		return rf(appCtx, ppmShipmentID)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.PPMShipment); ok {
 		r0 = rf(appCtx, ppmShipmentID)
 	} else {
@@ -29,7 +33,6 @@ func (_m *PPMShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, ppmShipmentID)
 	} else {
