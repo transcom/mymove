@@ -34,6 +34,11 @@ type MTOServiceItemDimension struct {
 	UpdatedAt        time.Time             `db:"updated_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (m MTOServiceItemDimension) TableName() string {
+	return "mto_service_item_dimensions"
+}
+
 // MTOServiceItemDimensions is a slice containing MTOServiceItemDimension.
 type MTOServiceItemDimensions []MTOServiceItemDimension
 
@@ -50,11 +55,6 @@ func (m *MTOServiceItemDimension) Validate(tx *pop.Connection) (*validate.Errors
 	vs = append(vs, &validators.IntIsGreaterThan{Field: int(m.Height), Name: "Height", Compared: -1})
 
 	return validate.Validate(vs...), nil
-}
-
-// TableName overrides the table name used by Pop.
-func (m MTOServiceItemDimension) TableName() string {
-	return "mto_service_item_dimensions"
 }
 
 // Volume calculates Length x Height x Width

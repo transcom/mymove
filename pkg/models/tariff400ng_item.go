@@ -91,6 +91,11 @@ type Tariff400ngItem struct {
 	UpdatedAt           time.Time                      `json:"updated_at" db:"updated_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (t Tariff400ngItem) TableName() string {
+	return "tariff400ng_items"
+}
+
 // FetchTariff400ngItems returns a list of 400ng items
 func FetchTariff400ngItems(dbConnection *pop.Connection, onlyRequiresPreApproval bool) ([]Tariff400ngItem, error) {
 	var err error

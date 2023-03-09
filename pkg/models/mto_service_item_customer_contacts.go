@@ -32,6 +32,11 @@ type MTOServiceItemCustomerContact struct {
 	UpdatedAt                  time.Time           `db:"updated_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (m MTOServiceItemCustomerContact) TableName() string {
+	return "mto_service_item_customer_contacts"
+}
+
 // MTOServiceItemCustomerContacts is a slice containing MTOServiceItemCustomerContact.
 type MTOServiceItemCustomerContacts []MTOServiceItemCustomerContact
 
@@ -47,9 +52,4 @@ func (m *MTOServiceItemCustomerContact) Validate(tx *pop.Connection) (*validate.
 	vs = append(vs, &validators.TimeIsPresent{Field: m.FirstAvailableDeliveryDate, Name: "FirstAvailableDeliveryDate"})
 
 	return validate.Validate(vs...), nil
-}
-
-// TableName overrides the table name used by Pop.
-func (m MTOServiceItemCustomerContact) TableName() string {
-	return "mto_service_item_customer_contacts"
 }

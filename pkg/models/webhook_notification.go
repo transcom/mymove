@@ -45,16 +45,18 @@ type WebhookNotification struct {
 	FirstAttemptedAt *time.Time                `db:"first_attempted_at"`
 }
 
-// String is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (w WebhookNotification) TableName() string {
+	return "webhook_notifications"
+}
+
 func (w WebhookNotification) String() string {
 	jw, _ := json.Marshal(w)
 	return string(jw)
 }
 
-// WebhookNotifications is not required by pop and may be deleted
 type WebhookNotifications []WebhookNotification
 
-// String is not required by pop and may be deleted
 func (w WebhookNotifications) String() string {
 	jw, _ := json.Marshal(w)
 	return string(jw)
@@ -74,14 +76,4 @@ func (w *WebhookNotification) Validate(tx *pop.Connection) (*validate.Errors, er
 			string(WebhookNotificationFailed),
 		}},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-func (w *WebhookNotification) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-func (w *WebhookNotification) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }

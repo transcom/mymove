@@ -327,7 +327,7 @@ func MoveAuditHistory(logger *zap.Logger, auditHistory models.AuditHistory) *ghc
 		Context:              removeEscapeJSONtoArray(logger, auditHistory.Context),
 		ContextID:            auditHistory.ContextID,
 		StatementOnly:        auditHistory.StatementOnly,
-		TableName:            auditHistory.TableName,
+		TableName:            auditHistory.AuditedTable,
 		SchemaName:           auditHistory.SchemaName,
 		TransactionID:        auditHistory.TransactionID,
 	}
@@ -991,6 +991,10 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 
 	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
 		payload.ActualPickupDate = handlers.FmtDatePtr(mtoShipment.ActualPickupDate)
+	}
+
+	if mtoShipment.ActualDeliveryDate != nil && !mtoShipment.ActualDeliveryDate.IsZero() {
+		payload.ActualDeliveryDate = handlers.FmtDatePtr(mtoShipment.ActualDeliveryDate)
 	}
 
 	if mtoShipment.RequestedDeliveryDate != nil && !mtoShipment.RequestedDeliveryDate.IsZero() {

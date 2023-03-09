@@ -7,8 +7,28 @@ import returnLowestValue from './returnLowestValue';
 export function shipmentIsOverweight(estimatedWeight, weightCap) {
   return weightCap > estimatedWeight * 1.1;
 }
+export const getShipmentEstimatedWeight = (shipment) => {
+  if (shipment.ppmShipment) {
+    return shipment.ppmShipment.estimatedWeight ?? 0;
+  }
+  return shipment.primeEstimatedWeight ?? 0;
+};
 
-export const calculateNetWeightForWeightTicket = (weightTicket) => {
+export const calculateNetWeightForProGearWeightTicket = (weightTicket) => {
+  if (weightTicket.weight == null || Number.isNaN(Number(weightTicket.weight))) {
+    return 0;
+  }
+
+  return weightTicket.weight;
+};
+
+export const calculateTotalNetWeightForProGearWeightTickets = (proGearWeightTickets = []) => {
+  return proGearWeightTickets.reduce((prev, curr) => {
+    return prev + calculateNetWeightForProGearWeightTicket(curr);
+  }, 0);
+};
+
+export const calculateWeightTicketWeightDifference = (weightTicket) => {
   if (
     weightTicket.emptyWeight == null ||
     weightTicket.fullWeight == null ||
@@ -21,28 +41,20 @@ export const calculateNetWeightForWeightTicket = (weightTicket) => {
   return weightTicket.fullWeight - weightTicket.emptyWeight;
 };
 
-export const calculateNetWeightForProGearWeightTicket = (weightTicket) => {
-  if (weightTicket.weight == null || Number.isNaN(Number(weightTicket.weight))) {
-    return 0;
-  }
-
-  return weightTicket.weight;
+export const getWeightTicketNetWeight = (weightTicket) => {
+  return weightTicket.adjustedNetWeight ?? calculateWeightTicketWeightDifference(weightTicket);
 };
 
-export const calculateTotalNetWeightForWeightTickets = (weightTickets = []) => {
-  return weightTickets.reduce((prev, curr) => {
-    return prev + calculateNetWeightForWeightTicket(curr);
-  }, 0);
-};
-
-export const calculateTotalNetWeightForProGearWeightTickets = (proGearWeightTickets = []) => {
-  return proGearWeightTickets.reduce((prev, curr) => {
-    return prev + calculateNetWeightForProGearWeightTicket(curr);
-  }, 0);
+export const getTotalNetWeightForWeightTickets = (weightTickets = []) => {
+  return weightTickets
+    ? weightTickets.reduce((prev, curr) => {
+        return prev + getWeightTicketNetWeight(curr);
+      }, 0)
+    : 0;
 };
 
 export const calculatePPMShipmentNetWeight = (shipment) => {
-  return calculateTotalNetWeightForWeightTickets(shipment?.ppmShipment?.weightTickets);
+  return getTotalNetWeightForWeightTickets(shipment?.ppmShipment?.weightTickets);
 };
 
 export const calculateNonPPMShipmentNetWeight = (shipment) => {
