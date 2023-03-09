@@ -21,6 +21,10 @@ func (_m *PPMDocumentFetcher) GetPPMDocuments(appCtx appcontext.AppContext, mtoS
 	ret := _m.Called(appCtx, mtoShipmentID)
 
 	var r0 *models.PPMDocuments
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.PPMDocuments, error)); ok {
+		return rf(appCtx, mtoShipmentID)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.PPMDocuments); ok {
 		r0 = rf(appCtx, mtoShipmentID)
 	} else {
@@ -29,7 +33,6 @@ func (_m *PPMDocumentFetcher) GetPPMDocuments(appCtx appcontext.AppContext, mtoS
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, mtoShipmentID)
 	} else {

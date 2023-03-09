@@ -19,6 +19,10 @@ func (_m *PaymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCtx appcont
 	ret := _m.Called(appCtx, paymentRequest, eTag)
 
 	var r0 *models.PaymentRequest
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PaymentRequest, string) (*models.PaymentRequest, error)); ok {
+		return rf(appCtx, paymentRequest, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PaymentRequest, string) *models.PaymentRequest); ok {
 		r0 = rf(appCtx, paymentRequest, eTag)
 	} else {
@@ -27,7 +31,6 @@ func (_m *PaymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCtx appcont
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.PaymentRequest, string) error); ok {
 		r1 = rf(appCtx, paymentRequest, eTag)
 	} else {

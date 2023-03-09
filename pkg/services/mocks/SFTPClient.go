@@ -19,6 +19,10 @@ func (_m *SFTPClient) Open(path string) (services.SFTPFiler, error) {
 	ret := _m.Called(path)
 
 	var r0 services.SFTPFiler
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (services.SFTPFiler, error)); ok {
+		return rf(path)
+	}
 	if rf, ok := ret.Get(0).(func(string) services.SFTPFiler); ok {
 		r0 = rf(path)
 	} else {
@@ -27,7 +31,6 @@ func (_m *SFTPClient) Open(path string) (services.SFTPFiler, error) {
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(path)
 	} else {
@@ -42,6 +45,10 @@ func (_m *SFTPClient) ReadDir(p string) ([]fs.FileInfo, error) {
 	ret := _m.Called(p)
 
 	var r0 []fs.FileInfo
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) ([]fs.FileInfo, error)); ok {
+		return rf(p)
+	}
 	if rf, ok := ret.Get(0).(func(string) []fs.FileInfo); ok {
 		r0 = rf(p)
 	} else {
@@ -50,7 +57,6 @@ func (_m *SFTPClient) ReadDir(p string) ([]fs.FileInfo, error) {
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(p)
 	} else {

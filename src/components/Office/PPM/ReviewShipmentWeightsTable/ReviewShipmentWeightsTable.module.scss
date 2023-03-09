@@ -1,0 +1,58 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.ReviewShipmentWeightsTable {
+  @include u-display(flex);
+  @include u-margin-x(0);
+  @include u-padding-x(0);
+  flex-direction: column;
+  flex: auto;
+
+  .tableContainer {
+    flex: auto;
+    @include u-margin-top(1);
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  th {
+    font-size: 13px;
+    text-align: right !important;
+  }
+
+  td {
+    font-size: 15px;
+    text-align: right !important;
+  }
+}
+
+
+
+.review-shipment-weights-table-row{
+  text-align: left;
+  padding-left: 8px;
+}
+
+.review-shipment-weights-table-row-PPM {
+  border-left: 4px solid $accent-ppm;
+}
+
+.review-shipment-weights-table-row-HHG {
+  border-left: 4px solid $accent-hhg;
+}
+
+.review-shipment-weights-table-row-NTS {
+  border-left: 4px solid $accent-nts;
+}
+
+.review-shipment-weights-table-row-NTS-release {
+  border-left: 4px solid $accent-ntsr;
+}
+
+.review-shipment-weights-table-row-pro-gear {
+  border-left: 4px solid $accent-pro-gear;
+}

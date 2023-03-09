@@ -21,6 +21,10 @@ func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext,
 	ret := _m.Called(appCtx, searchParams)
 
 	var r0 *models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) (*models.Move, error)); ok {
+		return rf(appCtx, searchParams)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) *models.Move); ok {
 		r0 = rf(appCtx, searchParams)
 	} else {
@@ -29,7 +33,6 @@ func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext,
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) error); ok {
 		r1 = rf(appCtx, searchParams)
 	} else {
@@ -44,6 +47,10 @@ func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppConte
 	ret := _m.Called(appCtx, searchParams)
 
 	var r0 models.Moves
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) (models.Moves, error)); ok {
+		return rf(appCtx, searchParams)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) models.Moves); ok {
 		r0 = rf(appCtx, searchParams)
 	} else {
@@ -52,7 +59,6 @@ func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppConte
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) error); ok {
 		r1 = rf(appCtx, searchParams)
 	} else {
@@ -67,6 +73,10 @@ func (_m *MoveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppCon
 	ret := _m.Called(appCtx, searchParams)
 
 	var r0 models.Moves
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) (models.Moves, error)); ok {
+		return rf(appCtx, searchParams)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) models.Moves); ok {
 		r0 = rf(appCtx, searchParams)
 	} else {
@@ -75,7 +85,6 @@ func (_m *MoveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppCon
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) error); ok {
 		r1 = rf(appCtx, searchParams)
 	} else {

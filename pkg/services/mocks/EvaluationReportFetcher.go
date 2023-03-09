@@ -21,6 +21,10 @@ func (_m *EvaluationReportFetcher) FetchEvaluationReportByID(appCtx appcontext.A
 	ret := _m.Called(appCtx, reportID, officeUserID)
 
 	var r0 *models.EvaluationReport
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) (*models.EvaluationReport, error)); ok {
+		return rf(appCtx, reportID, officeUserID)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) *models.EvaluationReport); ok {
 		r0 = rf(appCtx, reportID, officeUserID)
 	} else {
@@ -29,7 +33,6 @@ func (_m *EvaluationReportFetcher) FetchEvaluationReportByID(appCtx appcontext.A
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) error); ok {
 		r1 = rf(appCtx, reportID, officeUserID)
 	} else {
@@ -44,6 +47,10 @@ func (_m *EvaluationReportFetcher) FetchEvaluationReports(appCtx appcontext.AppC
 	ret := _m.Called(appCtx, reportType, moveID, officeUserID)
 
 	var r0 models.EvaluationReports
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.EvaluationReportType, uuid.UUID, uuid.UUID) (models.EvaluationReports, error)); ok {
+		return rf(appCtx, reportType, moveID, officeUserID)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.EvaluationReportType, uuid.UUID, uuid.UUID) models.EvaluationReports); ok {
 		r0 = rf(appCtx, reportType, moveID, officeUserID)
 	} else {
@@ -52,7 +59,6 @@ func (_m *EvaluationReportFetcher) FetchEvaluationReports(appCtx appcontext.AppC
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.EvaluationReportType, uuid.UUID, uuid.UUID) error); ok {
 		r1 = rf(appCtx, reportType, moveID, officeUserID)
 	} else {

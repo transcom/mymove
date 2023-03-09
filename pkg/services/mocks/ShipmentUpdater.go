@@ -19,6 +19,10 @@ func (_m *ShipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment
 	ret := _m.Called(appCtx, shipment, eTag)
 
 	var r0 *models.MTOShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, shipment, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string) *models.MTOShipment); ok {
 		r0 = rf(appCtx, shipment, eTag)
 	} else {
@@ -27,7 +31,6 @@ func (_m *ShipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, string) error); ok {
 		r1 = rf(appCtx, shipment, eTag)
 	} else {

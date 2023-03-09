@@ -25,13 +25,17 @@ func (_m *FuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupD
 	ret := _m.Called(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice, isPPM)
 
 	var r0 unit.Cents
+	var r1 services.PricingDisplayParams
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents, bool) (unit.Cents, services.PricingDisplayParams, error)); ok {
+		return rf(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice, isPPM)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents, bool) unit.Cents); ok {
 		r0 = rf(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice, isPPM)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 services.PricingDisplayParams
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents, bool) services.PricingDisplayParams); ok {
 		r1 = rf(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice, isPPM)
 	} else {
@@ -40,7 +44,6 @@ func (_m *FuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupD
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents, bool) error); ok {
 		r2 = rf(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice, isPPM)
 	} else {
@@ -55,13 +58,17 @@ func (_m *FuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, pa
 	ret := _m.Called(appCtx, params)
 
 	var r0 unit.Cents
+	var r1 services.PricingDisplayParams
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error)); ok {
+		return rf(appCtx, params)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentServiceItemParams) unit.Cents); ok {
 		r0 = rf(appCtx, params)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 services.PricingDisplayParams
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PaymentServiceItemParams) services.PricingDisplayParams); ok {
 		r1 = rf(appCtx, params)
 	} else {
@@ -70,7 +77,6 @@ func (_m *FuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, pa
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, models.PaymentServiceItemParams) error); ok {
 		r2 = rf(appCtx, params)
 	} else {

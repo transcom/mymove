@@ -23,6 +23,10 @@ func (_m *MoveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uui
 	ret := _m.Called(appCtx, moveID, updatedShipment)
 
 	var r0 models.MTOShipments
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *models.MTOShipment) (models.MTOShipments, error)); ok {
+		return rf(appCtx, moveID, updatedShipment)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *models.MTOShipment) models.MTOShipments); ok {
 		r0 = rf(appCtx, moveID, updatedShipment)
 	} else {
@@ -31,7 +35,6 @@ func (_m *MoveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uui
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *models.MTOShipment) error); ok {
 		r1 = rf(appCtx, moveID, updatedShipment)
 	} else {
@@ -46,6 +49,11 @@ func (_m *MoveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uu
 	ret := _m.Called(appCtx, moveID, updatedShipment)
 
 	var r0 *models.Move
+	var r1 *validate.Errors
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.MTOShipment) (*models.Move, *validate.Errors, error)); ok {
+		return rf(appCtx, moveID, updatedShipment)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.MTOShipment) *models.Move); ok {
 		r0 = rf(appCtx, moveID, updatedShipment)
 	} else {
@@ -54,7 +62,6 @@ func (_m *MoveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uu
 		}
 	}
 
-	var r1 *validate.Errors
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.MTOShipment) *validate.Errors); ok {
 		r1 = rf(appCtx, moveID, updatedShipment)
 	} else {
@@ -63,7 +70,6 @@ func (_m *MoveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uu
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, models.MTOShipment) error); ok {
 		r2 = rf(appCtx, moveID, updatedShipment)
 	} else {

@@ -12,7 +12,7 @@ import (
 
 // MoveListFetcher is the exported interface for fetching multiple moves
 //
-//go:generate mockery --name MoveListFetcher --disable-version-string
+//go:generate mockery --name MoveListFetcher
 type MoveListFetcher interface {
 	FetchMoveList(appCtx appcontext.AppContext, filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.Moves, error)
 	FetchMoveCount(appCtx appcontext.AppContext, filters []QueryFilter) (int, error)
@@ -20,12 +20,12 @@ type MoveListFetcher interface {
 
 // MoveFetcher is the exported interface for fetching a move by locator
 //
-//go:generate mockery --name MoveFetcher --disable-version-string
+//go:generate mockery --name MoveFetcher
 type MoveFetcher interface {
 	FetchMove(appCtx appcontext.AppContext, locator string, searchParams *MoveFetcherParams) (*models.Move, error)
 }
 
-//go:generate mockery --name MoveSearcher --disable-version-string
+//go:generate mockery --name MoveSearcher
 type MoveSearcher interface {
 	SearchMoves(appCtx appcontext.AppContext, params *SearchMovesParams) (models.Moves, int, error)
 }
@@ -38,7 +38,7 @@ type MoveFetcherParams struct {
 
 // MoveRouter is the exported interface for routing moves at different stages
 //
-//go:generate mockery --name MoveRouter --disable-version-string
+//go:generate mockery --name MoveRouter
 type MoveRouter interface {
 	Approve(appCtx appcontext.AppContext, move *models.Move) error
 	ApproveOrRequestApproval(appCtx appcontext.AppContext, move models.Move) (*models.Move, error)
@@ -51,7 +51,7 @@ type MoveRouter interface {
 
 // MoveWeights is the exported interface for flagging a move with an excess weight risk
 //
-//go:generate mockery --name MoveWeights --disable-version-string
+//go:generate mockery --name MoveWeights
 type MoveWeights interface {
 	CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error)
 	CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) (models.MTOShipments, error)
@@ -59,7 +59,7 @@ type MoveWeights interface {
 
 // MoveExcessWeightUploader is the exported interface for uploading an excess weight document for a move
 //
-//go:generate mockery --name MoveExcessWeightUploader --disable-version-string
+//go:generate mockery --name MoveExcessWeightUploader
 type MoveExcessWeightUploader interface {
 	CreateExcessWeightUpload(
 		appCtx appcontext.AppContext,
@@ -72,7 +72,7 @@ type MoveExcessWeightUploader interface {
 
 // MoveFinancialReviewFlagSetter is the exported interface for flagging a move for financial review
 //
-//go:generate mockery --name MoveFinancialReviewFlagSetter --disable-version-string
+//go:generate mockery --name MoveFinancialReviewFlagSetter
 type MoveFinancialReviewFlagSetter interface {
 	SetFinancialReviewFlag(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string, flagForReview bool, remarks *string) (*models.Move, error)
 }

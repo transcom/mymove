@@ -19,6 +19,10 @@ func (_m *ProgearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontex
 	ret := _m.Called(appCtx, progearWeightTicket, eTag)
 
 	var r0 *models.ProgearWeightTicket
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.ProgearWeightTicket, string) (*models.ProgearWeightTicket, error)); ok {
+		return rf(appCtx, progearWeightTicket, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.ProgearWeightTicket, string) *models.ProgearWeightTicket); ok {
 		r0 = rf(appCtx, progearWeightTicket, eTag)
 	} else {
@@ -27,7 +31,6 @@ func (_m *ProgearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontex
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.ProgearWeightTicket, string) error); ok {
 		r1 = rf(appCtx, progearWeightTicket, eTag)
 	} else {

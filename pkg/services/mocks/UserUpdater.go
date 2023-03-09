@@ -23,6 +23,11 @@ func (_m *UserUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, us
 	ret := _m.Called(appCtx, id, user)
 
 	var r0 *models.User
+	var r1 *validate.Errors
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *models.User) (*models.User, *validate.Errors, error)); ok {
+		return rf(appCtx, id, user)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *models.User) *models.User); ok {
 		r0 = rf(appCtx, id, user)
 	} else {
@@ -31,7 +36,6 @@ func (_m *UserUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, us
 		}
 	}
 
-	var r1 *validate.Errors
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *models.User) *validate.Errors); ok {
 		r1 = rf(appCtx, id, user)
 	} else {
@@ -40,7 +44,6 @@ func (_m *UserUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, us
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *models.User) error); ok {
 		r2 = rf(appCtx, id, user)
 	} else {

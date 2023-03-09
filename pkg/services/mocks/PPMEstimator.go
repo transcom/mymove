@@ -21,6 +21,11 @@ func (_m *PPMEstimator) EstimateIncentiveWithDefaultChecks(appCtx appcontext.App
 	ret := _m.Called(appCtx, oldPPMShipment, newPPMShipment)
 
 	var r0 *unit.Cents
+	var r1 *unit.Cents
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PPMShipment, *models.PPMShipment) (*unit.Cents, *unit.Cents, error)); ok {
+		return rf(appCtx, oldPPMShipment, newPPMShipment)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PPMShipment, *models.PPMShipment) *unit.Cents); ok {
 		r0 = rf(appCtx, oldPPMShipment, newPPMShipment)
 	} else {
@@ -29,7 +34,6 @@ func (_m *PPMEstimator) EstimateIncentiveWithDefaultChecks(appCtx appcontext.App
 		}
 	}
 
-	var r1 *unit.Cents
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PPMShipment, *models.PPMShipment) *unit.Cents); ok {
 		r1 = rf(appCtx, oldPPMShipment, newPPMShipment)
 	} else {
@@ -38,7 +42,6 @@ func (_m *PPMEstimator) EstimateIncentiveWithDefaultChecks(appCtx appcontext.App
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, models.PPMShipment, *models.PPMShipment) error); ok {
 		r2 = rf(appCtx, oldPPMShipment, newPPMShipment)
 	} else {
@@ -53,6 +56,10 @@ func (_m *PPMEstimator) FinalIncentiveWithDefaultChecks(appCtx appcontext.AppCon
 	ret := _m.Called(appCtx, oldPPMShipment, newPPMShipment)
 
 	var r0 *unit.Cents
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PPMShipment, *models.PPMShipment) (*unit.Cents, error)); ok {
+		return rf(appCtx, oldPPMShipment, newPPMShipment)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PPMShipment, *models.PPMShipment) *unit.Cents); ok {
 		r0 = rf(appCtx, oldPPMShipment, newPPMShipment)
 	} else {
@@ -61,7 +68,6 @@ func (_m *PPMEstimator) FinalIncentiveWithDefaultChecks(appCtx appcontext.AppCon
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PPMShipment, *models.PPMShipment) error); ok {
 		r1 = rf(appCtx, oldPPMShipment, newPPMShipment)
 	} else {

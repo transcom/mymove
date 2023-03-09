@@ -21,6 +21,10 @@ func (_m *ShipmentRejecter) RejectShipment(appCtx appcontext.AppContext, shipmen
 	ret := _m.Called(appCtx, shipmentID, eTag, reason)
 
 	var r0 *models.MTOShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, *string) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, shipmentID, eTag, reason)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, *string) *models.MTOShipment); ok {
 		r0 = rf(appCtx, shipmentID, eTag, reason)
 	} else {
@@ -29,7 +33,6 @@ func (_m *ShipmentRejecter) RejectShipment(appCtx appcontext.AppContext, shipmen
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string, *string) error); ok {
 		r1 = rf(appCtx, shipmentID, eTag, reason)
 	} else {
