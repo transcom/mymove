@@ -4,7 +4,7 @@ import { formatReviewShipmentWeightsDate, formatWeight } from '../../../../utils
 import { shipmentTypes } from '../../../../constants/shipments';
 import { createHeader } from '../../../Table/utils';
 import { SHIPMENT_OPTIONS } from '../../../../shared/constants';
-import { calculateTotalNetWeightForWeightTickets } from '../../../../utils/shipmentWeights';
+import { getTotalNetWeightForWeightTickets } from '../../../../utils/shipmentWeights';
 
 import styles from './ReviewShipmentWeightsTable.module.scss';
 
@@ -158,7 +158,7 @@ export const PPMReviewWeightsTableColumns = [
   createHeader(
     'Net weight',
     (row) => {
-      const calculatedNetWeight = calculateTotalNetWeightForWeightTickets(row.ppmShipment?.weightTickets);
+      const calculatedNetWeight = getTotalNetWeightForWeightTickets(row.ppmShipment?.weightTickets);
       return calculatedNetWeight > 0 ? formatWeight(calculatedNetWeight) : DASH;
     },
     {
