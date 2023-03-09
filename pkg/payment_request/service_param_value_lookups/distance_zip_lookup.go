@@ -61,6 +61,10 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 		return "", err
 	}
 
+	if pickupZip == destinationZip {
+		distanceMiles = 1
+	}
+
 	miles := unit.Miles(distanceMiles)
 	mtoShipment.Distance = &miles
 	err = db.Save(&mtoShipment)

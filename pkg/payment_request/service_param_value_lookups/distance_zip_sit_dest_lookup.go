@@ -34,5 +34,9 @@ func (r DistanceZipSITDestLookup) lookup(appCtx appcontext.AppContext, keyData *
 		return "", distanceErr
 	}
 
+	if destZip == finalDestZip {
+		distanceMiles = 1
+	}
+
 	return strconv.Itoa(distanceMiles), nil
 }
