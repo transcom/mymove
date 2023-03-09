@@ -11,10 +11,9 @@ type MoveToGBLOC struct {
 	GBLOC  *string   `db:"gbloc"`
 }
 
-// MoveToGBLOCs is not required by pop and may be deleted
-type MoveToGBLOCs []MoveToGBLOC
-
 // TableName overrides the table name used by Pop.
 func (m MoveToGBLOC) TableName() string {
 	return "move_to_gbloc"
 }
+
+type MoveToGBLOCs []MoveToGBLOC

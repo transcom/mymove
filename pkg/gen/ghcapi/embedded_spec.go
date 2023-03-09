@@ -1058,7 +1058,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.MTOServiceItem"
+        ]
       },
       "parameters": [
         {
@@ -10681,7 +10684,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.MTOServiceItem"
+        ]
       },
       "parameters": [
         {

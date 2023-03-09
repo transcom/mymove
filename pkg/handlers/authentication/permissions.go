@@ -54,7 +54,6 @@ var TIO = RolePermissions{
 		"update.maxBillableWeight",
 		"update.paymentRequest",
 		"update.paymentServiceItemStatus",
-		"update.MTOServiceItem",
 	},
 }
 

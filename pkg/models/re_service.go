@@ -129,11 +129,14 @@ type ReService struct {
 	UpdatedAt time.Time     `json:"updated_at" db:"updated_at"`
 }
 
-// ReServices is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (r ReService) TableName() string {
+	return "re_services"
+}
+
 type ReServices []ReService
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (r *ReService) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: string(r.Code), Name: "Code"},

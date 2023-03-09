@@ -9,7 +9,7 @@ import styles from './EditPPMNetWeight.module.scss';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import { formatWeight } from 'utils/formatters';
-import { calculateNetWeightForWeightTicket } from 'utils/shipmentWeights';
+import { calculateWeightTicketWeightDifference } from 'utils/shipmentWeights';
 import { useCalculatedWeightRequested } from 'hooks/custom';
 
 // Labels & constants
@@ -153,7 +153,7 @@ const EditPPMNetWeight = ({ netWeightRemarks, weightTicket, weightAllowance, shi
     setShowEditForm(!showEditForm);
   };
   // Original weight is the full weight - empty weight
-  const originalWeight = calculateNetWeightForWeightTicket(weightTicket);
+  const originalWeight = calculateWeightTicketWeightDifference(weightTicket);
   // moveWeightTotal = Sum of all ppm weights + sum of all non-ppm shipments
   const moveWeightTotal = useCalculatedWeightRequested(shipments);
   const excessWeight = moveWeightTotal - weightAllowance;

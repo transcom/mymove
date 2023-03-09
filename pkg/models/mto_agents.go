@@ -33,6 +33,11 @@ type MTOAgent struct {
 	DeletedAt     *time.Time   `db:"deleted_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (m MTOAgent) TableName() string {
+	return "mto_agents"
+}
+
 // MTOAgents is a collection of MTOAgent
 type MTOAgents []MTOAgent
 
@@ -61,9 +66,4 @@ func (m *MTOAgent) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		vs = append(vs, &validators.StringIsPresent{Field: phone, Name: "Phone"})
 	}
 	return validate.Validate(vs...), nil
-}
-
-// TableName overrides the table name used by Pop.
-func (m MTOAgent) TableName() string {
-	return "mto_agents"
 }

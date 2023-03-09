@@ -21,6 +21,10 @@ func (_m *MoveFinancialReviewFlagSetter) SetFinancialReviewFlag(appCtx appcontex
 	ret := _m.Called(appCtx, moveID, eTag, flagForReview, remarks)
 
 	var r0 *models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, bool, *string) (*models.Move, error)); ok {
+		return rf(appCtx, moveID, eTag, flagForReview, remarks)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, bool, *string) *models.Move); ok {
 		r0 = rf(appCtx, moveID, eTag, flagForReview, remarks)
 	} else {
@@ -29,7 +33,6 @@ func (_m *MoveFinancialReviewFlagSetter) SetFinancialReviewFlag(appCtx appcontex
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string, bool, *string) error); ok {
 		r1 = rf(appCtx, moveID, eTag, flagForReview, remarks)
 	} else {

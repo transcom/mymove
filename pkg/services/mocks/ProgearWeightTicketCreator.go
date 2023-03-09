@@ -21,6 +21,10 @@ func (_m *ProgearWeightTicketCreator) CreateProgearWeightTicket(appCtx appcontex
 	ret := _m.Called(appCtx, ppmShipmentID)
 
 	var r0 *models.ProgearWeightTicket
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.ProgearWeightTicket, error)); ok {
+		return rf(appCtx, ppmShipmentID)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.ProgearWeightTicket); ok {
 		r0 = rf(appCtx, ppmShipmentID)
 	} else {
@@ -29,7 +33,6 @@ func (_m *ProgearWeightTicketCreator) CreateProgearWeightTicket(appCtx appcontex
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, ppmShipmentID)
 	} else {

@@ -28,6 +28,11 @@ type ProgearWeightTicket struct {
 	DeletedAt        *time.Time         `json:"deleted_at" db:"deleted_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (p ProgearWeightTicket) TableName() string {
+	return "progear_weight_tickets"
+}
+
 type ProgearWeightTickets []ProgearWeightTicket
 
 func (e ProgearWeightTickets) FilterDeleted() ProgearWeightTickets {
