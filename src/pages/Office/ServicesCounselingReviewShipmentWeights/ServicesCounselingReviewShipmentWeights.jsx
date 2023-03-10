@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { Link, generatePath } from 'react-router-dom';
 
@@ -53,6 +54,10 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
       </GridContainer>
     </div>
   );
+};
+
+ServicesCounselingReviewShipmentWeights.propTypes = {
+  moveCode: PropTypes.string.isRequired,
 };
 
 export default ServicesCounselingReviewShipmentWeights;
