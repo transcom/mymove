@@ -52,11 +52,6 @@ type UpdatePPMShipment struct {
 	//
 	HasRequestedAdvance *bool `json:"hasRequestedAdvance,omitempty"`
 
-	// The net weight of the shipment once it has been weighed
-	//
-	// Example: 4300
-	NetWeight *int64 `json:"netWeight,omitempty"`
-
 	// ZIP
 	//
 	// zip code

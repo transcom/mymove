@@ -114,11 +114,6 @@ type PPMShipment struct {
 	// All expense documentation receipt records of this PPM shipment.
 	MovingExpenses []*MovingExpense `json:"movingExpenses"`
 
-	// The net weight of the shipment once it has been weighed.
-	//
-	// Example: 4300
-	NetWeight *int64 `json:"netWeight"`
-
 	// ZIP
 	//
 	// The postal code of the origin location where goods are being moved from.
