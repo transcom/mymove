@@ -14,7 +14,7 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
-import { usePPMShipmentDocsQueries } from 'hooks/queries';
+import { useReviewShipmentWeightsQuery, usePPMShipmentDocsQueries } from 'hooks/queries';
 import ReviewWeightTicket from 'components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket';
 import ReviewExpense from 'components/Office/PPM/ReviewExpense/ReviewExpense';
 import { DOCUMENTS } from 'constants/queryKeys';
@@ -30,6 +30,7 @@ const DOCUMENT_TYPES = {
 
 export const ReviewDocuments = ({ match }) => {
   const { shipmentId, moveCode } = match.params;
+  const { move, orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
