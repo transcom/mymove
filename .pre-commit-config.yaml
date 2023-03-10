@@ -1,4 +1,4 @@
-default_languages:
+default_language_version:
   golang: system
 
 repos:
