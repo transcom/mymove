@@ -2836,13 +2836,6 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weight\n",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 4300
-        },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
@@ -7203,13 +7196,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weight\n",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
