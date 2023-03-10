@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { formatReviewShipmentWeightsDate, formatWeight } from '../../../../utils/formatters';
-import { shipmentTypes } from '../../../../constants/shipments';
-import { createHeader } from '../../../Table/utils';
-import { SHIPMENT_OPTIONS } from '../../../../shared/constants';
-import { calculateTotalNetWeightForWeightTickets } from '../../../../utils/shipmentWeights';
-
 import styles from './ReviewShipmentWeightsTable.module.scss';
+
+import { formatReviewShipmentWeightsDate, formatWeight } from 'utils/formatters';
+import { shipmentTypes } from 'constants/shipments';
+import { createHeader } from 'components/Table/utils';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { getTotalNetWeightForWeightTickets } from 'utils/shipmentWeights';
 
 export const DASH = '—';
 
@@ -158,7 +158,7 @@ export const PPMReviewWeightsTableColumns = [
   createHeader(
     'Net weight',
     (row) => {
-      const calculatedNetWeight = calculateTotalNetWeightForWeightTickets(row.ppmShipment?.weightTickets);
+      const calculatedNetWeight = getTotalNetWeightForWeightTickets(row.ppmShipment?.weightTickets);
       return calculatedNetWeight > 0 ? formatWeight(calculatedNetWeight) : DASH;
     },
     {
