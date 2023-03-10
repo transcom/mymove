@@ -11,7 +11,6 @@ import (
 	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // Anonymously import lib/pq driver so it's available to Pop
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
@@ -74,7 +73,7 @@ type PopTestSuite struct {
 	// Enable this flag to use per test transactions
 	usePerTestTransaction bool
 	// the preloadedTxnDb is used when PreloadData is invoked
-	preloadedTxnDb *sqlx.DB
+	preloadedTxnDb *pop.Connection
 	// a mutex to make sure transactional tests aren't stepping on each other
 	txnMutex sync.Mutex
 	// tracking the *testing.T that are active to ensure multiple
@@ -204,34 +203,36 @@ func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) *PopTe
 	pts.pgConn = pgConn
 
 	if pts.usePerTestTransaction {
+		pts.txnTestDb = make(map[string]*pop.Connection)
 		pts.findOrCreatePerTestTransactionDb()
-	} else {
-		// set up database connections for non per test transactions
-		// which may or may not be have useHighPrivsPSQLRole set
-		pts.highPrivConn, err = pop.NewConnection(pts.highPrivConnDetails)
-		if err != nil {
-			log.Panic(err)
-		}
-		if err = pts.highPrivConn.Open(); err != nil {
-			log.Panic(err)
-		}
-
-		pts.lowPrivConn, err = pop.NewConnection(pts.lowPrivConnDetails)
-		if err != nil {
-			log.Panic(err)
-		}
-		if err := pts.lowPrivConn.Open(); err != nil {
-			log.Panic(err)
-		}
-
-		log.Printf("attempting to clone database %s to %s... ", pts.dbNameTemplate, pts.lowPrivConnDetails.Database)
-		if err := cloneDatabase(pgConn, pts.dbNameTemplate, pts.lowPrivConnDetails.Database); err != nil {
-			log.Panicf("failed to clone database '%s' to '%s': %#v", pts.dbNameTemplate, pts.lowPrivConnDetails.Database, err)
-		}
-		log.Println("success")
-
-		// The db is already truncated as part of the test setup
+		return pts
 	}
+
+	// set up database connections for non per test transactions
+	// which may or may not be have useHighPrivsPSQLRole set
+	pts.highPrivConn, err = pop.NewConnection(pts.highPrivConnDetails)
+	if err != nil {
+		log.Panic(err)
+	}
+	if err = pts.highPrivConn.Open(); err != nil {
+		log.Panic(err)
+	}
+
+	pts.lowPrivConn, err = pop.NewConnection(pts.lowPrivConnDetails)
+	if err != nil {
+		log.Panic(err)
+	}
+	if err := pts.lowPrivConn.Open(); err != nil {
+		log.Panic(err)
+	}
+
+	log.Printf("attempting to clone database %s to %s... ", pts.dbNameTemplate, pts.lowPrivConnDetails.Database)
+	if err := cloneDatabase(pgConn, pts.dbNameTemplate, pts.lowPrivConnDetails.Database); err != nil {
+		log.Panicf("failed to clone database '%s' to '%s': %#v", pts.dbNameTemplate, pts.lowPrivConnDetails.Database, err)
+	}
+	log.Println("success")
+
+	// The db is already truncated as part of the test setup
 
 	if pts.useHighPrivsPSQLRole {
 		// Disconnect the low privileged connection and replace its
@@ -244,8 +245,6 @@ func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) *PopTe
 		pts.lowPrivConn = pts.highPrivConn
 		pts.lowPrivConnDetails = pts.highPrivConnDetails
 	}
-
-	pts.txnTestDb = make(map[string]*pop.Connection)
 
 	return pts
 }
