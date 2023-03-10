@@ -43,7 +43,6 @@ const shipment = {
     hasReceivedAdvance: true,
     hasRequestedAdvance: true,
     id: 'd733fe2f-b08d-434a-ad8d-551f4d597b03',
-    netWeight: 3900,
     pickupPostalCode: '90210',
     proGearWeight: 1987,
     reviewedAt: '2022-07-02T14:20:14.636Z',
@@ -90,7 +89,6 @@ const initialValues = {
     ...shipment.ppmShipment,
     sitEstimatedWeight: shipment.ppmShipment.sitEstimatedWeight?.toLocaleString(),
     estimatedWeight: shipment.ppmShipment.estimatedWeight?.toLocaleString(),
-    netWeight: shipment.ppmShipment.netWeight?.toLocaleString(),
     proGearWeight: shipment.ppmShipment.proGearWeight?.toLocaleString(),
     spouseProGearWeight: shipment.ppmShipment.spouseProGearWeight?.toLocaleString(),
   },
@@ -147,7 +145,6 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
     expect(await screen.findByLabelText('Estimated Weight (lbs)')).toHaveValue(
       initialValues.ppmShipment.estimatedWeight,
     );
-    expect(await screen.findByLabelText('Net Weight (lbs)')).toHaveValue(initialValues.ppmShipment.netWeight);
     expect(await screen.findByLabelText('Has Pro Gear')).toBeChecked();
     expect(await screen.findByLabelText('Pro Gear Weight (lbs)')).toHaveValue(initialValues.ppmShipment.proGearWeight);
     expect(await screen.findByLabelText('Spouse Pro Gear Weight (lbs)')).toHaveValue(

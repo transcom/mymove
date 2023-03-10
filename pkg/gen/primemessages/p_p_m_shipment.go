@@ -100,11 +100,6 @@ type PPMShipment struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id"`
 
-	// The net weight of the shipment once it has been weight
-	//
-	// Example: 4300
-	NetWeight *int64 `json:"netWeight"`
-
 	// ZIP
 	//
 	// The postal code of the origin location where goods are being moved from.

@@ -4349,12 +4349,6 @@ definitions:
         type: integer
         example: 4200
         x-nullable: true
-      netWeight:
-        description: |
-          The net weight of the shipment once it has been weighed
-        type: integer
-        example: 4300
-        x-nullable: true
       hasProGear:
         description: |
           Indicates whether PPM shipment has pro gear.
@@ -6571,13 +6565,6 @@ definitions:
         example: 4200
         x-nullable: true
         x-omitempty: false
-      netWeight:
-        description: |
-          The net weight of the shipment once it has been weighed.
-        type: integer
-        example: 4300
-        x-nullable: true
-        x-omitempty: false
       hasProGear:
         description: >
           Indicates whether PPM shipment has pro gear for themselves or their
@@ -6761,6 +6748,7 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+        x-nullable: true
       actualPickupDate:
         x-nullable: true
         format: date
@@ -6775,6 +6763,7 @@ definitions:
       requestedDeliveryDate:
         format: date
         type: string
+        x-nullable: true
       requiredDeliveryDate:
         x-nullable: true
         format: date
