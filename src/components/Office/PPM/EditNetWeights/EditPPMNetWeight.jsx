@@ -145,14 +145,21 @@ const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => (
   </Formik>
 );
 
-const EditPPMNetWeight = ({ netWeightRemarks, weightTicket, weightAllowance, shipments }) => {
+const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
   const [showEditForm, setShowEditForm] = useState(false);
-
-  // To-do: Add mutation and onSumbit handler
 
   const toggleEditForm = () => {
     setShowEditForm(!showEditForm);
   };
+
+  /**
+   * captureSaveChanges - Handle the submission of the EditPPMNetWeightForm Formik component.
+   * @param {Object} event - The values from the form.
+   */
+  const captureSaveChanges = (event) => {
+    // FIX: Add mutation and onSumbit handler
+  };
+
   // Original weight is the full weight - empty weight
   const originalWeight = calculateWeightTicketWeightDifference(weightTicket);
   // moveWeightTotal = Sum of all ppm weights + sum of all non-ppm shipments
@@ -189,10 +196,10 @@ const EditPPMNetWeight = ({ netWeightRemarks, weightTicket, weightAllowance, shi
           {!showEditForm ? (
             <div className={styles.wrapper}>
               {formatWeight(netWeight)}
-              {netWeightRemarks && (
+              {weightTicket.netWeightRemarks && (
                 <>
                   <h5 className={styles.remarksHeader}>Remarks</h5>
-                  <p className={styles.remarks}>{netWeightRemarks}</p>
+                  <p className={styles.remarks}>{weightTicket.netWeightRemarks}</p>
                 </>
               )}
               <Button onClick={toggleEditForm} className={styles.editButton}>
@@ -201,7 +208,8 @@ const EditPPMNetWeight = ({ netWeightRemarks, weightTicket, weightAllowance, shi
             </div>
           ) : (
             <EditPPMNetWeightForm
-              initialValues={{ ppmNetWeight: String(netWeight), netWeightRemarks }}
+              initialValues={{ ppmNetWeight: String(netWeight), netWeightRemarks: weightTicket.netWeightRemarks }}
+              onSave={captureSaveChanges}
               onCancel={toggleEditForm}
             />
           )}
