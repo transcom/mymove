@@ -24,7 +24,9 @@ import { ErrorMessage, Form } from 'components/form';
 import { patchExpense } from 'services/ghcApi';
 
 const validationSchema = Yup.object().shape({
-  amount: Yup.number().required('Enter the expense amount').min(1, 'Enter an expense amount greater than $0.00'),
+  amount: Yup.string()
+    .required('Enter the expense amount')
+    .notOneOf(['0', '0.00'], 'Enter an expense amount greater than $0.00'),
   sitStartDate: Yup.date().when('movingExpenseType', {
     is: expenseTypes.STORAGE,
     then: (schema) =>
@@ -151,7 +153,7 @@ export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNum
               </h3>
               <p>Add a review for this {expenseName.toLowerCase()}</p>
               <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
-              <Fieldset>
+              <Fieldset className={styles.statusOptions}>
                 <div
                   className={classnames(approveRejectStyles.statusOption, {
                     [approveRejectStyles.selected]: values.status === ppmDocumentStatus.APPROVED,

@@ -60,4 +60,8 @@
   div.exclude {
     @include u-margin-top(2);
   }
+
+  .statusOptions :global(.usa-radio__label) {
+    @include u-text('bold');
+  }
 }

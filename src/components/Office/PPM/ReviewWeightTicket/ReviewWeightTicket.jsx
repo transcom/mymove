@@ -247,7 +247,7 @@ export default function ReviewWeightTicket({
               <h3 className={styles.reviewHeader}>Review trip {tripNumber}</h3>
               <p>Add a review for this weight ticket</p>
               <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
-              <Fieldset>
+              <Fieldset className={styles.statusOptions}>
                 <div
                   className={classnames(approveRejectStyles.statusOption, {
                     [approveRejectStyles.selected]: values.status === ppmDocumentStatus.APPROVED,
