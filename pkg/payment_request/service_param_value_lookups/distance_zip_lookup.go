@@ -56,13 +56,15 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 		return strconv.Itoa(mtoShipment.Distance.Int()), nil
 	}
 
-	distanceMiles, err := planner.ZipTransitDistance(appCtx, pickupZip, destinationZip)
-	if err != nil {
-		return "", err
-	}
-
+	var distanceMiles int
 	if pickupZip == destinationZip {
 		distanceMiles = 1
+		return strconv.Itoa(distanceMiles), nil
+	}
+
+	distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip)
+	if err != nil {
+		return "", err
 	}
 
 	miles := unit.Miles(distanceMiles)

@@ -29,13 +29,15 @@ func (r DistanceZipSITDestLookup) lookup(appCtx appcontext.AppContext, keyData *
 
 	var distanceMiles int
 	var distanceErr error
-	distanceMiles, distanceErr = planner.ZipTransitDistance(appCtx, destZip, finalDestZip)
-	if distanceErr != nil {
-		return "", distanceErr
-	}
 
 	if destZip == finalDestZip {
 		distanceMiles = 1
+		return strconv.Itoa(distanceMiles), nil
+	}
+
+	distanceMiles, distanceErr = planner.ZipTransitDistance(appCtx, destZip, finalDestZip)
+	if distanceErr != nil {
+		return "", distanceErr
 	}
 
 	return strconv.Itoa(distanceMiles), nil
