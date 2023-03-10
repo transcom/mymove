@@ -2,7 +2,7 @@ default_language_version:
   golang: system
 
 # In order to pass the golang default version flag, pre-commit needs to be at least at version 3.0.0
-# minimum_pre_commit_version: 3.0.0
+minimum_pre_commit_version: 3.0.0
 
 repos:
   - repo: local
