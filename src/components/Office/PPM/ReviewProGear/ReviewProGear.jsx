@@ -49,9 +49,9 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
 
   const { belongsToSelf, description, hasWeightTickets, weight, status, reason } = proGear || {};
 
-  const proGearValue = belongsToSelf === true ? 'true' : 'false';
+  const proGearValue = belongsToSelf ? 'true' : 'false';
 
-  const missingWeightTicketValue = hasWeightTickets === true ? 'false' : 'true';
+  const missingWeightTicketValue = hasWeightTickets ? 'false' : 'true';
 
   const handleSubmit = (values) => {
     let hasWeightTicketValue;
