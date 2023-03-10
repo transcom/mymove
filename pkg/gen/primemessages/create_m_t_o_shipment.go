@@ -74,7 +74,8 @@ type CreateMTOShipment struct {
 	// The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.
 	//
 	// Example: 4500
-	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+	// Minimum: 1
+	PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
 	// The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.
 	//
@@ -123,7 +124,7 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 
 		PpmShipment *CreatePPMShipment `json:"ppmShipment,omitempty"`
 
-		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+		PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
 		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
@@ -219,7 +220,7 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 
 		PpmShipment *CreatePPMShipment `json:"ppmShipment,omitempty"`
 
-		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+		PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
 		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
@@ -291,6 +292,10 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePpmShipment(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePrimeEstimatedWeight(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -389,6 +394,18 @@ func (m *CreateMTOShipment) validatePpmShipment(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validatePrimeEstimatedWeight(formats strfmt.Registry) error {
+	if swag.IsZero(m.PrimeEstimatedWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("primeEstimatedWeight", "body", *m.PrimeEstimatedWeight, 1, false); err != nil {
+		return err
 	}
 
 	return nil
