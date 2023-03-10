@@ -6761,6 +6761,7 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+        x-nullable: true
       actualPickupDate:
         x-nullable: true
         format: date
@@ -6775,6 +6776,7 @@ definitions:
       requestedDeliveryDate:
         format: date
         type: string
+        x-nullable: true
       requiredDeliveryDate:
         x-nullable: true
         format: date
