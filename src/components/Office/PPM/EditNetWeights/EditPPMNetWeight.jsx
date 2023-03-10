@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-// import { func, number, string, bool } from 'prop-types';
+import { PropTypes, number } from 'prop-types';
 import { Button, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 
 import styles from './EditPPMNetWeight.module.scss';
@@ -11,6 +11,7 @@ import { ErrorMessage } from 'components/form/ErrorMessage';
 import { formatWeight } from 'utils/formatters';
 import { calculateWeightTicketWeightDifference } from 'utils/shipmentWeights';
 import { useCalculatedWeightRequested } from 'hooks/custom';
+import { ShipmentShape, WeightTicketShape } from 'types/shipment';
 
 // Labels & constants
 
@@ -208,6 +209,12 @@ const EditPPMNetWeight = ({ netWeightRemarks, weightTicket, weightAllowance, shi
       </FlexContainer>
     </div>
   );
+};
+
+EditPPMNetWeight.propTypes = {
+  weightTicket: WeightTicketShape.isRequired,
+  weightAllowance: number.isRequired,
+  shipments: PropTypes.arrayOf(ShipmentShape).isRequired,
 };
 
 export default EditPPMNetWeight;
