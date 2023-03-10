@@ -11,15 +11,20 @@ import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
 import { calculateEstimatedWeight, calculateWeightRequested } from 'hooks/custom';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { servicesCounselingRoutes } from 'constants/routes';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
-  const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
+  const { orders, mtoShipments, isLoading, isError } = useReviewShipmentWeightsQuery(moveCode);
   const estimatedWeightTotal = calculateEstimatedWeight(mtoShipments);
   const moveWeightTotal = calculateWeightRequested(mtoShipments);
   const externalVendorShipmentCount = mtoShipments?.length
     ? mtoShipments.filter((shipment) => shipment.usesExternalVendor).length
     : 0;
   const order = Object.values(orders)?.[0];
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   return (
     <div className={tabStyles.tabContent}>
