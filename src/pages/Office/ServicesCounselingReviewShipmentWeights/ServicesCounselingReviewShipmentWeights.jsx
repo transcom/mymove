@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { Link, generatePath } from 'react-router-dom';
 
@@ -13,30 +13,13 @@ import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { servicesCounselingRoutes } from 'constants/routes';
 
 const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
-  const { orders, mtoShipments, documents } = useReviewShipmentWeightsQuery(moveCode);
-  const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
-  const [externalVendorShipmentCount, setExternalVendorShipmentCount] = useState(0);
-  const [moveWeightTotal, setMoveWeightTotal] = useState(null);
+  const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
+  const estimatedWeightTotal = calculateEstimatedWeight(mtoShipments);
+  const moveWeightTotal = calculateWeightRequested(mtoShipments);
+  const externalVendorShipmentCount = mtoShipments?.length
+    ? mtoShipments.filter((shipment) => shipment.usesExternalVendor).length
+    : 0;
   const order = Object.values(orders)?.[0];
-
-  useEffect(() => {
-    setEstimatedWeightTotal(calculateEstimatedWeight(mtoShipments));
-  }, [mtoShipments]);
-
-  // documents are a dependency of this useEffect because they are appended to the mtoShipments
-  // to calculate the net weight, but this doesn't trigger the useEffect automatically
-  useEffect(() => {
-    setMoveWeightTotal(calculateWeightRequested(mtoShipments));
-  }, [mtoShipments, documents]);
-
-  useEffect(() => {
-    if (mtoShipments) {
-      const externalVendorShipments = mtoShipments?.length
-        ? mtoShipments.filter((shipment) => shipment.usesExternalVendor).length
-        : 0;
-      setExternalVendorShipmentCount(externalVendorShipments);
-    }
-  }, [mtoShipments]);
 
   return (
     <div className={tabStyles.tabContent}>
