@@ -165,7 +165,6 @@ export const ReviewDocuments = ({ match }) => {
               <ReviewDocumentsSidePanel
                 ppmShipment={mtoShipment.ppmShipment}
                 weightTickets={weightTickets}
-                // proGearTickets={proGearWeightTickets}
                 expenseTickets={movingExpenses}
                 onError={onError}
                 onSuccess={onConfirmSuccess}
@@ -207,8 +206,6 @@ export const ReviewDocuments = ({ match }) => {
                     formRef={formRef}
                   />
                 )}
-                {/* TODO: integrate pro gear weight tickets */}
-                {/* {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && <div>pro-gear</div>} */}
               </>
             ))}
         </DocumentViewerSidebar.Content>

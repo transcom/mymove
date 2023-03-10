@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import ReviewExpense from './ReviewExpense';
 
+import ppmDocumentStatus from 'constants/ppms';
 import { expenseTypes } from 'constants/ppmExpenseTypes';
 import { MockProviders } from 'testUtils';
 
@@ -41,6 +42,14 @@ const storageProps = {
     movingExpenseType: expenseTypes.STORAGE,
     sitStartDate: '2022-12-15',
     sitEndDate: '2022-12-25',
+  },
+};
+
+const rejectedProps = {
+  expense: {
+    ...expenseRequiredProps.expense,
+    reason: 'Rejection reason',
+    status: ppmDocumentStatus.REJECTED,
   },
 };
 
@@ -113,6 +122,15 @@ describe('ReviewExpenseForm component', () => {
       await waitFor(() => {
         expect(screen.getByTestId('days-in-sit')).toHaveTextContent('8');
       });
+    });
+
+    it('populates edit form with existing status and reason', async () => {
+      render(<ReviewExpense {...defaultProps} {...rejectedProps} />, { wrapper: MockProviders });
+      await waitFor(() => {
+        expect(screen.getByLabelText('Reject')).toBeChecked();
+      });
+      expect(screen.getByText('Rejection reason')).toBeInTheDocument();
+      expect(screen.getByText('484 characters')).toBeInTheDocument();
     });
   });
 });
