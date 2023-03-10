@@ -61,7 +61,7 @@ require (
 	github.com/tealeg/xlsx/v3 v3.2.4
 	github.com/tiaguinho/gosoap v1.4.4
 	github.com/trussworks/otelhttp v0.0.0-20230303155957-05b6cbc30864
-	github.com/vektra/mockery/v2 v2.21.3
+	github.com/vektra/mockery/v2 v2.22.1
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.15.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.40.0
@@ -142,6 +142,7 @@ require (
 	github.com/hhrutter/lzw v0.0.0-20190827003112-58b82c5a41cc // indirect
 	github.com/hhrutter/tiff v0.0.0-20190827003322-d08e2ad45835 // indirect
 	github.com/huandu/xstrings v1.3.3 // indirect
+	github.com/iancoleman/strcase v0.2.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.14.0 // indirect
