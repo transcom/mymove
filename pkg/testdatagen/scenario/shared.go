@@ -1091,6 +1091,8 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 	weightTicketAssertions := testdatagen.Assertions{
 		PPMShipment:   shipment,
 		ServiceMember: move.Orders.ServiceMember,
+		UserUploader:  userUploader,
+		File:          testdatagen.Fixture("test.png"),
 	}
 
 	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
@@ -1138,6 +1140,7 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 	weightTicketAssertions := testdatagen.Assertions{
 		PPMShipment:   shipment,
 		ServiceMember: move.Orders.ServiceMember,
+		UserUploader:  userUploader,
 	}
 
 	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
@@ -1149,6 +1152,7 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 			MissingEmptyWeightTicket: models.BoolPointer(true),
 			MissingFullWeightTicket:  models.BoolPointer(true),
 		},
+		UserUploader: userUploader,
 	}
 	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
 }
