@@ -1154,8 +1154,8 @@ anti_virus: ## Scan repo with anti-virus service
 # ----- START NON-ATO DEPLOYMENT TARGETS -----
 #
 
-.PHONY: prepare_for_deploy
-prepare_for_deploy:  ## Replace placeholders in config to deploy to a non-ATO env. Requires DEPLOY_ENV to be set to exp, loadtest, or demo.
+.PHONY: nonato_deploy_prepare
+nonato_deploy_prepare:  ## Replace placeholders in config to deploy to a non-ATO env. Requires DEPLOY_ENV to be set to exp, loadtest, or demo.
 ifeq ($(DEPLOY_ENV), exp)
 	@echo "Preparing for deploy to experimental"
 else ifeq ($(DEPLOY_ENV), loadtest)
@@ -1171,9 +1171,11 @@ endif
 	sed -E -i '' "s#(&client-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml
 	sed -E -i '' "s#(&server-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml
 	sed -E -i '' "s#(&dp3-env) placeholder_env#\1 $(DEPLOY_ENV)#" .circleci/config.yml
+	@git --no-pager diff .circleci/config.yml
+	@echo "Please make sure to commit the changes in .circleci/config.yml in order to have CircleCI deploy $(GIT_BRANCH) to the Non-ATO $(DEPLOY_ENV) environment."
 
-.PHONY: restore_from_deploy
-restore_from_deploy:  ## Restore placeholders in config after deploy to a non-ATO env
+.PHONY: nonato_deploy_restore
+nonato_deploy_restore:  ## Restore placeholders in config after deploy to a non-ATO env
 	sed -E -i '' "s#(&dp3-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .circleci/config.yml
 	sed -E -i '' "s#(&integration-ignore-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .circleci/config.yml
 	sed -E -i '' "s#(&integration-mtls-ignore-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .circleci/config.yml
