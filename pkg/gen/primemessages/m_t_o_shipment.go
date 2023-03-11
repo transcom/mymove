@@ -128,12 +128,14 @@ type MTOShipment struct {
 
 	// The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
 	// Example: 4500
-	PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
+	// Minimum: 1
+	PrimeActualWeight *int64 `json:"primeActualWeight,omitempty"`
 
 	// The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.
 	//
 	// Example: 4500
-	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+	// Minimum: 1
+	PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
 	// The date when the Prime contractor recorded the shipment's estimated weight.
 	// Read Only: true
@@ -254,9 +256,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		PpmShipment *PPMShipment `json:"ppmShipment,omitempty"`
 
-		PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
+		PrimeActualWeight *int64 `json:"primeActualWeight,omitempty"`
 
-		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+		PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
 		PrimeEstimatedWeightRecordedDate *strfmt.Date `json:"primeEstimatedWeightRecordedDate"`
 
@@ -464,9 +466,9 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		PpmShipment *PPMShipment `json:"ppmShipment,omitempty"`
 
-		PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
+		PrimeActualWeight *int64 `json:"primeActualWeight,omitempty"`
 
-		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+		PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
 		PrimeEstimatedWeightRecordedDate *strfmt.Date `json:"primeEstimatedWeightRecordedDate"`
 
@@ -638,6 +640,14 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePpmShipment(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePrimeActualWeight(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePrimeEstimatedWeight(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -870,6 +880,30 @@ func (m *MTOShipment) validatePpmShipment(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validatePrimeActualWeight(formats strfmt.Registry) error {
+	if swag.IsZero(m.PrimeActualWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("primeActualWeight", "body", *m.PrimeActualWeight, 1, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validatePrimeEstimatedWeight(formats strfmt.Registry) error {
+	if swag.IsZero(m.PrimeEstimatedWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("primeEstimatedWeight", "body", *m.PrimeEstimatedWeight, 1, false); err != nil {
+		return err
 	}
 
 	return nil

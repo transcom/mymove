@@ -21,21 +21,21 @@ type HiddenMoves []HiddenMove
 
 // MoveTaskOrderHider is the service object interface for Hide
 //
-//go:generate mockery --name MoveTaskOrderHider --disable-version-string
+//go:generate mockery --name MoveTaskOrderHider
 type MoveTaskOrderHider interface {
 	Hide(appCtx appcontext.AppContext) (HiddenMoves, error)
 }
 
 // MoveTaskOrderCreator is the service object interface for CreateMoveTaskOrder
 //
-//go:generate mockery --name MoveTaskOrderCreator --disable-version-string
+//go:generate mockery --name MoveTaskOrderCreator
 type MoveTaskOrderCreator interface {
 	CreateMoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) (*models.Move, *validate.Errors, error)
 }
 
 // MoveTaskOrderFetcher is the service object interface for FetchMoveTaskOrder
 //
-//go:generate mockery --name MoveTaskOrderFetcher --disable-version-string
+//go:generate mockery --name MoveTaskOrderFetcher
 type MoveTaskOrderFetcher interface {
 	FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (*models.Move, error)
 	ListAllMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, error)
@@ -44,7 +44,7 @@ type MoveTaskOrderFetcher interface {
 
 // MoveTaskOrderUpdater is the service object interface for updating fields of a MoveTaskOrder
 //
-//go:generate mockery --name MoveTaskOrderUpdater --disable-version-string
+//go:generate mockery --name MoveTaskOrderUpdater
 type MoveTaskOrderUpdater interface {
 	MakeAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string, includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error)
 	UpdatePostCounselingInfo(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error)
@@ -56,7 +56,7 @@ type MoveTaskOrderUpdater interface {
 
 // MoveTaskOrderChecker is the service object interface for checking if a MoveTaskOrder is in a certain state
 //
-//go:generate mockery --name MoveTaskOrderChecker --disable-version-string
+//go:generate mockery --name MoveTaskOrderChecker
 type MoveTaskOrderChecker interface {
 	MTOAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (bool, error)
 }

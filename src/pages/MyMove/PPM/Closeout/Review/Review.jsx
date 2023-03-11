@@ -23,7 +23,7 @@ import {
 } from 'utils/ppmCloseout';
 import {
   calculateTotalNetWeightForProGearWeightTickets,
-  calculateTotalNetWeightForWeightTickets,
+  getTotalNetWeightForWeightTickets,
 } from 'utils/shipmentWeights';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { formatCents, formatWeight } from 'utils/formatters';
@@ -143,7 +143,7 @@ const Review = () => {
     handleDelete,
   );
 
-  const weightTicketsTotal = calculateTotalNetWeightForWeightTickets(weightTickets);
+  const weightTicketsTotal = getTotalNetWeightForWeightTickets(weightTickets);
 
   const canAdvance =
     hasCompletedAllWeightTickets(weightTickets) && hasCompletedAllExpenses(expenses) && hasCompletedAllProGear(proGear);

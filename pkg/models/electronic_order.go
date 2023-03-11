@@ -38,23 +38,24 @@ type ElectronicOrder struct {
 	Revisions    ElectronicOrdersRevisions `has_many:"electronic_orders_revisions" fk_id:"electronic_order_id" order_by:"seq_num asc"`
 }
 
-// String is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (e ElectronicOrder) TableName() string {
+	return "electronic_orders"
+}
+
 func (e ElectronicOrder) String() string {
 	je, _ := json.Marshal(e)
 	return string(je)
 }
 
-// ElectronicOrders is not required by pop and may be deleted
 type ElectronicOrders []ElectronicOrder
 
-// String is not required by pop and may be deleted
 func (e ElectronicOrders) String() string {
 	je, _ := json.Marshal(e)
 	return string(je)
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (e *ElectronicOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: e.OrdersNumber, Name: "OrdersNumber"},
@@ -68,18 +69,6 @@ func (e *ElectronicOrder) Validate(tx *pop.Connection) (*validate.Errors, error)
 			string(IssuerNavy),
 		}},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (e *ElectronicOrder) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (e *ElectronicOrder) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }
 
 // CreateElectronicOrder inserts an empty set of electronic Orders into the database

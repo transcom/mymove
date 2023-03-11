@@ -1087,6 +1087,7 @@ describe('useReviewShipmentWeightsQuery', () => {
                 vehicleDescription: '2022 Honda CR-V Hybrid',
               },
             ],
+            reviewURL: '/counseling/moves/ABCDEF/shipments/c3/document-review',
           },
         },
       ],

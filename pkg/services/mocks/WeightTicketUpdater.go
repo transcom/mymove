@@ -19,6 +19,10 @@ func (_m *WeightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, 
 	ret := _m.Called(appCtx, weightTicket, eTag)
 
 	var r0 *models.WeightTicket
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.WeightTicket, string) (*models.WeightTicket, error)); ok {
+		return rf(appCtx, weightTicket, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.WeightTicket, string) *models.WeightTicket); ok {
 		r0 = rf(appCtx, weightTicket, eTag)
 	} else {
@@ -27,7 +31,6 @@ func (_m *WeightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, 
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.WeightTicket, string) error); ok {
 		r1 = rf(appCtx, weightTicket, eTag)
 	} else {

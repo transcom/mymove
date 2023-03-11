@@ -21,6 +21,10 @@ func (_m *PaymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontex
 	ret := _m.Called(appCtx, paymentRequestID)
 
 	var r0 *models.PaymentRequest
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.PaymentRequest, error)); ok {
+		return rf(appCtx, paymentRequestID)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.PaymentRequest); ok {
 		r0 = rf(appCtx, paymentRequestID)
 	} else {
@@ -29,7 +33,6 @@ func (_m *PaymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontex
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, paymentRequestID)
 	} else {

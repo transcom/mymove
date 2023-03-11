@@ -63,7 +63,6 @@ const mtoShipments = [
       hasReceivedAdvance: null,
       hasRequestedAdvance: true,
       id: '62f0e96e-e562-4d22-91c8-a17237b9c609',
-      netWeight: null,
       pickupPostalCode: '90210',
       proGearWeight: 1987,
       reviewedAt: null,

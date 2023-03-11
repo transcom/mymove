@@ -25,13 +25,17 @@ func (_m *DomesticPackPricer) Price(appCtx appcontext.AppContext, contractCode s
 	ret := _m.Called(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleOrigin, isPPM)
 
 	var r0 unit.Cents
+	var r1 services.PricingDisplayParams
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, int, bool) (unit.Cents, services.PricingDisplayParams, error)); ok {
+		return rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleOrigin, isPPM)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, int, bool) unit.Cents); ok {
 		r0 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleOrigin, isPPM)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 services.PricingDisplayParams
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, unit.Pound, int, bool) services.PricingDisplayParams); ok {
 		r1 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleOrigin, isPPM)
 	} else {
@@ -40,7 +44,6 @@ func (_m *DomesticPackPricer) Price(appCtx appcontext.AppContext, contractCode s
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time, unit.Pound, int, bool) error); ok {
 		r2 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleOrigin, isPPM)
 	} else {
@@ -55,13 +58,17 @@ func (_m *DomesticPackPricer) PriceUsingParams(appCtx appcontext.AppContext, par
 	ret := _m.Called(appCtx, params)
 
 	var r0 unit.Cents
+	var r1 services.PricingDisplayParams
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error)); ok {
+		return rf(appCtx, params)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentServiceItemParams) unit.Cents); ok {
 		r0 = rf(appCtx, params)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 services.PricingDisplayParams
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PaymentServiceItemParams) services.PricingDisplayParams); ok {
 		r1 = rf(appCtx, params)
 	} else {
@@ -70,7 +77,6 @@ func (_m *DomesticPackPricer) PriceUsingParams(appCtx appcontext.AppContext, par
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, models.PaymentServiceItemParams) error); ok {
 		r2 = rf(appCtx, params)
 	} else {

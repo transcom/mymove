@@ -25,7 +25,11 @@ type Document struct {
 	UserUploads     UserUploads   `has_many:"user_uploads" fk_id:"document_id" order_by:"created_at asc"`
 }
 
-// Documents is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (d Document) TableName() string {
+	return "documents"
+}
+
 type Documents []Document
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

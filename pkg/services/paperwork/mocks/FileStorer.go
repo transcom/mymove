@@ -17,6 +17,10 @@ func (_m *FileStorer) Create(_a0 string) (afero.File, error) {
 	ret := _m.Called(_a0)
 
 	var r0 afero.File
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (afero.File, error)); ok {
+		return rf(_a0)
+	}
 	if rf, ok := ret.Get(0).(func(string) afero.File); ok {
 		r0 = rf(_a0)
 	} else {
@@ -25,7 +29,6 @@ func (_m *FileStorer) Create(_a0 string) (afero.File, error) {
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(_a0)
 	} else {

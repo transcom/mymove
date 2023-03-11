@@ -7,14 +7,14 @@ import (
 
 // ShipmentCreator creates a shipment, taking into account different shipment types and their needs.
 //
-//go:generate mockery --name ShipmentCreator --disable-version-string
+//go:generate mockery --name ShipmentCreator
 type ShipmentCreator interface {
 	CreateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment) (*models.MTOShipment, error)
 }
 
 // ShipmentUpdater updates a shipment, taking into account different shipment types and their needs.
 //
-//go:generate mockery --name ShipmentUpdater --disable-version-string
+//go:generate mockery --name ShipmentUpdater
 type ShipmentUpdater interface {
 	UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
 }

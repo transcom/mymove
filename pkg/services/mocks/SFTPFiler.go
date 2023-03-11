@@ -32,13 +32,16 @@ func (_m *SFTPFiler) WriteTo(w io.Writer) (int64, error) {
 	ret := _m.Called(w)
 
 	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(io.Writer) (int64, error)); ok {
+		return rf(w)
+	}
 	if rf, ok := ret.Get(0).(func(io.Writer) int64); ok {
 		r0 = rf(w)
 	} else {
 		r0 = ret.Get(0).(int64)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(io.Writer) error); ok {
 		r1 = rf(w)
 	} else {

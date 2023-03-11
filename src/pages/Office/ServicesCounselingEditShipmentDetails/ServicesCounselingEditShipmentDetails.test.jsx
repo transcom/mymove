@@ -195,7 +195,6 @@ const ppmShipment = {
     secondaryDestinationPostalCode: '79329',
     sitExpected: false,
     estimatedWeight: 1111,
-    netWeight: 3333,
     hasProGear: false,
   },
 };

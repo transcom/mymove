@@ -21,6 +21,10 @@ func (_m *MTOServiceItemUpdater) ApproveOrRejectServiceItem(appCtx appcontext.Ap
 	ret := _m.Called(appCtx, mtoServiceItemID, status, rejectionReason, eTag)
 
 	var r0 *models.MTOServiceItem
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.MTOServiceItemStatus, *string, string) (*models.MTOServiceItem, error)); ok {
+		return rf(appCtx, mtoServiceItemID, status, rejectionReason, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.MTOServiceItemStatus, *string, string) *models.MTOServiceItem); ok {
 		r0 = rf(appCtx, mtoServiceItemID, status, rejectionReason, eTag)
 	} else {
@@ -29,7 +33,6 @@ func (_m *MTOServiceItemUpdater) ApproveOrRejectServiceItem(appCtx appcontext.Ap
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.MTOServiceItemStatus, *string, string) error); ok {
 		r1 = rf(appCtx, mtoServiceItemID, status, rejectionReason, eTag)
 	} else {
@@ -44,6 +47,10 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppConte
 	ret := _m.Called(appCtx, serviceItem, eTag, validator)
 
 	var r0 *models.MTOServiceItem
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, string, string) (*models.MTOServiceItem, error)); ok {
+		return rf(appCtx, serviceItem, eTag, validator)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, string, string) *models.MTOServiceItem); ok {
 		r0 = rf(appCtx, serviceItem, eTag, validator)
 	} else {
@@ -52,7 +59,6 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppConte
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOServiceItem, string, string) error); ok {
 		r1 = rf(appCtx, serviceItem, eTag, validator)
 	} else {
@@ -67,6 +73,10 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemBasic(appCtx appcontext.App
 	ret := _m.Called(appCtx, serviceItem, eTag)
 
 	var r0 *models.MTOServiceItem
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, string) (*models.MTOServiceItem, error)); ok {
+		return rf(appCtx, serviceItem, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, string) *models.MTOServiceItem); ok {
 		r0 = rf(appCtx, serviceItem, eTag)
 	} else {
@@ -75,7 +85,6 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemBasic(appCtx appcontext.App
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOServiceItem, string) error); ok {
 		r1 = rf(appCtx, serviceItem, eTag)
 	} else {
@@ -90,6 +99,10 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemPrime(appCtx appcontext.App
 	ret := _m.Called(appCtx, serviceItem, eTag)
 
 	var r0 *models.MTOServiceItem
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, string) (*models.MTOServiceItem, error)); ok {
+		return rf(appCtx, serviceItem, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, string) *models.MTOServiceItem); ok {
 		r0 = rf(appCtx, serviceItem, eTag)
 	} else {
@@ -98,7 +111,6 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemPrime(appCtx appcontext.App
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOServiceItem, string) error); ok {
 		r1 = rf(appCtx, serviceItem, eTag)
 	} else {

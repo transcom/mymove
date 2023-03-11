@@ -98,7 +98,6 @@ type PPMShipment struct {
 	SecondaryDestinationPostalCode *string              `json:"secondary_destination_postal_code" db:"secondary_destination_postal_code"`
 	ActualDestinationPostalCode    *string              `json:"actual_destination_postal_code" db:"actual_destination_postal_code"`
 	EstimatedWeight                *unit.Pound          `json:"estimated_weight" db:"estimated_weight"`
-	NetWeight                      *unit.Pound          `json:"net_weight" db:"net_weight"`
 	HasProGear                     *bool                `json:"has_pro_gear" db:"has_pro_gear"`
 	ProGearWeight                  *unit.Pound          `json:"pro_gear_weight" db:"pro_gear_weight"`
 	SpouseProGearWeight            *unit.Pound          `json:"spouse_pro_gear_weight" db:"spouse_pro_gear_weight"`
@@ -121,10 +120,10 @@ type PPMShipment struct {
 	SignedCertification            *SignedCertification `has_one:"signed_certification" fk_id:"ppm_id"`
 }
 
-// PPMShipments is a list of PPMs
-type PPMShipments []PPMShipment
-
-// TableName overrides the table name used by Pop. By default it tries using the name `ppmshipments`.
+// TableName overrides the table name used by Pop.
 func (p PPMShipment) TableName() string {
 	return "ppm_shipments"
 }
+
+// PPMShipments is a list of PPMs
+type PPMShipments []PPMShipment

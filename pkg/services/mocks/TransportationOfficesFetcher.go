@@ -21,6 +21,10 @@ func (_m *TransportationOfficesFetcher) GetTransportationOffice(appCtx appcontex
 	ret := _m.Called(appCtx, transportationOfficeID, includeOnlyPPMCloseoutOffices)
 
 	var r0 *models.TransportationOffice
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool) (*models.TransportationOffice, error)); ok {
+		return rf(appCtx, transportationOfficeID, includeOnlyPPMCloseoutOffices)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool) *models.TransportationOffice); ok {
 		r0 = rf(appCtx, transportationOfficeID, includeOnlyPPMCloseoutOffices)
 	} else {
@@ -29,7 +33,6 @@ func (_m *TransportationOfficesFetcher) GetTransportationOffice(appCtx appcontex
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, bool) error); ok {
 		r1 = rf(appCtx, transportationOfficeID, includeOnlyPPMCloseoutOffices)
 	} else {
@@ -44,6 +47,10 @@ func (_m *TransportationOfficesFetcher) GetTransportationOffices(appCtx appconte
 	ret := _m.Called(appCtx, search)
 
 	var r0 *models.TransportationOffices
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string) (*models.TransportationOffices, error)); ok {
+		return rf(appCtx, search)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string) *models.TransportationOffices); ok {
 		r0 = rf(appCtx, search)
 	} else {
@@ -52,7 +59,6 @@ func (_m *TransportationOfficesFetcher) GetTransportationOffices(appCtx appconte
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string) error); ok {
 		r1 = rf(appCtx, search)
 	} else {

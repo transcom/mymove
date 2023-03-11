@@ -242,10 +242,6 @@ const Shipment = ({ shipment, moveId, onDelete }) => {
             <dd>{shipment.ppmShipment.estimatedWeight}</dd>
           </div>
           <div className={descriptionListStyles.row}>
-            <dt>PPM Net Weight:</dt>
-            <dd>{shipment.ppmShipment.netWeight}</dd>
-          </div>
-          <div className={descriptionListStyles.row}>
             <dt>PPM Has Pro Gear:</dt>
             <dd>
               {shipment.ppmShipment.hasProGear == null ? '' : formatYesNoInputValue(shipment.ppmShipment.hasProGear)}

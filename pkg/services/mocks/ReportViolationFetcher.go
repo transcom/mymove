@@ -21,6 +21,10 @@ func (_m *ReportViolationFetcher) FetchReportViolationsByReportID(appCtx appcont
 	ret := _m.Called(appCtx, reportID)
 
 	var r0 models.ReportViolations
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (models.ReportViolations, error)); ok {
+		return rf(appCtx, reportID)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) models.ReportViolations); ok {
 		r0 = rf(appCtx, reportID)
 	} else {
@@ -29,7 +33,6 @@ func (_m *ReportViolationFetcher) FetchReportViolationsByReportID(appCtx appcont
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, reportID)
 	} else {

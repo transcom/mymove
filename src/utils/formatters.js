@@ -264,6 +264,10 @@ export const formatAgeToDays = (age) => {
   return `${Math.floor(age)} days`;
 };
 
+// Format dates for review shipment weights page (ex. Dec 25 2020)
+export function formatReviewShipmentWeightsDate(date) {
+  return moment(date).format('MMM DD YYYY');
+}
 // Format dates for customer app (ex. 25 Dec 2020)
 export function formatCustomerDate(date) {
   return moment(date).format('DD MMM YYYY');

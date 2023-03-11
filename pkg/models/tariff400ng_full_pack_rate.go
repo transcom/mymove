@@ -25,11 +25,14 @@ type Tariff400ngFullPackRate struct {
 	EffectiveDateUpper time.Time  `json:"effective_date_upper" db:"effective_date_upper"`
 }
 
-// Tariff400ngFullPackRates is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (t Tariff400ngFullPackRate) TableName() string {
+	return "tariff400ng_full_pack_rates"
+}
+
 type Tariff400ngFullPackRates []Tariff400ngFullPackRate
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (t *Tariff400ngFullPackRate) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.IntIsPresent{Field: t.Schedule, Name: "Schedule"},

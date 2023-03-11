@@ -21,13 +21,16 @@ func (_m *UploadInformationFetcher) FetchUploadInformation(appCtx appcontext.App
 	ret := _m.Called(appCtx, _a1)
 
 	var r0 services.UploadInformation
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (services.UploadInformation, error)); ok {
+		return rf(appCtx, _a1)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) services.UploadInformation); ok {
 		r0 = rf(appCtx, _a1)
 	} else {
 		r0 = ret.Get(0).(services.UploadInformation)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, _a1)
 	} else {

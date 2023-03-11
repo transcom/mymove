@@ -21,13 +21,16 @@ func (_m *OfficeListFetcher) FetchOfficeCount(appCtx appcontext.AppContext, filt
 	ret := _m.Called(appCtx, filters)
 
 	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) (int, error)); ok {
+		return rf(appCtx, filters)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) int); ok {
 		r0 = rf(appCtx, filters)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []services.QueryFilter) error); ok {
 		r1 = rf(appCtx, filters)
 	} else {
@@ -42,6 +45,10 @@ func (_m *OfficeListFetcher) FetchOfficeList(appCtx appcontext.AppContext, filte
 	ret := _m.Called(appCtx, filters, associations, pagination, ordering)
 
 	var r0 models.TransportationOffices
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) (models.TransportationOffices, error)); ok {
+		return rf(appCtx, filters, associations, pagination, ordering)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) models.TransportationOffices); ok {
 		r0 = rf(appCtx, filters, associations, pagination, ordering)
 	} else {
@@ -50,7 +57,6 @@ func (_m *OfficeListFetcher) FetchOfficeList(appCtx appcontext.AppContext, filte
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) error); ok {
 		r1 = rf(appCtx, filters, associations, pagination, ordering)
 	} else {

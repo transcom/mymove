@@ -19,6 +19,10 @@ func (_m *CustomerSupportRemarksCreator) CreateCustomerSupportRemark(appCtx appc
 	ret := _m.Called(appCtx, customerSupportRemark, moveCode)
 
 	var r0 *models.CustomerSupportRemark
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.CustomerSupportRemark, string) (*models.CustomerSupportRemark, error)); ok {
+		return rf(appCtx, customerSupportRemark, moveCode)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.CustomerSupportRemark, string) *models.CustomerSupportRemark); ok {
 		r0 = rf(appCtx, customerSupportRemark, moveCode)
 	} else {
@@ -27,7 +31,6 @@ func (_m *CustomerSupportRemarksCreator) CreateCustomerSupportRemark(appCtx appc
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.CustomerSupportRemark, string) error); ok {
 		r1 = rf(appCtx, customerSupportRemark, moveCode)
 	} else {

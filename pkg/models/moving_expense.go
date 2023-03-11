@@ -64,6 +64,11 @@ type MovingExpense struct {
 	SITEndDate        *time.Time                `json:"sit_end_date" db:"sit_end_date"`
 }
 
+// TableName overrides the table name used by Pop.
+func (m MovingExpense) TableName() string {
+	return "moving_expenses"
+}
+
 type MovingExpenses []MovingExpense
 
 func (e MovingExpenses) FilterDeleted() MovingExpenses {

@@ -29,6 +29,11 @@ type Notification struct {
 	CreatedAt        time.Time         `db:"created_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (n Notification) TableName() string {
+	return "notifications"
+}
+
 // Notifications is a slice of notification structs
 type Notifications []Notification
 
