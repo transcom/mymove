@@ -166,7 +166,7 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
   const moveWeightTotal = useCalculatedWeightRequested(shipments);
   const excessWeight = moveWeightTotal - weightAllowance;
   const hasExcessWeight = Boolean(excessWeight > 0);
-  // To-do: Once new netWeights can be saved, the toFit value should use that value here if its availble over using original weight
+  // FIX: Once new netWeights can be saved, the toFit value should use that value here if its availble over using original weight
   const netWeight = originalWeight;
   const toFitValue = hasExcessWeight ? -Math.min(excessWeight, netWeight) : null;
   const showWarning = Boolean(hasExcessWeight && !showEditForm);

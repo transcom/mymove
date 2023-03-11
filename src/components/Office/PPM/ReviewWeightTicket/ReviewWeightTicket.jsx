@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { func, number, object } from 'prop-types';
+import { func, number, object, PropTypes } from 'prop-types';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { Alert, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
@@ -18,7 +18,6 @@ import Fieldset from 'shared/Fieldset';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
-/* import { formatWeight } from 'utils/formatters'; */
 import ppmDocumentStatus from 'constants/ppms';
 
 const validationSchema = Yup.object().shape({
@@ -43,6 +42,7 @@ const validationSchema = Yup.object().shape({
 
 export default function ReviewWeightTicket({
   mtoShipment,
+  mtoShipments,
   weightTicket,
   tripNumber,
   ppmNumber,
@@ -187,13 +187,10 @@ export default function ReviewWeightTicket({
               />
 
               <EditPPMNetWeight
-                netWeightRemarks=""
-                weightTicket={{
-                  fullWeight: values.fullWeight,
-                  emptyWeight: values.emptyWeight,
-                }}
+                weightTicket={weightTicket}
+                /* WARN: @rogeruiz I'm not sure where this is coming from? Is this on the MTO? */
                 weightAllowance={5000}
-                shipments={[]}
+                shipments={mtoShipments}
               />
 
               <FormGroup>
@@ -327,6 +324,7 @@ ReviewWeightTicket.propTypes = {
   ppmNumber: number.isRequired,
   onSuccess: func,
   formRef: object,
+  mtoShipments: PropTypes.arrayOf(ShipmentShape),
 };
 
 ReviewWeightTicket.defaultProps = {
@@ -334,4 +332,5 @@ ReviewWeightTicket.defaultProps = {
   mtoShipment: null,
   onSuccess: null,
   formRef: null,
+  mtoShipments: [],
 };
