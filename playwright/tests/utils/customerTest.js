@@ -7,6 +7,7 @@
 import * as base from '@playwright/test';
 
 import { BaseTestPage } from './baseTest';
+import { WaitForPage } from './waitForPage';
 
 /**
  * devlocal auth user types
@@ -18,55 +19,20 @@ export const milmoveUserType = 'milmove';
  * @extends BaseTestPage
  */
 export class CustomerPage extends BaseTestPage {
-  waitForPage = {
-    localLogin: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Select an Existing User' })).toBeVisible();
-    },
-    onboardingConus: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Where are you moving?' })).toBeVisible();
-    },
-    onboardingDodId: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Create your profile' })).toBeVisible();
-    },
-    onboardingName: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Name' })).toBeVisible();
-    },
-    onboardingContactInfo: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Your contact info' })).toBeVisible();
-    },
-    onboardingDutyLocation: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Current duty location' })).toBeVisible();
-    },
-    onboardingCurrentAddress: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Current mailing address' })).toBeVisible();
-    },
-    onboardingBackupAddress: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Backup mailing address' })).toBeVisible();
-    },
-    onboardingBackupContact: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Backup contact' })).toBeVisible();
-    },
-    home: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Leo Spacemen', level: 2 })).toBeVisible();
-    },
-    ntsShipment: async () => {
-      await base
-        .expect(this.page.getByRole('heading', { level: 1 }))
-        .toHaveText('Where and when should the movers pick up your things going into storage?');
-    },
-    ntsReleaseShipment: async () => {
-      await base
-        .expect(this.page.getByRole('heading', { level: 1 }))
-        .toHaveText('Where and when should the movers deliver your things from storage?');
-    },
-    reviewShipments: async () => {
-      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Review your details');
-    },
-  };
+  /**
+   * Create an CustomerPage.
+   * @param {import('@playwright/test').Page} page
+   * @param {import('@playwright/test').APIRequestContext} request
+   */
+  constructor(page, request) {
+    super(page, request);
+    this.waitForPage = new WaitForPage(page);
+  }
 
   /**
    * Sign in as new customer with devlocal
    *
+   * returns {Promise<void>}
    */
   async signInAsNewCustomer() {
     await this.signInAsNewUser(milmoveUserType);
@@ -76,15 +42,22 @@ export class CustomerPage extends BaseTestPage {
    * Sign in as existing customer with devlocal
    *
    * @param {string} userId
+   * returns {Promise<void>}
    */
   async signInAsExistingCustomer(userId) {
     await this.signInAsUserWithId(userId);
   }
 
+  /**
+   * returns {Promise<void>}
+   */
   async navigateBack() {
     await this.page.getByTestId('wizardCancelButton').click();
   }
 
+  /**
+   * returns {Promise<void>}
+   */
   async navigateForward() {
     await this.page.getByTestId('wizardNextButton').click();
   }

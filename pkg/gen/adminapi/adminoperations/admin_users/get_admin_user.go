@@ -30,11 +30,12 @@ func NewGetAdminUser(ctx *middleware.Context, handler GetAdminUserHandler) *GetA
 }
 
 /*
-	GetAdminUser swagger:route GET /admin_users/{adminUserId} admin_users getAdminUser
+	GetAdminUser swagger:route GET /admin-users/{adminUserId} Admin users getAdminUser
 
-# Fetch a specific admin user
+# Fetch a specific Admin User
 
-Returns a single admin user
+This endpoint returns a single Admin User by ID. Do not use this
+endpoint directly as it is meant to be used with the Admin UI exclusively.
 */
 type GetAdminUser struct {
 	Context *middleware.Context

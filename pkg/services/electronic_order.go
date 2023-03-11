@@ -7,7 +7,7 @@ import (
 
 // ElectronicOrderListFetcher is the exported interface for fetching multiple electronic orders
 //
-//go:generate mockery --name ElectronicOrderListFetcher --disable-version-string
+//go:generate mockery --name ElectronicOrderListFetcher
 type ElectronicOrderListFetcher interface {
 	FetchElectronicOrderList(appCtx appcontext.AppContext, filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.ElectronicOrders, error)
 	FetchElectronicOrderCount(appCtx appcontext.AppContext, filters []QueryFilter) (int, error)
@@ -15,7 +15,7 @@ type ElectronicOrderListFetcher interface {
 
 // ElectronicOrderCategoryCountFetcher is the exported interface for fetching counts of Electronic orders based on provided category QueryFilters.
 //
-//go:generate mockery --name ElectronicOrderCategoryCountFetcher --disable-version-string
+//go:generate mockery --name ElectronicOrderCategoryCountFetcher
 type ElectronicOrderCategoryCountFetcher interface {
 	FetchElectronicOrderCategoricalCounts(appCtx appcontext.AppContext, filters []QueryFilter, andFilters *[]QueryFilter) (map[interface{}]int, error)
 }

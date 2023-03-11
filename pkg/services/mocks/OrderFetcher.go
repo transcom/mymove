@@ -23,6 +23,10 @@ func (_m *OrderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UU
 	ret := _m.Called(appCtx, orderID)
 
 	var r0 *models.Order
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.Order, error)); ok {
+		return rf(appCtx, orderID)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.Order); ok {
 		r0 = rf(appCtx, orderID)
 	} else {
@@ -31,7 +35,6 @@ func (_m *OrderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UU
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, orderID)
 	} else {
@@ -46,6 +49,11 @@ func (_m *OrderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uu
 	ret := _m.Called(appCtx, officeUserID, params)
 
 	var r0 []models.Move
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) ([]models.Move, int, error)); ok {
+		return rf(appCtx, officeUserID, params)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) []models.Move); ok {
 		r0 = rf(appCtx, officeUserID, params)
 	} else {
@@ -54,14 +62,12 @@ func (_m *OrderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uu
 		}
 	}
 
-	var r1 int
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) int); ok {
 		r1 = rf(appCtx, officeUserID, params)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) error); ok {
 		r2 = rf(appCtx, officeUserID, params)
 	} else {

@@ -19,6 +19,10 @@ func (_m *GexSender) SendToGex(channel services.GEXChannel, edi string, filename
 	ret := _m.Called(channel, edi, filename)
 
 	var r0 *http.Response
+	var r1 error
+	if rf, ok := ret.Get(0).(func(services.GEXChannel, string, string) (*http.Response, error)); ok {
+		return rf(channel, edi, filename)
+	}
 	if rf, ok := ret.Get(0).(func(services.GEXChannel, string, string) *http.Response); ok {
 		r0 = rf(channel, edi, filename)
 	} else {
@@ -27,7 +31,6 @@ func (_m *GexSender) SendToGex(channel services.GEXChannel, edi string, filename
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(services.GEXChannel, string, string) error); ok {
 		r1 = rf(channel, edi, filename)
 	} else {

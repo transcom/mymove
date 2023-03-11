@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -27,13 +28,7 @@ func TestGHCRateEngineServiceSuite(t *testing.T) {
 func (suite *GHCRateEngineServiceSuite) setupTaskOrderFeeData(code models.ReServiceCode, priceCents unit.Cents) {
 	contractYear := testdatagen.MakeDefaultReContractYear(suite.DB())
 
-	counselingService := testdatagen.MakeReService(suite.DB(),
-		testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: code,
-			},
-		})
-
+	counselingService := factory.BuildReServiceByCode(suite.DB(), code)
 	taskOrderFee := models.ReTaskOrderFee{
 		ContractYearID: contractYear.ID,
 		ServiceID:      counselingService.ID,
@@ -51,12 +46,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReSe
 			},
 		})
 
-	service := testdatagen.MakeReService(suite.DB(),
-		testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: code,
-			},
-		})
+	service := factory.BuildReServiceByCode(suite.DB(), code)
 
 	otherPrice := models.ReDomesticOtherPrice{
 		ContractID:   contractYear.Contract.ID,
@@ -78,12 +68,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticAccessorialPrice(code model
 			},
 		})
 
-	service := testdatagen.MakeReService(suite.DB(),
-		testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: code,
-			},
-		})
+	service := factory.BuildReServiceByCode(suite.DB(), code)
 
 	accessorialPrice := models.ReDomesticAccessorialPrice{
 		ContractID:       contractYear.Contract.ID,
@@ -104,12 +89,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code model
 			},
 		})
 
-	service := testdatagen.MakeReService(suite.DB(),
-		testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: code,
-			},
-		})
+	service := factory.BuildReServiceByCode(suite.DB(), code)
 
 	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
 		testdatagen.Assertions{
@@ -170,12 +150,7 @@ func (suite *GHCRateEngineServiceSuite) setupShipmentTypePrice(code models.ReSer
 			},
 		})
 
-	service := testdatagen.MakeReService(suite.DB(),
-		testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: code,
-			},
-		})
+	service := factory.BuildReServiceByCode(suite.DB(), code)
 
 	shipmentTypePrice := models.ReShipmentTypePrice{
 		ContractID: contractYear.Contract.ID,

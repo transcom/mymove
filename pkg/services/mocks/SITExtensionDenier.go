@@ -21,6 +21,10 @@ func (_m *SITExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shi
 	ret := _m.Called(appCtx, shipmentID, sitExtensionID, officeRemarks, eTag)
 
 	var r0 *models.MTOShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, string) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, shipmentID, sitExtensionID, officeRemarks, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, string) *models.MTOShipment); ok {
 		r0 = rf(appCtx, shipmentID, sitExtensionID, officeRemarks, eTag)
 	} else {
@@ -29,7 +33,6 @@ func (_m *SITExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shi
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, string) error); ok {
 		r1 = rf(appCtx, shipmentID, sitExtensionID, officeRemarks, eTag)
 	} else {

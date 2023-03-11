@@ -13,10 +13,10 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-4ebded79e5ba771018c543b25cffc209d52856e1
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-f08007fa9006b0b3fe3b8660ddfa27fd07c98a08
 
   # the cypress image to use
-  cypress: &cypress milmove/circleci-docker:milmove-cypress-4ebded79e5ba771018c543b25cffc209d52856e1
+  cypress: &cypress milmove/circleci-docker:milmove-cypress-f08007fa9006b0b3fe3b8660ddfa27fd07c98a08
 
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
@@ -424,7 +424,7 @@ commands:
             [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
       - restore_cache:
           keys:
-            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
@@ -674,13 +674,15 @@ commands:
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
             export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
-            export DOD_CA_PACKAGE=$PWD/config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b
+            export DOD_CA_PACKAGE=$PWD/config/tls/milmove-cert-bundle.p7b
             export HTTP_ADMIN_SERVER_NAME=adminlocal
             export HTTP_MY_SERVER_NAME=milmovelocal
             export HTTP_OFFICE_SERVER_NAME=officelocal
             export HTTP_ORDERS_SERVER_NAME=orderslocal
             export HTTP_PRIME_SERVER_NAME=primelocal
             export ENVIRONMENT=test
+            # disable for speed, playwright tests can fail otherwise
+            export DB_DEBUG=false
 
             make db_dev_create
             bin/milmove migrate
@@ -709,7 +711,8 @@ commands:
             --reporter=html,junit \
             --trace=on \
             --workers << parameters.workers >> \
-            --shard="${SHARD}/${CIRCLE_NODE_TOTAL}"
+            --shard="${SHARD}/${CIRCLE_NODE_TOTAL}" \
+            << parameters.path >>
       - store_artifacts:
           path: playwright-report
       - run:
@@ -765,7 +768,7 @@ commands:
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
             export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
-            export DOD_CA_PACKAGE=$PWD/config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b
+            export DOD_CA_PACKAGE=$PWD/config/tls/milmove-cert-bundle.p7b
             export HTTP_ADMIN_SERVER_NAME=adminlocal
             export HTTP_MY_SERVER_NAME=milmovelocal
             export HTTP_OFFICE_SERVER_NAME=officelocal
@@ -797,7 +800,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Install dependencies
@@ -807,7 +810,7 @@ jobs:
           name: Install go-swagger
           command: make bin/swagger
       - save_cache:
-          key: go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+          key: go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
           paths:
             - '~/go'
             - '~/transcom/mymove/bin/swagger'
@@ -839,7 +842,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: make server_generate mocks_generate
       - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
@@ -909,7 +912,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
@@ -1031,7 +1034,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: db_dev_fresh
@@ -1055,7 +1058,7 @@ jobs:
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENVIRONMENT: development
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/milmove-cert-bundle.p7b
       - announce_failure
 
   # `integration_tests` is just a fake step so that we don't have to
@@ -1084,7 +1087,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - restore_cache:
           keys:
@@ -1105,7 +1108,7 @@ jobs:
           #
           # The trailing hyphen in restore_cache seems important
           # according to the page linked above
-            - v2-server-tests-coverage-
+            - v3-server-tests-coverage-
       - run:
           name: Save Baseline Test Coverage
           command: |
@@ -1145,7 +1148,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             save_cache:
-              key: v2-server-tests-coverage-{{ .BuildNum }}
+              key: v3-server-tests-coverage-{{ .BuildNum }}
               paths:
                 - ~/transcom/mymove/tmp/test-results
       - announce_failure
@@ -1220,7 +1223,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: make db_test_reset
       - run:
           command: make db_test_migrate
@@ -1271,7 +1274,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       # make -j 4 tells make to run 4 simultaneous builds
       - run: make -j 4 server_build build_tools
       - persist_to_workspace:

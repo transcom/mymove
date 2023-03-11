@@ -26,7 +26,11 @@ type PaymentServiceItemParam struct {
 	IncomingKey string `db:"-"`
 }
 
-// PaymentServiceItemParams is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (p PaymentServiceItemParam) TableName() string {
+	return "payment_service_item_params"
+}
+
 type PaymentServiceItemParams []PaymentServiceItemParam
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

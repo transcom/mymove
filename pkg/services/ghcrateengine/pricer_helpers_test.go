@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -391,38 +392,46 @@ func (suite *GHCRateEngineServiceSuite) makePricerParamsSubtestData() (subtestDa
 		},
 	}
 
-	testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNamePriceRateOrFactor,
-			Description: "Price Rate Or Factor",
-			Type:        models.ServiceItemParamTypeDecimal,
-			Origin:      models.ServiceItemParamOriginPricer,
+	factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNamePriceRateOrFactor,
+				Description: "Price Rate Or Factor",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginPricer,
+			},
 		},
-	})
-	testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameEscalationCompounded,
-			Description: "Escalation compounded",
-			Type:        models.ServiceItemParamTypeDecimal,
-			Origin:      models.ServiceItemParamOriginPricer,
+	}, nil)
+	factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNameEscalationCompounded,
+				Description: "Escalation compounded",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginPricer,
+			},
 		},
-	})
-	testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameIsPeak,
-			Description: "Is peak",
-			Type:        models.ServiceItemParamTypeBoolean,
-			Origin:      models.ServiceItemParamOriginPricer,
+	}, nil)
+	factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNameIsPeak,
+				Description: "Is peak",
+				Type:        models.ServiceItemParamTypeBoolean,
+				Origin:      models.ServiceItemParamOriginPricer,
+			},
 		},
-	})
-	testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameContractYearName,
-			Description: "Contract year name",
-			Type:        models.ServiceItemParamTypeString,
-			Origin:      models.ServiceItemParamOriginPricer,
+	}, nil)
+	factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNameContractYearName,
+				Description: "Contract year name",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginPricer,
+			},
 		},
-	})
+	}, nil)
 
 	subtestData.paymentServiceItem = testdatagen.MakePaymentServiceItem(
 		suite.DB(),
@@ -470,14 +479,16 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 			},
 		}
 
-		testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameServiceAreaOrigin,
-				Description: "service area actual",
-				Type:        models.ServiceItemParamTypeString,
-				Origin:      models.ServiceItemParamOriginPrime,
+		factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNameServiceAreaOrigin,
+					Description: "service area actual",
+					Type:        models.ServiceItemParamTypeString,
+					Origin:      models.ServiceItemParamOriginPrime,
+				},
 			},
-		})
+		}, nil)
 
 		_, err := createPricerGeneratedParams(suite.AppContextForTest(), subtestData.paymentServiceItem.ID, invalidParam)
 		suite.Error(err)

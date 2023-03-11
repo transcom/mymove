@@ -21,6 +21,10 @@ func (_m *SITExtensionApprover) ApproveSITExtension(appCtx appcontext.AppContext
 	ret := _m.Called(appCtx, shipmentID, sitExtensionID, approvedDays, officeRemarks, eTag)
 
 	var r0 *models.MTOShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, int, *string, string) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, shipmentID, sitExtensionID, approvedDays, officeRemarks, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, int, *string, string) *models.MTOShipment); ok {
 		r0 = rf(appCtx, shipmentID, sitExtensionID, approvedDays, officeRemarks, eTag)
 	} else {
@@ -29,7 +33,6 @@ func (_m *SITExtensionApprover) ApproveSITExtension(appCtx appcontext.AppContext
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, int, *string, string) error); ok {
 		r1 = rf(appCtx, shipmentID, sitExtensionID, approvedDays, officeRemarks, eTag)
 	} else {

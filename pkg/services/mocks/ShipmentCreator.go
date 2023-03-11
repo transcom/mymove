@@ -19,6 +19,10 @@ func (_m *ShipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment
 	ret := _m.Called(appCtx, shipment)
 
 	var r0 *models.MTOShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, shipment)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) *models.MTOShipment); ok {
 		r0 = rf(appCtx, shipment)
 	} else {
@@ -27,7 +31,6 @@ func (_m *ShipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
 		r1 = rf(appCtx, shipment)
 	} else {

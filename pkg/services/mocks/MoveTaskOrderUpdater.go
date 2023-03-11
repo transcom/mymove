@@ -21,6 +21,10 @@ func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContex
 	ret := _m.Called(appCtx, moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS)
 
 	var r0 *models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, bool, bool) (*models.Move, error)); ok {
+		return rf(appCtx, moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, bool, bool) *models.Move); ok {
 		r0 = rf(appCtx, moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS)
 	} else {
@@ -29,7 +33,6 @@ func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContex
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string, bool, bool) error); ok {
 		r1 = rf(appCtx, moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS)
 	} else {
@@ -44,6 +47,10 @@ func (_m *MoveTaskOrderUpdater) ShowHide(appCtx appcontext.AppContext, moveTaskO
 	ret := _m.Called(appCtx, moveTaskOrderID, show)
 
 	var r0 *models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *bool) (*models.Move, error)); ok {
+		return rf(appCtx, moveTaskOrderID, show)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *bool) *models.Move); ok {
 		r0 = rf(appCtx, moveTaskOrderID, show)
 	} else {
@@ -52,7 +59,6 @@ func (_m *MoveTaskOrderUpdater) ShowHide(appCtx appcontext.AppContext, moveTaskO
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *bool) error); ok {
 		r1 = rf(appCtx, moveTaskOrderID, show)
 	} else {
@@ -67,6 +73,10 @@ func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppCo
 	ret := _m.Called(appCtx, moveTaskOrderID, eTag)
 
 	var r0 *models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) (*models.Move, error)); ok {
+		return rf(appCtx, moveTaskOrderID, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) *models.Move); ok {
 		r0 = rf(appCtx, moveTaskOrderID, eTag)
 	} else {
@@ -75,7 +85,6 @@ func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppCo
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string) error); ok {
 		r1 = rf(appCtx, moveTaskOrderID, eTag)
 	} else {
@@ -90,6 +99,10 @@ func (_m *MoveTaskOrderUpdater) UpdateReviewedBillableWeightsAt(appCtx appcontex
 	ret := _m.Called(appCtx, moveTaskOrderID, eTag)
 
 	var r0 *models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) (*models.Move, error)); ok {
+		return rf(appCtx, moveTaskOrderID, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) *models.Move); ok {
 		r0 = rf(appCtx, moveTaskOrderID, eTag)
 	} else {
@@ -98,7 +111,6 @@ func (_m *MoveTaskOrderUpdater) UpdateReviewedBillableWeightsAt(appCtx appcontex
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string) error); ok {
 		r1 = rf(appCtx, moveTaskOrderID, eTag)
 	} else {
@@ -113,6 +125,10 @@ func (_m *MoveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx ap
 	ret := _m.Called(appCtx, moveTaskOrderID, eTag)
 
 	var r0 *models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) (*models.Move, error)); ok {
+		return rf(appCtx, moveTaskOrderID, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) *models.Move); ok {
 		r0 = rf(appCtx, moveTaskOrderID, eTag)
 	} else {
@@ -121,7 +137,6 @@ func (_m *MoveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx ap
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string) error); ok {
 		r1 = rf(appCtx, moveTaskOrderID, eTag)
 	} else {
@@ -136,6 +151,10 @@ func (_m *MoveTaskOrderUpdater) UpdateTIORemarks(appCtx appcontext.AppContext, m
 	ret := _m.Called(appCtx, moveTaskOrderID, eTag, remarks)
 
 	var r0 *models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, string) (*models.Move, error)); ok {
+		return rf(appCtx, moveTaskOrderID, eTag, remarks)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, string) *models.Move); ok {
 		r0 = rf(appCtx, moveTaskOrderID, eTag, remarks)
 	} else {
@@ -144,7 +163,6 @@ func (_m *MoveTaskOrderUpdater) UpdateTIORemarks(appCtx appcontext.AppContext, m
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string, string) error); ok {
 		r1 = rf(appCtx, moveTaskOrderID, eTag, remarks)
 	} else {

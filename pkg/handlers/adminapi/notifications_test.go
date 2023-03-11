@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	notificationsop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notification"
+	notificationsop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	fetch "github.com/transcom/mymove/pkg/services/fetch"

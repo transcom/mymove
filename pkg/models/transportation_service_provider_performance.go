@@ -48,6 +48,11 @@ type TransportationServiceProviderPerformance struct {
 	OfferCount                      int                           `json:"offer_count" db:"offer_count"`
 }
 
+// TableName overrides the table name used by Pop.
+func (t TransportationServiceProviderPerformance) TableName() string {
+	return "transportation_service_provider_performances"
+}
+
 // TransportationServiceProviderPerformances is a handy type for multiple TransportationServiceProviderPerformance structs
 type TransportationServiceProviderPerformances []TransportationServiceProviderPerformance
 

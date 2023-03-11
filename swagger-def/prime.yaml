@@ -155,10 +155,9 @@ paths:
       summary: updateMTOPostCounselingInformation
       description: |
         ### Functionality
-        This endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.
-
-        PPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).
-
+        This endpoint **updates** the MoveTaskOrder to indicate that the Prime has completed Counseling.
+        This update uses the moveTaskOrderID provided in the path, updates the move status and marks child elements of the move to indicate the update.
+        No body object is expected for this request.
       operationId: updateMTOPostCounselingInformation
       consumes:
         - application/json
@@ -2324,13 +2323,6 @@ definitions:
         description: The estimated weight of the PPM shipment goods being moved in pounds.
         type: integer
         example: 4200
-        x-nullable: true
-        x-omitempty: false
-      netWeight:
-        description: >
-          The net weight of the shipment once it has been weight
-        type: integer
-        example: 4300
         x-nullable: true
         x-omitempty: false
       hasProGear:

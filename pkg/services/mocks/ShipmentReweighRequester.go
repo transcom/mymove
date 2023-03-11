@@ -21,6 +21,10 @@ func (_m *ShipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.App
 	ret := _m.Called(appCtx, shipmentID, requestor)
 
 	var r0 *models.Reweigh
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.ReweighRequester) (*models.Reweigh, error)); ok {
+		return rf(appCtx, shipmentID, requestor)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.ReweighRequester) *models.Reweigh); ok {
 		r0 = rf(appCtx, shipmentID, requestor)
 	} else {
@@ -29,7 +33,6 @@ func (_m *ShipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.App
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.ReweighRequester) error); ok {
 		r1 = rf(appCtx, shipmentID, requestor)
 	} else {

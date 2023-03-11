@@ -35,7 +35,7 @@ type UpdateOfficeUserParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*Office user information
+	/*Office User information
 	  Required: true
 	  In: body
 	*/

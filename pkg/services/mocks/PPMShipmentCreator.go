@@ -19,6 +19,10 @@ func (_m *PPMShipmentCreator) CreatePPMShipmentWithDefaultCheck(appCtx appcontex
 	ret := _m.Called(appCtx, ppmshipment)
 
 	var r0 *models.PPMShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) (*models.PPMShipment, error)); ok {
+		return rf(appCtx, ppmshipment)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) *models.PPMShipment); ok {
 		r0 = rf(appCtx, ppmshipment)
 	} else {
@@ -27,7 +31,6 @@ func (_m *PPMShipmentCreator) CreatePPMShipmentWithDefaultCheck(appCtx appcontex
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.PPMShipment) error); ok {
 		r1 = rf(appCtx, ppmshipment)
 	} else {

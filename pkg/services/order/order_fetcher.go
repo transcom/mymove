@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -104,7 +105,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
-		query = appCtx.DB().Q().EagerPreload(
+		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
 			"Orders.ServiceMember",
 			"Orders.NewDutyLocation.Address",
 			"Orders.OriginDutyLocation.Address",
@@ -118,7 +119,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			Where("show = ?", swag.Bool(true))
 	} else {
-		query = appCtx.DB().Q().EagerPreload(
+		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
 			"Orders.ServiceMember",
 			"Orders.NewDutyLocation.Address",
 			"Orders.OriginDutyLocation.Address",
@@ -371,7 +372,7 @@ func submittedAtFilter(submittedAt *time.Time) QueryOption {
 func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	return func(query *pop.Query) {
 		if requestedMoveDate != nil {
-			query.Where("(mto_shipments.requested_pickup_date = ? OR ppm_shipments.expected_departure_date = ?)", *requestedMoveDate, *requestedMoveDate)
+			query.Where("(mto_shipments.requested_pickup_date = ? OR ppm_shipments.expected_departure_date = ? OR (mto_shipments.shipment_type = 'HHG_OUTOF_NTS_DOMESTIC' AND mto_shipments.requested_delivery_date = ?))", *requestedMoveDate, *requestedMoveDate, *requestedMoveDate)
 		}
 	}
 }
@@ -457,7 +458,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 		"submittedAt":             "moves.submitted_at",
 		"originDutyLocation":      "origin_dl.name",
 		"destinationDutyLocation": "dest_dl.name",
-		"requestedMoveDate":       "CASE WHEN COALESCE(MIN(mto_shipments.requested_pickup_date), 'infinity') <= COALESCE(MIN(ppm_shipments.expected_departure_date), 'infinity') THEN MIN(mto_shipments.requested_pickup_date) ELSE MIN(ppm_shipments.expected_departure_date) END",
+		"requestedMoveDate":       "LEAST(COALESCE(MIN(mto_shipments.requested_pickup_date), 'infinity'), COALESCE(MIN(ppm_shipments.expected_departure_date), 'infinity'), COALESCE(MIN(mto_shipments.requested_delivery_date), 'infinity'))",
 		"originGBLOC":             "origin_to.gbloc",
 		"ppmType":                 "moves.ppm_type",
 		"closeoutLocation":        "closeout_to.name",

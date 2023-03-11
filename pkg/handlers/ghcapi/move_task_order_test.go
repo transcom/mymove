@@ -41,19 +41,9 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: order,
 	})
-	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			ID:   uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"),
-			Code: models.ReServiceCodeMS,
-		},
-	})
+	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
+	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 
-	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			ID:   uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"),
-			Code: models.ReServiceCodeCS,
-		},
-	})
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	params := movetaskorderops.GetMoveTaskOrderParams{
 		HTTPRequest:     request,
@@ -85,17 +75,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
-	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeMS,
-		},
-	})
-
-	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeCS,
-		},
-	})
+	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
+	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 
 	validStatuses := []struct {
 		desc   string

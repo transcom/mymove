@@ -22,6 +22,7 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    * Create an CustomerPpmPage.
    * @param {CustomerPage} customerPage
+   * returns {Promise<void>}
    */
   constructor(customerPage) {
     super(customerPage.page, customerPage.request);
@@ -29,6 +30,7 @@ export class CustomerPpmPage extends CustomerPage {
 
   /**
    * @param {string} userId
+   * returns {Promise<void>}
    */
   async signInForPPM(userId) {
     await this.signInAsExistingCustomer(userId);
@@ -36,6 +38,7 @@ export class CustomerPpmPage extends CustomerPage {
 
   /**
    * @param {Object} move
+   * returns {Promise<void>}
    */
   async signInForPPMWithMove(move) {
     await this.signInAsExistingCustomer(move.Orders.ServiceMember.user_id);
@@ -43,6 +46,7 @@ export class CustomerPpmPage extends CustomerPage {
 
   /**
    * click on upload ppm documents
+   * returns {Promise<void>}
    */
   async clickOnUploadPPMDocumentsButton() {
     await expect(this.page.getByRole('heading', { name: 'Your move is in progress.' })).toBeVisible();
@@ -54,6 +58,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async customerStartsAddingAPPMShipment() {
     await this.page.getByRole('button', { name: 'Set up your shipments' }).click();
@@ -66,6 +71,7 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    * @param {Object} options
    * @param {boolean} [options.selectAdvance=false]
+   * returns {Promise<void>}
    */
   async navigateToAboutPage(options = { selectAdvance: false }) {
     await this.clickOnUploadPPMDocumentsButton();
@@ -78,6 +84,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateToPPMReviewPage() {
     await this.clickOnUploadPPMDocumentsButton();
@@ -88,6 +95,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateFromPPMReviewPageToFinalCloseoutPage() {
     await this.page.locator('a').getByText('Save & Continue').click();
@@ -97,6 +105,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateToFinalCloseoutPage() {
     await this.navigateToPPMReviewPage();
@@ -107,6 +116,7 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    * @param {Object} options
    * @param {boolean} [options.isMoveSubmitted=false]
+   * returns {Promise<void>}
    */
   async navigateFromHomePageToReviewPage(options = { isMoveSubmitted: false }) {
     if (options?.isMoveSubmitted) {
@@ -123,6 +133,7 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    * @param {Object} options
    * @param {boolean} [options.selectAdvance=false]
+   * returns {Promise<void>}
    */
   async fillOutAboutPage(options = { selectAdvance: false }) {
     // editing this field with the keyboard instead of the date picker runs async validators for pre-filled postal codes
@@ -160,6 +171,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateFromAboutPageToWeightTicketPage() {
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
@@ -168,6 +180,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateToWeightTicketPage() {
     await this.clickOnUploadPPMDocumentsButton();
@@ -181,6 +194,7 @@ export class CustomerPpmPage extends CustomerPage {
    * @param {boolean} [options.hasTrailer=false]
    * @param {boolean} [options.ownTrailer=false]
    * @param {boolean} [options.useConstructedWeight=false]
+   * returns {Promise<void>}
    */
   async submitWeightTicketPage(options = {}) {
     await this.fillOutWeightTicketPage(options);
@@ -192,6 +206,7 @@ export class CustomerPpmPage extends CustomerPage {
    * @param {boolean} [options.hasTrailer=false]
    * @param {boolean} [options.ownTrailer=false]
    * @param {boolean} [options.useConstructedWeight=false]
+   * returns {Promise<void>}
    */
   async fillOutWeightTicketPage(options) {
     const { hasTrailer = false, ownTrailer = false, useConstructedWeight = false } = options;
@@ -304,6 +319,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateFromWeightTicketPage() {
     await Promise.all([
@@ -315,6 +331,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateFromHomePageToExistingPPMDateAndLocationPage() {
     await expect(this.page.getByRole('heading', { name: 'Time to submit your move' })).toBeVisible();
@@ -327,6 +344,7 @@ export class CustomerPpmPage extends CustomerPage {
 
   /**
    * used for creating a new shipment
+   * returns {Promise<void>}
    */
   async submitsDateAndLocation() {
     await this.page.locator('input[name="pickupPostalCode"]').clear();
@@ -347,6 +365,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateFromDateAndLocationPageToEstimatedWeightsPage() {
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
@@ -357,6 +376,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async submitsEstimatedWeightsAndProGear() {
     await this.page.locator('input[name="estimatedWeight"]').clear();
@@ -378,6 +398,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async submitsEstimatedWeights() {
     await this.page.locator('input[name="estimatedWeight"]').clear();
@@ -388,6 +409,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateFromEstimatedWeightsPageToEstimatedIncentivePage() {
     await this.page.locator('button').getByText('Save & Continue').click();
@@ -399,6 +421,7 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    * @param {Object} options
    * @param {boolean} [options.isMobile=false]
+   * returns {Promise<void>}
    */
   async generalVerifyEstimatedIncentivePage(options = {}) {
     const { isMobile = false } = options;
@@ -430,6 +453,7 @@ export class CustomerPpmPage extends CustomerPage {
    * @param {Object} options
    * @param {boolean} [options.addAdvance=false]
    * @param {boolean} [options.isMobile=false]
+   * returns {Promise<void>}
    */
   async submitsAdvancePage(options = {}) {
     const { addAdvance = false, isMobile = false } = options;
@@ -454,6 +478,7 @@ export class CustomerPpmPage extends CustomerPage {
    * navigate from advances to review
    * @param {Object} options
    * @param {boolean} [options.isMobile=false]
+   * returns {Promise<void>}
    */
   async navigateFromAdvancesPageToReviewPage(options = {}) {
     const { isMobile = false } = options;
@@ -487,12 +512,14 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateToHomePage() {
     await this.page.getByRole('link', { name: 'Home' }).click();
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateFromReviewPageToHomePage() {
     await Promise.all([this.page.waitForNavigation(), this.page.getByRole('button', { name: 'Return home' }).click()]);
@@ -501,6 +528,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateToFromHomePageToPPMCloseoutReview() {
     await Promise.all([
@@ -512,6 +540,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateToAgreementAndSign() {
     await this.navigateForward();
@@ -519,6 +548,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async signAgreement() {
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/agreement/);
@@ -529,6 +559,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async submitMove() {
     await this.page.getByRole('button', { name: 'Complete' }).click();
@@ -544,6 +575,7 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    * @param {import('@playwright/test').Locator} locator
    * @param {number} expectedLength
+   * returns {Promise<void>}
    */
   async deleteShipment(locator, expectedLength) {
     await locator.getByText('Delete').click();
@@ -555,9 +587,71 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * @param {number} ticketIndex
+   * @param {boolean} isLastWeightTicket
+   */
+  async deleteWeightTicket(ticketIndex, isLastWeightTicket) {
+    const weightMoved = this.page.getByRole('heading', { name: 'Weight moved' });
+    await expect(weightMoved).toBeVisible();
+    const weightMovedContainer = weightMoved.locator('../../..');
+    await expect(weightMovedContainer).toBeVisible();
+    await weightMovedContainer.getByRole('button', { name: 'Delete' }).nth(ticketIndex).click();
+    await expect(this.page.getByText(`You are about to delete Trip ${1 + ticketIndex}`)).toBeVisible();
+    await this.page.getByRole('button', { name: 'Yes, Delete' }).click();
+    if (isLastWeightTicket) {
+      await expect(
+        this.page.getByText('No weight moved documented. At least one trip is required to continue.'),
+      ).toBeVisible();
+      await expect(
+        this.page.getByText(
+          'There are items below that are missing required information. Please select “Edit” to enter all required information or “Delete” to remove the item.',
+        ),
+      ).toBeVisible();
+    }
+    await expect(this.page.getByText(`Trip ${1 + ticketIndex} successfully deleted.`)).toBeVisible();
+  }
+
+  /**
+   * @param {number} index
+   * @param {boolean} isLastProGear
+   */
+  async deleteProGearExpense(index, isLastProGear) {
+    const proGearExpense = this.page.getByRole('heading', { name: 'Pro-gear' });
+    await expect(proGearExpense).toBeVisible();
+    const proGearExpenseContainer = proGearExpense.locator('../../..');
+    await expect(proGearExpenseContainer).toBeVisible();
+    await proGearExpenseContainer.getByRole('button', { name: 'Delete' }).nth(index).click();
+    await expect(this.page.getByText(`You are about to delete Set ${1 + index}`)).toBeVisible();
+    await this.page.getByRole('button', { name: 'Yes, Delete' }).click();
+    await expect(this.page.getByText(`Set ${1 + index} successfully deleted.`)).toBeVisible();
+    if (isLastProGear) {
+      await expect(this.page.getByText('No pro-gear weight documented.')).toBeVisible();
+    }
+  }
+
+  /**
+   * @param {number} index
+   * @param {boolean} isLastMovingExpense
+   */
+  async deleteMovingExpense(index, isLastMovingExpense) {
+    const moveExpense = this.page.getByRole('heading', { name: 'Expenses' });
+    await expect(moveExpense).toBeVisible();
+    const moveExpensesContainer = moveExpense.locator('../../..');
+    await expect(moveExpensesContainer).toBeVisible();
+    await moveExpensesContainer.getByRole('button', { name: 'Delete' }).nth(index).click();
+    await expect(this.page.getByText(`You are about to delete Receipt ${index + 1}`)).toBeVisible();
+    await this.page.getByRole('button', { name: 'Yes, Delete' }).click();
+    await expect(this.page.getByText(`Receipt ${index + 1} successfully deleted.`)).toBeVisible();
+    if (isLastMovingExpense) {
+      await expect(this.page.getByText('No receipts uploaded.')).toBeVisible();
+    }
+  }
+
+  /**
    * @param {string[][]} shipmentCardFields
    * @param {Object} options
    * @param {boolean} options.isEditable=false
+   * returns {Promise<void>}
    */
   async verifyPPMShipmentCard(shipmentCardFields, options = { isEditable: false }) {
     const { isEditable = false } = options;
@@ -582,6 +676,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateToProgearPage() {
     await this.navigateToPPMReviewPage();
@@ -589,6 +684,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToProGearPage() {
     await Promise.all([
@@ -599,11 +695,23 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToEditProGearPage() {
     await Promise.all([
       this.page.waitForNavigation(),
       this.page.locator('.progearSection a').getByText('Edit').click(),
+    ]);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
+  }
+
+  /**
+   * returns {Promise<void>}
+   */
+  async navigateFromCloseoutReviewPageToAddProGearPage() {
+    await Promise.all([
+      this.page.waitForNavigation(),
+      this.page.getByRole('link', { name: 'Add Pro-gear Weight' }).click(),
     ]);
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
   }
@@ -619,6 +727,28 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
+   */
+  async navigateFromCloseoutReviewPageToAddWeightTicketPage() {
+    await Promise.all([
+      this.page.waitForNavigation(),
+      this.page.getByRole('link', { name: 'Add More Weight' }).click(),
+    ]);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
+  }
+
+  /**
+   */
+  async cancelAddLineItemAndReturnToCloseoutReviewPage() {
+    await Promise.all([
+      this.page.waitForNavigation(),
+      this.page.getByRole('button', { name: 'Return to Homepage' }).click(),
+    ]);
+    expect(new URL(this.page.url()).pathname).toBe('/');
+    await this.navigateToPPMReviewPage();
+  }
+
+  /**
    */
   async navigateFromCloseoutReviewPageToEditExpensePage() {
     await Promise.all([
@@ -629,12 +759,21 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
+   */
+  async navigateFromCloseoutReviewPageToAddExpensePage() {
+    await Promise.all([this.page.waitForNavigation(), this.page.getByRole('link', { name: 'Add Expenses' }).click()]);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
+  }
+
+  /**
    */
   async navigateFromCloseoutReviewPageToAboutPage() {
     await this.page.locator('[data-testid="aboutYourPPM"] a').getByText('Edit').click();
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateFromProgearPage() {
     await Promise.all([
@@ -645,11 +784,25 @@ export class CustomerPpmPage extends CustomerPage {
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
   }
 
+  async verifySaveAndContinueDisabled() {
+    await expect(this.page.getByRole('link', { name: 'Save & Continue' })).toBeDisabled();
+    await expect(
+      this.page.getByText(
+        'There are items below that are missing required information. Please select “Edit” to enter all required information or “Delete” to remove the item.',
+      ),
+    ).toBeVisible();
+  }
+
+  async verifySaveAndContinueEnabled() {
+    await expect(this.page.getByRole('link', { name: 'Save & Continue' })).toBeEnabled();
+  }
+
   /**
    * @param {Object} options
    * @param {boolean} [options.belongsToSelf=true]
    * @param {string} [options.weight]
    * @param {boolean} [options.missingWeightTicket]
+   * returns {Promise<void>}
    */
   async submitProgearPage(options = { belongsToSelf: true }) {
     await this.fillOutProgearPage(options);
@@ -700,6 +853,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToExpensesPage() {
     await Promise.all([this.page.waitForNavigation(), this.page.getByRole('link', { name: 'Add Expense' }).click()]);
@@ -710,6 +864,7 @@ export class CustomerPpmPage extends CustomerPage {
    * @param {Object} options
    * @param {boolean} [options.isEditExpense=false]
    * @param {string} [options.amount]
+   * returns {Promise<void>}
    */
   async submitExpensePage(options = { isEditExpense: false }) {
     const expenseType = this.page.locator('select[name="expenseType"]');
@@ -761,6 +916,7 @@ export class CustomerPpmPage extends CustomerPage {
    * @param {string} [options.proGearWeight='1,500 lbs']
    * @param {string} [options.expensesClaimed='450.00']
    * @param {string} [options.finalIncentiveAmount='$500,000.00']
+   * returns {Promise<void>}
    */
   async verifyFinalIncentiveAndTotals(
     options = {
@@ -783,6 +939,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
    */
   async signCloseoutAgreement() {
     await this.page.locator('input[name="signature"]').type('Sofía Clark-Nuñez');
@@ -806,6 +963,7 @@ export class CustomerPpmPage extends CustomerPage {
    * @param {string} [options.proGearWeight='1,500 lbs']
    * @param {string} [options.expensesClaimed='450.00']
    * @param {string} [options.finalIncentiveAmount='$500,000.00']
+   * returns {Promise<void>}
    */
   async submitFinalCloseout(options) {
     await this.verifyFinalIncentiveAndTotals(options);

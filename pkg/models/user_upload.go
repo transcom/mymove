@@ -26,7 +26,11 @@ type UserUpload struct {
 	DeletedAt  *time.Time `db:"deleted_at"`
 }
 
-// UserUploads is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (u UserUpload) TableName() string {
+	return "user_uploads"
+}
+
 type UserUploads []UserUpload
 
 func (u UserUploads) FilterDeleted() UserUploads {

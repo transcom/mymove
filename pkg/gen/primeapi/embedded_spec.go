@@ -136,7 +136,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.\n\nPPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).\n",
+        "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder to indicate that the Prime has completed Counseling.\nThis update uses the moveTaskOrderID provided in the path, updates the move status and marks child elements of the move to indicate the update.\nNo body object is expected for this request.\n",
         "consumes": [
           "application/json"
         ],
@@ -2835,13 +2835,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weight\n",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
@@ -4179,7 +4172,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.\n\nPPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).\n",
+        "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder to indicate that the Prime has completed Counseling.\nThis update uses the moveTaskOrderID provided in the path, updates the move status and marks child elements of the move to indicate the update.\nNo body object is expected for this request.\n",
         "consumes": [
           "application/json"
         ],
@@ -7203,13 +7196,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weight\n",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",

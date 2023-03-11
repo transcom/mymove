@@ -17,13 +17,16 @@ func (_m *DTODPlannerMileage) DTODZip5Distance(appCtx appcontext.AppContext, pic
 	ret := _m.Called(appCtx, pickup, destination)
 
 	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) (int, error)); ok {
+		return rf(appCtx, pickup, destination)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) int); ok {
 		r0 = rf(appCtx, pickup, destination)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, string) error); ok {
 		r1 = rf(appCtx, pickup, destination)
 	} else {

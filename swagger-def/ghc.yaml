@@ -1549,6 +1549,8 @@ paths:
       description: Changes the status of a line item for a move by ID
       operationId: updateMTOServiceItemStatus
       summary: Change the status of a line item for a move by ID
+      x-permissions:
+        - update.MTOServiceItem
   '/move-task-orders/{moveTaskOrderID}/status':
     patch:
       consumes:
@@ -4204,12 +4206,6 @@ definitions:
       estimatedWeight:
         type: integer
         example: 4200
-        x-nullable: true
-      netWeight:
-        description: >
-          The net weight of the shipment once it has been weighed
-        type: integer
-        example: 4300
         x-nullable: true
       hasProGear:
         description: >

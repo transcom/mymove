@@ -23,6 +23,10 @@ func (_m *UserRoleAssociator) UpdateUserRoles(appCtx appcontext.AppContext, user
 	ret := _m.Called(appCtx, userID, _a2)
 
 	var r0 []models.UsersRoles
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, []roles.RoleType) ([]models.UsersRoles, error)); ok {
+		return rf(appCtx, userID, _a2)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, []roles.RoleType) []models.UsersRoles); ok {
 		r0 = rf(appCtx, userID, _a2)
 	} else {
@@ -31,7 +35,6 @@ func (_m *UserRoleAssociator) UpdateUserRoles(appCtx appcontext.AppContext, user
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, []roles.RoleType) error); ok {
 		r1 = rf(appCtx, userID, _a2)
 	} else {

@@ -37,29 +37,20 @@ type BackupContact struct {
 	Phone           *string                 `json:"phone" db:"phone"`
 }
 
-// BackupContacts is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (b BackupContact) TableName() string {
+	return "backup_contacts"
+}
+
 type BackupContacts []BackupContact
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (b *BackupContact) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: b.Name, Name: "Name"},
 		&validators.StringIsPresent{Field: b.Email, Name: "Email"},
 		&validators.StringIsPresent{Field: string(b.Permission), Name: "Permission"},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (b *BackupContact) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (b *BackupContact) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }
 
 // FetchBackupContact returns a specific backup contact model

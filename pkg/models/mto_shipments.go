@@ -148,6 +148,11 @@ type MTOShipment struct {
 	DeletedAt                        *time.Time        `db:"deleted_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (m MTOShipment) TableName() string {
+	return "mto_shipments"
+}
+
 // MTOShipments is a list of mto shipments
 type MTOShipments []MTOShipment
 
@@ -221,11 +226,6 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	}})
 
 	return validate.Validate(vs...), nil
-}
-
-// TableName overrides the table name used by Pop.
-func (m MTOShipment) TableName() string {
-	return "mto_shipments"
 }
 
 // GetCustomerFromShipment gets the service member given a shipment id

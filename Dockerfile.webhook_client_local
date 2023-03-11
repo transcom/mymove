@@ -2,12 +2,12 @@
 # BUILDER #
 ###########
 
-FROM milmove/circleci-docker:milmove-app-4ebded79e5ba771018c543b25cffc209d52856e1 as builder
+FROM milmove/circleci-docker:milmove-app-f08007fa9006b0b3fe3b8660ddfa27fd07c98a08 as builder
 
 # Prepare public DOD certificates.
 # hadolint ignore=DL3002
 USER root
-COPY config/tls/Certificates_PKCS7_v5.9_DoD.der.p7b /tmp/all-public-dod-certs.der.p7b
+COPY config/tls/milmove-cert-bundle.p7b /tmp/all-public-dod-certs.der.p7b
 RUN openssl pkcs7 -print_certs -inform der -in /tmp/all-public-dod-certs.der.p7b -out /usr/local/share/ca-certificates/all-public-dod-certs.crt
 RUN update-ca-certificates
 

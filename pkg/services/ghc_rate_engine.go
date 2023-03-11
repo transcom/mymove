@@ -10,7 +10,7 @@ import (
 
 // ServiceItemPricer prices a generic payment service item for a GHC move
 //
-//go:generate mockery --name ServiceItemPricer --disable-version-string
+//go:generate mockery --name ServiceItemPricer
 type ServiceItemPricer interface {
 	PriceServiceItem(appCtx appcontext.AppContext, item models.PaymentServiceItem) (unit.Cents, models.PaymentServiceItemParams, error)
 }
@@ -31,7 +31,7 @@ type ParamsPricer interface {
 
 // ManagementServicesPricer prices management services for a GHC move
 //
-//go:generate mockery --name ManagementServicesPricer --disable-version-string
+//go:generate mockery --name ManagementServicesPricer
 type ManagementServicesPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -39,7 +39,7 @@ type ManagementServicesPricer interface {
 
 // CounselingServicesPricer prices counseling services for a GHC move
 //
-//go:generate mockery --name CounselingServicesPricer --disable-version-string
+//go:generate mockery --name CounselingServicesPricer
 type CounselingServicesPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -47,7 +47,7 @@ type CounselingServicesPricer interface {
 
 // DomesticLinehaulPricer prices domestic linehaul for a GHC move
 //
-//go:generate mockery --name DomesticLinehaulPricer --disable-version-string
+//go:generate mockery --name DomesticLinehaulPricer
 type DomesticLinehaulPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -55,7 +55,7 @@ type DomesticLinehaulPricer interface {
 
 // DomesticShorthaulPricer prices the domestic shorthaul for a GHC Move
 //
-//go:generate mockery --name DomesticShorthaulPricer --disable-version-string
+//go:generate mockery --name DomesticShorthaulPricer
 type DomesticShorthaulPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -63,7 +63,7 @@ type DomesticShorthaulPricer interface {
 
 // DomesticOriginPricer prices the domestic origin for a GHC Move
 //
-//go:generate mockery --name DomesticOriginPricer --disable-version-string
+//go:generate mockery --name DomesticOriginPricer
 type DomesticOriginPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -71,7 +71,7 @@ type DomesticOriginPricer interface {
 
 // DomesticDestinationPricer prices the domestic destination price for a GHC Move
 //
-//go:generate mockery --name DomesticDestinationPricer --disable-version-string
+//go:generate mockery --name DomesticDestinationPricer
 type DomesticDestinationPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -79,7 +79,7 @@ type DomesticDestinationPricer interface {
 
 // DomesticOriginShuttlingPricer prices the domestic origin shuttling service for a GHC Move
 //
-//go:generate mockery --name DomesticOriginShuttlingPricer --disable-version-string
+//go:generate mockery --name DomesticOriginShuttlingPricer
 type DomesticOriginShuttlingPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -87,7 +87,7 @@ type DomesticOriginShuttlingPricer interface {
 
 // DomesticDestinationShuttlingPricer prices the domestic origin shuttling service for a GHC Move
 //
-//go:generate mockery --name DomesticDestinationShuttlingPricer --disable-version-string
+//go:generate mockery --name DomesticDestinationShuttlingPricer
 type DomesticDestinationShuttlingPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -95,7 +95,7 @@ type DomesticDestinationShuttlingPricer interface {
 
 // DomesticCratingPricer prices the domestic crating service for a GHC Move
 //
-//go:generate mockery --name DomesticCratingPricer --disable-version-string
+//go:generate mockery --name DomesticCratingPricer
 type DomesticCratingPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, servicesScheduleOrigin int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -103,7 +103,7 @@ type DomesticCratingPricer interface {
 
 // DomesticUncratingPricer prices the domestic uncrating service for a GHC Move
 //
-//go:generate mockery --name DomesticUncratingPricer --disable-version-string
+//go:generate mockery --name DomesticUncratingPricer
 type DomesticUncratingPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, servicesScheduleDest int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -111,7 +111,7 @@ type DomesticUncratingPricer interface {
 
 // DomesticPackPricer prices the domestic packing for a GHC Move
 //
-//go:generate mockery --name DomesticPackPricer --disable-version-string
+//go:generate mockery --name DomesticPackPricer
 type DomesticPackPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int, isPPM bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -119,7 +119,7 @@ type DomesticPackPricer interface {
 
 // DomesticNTSPackPricer prices the domestic packing for an NTS shipment of a GHC Move
 //
-//go:generate mockery --name DomesticNTSPackPricer --disable-version-string
+//go:generate mockery --name DomesticNTSPackPricer
 type DomesticNTSPackPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int, isPPM bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -127,7 +127,7 @@ type DomesticNTSPackPricer interface {
 
 // DomesticUnpackPricer prices the domestic unpacking for a GHC Move
 //
-//go:generate mockery --name DomesticUnpackPricer --disable-version-string
+//go:generate mockery --name DomesticUnpackPricer
 type DomesticUnpackPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -135,7 +135,7 @@ type DomesticUnpackPricer interface {
 
 // FuelSurchargePricer prices the fuel surcharge price for a GHC Move
 //
-//go:generate mockery --name FuelSurchargePricer --disable-version-string
+//go:generate mockery --name FuelSurchargePricer
 type FuelSurchargePricer interface {
 	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -143,7 +143,7 @@ type FuelSurchargePricer interface {
 
 // DomesticOriginFirstDaySITPricer prices domestic origin first day SIT for a GHC move
 //
-//go:generate mockery --name DomesticOriginFirstDaySITPricer --disable-version-string
+//go:generate mockery --name DomesticOriginFirstDaySITPricer
 type DomesticOriginFirstDaySITPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, disableWeightMinimum bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -151,7 +151,7 @@ type DomesticOriginFirstDaySITPricer interface {
 
 // DomesticDestinationFirstDaySITPricer prices domestic destination first day SIT for a GHC move
 //
-//go:generate mockery --name DomesticDestinationFirstDaySITPricer --disable-version-string
+//go:generate mockery --name DomesticDestinationFirstDaySITPricer
 type DomesticDestinationFirstDaySITPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, disableWeightMinimum bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -159,7 +159,7 @@ type DomesticDestinationFirstDaySITPricer interface {
 
 // DomesticFirstDaySITPricer prices domestic origin or destination first day SIT for a GHC move
 //
-//go:generate mockery --name DomesticFirstDaySITPricer --disable-version-string
+//go:generate mockery --name DomesticFirstDaySITPricer
 type DomesticFirstDaySITPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, disableWeightMinimum bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -167,7 +167,7 @@ type DomesticFirstDaySITPricer interface {
 
 // DomesticOriginAdditionalDaysSITPricer prices domestic origin additional days SIT for a GHC move
 //
-//go:generate mockery --name DomesticOriginAdditionalDaysSITPricer --disable-version-string
+//go:generate mockery --name DomesticOriginAdditionalDaysSITPricer
 type DomesticOriginAdditionalDaysSITPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int, disableWeightMinimum bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -175,7 +175,7 @@ type DomesticOriginAdditionalDaysSITPricer interface {
 
 // DomesticDestinationAdditionalDaysSITPricer prices domestic destination additional days SIT for a GHC move
 //
-//go:generate mockery --name DomesticDestinationAdditionalDaysSITPricer --disable-version-string
+//go:generate mockery --name DomesticDestinationAdditionalDaysSITPricer
 type DomesticDestinationAdditionalDaysSITPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int, disableWeightMinimum bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -183,7 +183,7 @@ type DomesticDestinationAdditionalDaysSITPricer interface {
 
 // DomesticAdditionalDaysSITPricer prices domestic origin or domestic additional days SIT for a GHC move
 //
-//go:generate mockery --name DomesticAdditionalDaysSITPricer --disable-version-string
+//go:generate mockery --name DomesticAdditionalDaysSITPricer
 type DomesticAdditionalDaysSITPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int, disableWeightMinimum bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -191,7 +191,7 @@ type DomesticAdditionalDaysSITPricer interface {
 
 // DomesticOriginSITPickupPricer prices domestic origin SIT pickup for a GHC move
 //
-//go:generate mockery --name DomesticOriginSITPickupPricer --disable-version-string
+//go:generate mockery --name DomesticOriginSITPickupPricer
 type DomesticOriginSITPickupPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipSITOriginOriginal string, zipSITOriginActual string, distance unit.Miles) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
@@ -199,7 +199,7 @@ type DomesticOriginSITPickupPricer interface {
 
 // DomesticDestinationSITDeliveryPricer prices domestic destination SIT delivery for a GHC move
 //
-//go:generate mockery --name DomesticDestinationSITDeliveryPricer --disable-version-string
+//go:generate mockery --name DomesticDestinationSITDeliveryPricer
 type DomesticDestinationSITDeliveryPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipDest string, zipSITDest string, distance unit.Miles) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer

@@ -36,6 +36,10 @@ func (_m *FileStorer) Fetch(_a0 string) (io.ReadCloser, error) {
 	ret := _m.Called(_a0)
 
 	var r0 io.ReadCloser
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (io.ReadCloser, error)); ok {
+		return rf(_a0)
+	}
 	if rf, ok := ret.Get(0).(func(string) io.ReadCloser); ok {
 		r0 = rf(_a0)
 	} else {
@@ -44,7 +48,6 @@ func (_m *FileStorer) Fetch(_a0 string) (io.ReadCloser, error) {
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(_a0)
 	} else {
@@ -75,13 +78,16 @@ func (_m *FileStorer) PresignedURL(_a0 string, _a1 string) (string, error) {
 	ret := _m.Called(_a0, _a1)
 
 	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string) (string, error)); ok {
+		return rf(_a0, _a1)
+	}
 	if rf, ok := ret.Get(0).(func(string, string) string); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(string, string) error); ok {
 		r1 = rf(_a0, _a1)
 	} else {
@@ -96,6 +102,10 @@ func (_m *FileStorer) Store(_a0 string, _a1 io.ReadSeeker, _a2 string, _a3 *stri
 	ret := _m.Called(_a0, _a1, _a2, _a3)
 
 	var r0 *storage.StoreResult
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, io.ReadSeeker, string, *string) (*storage.StoreResult, error)); ok {
+		return rf(_a0, _a1, _a2, _a3)
+	}
 	if rf, ok := ret.Get(0).(func(string, io.ReadSeeker, string, *string) *storage.StoreResult); ok {
 		r0 = rf(_a0, _a1, _a2, _a3)
 	} else {
@@ -104,7 +114,6 @@ func (_m *FileStorer) Store(_a0 string, _a1 io.ReadSeeker, _a2 string, _a3 *stri
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(string, io.ReadSeeker, string, *string) error); ok {
 		r1 = rf(_a0, _a1, _a2, _a3)
 	} else {
@@ -119,6 +128,10 @@ func (_m *FileStorer) Tags(_a0 string) (map[string]string, error) {
 	ret := _m.Called(_a0)
 
 	var r0 map[string]string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (map[string]string, error)); ok {
+		return rf(_a0)
+	}
 	if rf, ok := ret.Get(0).(func(string) map[string]string); ok {
 		r0 = rf(_a0)
 	} else {
@@ -127,7 +140,6 @@ func (_m *FileStorer) Tags(_a0 string) (map[string]string, error) {
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(_a0)
 	} else {

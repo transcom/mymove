@@ -18,65 +18,73 @@ import { usePPMShipmentDocsQueries } from 'hooks/queries';
 import ReviewWeightTicket from 'components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket';
 import { DOCUMENTS } from 'constants/queryKeys';
 
+// TODO: This should be in src/constants/ppms.js, but it's causing a lot of errors in unrelated tests, so I'll leave
+//  this here for now.
+const DOCUMENT_TYPES = {
+  WEIGHT_TICKET: 'WEIGHT_TICKET',
+  PROGEAR_WEIGHT_TICKET: 'PROGEAR_WEIGHT_TICKET',
+  MOVING_EXPENSE: 'MOVING_EXPENSE',
+};
+
 export const ReviewDocuments = ({ match }) => {
   const { shipmentId, moveCode } = match.params;
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
 
-  let documentSet = [];
-  const allDocuments = [];
+  let documentSets = [];
 
-  const movingExpenses = documents?.MovingExpenses;
-  const weightTickets = documents?.WeightTickets;
-  const proGearWeightTickets = documents?.ProGearWeightTickets;
+  const weightTickets = documents?.WeightTickets ?? [];
+  const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
+  const movingExpenses = documents?.MovingExpenses ?? [];
 
-  if (movingExpenses?.length !== 0) {
-    allDocuments.push(movingExpenses);
-  }
-  if (weightTickets?.length !== 0) {
-    allDocuments.push(weightTickets);
-  }
-  if (proGearWeightTickets?.length !== 0) {
-    allDocuments.push(proGearWeightTickets);
-  }
-
-  const fullDocuments = [];
-  allDocuments?.map((docSet) => {
-    docSet?.map((doc) => {
-      return fullDocuments.push(doc);
-    });
-    return fullDocuments;
-  });
-
-  let uploads = [];
-  weightTickets?.forEach((weightTicket) => {
-    uploads = uploads.concat(weightTicket.emptyDocument?.uploads);
-    uploads = uploads.concat(weightTicket.fullDocument?.uploads);
-    uploads = uploads.concat(weightTicket.proofOfTrailerOwnershipDocument?.uploads);
-  });
-
-  if (weightTickets) {
+  if (weightTickets.length > 0) {
     weightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
-    documentSet = documentSet.concat(weightTickets[documentSetIndex]);
+
+    documentSets = documentSets.concat(
+      weightTickets.map((weightTicket, index) => {
+        return {
+          documentSetType: DOCUMENT_TYPES.WEIGHT_TICKET,
+          documentSet: weightTicket,
+          uploads: [
+            ...weightTicket.emptyDocument.uploads,
+            ...weightTicket.fullDocument.uploads,
+            ...weightTicket.proofOfTrailerOwnershipDocument.uploads,
+          ],
+          tripNumber: index + 1,
+        };
+      }),
+    );
   }
 
-  proGearWeightTickets?.forEach((proGearWeightTicket) => {
-    uploads = uploads.concat(proGearWeightTicket.document?.uploads);
-  });
-
-  if (proGearWeightTickets) {
+  if (proGearWeightTickets.length > 0) {
     proGearWeightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
-    documentSet = documentSet.concat(proGearWeightTickets[documentSetIndex]);
+
+    documentSets = documentSets.concat(
+      proGearWeightTickets.map((proGearWeightTicket, index) => {
+        return {
+          documentSetType: DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET,
+          documentSet: proGearWeightTicket,
+          uploads: proGearWeightTicket.document.uploads,
+          tripNumber: index + 1,
+        };
+      }),
+    );
   }
 
-  movingExpenses?.forEach((movingExpense) => {
-    uploads = uploads.concat(movingExpense.document?.uploads);
-  });
-
-  if (movingExpenses) {
+  if (movingExpenses.length > 0) {
     movingExpenses.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
-    documentSet = documentSet.concat(movingExpenses[documentSetIndex]);
+
+    documentSets = documentSets.concat(
+      movingExpenses.map((movingExpense, index) => {
+        return {
+          documentSetType: DOCUMENT_TYPES.MOVING_EXPENSE,
+          documentSet: movingExpense,
+          uploads: movingExpense.document.uploads,
+          tripNumber: index + 1,
+        };
+      }),
+    );
   }
 
   const history = useHistory();
@@ -108,8 +116,16 @@ export const ReviewDocuments = ({ match }) => {
 
   const onSuccess = () => {
     queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
-    if (documentSetIndex < fullDocuments.length - 1) {
-      setDocumentSetIndex(documentSetIndex + 1);
+
+    if (documentSetIndex < documentSets.length - 1) {
+      const newDocumentSetIndex = documentSetIndex + 1;
+
+      // TODO: This is a workaround until we add the ability to work with other document types
+      if (documentSets[newDocumentSetIndex].documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET) {
+        setDocumentSetIndex(newDocumentSetIndex);
+      } else {
+        setShowOverview(true);
+      }
     } else {
       setShowOverview(true);
     }
@@ -130,22 +146,25 @@ export const ReviewDocuments = ({ match }) => {
     }
   };
 
+  const currentDocumentSet = documentSets[documentSetIndex];
+  const disableBackButton = documentSetIndex === 0 && !showOverview;
+
   return (
     <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
-        <DocumentViewer files={uploads} allowDownload />
+        <DocumentViewer files={currentDocumentSet.uploads} allowDownload />
       </div>
       <DocumentViewerSidebar
         title="Review documents"
         onClose={onClose}
         className={styles.sidebar}
-        supertitle={`${documentSetIndex + 1} of ${fullDocuments.length} Document Sets`}
+        supertitle={`${documentSetIndex + 1} of ${documentSets.length} Document Sets`}
         defaultH3
       >
         <DocumentViewerSidebar.Content mainRef={weightTicketPanelRef}>
           <NotificationScrollToTop dependency={documentSetIndex || serverError} target={weightTicketPanelRef.current} />
           <ErrorMessage display={!!serverError}>{serverError}</ErrorMessage>
-          {documentSet &&
+          {documentSets &&
             (showOverview ? (
               <ReviewDocumentsSidePanel
                 ppmShipment={mtoShipment.ppmShipment}
@@ -157,19 +176,21 @@ export const ReviewDocuments = ({ match }) => {
                 formRef={formRef}
               />
             ) : (
-              <ReviewWeightTicket
-                weightTicket={documentSet[0]}
-                ppmNumber={1}
-                tripNumber={documentSetIndex + 1}
-                mtoShipment={mtoShipment}
-                onError={onError}
-                onSuccess={onSuccess}
-                formRef={formRef}
-              />
+              currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
+                <ReviewWeightTicket
+                  weightTicket={currentDocumentSet.documentSet}
+                  ppmNumber={1}
+                  tripNumber={currentDocumentSet.tripNumber}
+                  mtoShipment={mtoShipment}
+                  onError={onError}
+                  onSuccess={onSuccess}
+                  formRef={formRef}
+                />
+              )
             ))}
         </DocumentViewerSidebar.Content>
         <DocumentViewerSidebar.Footer>
-          <Button className="usa-button--secondary" onClick={onBack} disabled={documentSetIndex === 0}>
+          <Button className="usa-button--secondary" onClick={onBack} disabled={disableBackButton}>
             Back
           </Button>
           <Button type="submit" onClick={onContinue}>

@@ -10,7 +10,7 @@ import (
 
 // UserRoleAssociator is the service object interface for UpdateUserRoles
 //
-//go:generate mockery --name UserRoleAssociator --disable-version-string
+//go:generate mockery --name UserRoleAssociator
 type UserRoleAssociator interface {
 	UpdateUserRoles(appCtx appcontext.AppContext, userID uuid.UUID, roles []roles.RoleType) ([]models.UsersRoles, error)
 }

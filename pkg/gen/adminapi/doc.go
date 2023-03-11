@@ -7,11 +7,12 @@
 //	All endpoints are located under `/admin/v1`.
 //
 //	Schemes:
-//	  http
-//	Host: localhost
+//	  https
+//	Host: admin.move.mil
 //	BasePath: /admin/v1
 //	Version: 1.0.0
 //	License: MIT https://github.com/transcom/mymove/blob/main/LICENSE.md
+//	Contact: MilMove AppEng<support@movemil.pagerduty.com>
 //
 //	Consumes:
 //	  - application/json

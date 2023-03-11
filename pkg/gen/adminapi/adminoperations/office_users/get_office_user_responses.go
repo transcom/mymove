@@ -112,7 +112,7 @@ func (o *GetOfficeUserUnauthorized) WriteResponse(rw http.ResponseWriter, produc
 const GetOfficeUserNotFoundCode int = 404
 
 /*
-GetOfficeUserNotFound office not found
+GetOfficeUserNotFound Office User not found
 
 swagger:response getOfficeUserNotFound
 */

@@ -165,39 +165,6 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
   });
 };
 
-export const calculateNetWeightForWeightTicket = (weightTicket) => {
-  if (
-    weightTicket.emptyWeight == null ||
-    weightTicket.fullWeight == null ||
-    Number.isNaN(Number(weightTicket.emptyWeight)) ||
-    Number.isNaN(Number(weightTicket.fullWeight))
-  ) {
-    return 0;
-  }
-
-  return weightTicket.fullWeight - weightTicket.emptyWeight;
-};
-
-export const calculateNetWeightForProGearWeightTicket = (weightTicket) => {
-  if (weightTicket.weight == null || Number.isNaN(Number(weightTicket.weight))) {
-    return 0;
-  }
-
-  return weightTicket.weight;
-};
-
-export const calculateTotalNetWeightForWeightTickets = (weightTickets = []) => {
-  return weightTickets.reduce((prev, curr) => {
-    return prev + calculateNetWeightForWeightTicket(curr);
-  }, 0);
-};
-
-export const calculateTotalNetWeightForProGearWeightTickets = (proGearWeightTickets = []) => {
-  return proGearWeightTickets.reduce((prev, curr) => {
-    return prev + calculateNetWeightForProGearWeightTicket(curr);
-  }, 0);
-};
-
 export const calculateTotalMovingExpensesAmount = (movingExpenses = []) => {
   return movingExpenses.reduce((prev, curr) => {
     return curr.amount && !Number.isNaN(Number(curr.amount)) ? prev + curr.amount : prev;

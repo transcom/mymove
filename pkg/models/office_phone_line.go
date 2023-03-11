@@ -22,11 +22,14 @@ type OfficePhoneLine struct {
 	UpdatedAt              time.Time            `json:"updated_at" db:"updated_at"`
 }
 
-// OfficePhoneLines is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (o OfficePhoneLine) TableName() string {
+	return "office_phone_lines"
+}
+
 type OfficePhoneLines []OfficePhoneLine
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (o *OfficePhoneLine) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	validLineTypes := []string{"voice", "fax"}
 	return validate.Validate(
@@ -34,16 +37,4 @@ func (o *OfficePhoneLine) Validate(tx *pop.Connection) (*validate.Errors, error)
 		&validators.UUIDIsPresent{Field: o.TransportationOfficeID, Name: "TransportationOfficeID"},
 		&validators.StringInclusion{Field: o.Type, Name: "Type", List: validLineTypes},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (o *OfficePhoneLine) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (o *OfficePhoneLine) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }

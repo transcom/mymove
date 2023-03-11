@@ -21,13 +21,16 @@ func (_m *Planner) LatLongTransitDistance(appCtx appcontext.AppContext, source r
 	ret := _m.Called(appCtx, source, destination)
 
 	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, route.LatLong, route.LatLong) (int, error)); ok {
+		return rf(appCtx, source, destination)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, route.LatLong, route.LatLong) int); ok {
 		r0 = rf(appCtx, source, destination)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, route.LatLong, route.LatLong) error); ok {
 		r1 = rf(appCtx, source, destination)
 	} else {
@@ -42,13 +45,16 @@ func (_m *Planner) TransitDistance(appCtx appcontext.AppContext, source *models.
 	ret := _m.Called(appCtx, source, destination)
 
 	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Address, *models.Address) (int, error)); ok {
+		return rf(appCtx, source, destination)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Address, *models.Address) int); ok {
 		r0 = rf(appCtx, source, destination)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.Address, *models.Address) error); ok {
 		r1 = rf(appCtx, source, destination)
 	} else {
@@ -63,13 +69,16 @@ func (_m *Planner) Zip3TransitDistance(appCtx appcontext.AppContext, source stri
 	ret := _m.Called(appCtx, source, destination)
 
 	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) (int, error)); ok {
+		return rf(appCtx, source, destination)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) int); ok {
 		r0 = rf(appCtx, source, destination)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, string) error); ok {
 		r1 = rf(appCtx, source, destination)
 	} else {
@@ -84,13 +93,16 @@ func (_m *Planner) Zip5TransitDistance(appCtx appcontext.AppContext, source stri
 	ret := _m.Called(appCtx, source, destination)
 
 	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) (int, error)); ok {
+		return rf(appCtx, source, destination)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) int); ok {
 		r0 = rf(appCtx, source, destination)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, string) error); ok {
 		r1 = rf(appCtx, source, destination)
 	} else {
@@ -105,13 +117,16 @@ func (_m *Planner) Zip5TransitDistanceLineHaul(appCtx appcontext.AppContext, sou
 	ret := _m.Called(appCtx, source, destination)
 
 	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) (int, error)); ok {
+		return rf(appCtx, source, destination)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) int); ok {
 		r0 = rf(appCtx, source, destination)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, string) error); ok {
 		r1 = rf(appCtx, source, destination)
 	} else {
@@ -126,13 +141,16 @@ func (_m *Planner) ZipTransitDistance(appCtx appcontext.AppContext, source strin
 	ret := _m.Called(appCtx, source, destination)
 
 	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) (int, error)); ok {
+		return rf(appCtx, source, destination)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) int); ok {
 		r0 = rf(appCtx, source, destination)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, string) error); ok {
 		r1 = rf(appCtx, source, destination)
 	} else {
