@@ -121,20 +121,9 @@ func (suite *HandlerSuite) TestShowOrder() {
 }
 
 func (suite *HandlerSuite) TestUploadAmendedOrder() {
-	dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{
-			Model:    factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
-			LinkOnly: true,
-		},
-	}, nil)
 	var moves models.Moves
 	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			OriginDutyLocation: &dutyLocation,
-		},
-		Move: mto,
-	})
+	order := mto.Orders
 	order.Moves = append(moves, mto)
 	path := fmt.Sprintf("/orders/%v/upload_amended_orders", order.ID.String())
 	req := httptest.NewRequest("PATCH", path, nil)

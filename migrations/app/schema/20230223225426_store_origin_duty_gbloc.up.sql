@@ -4,7 +4,7 @@ ALTER TABLE orders
 
 CREATE INDEX orders_gbloc_idx ON orders (gbloc);
 
-COMMENT ON COLUMN orders.gbloc IS 'Services Counselor and TIO users from transportation offices in this GBLOC will see these orders in their queue.';
+COMMENT ON COLUMN orders.gbloc IS 'Services Counselor office users from transportation offices in this GBLOC will see these orders in their queue.';
 
 
 -- Backfill gbloc data

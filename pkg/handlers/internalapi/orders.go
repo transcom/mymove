@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"database/sql"
 	"errors"
 	"time"
 
@@ -139,7 +140,16 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			originDutyLocation := serviceMember.DutyLocation
-			originDutyLocationGBLOC := serviceMember.DutyLocation.TransportationOffice.Gbloc
+
+			originDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
+				default:
+					return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
+				}
+			}
 
 			grade := (*string)(serviceMember.Rank)
 
@@ -187,7 +197,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				&originDutyLocation,
 				grade,
 				&entitlement,
-				&originDutyLocationGBLOC,
+				&originDutyLocationGBLOC.GBLOC,
 			)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err

@@ -76,7 +76,11 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		originDutyLocation = MakeDutyLocation(db, assertions)
 	}
 
-	originDutyLocationGBLOC := originDutyLocation.TransportationOffice.Gbloc
+	gbloc, err := models.FetchGBLOCForPostalCode(db, originDutyLocation.Address.PostalCode)
+	if gbloc.GBLOC == "" || err != nil {
+		gbloc = MakePostalCodeToGBLOC(db, originDutyLocation.Address.PostalCode, "KKFA")
+	}
+
 	orderTypeDetail := assertions.Order.OrdersTypeDetail
 	hhgPermittedString := internalmessages.OrdersTypeDetail("HHG_PERMITTED")
 	if orderTypeDetail == nil || *orderTypeDetail == "" {
@@ -107,7 +111,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		OriginDutyLocation:      &originDutyLocation,
 		OriginDutyLocationID:    &originDutyLocation.ID,
 		OrdersTypeDetail:        orderTypeDetail,
-		OriginDutyLocationGBLOC: &originDutyLocationGBLOC,
+		OriginDutyLocationGBLOC: &gbloc.GBLOC,
 	}
 
 	// Overwrite values with those from assertions
@@ -183,7 +187,11 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 		originDutyLocation = MakeDutyLocation(db, assertions)
 	}
 
-	originDutyLocationGBLOC := originDutyLocation.TransportationOffice.Gbloc
+	gbloc, err := models.FetchGBLOCForPostalCode(db, originDutyLocation.Address.PostalCode)
+	if gbloc.GBLOC == "" || err != nil {
+		gbloc = MakePostalCodeToGBLOC(db, originDutyLocation.Address.PostalCode, "KKFA")
+	}
+
 	var orderTypeDetail *internalmessages.OrdersTypeDetail
 	if assertions.Order.OrdersTypeDetail != nil {
 		orderTypeDetail = assertions.Order.OrdersTypeDetail
@@ -211,7 +219,7 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 		OriginDutyLocation:      &originDutyLocation,
 		OriginDutyLocationID:    &originDutyLocation.ID,
 		OrdersTypeDetail:        orderTypeDetail,
-		OriginDutyLocationGBLOC: &originDutyLocationGBLOC,
+		OriginDutyLocationGBLOC: &gbloc.GBLOC,
 	}
 
 	// Overwrite values with those from assertions
@@ -265,9 +273,9 @@ func MakeOrderWithoutUpload(db *pop.Connection, assertions Assertions) models.Or
 		originDutyLocation = MakeDutyLocation(db, assertions)
 	}
 
-	originDutyLocationGBLOC := originDutyLocation.TransportationOffice.Gbloc
-	if *sm.Affiliation == "MARINES" {
-		originDutyLocationGBLOC = "USMC"
+	gbloc, err := models.FetchGBLOCForPostalCode(db, originDutyLocation.Address.PostalCode)
+	if gbloc.GBLOC == "" || err != nil {
+		gbloc = MakePostalCodeToGBLOC(db, originDutyLocation.Address.PostalCode, "KKFA")
 	}
 
 	order := models.Order{
@@ -289,7 +297,7 @@ func MakeOrderWithoutUpload(db *pop.Connection, assertions Assertions) models.Or
 		EntitlementID:           &entitlement.ID,
 		OriginDutyLocation:      &originDutyLocation,
 		OriginDutyLocationID:    &originDutyLocation.ID,
-		OriginDutyLocationGBLOC: &originDutyLocationGBLOC,
+		OriginDutyLocationGBLOC: &gbloc.GBLOC,
 	}
 
 	// Overwrite values with those from assertions
