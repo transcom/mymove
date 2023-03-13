@@ -1,11 +1,11 @@
 package customer
 
 import (
-	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/factory"
 )
 
 func (suite *CustomerServiceSuite) TestCustomerFetcher() {
-	customer := testdatagen.MakeDefaultServiceMember(suite.DB())
+	customer := factory.BuildServiceMember(suite.DB(), nil, nil)
 	mtoFetcher := NewCustomerFetcher()
 
 	actualCustomer, err := mtoFetcher.FetchCustomer(suite.AppContextForTest(), customer.ID)

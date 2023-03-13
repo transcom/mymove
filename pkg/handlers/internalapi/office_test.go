@@ -116,7 +116,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
 	// Given: a set of orders, a move, office user and servicemember user
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	// Given: an non-office User
-	user := testdatagen.MakeDefaultServiceMember(suite.DB())
+	user := factory.BuildServiceMember(suite.DB(), nil, nil)
 	moveRouter := moverouter.NewMoveRouter()
 
 	// And: the context contains the auth values
@@ -210,7 +210,7 @@ func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
 	// Given: a set of orders, a move, office user and servicemember user
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	// Given: an non-office User
-	user := testdatagen.MakeDefaultServiceMember(suite.DB())
+	user := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	moveRouter := moverouter.NewMoveRouter()
 
@@ -279,7 +279,7 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
 	// Given: a set of orders, a move, user and servicemember
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	user := testdatagen.MakeDefaultServiceMember(suite.DB())
+	user := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
@@ -334,7 +334,7 @@ func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 func (suite *HandlerSuite) TestApproveReimbursementHandlerForbidden() {
 	// Given: a set of orders, a move, user and servicemember
 	reimbursement := testdatagen.MakeDefaultRequestedReimbursement(suite.DB())
-	user := testdatagen.MakeDefaultServiceMember(suite.DB())
+	user := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/reimbursement/some_id/approve", nil)

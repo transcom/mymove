@@ -81,7 +81,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	makeCreateSubtestData := func(appCtx appcontext.AppContext) (subtestData mtoCreateSubtestData) {
 		db := appCtx.DB()
 
-		subtestData.serviceMember = testdatagen.MakeDefaultServiceMember(db)
+		subtestData.serviceMember = factory.BuildServiceMember(db, nil, nil)
 
 		mto := testdatagen.MakeMove(db, testdatagen.Assertions{
 			Order: models.Order{
@@ -1633,8 +1633,8 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 403 when servicemember ID doesn't match shipment", func() {
-		sm1 := testdatagen.MakeStubbedServiceMember(suite.DB())
-		sm2 := testdatagen.MakeStubbedServiceMember(suite.DB())
+		sm1 := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.GetTraitServiceMemberSetIDs})
+		sm2 := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.GetTraitServiceMemberSetIDs})
 		order := testdatagen.MakeDefaultOrder(suite.DB())
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: order,

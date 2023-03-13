@@ -74,7 +74,7 @@ func (suite *HandlerSuite) TestTacValidation() {
 	})
 
 	suite.Run("Unauthorized user for TAC validation is forbidden", func() {
-		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		unauthorizedUser := serviceMember.User
 		tac := "4EVR"
 		request := httptest.NewRequest("GET", fmt.Sprintf("/tac/valid?tac=%s", tac), nil)
