@@ -15,14 +15,14 @@ describe('Services Counseling Review Shipment Weights', () => {
   describe('basic rendering', () => {
     it('should render the review shipment weights page', () => {
       useReviewShipmentWeightsQuery.mockReturnValue(missingSomeWeightQuery);
-      render(<ServicesCounselingReviewShipmentWeights />);
+      render(<ServicesCounselingReviewShipmentWeights moveCode="ABC123" />);
 
       expect(screen.getByRole('heading', { name: 'Review shipment weights', level: 1 })).toBeInTheDocument();
     });
 
     it('displays the weight allowance', async () => {
       useReviewShipmentWeightsQuery.mockReturnValue(missingSomeWeightQuery);
-      render(<ServicesCounselingReviewShipmentWeights />);
+      render(<ServicesCounselingReviewShipmentWeights moveCode="ABC123" />);
 
       const weightDisplays = await screen.findAllByTestId('weight-display');
       const weightAllowanceDisplay = weightDisplays[0];
@@ -31,7 +31,7 @@ describe('Services Counseling Review Shipment Weights', () => {
 
     it('displays the total estimated weight', async () => {
       useReviewShipmentWeightsQuery.mockReturnValue(missingSomeWeightQuery);
-      render(<ServicesCounselingReviewShipmentWeights />);
+      render(<ServicesCounselingReviewShipmentWeights moveCode="ABC123" />);
 
       const weightDisplays = await screen.findAllByTestId('weight-display');
       const estimatedWeightDisplay = weightDisplays[1];
@@ -40,7 +40,7 @@ describe('Services Counseling Review Shipment Weights', () => {
 
     it('displays the max billable weight', async () => {
       useReviewShipmentWeightsQuery.mockReturnValue(missingSomeWeightQuery);
-      render(<ServicesCounselingReviewShipmentWeights />);
+      render(<ServicesCounselingReviewShipmentWeights moveCode="ABC123" />);
 
       const weightDisplays = await screen.findAllByTestId('weight-display');
       const maxBillableWeightDisplay = weightDisplays[2];
@@ -49,7 +49,7 @@ describe('Services Counseling Review Shipment Weights', () => {
 
     it('displays the total move weight', async () => {
       useReviewShipmentWeightsQuery.mockReturnValue(missingSomeWeightQuery);
-      render(<ServicesCounselingReviewShipmentWeights />);
+      render(<ServicesCounselingReviewShipmentWeights moveCode="ABC123" />);
 
       const weightDisplays = await screen.findAllByTestId('weight-display');
       const totalMoveWeight = weightDisplays[3];
@@ -58,7 +58,7 @@ describe('Services Counseling Review Shipment Weights', () => {
 
     it('displays risk of excess tag', async () => {
       useReviewShipmentWeightsQuery.mockReturnValue(riskOfExcessWeightQuery);
-      render(<ServicesCounselingReviewShipmentWeights />);
+      render(<ServicesCounselingReviewShipmentWeights moveCode="ABC123" />);
 
       const riskOfExcessTag = screen.getByText(/Risk of excess/);
       expect(riskOfExcessTag).toBeInTheDocument();
