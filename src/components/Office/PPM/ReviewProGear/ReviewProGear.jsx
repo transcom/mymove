@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
-import { number } from 'prop-types';
+import React, { useState, useEffect } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { func, number, object } from 'prop-types';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { CharacterCount, Form, FormGroup, Label, Radio, Button, Textarea } from '@trussworks/react-uswds';
+import { Form, FormGroup, Label, Radio, Button, Textarea } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
 
 import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewProGear.module.scss';
 
-import { PPMShipmentShape, ProGearTicketShape } from 'types/shipment';
+import { ErrorMessage } from 'components/form';
+import { patchProGearWeightTicket } from 'services/ghcApi';
+import { ProGearTicketShape, ShipmentShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
@@ -18,13 +21,13 @@ import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
 
 const validationSchema = Yup.object().shape({
-  selfProGear: Yup.bool().required('Required'),
+  belongsToSelf: Yup.bool().required('Required'),
   proGearWeight: Yup.number()
     .min(0, 'Enter a weight 0 lbs or greater')
     .when('missingWeightTicket', {
       is: 'true',
       then: (schema) => schema.required('Enter the constructed pro-gear weight'),
-      otherwise: (schema) => schema.required('Enter the pro-gear weight'),
+      otherwise: (schema) => schema.required('Enter the weight with pro-gear'),
     }),
   description: Yup.string().required('Required'),
   missingWeightTicket: Yup.string(),
@@ -35,31 +38,72 @@ const validationSchema = Yup.object().shape({
   }),
 });
 
-export default function ReviewProGear({ ppmShipment, proGear, tripNumber, ppmNumber }) {
+export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNumber, onError, onSuccess, formRef }) {
   const [canEditRejection, setCanEditRejection] = useState(true);
 
-  const { description, selfProGear, proGearWeight, missingWeightTicket, status, reason } = proGear || {};
+  const { mutate: patchProGearMutation } = useMutation(patchProGearWeightTicket, {
+    onSuccess,
+    onError,
+  });
+  const ppmShipment = mtoShipment?.ppmShipment;
 
-  let proGearValue;
-  if (selfProGear === true) {
-    proGearValue = 'true';
-  }
-  if (selfProGear === false) {
-    proGearValue = 'false';
-  }
+  const { belongsToSelf, description, hasWeightTickets, weight, status, reason } = proGear || {};
+
+  const proGearValue = belongsToSelf ? 'true' : 'false';
+
+  const missingWeightTicketValue = hasWeightTickets ? 'false' : 'true';
+
+  const handleSubmit = (values) => {
+    let hasWeightTicketValue;
+    if (values.missingWeightTicket === 'true') {
+      hasWeightTicketValue = false;
+    }
+    if (values.missingWeightTicket === 'false') {
+      hasWeightTicketValue = true;
+    }
+    const payload = {
+      ppmShipmentId: proGear.ppmShipmentId,
+      belongsToSelf: values.belongsToSelf === 'true',
+      hasWeightTickets: hasWeightTicketValue,
+      weight: parseInt(values.proGearWeight, 10),
+      reason: values.status === ppmDocumentStatus.APPROVED ? null : values.rejectionReason,
+      status: values.status,
+    };
+    patchProGearMutation({
+      ppmShipmentId: proGear.ppmShipmentId,
+      proGearWeightTicketId: proGear.id,
+      payload,
+      eTag: proGear.eTag,
+    });
+  };
 
   const initialValues = {
     belongsToSelf: proGearValue,
     status: status || '',
     rejectionReason: reason || '',
-    missingWeightTicket: missingWeightTicket ? `${missingWeightTicket}` : '',
+    missingWeightTicket: missingWeightTicketValue,
     description: description ? `${description}` : '',
-    proGearWeight: proGearWeight ? `${proGearWeight}` : '',
+    proGearWeight: weight ? `${weight}` : '',
   };
+
+  useEffect(() => {
+    if (formRef?.current) {
+      formRef.current.resetForm();
+      formRef.current.validateForm();
+    }
+  }, [formRef, proGear]);
+
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
-      <Formik initialValues={initialValues} validationSchema={validationSchema}>
-        {({ handleChange, values }) => {
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        innerRef={formRef}
+        onSubmit={handleSubmit}
+        enableReinitialize
+        validateOnMount
+      >
+        {({ handleChange, errors, touched, values }) => {
           const handleApprovalChange = (event) => {
             handleChange(event);
             setCanEditRejection(true);
@@ -130,6 +174,7 @@ export default function ReviewProGear({ ppmShipment, proGear, tripNumber, ppmNum
               />
               <h3 className={styles.reviewHeader}>Review pro-gear {tripNumber}</h3>
               <p>Add a review for this pro-gear</p>
+              <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
               <Fieldset>
                 <div
                   className={classnames(approveRejectStyles.statusOption, {
@@ -141,9 +186,10 @@ export default function ReviewProGear({ ppmShipment, proGear, tripNumber, ppmNum
                     checked={values.status === ppmDocumentStatus.APPROVED}
                     value={ppmDocumentStatus.APPROVED}
                     name="status"
-                    label="Approve"
+                    label="Accept"
                     onChange={handleApprovalChange}
                     data-testid="approveRadio"
+                    className={styles.acceptRadio}
                   />
                 </div>
                 <div
@@ -159,6 +205,7 @@ export default function ReviewProGear({ ppmShipment, proGear, tripNumber, ppmNum
                     label="Reject"
                     onChange={handleChange}
                     data-testid="rejectRadio"
+                    className={styles.rejectRadio}
                   />
 
                   {values.status === ppmDocumentStatus.REJECTED && (
@@ -185,15 +232,18 @@ export default function ReviewProGear({ ppmShipment, proGear, tripNumber, ppmNum
 
                       {canEditRejection && (
                         <>
+                          <ErrorMessage display={!!errors?.rejectionReason && !!touched?.rejectionReason}>
+                            {errors.rejectionReason}
+                          </ErrorMessage>
                           <Textarea
                             id={`rejectReason-${proGear?.id}`}
                             name="rejectionReason"
                             onChange={handleChange}
+                            error={touched.rejectionReason ? errors.rejectionReason : null}
                             value={values.rejectionReason}
                             placeholder="Type something"
                           />
-                          <CharacterCount />
-                          <p className={styles.characters}>500 characters</p>
+                          <div className={styles.hint}>{500 - values.rejectionReason.length} characters</div>
                         </>
                       )}
                     </FormGroup>
@@ -210,12 +260,16 @@ export default function ReviewProGear({ ppmShipment, proGear, tripNumber, ppmNum
 
 ReviewProGear.propTypes = {
   proGear: ProGearTicketShape,
-  ppmShipment: PPMShipmentShape,
+  mtoShipment: ShipmentShape,
   tripNumber: number.isRequired,
   ppmNumber: number.isRequired,
+  onSuccess: func,
+  formRef: object,
 };
 
 ReviewProGear.defaultProps = {
-  proGear: undefined,
-  ppmShipment: undefined,
+  proGear: null,
+  mtoShipment: null,
+  onSuccess: null,
+  formRef: null,
 };

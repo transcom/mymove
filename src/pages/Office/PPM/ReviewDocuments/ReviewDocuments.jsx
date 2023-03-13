@@ -17,6 +17,8 @@ import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentVi
 import { usePPMShipmentDocsQueries } from 'hooks/queries';
 import ReviewWeightTicket from 'components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket';
 import { DOCUMENTS } from 'constants/queryKeys';
+import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
+import ReviewExpense from 'components/Office/PPM/ReviewExpense/ReviewExpense';
 
 // TODO: This should be in src/constants/ppms.js, but it's causing a lot of errors in unrelated tests, so I'll leave
 //  this here for now.
@@ -90,8 +92,7 @@ export const ReviewDocuments = ({ match }) => {
   const history = useHistory();
 
   const formRef = useRef();
-
-  const weightTicketPanelRef = useRef();
+  const mainRef = useRef();
 
   const [serverError, setServerError] = useState(null);
   const [showOverview, setShowOverview] = useState(false);
@@ -119,13 +120,7 @@ export const ReviewDocuments = ({ match }) => {
 
     if (documentSetIndex < documentSets.length - 1) {
       const newDocumentSetIndex = documentSetIndex + 1;
-
-      // TODO: This is a workaround until we add the ability to work with other document types
-      if (documentSets[newDocumentSetIndex].documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET) {
-        setDocumentSetIndex(newDocumentSetIndex);
-      } else {
-        setShowOverview(true);
-      }
+      setDocumentSetIndex(newDocumentSetIndex);
     } else {
       setShowOverview(true);
     }
@@ -161,8 +156,8 @@ export const ReviewDocuments = ({ match }) => {
         supertitle={`${documentSetIndex + 1} of ${documentSets.length} Document Sets`}
         defaultH3
       >
-        <DocumentViewerSidebar.Content mainRef={weightTicketPanelRef}>
-          <NotificationScrollToTop dependency={documentSetIndex || serverError} target={weightTicketPanelRef.current} />
+        <DocumentViewerSidebar.Content mainRef={mainRef}>
+          <NotificationScrollToTop dependency={documentSetIndex || serverError} target={mainRef.current} />
           <ErrorMessage display={!!serverError}>{serverError}</ErrorMessage>
           {documentSets &&
             (showOverview ? (
@@ -176,17 +171,41 @@ export const ReviewDocuments = ({ match }) => {
                 formRef={formRef}
               />
             ) : (
-              currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
-                <ReviewWeightTicket
-                  weightTicket={currentDocumentSet.documentSet}
-                  ppmNumber={1}
-                  tripNumber={currentDocumentSet.tripNumber}
-                  mtoShipment={mtoShipment}
-                  onError={onError}
-                  onSuccess={onSuccess}
-                  formRef={formRef}
-                />
-              )
+              <>
+                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
+                  <ReviewWeightTicket
+                    weightTicket={currentDocumentSet.documentSet}
+                    ppmNumber={1}
+                    tripNumber={currentDocumentSet.tripNumber}
+                    mtoShipment={mtoShipment}
+                    onError={onError}
+                    onSuccess={onSuccess}
+                    formRef={formRef}
+                  />
+                )}
+                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
+                  <ReviewProGear
+                    proGear={currentDocumentSet.documentSet}
+                    ppmNumber={1}
+                    tripNumber={currentDocumentSet.tripNumber}
+                    mtoShipment={mtoShipment}
+                    onError={onError}
+                    onSuccess={onSuccess}
+                    formRef={formRef}
+                  />
+                )}
+                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
+                  <ReviewExpense
+                    expense={currentDocumentSet.documentSet}
+                    ppmNumber={1}
+                    tripNumber={currentDocumentSet.tripNumber}
+                    mtoShipment={mtoShipment}
+                    onError={onError}
+                    onSuccess={onSuccess}
+                    formRef={formRef}
+                  />
+                )}
+              </>
             ))}
         </DocumentViewerSidebar.Content>
         <DocumentViewerSidebar.Footer>
