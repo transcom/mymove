@@ -343,6 +343,49 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(*desiredWeightTicket.NetWeightRemarks, *updatedWeightTicket.NetWeightRemarks)
 	})
 
+	suite.Run("Successfully updates when total weight is changed - taking adjustedNetWeight into account", func() {
+		appCtx := suite.AppContextForTest()
+
+		override := models.WeightTicket{
+			EmptyWeight:       models.PoundPointer(3000),
+			FullWeight:        models.PoundPointer(4200),
+			AdjustedNetWeight: models.PoundPointer(1100),
+		}
+		originalWeightTicket := setupForTest(appCtx, &override, true, true, false)
+
+		updater := NewOfficeWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
+
+		desiredWeightTicket := &models.WeightTicket{
+			ID:                       originalWeightTicket.ID,
+			VehicleDescription:       models.StringPointer("2004 Toyota Prius"),
+			EmptyWeight:              models.PoundPointer(1000),
+			MissingEmptyWeightTicket: models.BoolPointer(true),
+			FullWeight:               models.PoundPointer(2200),
+			MissingFullWeightTicket:  models.BoolPointer(true),
+			OwnsTrailer:              models.BoolPointer(false),
+			TrailerMeetsCriteria:     models.BoolPointer(false),
+			AdjustedNetWeight:        models.PoundPointer(1000), //reduced by 100
+			NetWeightRemarks:         models.StringPointer("Weight has been adjusted"),
+		}
+
+		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
+
+		suite.Nil(updateErr)
+		suite.Equal(originalWeightTicket.ID, updatedWeightTicket.ID)
+		suite.Equal(originalWeightTicket.EmptyDocumentID, updatedWeightTicket.EmptyDocumentID)
+		suite.Equal(originalWeightTicket.FullDocumentID, updatedWeightTicket.FullDocumentID)
+		suite.Equal(originalWeightTicket.ProofOfTrailerOwnershipDocumentID, updatedWeightTicket.ProofOfTrailerOwnershipDocumentID)
+		suite.Equal(*desiredWeightTicket.VehicleDescription, *updatedWeightTicket.VehicleDescription)
+		suite.Equal(*desiredWeightTicket.EmptyWeight, *updatedWeightTicket.EmptyWeight)
+		suite.Equal(*desiredWeightTicket.MissingEmptyWeightTicket, *updatedWeightTicket.MissingEmptyWeightTicket)
+		suite.Equal(*desiredWeightTicket.FullWeight, *updatedWeightTicket.FullWeight)
+		suite.Equal(*desiredWeightTicket.MissingFullWeightTicket, *updatedWeightTicket.MissingFullWeightTicket)
+		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.OwnsTrailer)
+		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.TrailerMeetsCriteria)
+		suite.Equal(*desiredWeightTicket.AdjustedNetWeight, *updatedWeightTicket.AdjustedNetWeight)
+		suite.Equal(*desiredWeightTicket.NetWeightRemarks, *updatedWeightTicket.NetWeightRemarks)
+	})
+
 	suite.Run("Fails to update when files are missing", func() {
 		appCtx := suite.AppContextForTest()
 
