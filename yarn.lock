@@ -11187,10 +11187,10 @@ handlebars@^4.7.7:
   optionalDependencies:
     uglify-js "^3.1.4"
 
-happo-plugin-storybook@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/happo-plugin-storybook/-/happo-plugin-storybook-3.1.0.tgz#6399ba0d9c8fa8f2876aab3e3417acb793a574d3"
-  integrity sha512-7hf8ads/MwLmxwJyY7BaNYnvgmVrwHhu7t6k6M8fowqcYpSvQyf78Bu36WNyWkvt6X1Kqn7MQTcJawea2xqBvg==
+happo-plugin-storybook@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/happo-plugin-storybook/-/happo-plugin-storybook-3.2.0.tgz#f9f61a637f4199c6863f6cb19a2d2845cd70b346"
+  integrity sha512-d4iDnLQZZmxjg+/ggMGsnAvPW5Jx9OIcRZd7xNC1B8AohugIcgGeFkNoyWbXK3fefBrmQCbns3xgMZcBaHx7hw==
   dependencies:
     "@babel/runtime" ">=7.0.0"
     archiver "^3.0.0"
@@ -20587,9 +20587,9 @@ webpack@4:
     webpack-sources "^1.4.1"
 
 webpack@5, "webpack@>=4.43.0 <6.0.0", webpack@^5.64.4, webpack@^5.9.0:
-  version "5.75.0"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.75.0.tgz#1e440468647b2505860e94c9ff3e44d5b582c152"
-  integrity sha512-piaIaoVJlqMsPtX/+3KTTO6jfvrSYgauFVdt8cr9LTHKmcq/AMd4mhzsiP7ZF/PGRNPGA8336jldh9l2Kt2ogQ==
+  version "5.76.1"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.76.1.tgz#7773de017e988bccb0f13c7d75ec245f377d295c"
+  integrity sha512-4+YIK4Abzv8172/SGqObnUjaIHjLEuUasz9EwQj/9xmPPkYJy2Mh03Q/lJfSD3YLzbxy5FeTq5Uw0323Oh6SJQ==
   dependencies:
     "@types/eslint-scope" "^3.7.3"
     "@types/estree" "^0.0.51"

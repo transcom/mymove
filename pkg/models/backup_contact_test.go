@@ -2,12 +2,12 @@ package models_test
 
 import (
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) Test_BackupContactCreate() {
-	serviceMember := testdatagen.MakeStubbedServiceMember(suite.DB())
+	serviceMember := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.GetTraitServiceMemberSetIDs})
 
 	newContact := models.BackupContact{
 		ServiceMemberID: serviceMember.ID,
@@ -38,8 +38,8 @@ func (suite *ModelSuite) Test_BackupContactValidations() {
 func (suite *ModelSuite) Test_FetchBackupContact() {
 	t := suite.T()
 
-	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
-	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceMember1 := factory.BuildServiceMember(suite.DB(), nil, nil)
+	serviceMember2 := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	backupContact := models.BackupContact{
 		ServiceMemberID: serviceMember1.ID,

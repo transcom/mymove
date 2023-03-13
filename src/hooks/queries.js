@@ -227,27 +227,30 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
 };
 
 export const useReviewShipmentWeightsQuery = (moveCode) => {
-  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
+  const { data: move, ...moveQuery } = useQuery({
+    queryKey: [MOVES, moveCode],
+    queryFn: ({ queryKey }) => getMove(...queryKey),
+  });
   const orderId = move?.ordersId;
 
   // get orders
-  const { data: { orders } = {}, ...orderQuery } = useQuery(
-    [ORDERS, orderId],
-    ({ queryKey }) => getOrder(...queryKey),
-    {
+  const { data: { orders } = {}, ...orderQuery } = useQuery({
+    queryKey: [ORDERS, orderId],
+    queryFn: ({ queryKey }) => getOrder(...queryKey),
+    options: {
       enabled: !!orderId,
     },
-  );
+  });
   const mtoID = move?.id;
 
   // get MTO shipments
-  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery(
-    [MTO_SHIPMENTS, mtoID, false],
-    ({ queryKey }) => getMTOShipments(...queryKey),
-    {
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery({
+    queryKey: [MTO_SHIPMENTS, mtoID, false],
+    queryFn: ({ queryKey }) => getMTOShipments(...queryKey),
+    options: {
       enabled: !!mtoID,
     },
-  );
+  });
 
   // Filter for ppm shipments to get their documents(including weight tickets)
   const shipmentIDs = mtoShipments?.filter((shipment) => shipment.ppmShipment).map((shipment) => shipment.id) ?? [];

@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -85,6 +86,7 @@ type addressGroup struct {
 	DeliveryAddress          CustomType
 	SecondaryDeliveryAddress CustomType
 	ResidentialAddress       CustomType
+	BackupMailingAddress     CustomType
 	DutyLocationAddress      CustomType
 	DutyLocationTOAddress    CustomType
 }
@@ -95,6 +97,7 @@ var Addresses = addressGroup{
 	DeliveryAddress:          "DeliveryAddress",
 	SecondaryDeliveryAddress: "SecondaryDeliveryAddress",
 	ResidentialAddress:       "ResidentialAddress",
+	BackupMailingAddress:     "BackupMailingAddress",
 	DutyLocationAddress:      "DutyLocationAddress",
 	DutyLocationTOAddress:    "DutyLocationTOAddress",
 }
@@ -124,6 +127,10 @@ var DutyLocations = dutyLocationsGroup{
 	OriginDutyLocation: "OriginDutyLocation",
 	NewDutyLocation:    "NewDutyLocation",
 }
+
+// Below are errors returned by various functions
+
+var ErrNestedModel = errors.New("NESTED_MODEL_ERROR")
 
 // Trait is a function that returns a set of customizations
 // Every Trait should start with GetTrait for discoverability
@@ -347,7 +354,13 @@ func findValidCustomization(customs []Customization, customType CustomType) *Cus
 
 	// Else check that the customization is valid
 	if err := checkNestedModels(*custom); err != nil {
-		log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", *custom.Type, err))
+		if errors.Is(err, ErrNestedModel) {
+			if !custom.LinkOnly {
+				log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", *custom.Type, err))
+			}
+		} else {
+			log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", *custom.Type, err))
+		}
 	}
 	return custom
 }
@@ -388,7 +401,7 @@ func checkNestedModels(c interface{}) error {
 			ft := field.Type()
 			if field.Kind() == reflect.Struct && strings.HasPrefix(ft.String(), "models.") {
 				if !reflect.DeepEqual(field.Interface(), reflect.Zero(field.Type()).Interface()) {
-					return fmt.Errorf("%s cannot be populated, no nested models allowed", fieldName)
+					return fmt.Errorf("%s cannot be populated, no nested models allowed: %w", fieldName, ErrNestedModel)
 				}
 			}
 
@@ -396,7 +409,7 @@ func checkNestedModels(c interface{}) error {
 			if field.Kind() == reflect.Pointer {
 				nf := field.Elem()
 				if !field.IsNil() && nf.Kind() == reflect.Struct && strings.HasPrefix(nf.Type().String(), "models.") {
-					return fmt.Errorf("%s cannot be populated, no nested models allowed", fieldName)
+					return fmt.Errorf("%s cannot be populated, no nested models allowed: %w", fieldName, ErrNestedModel)
 				}
 			}
 		}
