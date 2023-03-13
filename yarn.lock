@@ -16732,6 +16732,38 @@ ra-core@^4.5.2, ra-core@^4.7.2:
     react-is "^17.0.2"
     react-query "^3.32.1"
 
+ra-core@^4.8.3:
+  version "4.8.3"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.8.3.tgz#72cc1f46ae2770f02e02eefb1d68f71be34fc054"
+  integrity sha512-rlLWI346PtO6pgj3i9PUjHd6Murlff96xnu+GRImZRIMNpFdHSiU2iClG80s6a4gEzciBjFIZDi/w01cO0DN3w==
+  dependencies:
+    clsx "^1.1.1"
+    date-fns "^2.19.0"
+    eventemitter3 "^4.0.7"
+    inflection "~1.12.0"
+    jsonexport "^3.2.0"
+    lodash "~4.17.5"
+    prop-types "^15.6.1"
+    query-string "^7.1.1"
+    react-is "^17.0.2"
+    react-query "^3.32.1"
+
+ra-core@^4.8.3:
+  version "4.8.3"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.8.3.tgz#72cc1f46ae2770f02e02eefb1d68f71be34fc054"
+  integrity sha512-rlLWI346PtO6pgj3i9PUjHd6Murlff96xnu+GRImZRIMNpFdHSiU2iClG80s6a4gEzciBjFIZDi/w01cO0DN3w==
+  dependencies:
+    clsx "^1.1.1"
+    date-fns "^2.19.0"
+    eventemitter3 "^4.0.7"
+    inflection "~1.12.0"
+    jsonexport "^3.2.0"
+    lodash "~4.17.5"
+    prop-types "^15.6.1"
+    query-string "^7.1.1"
+    react-is "^17.0.2"
+    react-query "^3.32.1"
+
 ra-i18n-polyglot@^4.8.0:
   version "4.8.0"
   resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-4.8.0.tgz#f50358924c2c1905da83947d7614d0aa8f2345b6"
