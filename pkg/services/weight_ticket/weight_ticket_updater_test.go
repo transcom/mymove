@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
@@ -350,7 +351,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		override := models.WeightTicket{
 			EmptyWeight:       models.PoundPointer(3000),
 			FullWeight:        models.PoundPointer(4200),
-			AdjustedNetWeight: models.PoundPointer(1100),
+			AdjustedNetWeight: models.PoundPointer(1200),
+			NetWeightRemarks:  models.StringPointer("Weight has been adjusted"),
 		}
 		originalWeightTicket := setupForTest(appCtx, &override, true, true, false)
 
@@ -365,7 +367,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			MissingFullWeightTicket:  models.BoolPointer(true),
 			OwnsTrailer:              models.BoolPointer(false),
 			TrailerMeetsCriteria:     models.BoolPointer(false),
-			AdjustedNetWeight:        models.PoundPointer(1000), //reduced by 100
+			AdjustedNetWeight:        models.PoundPointer(1000),
 			NetWeightRemarks:         models.StringPointer("Weight has been adjusted"),
 		}
 
@@ -413,6 +415,77 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.NotNil(updateErr)
 		suite.IsType(apperror.InvalidInputError{}, updateErr)
 		suite.Equal("Invalid input found while validating the weight ticket.", updateErr.Error())
+	})
+
+	suite.Run("hasTotalWeightChanged function", func() {
+		suite.Run("should return true if there's a change in total weight based off adjusted net weight for both tickets", func() {
+			//Default net weight of 4,000 - full weight of 18500 - empty weight of 14500
+			oldAdjustedNetWeight := unit.Pound(3999)
+			originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+				WeightTicket: models.WeightTicket{
+					AdjustedNetWeight: &oldAdjustedNetWeight,
+				},
+			})
+
+			newWeightTicket := originalWeightTicket
+			newAdjustedNetWeight := unit.Pound(3000)
+			newWeightTicket.AdjustedNetWeight = &newAdjustedNetWeight
+
+			totalWeightHasChanged := hasTotalWeightChanged(originalWeightTicket, newWeightTicket)
+			suite.Equal(true, totalWeightHasChanged)
+		})
+
+		suite.Run("should return true if there's a change in total weight when only one ticket has an adjusted net weight value", func() {
+			//Default net weight of 4,000 - full weight of 18500 - empty weight of 14500
+			originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+
+			newWeightTicket := originalWeightTicket
+			newAdjustedNetWeight := unit.Pound(3500)
+			newWeightTicket.AdjustedNetWeight = &newAdjustedNetWeight
+
+			totalWeightHasChanged := hasTotalWeightChanged(originalWeightTicket, newWeightTicket)
+			suite.Equal(true, totalWeightHasChanged)
+		})
+
+		suite.Run("should return true if there's a change in total weight based off full and empty weight", func() {
+			//Default net weight of 4,000 - full weight of 18500 - empty weight of 14500
+			originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+
+			newWeightTicket := originalWeightTicket
+			newFullWeight := unit.Pound(15000)
+			newEmptyWeight := unit.Pound(10000)
+			newWeightTicket.FullWeight = &newFullWeight
+			newWeightTicket.EmptyWeight = &newEmptyWeight
+
+			totalWeightHasChanged := hasTotalWeightChanged(originalWeightTicket, newWeightTicket)
+			suite.Equal(true, totalWeightHasChanged)
+		})
+
+		suite.Run("should return false when the total weight is the same", func() {
+			//Default net weight of 4,000 - full weight of 18500 - empty weight of 14500
+			originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+
+			newWeightTicket := originalWeightTicket
+			newFullWeight := unit.Pound(16500)
+			newEmptyWeight := unit.Pound(12500)
+			newWeightTicket.FullWeight = &newFullWeight
+			newWeightTicket.EmptyWeight = &newEmptyWeight
+
+			totalWeightHasChanged := hasTotalWeightChanged(originalWeightTicket, newWeightTicket)
+			suite.Equal(false, totalWeightHasChanged)
+		})
+
+		suite.Run("should return false when there's different values but the total weight remains the same", func() {
+			//Default net weight of 4,000 - full weight of 18500 - empty weight of 14500
+			originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+
+			newWeightTicket := originalWeightTicket
+			newAdjustedNetWeight := unit.Pound(4000)
+			newWeightTicket.AdjustedNetWeight = &newAdjustedNetWeight
+
+			totalWeightHasChanged := hasTotalWeightChanged(originalWeightTicket, newWeightTicket)
+			suite.Equal(false, totalWeightHasChanged)
+		})
 	})
 
 	suite.Run("Status and reason related", func() {
