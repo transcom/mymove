@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingEditShipmentDetails from './ServicesCounselingEditShipmentDetails';
 
-import { updateMTOShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
+import { updateMTOShipment, updateMoveCloseoutOffice, searchTransportationOffices } from 'services/ghcApi';
 import { validatePostalCode } from 'utils/validation';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
@@ -19,30 +19,29 @@ jest.mock('react-router-dom', () => ({
 }));
 const mockRoutingParams = { moveCode: 'move123', shipmentId: 'shipment123' };
 const mockRoutingConfig = { path: servicesCounselingRoutes.BASE_SHIPMENT_EDIT_PATH, params: mockRoutingParams };
+const mockTransportationOffice = [
+  {
+    address: {
+      city: '',
+      id: '00000000-0000-0000-0000-000000000000',
+      postalCode: '',
+      state: '',
+      streetAddress1: '',
+    },
+    address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
+    affiliation: 'AIR_FORCE',
+    created_at: '2021-02-11T16:48:04.117Z',
+    id: '93f0755f-6f35-478b-9a75-35a69211da1c',
+    name: 'Altus AFB',
+    updated_at: '2021-02-11T16:48:04.117Z',
+  },
+];
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   updateMTOShipment: jest.fn(),
   updateMoveCloseoutOffice: jest.fn(),
-  SearchTransportationOffices: jest.fn().mockImplementation(() =>
-    Promise.resolve([
-      {
-        address: {
-          city: '',
-          id: '00000000-0000-0000-0000-000000000000',
-          postalCode: '',
-          state: '',
-          streetAddress1: '',
-        },
-        address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
-        affiliation: 'AIR_FORCE',
-        created_at: '2021-02-11T16:48:04.117Z',
-        id: '93f0755f-6f35-478b-9a75-35a69211da1c',
-        name: 'Altus AFB',
-        updated_at: '2021-02-11T16:48:04.117Z',
-      },
-    ]),
-  ),
+  searchTransportationOffices: jest.fn().mockImplementation(() => Promise.resolve(mockTransportationOffice)),
 }));
 
 jest.mock('hooks/queries', () => ({
@@ -251,6 +250,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
   it('calls props.onUpdate with success and routes to move details when the save button is clicked and the shipment update is successful', async () => {
     updateMTOShipment.mockImplementation(() => Promise.resolve({}));
+    useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
     const onUpdateMock = jest.fn();
 
     renderWithProviders(
@@ -388,6 +388,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
     it('Enables Save and Continue button when sit required fields are filled in', async () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
+      searchTransportationOffices.mockImplementation(() => Promise.resolve(mockTransportationOffice));
       renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
 
       const sitExpected = document.getElementById('sitExpectedYes').parentElement;
@@ -410,6 +411,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
       updateMTOShipment.mockImplementation(() => Promise.resolve({}));
       updateMoveCloseoutOffice.mockImplementation(() => Promise.resolve({}));
+      searchTransportationOffices.mockImplementation(() => Promise.resolve(mockTransportationOffice));
       validatePostalCode.mockImplementation(() => Promise.resolve(false));
       const onUpdateMock = jest.fn();
 
@@ -440,6 +442,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
       updateMTOShipment.mockImplementation(() => Promise.resolve({}));
+      searchTransportationOffices.mockImplementation(() => Promise.resolve(mockTransportationOffice));
       updateMoveCloseoutOffice.mockImplementation(() => Promise.reject(new Error('something went wrong')));
       validatePostalCode.mockImplementation(() => Promise.resolve(false));
       const onUpdateMock = jest.fn();
