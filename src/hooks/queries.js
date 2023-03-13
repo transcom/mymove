@@ -1,5 +1,8 @@
 /* eslint-disable import/prefer-default-export */
 import { useQueries, useQuery } from '@tanstack/react-query';
+import { generatePath } from 'react-router';
+
+import { servicesCounselingRoutes } from '../constants/routes';
 
 import {
   getPaymentRequest,
@@ -224,30 +227,33 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
 };
 
 export const useReviewShipmentWeightsQuery = (moveCode) => {
-  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
+  const { data: move, ...moveQuery } = useQuery({
+    queryKey: [MOVES, moveCode],
+    queryFn: ({ queryKey }) => getMove(...queryKey),
+  });
   const orderId = move?.ordersId;
 
   // get orders
-  const { data: { orders } = {}, ...orderQuery } = useQuery(
-    [ORDERS, orderId],
-    ({ queryKey }) => getOrder(...queryKey),
-    {
+  const { data: { orders } = {}, ...orderQuery } = useQuery({
+    queryKey: [ORDERS, orderId],
+    queryFn: ({ queryKey }) => getOrder(...queryKey),
+    options: {
       enabled: !!orderId,
     },
-  );
+  });
   const mtoID = move?.id;
 
   // get MTO shipments
-  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery(
-    [MTO_SHIPMENTS, mtoID, false],
-    ({ queryKey }) => getMTOShipments(...queryKey),
-    {
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery({
+    queryKey: [MTO_SHIPMENTS, mtoID, false],
+    queryFn: ({ queryKey }) => getMTOShipments(...queryKey),
+    options: {
       enabled: !!mtoID,
     },
-  );
+  });
 
-  // filter for ppm shipments to get their documents(including weight tickets)
-  const shipmentIDs = mtoShipments?.map((shipment) => shipment.id) ?? [];
+  // Filter for ppm shipments to get their documents(including weight tickets)
+  const shipmentIDs = mtoShipments?.filter((shipment) => shipment.ppmShipment).map((shipment) => shipment.id) ?? [];
 
   // get ppm documents
   const ppmDocsQueriesResults = useQueries({
@@ -256,11 +262,19 @@ export const useReviewShipmentWeightsQuery = (moveCode) => {
         queryKey: [DOCUMENTS, shipmentID],
         queryFn: ({ queryKey }) => getPPMDocuments(...queryKey),
         enabled: !!shipmentID,
+        select: (data) => {
+          // Shove the weight tickets into the corresponding ppmShipment object
+          const shipment = mtoShipments.find((s) => s.id === shipmentID);
+          shipment.ppmShipment.weightTickets = data.WeightTickets;
+          // Attach the review url to each ppm shipment
+          shipment.ppmShipment.reviewURL = generatePath(servicesCounselingRoutes.SHIPMENT_REVIEW_PATH, {
+            moveCode,
+            shipmentId: shipment.id,
+          });
+        },
       };
     }),
   });
-
-  const documents = ppmDocsQueriesResults.map((result) => result.data);
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
@@ -273,7 +287,6 @@ export const useReviewShipmentWeightsQuery = (moveCode) => {
     move,
     orders,
     mtoShipments,
-    documents,
     isLoading,
     isError,
     isSuccess,

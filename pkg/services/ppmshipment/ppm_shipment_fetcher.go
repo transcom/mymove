@@ -42,7 +42,7 @@ func FindPPMShipmentByMTOID(appCtx appcontext.AppContext, mtoID uuid.UUID) (*mod
 			"Shipment",
 			"WeightTickets",
 			"MovingExpenses",
-			"ProgearExpenses",
+			"ProgearWeightTickets",
 			"W2Address",
 		).
 		Where("shipment_id = ?", mtoID).First(&ppmShipment)
@@ -73,7 +73,7 @@ func FindPPMShipment(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShi
 			"Shipment",
 			"WeightTickets",
 			"MovingExpenses",
-			"ProgearExpenses",
+			"ProgearWeightTickets",
 			"W2Address",
 		).
 		Find(&ppmShipment, id)
@@ -113,17 +113,17 @@ func loadPPMAssociations(appCtx appcontext.AppContext, ppmShipment *models.PPMSh
 		weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightTicket.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
 	}
 
-	ppmShipment.ProgearExpenses = ppmShipment.ProgearExpenses.FilterDeleted()
-	for i := range ppmShipment.ProgearExpenses {
-		progearExpense := &ppmShipment.ProgearExpenses[i]
-		err := appCtx.DB().Load(progearExpense,
+	ppmShipment.ProgearWeightTickets = ppmShipment.ProgearWeightTickets.FilterDeleted()
+	for i := range ppmShipment.ProgearWeightTickets {
+		progearWeightTicket := &ppmShipment.ProgearWeightTickets[i]
+		err := appCtx.DB().Load(progearWeightTicket,
 			"Document.UserUploads.Upload")
 
 		if err != nil {
-			return apperror.NewQueryError("ProgearExpenses", err, "failed to load ProgearExpenses document uploads")
+			return apperror.NewQueryError("ProgearWeightTickets", err, "failed to load ProgearWeightTickets document uploads")
 		}
 
-		progearExpense.Document.UserUploads = progearExpense.Document.UserUploads.FilterDeleted()
+		progearWeightTicket.Document.UserUploads = progearWeightTicket.Document.UserUploads.FilterDeleted()
 	}
 
 	ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterDeleted()

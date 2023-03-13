@@ -19,6 +19,10 @@ func (_m *SignedCertificationUpdater) UpdateSignedCertification(appCtx appcontex
 	ret := _m.Called(appCtx, signedCertification, eTag)
 
 	var r0 *models.SignedCertification
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.SignedCertification, string) (*models.SignedCertification, error)); ok {
+		return rf(appCtx, signedCertification, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.SignedCertification, string) *models.SignedCertification); ok {
 		r0 = rf(appCtx, signedCertification, eTag)
 	} else {
@@ -27,7 +31,6 @@ func (_m *SignedCertificationUpdater) UpdateSignedCertification(appCtx appcontex
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.SignedCertification, string) error); ok {
 		r1 = rf(appCtx, signedCertification, eTag)
 	} else {

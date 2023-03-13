@@ -130,6 +130,6 @@ func hasTotalWeightChanged(originalWeightTicket, newWeightTicket models.WeightTi
 	if originalWeightTicket.FullWeight != nil && originalWeightTicket.EmptyWeight != nil {
 		oldWeight = *originalWeightTicket.FullWeight - *originalWeightTicket.EmptyWeight
 	}
-
+	//TODO: account for adjustedNetWeight
 	return newWeight != oldWeight
 }

@@ -324,12 +324,12 @@ func userWithTOOandTIORole(appCtx appcontext.AppContext) {
 			},
 		},
 	}, nil)
-	testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			User:   user,
-			UserID: user.ID,
+	factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model:    user,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 }
 
 func userWithTOOandTIOandQAECSRRole(appCtx appcontext.AppContext) {
@@ -377,12 +377,12 @@ func userWithTOOandTIOandQAECSRRole(appCtx appcontext.AppContext) {
 			},
 		},
 	}, nil)
-	testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			User:   user,
-			UserID: user.ID,
+	factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model:    user,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 }
 func userWithTOOandTIOandServicesCounselorRole(appCtx appcontext.AppContext) {
 	tooRole := roles.Role{}
@@ -429,12 +429,13 @@ func userWithTOOandTIOandServicesCounselorRole(appCtx appcontext.AppContext) {
 			},
 		},
 	}, nil)
-	testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			User:   user,
-			UserID: user.ID,
+
+	factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model:    user,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 }
 
 func userWithPrimeSimulatorRole(appCtx appcontext.AppContext) {
@@ -1787,11 +1788,13 @@ func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploa
 }
 
 func serviceMemberWithOrdersAndPPMMove07(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	customer := testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("1a13ee6b-3e21-4170-83bc-0d41f60edb99"),
+	customer := factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: uuid.FromStringOrNil("1a13ee6b-3e21-4170-83bc-0d41f60edb99"),
+			},
 		},
-	})
+	}, nil)
 	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("8779beda-f69a-43bf-8606-ebd22973d474"),
@@ -1810,11 +1813,13 @@ func serviceMemberWithOrdersAndPPMMove07(appCtx appcontext.AppContext, userUploa
 }
 
 func serviceMemberWithOrdersAndPPMMove08(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	customer := testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("25a90fef-301e-4682-9758-60f0c76ea8b4"),
+	customer := factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: uuid.FromStringOrNil("25a90fef-301e-4682-9758-60f0c76ea8b4"),
+			},
 		},
-	})
+	}, nil)
 	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("f2473488-2504-4872-a6b6-dd385dad4bf9"),
@@ -1989,11 +1994,13 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 	dlhCost := unit.Cents(99999)
 	csCost := unit.Cents(25000)
 	fscCost := unit.Cents(55555)
-	customer := testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
+	customer := factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
+			},
 		},
-	})
+	}, nil)
 
 	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
@@ -2365,11 +2372,13 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	msCost := unit.Cents(10000)
 
-	customer8 := testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("9e8da3c7-ffe5-4f7f-b45a-8f01ccc56591"),
+	customer8 := factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: uuid.FromStringOrNil("9e8da3c7-ffe5-4f7f-b45a-8f01ccc56591"),
+			},
 		},
-	})
+	}, nil)
 	orders8 := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("1d49bb07-d9dd-4308-934d-baad94f2de9b"),
@@ -2891,11 +2900,13 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 
 func createMoveWithSinceParamater(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	// A more recent MTO for demonstrating the since parameter
-	customer6 := testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b61"),
+	customer6 := factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b61"),
+			},
 		},
-	})
+	}, nil)
 	orders6 := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4981"),
@@ -3257,7 +3268,7 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 	sac2 := "4444"
 
 	// Create Customer
-	customer := testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{})
+	customer := factory.BuildServiceMember(appCtx.DB(), nil, nil)
 
 	// Create Orders
 	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
@@ -3778,7 +3789,7 @@ func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader
 	tac := "1111"
 
 	// Create Customer
-	customer := testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{})
+	customer := factory.BuildServiceMember(appCtx.DB(), nil, nil)
 
 	// Create Orders
 	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{

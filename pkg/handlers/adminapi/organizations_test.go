@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/factory"
 	organizationop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -12,13 +13,12 @@ import (
 	organization2 "github.com/transcom/mymove/pkg/services/organization"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 	// test that everything is wired up
 	suite.Run("integration test ok response", func() {
-		org := testdatagen.MakeDefaultOrganization(suite.DB())
+		org := factory.BuildOrganization(suite.DB(), nil, nil)
 		params := organizationop.IndexOrganizationsParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/organizations"),
 		}

@@ -21,6 +21,10 @@ func (_m *CustomerFetcher) FetchCustomer(appCtx appcontext.AppContext, customerI
 	ret := _m.Called(appCtx, customerID)
 
 	var r0 *models.ServiceMember
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.ServiceMember, error)); ok {
+		return rf(appCtx, customerID)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.ServiceMember); ok {
 		r0 = rf(appCtx, customerID)
 	} else {
@@ -29,7 +33,6 @@ func (_m *CustomerFetcher) FetchCustomer(appCtx appcontext.AppContext, customerI
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, customerID)
 	} else {

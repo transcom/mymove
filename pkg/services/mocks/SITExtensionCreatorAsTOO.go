@@ -21,6 +21,10 @@ func (_m *SITExtensionCreatorAsTOO) CreateSITExtensionAsTOO(appCtx appcontext.Ap
 	ret := _m.Called(appCtx, sitExtension, shipmentID, eTag)
 
 	var r0 *models.MTOShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.SITExtension, uuid.UUID, string) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, sitExtension, shipmentID, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.SITExtension, uuid.UUID, string) *models.MTOShipment); ok {
 		r0 = rf(appCtx, sitExtension, shipmentID, eTag)
 	} else {
@@ -29,7 +33,6 @@ func (_m *SITExtensionCreatorAsTOO) CreateSITExtensionAsTOO(appCtx appcontext.Ap
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.SITExtension, uuid.UUID, string) error); ok {
 		r1 = rf(appCtx, sitExtension, shipmentID, eTag)
 	} else {

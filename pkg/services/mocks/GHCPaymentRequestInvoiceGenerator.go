@@ -21,13 +21,16 @@ func (_m *GHCPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppConte
 	ret := _m.Called(appCtx, paymentRequest, sendProductionInvoice)
 
 	var r0 ediinvoice.Invoice858C
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentRequest, bool) (ediinvoice.Invoice858C, error)); ok {
+		return rf(appCtx, paymentRequest, sendProductionInvoice)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentRequest, bool) ediinvoice.Invoice858C); ok {
 		r0 = rf(appCtx, paymentRequest, sendProductionInvoice)
 	} else {
 		r0 = ret.Get(0).(ediinvoice.Invoice858C)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PaymentRequest, bool) error); ok {
 		r1 = rf(appCtx, paymentRequest, sendProductionInvoice)
 	} else {

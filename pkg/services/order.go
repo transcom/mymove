@@ -15,7 +15,7 @@ import (
 
 // OrderFetcher is the service object interface for FetchOrder
 //
-//go:generate mockery --name OrderFetcher --disable-version-string
+//go:generate mockery --name OrderFetcher
 type OrderFetcher interface {
 	FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error)
 	ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, int, error)
@@ -23,7 +23,7 @@ type OrderFetcher interface {
 
 // OrderUpdater is the service object interface for updating fields of an Order
 //
-//go:generate mockery --name OrderUpdater --disable-version-string
+//go:generate mockery --name OrderUpdater
 type OrderUpdater interface {
 	UploadAmendedOrdersAsCustomer(appCtx appcontext.AppContext, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error)
 	UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.UpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error)
@@ -34,7 +34,7 @@ type OrderUpdater interface {
 
 // ExcessWeightRiskManager is the service object interface for updating the max billable weight for an Order's Entitlement
 //
-//go:generate mockery --name ExcessWeightRiskManager --disable-version-string
+//go:generate mockery --name ExcessWeightRiskManager
 type ExcessWeightRiskManager interface {
 	AcknowledgeExcessWeightRisk(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string) (*models.Move, error)
 	UpdateBillableWeightAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, weight *int, eTag string) (*models.Order, uuid.UUID, error)

@@ -658,11 +658,7 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 		},
 	})
 
-	csService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeCS,
-		},
-	})
+	csService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 	csTaskOrderFee := models.ReTaskOrderFee{
 		ContractYearID: contractYear.ID,
 		ServiceID:      csService.ID,
@@ -670,11 +666,7 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 	}
 	suite.MustSave(&csTaskOrderFee)
 
-	msService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeMS,
-		},
-	})
+	msService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 	msTaskOrderFee := models.ReTaskOrderFee{
 		ContractYearID: contractYear.ID,
 		ServiceID:      msService.ID,
@@ -780,6 +772,100 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		suite.NotEmpty(typedResponse.Payload.ID.String(), "valid payload ID string")
 		suite.NotEmpty(typedResponse.Payload.MoveTaskOrderID.String(), "valid MTO ID")
 		suite.NotEmpty(typedResponse.Payload.PaymentRequestNumber, "valid Payment Request Number")
+	})
+
+	suite.Run("fail to create payment request with submitted (not yet approved) service item", func() {
+		move, mtoServiceItems := suite.setupDomesticLinehaulData()
+		moveTaskOrderID := move.ID
+		mtoServiceItems[0].Status = models.MTOServiceItemStatusSubmitted
+		suite.MustSave(&mtoServiceItems[0])
+
+		requestUser := factory.BuildUser(nil, nil, nil)
+
+		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		planner := &routemocks.Planner{}
+
+		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
+			planner,
+			ghcrateengine.NewServiceItemPricer(),
+		)
+
+		handler := CreatePaymentRequestHandler{
+			suite.HandlerConfig(),
+			paymentRequestCreator,
+		}
+
+		params := paymentrequestop.CreatePaymentRequestParams{
+			HTTPRequest: req,
+			Body: &primemessages.CreatePaymentRequest{
+				IsFinal:         swag.Bool(false),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
+				ServiceItems: []*primemessages.ServiceItem{
+					{
+						ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
+					},
+					{
+						ID: *handlers.FmtUUID(mtoServiceItems[1].ID),
+					},
+				},
+				PointOfContact: "user@prime.com",
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestConflict{}, response)
+	})
+
+	suite.Run("fail to create payment request with rejected service item", func() {
+		move, mtoServiceItems := suite.setupDomesticLinehaulData()
+		moveTaskOrderID := move.ID
+		mtoServiceItems[0].Status = models.MTOServiceItemStatusRejected
+		suite.MustSave(&mtoServiceItems[0])
+
+		requestUser := factory.BuildUser(nil, nil, nil)
+
+		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		planner := &routemocks.Planner{}
+
+		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
+			planner,
+			ghcrateengine.NewServiceItemPricer(),
+		)
+
+		handler := CreatePaymentRequestHandler{
+			suite.HandlerConfig(),
+			paymentRequestCreator,
+		}
+
+		params := paymentrequestop.CreatePaymentRequestParams{
+			HTTPRequest: req,
+			Body: &primemessages.CreatePaymentRequest{
+				IsFinal:         swag.Bool(false),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
+				ServiceItems: []*primemessages.ServiceItem{
+					{
+						ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
+					},
+					{
+						ID: *handlers.FmtUUID(mtoServiceItems[1].ID),
+					},
+				},
+				PointOfContact: "user@prime.com",
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestConflict{}, response)
 	})
 }
 

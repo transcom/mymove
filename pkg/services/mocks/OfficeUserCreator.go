@@ -23,6 +23,11 @@ func (_m *OfficeUserCreator) CreateOfficeUser(appCtx appcontext.AppContext, user
 	ret := _m.Called(appCtx, user, transportationIDFilter)
 
 	var r0 *models.OfficeUser
+	var r1 *validate.Errors
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.OfficeUser, []services.QueryFilter) (*models.OfficeUser, *validate.Errors, error)); ok {
+		return rf(appCtx, user, transportationIDFilter)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.OfficeUser, []services.QueryFilter) *models.OfficeUser); ok {
 		r0 = rf(appCtx, user, transportationIDFilter)
 	} else {
@@ -31,7 +36,6 @@ func (_m *OfficeUserCreator) CreateOfficeUser(appCtx appcontext.AppContext, user
 		}
 	}
 
-	var r1 *validate.Errors
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.OfficeUser, []services.QueryFilter) *validate.Errors); ok {
 		r1 = rf(appCtx, user, transportationIDFilter)
 	} else {
@@ -40,7 +44,6 @@ func (_m *OfficeUserCreator) CreateOfficeUser(appCtx appcontext.AppContext, user
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *models.OfficeUser, []services.QueryFilter) error); ok {
 		r2 = rf(appCtx, user, transportationIDFilter)
 	} else {

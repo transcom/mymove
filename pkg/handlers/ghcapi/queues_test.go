@@ -583,23 +583,25 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	hhgMoveType := models.SelectedMoveTypeHHG
 	// Default Origin Duty Location GBLOC is LKNQ
 
-	serviceMember1 := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
-		Stub: true,
-		ServiceMember: models.ServiceMember{
-			FirstName: models.StringPointer("Zoya"),
-			LastName:  models.StringPointer("Darvish"),
-			Edipi:     models.StringPointer("11111"),
+	serviceMember1 := factory.BuildServiceMember(nil, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				FirstName: models.StringPointer("Zoya"),
+				LastName:  models.StringPointer("Darvish"),
+				Edipi:     models.StringPointer("11111"),
+			},
 		},
-	})
+	}, nil)
 
-	serviceMember2 := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
-		Stub: true,
-		ServiceMember: models.ServiceMember{
-			FirstName: models.StringPointer("Owen"),
-			LastName:  models.StringPointer("Nance"),
-			Edipi:     models.StringPointer("22222"),
+	serviceMember2 := factory.BuildServiceMember(nil, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				FirstName: models.StringPointer("Owen"),
+				LastName:  models.StringPointer("Nance"),
+				Edipi:     models.StringPointer("22222"),
+			},
 		},
-	})
+	}, nil)
 
 	move1 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
@@ -806,7 +808,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
-	serviceUser := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 	serviceUser.User.Roles = append(serviceUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeCustomer,
 	})
@@ -1173,8 +1175,9 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: subtestData.needsCounselingMove,
 		MTOShipment: models.MTOShipment{
-			RequestedPickupDate: &requestedPickupDate,
-			Status:              models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedPickupDate,
+			Status:                models.MTOShipmentStatusSubmitted,
 		},
 	})
 
@@ -1185,8 +1188,9 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	subtestData.needsCounselingEarliestShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: subtestData.needsCounselingMove,
 		MTOShipment: models.MTOShipment{
-			RequestedPickupDate: &earlierRequestedPickup,
-			Status:              models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &earlierRequestedPickup,
+			RequestedDeliveryDate: &requestedPickupDate,
+			Status:                models.MTOShipmentStatusSubmitted,
 		},
 	})
 

@@ -28,16 +28,18 @@ type FuelEIADieselPrice struct {
 	BaselineRate                int64           `json:"baseline_rate" db:"baseline_rate"`
 }
 
-// String is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (f FuelEIADieselPrice) TableName() string {
+	return "fuel_eia_diesel_prices"
+}
+
 func (f FuelEIADieselPrice) String() string {
 	jf, _ := json.Marshal(f)
 	return string(jf)
 }
 
-// FuelEIADieselPrices is not required by pop and may be deleted
 type FuelEIADieselPrices []FuelEIADieselPrice
 
-// String is not required by pop and may be deleted
 func (f FuelEIADieselPrices) String() string {
 	jf, _ := json.Marshal(f)
 	return string(jf)
@@ -59,7 +61,6 @@ func FetchMostRecentFuelPrices(dbConnection *pop.Connection, clock clock.Clock, 
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (f *FuelEIADieselPrice) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.TimeIsPresent{Field: f.PubDate, Name: "PubDate"},
@@ -72,16 +73,4 @@ func (f *FuelEIADieselPrice) Validate(tx *pop.Connection) (*validate.Errors, err
 			FirstTime: f.RateEndDate, FirstName: "RateEndDate",
 			SecondTime: f.RateStartDate, SecondName: "RateStartDate"},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (f *FuelEIADieselPrice) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (f *FuelEIADieselPrice) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }

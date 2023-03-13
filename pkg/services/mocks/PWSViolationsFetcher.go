@@ -19,6 +19,10 @@ func (_m *PWSViolationsFetcher) GetPWSViolations(appCtx appcontext.AppContext) (
 	ret := _m.Called(appCtx)
 
 	var r0 *models.PWSViolations
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) (*models.PWSViolations, error)); ok {
+		return rf(appCtx)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext) *models.PWSViolations); ok {
 		r0 = rf(appCtx)
 	} else {
@@ -27,7 +31,6 @@ func (_m *PWSViolationsFetcher) GetPWSViolations(appCtx appcontext.AppContext) (
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext) error); ok {
 		r1 = rf(appCtx)
 	} else {

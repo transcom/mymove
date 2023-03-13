@@ -21,13 +21,16 @@ func (_m *TransportationServiceProviderPerformanceFetcher) FetchTransportationSe
 	ret := _m.Called(appCtx, filters)
 
 	var r0 models.TransportationServiceProviderPerformance
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) (models.TransportationServiceProviderPerformance, error)); ok {
+		return rf(appCtx, filters)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) models.TransportationServiceProviderPerformance); ok {
 		r0 = rf(appCtx, filters)
 	} else {
 		r0 = ret.Get(0).(models.TransportationServiceProviderPerformance)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []services.QueryFilter) error); ok {
 		r1 = rf(appCtx, filters)
 	} else {

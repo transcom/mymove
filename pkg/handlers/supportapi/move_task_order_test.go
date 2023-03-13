@@ -226,7 +226,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Create the objects that are already in the db
 		destinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		originDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
-		customer := testdatagen.MakeDefaultServiceMember(suite.DB())
+		customer := factory.BuildServiceMember(suite.DB(), nil, nil)
 		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		document := testdatagen.MakeDefaultDocument(suite.DB())
 

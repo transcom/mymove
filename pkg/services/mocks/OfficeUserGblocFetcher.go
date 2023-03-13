@@ -19,13 +19,16 @@ func (_m *OfficeUserGblocFetcher) FetchGblocForOfficeUser(appCtx appcontext.AppC
 	ret := _m.Called(appCtx, id)
 
 	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (string, error)); ok {
+		return rf(appCtx, id)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) string); ok {
 		r0 = rf(appCtx, id)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, id)
 	} else {

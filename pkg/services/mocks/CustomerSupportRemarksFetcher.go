@@ -19,6 +19,10 @@ func (_m *CustomerSupportRemarksFetcher) ListCustomerSupportRemarks(appCtx appco
 	ret := _m.Called(appCtx, moveCode)
 
 	var r0 *models.CustomerSupportRemarks
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string) (*models.CustomerSupportRemarks, error)); ok {
+		return rf(appCtx, moveCode)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string) *models.CustomerSupportRemarks); ok {
 		r0 = rf(appCtx, moveCode)
 	} else {
@@ -27,7 +31,6 @@ func (_m *CustomerSupportRemarksFetcher) ListCustomerSupportRemarks(appCtx appco
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string) error); ok {
 		r1 = rf(appCtx, moveCode)
 	} else {

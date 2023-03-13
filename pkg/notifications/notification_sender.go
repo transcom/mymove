@@ -33,7 +33,7 @@ type emailContent struct {
 
 // NotificationSender is an interface for sending notifications
 //
-//go:generate mockery --name NotificationSender --disable-version-string
+//go:generate mockery --name NotificationSender
 type NotificationSender interface {
 	SendNotification(appCtx appcontext.AppContext, notification Notification) error
 }

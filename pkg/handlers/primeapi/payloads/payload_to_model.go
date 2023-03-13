@@ -138,8 +138,8 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 		model.ShipmentType = models.MTOShipmentType(*mtoShipment.ShipmentType)
 	}
 
-	if mtoShipment.PrimeEstimatedWeight > 0 {
-		estimatedWeight := unit.Pound(mtoShipment.PrimeEstimatedWeight)
+	if mtoShipment.PrimeEstimatedWeight != nil {
+		estimatedWeight := unit.Pound(*mtoShipment.PrimeEstimatedWeight)
 		model.PrimeEstimatedWeight = &estimatedWeight
 		recordedDate := time.Now()
 		model.PrimeEstimatedWeightRecordedDate = &recordedDate
@@ -245,8 +245,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mt
 		CounselorRemarks:           mtoShipment.CounselorRemarks,
 	}
 
-	if mtoShipment.PrimeActualWeight > 0 {
-		actualWeight := unit.Pound(mtoShipment.PrimeActualWeight)
+	if mtoShipment.PrimeActualWeight != nil {
+		actualWeight := unit.Pound(*mtoShipment.PrimeActualWeight)
 		model.PrimeActualWeight = &actualWeight
 	}
 
@@ -255,8 +255,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mt
 		model.NTSRecordedWeight = &ntsRecordedWeight
 	}
 
-	if mtoShipment.PrimeEstimatedWeight > 0 {
-		estimatedWeight := unit.Pound(mtoShipment.PrimeEstimatedWeight)
+	if mtoShipment.PrimeEstimatedWeight != nil {
+		estimatedWeight := unit.Pound(*mtoShipment.PrimeEstimatedWeight)
 		model.PrimeEstimatedWeight = &estimatedWeight
 	}
 

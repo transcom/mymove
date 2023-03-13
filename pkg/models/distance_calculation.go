@@ -29,6 +29,11 @@ type DistanceCalculation struct {
 	UpdatedAt            time.Time `json:"updated_at" db:"updated_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (d DistanceCalculation) TableName() string {
+	return "distance_calculations"
+}
+
 // NewDistanceCalculation performs a distance calculation and returns the resulting DistanceCalculation model
 func NewDistanceCalculation(appCtx appcontext.AppContext, planner distanceCalculator, origin Address, destination Address, useZipOnly bool) (DistanceCalculation, error) {
 
@@ -56,7 +61,6 @@ func NewDistanceCalculation(appCtx appcontext.AppContext, planner distanceCalcul
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (d *DistanceCalculation) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: d.OriginAddressID, Name: "OriginAddressID"},

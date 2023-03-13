@@ -24,6 +24,10 @@ func (_m *MoveExcessWeightUploader) CreateExcessWeightUpload(appCtx appcontext.A
 	ret := _m.Called(appCtx, moveID, file, uploadFilename, uploadType)
 
 	var r0 *models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, io.ReadCloser, string, models.UploadType) (*models.Move, error)); ok {
+		return rf(appCtx, moveID, file, uploadFilename, uploadType)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, io.ReadCloser, string, models.UploadType) *models.Move); ok {
 		r0 = rf(appCtx, moveID, file, uploadFilename, uploadType)
 	} else {
@@ -32,7 +36,6 @@ func (_m *MoveExcessWeightUploader) CreateExcessWeightUpload(appCtx appcontext.A
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, io.ReadCloser, string, models.UploadType) error); ok {
 		r1 = rf(appCtx, moveID, file, uploadFilename, uploadType)
 	} else {

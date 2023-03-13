@@ -15,3 +15,8 @@ type UsersRoles struct {
 	UpdateAt  time.Time  `db:"updated_at"`
 	DeletedAt *time.Time `db:"deleted_at"`
 }
+
+// TableName overrides the table name used by Pop.
+func (u UsersRoles) TableName() string {
+	return "users_roles"
+}

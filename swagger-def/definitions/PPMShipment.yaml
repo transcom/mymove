@@ -122,13 +122,6 @@ properties:
     example: 4200
     x-nullable: true
     x-omitempty: false
-  netWeight:
-    description: >
-      The net weight of the shipment once it has been weighed.
-    type: integer
-    example: 4300
-    x-nullable: true
-    x-omitempty: false
   hasProGear:
     description: >
       Indicates whether PPM shipment has pro gear for themselves or their spouse.

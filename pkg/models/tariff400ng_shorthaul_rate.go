@@ -24,11 +24,14 @@ type Tariff400ngShorthaulRate struct {
 	EffectiveDateUpper time.Time  `json:"effective_date_upper" db:"effective_date_upper"`
 }
 
-// Tariff400ngShorthaulRates is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (t Tariff400ngShorthaulRate) TableName() string {
+	return "tariff400ng_shorthaul_rates"
+}
+
 type Tariff400ngShorthaulRates []Tariff400ngShorthaulRate
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (t *Tariff400ngShorthaulRate) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.IntIsGreaterThan{Field: t.RateCents.Int(), Name: "RateCents", Compared: -1},
@@ -41,18 +44,6 @@ func (t *Tariff400ngShorthaulRate) Validate(tx *pop.Connection) (*validate.Error
 			FirstTime: t.EffectiveDateUpper, FirstName: "EffectiveDateUpper",
 			SecondTime: t.EffectiveDateLower, SecondName: "EffectiveDateLower"},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (t *Tariff400ngShorthaulRate) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (t *Tariff400ngShorthaulRate) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }
 
 // FetchShorthaulRateCents returns the shorthaul rate for a given Centumweight-Miles

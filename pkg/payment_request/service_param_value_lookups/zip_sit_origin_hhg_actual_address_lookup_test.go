@@ -18,13 +18,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGActualAddressLook
 
 	setupTestData := func() {
 
-		reService := testdatagen.FetchOrMakeReService(suite.DB(),
-			testdatagen.Assertions{
-				ReService: models.ReService{
-					Code: models.ReServiceCodeDOFSIT,
-				},
-			},
-		)
+		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		originAddress := factory.BuildAddress(suite.DB(),
 			[]factory.Customization{

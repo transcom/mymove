@@ -12,7 +12,7 @@ type OfficeFetcher interface {
 
 // OfficeListFetcher is the exported interface for fetching multiple transportation offices
 //
-//go:generate mockery --name OfficeListFetcher --disable-version-string
+//go:generate mockery --name OfficeListFetcher
 type OfficeListFetcher interface {
 	FetchOfficeList(appCtx appcontext.AppContext, filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.TransportationOffices, error)
 	FetchOfficeCount(appCtx appcontext.AppContext, filters []QueryFilter) (int, error)

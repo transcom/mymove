@@ -168,7 +168,7 @@ func (h DeleteProGearWeightTicketHandler) Handle(params progearops.DeleteProGear
 			err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
 				EagerPreload(
 					"Shipment.MoveTaskOrder.Orders",
-					"ProgearExpenses",
+					"ProgearWeightTickets",
 				).
 				Find(&ppmShipment, ppmID)
 			if err != nil {
@@ -184,7 +184,7 @@ func (h DeleteProGearWeightTicketHandler) Handle(params progearops.DeleteProGear
 			}
 			progearWeightTicketID := uuid.FromStringOrNil(params.ProGearWeightTicketID.String())
 			found := false
-			for _, lineItem := range ppmShipment.ProgearExpenses {
+			for _, lineItem := range ppmShipment.ProgearWeightTickets {
 				if lineItem.ID == progearWeightTicketID {
 					found = true
 					break

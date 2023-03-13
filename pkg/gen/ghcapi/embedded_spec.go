@@ -1058,7 +1058,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.MTOServiceItem"
+        ]
       },
       "parameters": [
         {
@@ -5902,6 +5905,12 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualDeliveryDate": {
+          "description": "The actual date that the shipment was delivered to the destination address by the Prime",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "actualPickupDate": {
           "type": "string",
           "format": "date",
@@ -6011,11 +6020,13 @@ func init() {
         },
         "requestedDeliveryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "requestedPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "requiredDeliveryDate": {
           "type": "string",
@@ -7069,13 +7080,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/MovingExpense"
           }
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weighed.\n",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
@@ -8694,12 +8698,6 @@ func init() {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weighed\n",
-          "type": "integer",
-          "x-nullable": true,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "zip code",
@@ -10673,7 +10671,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.MTOServiceItem"
+        ]
       },
       "parameters": [
         {
@@ -16353,6 +16354,12 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualDeliveryDate": {
+          "description": "The actual date that the shipment was delivered to the destination address by the Prime",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "actualPickupDate": {
           "type": "string",
           "format": "date",
@@ -16462,11 +16469,13 @@ func init() {
         },
         "requestedDeliveryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "requestedPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "requiredDeliveryDate": {
           "type": "string",
@@ -17520,13 +17529,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/MovingExpense"
           }
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weighed.\n",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
@@ -19153,12 +19155,6 @@ func init() {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weighed\n",
-          "type": "integer",
-          "x-nullable": true,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "zip code",

@@ -27,6 +27,11 @@ func (_m *UserSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext,
 	ret := _m.Called(appCtx, id, payload, sessionManagers)
 
 	var r0 *models.User
+	var r1 *validate.Errors
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *adminmessages.UserUpdate, auth.AppSessionManagers) (*models.User, *validate.Errors, error)); ok {
+		return rf(appCtx, id, payload, sessionManagers)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *adminmessages.UserUpdate, auth.AppSessionManagers) *models.User); ok {
 		r0 = rf(appCtx, id, payload, sessionManagers)
 	} else {
@@ -35,7 +40,6 @@ func (_m *UserSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext,
 		}
 	}
 
-	var r1 *validate.Errors
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *adminmessages.UserUpdate, auth.AppSessionManagers) *validate.Errors); ok {
 		r1 = rf(appCtx, id, payload, sessionManagers)
 	} else {
@@ -44,7 +48,6 @@ func (_m *UserSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext,
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *adminmessages.UserUpdate, auth.AppSessionManagers) error); ok {
 		r2 = rf(appCtx, id, payload, sessionManagers)
 	} else {

@@ -917,6 +917,138 @@ func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUpl
 	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
 }
 
+func createApprovedMoveWithPPMExcessWeight(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveInfo MoveCreatorInfo) (models.Move, models.PPMShipment) {
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          uuid.Must(uuid.NewV4()),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			AdvanceStatus:               (*models.PPMAdvanceStatus)(models.StringPointer(string(models.PPMAdvanceStatusApproved))),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	weightTicketAssertions := testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		WeightTicket: models.WeightTicket{
+			EmptyWeight: models.PoundPointer(unit.Pound(1000)),
+			FullWeight:  models.PoundPointer(unit.Pound(20000)),
+		},
+	}
+	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+
+	return move, shipment
+}
+
+func createApprovedMoveWithPPMExcessWeightsAnd2WeightTickets(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	move, shipment := createApprovedMoveWithPPMExcessWeight(appCtx, userUploader,
+		MoveCreatorInfo{
+			UserID:      uuid.Must(uuid.NewV4()),
+			Email:       "excessweights2WTs@ppm.approved",
+			SmID:        uuid.Must(uuid.NewV4()),
+			FirstName:   "Two Weight Tickets",
+			LastName:    "ExcessWeights",
+			MoveID:      uuid.Must(uuid.NewV4()),
+			MoveLocator: "XSWT02",
+		})
+	secondWeightTicketAssertions := testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		WeightTicket: models.WeightTicket{
+			EmptyWeight: models.PoundPointer(unit.Pound(1000)),
+			FullWeight:  models.PoundPointer(unit.Pound(20000)),
+		},
+	}
+	testdatagen.MakeWeightTicket(appCtx.DB(), secondWeightTicketAssertions)
+}
+
+func createApprovedMoveWith2PPMShipmentsAndExcessWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	move, _ := createApprovedMoveWithPPMExcessWeight(appCtx, userUploader,
+		MoveCreatorInfo{
+			UserID:      uuid.Must(uuid.NewV4()),
+			Email:       "excessweights2PPMs@ppm.approved",
+			SmID:        uuid.Must(uuid.NewV4()),
+			FirstName:   "Two PPMs",
+			LastName:    "ExcessWeights",
+			MoveID:      uuid.Must(uuid.NewV4()),
+			MoveLocator: "XSWT03",
+		})
+	secondPPMShipment := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		PPMShipment: models.PPMShipment{
+			ID: uuid.Must(uuid.NewV4()),
+		},
+	})
+	secondWeightTicketAssertions := testdatagen.Assertions{
+		PPMShipment:   secondPPMShipment,
+		ServiceMember: move.Orders.ServiceMember,
+		WeightTicket: models.WeightTicket{
+			EmptyWeight: models.PoundPointer(unit.Pound(1000)),
+			FullWeight:  models.PoundPointer(unit.Pound(20000)),
+		},
+	}
+	testdatagen.MakeWeightTicket(appCtx.DB(), secondWeightTicketAssertions)
+}
+
+func createApprovedMoveWithPPMAndHHGShipmentsAndExcessWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	move, _ := createApprovedMoveWithPPMExcessWeight(appCtx, userUploader,
+		MoveCreatorInfo{
+			UserID:      uuid.Must(uuid.NewV4()),
+			Email:       "excessweightsPPMandHHG@ppm.approved",
+			SmID:        uuid.Must(uuid.NewV4()),
+			FirstName:   "PPM & HHG",
+			LastName:    "ExcessWeights",
+			MoveID:      uuid.Must(uuid.NewV4()),
+			MoveLocator: "XSWT04",
+		})
+	testdatagen.MakeBaseMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+}
+func createApprovedMoveWithAllShipmentTypesAndExcessWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	move, _ := createApprovedMoveWithPPMExcessWeight(appCtx, userUploader,
+		MoveCreatorInfo{
+			UserID:      uuid.Must(uuid.NewV4()),
+			Email:       "excessweightsPPMandHHG@ppm.approved",
+			SmID:        uuid.Must(uuid.NewV4()),
+			FirstName:   "PPM & HHG",
+			LastName:    "ExcessWeights",
+			MoveID:      uuid.Must(uuid.NewV4()),
+			MoveLocator: "XSWT05",
+		})
+	testdatagen.MakeBaseMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+	testdatagen.MakeBaseMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+	testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+	testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+}
+
 func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := MoveCreatorInfo{
 		UserID:      testdatagen.ConvertUUIDStringToUUID("f8af6fb0-101e-489c-9d9c-051931c52cf7"),
@@ -4141,11 +4273,13 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	db := appCtx.DB()
 	msCost := unit.Cents(10000)
 
-	customer8 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("9e8da3c7-ffe5-4f7f-b45a-8f01ccc56591"),
+	customer8 := factory.BuildServiceMember(db, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: uuid.FromStringOrNil("9e8da3c7-ffe5-4f7f-b45a-8f01ccc56591"),
+			},
 		},
-	})
+	}, nil)
 	orders8 := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("1d49bb07-d9dd-4308-934d-baad94f2de9b"),
@@ -4480,11 +4614,13 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	/* Customer with two payment requests */
-	customer7 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
+	customer7 := factory.BuildServiceMember(db, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
+			},
 		},
-	})
+	}, nil)
 
 	orders7 := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
@@ -6274,12 +6410,12 @@ func createTXO(appCtx appcontext.AppContext) {
 			},
 		},
 	}, nil)
-	testdatagen.MakeServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			User:   user,
-			UserID: user.ID,
+	factory.BuildServiceMember(db, []factory.Customization{
+		{
+			Model:    user,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 }
 
 func createTXOUSMC(appCtx appcontext.AppContext) {
