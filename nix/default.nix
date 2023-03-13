@@ -60,15 +60,13 @@ buildEnv {
       })
       { }).postgresql_12
 
-    (import
-      (builtins.fetchGit {
-        # Descriptive name to make the store path easier to identify
-        name = "python3.10-pre-commit-2.20.0";
-        url = "https://github.com/NixOS/nixpkgs/";
-        ref = "refs/heads/nixpkgs-unstable";
-        rev = "cd8d1784506a7c7eb0796772b73437e0b82fad57";
-      })
-      { }).pre-commit
+    (import (builtins.fetchGit {
+          # Descriptive name to make the store path easier to identify
+          name = "pre-commit-3.1.0";
+          url = "https://github.com/NixOS/nixpkgs/";
+          ref = "refs/heads/nixpkgs-unstable";
+          rev = "796b4a3c1d903c4b9270cd2548fe46f524eeb886";
+        }) {}).pre-commit
 
     (import
       (builtins.fetchGit {
