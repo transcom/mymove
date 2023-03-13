@@ -59,10 +59,10 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 	var distanceMiles int
 	if pickupZip == destinationZip {
 		distanceMiles = 1
-		return strconv.Itoa(distanceMiles), nil
+	} else {
+		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip)
 	}
 
-	distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip)
 	if err != nil {
 		return "", err
 	}
