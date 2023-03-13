@@ -29,20 +29,27 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 				},
 			},
 		}, nil)
-		serviceMember := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				FirstName:          swag.String("Gregory"),
-				LastName:           swag.String("Van der Heide"),
-				Telephone:          swag.String("999-999-9999"),
-				SecondaryTelephone: swag.String("123-555-9999"),
-				PersonalEmail:      swag.String("peyton@example.com"),
-
-				ResidentialAddressID:   &validAddress1.ID,
-				ResidentialAddress:     &validAddress1,
-				BackupMailingAddressID: &validAddress2.ID,
-				BackupMailingAddress:   &validAddress2,
+		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName:          models.StringPointer("Gregory"),
+					LastName:           models.StringPointer("Van der Heide"),
+					Telephone:          models.StringPointer("999-999-9999"),
+					SecondaryTelephone: models.StringPointer("123-555-9999"),
+					PersonalEmail:      models.StringPointer("peyton@example.com"),
+				},
 			},
-		})
+			{
+				Model:    validAddress1,
+				Type:     &factory.Addresses.ResidentialAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    validAddress2,
+				Type:     &factory.Addresses.BackupMailingAddress,
+				LinkOnly: true,
+			},
+		}, nil)
 		return serviceMember
 	}
 
@@ -131,17 +138,26 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeServic
 				},
 			},
 		}, nil)
-		sm := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				FirstName:            swag.String("Peyton"),
-				LastName:             swag.String("Wing"),
-				Telephone:            swag.String("999-999-9999"),
-				SecondaryTelephone:   swag.String("999-999-9999"),
-				PersonalEmail:        swag.String("peyton@example.com"),
-				ResidentialAddress:   &address1,
-				BackupMailingAddress: &address2,
-			}},
-		)
+		sm := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName:          models.StringPointer("Peyton"),
+					LastName:           models.StringPointer("Wing"),
+					Telephone:          models.StringPointer("999-999-9999"),
+					SecondaryTelephone: models.StringPointer("999-999-9999"),
+					PersonalEmail:      models.StringPointer("peyton@example.com"),
+				},
+			},
+			{
+				Model:    address1,
+				Type:     &factory.Addresses.ResidentialAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    address2,
+				Type:     &factory.Addresses.BackupMailingAddress,
+				LinkOnly: true,
+			}}, nil)
 		result, reasons, err := IsValidFakeModelServiceMember(sm)
 		suite.NoError(err)
 		suite.Equal(true, result)
@@ -191,34 +207,47 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeServic
 				},
 			},
 		}, nil)
-		validServiceMemberAssertions := testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				FirstName:            swag.String("Peyton"),
-				LastName:             swag.String("Wing"),
-				Telephone:            swag.String("999-999-9999"),
-				SecondaryTelephone:   swag.String("999-999-9999"),
-				PersonalEmail:        swag.String("peyton@example.com"),
-				ResidentialAddress:   &address1,
-				BackupMailingAddress: &address2,
-			}}
-		invalidData := validServiceMemberAssertions
-		if index == 0 {
-			invalidData.ServiceMember.FirstName = swag.String("Britney")
-		} else if index == 1 {
-			invalidData.ServiceMember.LastName = swag.String("Spears")
-		} else if index == 2 {
-			invalidData.ServiceMember.Telephone = swag.String("415-275-9467")
-		} else if index == 3 {
-			invalidData.ServiceMember.SecondaryTelephone = swag.String("510-607-4545")
-		} else if index == 4 {
-			invalidData.ServiceMember.PersonalEmail = swag.String("peyton@gmail.com")
-		} else if index == 5 {
-			invalidData.ServiceMember.ResidentialAddress = &invalidAddress1
-		} else if index == 6 {
-			invalidData.ServiceMember.BackupMailingAddress = &invalidAddress2
+		validServiceMember := models.ServiceMember{
+			FirstName:          models.StringPointer("Peyton"),
+			LastName:           models.StringPointer("Wing"),
+			Telephone:          models.StringPointer("999-999-9999"),
+			SecondaryTelephone: models.StringPointer("999-999-9999"),
+			PersonalEmail:      models.StringPointer("peyton@example.com"),
 		}
 
-		invalidSm := testdatagen.MakeServiceMember(suite.DB(), invalidData)
+		invalidData := validServiceMember
+		invalidResAddress := address1
+		invalidBackupAddress := address2
+
+		if index == 0 {
+			invalidData.FirstName = models.StringPointer("Britney")
+		} else if index == 1 {
+			invalidData.LastName = models.StringPointer("Spears")
+		} else if index == 2 {
+			invalidData.Telephone = models.StringPointer("415-275-9467")
+		} else if index == 3 {
+			invalidData.SecondaryTelephone = models.StringPointer("510-607-4545")
+		} else if index == 4 {
+			invalidData.PersonalEmail = models.StringPointer("peyton@gmail.com")
+		} else if index == 5 {
+			invalidResAddress = invalidAddress1
+		} else if index == 6 {
+			invalidBackupAddress = invalidAddress2
+		}
+
+		invalidSm := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{Model: invalidData},
+			{
+				Model:    invalidResAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.ResidentialAddress,
+			},
+			{
+				Model:    invalidBackupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.BackupMailingAddress,
+			},
+		}, nil)
 		return invalidSm, invalidFields[index]
 	}
 

@@ -29,11 +29,13 @@ jest.mock('react-router-dom', () => ({
 
 const mockPatchWeightTicket = jest.fn();
 const mockPatchExpense = jest.fn();
+const mockPatchProGear = jest.fn();
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   patchWeightTicket: (options) => mockPatchWeightTicket(options),
   patchExpense: (options) => mockPatchExpense(options),
+  patchProGearWeightTicket: (options) => mockPatchProGear(options),
 }));
 
 // prevents react-fileviewer from throwing errors without mocking relevant DOM elements
@@ -351,26 +353,16 @@ describe('ReviewDocuments', () => {
       expect(screen.getByRole('heading', { level: 2, name: '1 of 3 Document Sets' })).toBeInTheDocument();
     });
 
-    // TODO: This test doesn't reflect what we actually want to do, but it does reflect what we're doing right now and
-    //  ensures the app doesn't fail. As we implement the progear and moving expenses, we can update this test to
-    //  reflect the actual behavior, or remove it in favor of other ones.
     it('handles moving from weight tickets the summary page when there are multiple types of documents', async () => {
-      // TODO: this is being used to test expenses without proGear implemented yet
-      const usePPMShipmentDocsQueriesReturnValueWithoutProGear = {
-        ...usePPMShipmentDocsQueriesReturnValueAllDocs,
-        mtoShipment,
-        documents: {
-          MovingExpenses: [...mtoShipment.ppmShipment.movingExpenses],
-          ProGearWeightTickets: [],
-          WeightTickets: [...mtoShipment.ppmShipment.weightTickets],
-        },
-      };
-
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithoutProGear);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
 
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
 
       expect(await screen.findByRole('heading', { name: 'Trip 1', level: 3 })).toBeInTheDocument();
+      await userEvent.click(screen.getByLabelText('Accept'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(await screen.findByRole('heading', { name: 'Pro-gear 1', level: 3 })).toBeInTheDocument();
       await userEvent.click(screen.getByLabelText('Accept'));
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
@@ -417,6 +409,35 @@ describe('ReviewDocuments', () => {
       await userEvent.click(screen.getByLabelText('Exclude'));
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       expect(screen.getByText('Add a reason why this receipt is excluded')).toBeInTheDocument();
+    });
+
+    const usePPMShipmentDocsQueriesReturnValueProGearOnly = {
+      ...usePPMShipmentDocsQueriesReturnValueAllDocs,
+      mtoShipment,
+      documents: {
+        MovingExpenses: [],
+        ProGearWeightTickets: [...mtoShipment.ppmShipment.proGearWeightTickets],
+        WeightTickets: [],
+      },
+    };
+
+    it('shows an error when submitting without a status selected', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueProGearOnly);
+
+      render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      expect(screen.getByText('Reviewing this pro-gear is required')).toBeInTheDocument();
+    });
+
+    it('shows an error when pro-gear is rejected and submitted without a written reason', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueProGearOnly);
+
+      render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
+      const rejectionButton = screen.getByTestId('rejectRadio');
+      expect(rejectionButton).toBeInTheDocument();
+      await userEvent.click(rejectionButton);
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      expect(screen.getByText('Add a reason why this pro-gear is rejected'));
     });
   });
 });

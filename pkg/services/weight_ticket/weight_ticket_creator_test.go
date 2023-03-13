@@ -5,12 +5,13 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *WeightTicketSuite) TestWeightTicketCreator() {
 	suite.Run("Successfully creates a WeightTicket", func() {
-		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		session := &auth.Session{
 			ServiceMemberID: serviceMember.ID,
 		}
@@ -31,7 +32,7 @@ func (suite *WeightTicketSuite) TestWeightTicketCreator() {
 	})
 
 	suite.Run("Fails when an invalid ppmShipmentID is used", func() {
-		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		session := &auth.Session{
 			ServiceMemberID: serviceMember.ID,
 		}
