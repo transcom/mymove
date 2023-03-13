@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/spf13/cobra"
@@ -191,11 +192,10 @@ func convertPPMShipmentDocumentUploadsToPDF(appCtx appcontext.AppContext, ppmShi
 
 	userUploads := gatherPPMShipmentUploads(appCtx, ppmShipment)
 
+	pdfsToMerge := []io.ReadCloser{}
+
 	for _, userUpload := range userUploads {
 		userUpload := userUpload
-
-		// TODO: We'll want to handle things that are already PDFs, but for now, we'll assume everything needs to be
-		//  converted.
 
 		download, downloadErr := userUploader.Download(appCtx, &userUpload)
 
@@ -209,12 +209,55 @@ func convertPPMShipmentDocumentUploadsToPDF(appCtx appcontext.AppContext, ppmShi
 			}
 		}()
 
+		// No need to do anything to the file if it is already a PDF, so we'll add it to the running list and move on.
+		// I had thought about running them through the conversion anyways to get them into a consistent format
+		// ("PDF/A-1a"), but I'm getting an error for certain PDFs.
+		// Details on error: https://dp3.atlassian.net/browse/MB-15340?focusedCommentId=25982
+		if userUpload.Upload.ContentType == uploader.FileTypePDF {
+			pdfsToMerge = append(pdfsToMerge, download)
+
+			continue
+		}
+
 		fileName := filepath.Base(userUpload.Upload.Filename)
-		outputName := fmt.Sprintf("%s-%s.pdf", strings.TrimSuffix(fileName, filepath.Ext(fileName)), userUpload.ID.String())
-		outputPath := filepath.Join("tmp", outputName)
-		if conversionErr := convertFileToPDF(appCtx, download, fileName, outputPath); conversionErr != nil {
+
+		outputPdf, conversionErr := convertFileToPDF(appCtx, download, fileName)
+
+		if outputPdf != nil {
+			defer func() {
+				if err := outputPdf.Close(); err != nil {
+					appCtx.Logger().Error("Failed to close userUpload output PDF stream", zap.Error(err))
+				}
+			}()
+		}
+
+		if conversionErr != nil {
 			return conversionErr
 		}
+
+		pdfsToMerge = append(pdfsToMerge, outputPdf)
+	}
+
+	if len(pdfsToMerge) == 0 {
+		return nil
+	}
+
+	mergedPDF, mergeErr := mergePDFs(appCtx, pdfsToMerge)
+
+	if mergedPDF != nil {
+		defer func() {
+			if err := mergedPDF.Close(); err != nil {
+				appCtx.Logger().Error("Failed to close merged PDF stream", zap.Error(err))
+			}
+		}()
+	}
+
+	if mergeErr != nil {
+		return mergeErr
+	}
+
+	if err := writeToDisk(appCtx, mergedPDF, fmt.Sprintf("mergedPDF-%s.pdf", time.Now().String())); err != nil {
+		return err
 	}
 
 	return nil
@@ -248,54 +291,149 @@ func gatherPPMShipmentUploads(_ appcontext.AppContext, ppmShipment *models.PPMSh
 }
 
 // convertFileToPDF converts a file to a PDF.
-func convertFileToPDF(_ appcontext.AppContext, fileToConvert io.ReadCloser, fileName string, outputPath string) error {
+func convertFileToPDF(appCtx appcontext.AppContext, fileToConvert io.ReadCloser, fileName string) (io.ReadCloser, error) {
 	buf := new(bytes.Buffer)
 
 	writer := multipart.NewWriter(buf)
 
-	part, formFileErr := writer.CreateFormFile("file", fileName)
+	part, formFileErr := writer.CreateFormFile("files", fileName)
+
 	if formFileErr != nil {
-		return formFileErr
+		return nil, formFileErr
 	}
 
 	if _, err := io.Copy(part, fileToConvert); err != nil {
-		return err
+		return nil, err
 	}
 
-	if err := writer.WriteField("nativePdfFormat", "PDF/A-1a"); err != nil {
-		return err
+	// Note that this endpoint has a different field name for setting the format than the other endpoint.
+	if err := writer.WriteField("nativePdfFormat", uploader.AccessiblePDFFormat); err != nil {
+		return nil, err
 	}
 
 	if err := writer.Close(); err != nil {
-		return err
+		return nil, err
 	}
 
+	// endpoint docs: https://gotenberg.dev/docs/modules/libreoffice#route
 	req, requestErr := http.NewRequest("POST", "http://localhost:2000/forms/libreoffice/convert", buf)
 	if requestErr != nil {
-		return requestErr
+		return nil, requestErr
 	}
 
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	res, clientErr := http.DefaultClient.Do(req)
+
 	if clientErr != nil {
-		return clientErr
+		appCtx.Logger().Error("Failed to convert file to PDF", zap.Error(clientErr))
+
+		return nil, clientErr
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("bad status: %s", res.Status)
+		bodyBytes, readErr := io.ReadAll(res.Body)
+
+		var body string
+		if readErr != nil {
+			body = "failed to read body"
+		} else {
+			body = string(bodyBytes)
+		}
+
+		appCtx.Logger().Error(
+			"Did not get a 200 status code when converting to a PDF",
+			zap.Int("status code", res.StatusCode),
+			zap.String("status", res.Status),
+			zap.Any("body", body),
+		)
+
+		return nil, fmt.Errorf("bad status | code: %d | status: %s", res.StatusCode, res.Status)
 	}
 
-	defer res.Body.Close()
+	return res.Body, nil
+}
 
-	out, createErr := os.Create(outputPath)
+// mergePDFs merges a list of PDFs into a single PDF.
+func mergePDFs(appCtx appcontext.AppContext, pdfsToMerge []io.ReadCloser) (io.ReadCloser, error) {
+	buf := new(bytes.Buffer)
+
+	writer := multipart.NewWriter(buf)
+
+	for i, pdf := range pdfsToMerge {
+		pdf := pdf
+
+		part, formFileErr := writer.CreateFormFile("files", fmt.Sprintf("file-%d.pdf", i))
+
+		if formFileErr != nil {
+			return nil, formFileErr
+		}
+
+		if _, err := io.Copy(part, pdf); err != nil {
+			return nil, err
+		}
+	}
+
+	// Note that this endpoint has a different field name for setting the format than the other endpoint.
+	if err := writer.WriteField("pdfFormat", uploader.AccessiblePDFFormat); err != nil {
+		return nil, err
+	}
+
+	if err := writer.Close(); err != nil {
+		return nil, err
+	}
+
+	// endpoint docs: https://gotenberg.dev/docs/modules/pdf-engines#merge
+	req, requestErr := http.NewRequest("POST", "http://localhost:2000/forms/pdfengines/merge", buf)
+
+	if requestErr != nil {
+		return nil, requestErr
+	}
+
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	res, clientErr := http.DefaultClient.Do(req)
+
+	if clientErr != nil {
+		appCtx.Logger().Error("Failed to convert file to PDF", zap.Error(clientErr))
+
+		return nil, clientErr
+	}
+
+	if res.StatusCode != http.StatusOK {
+		bodyBytes, readErr := io.ReadAll(res.Body)
+
+		var body string
+		if readErr != nil {
+			body = "failed to read body"
+		} else {
+			body = string(bodyBytes)
+		}
+
+		appCtx.Logger().Error(
+			"Did not get a 200 status code when merging PDF files",
+			zap.Int("status code", res.StatusCode),
+			zap.String("status", res.Status),
+			zap.Any("body", body),
+		)
+
+		return nil, fmt.Errorf("bad status | code: %d | status: %s", res.StatusCode, res.Status)
+	}
+
+	return res.Body, nil
+}
+
+// writeToDisk writes a file to disk.
+func writeToDisk(_ appcontext.AppContext, fileToSave io.ReadCloser, fileName string) error {
+	out, createErr := os.Create(filepath.Join("tmp", fileName))
+
 	if createErr != nil {
 		return createErr
 	}
 
 	defer out.Close()
 
-	if _, err := io.Copy(out, res.Body); err != nil {
+	if _, err := io.Copy(out, fileToSave); err != nil {
 		return err
 	}
 
@@ -308,9 +446,10 @@ func cleanUp(appCtx appcontext.AppContext) {
 		if r := recover(); r != nil {
 			appCtx.Logger().Error(" panic", zap.Any("recover", r))
 		}
-		if appCtx.DB() != nil {
 
+		if appCtx.DB() != nil {
 			appCtx.Logger().Info("closing database connections")
+
 			if err := appCtx.DB().Close(); err != nil {
 				appCtx.Logger().Error("error closing database connections", zap.Error(err))
 			}
@@ -326,6 +465,7 @@ func execute() {
 }
 
 func main() {
+	// We need to initialize the flags before we execute the command, otherwise it won't know about the flags.
 	initUploadConverterFlags()
 
 	execute()
