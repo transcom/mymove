@@ -1024,12 +1024,12 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		serviceMember := move.Orders.ServiceMember
 		suite.NotNil(serviceMember)
 
-		backupContact := testdatagen.MakeBackupContact(suite.DB(), testdatagen.Assertions{
-			BackupContact: models.BackupContact{
-				ServiceMember:   serviceMember,
-				ServiceMemberID: serviceMember.ID,
+		backupContact := factory.BuildBackupContact(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 		suite.NotNil(backupContact)
 
 		foundBackupContact := false
