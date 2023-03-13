@@ -169,12 +169,13 @@ Orders.propTypes = {
   updateOrders: PropTypes.func.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
   currentDutyLocation: DutyLocationShape,
-  router: RouterShape.isRequired,
+  router: RouterShape,
 };
 
 Orders.defaultProps = {
   currentOrders: null,
   currentDutyLocation: {},
+  router: {},
 };
 
 const mapStateToProps = (state) => {

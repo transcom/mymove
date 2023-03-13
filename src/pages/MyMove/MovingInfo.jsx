@@ -120,11 +120,12 @@ MovingInfo.propTypes = {
   entitlementWeight: number,
   fetchLatestOrders: func.isRequired,
   serviceMemberId: string.isRequired,
-  router: RouterShape.isRequired,
+  router: RouterShape,
 };
 
 MovingInfo.defaultProps = {
   entitlementWeight: 0,
+  router: {},
 };
 
 function mapStateToProps(state) {

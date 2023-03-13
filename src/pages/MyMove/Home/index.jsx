@@ -571,7 +571,7 @@ Home.propTypes = {
   }),
   getSignedCertification: func.isRequired,
   updateShipmentList: func.isRequired,
-  router: RouterShape.isRequired,
+  router: RouterShape,
 };
 
 Home.defaultProps = {
@@ -579,6 +579,7 @@ Home.defaultProps = {
   serviceMember: null,
   signedCertification: {},
   uploadedAmendedOrderDocuments: [],
+  router: {},
 };
 
 const mapStateToProps = (state) => {
