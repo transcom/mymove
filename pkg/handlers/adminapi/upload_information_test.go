@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/factory"
 	uploadop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -19,7 +20,7 @@ import (
 
 func (suite *HandlerSuite) TestGetUploadHandler() {
 	setupTestData := func() (models.UserUpload, models.Move) {
-		sm := testdatagen.MakeDefaultServiceMember(suite.DB())
+		sm := factory.BuildServiceMember(suite.DB(), nil, nil)
 		suite.MustSave(&sm)
 
 		orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{

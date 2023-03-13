@@ -4273,11 +4273,13 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	db := appCtx.DB()
 	msCost := unit.Cents(10000)
 
-	customer8 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("9e8da3c7-ffe5-4f7f-b45a-8f01ccc56591"),
+	customer8 := factory.BuildServiceMember(db, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: uuid.FromStringOrNil("9e8da3c7-ffe5-4f7f-b45a-8f01ccc56591"),
+			},
 		},
-	})
+	}, nil)
 	orders8 := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("1d49bb07-d9dd-4308-934d-baad94f2de9b"),
@@ -4612,11 +4614,13 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	/* Customer with two payment requests */
-	customer7 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
+	customer7 := factory.BuildServiceMember(db, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
+			},
 		},
-	})
+	}, nil)
 
 	orders7 := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
@@ -6406,12 +6410,12 @@ func createTXO(appCtx appcontext.AppContext) {
 			},
 		},
 	}, nil)
-	testdatagen.MakeServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			User:   user,
-			UserID: user.ID,
+	factory.BuildServiceMember(db, []factory.Customization{
+		{
+			Model:    user,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 }
 
 func createTXOUSMC(appCtx appcontext.AppContext) {

@@ -17,6 +17,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -147,7 +148,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	_, params := createPrereqs(suite, FixturePDF)
 
 	// Create a user that is not associated with the move
-	otherUser := testdatagen.MakeDefaultServiceMember(suite.DB())
+	otherUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	response := makeRequest(suite, params, otherUser, fakeS3)
 	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
@@ -473,7 +474,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 		_, params := createPPMPrereqs(suite, FixtureXLS)
 
-		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 		response := makePPMRequest(suite, params, serviceMember, fakeS3)
 
