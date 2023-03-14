@@ -30,9 +30,10 @@ import (
 var root = &cobra.Command{
 	Use:   "convert-uploads-to-pdf",
 	Short: "Converts a PPM shipment's uploads to a PDF",
-	Long:  "Converts a PPM shipment's uploads to a PDF to include in AOA and payment packets.",
-	RunE:  runPPMShipmentDocumentUploadToPDFConverter,
-	Args:  cobra.NoArgs,
+	Long: "Converts a PPM shipment's uploads to PDF format, merges them all into a single PDF, and saves the merged " +
+		"PDF. This is part of the payment packet the customer needs to turn into the finance office.",
+	RunE: runPPMShipmentDocumentUploadToPDFConverter,
+	Args: cobra.NoArgs,
 }
 
 const PPMShipmentIDFlag string = "ppm-shipment-id"
@@ -80,7 +81,7 @@ func runPPMShipmentDocumentUploadToPDFConverter(cmd *cobra.Command, _ []string) 
 		logger.Fatal("Could not parse PPM shipment ID", zap.Error(err))
 	}
 
-	if err := convertPPMShipmentDocumentUploadsToPDF(appCtx, ppmShipmentID, userUploader); err != nil {
+	if err := convertPPMShipmentDocumentUploadsToPDF(appCtx, userUploader, ppmShipmentID); err != nil {
 		logger.Fatal("Could not convert uploads to PDF", zap.Error(err))
 	}
 
@@ -89,8 +90,8 @@ func runPPMShipmentDocumentUploadToPDFConverter(cmd *cobra.Command, _ []string) 
 	return nil
 }
 
-// initUploadConverterFlags initializes the flags needed for the command, including the flags specific to this command as well as the
-// database and logging flags.
+// initUploadConverterFlags initializes the flags needed for the command, including the flags specific to this command
+// as well as flags for the things we need, e.g. the database.
 func initUploadConverterFlags() {
 	flags := root.Flags()
 
@@ -181,9 +182,10 @@ func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 	return nil
 }
 
-// convertPPMShipmentDocumentUploadsToPDF converts a PPM shipment's document uploads to a PDF to include in AOA and
-// payment packets.
-func convertPPMShipmentDocumentUploadsToPDF(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, userUploader *uploader.UserUploader) error {
+// convertPPMShipmentDocumentUploadsToPDF converts a PPM shipment's document uploads to a PDFs, merges the PDFs into a
+// single one, and then saves the merged PDF. This merged PDF can be used for the payment packet the customer needs to
+// submit to the finance office.
+func convertPPMShipmentDocumentUploadsToPDF(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, ppmShipmentID uuid.UUID) error {
 	ppmShipment, err := ppmshipment.FindPPMShipment(appCtx, ppmShipmentID)
 
 	if err != nil {
@@ -192,56 +194,17 @@ func convertPPMShipmentDocumentUploadsToPDF(appCtx appcontext.AppContext, ppmShi
 
 	userUploads := gatherPPMShipmentUploads(appCtx, ppmShipment)
 
-	pdfsToMerge := []io.ReadCloser{}
+	pdfsToMerge, conversionErr := convertUserUploadsToPDFs(appCtx, userUploader, userUploads)
 
-	for _, userUpload := range userUploads {
-		userUpload := userUpload
-
-		download, downloadErr := userUploader.Download(appCtx, &userUpload)
-
-		if downloadErr != nil {
-			return downloadErr
-		}
-
-		defer func() {
-			if err := download.Close(); err != nil {
-				appCtx.Logger().Error("Failed to close userUpload download stream", zap.Error(err))
-			}
-		}()
-
-		// No need to do anything to the file if it is already a PDF, so we'll add it to the running list and move on.
-		// I had thought about running them through the conversion anyways to get them into a consistent format
-		// ("PDF/A-1a"), but I'm getting an error for certain PDFs.
-		// Details on error: https://dp3.atlassian.net/browse/MB-15340?focusedCommentId=25982
-		if userUpload.Upload.ContentType == uploader.FileTypePDF {
-			pdfsToMerge = append(pdfsToMerge, download)
-
-			continue
-		}
-
-		fileName := filepath.Base(userUpload.Upload.Filename)
-
-		outputPdf, conversionErr := convertFileToPDF(appCtx, download, fileName)
-
-		if outputPdf != nil {
-			defer func() {
-				if err := outputPdf.Close(); err != nil {
-					appCtx.Logger().Error("Failed to close userUpload output PDF stream", zap.Error(err))
-				}
-			}()
-		}
-
-		if conversionErr != nil {
-			return conversionErr
-		}
-
-		pdfsToMerge = append(pdfsToMerge, outputPdf)
+	if conversionErr != nil {
+		return conversionErr
 	}
 
 	if len(pdfsToMerge) == 0 {
 		return nil
 	}
 
+	// mergePDFs will set up closing of the individual PDF streams
 	mergedPDF, mergeErr := mergePDFs(appCtx, pdfsToMerge)
 
 	if mergedPDF != nil {
@@ -288,6 +251,52 @@ func gatherPPMShipmentUploads(_ appcontext.AppContext, ppmShipment *models.PPMSh
 	}
 
 	return userUploads
+}
+
+// convertUserUploadsToPDFs converts a PPM shipment's document uploads to a PDFs
+func convertUserUploadsToPDFs(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, userUploads models.UserUploads) ([]io.ReadCloser, error) {
+	pdfsToMerge := []io.ReadCloser{}
+
+	for _, userUpload := range userUploads {
+		userUpload := userUpload
+
+		download, downloadErr := userUploader.Download(appCtx, &userUpload)
+
+		if downloadErr != nil {
+			return nil, downloadErr
+		}
+
+		// No need to do anything to the file if it is already a PDF, so we'll add it to the running list and move on.
+		// I had thought about running them through the conversion anyways to get them into a consistent format
+		// ("PDF/A-1a"), but I'm getting an error for certain PDFs.
+		// Details on error: https://dp3.atlassian.net/browse/MB-15340?focusedCommentId=25982
+		if userUpload.Upload.ContentType == uploader.FileTypePDF {
+			pdfsToMerge = append(pdfsToMerge, download)
+
+			continue
+		}
+
+		fileName := filepath.Base(userUpload.Upload.Filename)
+
+		outputPDF, conversionErr := convertFileToPDF(appCtx, download, fileName)
+
+		// we'll close the downloaded file if we've converted it because we're not returning it, but if we didn't
+		// convert it (and thus didn't get to this part), we don't close it because we're returning it and the caller
+		// will need to close it.
+		if err := download.Close(); err != nil {
+			appCtx.Logger().Error("Failed to close download stream", zap.Error(err))
+		}
+
+		// Not setting up closing of outputPDF file since we're returning it. Caller will need to close it.
+
+		if conversionErr != nil {
+			return nil, conversionErr
+		}
+
+		pdfsToMerge = append(pdfsToMerge, outputPDF)
+	}
+
+	return pdfsToMerge, nil
 }
 
 // convertFileToPDF converts a file to a PDF.
@@ -362,6 +371,12 @@ func mergePDFs(appCtx appcontext.AppContext, pdfsToMerge []io.ReadCloser) (io.Re
 
 	for i, pdf := range pdfsToMerge {
 		pdf := pdf
+
+		defer func() {
+			if err := pdf.Close(); err != nil {
+				appCtx.Logger().Error("Failed to close PDF stream", zap.Error(err))
+			}
+		}()
 
 		part, formFileErr := writer.CreateFormFile("files", fmt.Sprintf("file-%d.pdf", i))
 
