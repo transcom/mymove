@@ -402,6 +402,7 @@ describe('ReviewDocuments', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       expect(screen.getByText('Add a reason why this pro-gear is rejected'));
     });
+
     it('shows an error when a rejected expense is submitted with no reason', async () => {
       const usePPMShipmentDocsQueriesReturnValueExpensesOnly = {
         ...usePPMShipmentDocsQueriesReturnValueAllDocs,

@@ -120,7 +120,6 @@ export const ReviewDocuments = ({ match }) => {
 
     if (documentSetIndex < documentSets.length - 1) {
       const newDocumentSetIndex = documentSetIndex + 1;
-
       setDocumentSetIndex(newDocumentSetIndex);
     } else {
       setShowOverview(true);
@@ -183,7 +182,6 @@ export const ReviewDocuments = ({ match }) => {
                     formRef={formRef}
                   />
                 )}
-
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
                   <ReviewProGear
                     proGear={currentDocumentSet.documentSet}
