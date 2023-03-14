@@ -219,7 +219,7 @@ func convertPPMShipmentDocumentUploadsToPDF(appCtx appcontext.AppContext, userUp
 		return mergeErr
 	}
 
-	if err := writeToDisk(appCtx, mergedPDF, fmt.Sprintf("mergedPDF-%s.pdf", time.Now().String())); err != nil {
+	if err := saveMergedPDF(appCtx, userUploader, ppmShipment, mergedPDF); err != nil {
 		return err
 	}
 
@@ -436,6 +436,86 @@ func mergePDFs(appCtx appcontext.AppContext, pdfsToMerge []io.ReadCloser) (io.Re
 	}
 
 	return res.Body, nil
+}
+
+// saveMergedPDF uploads the merged PDF to storage and saves the relevant DB info.
+func saveMergedPDF(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, ppmShipment *models.PPMShipment, mergedPDF io.ReadCloser) error {
+	txnErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		if err := txnAppCtx.DB().Load(&ppmShipment.Shipment,
+			"MoveTaskOrder.Orders.ServiceMember",
+		); err != nil {
+			return fmt.Errorf("failed to load move task order: %w", err)
+		}
+
+		// This is here to ease re-running for now. Need to think about what we'd want to happen after the first one is
+		// created. Do we delete these at any point? Would we have reason to re-generate them if we don't delete them?
+		// Would a SC be able to trigger a regeneration if they change something?
+		if ppmShipment.PaymentPacketID != nil {
+			document := models.Document{
+				ServiceMemberID: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.ID,
+			}
+
+			verrs, err := txnAppCtx.DB().ValidateAndCreate(&document)
+
+			if verrs.HasAny() || err != nil {
+				return fmt.Errorf("failed to create document: %w", err)
+			}
+
+			ppmShipment.PaymentPacketID = &document.ID
+			ppmShipment.PaymentPacket = &document
+
+			// Hacky saving of PPM Shipment. For the real implementation of this, if it's even done this way, we should use
+			// the ppm shipment updater service object.
+			verrs, err = txnAppCtx.DB().ValidateAndUpdate(ppmShipment)
+
+			if verrs.HasAny() || err != nil {
+				return fmt.Errorf("failed to update ppm shipment: %w", err)
+			}
+		}
+
+		fileToUpload, prepErr := userUploader.PrepareFileForUpload(txnAppCtx, mergedPDF, "payment_packet.pdf")
+
+		if prepErr != nil {
+			txnAppCtx.Logger().Error("Failed to prepare file for upload", zap.Error(prepErr))
+
+			return prepErr
+		}
+
+		newUpload, uploadVerrs, uploadErr := userUploader.CreateUserUploadForDocument(
+			txnAppCtx,
+			ppmShipment.PaymentPacketID,
+			// Do we have a system user ID? This is meant to be the uploader ID, but it'll be the system, not a specific
+			// user.
+			ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
+			uploader.File{File: fileToUpload},
+			uploader.AllowedTypesPPMDocuments,
+		)
+
+		if uploadVerrs.HasAny() || uploadErr != nil {
+			return fmt.Errorf("failed to upload file: %w", uploadErr)
+		}
+
+		ppmShipment.PaymentPacket.UserUploads = append(ppmShipment.PaymentPacket.UserUploads, *newUpload)
+
+		// The download is just for testing purposes. We don't need to do this in the real implementation.
+		download, downloadErr := userUploader.Download(txnAppCtx, newUpload)
+
+		if downloadErr != nil {
+			return fmt.Errorf("failed to download file: %w", downloadErr)
+		}
+
+		if err := writeToDisk(txnAppCtx, download, fmt.Sprintf("payment-packet-%s.pdf", time.Now().String())); err != nil {
+			return fmt.Errorf("failed to write file to disk: %w", err)
+		}
+
+		return nil
+	})
+
+	if txnErr != nil {
+		return txnErr
+	}
+
+	return nil
 }
 
 // writeToDisk writes a file to disk.
