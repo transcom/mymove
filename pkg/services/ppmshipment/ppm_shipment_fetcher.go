@@ -75,6 +75,8 @@ func FindPPMShipment(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShi
 			"MovingExpenses",
 			"ProgearWeightTickets",
 			"W2Address",
+			"AOAPacket",
+			"PaymentPacket",
 		).
 		Find(&ppmShipment, id)
 
