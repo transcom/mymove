@@ -12,9 +12,33 @@ import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
 import { calculateEstimatedWeight, calculateWeightRequested } from 'hooks/custom';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { servicesCounselingRoutes } from 'constants/routes';
+import ReviewShipmentWeightsTable from 'components/Office/PPM/ReviewShipmentWeightsTable/ReviewShipmentWeightsTable';
+import {
+  PPMReviewWeightsTableConfig,
+  proGearReviewWeightsTableConfig,
+  nonPPMReviewWeightsTableConfig,
+} from 'components/Office/PPM/ReviewShipmentWeightsTable/helpers';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
+const hasProGear = (orders) => Boolean(orders.entitlement?.proGearWeight || orders.entitlement?.spouseProGearWeight);
+
+const sortShipments = (shipments) => {
+  const ppmShipment = [];
+  const hhgShipment = [];
+  if (!shipments) {
+    return null;
+  }
+  shipments.forEach((shipment) => {
+    if (shipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
+      ppmShipment.push(shipment);
+      return;
+    }
+    hhgShipment.push(shipment);
+  });
+  return { hhgShipment, ppmShipment };
+};
 const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
   const { orders, mtoShipments, isLoading, isError } = useReviewShipmentWeightsQuery(moveCode);
   const estimatedWeightTotal = calculateEstimatedWeight(mtoShipments);
@@ -26,6 +50,9 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+  // sort shipments for the table
+  const sortedShipments = sortShipments(mtoShipments);
+  const showWeightsMoved = Boolean(hasProGear(order) || sortShipments.hhgShipment);
 
   return (
     <div className={tabStyles.tabContent}>
@@ -51,6 +78,32 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
           <WeightDisplay heading="Max billable weight" weightValue={order.entitlement.authorizedWeight} />
           <WeightDisplay heading="Move weight (total)" weightValue={moveWeightTotal} />
         </div>
+        {sortedShipments.ppmShipment && (
+          <div className={styles.weightMovedContainer}>
+            <h2 className={styles.weightMovedHeader}>Weight moved by customer</h2>
+            <ReviewShipmentWeightsTable
+              tableData={sortedShipments.ppmShipment}
+              tableConfig={PPMReviewWeightsTableConfig}
+            />
+          </div>
+        )}
+        {showWeightsMoved && (
+          <div className={styles.weightMovedContainer}>
+            <h2 className={styles.weightMovedHeader}>Weight moved</h2>
+            {hasProGear && (
+              <ReviewShipmentWeightsTable tableData={[order]} tableConfig={proGearReviewWeightsTableConfig} />
+            )}
+            {sortedShipments?.hhgShipment?.length > 0 && (
+              <div className={styles.shipmentContainer}>
+                <h3 className={styles.shipmentHeader}>Shipments</h3>
+                <ReviewShipmentWeightsTable
+                  tableData={sortedShipments.hhgShipment}
+                  tableConfig={nonPPMReviewWeightsTableConfig}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </GridContainer>
     </div>
   );

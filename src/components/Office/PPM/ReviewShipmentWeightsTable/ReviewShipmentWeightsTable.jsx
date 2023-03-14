@@ -9,11 +9,15 @@ import Table from 'components/Table/Table';
 const ReviewShipmentWeightsTable = ({ tableData, tableConfig }) => {
   const { tableColumns, noRowsMsg, determineShipmentNumbers } = tableConfig;
 
-  const reviewWeightsData = addShipmentNumbersToTableData(tableData, determineShipmentNumbers);
+  const reviewWeightsData = React.useMemo(
+    () => addShipmentNumbersToTableData(tableData, determineShipmentNumbers),
+    [tableData, determineShipmentNumbers],
+  );
+  const columns = React.useMemo(() => tableColumns, [tableColumns]);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
-      columns: tableColumns,
+      columns,
       data: reviewWeightsData,
       manualFilters: false,
       manualPagination: false,
@@ -41,6 +45,7 @@ const ReviewShipmentWeightsTable = ({ tableData, tableConfig }) => {
             rows={rows}
             prepareRow={prepareRow}
             handleClick={() => {}}
+            tableStyle={styles.table}
           />
         </div>
       ) : (
