@@ -52,7 +52,7 @@ export async function patchExpense({ ppmShipmentId, movingExpenseId, payload, eT
       movingExpenseId,
       'If-Match': eTag,
       updateMovingExpense: payload,
-      },
+    },
     {
       normalize: false,
     },
