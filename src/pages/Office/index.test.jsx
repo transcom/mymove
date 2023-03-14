@@ -296,6 +296,37 @@ describe('Office App', () => {
       await waitFor(() => expect(screen.getByText('Mock Invalid Permissions Component')));
     });
 
+    it('renders the 404 component when the route is not found', async () => {
+      const mockStore = configureStore(loggedInPrimeState);
+
+      render(
+        <MemoryRouter initialEntries={['/not-a-real-route']}>
+          <Provider store={mockStore.store}>
+            <OfficeApp
+              router={{ location: { pathname: '/not-a-real-route' } }}
+              loadInternalSchema={jest.fn()}
+              loadPublicSchema={jest.fn()}
+              loadUser={jest.fn()}
+              hasRecentError={false}
+              activeRole={loggedInPrimeState.auth.activeRole}
+              userRoles={[{ roleType: loggedInPrimeState.auth.activeRole }]}
+              traceId=""
+              loginIsLoading={false}
+              userIsLoggedIn
+            />
+          </Provider>
+        </MemoryRouter>,
+      );
+
+      // Header content should be rendered
+      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+      expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
+
+      await expect(screen.getByText('Error - 404')).toBeInTheDocument();
+      await expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
+    });
+
     it.each([
       ['Move Queue', '/moves/queue', loggedInTOOState],
       ['Payment Request Queue', '/invoicing/queue', loggedInTIOState],
@@ -335,9 +366,8 @@ describe('Office App', () => {
       ['Services Counseling Queue', '/', loggedInSCState],
       ['QAE CSR Move Search', '/', loggedInQAEState],
       ['Prime Simulator Available Moves Queue', '/', loggedInPrimeState],
-      // ['Not Found', '/this/is/a/bad/path', loggedInTOOState],
     ])(
-      'correctly displays the %s component at %s as a user with sufficient permissions',
+      'renders the %s component at %s as a user with sufficient permissions',
       async (component, path, initialState) => {
         const mockStore = configureStore(initialState);
 
@@ -370,18 +400,52 @@ describe('Office App', () => {
       },
     );
 
-    it('handles the Move Queue URL with insufficient permission', async () => {
-      const mockStore = configureStore(loggedInTIOState);
+    it.each([
+      ['Move Queue', '/moves/queue', loggedInPrimeState],
+      ['Payment Request Queue', '/invoicing/queue', loggedInPrimeState],
+      ['Services Counseling Add Shipment', '/new-PPM', loggedInPrimeState],
+      ['Services Counseling Move Info', '/counseling/moves/test123/', loggedInQAEState],
+      ['Edit Shipment Details', '/moves/test123/shipments/ship123', loggedInQAEState],
+      ['Prime Simulator Move Details', '/simulator/moves/test123/details', loggedInQAEState],
+      ['Prime Simulator Shipment Create', '/simulator/moves/test123/shipments/new', loggedInQAEState],
+      [
+        'Prime Simulator Shipment Update Address',
+        '/simulator/moves/test123/shipments/ship123/addresses/update',
+        loggedInQAEState,
+      ],
+      ['Prime Simulator Shipment Update', '/simulator/moves/test123/shipments/ship123', loggedInQAEState],
+      ['Prime Simulator Create Payment Request', '/simulator/moves/test123/payment-requests/new', loggedInQAEState],
+      [
+        'Prime Simulator Upload Payment Request Documents',
+        '/simulator/moves/test123/payment-requests/req123/upload',
+        loggedInQAEState,
+      ],
+      [
+        'Prime Simulator Create Service Item',
+        '/simulator/moves/test123/shipments/ship123/service-items/new',
+        loggedInQAEState,
+      ],
+      [
+        'Prime Simulator Shipment Update Reweigh',
+        '/simulator/moves/test123/shipments/ship123/reweigh/re123/update',
+        loggedInQAEState,
+      ],
+      ['QAE CSR Move Search', '/qaecsr/search', loggedInTIOState],
+      ['TXO Move Info', '/moves/move123', loggedInPrimeState],
+    ])('denies access to %s when user has insufficient permission', async (component, path, initialState) => {
+      const mockStore = configureStore(initialState);
+
       render(
-        <MemoryRouter initialEntries={['/moves/queue']}>
+        <MemoryRouter initialEntries={[path]}>
           <Provider store={mockStore.store}>
             <OfficeApp
-              router={{ location: { pathname: '/moves/queue' } }}
+              router={{ location: { pathname: path } }}
               loadInternalSchema={jest.fn()}
               loadPublicSchema={jest.fn()}
               loadUser={jest.fn()}
               hasRecentError={false}
-              userRoles={[{ roleType: loggedInTIOState.auth.activeRole }]}
+              activeRole={initialState.auth.activeRole}
+              userRoles={[{ roleType: initialState.auth.activeRole }]}
               traceId=""
               loginIsLoading={false}
               userIsLoggedIn
@@ -395,7 +459,6 @@ describe('Office App', () => {
       expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
       expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
 
-      // Wait for and lazy load, validate redirected to invalid permissions page
       await waitFor(() => expect(screen.getByText('Mock Invalid Permissions Component')));
     });
   });
