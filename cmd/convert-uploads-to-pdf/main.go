@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -13,7 +12,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
+	awssession "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -60,13 +66,16 @@ func runPPMShipmentDocumentUploadToPDFConverter(cmd *cobra.Command, _ []string) 
 		return err
 	}
 
-	db, dbErr := cli.InitDatabase(v, nil, logger)
+	awsSession := initializeAwsSession(v, logger)
 
-	if dbErr != nil {
-		logger.Fatal("Could not init database", zap.Error(dbErr))
+	db := initializeDB(v, logger, awsSession)
+
+	// We shouldn't get here if we can't connect, but checking just in case.
+	if db == nil {
+		logger.Fatal("Could not init database")
 	}
 
-	storer := storage.InitStorage(v, nil, logger)
+	storer := storage.InitStorage(v, awsSession, logger)
 
 	userUploader, uploaderErr := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if uploaderErr != nil {
@@ -180,6 +189,75 @@ func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 	}
 
 	return nil
+}
+
+// initializeAwsSession initializes the AWS session, if needed. This was mostly copied from cmd/milmove/serve.go.
+func initializeAwsSession(v *viper.Viper, logger *zap.Logger) *awssession.Session {
+	if !v.GetBool(cli.DbIamFlag) && !(v.GetString(cli.StorageBackendFlag) == "s3") {
+		return nil
+	}
+
+	c := &aws.Config{
+		Region: aws.String(v.GetString(cli.AWSRegionFlag)),
+	}
+
+	s, errorSession := awssession.NewSession(c)
+
+	if errorSession != nil {
+		logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
+	}
+
+	return s
+}
+
+// initializeDB initializes the database connection. This was copied from cmd/milmove/serve.go.
+func initializeDB(v *viper.Viper, logger *zap.Logger, awsSession *awssession.Session) *pop.Connection {
+	if v.GetBool(cli.DbDebugFlag) {
+		pop.Debug = true
+	}
+
+	var dbCreds *credentials.Credentials
+
+	if v.GetBool(cli.DbIamFlag) {
+		if awsSession != nil {
+			// We want to get the credentials from the logged in AWS session rather than create directly,
+			// because the session conflates the environment, shared, and container metdata config
+			// within NewSession.  With stscreds, we use the Secure Token Service,
+			// to assume the given role (that has rds db connect permissions).
+			dbIamRole := v.GetString(cli.DbIamRoleFlag)
+
+			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
+
+			dbCreds = stscreds.NewCredentials(awsSession, dbIamRole)
+
+			stsService := sts.New(awsSession)
+
+			callerIdentity, callerIdentityErr := stsService.GetCallerIdentity(&sts.GetCallerIdentityInput{})
+
+			if callerIdentityErr != nil {
+				logger.Error(errors.Wrap(callerIdentityErr, "error getting aws sts caller identity").Error())
+			} else {
+				logger.Info(fmt.Sprintf("STS Caller Identity - Account: %s, ARN: %s, UserId: %s", *callerIdentity.Account, *callerIdentity.Arn, *callerIdentity.UserId))
+			}
+		}
+	}
+
+	// Create a connection to the DB
+	dbConnection, err := cli.InitDatabase(v, dbCreds, logger)
+
+	if err != nil {
+		logger.Fatal("Invalid DB Configuration", zap.Error(err))
+	}
+
+	err = cli.PingPopConnection(dbConnection, logger)
+
+	if err != nil {
+		// if the db is not up yet, the server can still start. This
+		// prevents a failure loop when deploying containers
+		logger.Warn("DB is not ready for connections", zap.Error(err))
+	}
+
+	return dbConnection
 }
 
 // convertPPMShipmentDocumentUploadsToPDF converts a PPM shipment's document uploads to a PDFs, merges the PDFs into a
