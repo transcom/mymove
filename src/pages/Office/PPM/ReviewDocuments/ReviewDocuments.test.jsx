@@ -29,11 +29,13 @@ jest.mock('react-router-dom', () => ({
 
 const mockPatchWeightTicket = jest.fn();
 const mockPatchProGear = jest.fn();
+const mockPatchExpense = jest.fn();
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   patchWeightTicket: (options) => mockPatchWeightTicket(options),
   patchProGearWeightTicket: (options) => mockPatchProGear(options),
+  patchExpense: (options) => mockPatchExpense(options),
 }));
 
 // prevents react-fileviewer from throwing errors without mocking relevant DOM elements
@@ -351,21 +353,8 @@ describe('ReviewDocuments', () => {
       expect(screen.getByRole('heading', { level: 2, name: '1 of 3 Document Sets' })).toBeInTheDocument();
     });
 
-    // TODO: This test doesn't reflect what we actually want to do, but it does reflect what we're doing right now and
-    //  ensures the app doesn't fail. As we implement the progear and moving expenses, we can update this test to
-    //  reflect the actual behavior, or remove it in favor of other ones.
     it('handles moving from weight tickets the summary page when there are multiple types of documents', async () => {
-      const usePPMShipmentDocsQueriesReturnValueWithoutExpenses = {
-        ...usePPMShipmentDocsQueriesReturnValueAllDocs,
-        mtoShipment,
-        documents: {
-          MovingExpenses: [],
-          ProGearWeightTickets: [...mtoShipment.ppmShipment.proGearWeightTickets],
-          WeightTickets: [...mtoShipment.ppmShipment.weightTickets],
-        },
-      };
-
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithoutExpenses);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
 
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
 
@@ -374,6 +363,10 @@ describe('ReviewDocuments', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
       expect(await screen.findByRole('heading', { name: 'Pro-gear 1', level: 3 })).toBeInTheDocument();
+      await userEvent.click(screen.getByLabelText('Accept'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(await screen.findByRole('heading', { name: 'Receipt 1', level: 3 })).toBeInTheDocument();
       await userEvent.click(screen.getByLabelText('Accept'));
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
@@ -408,6 +401,43 @@ describe('ReviewDocuments', () => {
       await userEvent.click(rejectionButton);
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       expect(screen.getByText('Add a reason why this pro-gear is rejected'));
+    });
+
+    it('shows an error when a rejected expense is submitted with no reason', async () => {
+      const usePPMShipmentDocsQueriesReturnValueExpensesOnly = {
+        ...usePPMShipmentDocsQueriesReturnValueAllDocs,
+        mtoShipment,
+        documents: {
+          MovingExpenses: [...mtoShipment.ppmShipment.movingExpenses],
+          ProGearWeightTickets: [],
+          WeightTickets: [],
+        },
+      };
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueExpensesOnly);
+
+      render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
+      await userEvent.click(screen.getByLabelText('Reject'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(screen.getByText('Add a reason why this receipt is rejected')).toBeInTheDocument();
+    });
+
+    it('shows an error when an excluded expense is submitted with no reason', async () => {
+      const usePPMShipmentDocsQueriesReturnValueExpensesOnly = {
+        ...usePPMShipmentDocsQueriesReturnValueAllDocs,
+        mtoShipment,
+        documents: {
+          MovingExpenses: [...mtoShipment.ppmShipment.movingExpenses],
+          ProGearWeightTickets: [],
+          WeightTickets: [],
+        },
+      };
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueExpensesOnly);
+
+      render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
+      await userEvent.click(screen.getByLabelText('Exclude'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      expect(screen.getByText('Add a reason why this receipt is excluded')).toBeInTheDocument();
     });
   });
 });

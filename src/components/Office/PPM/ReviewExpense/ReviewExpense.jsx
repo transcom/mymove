@@ -1,8 +1,9 @@
 import React from 'react';
-import { number } from 'prop-types';
+import { useMutation } from '@tanstack/react-query';
+import { func, number, object } from 'prop-types';
 import { Formik } from 'formik';
 import classnames from 'classnames';
-import { Form, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
+import { FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
 import moment from 'moment';
 
@@ -11,7 +12,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 import styles from './ReviewExpense.module.scss';
 
 import { formatCents, formatDate } from 'utils/formatters';
-import { PPMShipmentShape, ExpenseShape } from 'types/shipment';
+import { ShipmentShape, ExpenseShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import { DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -19,9 +20,13 @@ import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
 import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
+import { ErrorMessage, Form } from 'components/form';
+import { patchExpense } from 'services/ghcApi';
 
 const validationSchema = Yup.object().shape({
-  amount: Yup.number().required('Enter the expense amount').min(1, 'Enter an expense amount greater than $0.00'),
+  amount: Yup.string()
+    .required('Enter the expense amount')
+    .notOneOf(['0', '0.00'], 'Enter an expense amount greater than $0.00'),
   sitStartDate: Yup.date().when('movingExpenseType', {
     is: expenseTypes.STORAGE,
     then: (schema) =>
@@ -44,9 +49,16 @@ const validationSchema = Yup.object().shape({
   status: Yup.string().required('Reviewing this receipt is required'),
 });
 
-export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppmNumber }) {
+export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNumber, onError, onSuccess, formRef }) {
   const { movingExpenseType, description, amount, paidWithGtcc, sitStartDate, sitEndDate, status, reason } =
     expense || {};
+
+  const { mutate: patchExpenseMutation } = useMutation(patchExpense, {
+    onSuccess,
+    onError,
+  });
+
+  const ppmShipment = mtoShipment?.ppmShipment;
 
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
@@ -58,11 +70,44 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
     status: status || '',
     reason: reason || '',
   };
+
+  const handleSubmit = (values) => {
+    const payload = {
+      ppmShipmentId: expense.ppmShipmentId,
+      description: expense.description,
+      amount: parseInt(values.amount * 100, 10),
+      paidWithGtcc: values.paidWithGtcc,
+      sitStartDate: formatDate(values.sitStartDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
+      sitEndDate: formatDate(values.sitEndDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
+      reason: values.status === ppmDocumentStatus.APPROVED ? null : values.reason,
+      status: values.status,
+    };
+    patchExpenseMutation({
+      ppmShipmentId: expense.ppmShipmentId,
+      movingExpenseId: expense.id,
+      payload,
+      eTag: expense.eTag,
+    });
+  };
   const expenseName = movingExpenseType === expenseTypes.STORAGE ? 'Storage' : 'Receipt';
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
-      <Formik initialValues={initialValues} validationSchema={validationSchema}>
-        {({ handleChange, errors, values }) => {
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        innerRef={formRef}
+        onSubmit={handleSubmit}
+        enableReinitialize
+        validateOnMount
+      >
+        {({ handleChange, errors, setFieldError, setFieldTouched, setFieldValue, touched, values }) => {
+          const handleApprovalChange = (event) => {
+            handleChange(event);
+            setFieldValue('reason', '');
+            setFieldTouched('reason', false, false);
+            setFieldError('reason', null);
+          };
+
           const daysInSIT =
             values.sitStartDate && values.sitEndDate && !errors.sitStartDate && !errors.sitEndDate
               ? moment(values.sitEndDate, 'DD MMM YYYY').diff(moment(values.sitStartDate, 'DD MMM YYYY'), 'days')
@@ -71,8 +116,8 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
             <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
               <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
               <hr />
-              <h3 className={styles.expenseNumber}>
-                {expenseName} {expenseNumber}
+              <h3 className={styles.tripNumber}>
+                {expenseName} {tripNumber}
               </h3>
               <legend className={classnames('usa-label', styles.label)}>Expense type</legend>
               <div className={styles.displayValue}>{expenseTypeLabels[movingExpenseType]}</div>
@@ -104,10 +149,11 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
                 </>
               )}
               <h3 className={styles.reviewHeader}>
-                Review {expenseName.toLowerCase()} {expenseNumber}
+                Review {expenseName.toLowerCase()} {tripNumber}
               </h3>
               <p>Add a review for this {expenseName.toLowerCase()}</p>
-              <Fieldset>
+              <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
+              <Fieldset className={styles.statusOptions}>
                 <div
                   className={classnames(approveRejectStyles.statusOption, {
                     [approveRejectStyles.selected]: values.status === ppmDocumentStatus.APPROVED,
@@ -119,7 +165,7 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
                     value={ppmDocumentStatus.APPROVED}
                     name="status"
                     label="Accept"
-                    onChange={handleChange}
+                    onChange={handleApprovalChange}
                     data-testid="acceptRadio"
                   />
                 </div>
@@ -141,6 +187,7 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
                   {values.status === ppmDocumentStatus.EXCLUDED && (
                     <FormGroup className={styles.reason}>
                       <Label htmlFor={`excludeReason-${expense?.id}`}>Reason</Label>
+                      <ErrorMessage display={!!errors?.reason && !!touched?.reason}>{errors.reason}</ErrorMessage>
                       <Textarea
                         id={`excludeReason-${expense?.id}`}
                         name="reason"
@@ -148,6 +195,7 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
                         value={values.reason}
                         placeholder="Type something"
                       />
+                      <div className={styles.hint}>{500 - values.reason.length} characters</div>
                     </FormGroup>
                   )}
                 </div>
@@ -169,6 +217,7 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
                   {values.status === ppmDocumentStatus.REJECTED && (
                     <FormGroup className={styles.reason}>
                       <Label htmlFor={`rejectReason-${expense?.id}`}>Reason</Label>
+                      <ErrorMessage display={!!errors?.reason && !!touched?.reason}>{errors.reason}</ErrorMessage>
                       <Textarea
                         id={`rejectReason-${expense?.id}`}
                         name="reason"
@@ -176,7 +225,7 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
                         value={values.reason}
                         placeholder="Type something"
                       />
-                      <div className={styles.hint}>500 characters</div>
+                      <div className={styles.hint}>{500 - values.reason.length} characters</div>
                     </FormGroup>
                   )}
                 </div>
@@ -191,12 +240,16 @@ export default function ReviewExpense({ ppmShipment, expense, expenseNumber, ppm
 
 ReviewExpense.propTypes = {
   expense: ExpenseShape,
-  ppmShipment: PPMShipmentShape,
-  expenseNumber: number.isRequired,
+  mtoShipment: ShipmentShape,
+  tripNumber: number.isRequired,
   ppmNumber: number.isRequired,
+  onSuccess: func,
+  formRef: object,
 };
 
 ReviewExpense.defaultProps = {
   expense: undefined,
-  ppmShipment: undefined,
+  mtoShipment: undefined,
+  onSuccess: null,
+  formRef: null,
 };
