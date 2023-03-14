@@ -631,16 +631,14 @@ describe('ShipmentForm component', () => {
       });
       validatePostalCode.mockImplementation(() => Promise.resolve(false));
 
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            shipmentType={SHIPMENT_OPTIONS.PPM}
-            mtoShipment={mockPPMShipment}
-            submitHandler={mockSubmitHandler}
-            isCreatePage={false}
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockPPMShipment}
+          submitHandler={mockSubmitHandler}
+          isCreatePage={false}
+        />,
       );
 
       const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
@@ -664,16 +662,14 @@ describe('ShipmentForm component', () => {
       });
       validatePostalCode.mockImplementation(() => Promise.resolve(false));
 
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            shipmentType={SHIPMENT_OPTIONS.PPM}
-            mtoShipment={mockPPMShipment}
-            submitHandler={mockSubmitHandler}
-            isCreatePage
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockPPMShipment}
+          submitHandler={mockSubmitHandler}
+          isCreatePage
+        />,
       );
 
       await userEvent.type(screen.getByLabelText('Planned departure date'), '26 Mar 2022');

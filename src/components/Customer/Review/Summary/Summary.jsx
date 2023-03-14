@@ -317,13 +317,17 @@ export class Summary extends Component {
 Summary.propTypes = {
   currentMove: MoveShape.isRequired,
   currentOrders: OrdersShape.isRequired,
-  router: RouterShape.isRequired,
+  router: RouterShape,
   moveIsApproved: bool.isRequired,
   mtoShipments: arrayOf(ShipmentShape).isRequired,
   onDidMount: func.isRequired,
   serviceMember: shape({ id: string.isRequired }).isRequired,
   updateShipmentList: func.isRequired,
   setMsg: func.isRequired,
+};
+
+Summary.defaultProps = {
+  router: {},
 };
 
 function mapStateToProps(state) {

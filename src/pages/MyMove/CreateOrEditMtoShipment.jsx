@@ -72,7 +72,7 @@ export class CreateOrEditMtoShipment extends Component {
 }
 
 CreateOrEditMtoShipment.propTypes = {
-  router: RouterShape.isRequired,
+  router: RouterShape,
   fetchCustomerData: func.isRequired,
   mtoShipment: ShipmentShape,
   currentResidence: AddressShape.isRequired,
@@ -88,6 +88,7 @@ CreateOrEditMtoShipment.propTypes = {
 };
 
 CreateOrEditMtoShipment.defaultProps = {
+  router: {},
   mtoShipment: {
     customerRemarks: '',
     requestedPickupDate: '',
