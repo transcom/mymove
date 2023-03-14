@@ -49,6 +49,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
+  const [shipmentConcernCount, setShipmentConcernCount] = useState(0);
 
   const { order, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
@@ -350,8 +351,18 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
   // Keep unapproved shipment count in sync
   useEffect(() => {
-    setUnapprovedShipmentCount(numberOfErrorIfMissingForAllShipments + numberOfWarnIfMissingForAllShipments);
-  }, [numberOfErrorIfMissingForAllShipments, numberOfWarnIfMissingForAllShipments, setUnapprovedShipmentCount]);
+    let shipmentConcerns = numberOfErrorIfMissingForAllShipments + numberOfWarnIfMissingForAllShipments;
+    if (moveHasExcessWeight) {
+      shipmentConcerns += 1;
+    }
+    setShipmentConcernCount(shipmentConcerns);
+    setUnapprovedShipmentCount(shipmentConcerns);
+  }, [
+    moveHasExcessWeight,
+    numberOfErrorIfMissingForAllShipments,
+    numberOfWarnIfMissingForAllShipments,
+    setUnapprovedShipmentCount,
+  ]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -390,10 +401,10 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
         <LeftNav sections={sections}>
           <LeftNavTag
             associatedSectionName="shipments"
-            showTag={numberOfErrorIfMissingForAllShipments !== 0 || numberOfWarnIfMissingForAllShipments !== 0}
+            showTag={shipmentConcernCount !== 0}
             testID="requestedShipmentsTag"
           >
-            {numberOfErrorIfMissingForAllShipments + numberOfWarnIfMissingForAllShipments}
+            {shipmentConcernCount}
           </LeftNavTag>
         </LeftNav>
         {isSubmitModalVisible && (
