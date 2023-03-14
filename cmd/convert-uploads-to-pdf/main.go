@@ -450,7 +450,7 @@ func saveMergedPDF(appCtx appcontext.AppContext, userUploader *uploader.UserUplo
 		// This is here to ease re-running for now. Need to think about what we'd want to happen after the first one is
 		// created. Do we delete these at any point? Would we have reason to re-generate them if we don't delete them?
 		// Would a SC be able to trigger a regeneration if they change something?
-		if ppmShipment.PaymentPacketID != nil {
+		if ppmShipment.PaymentPacketID == nil {
 			document := models.Document{
 				ServiceMemberID: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.ID,
 			}
