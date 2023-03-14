@@ -118,6 +118,10 @@ type PPMShipment struct {
 	MovingExpenses                 MovingExpenses       `has_many:"moving_expenses" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	ProgearWeightTickets           ProgearWeightTickets `has_many:"progear_weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	SignedCertification            *SignedCertification `has_one:"signed_certification" fk_id:"ppm_id"`
+	AOAPacketID                    *uuid.UUID           `json:"aoa_packet_id" db:"aoa_packet_id"`
+	AOAPacket                      *Document            `belongs_to:"documents" fk_id:"aoa_packet_id"`
+	PaymentPacketID                *uuid.UUID           `json:"payment_packet_id" db:"payment_packet_id"`
+	PaymentPacket                  *Document            `belongs_to:"documents" fk_id:"payment_packet_id"`
 }
 
 // TableName overrides the table name used by Pop.
