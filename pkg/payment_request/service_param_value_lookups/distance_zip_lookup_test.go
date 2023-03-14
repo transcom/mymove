@@ -354,52 +354,35 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("sets distance to one when origin and destination postal codes are the same", func() {
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-				PickupAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
-					{
-						Model: models.Address{
-							PostalCode: "90211",
-						},
+		MTOShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			PickupAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						PostalCode: "90211",
 					},
-				}, nil),
-				DestinationAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
-					{
-						Model: models.Address{
-							PostalCode: "90211",
-						},
-					},
-				}, nil),
-			}),
-		})
-
-		sitFinalAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode: "90211",
 				},
-			},
-		}, nil)
-
-		_ = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-
-			MTOServiceItem: models.MTOServiceItem{
-				SITDestinationFinalAddress: &sitFinalAddress,
-			},
+			}, nil),
+			DestinationAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						PostalCode: "90211",
+					},
+				},
+			}, nil),
 		})
 
 		distanceZipLookup := DistanceZipLookup{
-			PickupAddress:      models.Address{PostalCode: mtoServiceItem.MTOShipment.PickupAddress.PostalCode},
-			DestinationAddress: models.Address{PostalCode: mtoServiceItem.MTOShipment.DestinationAddress.PostalCode},
+			PickupAddress:      models.Address{PostalCode: MTOShipment.PickupAddress.PostalCode},
+			DestinationAddress: models.Address{PostalCode: MTOShipment.DestinationAddress.PostalCode},
 		}
 
 		distance, err := distanceZipLookup.lookup(suite.AppContextForTest(), &ServiceItemParamKeyData{
 			planner:       suite.planner,
-			mtoShipmentID: &mtoServiceItem.MTOShipment.ID,
+			mtoShipmentID: &MTOShipment.ID,
 		})
 
 		//Check if distance equal 1
-		suite.Equal(distance, "1")
+		suite.Equal("1", distance)
 		suite.FatalNoError(err)
 
 	})

@@ -190,7 +190,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 		suite.FatalNoError(err)
 
 		//Check if distance equal 1
-		suite.Equal(distance, "1")
+		suite.Equal("1", distance)
 
 	})
 }
