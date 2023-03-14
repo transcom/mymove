@@ -1,96 +1,65 @@
-import React from 'react';
-import { shallow, mount } from 'enzyme';
-import { render, screen, waitFor } from '@testing-library/react';
-
-import ConnectedCustomerApp, { CustomerApp } from './index';
+import React, { Suspense } from 'react';
+import { shallow } from 'enzyme';
+import { Provider } from 'react-redux';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
+import { CustomerApp } from './index';
 
 import Footer from 'components/Customer/Footer';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { MockProviders } from 'testUtils';
-import { AppContext } from 'shared/AppContext';
 
-describe('ConnectedCustomerApp tests', () => {
-  describe('routing', () => {
-    const renderRoute = (path, state = {}) =>
-      render(
-        <MockProviders initialEntries={[path]} initialState={state}>
-          <ConnectedCustomerApp />
-        </MockProviders>,
-      );
+import { configureStore } from 'shared/store';
+import { roleTypes } from 'constants/userRoles';
 
-    it('renders the SignIn route', async () => {
-      const { queryByText } = renderRoute('/sign-in');
-
-      await waitFor(() => {
-        expect(queryByText('Welcome to my.move.mil!')).toBeInTheDocument();
-      });
-    });
-
-    it('renders the Privacy & Security policy route', () => {
-      const { queryByText } = renderRoute('/privacy-and-security-policy');
-      expect(queryByText('Privacy & Security Policy')).toBeInTheDocument();
-    });
-
-    it('renders the Accessibility route', () => {
-      const { queryByText } = renderRoute('/accessibility');
-      expect(queryByText('508 Compliance')).toBeInTheDocument();
-    });
-
-    it('renders the page not found route', () => {
-      renderRoute('/pageNotFound');
-      expect(screen.queryByText('Error - 404')).toBeInTheDocument();
-    });
+const mockPage = (path, name) => {
+  return jest.mock(path, () => {
+    // Create component name from path, if not provided (e.g. 'MoveQueue' -> 'Move Queue')
+    const componentName =
+      name ||
+      path
+        .substring(path.lastIndexOf('/') + 1)
+        .replace(/([A-Z])/g, ' $1')
+        .trim();
+    return () => <div>{`Mock ${componentName} Component`}</div>;
   });
+};
 
-  describe('with GHC/HHG feature flags turned off', () => {
-    const mockContext = {
-      flags: {
-        hhgFlow: false,
-        ghcFlow: false,
+// Mock lazy loaded pages
+mockPage('pages/SignIn/SignIn');
+mockPage('pages/InvalidPermissions/InvalidPermissions');
+
+// Mock imported components
+jest.mock('shared/Statements/AccessibilityStatement', () => () => <div>Mock Accessibility Statement Component</div>);
+jest.mock('shared/Statements/PrivacyAndPolicyStatement', () => () => (
+  <div>Mock Privacy And Policy Statement Component</div>
+));
+
+const loggedOutState = {
+  auth: {
+    activeRole: null,
+    isLoading: false,
+    isLoggedIn: false,
+  },
+};
+
+const loggedInCustomerState = {
+  auth: {
+    activeRole: roleTypes.CUSTOMER,
+    isLoading: false,
+    isLoggedIn: true,
+  },
+  entities: {
+    user: {
+      userId567: {
+        id: 'userId567',
+        roles: [{ roleType: roleTypes.CUSTOMER }],
       },
-    };
+    },
+  },
+};
 
-    it('renders without crashing or erroring', () => {
-      const wrapper = mount(
-        <MockProviders initialEntries={['/']}>
-          <AppContext.Provider value={mockContext}>
-            <ConnectedCustomerApp />
-          </AppContext.Provider>
-        </MockProviders>,
-      );
-      const appWrapper = wrapper.find('#app-root');
-      expect(appWrapper).toBeDefined();
-      expect(appWrapper.find('PageNotInFlow')).toHaveLength(0);
-      expect(wrapper.find(SomethingWentWrong)).toHaveLength(0);
-    });
-  });
-
-  describe('with GHC/HHG feature flags turned on', () => {
-    const mockContext = {
-      flags: {
-        hhgFlow: true,
-        ghcFlow: true,
-      },
-    };
-
-    it('renders without crashing or erroring', () => {
-      const wrapper = mount(
-        <MockProviders initialEntries={['/']}>
-          <AppContext.Provider value={mockContext}>
-            <ConnectedCustomerApp />
-          </AppContext.Provider>
-        </MockProviders>,
-      );
-      const appWrapper = wrapper.find('#app-root');
-      expect(appWrapper).toBeDefined();
-      expect(appWrapper.find('PageNotInFlow')).toHaveLength(0);
-      expect(wrapper.find(SomethingWentWrong)).toHaveLength(0);
-    });
-  });
-});
-
-describe('CustomerApp tests', () => {
-  let wrapper;
+const renderAtRoute = (path = '/', state = {}) => {
+  const mockStore = configureStore(state);
 
   const minProps = {
     initOnboarding: jest.fn(),
@@ -102,42 +71,171 @@ describe('CustomerApp tests', () => {
       },
     },
   };
+  render(
+    <MemoryRouter initialEntries={[path]}>
+      <Provider store={mockStore.store}>
+        <Suspense fallback={<div>Loading...</div>}>
+          <CustomerApp {...minProps} />
+        </Suspense>
+      </Provider>
+    </MemoryRouter>,
+  );
+};
 
-  beforeEach(() => {
-    wrapper = shallow(<CustomerApp {...minProps} />);
+afterEach(() => {
+  cleanup();
+  jest.resetAllMocks();
+});
+
+describe('CustomerApp tests', () => {
+  describe('Customer App logged out routing', () => {
+    it.each([
+      ['Sign In', '/sign-in'],
+      ['Privacy And Policy Statement', '/privacy-and-security-policy'],
+      ['Accessibility Statement', '/accessibility'],
+      ['Forbidden', '/forbidden', 'You are forbidden to use this endpoint'],
+      ['Server Error', '/server_error', 'We are experiencing an internal server error'],
+      ['Invalid Permissions', '/invalid-permissions'],
+      ['Sign In', '/badurl'], // Bad urls redirect to sign in when not logged in
+    ])('renders the %s component at URL: %s', async (component, path, expected = `Mock ${component} Component`) => {
+      renderAtRoute(path, loggedOutState);
+
+      // Header content should be rendered
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+      expect(screen.getByText('An official website of the United States government')).toBeInTheDocument(); // GovBanner
+      expect(screen.getByTestId('signin')).toBeInTheDocument(); // Sign In button
+
+      // Wait for and lazy load, validate correct component was rendered
+      await waitFor(() => expect(screen.getByText(expected)));
+    });
   });
 
-  it('renders the CUI header', async () => {
-    render(
-      <MockProviders initialEntries={['/']}>
-        <ConnectedCustomerApp />
-      </MockProviders>,
-    );
+  describe('Customer App logged in routing', () => {
+    it.each([
+      ['Sign In', '/sign-in'],
+      ['Privacy And Policy Statement', '/privacy-and-security-policy'],
+      ['Accessibility Statement', '/accessibility'],
+      ['Forbidden', '/forbidden', 'You are forbidden to use this endpoint'],
+      ['Server Error', '/server_error', 'We are experiencing an internal server error'],
+      ['Invalid Permissions', '/invalid-permissions'],
+      ['Sign In', '/badurl'], // Bad urls redirect to sign in when not logged in
+    ])('renders the %s component at URL: %s', async (component, path, expected = `Mock ${component} Component`) => {
+      renderAtRoute(path, loggedInCustomerState);
 
-    expect(await screen.findByText('Controlled Unclassified Information')).toBeInTheDocument();
+      // Header content should be rendered
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+      expect(screen.getByText('An official website of the United States government')).toBeInTheDocument(); // GovBanner
+      expect(screen.getByTestId('signin')).toBeInTheDocument(); // Sign In button
+
+      // Wait for and lazy load, validate correct component was rendered
+      await waitFor(() => expect(screen.getByText(expected)));
+    });
   });
 
-  it('renders without crashing or erroring', () => {
-    const appWrapper = wrapper.find('div');
-    expect(appWrapper).toBeDefined();
-    expect(wrapper.find(SomethingWentWrong)).toHaveLength(0);
+  describe('with GHC/HHG feature flags turned off', () => {
+    it('renders without crashing or erroring', () => {
+      const mockStore = configureStore(loggedInCustomerState);
+
+      const noFlagProps = {
+        initOnboarding: jest.fn(),
+        loadInternalSchema: jest.fn(),
+        loadUser: jest.fn(),
+        context: {
+          flags: {
+            hhgFlow: false,
+            ghcFlow: false,
+          },
+        },
+      };
+
+      render(
+        <MemoryRouter initialEntries={['/']}>
+          <Provider store={mockStore.store}>
+            <Suspense fallback={<div>Loading...</div>}>
+              <CustomerApp {...noFlagProps} />
+            </Suspense>
+          </Provider>
+        </MemoryRouter>,
+      );
+    });
+
+    expect(screen.queryByText('Missing Context')).not.toBeInTheDocument();
+    expect(screen.queryByText('Error')).not.toBeInTheDocument();
   });
 
-  it('renders LoggedOutHeader component by default', () => {
-    expect(wrapper.find('LoggedOutHeader')).toHaveLength(1);
+  describe('with GHC/HHG feature flags turned on', () => {
+    it('renders without crashing or erroring', () => {
+      const mockStore = configureStore(loggedInCustomerState);
+
+      const flagsOnProps = {
+        initOnboarding: jest.fn(),
+        loadInternalSchema: jest.fn(),
+        loadUser: jest.fn(),
+        context: {
+          flags: {
+            hhgFlow: true,
+            ghcFlow: true,
+          },
+        },
+      };
+
+      render(
+        <MemoryRouter initialEntries={['/']}>
+          <Provider store={mockStore.store}>
+            <Suspense fallback={<div>Loading...</div>}>
+              <CustomerApp {...flagsOnProps} />
+            </Suspense>
+          </Provider>
+        </MemoryRouter>,
+      );
+    });
+
+    expect(screen.queryByText('Missing Context')).not.toBeInTheDocument();
+    expect(screen.queryByText('Error')).not.toBeInTheDocument();
   });
 
-  it('renders Footer component', () => {
-    expect(wrapper.find(Footer)).toHaveLength(1);
-  });
+  describe('Page components', () => {
+    let wrapper;
 
-  it('fetches initial data', () => {
-    expect(minProps.loadUser).toHaveBeenCalled();
-    expect(minProps.loadInternalSchema).toHaveBeenCalled();
-  });
+    const minProps = {
+      initOnboarding: jest.fn(),
+      loadInternalSchema: jest.fn(),
+      loadUser: jest.fn(),
+      context: {
+        flags: {
+          hhgFlow: false,
+        },
+      },
+    };
 
-  it('renders the fail whale', () => {
-    wrapper.setState({ hasError: true });
-    expect(wrapper.find(SomethingWentWrong)).toHaveLength(1);
+    beforeEach(() => {
+      wrapper = shallow(<CustomerApp {...minProps} />);
+    });
+
+    it('renders without crashing or erroring', () => {
+      const appWrapper = wrapper.find('div');
+      expect(appWrapper).toBeDefined();
+      expect(wrapper.find(SomethingWentWrong)).toHaveLength(0);
+    });
+
+    it('renders LoggedOutHeader component by default', () => {
+      expect(wrapper.find('LoggedOutHeader')).toHaveLength(1);
+    });
+
+    it('renders Footer component', () => {
+      expect(wrapper.find(Footer)).toHaveLength(1);
+    });
+
+    it('fetches initial data', () => {
+      expect(minProps.loadUser).toHaveBeenCalled();
+      expect(minProps.loadInternalSchema).toHaveBeenCalled();
+    });
+
+    it('renders the fail whale', () => {
+      wrapper.setState({ hasError: true });
+      expect(wrapper.find(SomethingWentWrong)).toHaveLength(1);
+    });
   });
 });
