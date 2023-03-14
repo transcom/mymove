@@ -43,6 +43,7 @@ const validationSchema = Yup.object().shape({
 export default function ReviewWeightTicket({
   mtoShipment,
   mtoShipments,
+  editEntity,
   weightTicket,
   tripNumber,
   ppmNumber,
@@ -191,6 +192,7 @@ export default function ReviewWeightTicket({
                 /* WARN: @rogeruiz I'm not sure where this is coming from? Is this on the MTO? */
                 weightAllowance={5000}
                 shipments={mtoShipments}
+                editEntity={editEntity}
               />
 
               <FormGroup>
@@ -322,6 +324,7 @@ ReviewWeightTicket.propTypes = {
   mtoShipment: ShipmentShape,
   tripNumber: number.isRequired,
   ppmNumber: number.isRequired,
+  editEntity: func,
   onSuccess: func,
   formRef: object,
   mtoShipments: PropTypes.arrayOf(ShipmentShape),
@@ -330,6 +333,7 @@ ReviewWeightTicket.propTypes = {
 ReviewWeightTicket.defaultProps = {
   weightTicket: null,
   mtoShipment: null,
+  editEntity: null,
   onSuccess: null,
   formRef: null,
   mtoShipments: [],

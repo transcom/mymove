@@ -103,6 +103,10 @@ export const ReviewDocuments = ({ match }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  const editEntity = (formValues) => {
+    debugger;
+  };
+
   const onClose = () => {
     history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
@@ -179,6 +183,7 @@ export const ReviewDocuments = ({ match }) => {
                     tripNumber={currentDocumentSet.tripNumber}
                     mtoShipment={mtoShipment}
                     mtoShipments={mtoShipments}
+                    editEntity={editEntity}
                     onError={onError}
                     onSuccess={onSuccess}
                     formRef={formRef}

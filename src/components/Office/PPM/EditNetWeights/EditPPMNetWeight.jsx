@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { PropTypes, number } from 'prop-types';
+import { PropTypes, func, number } from 'prop-types';
 import { Button, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 
 import styles from './EditPPMNetWeight.module.scss';
@@ -132,7 +132,13 @@ const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => (
             />
           </ErrorIndicator>
           <FlexContainer className={styles.wrapper}>
-            <Button onClick={onSave} disabled={!isValid}>
+            <Button
+              onClick={() => {
+                onSave({ ...initialValues, ...values });
+                onCancel();
+              }}
+              disabled={!isValid}
+            >
               Save changes
             </Button>
             <Button unstyled onClick={onCancel}>
@@ -145,19 +151,11 @@ const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => (
   </Formik>
 );
 
-const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
+const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments, editEntity }) => {
   const [showEditForm, setShowEditForm] = useState(false);
 
   const toggleEditForm = () => {
     setShowEditForm(!showEditForm);
-  };
-
-  /**
-   * captureSaveChanges - Handle the submission of the EditPPMNetWeightForm Formik component.
-   * @param {Object} event - The values from the form.
-   */
-  const captureSaveChanges = (event) => {
-    // FIX: Add mutation and onSumbit handler
   };
 
   // Original weight is the full weight - empty weight
@@ -209,7 +207,7 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
           ) : (
             <EditPPMNetWeightForm
               initialValues={{ ppmNetWeight: String(netWeight), netWeightRemarks: weightTicket.netWeightRemarks }}
-              onSave={captureSaveChanges}
+              onSave={editEntity}
               onCancel={toggleEditForm}
             />
           )}
@@ -223,6 +221,7 @@ EditPPMNetWeight.propTypes = {
   weightTicket: WeightTicketShape.isRequired,
   weightAllowance: number.isRequired,
   shipments: PropTypes.arrayOf(ShipmentShape).isRequired,
+  editEntity: func.isRequired,
 };
 
 export default EditPPMNetWeight;
