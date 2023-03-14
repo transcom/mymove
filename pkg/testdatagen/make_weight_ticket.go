@@ -82,6 +82,30 @@ func MakeDefaultWeightTicket(db *pop.Connection) models.WeightTicket {
 	return MakeWeightTicket(db, Assertions{})
 }
 
+// MakeWeightTicketWithConstructedWeight creates a single WeightTicket and associated relationships with weights and documents
+func MakeWeightTicketWithConstructedWeight(db *pop.Connection, assertions Assertions) models.WeightTicket {
+	assertions = ensureServiceMemberIsSetUpInAssertions(db, assertions)
+
+	// In practice, this will be something like a car registration, so just using a test image
+	assertions.File = Fixture("test.png")
+
+	// Because this model points at multiple documents, it's not really good to point at the base assertions.Document,
+	// so we'll look at assertions.WeightTicket.<Document>
+	assertions.WeightTicket.EmptyDocument = GetOrCreateDocumentWithUploads(db, assertions.WeightTicket.EmptyDocument, assertions)
+
+	assertions.WeightTicket.MissingEmptyWeightTicket = models.BoolPointer(true)
+
+	// This is the more important file since they'll be uploading a constructed weight spreadsheet for the
+	// full document upload.
+	assertions.File = Fixture("Weight Estimator.xls")
+
+	assertions.WeightTicket.FullDocument = GetOrCreateDocumentWithUploads(db, assertions.WeightTicket.FullDocument, assertions)
+
+	assertions.WeightTicket.MissingFullWeightTicket = models.BoolPointer(true)
+
+	return MakeWeightTicket(db, assertions)
+}
+
 // ensureServiceMemberIsSetUpInAssertions checks for ServiceMember in assertions, or creates one if none exists. Several
 // of the downstream functions need a service member, but they don't always share assertions, look at the same
 // assertion, or create the service members in the same ways. We'll check now to see if we already have one created,

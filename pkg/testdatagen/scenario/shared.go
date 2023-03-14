@@ -1154,7 +1154,7 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 		},
 		UserUploader: userUploader,
 	}
-	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+	testdatagen.MakeWeightTicketWithConstructedWeight(appCtx.DB(), weightTicketAssertions)
 }
 
 func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
