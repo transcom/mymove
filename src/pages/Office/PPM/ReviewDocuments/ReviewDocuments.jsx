@@ -178,6 +178,7 @@ export const ReviewDocuments = ({ match }) => {
                     ppmNumber={1}
                     tripNumber={currentDocumentSet.tripNumber}
                     mtoShipment={mtoShipment}
+                    mtoShipments={mtoShipments}
                     onError={onError}
                     onSuccess={onSuccess}
                     formRef={formRef}
