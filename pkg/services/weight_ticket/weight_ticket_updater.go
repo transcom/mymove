@@ -124,12 +124,17 @@ func hasTotalWeightChanged(originalWeightTicket, newWeightTicket models.WeightTi
 	var newWeight unit.Pound
 	var oldWeight unit.Pound
 
-	if newWeightTicket.FullWeight != nil && newWeightTicket.EmptyWeight != nil {
+	if newWeightTicket.AdjustedNetWeight != nil {
+		newWeight = *newWeightTicket.AdjustedNetWeight
+	} else if newWeightTicket.FullWeight != nil && newWeightTicket.EmptyWeight != nil {
 		newWeight = *newWeightTicket.FullWeight - *newWeightTicket.EmptyWeight
 	}
-	if originalWeightTicket.FullWeight != nil && originalWeightTicket.EmptyWeight != nil {
+
+	if originalWeightTicket.AdjustedNetWeight != nil {
+		oldWeight = *originalWeightTicket.AdjustedNetWeight
+	} else if originalWeightTicket.FullWeight != nil && originalWeightTicket.EmptyWeight != nil {
 		oldWeight = *originalWeightTicket.FullWeight - *originalWeightTicket.EmptyWeight
 	}
-	//TODO: account for adjustedNetWeight
+
 	return newWeight != oldWeight
 }
