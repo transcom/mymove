@@ -33,6 +33,8 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
+// This sets up the command so that cobra knows what we want it to run and gives some docs for CLI usage.
+// Docs: https://cobra.dev/
 var root = &cobra.Command{
 	Use:   "convert-uploads-to-pdf",
 	Short: "Converts a PPM shipment's uploads to a PDF",
@@ -124,9 +126,11 @@ func initUploadConverterFlags() {
 }
 
 // initViper initializes the viper config object and sets up the environment variables.
+// https://github.com/spf13/viper#what-is-viper
 func initViper(cmd *cobra.Command) (*viper.Viper, error) {
 	v := viper.New()
 
+	// https://github.com/spf13/viper#working-with-flags
 	errParseFlags := cmd.ParseFlags(nil)
 
 	if errParseFlags != nil {
@@ -139,6 +143,7 @@ func initViper(cmd *cobra.Command) (*viper.Viper, error) {
 		return nil, fmt.Errorf("Could not bind flags: %w", errBindPFlags)
 	}
 
+	// https://github.com/spf13/viper#working-with-environment-variables
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 
 	v.AutomaticEnv()
@@ -162,6 +167,8 @@ func setUpLogger(v *viper.Viper) (*zap.Logger, error) {
 		return nil, err
 	}
 
+	// Replace the global logger with the one we just created so that we use the same logger throughout the app when we
+	// don't have access to the app context (which is where we normally get the logger from).
 	zap.ReplaceGlobals(logger)
 
 	return logger, nil
@@ -210,7 +217,7 @@ func initializeAwsSession(v *viper.Viper, logger *zap.Logger) *awssession.Sessio
 	return s
 }
 
-// initializeDB initializes the database connection. This was copied from cmd/milmove/serve.go.
+// initializeDB initializes the database connection. This was mostly copied from cmd/milmove/serve.go.
 func initializeDB(v *viper.Viper, logger *zap.Logger, awsSession *awssession.Session) *pop.Connection {
 	if v.GetBool(cli.DbDebugFlag) {
 		pop.Debug = true
@@ -220,10 +227,9 @@ func initializeDB(v *viper.Viper, logger *zap.Logger, awsSession *awssession.Ses
 
 	if v.GetBool(cli.DbIamFlag) {
 		if awsSession != nil {
-			// We want to get the credentials from the logged in AWS session rather than create directly,
-			// because the session conflates the environment, shared, and container metdata config
-			// within NewSession.  With stscreds, we use the Secure Token Service,
-			// to assume the given role (that has rds db connect permissions).
+			// We want to get the credentials from the logged in AWS session rather than create directly, because the
+			// session conflates the environment, shared, and container metadata config within NewSession. With
+			// stscreds, we use the Secure Token Service, to assume the given role (w/RDS DB connect permissions).
 			dbIamRole := v.GetString(cli.DbIamRoleFlag)
 
 			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
@@ -282,7 +288,7 @@ func convertPPMShipmentDocumentUploadsToPDF(appCtx appcontext.AppContext, userUp
 		return nil
 	}
 
-	// mergePDFs will set up closing of the individual PDF streams
+	// mergePDFs will close each of the individual PDF streams (each item in pdfsToMerge) once it is done.
 	mergedPDF, mergeErr := mergePDFs(appCtx, pdfsToMerge)
 
 	if mergedPDF != nil {
@@ -304,7 +310,8 @@ func convertPPMShipmentDocumentUploadsToPDF(appCtx appcontext.AppContext, userUp
 	return nil
 }
 
-// gatherPPMShipmentUploads gathers the uploads for a PPM shipment.
+// gatherPPMShipmentUploads gathers the uploads for a PPM shipment. This is mainly a helper function to help keep the
+// primary function clean.
 func gatherPPMShipmentUploads(_ appcontext.AppContext, ppmShipment *models.PPMShipment) models.UserUploads {
 	var userUploads models.UserUploads
 
@@ -331,7 +338,10 @@ func gatherPPMShipmentUploads(_ appcontext.AppContext, ppmShipment *models.PPMSh
 	return userUploads
 }
 
-// convertUserUploadsToPDFs converts a PPM shipment's document uploads to a PDFs
+// convertUserUploadsToPDFs converts a PPM shipment's document uploads to a PDFs. This goes through the process of
+// downloading the actual uploads because models.UserUpload and related models.Upload contain metadata about the upload
+// and its associations, but not the actual file itself. After downloading, then we convert the file to a PDF if it
+// isn't already one, and then return the list of PDF streams once we finish with all the uploads.
 func convertUserUploadsToPDFs(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, userUploads models.UserUploads) ([]io.ReadCloser, error) {
 	pdfsToMerge := []io.ReadCloser{}
 
@@ -339,6 +349,9 @@ func convertUserUploadsToPDFs(appCtx appcontext.AppContext, userUploader *upload
 		userUpload := userUpload
 
 		download, downloadErr := userUploader.Download(appCtx, &userUpload)
+
+		// Normally you would want to set up a deferred function to close the download stream, but we're going to be
+		// doing that later on because of how we're using the streams.
 
 		if downloadErr != nil {
 			return nil, downloadErr
@@ -377,10 +390,12 @@ func convertUserUploadsToPDFs(appCtx appcontext.AppContext, userUploader *upload
 	return pdfsToMerge, nil
 }
 
-// convertFileToPDF converts a file to a PDF.
+// convertFileToPDF converts a single file to a PDF stream. This is one of the functions that actually interacts with
+// Gotenberg.
 func convertFileToPDF(appCtx appcontext.AppContext, fileToConvert io.ReadCloser, fileName string) (io.ReadCloser, error) {
 	buf := new(bytes.Buffer)
 
+	// The endpoint we'll be using accepts multipart/form-data, so we set that up here.
 	writer := multipart.NewWriter(buf)
 
 	part, formFileErr := writer.CreateFormFile("files", fileName)
@@ -438,13 +453,16 @@ func convertFileToPDF(appCtx appcontext.AppContext, fileToConvert io.ReadCloser,
 		return nil, fmt.Errorf("bad status | code: %d | status: %s", res.StatusCode, res.Status)
 	}
 
+	// If all is good, we'll just return the whole body, which should be the PDF stream.
 	return res.Body, nil
 }
 
-// mergePDFs merges a list of PDFs into a single PDF.
+// mergePDFs merges a list of PDFs into a single PDF. This is one of the functions that actually interacts with
+// Gotenberg.
 func mergePDFs(appCtx appcontext.AppContext, pdfsToMerge []io.ReadCloser) (io.ReadCloser, error) {
 	buf := new(bytes.Buffer)
 
+	// The endpoint we'll be using accepts multipart/form-data, so we set that up here.
 	writer := multipart.NewWriter(buf)
 
 	for i, pdf := range pdfsToMerge {
@@ -456,6 +474,11 @@ func mergePDFs(appCtx appcontext.AppContext, pdfsToMerge []io.ReadCloser) (io.Re
 			}
 		}()
 
+		// It's important that we use a different filename (second arg) for each file. Name clashes mean that only one
+		// of the files with that name actually gets converted. Tbh, I'm not sure 100% if it's that we don't even send
+		// the other file, or if Gotenberg overwrites it. My guess is the later because the size of the stream we send
+		// does increase if there are two files with the same name, but I'm not sure. Either way, we don't want to
+		// skip any accidentally, so we'll just use a different name for each file.
 		part, formFileErr := writer.CreateFormFile("files", fmt.Sprintf("file-%d.pdf", i))
 
 		if formFileErr != nil {
@@ -519,6 +542,8 @@ func mergePDFs(appCtx appcontext.AppContext, pdfsToMerge []io.ReadCloser) (io.Re
 // saveMergedPDF uploads the merged PDF to storage and saves the relevant DB info.
 func saveMergedPDF(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, ppmShipment *models.PPMShipment, mergedPDF io.ReadCloser) error {
 	txnErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		// We'll need to decide if we want to load this like this, or if we'll have a custom loader for PPMShipment that
+		// includes the ServiceMember already.
 		if err := txnAppCtx.DB().Load(&ppmShipment.Shipment,
 			"MoveTaskOrder.Orders.ServiceMember",
 		); err != nil {
@@ -542,8 +567,8 @@ func saveMergedPDF(appCtx appcontext.AppContext, userUploader *uploader.UserUplo
 			ppmShipment.PaymentPacketID = &document.ID
 			ppmShipment.PaymentPacket = &document
 
-			// Hacky saving of PPM Shipment. For the real implementation of this, if it's even done this way, we should use
-			// the ppm shipment updater service object.
+			// Hacky saving of PPM Shipment. For the real implementation of this, if it's even done this way, we should
+			// use the ppm shipment updater service object.
 			verrs, err = txnAppCtx.DB().ValidateAndUpdate(ppmShipment)
 
 			if verrs.HasAny() || err != nil {
@@ -575,7 +600,8 @@ func saveMergedPDF(appCtx appcontext.AppContext, userUploader *uploader.UserUplo
 
 		ppmShipment.PaymentPacket.UserUploads = append(ppmShipment.PaymentPacket.UserUploads, *newUpload)
 
-		// The download is just for testing purposes. We don't need to do this in the real implementation.
+		// The download is just for testing purposes. We don't need to do this in the real implementation. It's so that
+		// we can quickly see the final file that was created.
 		download, downloadErr := userUploader.Download(txnAppCtx, newUpload)
 
 		if downloadErr != nil {
@@ -596,7 +622,7 @@ func saveMergedPDF(appCtx appcontext.AppContext, userUploader *uploader.UserUplo
 	return nil
 }
 
-// writeToDisk writes a file to disk.
+// writeToDisk writes a file to disk. Helper function for testing.
 func writeToDisk(_ appcontext.AppContext, fileToSave io.ReadCloser, fileName string) error {
 	out, createErr := os.Create(filepath.Join("tmp", fileName))
 
