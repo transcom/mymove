@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -44,7 +45,16 @@ var root = &cobra.Command{
 	Args: cobra.NoArgs,
 }
 
-const PPMShipmentIDFlag string = "ppm-shipment-id"
+const (
+	// GotenbergProtocolFlag is the flag for the Gotenberg protocol, which we need to connect
+	GotenbergProtocolFlag string = "gotenberg-protocol"
+	// GotenbergHostFlag is the flag for the Gotenberg host, which we need to connect
+	GotenbergHostFlag string = "gotenberg-host"
+	// GotenbergPortFlag is the flag for the Gotenberg port, which we need to connect
+	GotenbergPortFlag string = "gotenberg-port"
+	// PPMShipmentIDFlag is the flag for the ID of the PPM shipment we should to convert uploads for.
+	PPMShipmentIDFlag string = "ppm-shipment-id"
+)
 
 // runPPMShipmentDocumentUploadToPDFConverter Sets up command, validates flags, and converts a PPM shipment's document
 // uploads into a PDF. Note that this command is only meant to run locally, not in a deployed environment. It would
@@ -107,6 +117,9 @@ func initUploadConverterFlags() {
 	flags := root.Flags()
 
 	// This command's config
+	flags.String(GotenbergProtocolFlag, "http", "The protocol for the Gotenberg server.")
+	flags.String(GotenbergHostFlag, "localhost", "The host for the Gotenberg server.")
+	flags.Int(GotenbergPortFlag, 2000, "The port for the Gotenberg server.")
 	flags.StringP(PPMShipmentIDFlag, "p", "", "The PPM shipment ID for the shipment to convert uploads for.")
 
 	// Environment
@@ -186,6 +199,33 @@ func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 
 	if err := cli.CheckStorage(v); err != nil {
 		return err
+	}
+
+	if err := cli.ValidateProtocol(v, GotenbergProtocolFlag); err != nil {
+		return err
+	}
+
+	protocol := v.GetString(GotenbergProtocolFlag)
+	if os.Getenv("GOTENBERG_PROTOCOL") != protocol {
+		os.Setenv("GOTENBERG_PROTOCOL", protocol)
+	}
+
+	if err := cli.ValidateHost(v, GotenbergHostFlag); err != nil {
+		return err
+	}
+
+	host := v.GetString(GotenbergHostFlag)
+	if os.Getenv("GOTENBERG_HOST") != host {
+		os.Setenv("GOTENBERG_HOST", host)
+	}
+
+	if err := cli.ValidatePort(v, GotenbergPortFlag); err != nil {
+		return err
+	}
+
+	port := strconv.Itoa(v.GetInt(GotenbergPortFlag))
+	if os.Getenv("GOTENBERG_PORT") != port {
+		os.Setenv("GOTENBERG_PORT", port)
 	}
 
 	ppmShipmentIDString := v.GetString(PPMShipmentIDFlag)
@@ -388,6 +428,11 @@ func convertUserUploadsToPDFs(appCtx appcontext.AppContext, userUploader *upload
 	return pdfsToMerge, nil
 }
 
+// getGotenbergBaseURL convenience function to get the base URL for connecting to Gotenberg.
+func getGotenbergBaseURL() string {
+	return fmt.Sprintf("%s://%s:%s", os.Getenv("GOTENBERG_PROTOCOL"), os.Getenv("GOTENBERG_HOST"), os.Getenv("GOTENBERG_PORT"))
+}
+
 // convertFileToPDF converts a single file to a PDF stream. This is one of the functions that actually interacts with
 // Gotenberg.
 func convertFileToPDF(appCtx appcontext.AppContext, fileToConvert io.ReadCloser, fileName string) (io.ReadCloser, error) {
@@ -416,7 +461,10 @@ func convertFileToPDF(appCtx appcontext.AppContext, fileToConvert io.ReadCloser,
 	}
 
 	// endpoint docs: https://gotenberg.dev/docs/modules/libreoffice#route
-	req, requestErr := http.NewRequest("POST", "http://localhost:2000/forms/libreoffice/convert", buf)
+	url := fmt.Sprintf("%s/%s", getGotenbergBaseURL(), "forms/libreoffice/convert")
+
+	req, requestErr := http.NewRequest("POST", url, buf)
+
 	if requestErr != nil {
 		return nil, requestErr
 	}
@@ -498,7 +546,9 @@ func mergePDFs(appCtx appcontext.AppContext, pdfsToMerge []io.ReadCloser) (io.Re
 	}
 
 	// endpoint docs: https://gotenberg.dev/docs/modules/pdf-engines#merge
-	req, requestErr := http.NewRequest("POST", "http://localhost:2000/forms/pdfengines/merge", buf)
+	url := fmt.Sprintf("%s/%s", getGotenbergBaseURL(), "forms/pdfengines/merge")
+
+	req, requestErr := http.NewRequest("POST", url, buf)
 
 	if requestErr != nil {
 		return nil, requestErr
