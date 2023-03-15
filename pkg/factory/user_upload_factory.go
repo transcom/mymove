@@ -61,13 +61,13 @@ func BuildUserUpload(db *pop.Connection, customs []Customization, traits []Trait
 
 	// UPLOADER MODE
 	//
-	// The upload customization has an extended parameter struct that
-	// includes a UserUploader interface and a file. If the
-	// UserUploader is passed in, models.UserUpload assertions are
-	// ignored in favor of the UserUploader. The Document and
-	// UploaderID customizations are still used if provided. The
-	// UserUploader functionality is used to add the file. This
-	// creates the Upload model.
+	// The user upload customization has an extended parameter
+	// struct that includes a UserUploader interface and a file.
+	// If the UserUploader is passed in, models.UserUpload
+	// assertions are ignored in favor of the UserUploader. The
+	// Document and UploaderID customizations are still used if
+	// provided. The UserUploader functionality is used to add the
+	// file. This creates the Upload model.
 	if db != nil && cUserUploadParams != nil && cUserUploadParams.UserUploader != nil {
 		// Appcontext required if uploader mode used.
 		if cUserUploadParams.AppContext == nil {

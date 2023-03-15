@@ -1,6 +1,8 @@
 package factory
 
 import (
+	"time"
+
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -24,7 +26,7 @@ func (suite *FactorySuite) TestBuildUserUpload() {
 		suite.False(userUpload.Upload.ID.IsNil())
 	})
 
-	suite.Run("Successful creation of customized upload", func() {
+	suite.Run("Successful creation of customized user upload with linked document", func() {
 		// Under test:       BuildUserUpload
 		// Set up:           Create a customized upload (no uploader)
 		// Expected outcome: All fields should match
@@ -64,6 +66,56 @@ func (suite *FactorySuite) TestBuildUserUpload() {
 		suite.Equal(customUserUpload.UploaderID, userUpload.UploaderID)
 		suite.Equal(upload.ID, userUpload.UploadID)
 		suite.Equal(upload, userUpload.Upload)
+	})
+
+	suite.Run("Successful creation of customized user upload with linked service member", func() {
+		// Under test:       BuildUserUpload
+		// Set up:           Create a customized service member
+		// Expected outcome: All fields should match
+
+		serviceMember := BuildServiceMember(suite.DB(), nil, nil)
+
+		// Create user upload
+		userUpload := BuildUserUpload(suite.DB(), []Customization{
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
+			},
+		}, nil)
+		suite.Equal(serviceMember.ID, userUpload.Document.ServiceMemberID)
+		suite.Equal(serviceMember, userUpload.Document.ServiceMember)
+		suite.Equal(serviceMember.UserID, userUpload.UploaderID)
+	})
+
+	suite.Run("Successful creation of customized user upload with customized upload", func() {
+		// Under test:       BuildUserUpload
+		// Set up:           Create a customized upload with no uploader
+		// Expected outcome: All fields should match
+
+		customUpload := models.Upload{
+			Filename:    "BaisWinery.jpg",
+			Bytes:       int64(6081979),
+			ContentType: "application/jpg",
+			Checksum:    "GauMarJosbDHsaQthV5BnQ==",
+			CreatedAt:   time.Now(),
+		}
+
+		// Create user upload
+		userUpload := BuildUserUpload(suite.DB(), []Customization{
+			{
+				Model: customUpload,
+			},
+		}, nil)
+
+		suite.Equal(customUpload.Filename, userUpload.Upload.Filename)
+		suite.Equal(customUpload.Bytes, userUpload.Upload.Bytes)
+		suite.Equal(customUpload.ContentType, userUpload.Upload.ContentType)
+		suite.Equal(customUpload.Checksum, userUpload.Upload.Checksum)
+		suite.Equal(customUpload.CreatedAt, userUpload.Upload.CreatedAt)
+		suite.False(userUpload.DocumentID.IsNil())
+		suite.False(userUpload.Document.ID.IsNil())
+		suite.False(userUpload.UploadID.IsNil())
+		suite.False(userUpload.Upload.ID.IsNil())
 	})
 
 	suite.Run("Successful creation of user upload with basic uploader", func() {
