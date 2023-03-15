@@ -10,19 +10,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 import { configureStore } from 'shared/store';
 import { roleTypes } from 'constants/userRoles';
-
-const mockPage = (path, name) => {
-  return jest.mock(path, () => {
-    // Create component name from path, if not provided (e.g. 'MoveQueue' -> 'Move Queue')
-    const componentName =
-      name ||
-      path
-        .substring(path.lastIndexOf('/') + 1)
-        .replace(/([A-Z])/g, ' $1')
-        .trim();
-    return () => <div>{`Mock ${componentName} Component`}</div>;
-  });
-};
+import { mockPage } from 'testUtils';
 
 // Mock lazy loaded pages
 mockPage('pages/SignIn/SignIn');

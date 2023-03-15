@@ -9,20 +9,7 @@ import { OfficeApp } from './index';
 
 import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
-
-const mockPage = (path, name) => {
-  return jest.mock(path, () => {
-    // Create component name from path, if not provided (e.g. 'MoveQueue' -> 'Move Queue')
-    const componentName =
-      name ||
-      path
-        .substring(path.lastIndexOf('/') + 1)
-        .replace(/([A-Z])/g, ' $1')
-        .trim();
-
-    return () => <div>{`Mock ${componentName} Component`}</div>;
-  });
-};
+import { mockPage } from 'testUtils';
 
 // Mock the components that are routed to from the index, ordered the same as the routes in the index file
 mockPage('pages/SignIn/SignIn');

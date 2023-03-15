@@ -6,25 +6,11 @@ import { Provider } from 'react-redux';
 
 import TXOMoveInfo from './TXOMoveInfo';
 
-import { MockProviders } from 'testUtils';
+import { mockPage, MockProviders } from 'testUtils';
 import { useTXOMoveInfoQueries } from 'hooks/queries';
 import { tooRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
-
-const mockPage = (path, name) => {
-  return jest.mock(path, () => {
-    // Create component name from path, if not provided (e.g. 'MoveQueue' -> 'Move Queue')
-    const componentName =
-      name ||
-      path
-        .substring(path.lastIndexOf('/') + 1)
-        .replace(/([A-Z])/g, ' $1')
-        .trim();
-
-    return () => <div>{`Mock ${componentName} Component`}</div>;
-  });
-};
 
 mockPage('pages/Office/MoveDetails/MoveDetails');
 mockPage('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper');
