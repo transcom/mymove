@@ -40,6 +40,7 @@ const defaultProps = {
   weightAllowance: 9000,
   weightTicket: { fullWeight: 1200, emptyWeight: 200 },
   shipments,
+  editNetWeight: () => {},
 };
 
 const excessWeight = {
@@ -150,17 +151,17 @@ describe('EditNetPPMWeight', () => {
       expect(await screen.findByTestId('errorIndicator')).toBeInTheDocument();
       expect(screen.getByText('Required'));
     });
-    // it('saves changes when editing the form', async () => {
-    //   render(<EditPPMNetWeight {...reduceWeight} />);
-    //   await act(() => userEvent.click(screen.getByRole('button', { name: 'Edit' })));
-    //   const textInput = await screen.findByTestId('weightInput');
-    //   await act(() => userEvent.type(textInput, '1000'));
-    //   const remarksField = await screen.findByTestId('formRemarks');
-    //   await act(() => userEvent.type(remarksField, 'Reduced by as much as I can'));
-    //   await act( () => userEvent.click(screen.getByRole('button', { name: 'Save changes' })))
-    //   expect(screen.getByText('0 lbs')).toBeInTheDocument();
-    //   expect(screen.getByText('Remarks')).toBeInTheDocument();
-    //   expect(screen.getByText('Reduced by as much as I can')).toBeInTheDocument();
-    // });
+    it('saves changes when editing the form', async () => {
+      render(<EditPPMNetWeight {...reduceWeight} />);
+      await act(() => userEvent.click(screen.getByRole('button', { name: 'Edit' })));
+      const textInput = await screen.findByTestId('weightInput');
+      await act(() => userEvent.type(textInput, '1000'));
+      const remarksField = await screen.findByTestId('formRemarks');
+      await act(() => userEvent.type(remarksField, 'Reduced by as much as I can'));
+      await act(() => userEvent.click(screen.getByRole('button', { name: 'Save changes' })));
+      expect(screen.getByText('0 lbs')).toBeInTheDocument();
+      expect(screen.getByText('Remarks')).toBeInTheDocument();
+      expect(screen.getByText('Reduced by as much as I can')).toBeInTheDocument();
+    });
   });
 });
