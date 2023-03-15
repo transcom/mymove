@@ -178,7 +178,7 @@ const TXOMoveInfo = () => {
           />
           <Route path="history" end element={<MoveHistory moveCode={moveCode} />} />
           {/* TODO - clarify role/tab access */}
-          <Route path="/moves/:moveCode" element={<Navigate to={`/moves/${moveCode}/details`} replace />} />
+          <Route path="/" element={<Navigate to={`/moves/${moveCode}/details`} replace />} />
         </Routes>
       </Suspense>
     </>
