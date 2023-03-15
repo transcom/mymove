@@ -9,7 +9,7 @@ import styles from './EditPPMNetWeight.module.scss';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import { formatWeight } from 'utils/formatters';
-import { calculateWeightTicketWeightDifference } from 'utils/shipmentWeights';
+import { calculateWeightTicketWeightDifference, getWeightTicketNetWeight } from 'utils/shipmentWeights';
 import { useCalculatedWeightRequested } from 'hooks/custom';
 import { ShipmentShape, WeightTicketShape } from 'types/shipment';
 
@@ -87,8 +87,8 @@ const WeightCalculationHint = ({ type, firstValue, secondValue, thirdValue }) =>
 };
 
 const validationSchema = Yup.object({
-  ppmNetWeight: Yup.number().min(0, 'Net weight must be 0 lbs or greater').required('Required'),
-  ppmNetWeightRemarks: Yup.string().required('Required'),
+  adjustedNetWeight: Yup.number().min(0, 'Net weight must be 0 lbs or greater').required('Required'),
+  netWeightRemarks: Yup.string().required('Required'),
 });
 
 const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => (
@@ -99,8 +99,8 @@ const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => (
           <MaskedTextField
             data-testid="weightInput"
             defaultValue="0"
-            id="ppmNetWeight"
-            name="ppmNetWeight"
+            id="adjustedNetWeight"
+            name="adjustedNetWeight"
             mask={Number}
             lazy={false}
             scale={0}
@@ -112,30 +112,33 @@ const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => (
             labelClassName={styles.weightLabel}
           />
           <Label htmlFor="remarks">Remarks</Label>
-          <ErrorMessage
-            className={styles.errors}
-            display={!!touched.ppmNetWeightRemarks && !!errors.ppmNetWeightRemarks}
-          >
-            {errors.ppmNetWeightRemarks}
+          <ErrorMessage className={styles.errors} display={!!touched.netWeightRemarks && !!errors.netWeightRemarks}>
+            {errors.netWeightRemarks}
           </ErrorMessage>
-          <ErrorIndicator hasErrors={!!touched.ppmNetWeightRemarks && !!errors.ppmNetWeightRemarks}>
+          <ErrorIndicator hasErrors={!!touched.netWeightRemarks && !!errors.netWeightRemarks}>
             <Textarea
-              id="ppmNetWeightRemarks"
+              id="netWeightRemarks"
               data-testid="formRemarks"
               maxLength={500}
               placeholder=""
               onChange={handleChange}
               onBlur={() => {
-                setTouched({ ppmNetWeightRemarks: true }, false);
+                setTouched({ netWeightRemarks: true }, false);
               }}
-              value={values.ppmNetWeightRemarks}
+              value={values.netWeightRemarks}
             />
           </ErrorIndicator>
           <FlexContainer className={styles.wrapper}>
             <Button
               onClick={() => {
-                onSave({ ...initialValues, ...values });
-                onCancel();
+                onSave(
+                  { ...initialValues, ...values },
+                  {
+                    onSuccess: () => {
+                      onCancel();
+                    },
+                  },
+                );
               }}
               disabled={!isValid}
             >
@@ -151,7 +154,7 @@ const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => (
   </Formik>
 );
 
-const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments, editEntity }) => {
+const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments, editNetWeight }) => {
   const [showEditForm, setShowEditForm] = useState(false);
 
   const toggleEditForm = () => {
@@ -164,8 +167,7 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments, editEntity
   const moveWeightTotal = useCalculatedWeightRequested(shipments);
   const excessWeight = moveWeightTotal - weightAllowance;
   const hasExcessWeight = Boolean(excessWeight > 0);
-  // FIX: Once new netWeights can be saved, the toFit value should use that value here if its availble over using original weight
-  const netWeight = originalWeight;
+  const netWeight = getWeightTicketNetWeight(weightTicket);
   const toFitValue = hasExcessWeight ? -Math.min(excessWeight, netWeight) : null;
   const showWarning = Boolean(hasExcessWeight && !showEditForm);
   const showReduceWeight = Boolean(-originalWeight === toFitValue);
@@ -206,8 +208,8 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments, editEntity
             </div>
           ) : (
             <EditPPMNetWeightForm
-              initialValues={{ ppmNetWeight: String(netWeight), netWeightRemarks: weightTicket.netWeightRemarks }}
-              onSave={editEntity}
+              initialValues={{ adjustedNetWeight: String(netWeight), netWeightRemarks: weightTicket.netWeightRemarks }}
+              onSave={editNetWeight}
               onCancel={toggleEditForm}
             />
           )}
@@ -221,7 +223,7 @@ EditPPMNetWeight.propTypes = {
   weightTicket: WeightTicketShape.isRequired,
   weightAllowance: number.isRequired,
   shipments: PropTypes.arrayOf(ShipmentShape).isRequired,
-  editEntity: func.isRequired,
+  editNetWeight: func.isRequired,
 };
 
 export default EditPPMNetWeight;

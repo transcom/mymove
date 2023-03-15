@@ -30,8 +30,10 @@ const DOCUMENT_TYPES = {
 
 export const ReviewDocuments = ({ match }) => {
   const { shipmentId, moveCode } = match.params;
-  const { move, orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
+  const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
+
+  const order = Object.values(orders)?.[0];
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
 
@@ -102,10 +104,6 @@ export const ReviewDocuments = ({ match }) => {
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
-
-  const editEntity = (formValues) => {
-    debugger;
-  };
 
   const onClose = () => {
     history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
@@ -182,8 +180,8 @@ export const ReviewDocuments = ({ match }) => {
                     ppmNumber={1}
                     tripNumber={currentDocumentSet.tripNumber}
                     mtoShipment={mtoShipment}
+                    order={order}
                     mtoShipments={mtoShipments}
-                    editEntity={editEntity}
                     onError={onError}
                     onSuccess={onSuccess}
                     formRef={formRef}

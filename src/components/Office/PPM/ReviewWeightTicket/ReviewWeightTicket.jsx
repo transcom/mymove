@@ -14,6 +14,7 @@ import styles from './ReviewWeightTicket.module.scss';
 import { ErrorMessage, Form } from 'components/form';
 import { patchWeightTicket } from 'services/ghcApi';
 import { ShipmentShape, WeightTicketShape } from 'types/shipment';
+import { OrderShape } from 'types/order';
 import Fieldset from 'shared/Fieldset';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
@@ -43,7 +44,7 @@ const validationSchema = Yup.object().shape({
 export default function ReviewWeightTicket({
   mtoShipment,
   mtoShipments,
-  editEntity,
+  order,
   weightTicket,
   tripNumber,
   ppmNumber,
@@ -53,10 +54,7 @@ export default function ReviewWeightTicket({
 }) {
   const [canEditRejection, setCanEditRejection] = useState(true);
 
-  const { mutate: patchWeightTicketMutation } = useMutation(patchWeightTicket, {
-    onSuccess,
-    onError,
-  });
+  const { mutate: patchWeightTicketMutation } = useMutation(patchWeightTicket);
 
   const ppmShipment = mtoShipment?.ppmShipment;
 
@@ -75,12 +73,44 @@ export default function ReviewWeightTicket({
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.rejectionReason,
       status: values.status,
     };
-    patchWeightTicketMutation({
-      ppmShipmentId: weightTicket.ppmShipmentId,
-      weightTicketId: weightTicket.id,
-      payload,
-      eTag: weightTicket.eTag,
-    });
+    patchWeightTicketMutation(
+      {
+        ppmShipmentId: weightTicket.ppmShipmentId,
+        weightTicketId: weightTicket.id,
+        payload,
+        eTag: weightTicket.eTag,
+      },
+      {
+        onSuccess,
+        onError,
+      },
+    );
+  };
+
+  /**
+   * editNetWeight - This gets passed down into the EditPPMNetWeight component to
+   * be used for the onSave in the EditPPMNetWeightForm
+   * @param {Object} formValues - The values that are returned from the EditPPMNetWeightForm component on click.
+   * @param {string} formValues.adjustedNetWeight - The adjusted ney weight as a string. This value needs to be parsed into an integer before mutation.
+   * @param {string} formValues.netWeightRemarks - The net weight remarks.
+   * @param {Object} callbacks - These are the callbacks that React Query v4 uses when doing mutations.
+   *                            <https://tkdodo.eu/blog/mastering-mutations-in-react-query#some-callbacks-might-not-fire>
+   * @param {func} callbacks.onSuccess - The function that gets passed from EditPPMNetWeightForm to close the form.
+   */
+  const editNetWeight = (formValues, callbacks) => {
+    const payload = {
+      adjustedNetWeight: parseInt(formValues.fullWeight, 10),
+      netWeightRemarks: formValues.netWeightRemarks,
+    };
+    patchWeightTicketMutation(
+      {
+        ppmShipmentId: weightTicket.ppmShipmentId,
+        weightTicketId: weightTicket.id,
+        payload,
+        eTag: weightTicket.eTag,
+      },
+      callbacks,
+    );
   };
 
   const {
@@ -189,10 +219,9 @@ export default function ReviewWeightTicket({
 
               <EditPPMNetWeight
                 weightTicket={weightTicket}
-                /* WARN: @rogeruiz I'm not sure where this is coming from? Is this on the MTO? */
-                weightAllowance={5000}
+                weightAllowance={order.entitlement.authorizedWeight}
                 shipments={mtoShipments}
-                editEntity={editEntity}
+                editNetWeight={editNetWeight}
               />
 
               <FormGroup>
@@ -324,16 +353,15 @@ ReviewWeightTicket.propTypes = {
   mtoShipment: ShipmentShape,
   tripNumber: number.isRequired,
   ppmNumber: number.isRequired,
-  editEntity: func,
   onSuccess: func,
   formRef: object,
   mtoShipments: PropTypes.arrayOf(ShipmentShape),
+  order: OrderShape.isRequired,
 };
 
 ReviewWeightTicket.defaultProps = {
   weightTicket: null,
   mtoShipment: null,
-  editEntity: null,
   onSuccess: null,
   formRef: null,
   mtoShipments: [],
