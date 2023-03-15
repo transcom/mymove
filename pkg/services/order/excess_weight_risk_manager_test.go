@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
@@ -77,7 +78,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 		storer := storageTest.NewFakeS3Storage(true)
 		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
-		amendedDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+		amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)
 		amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
 			UserUpload: models.UserUpload{
 				DocumentID: &amendedDocument.ID,
@@ -270,7 +271,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 		storer := storageTest.NewFakeS3Storage(true)
 		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
-		amendedDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+		amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)
 		amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
 			UserUpload: models.UserUpload{
 				DocumentID: &amendedDocument.ID,
@@ -461,7 +462,7 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		storer := storageTest.NewFakeS3Storage(true)
 		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
-		amendedDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+		amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)
 		amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
 			UserUpload: models.UserUpload{
 				DocumentID: &amendedDocument.ID,

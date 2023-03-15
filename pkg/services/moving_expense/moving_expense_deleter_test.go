@@ -24,11 +24,7 @@ func (suite *MovingExpenseSuite) TestDeleteMovingExpense() {
 			},
 		})
 
-		expenseDocument := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: serviceMember.ID,
-			},
-		})
+		expenseDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 
 		if hasDocumentUploads {
 			for i := 0; i < 2; i++ {

@@ -68,12 +68,7 @@ func makeServiceMember(appCtx appcontext.AppContext) models.ServiceMember {
 }
 
 func makeAmendedOrders(appCtx appcontext.AppContext, order models.Order, userUploader *uploader.UserUploader, fileNames *[]string) models.Order {
-	document := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
-		Document: models.Document{
-			ServiceMemberID: order.ServiceMemberID,
-			ServiceMember:   order.ServiceMember,
-		},
-	})
+	document := factory.BuildDocumentLinkServiceMember(appCtx.DB(), order.ServiceMember)
 
 	// Creates order upload documents from the files in this directory:
 	// pkg/testdatagen/testdata/bandwidth_test_docs

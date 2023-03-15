@@ -38,6 +38,7 @@ var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
 var BackupContact CustomType = "BackupContact"
 var Contractor CustomType = "Contractor"
+var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
@@ -61,6 +62,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.AdminUser":            AdminUser,
 	"models.BackupContact":        BackupContact,
 	"models.Contractor":           Contractor,
+	"models.Document":             Document,
 	"models.DutyLocation":         DutyLocation,
 	"models.Entitlement":          Entitlement,
 	"models.OfficePhoneLine":      OfficePhoneLine,

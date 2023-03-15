@@ -320,7 +320,7 @@ func (suite *MTOServiceItemServiceSuite) createServiceItemForMoveWithUnacknowled
 	storer := storageTest.NewFakeS3Storage(true)
 	userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
 	suite.NoError(err)
-	amendedDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+	amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)
 	amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
 		UserUpload: models.UserUpload{
 			DocumentID: &amendedDocument.ID,
