@@ -12,7 +12,8 @@
 version: '2.1'
 
 orbs:
-  aws-parameter-store: circleci/aws-parameter-store@1.0.0
+  #aws-parameter-store: circleci/aws-parameter-store@1.0.0
+  aws-cli: circleci/aws-cli@3.1
 
 # References for variables shared across the file
 references:
@@ -796,13 +797,28 @@ commands:
             ./scripts/run-e2e-mtls-test
 
 jobs:
-  aws-parameter-store-connection:
-    executor: av_medium
+  aws-cli-example:
+    executor: aws-cli/default
     steps:
-      - aws-parameter-store/load
-        #filter: Key=openidconnecttest
       - checkout
-      - run: echo "Test job for aws parameter store"
+      - aws-cli/setup:
+          profile-name: 'CIRCLECI-OIDC-PROFILE'
+          role-arn: 'arn:aws-us-gov:iam::015681133840:role/circleci-keeper'
+          # aws-region: "us-west-1"
+          role-session-name: example-session
+      - run: echo "Test if this works"
+      - run:
+          name: Log-into-AWS-ECR
+          command: |
+            aws ecr get-login-password --profile "CIRCLECI-OIDC-PROFILE"
+
+  #aws-parameter-store-connection:
+  #  executor: av_medium
+  #  steps:
+  #    - aws-parameter-store/load
+  #filter: Key=openidconnecttest
+  #    - checkout
+  #    - run: echo "Test job for aws parameter store"
 
   # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
@@ -1854,7 +1870,9 @@ workflows:
 
   app:
     jobs:
-      - aws-parameter-store-connection
+      - aws-cli-example:
+          context: aws
+      #- aws-parameter-store-connection
       - check_tls_certificate_dp3
 
       - check_tls_certificate_stg
