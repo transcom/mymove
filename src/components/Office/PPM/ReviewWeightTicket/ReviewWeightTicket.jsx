@@ -99,7 +99,7 @@ export default function ReviewWeightTicket({
    */
   const editNetWeight = (formValues, callbacks) => {
     const payload = {
-      adjustedNetWeight: parseInt(formValues.fullWeight, 10),
+      adjustedNetWeight: parseInt(formValues.adjustedNetWeight, 10),
       netWeightRemarks: formValues.netWeightRemarks,
     };
     patchWeightTicketMutation(

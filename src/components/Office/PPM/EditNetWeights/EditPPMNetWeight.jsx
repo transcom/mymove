@@ -110,6 +110,7 @@ const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => (
             inputClassName={styles.weightInput}
             errorClassName={styles.errors}
             labelClassName={styles.weightLabel}
+            value={values.adjustedNetWeight}
           />
           <Label htmlFor="remarks">Remarks</Label>
           <ErrorMessage className={styles.errors} display={!!touched.netWeightRemarks && !!errors.netWeightRemarks}>
