@@ -10,7 +10,9 @@
 
   .table{
     min-height: 0;
-    ;
+    tr:hover {
+      background-color: white; 
+    }
   }
 
 
