@@ -53,9 +53,11 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 	}
 	transportationOffice := BuildTransportationOfficeWithPhoneLine(db, tempTOAddressCustoms, traits)
 
-	// Build the required Tariff 400 NG Zip3 to correspond with the duty location address
-	FetchOrBuildTariff400ngZip3(db, []Customization{
-		{
+	tarifCustoms := findValidCustomization(customs, Tariff400ngZip3)
+	if tarifCustoms == nil {
+		// Build the required Tariff 400 NG Zip3 to correspond with the
+		// duty location address
+		tarifCustoms = &Customization{
 			Model: models.Tariff400ngZip3{
 				Zip3:          "503",
 				BasepointCity: "Des Moines",
@@ -64,8 +66,9 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 				RateArea:      "US53",
 				Region:        "7",
 			},
-		},
-	}, nil)
+		}
+	}
+	FetchOrBuildTariff400ngZip3(db, []Customization{*tarifCustoms}, nil)
 
 	// Create default Duty Location
 	affiliation := internalmessages.AffiliationAIRFORCE
@@ -118,22 +121,11 @@ func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
 		return fortGordon
 	}
 
-	// If not, build the Fort Gordon Duty location with the associated
-	// address and tariff
-	FetchOrBuildTariff400ngZip3(db, []Customization{
-		{
-			Model: models.Tariff400ngZip3{
-				Zip3:          "308",
-				BasepointCity: "Harlem",
-				State:         "GA",
-				ServiceArea:   "208",
-				RateArea:      "US45",
-				Region:        "12",
-			},
-		},
-	}, nil)
+	return BuildDutyLocation(db, nil, []Trait{GetTraitDefaultOrdersDutyLocation})
+}
 
-	return BuildDutyLocation(db, []Customization{
+func GetTraitDefaultOrdersDutyLocation() []Customization {
+	return []Customization{
 		{
 			Model: models.DutyLocation{
 				Name: "Fort Gordon",
@@ -148,5 +140,15 @@ func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
 				PostalCode: "30813",
 			},
 		},
-	}, nil)
+		{
+			Model: models.Tariff400ngZip3{
+				Zip3:          "308",
+				BasepointCity: "Harlem",
+				State:         "GA",
+				ServiceArea:   "208",
+				RateArea:      "US45",
+				Region:        "12",
+			},
+		},
+	}
 }
