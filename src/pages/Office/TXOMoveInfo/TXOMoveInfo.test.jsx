@@ -90,6 +90,29 @@ const errorReturnValue = {
   isSuccess: false,
 };
 
+// Render the TXO Move Info page with redux and routing setup.
+// Nestes the TXOMoveInfo under /moves/:moveCode/ as done in the app since the TXOMoveInfo component uses nested pathing.
+const renderTXOMoveInfo = (state, nestedPath = 'details') => {
+  const mockStore = configureStore({
+    ...loggedInTIOState,
+    ...state,
+  });
+
+  return render(
+    <MemoryRouter initialEntries={[`/moves/${testMoveCode}/${nestedPath}`]}>
+      <Provider store={mockStore.store}>
+        <Routes>
+          <Route key="txoMoveInfoRoute" path="/moves/:moveCode/*" element={<TXOMoveInfo />} />
+        </Routes>
+      </Provider>
+    </MemoryRouter>,
+  );
+};
+
+beforeEach(() => {
+  useTXOMoveInfoQueries.mockReturnValue(basicUseTXOMoveInfoQueriesValue);
+});
+
 describe('TXO Move Info Container', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
@@ -122,7 +145,6 @@ describe('TXO Move Info Container', () => {
   describe('Basic rendering', () => {
     it('should render the move tab container', () => {
       const mockStore = configureStore(loggedInTIOState);
-      useTXOMoveInfoQueries.mockReturnValueOnce(basicUseTXOMoveInfoQueriesValue);
       const wrapper = mount(
         <MemoryRouter initialEntries={[`/moves/${testMoveCode}/details`]}>
           <Provider store={mockStore.store}>
@@ -157,21 +179,9 @@ describe('TXO Move Info Container', () => {
       expect(wrapper.find('li.tabItem a').at(4).prop('href')).toEqual(`/moves/${testMoveCode}/evaluation-reports`);
       expect(wrapper.find('li.tabItem a').at(5).prop('href')).toEqual(`/moves/${testMoveCode}/history`);
     });
+
     it('should render the system error when there is an error', () => {
-      const mockStore = configureStore({
-        ...loggedInTIOState,
-        interceptor: { hasRecentError: true, traceId: 'some-trace-id' },
-      });
-      useTXOMoveInfoQueries.mockReturnValueOnce(basicUseTXOMoveInfoQueriesValue);
-      render(
-        <MemoryRouter initialEntries={[`/moves/${testMoveCode}/details`]}>
-          <Provider store={mockStore.store}>
-            <Routes>
-              <Route key="txoMoveInfoRoute" path="/moves/:moveCode/*" element={<TXOMoveInfo />} />
-            </Routes>
-          </Provider>
-        </MemoryRouter>,
-      );
+      renderTXOMoveInfo({ interceptor: { hasRecentError: true, traceId: 'some-trace-id' } });
 
       expect(screen.getByText('Technical Help Desk').closest('a')).toHaveAttribute(
         'href',
@@ -181,30 +191,15 @@ describe('TXO Move Info Container', () => {
         "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk and give them this code: some-trace-id",
       );
     });
+
     it('should not render system error when there is not an error', () => {
-      const mockStore = configureStore({
-        ...loggedInTIOState,
-        interceptor: { hasRecentError: false, traceId: '' },
-      });
-      useTXOMoveInfoQueries.mockReturnValueOnce(basicUseTXOMoveInfoQueriesValue);
-      render(
-        <MemoryRouter initialEntries={[`/moves/${testMoveCode}/details`]}>
-          <Provider store={mockStore.store}>
-            <Routes>
-              <Route key="txoMoveInfoRoute" path="/moves/:moveCode/*" element={<TXOMoveInfo />} />
-            </Routes>
-          </Provider>
-        </MemoryRouter>,
-      );
+      renderTXOMoveInfo({ interceptor: { hasRecentError: false, traceId: '' } });
+
       expect(queryByTestId(document.documentElement, 'system-error')).not.toBeInTheDocument();
     });
   });
 
   describe('routing', () => {
-    beforeAll(() => {
-      useTXOMoveInfoQueries.mockReturnValue(basicUseTXOMoveInfoQueriesValue);
-    });
-
     it.each([
       ['Move Details', '/'],
       ['Move Details', 'details'],
@@ -219,28 +214,14 @@ describe('TXO Move Info Container', () => {
       ['Move History', 'history'],
       ['Forbidden', 'evaluation-reports/123'], // Permission restricted
       ['Forbidden', 'evaluation-reports/report123/violations'], // Permission restricted
-    ])(
-      'should render the %s component when at the route: /moves/1A5PM3/%s',
-      async (componentName, relativePath, state = loggedInTIOState) => {
-        const mockStore = configureStore(state);
+    ])('should render the %s component when at the route: /moves/1A5PM3/%s', async (componentName, nestedPath) => {
+      renderTXOMoveInfo(null, nestedPath);
 
-        // Render the TXOMoveInfo component inside a MemoryRouter and Route mocking a parent route since this file uses relative pathing
-        render(
-          <MemoryRouter initialEntries={[`/moves/${testMoveCode}/${relativePath}`]}>
-            <Provider store={mockStore.store}>
-              <Routes>
-                <Route key="txoMoveInfoRoute" path="/moves/:moveCode/*" element={<TXOMoveInfo />} />
-              </Routes>
-            </Provider>
-          </MemoryRouter>,
-        );
+      // Wait for loading to finish
+      await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
-        // Wait for loading to finish
-        await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
-
-        // Assert that the mock component is rendered
-        await expect(screen.getByText(`Mock ${componentName} Component`)).toBeInTheDocument();
-      },
-    );
+      // Assert that the mock component is rendered
+      await expect(screen.getByText(`Mock ${componentName} Component`)).toBeInTheDocument();
+    });
   });
 });
