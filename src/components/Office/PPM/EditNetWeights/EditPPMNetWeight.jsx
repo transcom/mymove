@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Formik } from 'formik';
+import { useQueryClient } from '@tanstack/react-query';
 import * as Yup from 'yup';
 import { PropTypes, func, number } from 'prop-types';
 import { Button, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
@@ -91,69 +92,74 @@ const validationSchema = Yup.object({
   netWeightRemarks: Yup.string().required('Required'),
 });
 
-const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => (
-  <Formik initialValues={initialValues} validationSchema={validationSchema}>
-    {({ handleChange, values, isValid, errors, touched, setTouched }) => (
-      <div>
-        <Fieldset className={styles.fieldset}>
-          <MaskedTextField
-            data-testid="weightInput"
-            defaultValue="0"
-            id="adjustedNetWeight"
-            name="adjustedNetWeight"
-            mask={Number}
-            lazy={false}
-            scale={0}
-            signed={false} // no negative numbers
-            thousandsSeparator=","
-            suffix="lbs"
-            inputClassName={styles.weightInput}
-            errorClassName={styles.errors}
-            labelClassName={styles.weightLabel}
-            value={values.adjustedNetWeight}
-          />
-          <Label htmlFor="remarks">Remarks</Label>
-          <ErrorMessage className={styles.errors} display={!!touched.netWeightRemarks && !!errors.netWeightRemarks}>
-            {errors.netWeightRemarks}
-          </ErrorMessage>
-          <ErrorIndicator hasErrors={!!touched.netWeightRemarks && !!errors.netWeightRemarks}>
-            <Textarea
-              id="netWeightRemarks"
-              data-testid="formRemarks"
-              maxLength={500}
-              placeholder=""
-              onChange={handleChange}
-              onBlur={() => {
-                setTouched({ netWeightRemarks: true }, false);
-              }}
-              value={values.netWeightRemarks}
+const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => {
+  const queryClient = useQueryClient();
+
+  return (
+    <Formik initialValues={initialValues} validationSchema={validationSchema}>
+      {({ handleChange, values, isValid, errors, touched, setTouched }) => (
+        <div>
+          <Fieldset className={styles.fieldset}>
+            <MaskedTextField
+              data-testid="weightInput"
+              defaultValue="0"
+              id="adjustedNetWeight"
+              name="adjustedNetWeight"
+              mask={Number}
+              lazy={false}
+              scale={0}
+              signed={false} // no negative numbers
+              thousandsSeparator=","
+              suffix="lbs"
+              inputClassName={styles.weightInput}
+              errorClassName={styles.errors}
+              labelClassName={styles.weightLabel}
+              value={values.adjustedNetWeight}
             />
-          </ErrorIndicator>
-          <FlexContainer className={styles.wrapper}>
-            <Button
-              onClick={() => {
-                onSave(
-                  { ...initialValues, ...values },
-                  {
-                    onSuccess: () => {
-                      onCancel();
+            <Label htmlFor="remarks">Remarks</Label>
+            <ErrorMessage className={styles.errors} display={!!touched.netWeightRemarks && !!errors.netWeightRemarks}>
+              {errors.netWeightRemarks}
+            </ErrorMessage>
+            <ErrorIndicator hasErrors={!!touched.netWeightRemarks && !!errors.netWeightRemarks}>
+              <Textarea
+                id="netWeightRemarks"
+                data-testid="formRemarks"
+                maxLength={500}
+                placeholder=""
+                onChange={handleChange}
+                onBlur={() => {
+                  setTouched({ netWeightRemarks: true }, false);
+                }}
+                value={values.netWeightRemarks}
+              />
+            </ErrorIndicator>
+            <FlexContainer className={styles.wrapper}>
+              <Button
+                onClick={() => {
+                  onSave(
+                    { ...initialValues, ...values },
+                    {
+                      onSuccess: (/* data, variables, context */) => {
+                        queryClient.invalidateQueries(); // FIX: @rogeruiz - This invalidates everything for now.
+                        onCancel();
+                      },
                     },
-                  },
-                );
-              }}
-              disabled={!isValid}
-            >
-              Save changes
-            </Button>
-            <Button unstyled onClick={onCancel}>
-              Cancel
-            </Button>
-          </FlexContainer>
-        </Fieldset>
-      </div>
-    )}
-  </Formik>
-);
+                  );
+                }}
+                disabled={!isValid}
+              >
+                Save changes
+              </Button>
+              <Button unstyled onClick={onCancel}>
+                Cancel
+              </Button>
+            </FlexContainer>
+          </Fieldset>
+        </div>
+      )}
+    </Formik>
+  );
+};
 
 const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments, editNetWeight }) => {
   const [showEditForm, setShowEditForm] = useState(false);
