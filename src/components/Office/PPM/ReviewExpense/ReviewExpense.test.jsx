@@ -4,7 +4,9 @@ import userEvent from '@testing-library/user-event';
 
 import ReviewExpense from './ReviewExpense';
 
+import ppmDocumentStatus from 'constants/ppms';
 import { expenseTypes } from 'constants/ppmExpenseTypes';
+import { MockProviders } from 'testUtils';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -19,7 +21,7 @@ const defaultProps = {
     hasReceivedAdvance: true,
     advanceAmountReceived: 60000,
   },
-  expenseNumber: 1,
+  tripNumber: 1,
   ppmNumber: 1,
 };
 
@@ -43,10 +45,18 @@ const storageProps = {
   },
 };
 
+const rejectedProps = {
+  expense: {
+    ...expenseRequiredProps.expense,
+    reason: 'Rejection reason',
+    status: ppmDocumentStatus.REJECTED,
+  },
+};
+
 describe('ReviewExpenseForm component', () => {
   describe('displays form', () => {
     it('renders blank form on load with defaults', async () => {
-      render(<ReviewExpense {...defaultProps} />);
+      render(<ReviewExpense {...defaultProps} />, { wrapper: MockProviders });
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 3, name: 'Receipt 1' })).toBeInTheDocument();
@@ -66,7 +76,7 @@ describe('ReviewExpenseForm component', () => {
     });
 
     it('populates edit form with existing expense values', async () => {
-      render(<ReviewExpense {...defaultProps} {...expenseRequiredProps} />);
+      render(<ReviewExpense {...defaultProps} {...expenseRequiredProps} />, { wrapper: MockProviders });
 
       await waitFor(() => {
         expect(screen.getByText('Packing materials')).toBeInTheDocument();
@@ -77,7 +87,7 @@ describe('ReviewExpenseForm component', () => {
     });
 
     it('shows SIT fields when expense type is Storage', async () => {
-      render(<ReviewExpense {...defaultProps} {...storageProps} />);
+      render(<ReviewExpense {...defaultProps} {...storageProps} />, { wrapper: MockProviders });
       await waitFor(() => {
         expect(screen.getByLabelText('Start date')).toBeInstanceOf(HTMLInputElement);
       });
@@ -86,7 +96,7 @@ describe('ReviewExpenseForm component', () => {
     });
 
     it('populates edit form with existing storage values', async () => {
-      render(<ReviewExpense {...defaultProps} {...storageProps} />);
+      render(<ReviewExpense {...defaultProps} {...storageProps} />, { wrapper: MockProviders });
       await waitFor(() => {
         expect(screen.getByLabelText('Start date')).toHaveDisplayValue('15 Dec 2022');
       });
@@ -94,14 +104,14 @@ describe('ReviewExpenseForm component', () => {
     });
 
     it('correctly displays days in SIT', async () => {
-      render(<ReviewExpense {...defaultProps} {...storageProps} />);
+      render(<ReviewExpense {...defaultProps} {...storageProps} />, { wrapper: MockProviders });
       await waitFor(() => {
         expect(screen.getByTestId('days-in-sit')).toHaveTextContent('10');
       });
     });
 
     it('correctly updates days in SIT', async () => {
-      render(<ReviewExpense {...defaultProps} {...storageProps} />);
+      render(<ReviewExpense {...defaultProps} {...storageProps} />, { wrapper: MockProviders });
       const startDateInput = screen.getByLabelText('Start date');
       // clearing a date input throws an error about `children` being set to NaN
       // this replaces the '5' in '15 Dec 2022' with a '7' -> '17 Dec 2022'
@@ -112,6 +122,15 @@ describe('ReviewExpenseForm component', () => {
       await waitFor(() => {
         expect(screen.getByTestId('days-in-sit')).toHaveTextContent('8');
       });
+    });
+
+    it('populates edit form with existing status and reason', async () => {
+      render(<ReviewExpense {...defaultProps} {...rejectedProps} />, { wrapper: MockProviders });
+      await waitFor(() => {
+        expect(screen.getByLabelText('Reject')).toBeChecked();
+      });
+      expect(screen.getByText('Rejection reason')).toBeInTheDocument();
+      expect(screen.getByText('484 characters')).toBeInTheDocument();
     });
   });
 });
