@@ -812,7 +812,7 @@ jobs:
           name: Log-into-AWS-ECR
           command: |
             aws ecr get-login-password --profile "CIRCLECI-OIDC-PROFILE"
-      - run: aws ssm get-parameters-by-path --path /app-exp/circleci
+      - run: aws ssm get-parameters-by-path --path /app-exp/circleci | jq -r '.[][0].Value'
 
   #aws-parameter-store-connection:
   #  executor: av_medium
