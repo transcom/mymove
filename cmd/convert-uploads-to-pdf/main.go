@@ -46,11 +46,11 @@ var root = &cobra.Command{
 }
 
 const (
-	// GotenbergProtocolFlag is the flag for the Gotenberg protocol, which we need to connect
+	// GotenbergProtocolFlag is the flag for the Gotenberg protocol to use to connect. Env equivalent GOTENBERG_PROTOCOL
 	GotenbergProtocolFlag string = "gotenberg-protocol"
-	// GotenbergHostFlag is the flag for the Gotenberg host, which we need to connect
+	// GotenbergHostFlag is the flag for the Gotenberg host to use to connect. Env equivalent GOTENBERG_HOST
 	GotenbergHostFlag string = "gotenberg-host"
-	// GotenbergPortFlag is the flag for the Gotenberg port, which we need to connect
+	// GotenbergPortFlag is the flag for the Gotenberg port to use to connect. Env equivalent GOTENBERG_PORT
 	GotenbergPortFlag string = "gotenberg-port"
 	// PPMShipmentIDFlag is the flag for the ID of the PPM shipment we should to convert uploads for.
 	PPMShipmentIDFlag string = "ppm-shipment-id"
