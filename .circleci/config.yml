@@ -11,6 +11,9 @@
 
 version: '2.1'
 
+orbs:
+  aws-parameter-store: circleci/aws-parameter-store@1.0.0
+
 # References for variables shared across the file
 references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-f08007fa9006b0b3fe3b8660ddfa27fd07c98a08
@@ -793,6 +796,14 @@ commands:
             ./scripts/run-e2e-mtls-test
 
 jobs:
+  aws-parameter-store-connection:
+    executor: av_medium
+    steps:
+      - aws-parameter-store/load
+        #filter: Key=openidconnecttest
+      - checkout
+      - run: echo "Test job for aws parameter store"
+
   # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
     executor: mymove_compiler
@@ -921,20 +932,20 @@ jobs:
             - v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - restore_cache:
           keys:
-          #
-          # https://circleci.com/docs/caching/#restoring-cache
-          #
-          # restore the latest version of the listing results in the
-          # cache
-          #
-          # To manually reset counts increment the version number of
-          # the cache e.g. go from v1-spectrial-lint- to
-          # v2-spectral-lint-
-          #
-          # Make sure you also update the key in the save_cache below
-          #
-          # The trailing hyphen in restore_cache seems important
-          # according to the page linked above
+            #
+            # https://circleci.com/docs/caching/#restoring-cache
+            #
+            # restore the latest version of the listing results in the
+            # cache
+            #
+            # To manually reset counts increment the version number of
+            # the cache e.g. go from v1-spectrial-lint- to
+            # v2-spectral-lint-
+            #
+            # Make sure you also update the key in the save_cache below
+            #
+            # The trailing hyphen in restore_cache seems important
+            # according to the page linked above
             - v1-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
@@ -1091,23 +1102,23 @@ jobs:
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - restore_cache:
           keys:
-          #
-          # https://circleci.com/docs/caching/#restoring-cache
-          #
-          # restore the latest version of the test coverage in the
-          # cache
-          #
-          # To manually reset test coverage (e.g. a refactor or
-          # deleting code means coverage has gone down and we are ok
-          # with it), increment the version number of the cache
-          # e.g. go from v1-server-tests-coverage- to
-          # v2-server-tests-coverage-
-          #
-          # ##### NOTE: Make sure you also update the key in the
-          # ##### save_cache below
-          #
-          # The trailing hyphen in restore_cache seems important
-          # according to the page linked above
+            #
+            # https://circleci.com/docs/caching/#restoring-cache
+            #
+            # restore the latest version of the test coverage in the
+            # cache
+            #
+            # To manually reset test coverage (e.g. a refactor or
+            # deleting code means coverage has gone down and we are ok
+            # with it), increment the version number of the cache
+            # e.g. go from v1-server-tests-coverage- to
+            # v2-server-tests-coverage-
+            #
+            # ##### NOTE: Make sure you also update the key in the
+            # ##### save_cache below
+            #
+            # The trailing hyphen in restore_cache seems important
+            # according to the page linked above
             - v3-server-tests-coverage-
       - run:
           name: Save Baseline Test Coverage
@@ -1843,6 +1854,7 @@ workflows:
 
   app:
     jobs:
+      - aws-parameter-store-connection
       - check_tls_certificate_dp3
 
       - check_tls_certificate_stg
@@ -1915,7 +1927,6 @@ workflows:
           filters:
             branches:
               ignore: *integration-ignore-branch
-
 
       - integration_tests:
           requires:
