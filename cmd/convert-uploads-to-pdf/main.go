@@ -655,15 +655,11 @@ func cleanUp(appCtx appcontext.AppContext) {
 	}
 }
 
-func execute() {
-	if err := root.Execute(); err != nil {
-		panic(err)
-	}
-}
-
 func main() {
 	// We need to initialize the flags before we execute the command, otherwise it won't know about the flags.
 	initUploadConverterFlags()
 
-	execute()
+	if err := root.Execute(); err != nil {
+		panic(err)
+	}
 }
