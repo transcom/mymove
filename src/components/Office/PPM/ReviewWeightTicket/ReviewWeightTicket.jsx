@@ -70,7 +70,7 @@ export default function ReviewWeightTicket({
       missingFullWeightTicket: weightTicket.missingFullWeightTicket,
       ownsTrailer,
       trailerMeetsCriteria,
-      reason: values.status === 'APPROVED' ? null : values.rejectionReason,
+      reason: values.status === ppmDocumentStatus.APPROVED ? null : values.rejectionReason,
       status: values.status,
     };
     patchWeightTicketMutation({
@@ -247,7 +247,7 @@ export default function ReviewWeightTicket({
               <h3 className={styles.reviewHeader}>Review trip {tripNumber}</h3>
               <p>Add a review for this weight ticket</p>
               <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
-              <Fieldset>
+              <Fieldset className={styles.statusOptions}>
                 <div
                   className={classnames(approveRejectStyles.statusOption, {
                     [approveRejectStyles.selected]: values.status === ppmDocumentStatus.APPROVED,
