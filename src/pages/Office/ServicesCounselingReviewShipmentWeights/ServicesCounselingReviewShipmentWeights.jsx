@@ -79,7 +79,7 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
           <WeightDisplay heading="Move weight (total)" weightValue={moveWeightTotal} />
         </div>
         {sortedShipments.ppmShipment && (
-          <div className={styles.weightMovedContainer}>
+          <div className={styles.weightMovedContainer} data-testid="ppmShipmentContainer">
             <h2 className={styles.weightMovedHeader}>Weight moved by customer</h2>
             <ReviewShipmentWeightsTable
               tableData={sortedShipments.ppmShipment}
@@ -91,10 +91,12 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
           <div className={styles.weightMovedContainer}>
             <h2 className={styles.weightMovedHeader}>Weight moved</h2>
             {hasProGear && (
-              <ReviewShipmentWeightsTable tableData={[order]} tableConfig={proGearReviewWeightsTableConfig} />
+              <div data-testid="progearContainer">
+                <ReviewShipmentWeightsTable tableData={[order]} tableConfig={proGearReviewWeightsTableConfig} />
+              </div>
             )}
             {sortedShipments?.hhgShipment?.length > 0 && (
-              <div className={styles.shipmentContainer}>
+              <div className={styles.shipmentContainer} data-testid="nonPpmShipmentContainer">
                 <h3 className={styles.shipmentHeader}>Shipments</h3>
                 <ReviewShipmentWeightsTable
                   tableData={sortedShipments.hhgShipment}
