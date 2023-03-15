@@ -41,92 +41,62 @@ afterEach(() => {
   jest.resetAllMocks();
 });
 
-const loggedInTOOState = {
-  auth: {
-    activeRole: roleTypes.TOO,
-    isLoading: false,
-    isLoggedIn: true,
-  },
-  entities: {
-    user: {
-      userId123: {
-        id: 'userId123',
-        roles: [{ roleType: roleTypes.TOO }],
+const createMockStore = (role) => {
+  if (!role) {
+    // If no role provided, use logged out state
+    const loggedOutState = {
+      auth: {
+        activeRole: null,
+        isLoading: false,
+        isLoggedIn: false,
+      },
+    };
+
+    return configureStore(loggedOutState);
+  }
+
+  // Otherwise, use logged in state with the provided role
+  const state = {
+    auth: {
+      activeRole: role,
+      isLoading: false,
+      isLoggedIn: true,
+    },
+    entities: {
+      user: {
+        userId123: {
+          id: 'userId123',
+          roles: [{ roleType: role }],
+        },
       },
     },
-  },
+  };
+
+  return configureStore(state);
 };
 
-const loggedInTIOState = {
-  auth: {
-    activeRole: roleTypes.TIO,
-    isLoading: false,
-    isLoggedIn: true,
-  },
-  entities: {
-    user: {
-      userId234: {
-        id: 'userId234',
-        roles: [{ roleType: roleTypes.TIO }],
-      },
-    },
-  },
-};
-
-const loggedInSCState = {
-  auth: {
-    activeRole: roleTypes.SERVICES_COUNSELOR,
-    isLoading: false,
-    isLoggedIn: true,
-  },
-  entities: {
-    user: {
-      userId345: {
-        id: 'userId345',
-        roles: [{ roleType: roleTypes.SERVICES_COUNSELOR }],
-      },
-    },
-  },
-};
-
-const loggedInPrimeState = {
-  auth: {
-    activeRole: roleTypes.PRIME_SIMULATOR,
-    isLoading: false,
-    isLoggedIn: true,
-  },
-  entities: {
-    user: {
-      userId456: {
-        id: 'userId456',
-        roles: [{ roleType: roleTypes.PRIME_SIMULATOR }],
-      },
-    },
-  },
-};
-
-const loggedInQAEState = {
-  auth: {
-    activeRole: roleTypes.QAE_CSR,
-    isLoading: false,
-    isLoggedIn: true,
-  },
-  entities: {
-    user: {
-      userId567: {
-        id: 'userId567',
-        roles: [{ roleType: roleTypes.QAE_CSR }],
-      },
-    },
-  },
-};
-
-const loggedOutState = {
-  auth: {
-    activeRole: null,
-    isLoading: false,
-    isLoggedIn: false,
-  },
+// Render the OfficeApp component with routing and Redux setup for the provided route and role
+const renderOfficeAppAtRoute = (route, role) => {
+  const mockStore = createMockStore(role);
+  const userRoles = role ? [{ roleType: role }] : [];
+  render(
+    <MemoryRouter initialEntries={[route]}>
+      <Provider store={mockStore.store}>
+        <OfficeApp
+          router={{ location: { pathname: route } }}
+          loadInternalSchema={jest.fn()}
+          loadPublicSchema={jest.fn()}
+          loadUser={jest.fn()}
+          hasRecentError={false}
+          activeRole={role || null}
+          userRoles={userRoles}
+          traceId=""
+          loginIsLoading={!!role}
+          userIsLoggedIn={!!role}
+        />
+      </Provider>
+    </MemoryRouter>,
+  );
 };
 
 describe('Office App', () => {
@@ -172,21 +142,7 @@ describe('Office App', () => {
 
   describe('logged out routing', () => {
     it('handles the SignIn URL for not logged in user', async () => {
-      const mockStore = configureStore(loggedOutState);
-      render(
-        <MemoryRouter initialEntries={['/sign-in']}>
-          <Provider store={mockStore.store}>
-            <OfficeApp
-              router={{ location: { pathname: '/sign-in' } }}
-              loadInternalSchema={jest.fn()}
-              loadPublicSchema={jest.fn()}
-              loadUser={jest.fn()}
-              hasRecentError={false}
-              traceId=""
-            />
-          </Provider>
-        </MemoryRouter>,
-      );
+      renderOfficeAppAtRoute('/sign-in');
 
       // Header content should be rendered
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
@@ -198,21 +154,7 @@ describe('Office App', () => {
     });
 
     it('handles the Invalid Permissions URL for not logged in user', async () => {
-      const mockStore = configureStore(loggedOutState);
-      render(
-        <MemoryRouter initialEntries={['/invalid-permissions']}>
-          <Provider store={mockStore.store}>
-            <OfficeApp
-              router={{ location: { pathname: '/invalid-permissions' } }}
-              loadInternalSchema={jest.fn()}
-              loadPublicSchema={jest.fn()}
-              loadUser={jest.fn()}
-              hasRecentError={false}
-              traceId=""
-            />
-          </Provider>
-        </MemoryRouter>,
-      );
+      renderOfficeAppAtRoute('/invalid-permissions');
 
       // Header content should be rendered
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
@@ -224,24 +166,7 @@ describe('Office App', () => {
     });
 
     it('handles a bad URL for not logged in user', async () => {
-      const mockStore = configureStore(loggedOutState);
-      render(
-        <MemoryRouter initialEntries={['/bad-path']}>
-          <Provider store={mockStore.store}>
-            <OfficeApp
-              router={{ location: { pathname: '/bad-path' } }}
-              loadInternalSchema={jest.fn()}
-              loadPublicSchema={jest.fn()}
-              loadUser={jest.fn()}
-              hasRecentError={false}
-              userRoles={[]}
-              traceId=""
-              loginIsLoading={false}
-              userIsLoggedIn={false}
-            />
-          </Provider>
-        </MemoryRouter>,
-      );
+      renderOfficeAppAtRoute('/bad-path');
 
       // Header content should be rendered
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
@@ -255,24 +180,7 @@ describe('Office App', () => {
 
   describe('logged in routing', () => {
     it('handles the Invalid Permissions URL', async () => {
-      const mockStore = configureStore(loggedInTOOState);
-      render(
-        <MemoryRouter initialEntries={['/invalid-permissions']}>
-          <Provider store={mockStore.store}>
-            <OfficeApp
-              router={{ location: { pathname: '/invalid-permissions' } }}
-              loadInternalSchema={jest.fn()}
-              loadPublicSchema={jest.fn()}
-              loadUser={jest.fn()}
-              hasRecentError={false}
-              userRoles={[{ roleType: loggedInTOOState.auth.activeRole }]}
-              traceId=""
-              loginIsLoading={false}
-              userIsLoggedIn
-            />
-          </Provider>
-        </MemoryRouter>,
-      );
+      renderOfficeAppAtRoute('/invalid-permissions', roleTypes.TOO);
 
       // Header content should be rendered
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
@@ -284,26 +192,7 @@ describe('Office App', () => {
     });
 
     it('renders the 404 component when the route is not found', async () => {
-      const mockStore = configureStore(loggedInPrimeState);
-
-      render(
-        <MemoryRouter initialEntries={['/not-a-real-route']}>
-          <Provider store={mockStore.store}>
-            <OfficeApp
-              router={{ location: { pathname: '/not-a-real-route' } }}
-              loadInternalSchema={jest.fn()}
-              loadPublicSchema={jest.fn()}
-              loadUser={jest.fn()}
-              hasRecentError={false}
-              activeRole={loggedInPrimeState.auth.activeRole}
-              userRoles={[{ roleType: loggedInPrimeState.auth.activeRole }]}
-              traceId=""
-              loginIsLoading={false}
-              userIsLoggedIn
-            />
-          </Provider>
-        </MemoryRouter>,
-      );
+      renderOfficeAppAtRoute('/not-a-real-route', roleTypes.TOO);
 
       // Header content should be rendered
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
@@ -315,137 +204,101 @@ describe('Office App', () => {
     });
 
     it.each([
-      ['Move Queue', '/moves/queue', loggedInTOOState],
-      ['Payment Request Queue', '/invoicing/queue', loggedInTIOState],
-      ['Services Counseling Add Shipment', '/new-PPM', loggedInSCState],
-      ['Services Counseling Queue', '/counseling', loggedInSCState],
-      ['Services Counseling Queue', '/PPM-closeout', loggedInSCState],
-      ['Services Counseling Move Info', '/counseling/moves/test123/', loggedInSCState],
-      ['Edit Shipment Details', '/moves/test123/shipments/ship123', loggedInTOOState],
-      ['Prime Simulator Move Details', '/simulator/moves/test123/details', loggedInPrimeState],
-      ['Prime Simulator Shipment Create', '/simulator/moves/test123/shipments/new', loggedInPrimeState],
+      ['Move Queue', '/moves/queue', roleTypes.TOO],
+      ['Payment Request Queue', '/invoicing/queue', roleTypes.TIO],
+      ['Services Counseling Add Shipment', '/new-PPM', roleTypes.SERVICES_COUNSELOR],
+      ['Services Counseling Queue', '/counseling', roleTypes.SERVICES_COUNSELOR],
+      ['Services Counseling Queue', '/PPM-closeout', roleTypes.SERVICES_COUNSELOR],
+      ['Services Counseling Move Info', '/counseling/moves/test123/', roleTypes.SERVICES_COUNSELOR],
+      ['Edit Shipment Details', '/moves/test123/shipments/ship123', roleTypes.TOO],
+      ['Prime Simulator Move Details', '/simulator/moves/test123/details', roleTypes.PRIME_SIMULATOR],
+      ['Prime Simulator Shipment Create', '/simulator/moves/test123/shipments/new', roleTypes.PRIME_SIMULATOR],
       [
         'Prime Simulator Shipment Update Address',
         '/simulator/moves/test123/shipments/ship123/addresses/update',
-        loggedInPrimeState,
+        roleTypes.PRIME_SIMULATOR,
       ],
-      ['Prime Simulator Shipment Update', '/simulator/moves/test123/shipments/ship123', loggedInPrimeState],
-      ['Prime Simulator Create Payment Request', '/simulator/moves/test123/payment-requests/new', loggedInPrimeState],
+      ['Prime Simulator Shipment Update', '/simulator/moves/test123/shipments/ship123', roleTypes.PRIME_SIMULATOR],
+      [
+        'Prime Simulator Create Payment Request',
+        '/simulator/moves/test123/payment-requests/new',
+        roleTypes.PRIME_SIMULATOR,
+      ],
       [
         'Prime Simulator Upload Payment Request Documents',
         '/simulator/moves/test123/payment-requests/req123/upload',
-        loggedInPrimeState,
+        roleTypes.PRIME_SIMULATOR,
       ],
       [
         'Prime Simulator Create Service Item',
         '/simulator/moves/test123/shipments/ship123/service-items/new',
-        loggedInPrimeState,
+        roleTypes.PRIME_SIMULATOR,
       ],
       [
         'Prime Simulator Shipment Update Reweigh',
         '/simulator/moves/test123/shipments/ship123/reweigh/re123/update',
-        loggedInPrimeState,
+        roleTypes.PRIME_SIMULATOR,
       ],
-      ['QAE CSR Move Search', '/qaecsr/search', loggedInQAEState],
-      ['TXO Move Info', '/moves/move123', loggedInTIOState],
-      ['Payment Request Queue', '/', loggedInTIOState],
-      ['Move Queue', '/', loggedInTOOState],
-      ['Services Counseling Queue', '/', loggedInSCState],
-      ['QAE CSR Move Search', '/', loggedInQAEState],
-      ['Prime Simulator Available Moves Queue', '/', loggedInPrimeState],
-    ])(
-      'renders the %s component at %s as a user with sufficient permissions',
-      async (component, path, initialState) => {
-        const mockStore = configureStore(initialState);
-
-        render(
-          <MemoryRouter initialEntries={[path]}>
-            <Provider store={mockStore.store}>
-              <OfficeApp
-                router={{ location: { pathname: path } }}
-                loadInternalSchema={jest.fn()}
-                loadPublicSchema={jest.fn()}
-                loadUser={jest.fn()}
-                hasRecentError={false}
-                activeRole={initialState.auth.activeRole}
-                userRoles={[{ roleType: initialState.auth.activeRole }]}
-                traceId=""
-                loginIsLoading={false}
-                userIsLoggedIn
-              />
-            </Provider>
-          </MemoryRouter>,
-        );
-
-        // Header content should be rendered
-        expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
-        expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
-        expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
-
-        // Wait for lazy load, validate correct component was rendered
-        await waitFor(() => expect(screen.getByText(`Mock ${component} Component`)));
-      },
-    );
-
-    it.each([
-      ['Move Queue', '/moves/queue', loggedInPrimeState],
-      ['Payment Request Queue', '/invoicing/queue', loggedInPrimeState],
-      ['Services Counseling Add Shipment', '/new-PPM', loggedInPrimeState],
-      ['Services Counseling Move Info', '/counseling/moves/test123/', loggedInQAEState],
-      ['Edit Shipment Details', '/moves/test123/shipments/ship123', loggedInQAEState],
-      ['Prime Simulator Move Details', '/simulator/moves/test123/details', loggedInQAEState],
-      ['Prime Simulator Shipment Create', '/simulator/moves/test123/shipments/new', loggedInQAEState],
-      [
-        'Prime Simulator Shipment Update Address',
-        '/simulator/moves/test123/shipments/ship123/addresses/update',
-        loggedInQAEState,
-      ],
-      ['Prime Simulator Shipment Update', '/simulator/moves/test123/shipments/ship123', loggedInQAEState],
-      ['Prime Simulator Create Payment Request', '/simulator/moves/test123/payment-requests/new', loggedInQAEState],
-      [
-        'Prime Simulator Upload Payment Request Documents',
-        '/simulator/moves/test123/payment-requests/req123/upload',
-        loggedInQAEState,
-      ],
-      [
-        'Prime Simulator Create Service Item',
-        '/simulator/moves/test123/shipments/ship123/service-items/new',
-        loggedInQAEState,
-      ],
-      [
-        'Prime Simulator Shipment Update Reweigh',
-        '/simulator/moves/test123/shipments/ship123/reweigh/re123/update',
-        loggedInQAEState,
-      ],
-      ['QAE CSR Move Search', '/qaecsr/search', loggedInTIOState],
-      ['TXO Move Info', '/moves/move123', loggedInPrimeState],
-    ])('denies access to %s when user has insufficient permission', async (component, path, initialState) => {
-      const mockStore = configureStore(initialState);
-
-      render(
-        <MemoryRouter initialEntries={[path]}>
-          <Provider store={mockStore.store}>
-            <OfficeApp
-              router={{ location: { pathname: path } }}
-              loadInternalSchema={jest.fn()}
-              loadPublicSchema={jest.fn()}
-              loadUser={jest.fn()}
-              hasRecentError={false}
-              activeRole={initialState.auth.activeRole}
-              userRoles={[{ roleType: initialState.auth.activeRole }]}
-              traceId=""
-              loginIsLoading={false}
-              userIsLoggedIn
-            />
-          </Provider>
-        </MemoryRouter>,
-      );
+      ['QAE CSR Move Search', '/qaecsr/search', roleTypes.QAE_CSR],
+      ['TXO Move Info', '/moves/move123', roleTypes.TIO],
+      ['Payment Request Queue', '/', roleTypes.TIO],
+      ['Move Queue', '/', roleTypes.TOO],
+      ['Services Counseling Queue', '/', roleTypes.SERVICES_COUNSELOR],
+      ['QAE CSR Move Search', '/', roleTypes.QAE_CSR],
+      ['Prime Simulator Available Moves Queue', '/', roleTypes.PRIME_SIMULATOR],
+    ])('renders the %s component at %s as a %s with sufficient permissions', async (component, path, role) => {
+      renderOfficeAppAtRoute(path, role);
 
       // Header content should be rendered
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
       expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
       expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
 
+      // Wait for lazy load, validate correct component was rendered
+      await waitFor(() => expect(screen.getByText(`Mock ${component} Component`)));
+    });
+
+    it.each([
+      ['Move Queue', '/moves/queue', roleTypes.PRIME_SIMULATOR],
+      ['Payment Request Queue', '/invoicing/queue', roleTypes.PRIME_SIMULATOR],
+      ['Services Counseling Add Shipment', '/new-PPM', roleTypes.PRIME_SIMULATOR],
+      ['Services Counseling Move Info', '/counseling/moves/test123/', roleTypes.QAE_CSR],
+      ['Edit Shipment Details', '/moves/test123/shipments/ship123', roleTypes.QAE_CSR],
+      ['Prime Simulator Move Details', '/simulator/moves/test123/details', roleTypes.QAE_CSR],
+      ['Prime Simulator Shipment Create', '/simulator/moves/test123/shipments/new', roleTypes.QAE_CSR],
+      [
+        'Prime Simulator Shipment Update Address',
+        '/simulator/moves/test123/shipments/ship123/addresses/update',
+        roleTypes.QAE_CSR,
+      ],
+      ['Prime Simulator Shipment Update', '/simulator/moves/test123/shipments/ship123', roleTypes.QAE_CSR],
+      ['Prime Simulator Create Payment Request', '/simulator/moves/test123/payment-requests/new', roleTypes.QAE_CSR],
+      [
+        'Prime Simulator Upload Payment Request Documents',
+        '/simulator/moves/test123/payment-requests/req123/upload',
+        roleTypes.QAE_CSR,
+      ],
+      [
+        'Prime Simulator Create Service Item',
+        '/simulator/moves/test123/shipments/ship123/service-items/new',
+        roleTypes.QAE_CSR,
+      ],
+      [
+        'Prime Simulator Shipment Update Reweigh',
+        '/simulator/moves/test123/shipments/ship123/reweigh/re123/update',
+        roleTypes.QAE_CSR,
+      ],
+      ['QAE CSR Move Search', '/qaecsr/search', roleTypes.TIO],
+      ['TXO Move Info', '/moves/move123', roleTypes.PRIME_SIMULATOR],
+    ])('denies access to %s when user has insufficient permission', async (component, path, role) => {
+      renderOfficeAppAtRoute(path, role);
+
+      // Header content should be rendered
+      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+      expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
+
+      // Wait for lazy load, validate invalid permissions component was rendered
       await waitFor(() => expect(screen.getByText('Mock Invalid Permissions Component')));
     });
   });
