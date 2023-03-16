@@ -50,7 +50,6 @@ jest.mock('react-router-dom', () => ({
 jest.mock('hooks/queries', () => ({
   ...jest.requireActual('hooks/queries'),
   useTXOMoveInfoQueries: jest.fn(),
-  useEvaluationReportShipmentListQueries: jest.fn(),
 }));
 
 const basicUseTXOMoveInfoQueriesValue = {
@@ -91,8 +90,8 @@ const errorReturnValue = {
 };
 
 // Render the TXO Move Info page with redux and routing setup.
-// Nestes the TXOMoveInfo under /moves/:moveCode/ as done in the app since the TXOMoveInfo component uses nested pathing.
-const renderTXOMoveInfo = (state, nestedPath = 'details') => {
+// Nestes the TXOMoveInfo under /moves/:moveCode/* as done in the app since the TXOMoveInfo component uses nested pathing.
+const renderTXOMoveInfo = (nestedPath = 'details', state = {}) => {
   const mockStore = configureStore({
     ...loggedInTIOState,
     ...state,
@@ -181,7 +180,7 @@ describe('TXO Move Info Container', () => {
     });
 
     it('should render the system error when there is an error', () => {
-      renderTXOMoveInfo({ interceptor: { hasRecentError: true, traceId: 'some-trace-id' } });
+      renderTXOMoveInfo('', { interceptor: { hasRecentError: true, traceId: 'some-trace-id' } });
 
       expect(screen.getByText('Technical Help Desk').closest('a')).toHaveAttribute(
         'href',
@@ -193,7 +192,7 @@ describe('TXO Move Info Container', () => {
     });
 
     it('should not render system error when there is not an error', () => {
-      renderTXOMoveInfo({ interceptor: { hasRecentError: false, traceId: '' } });
+      renderTXOMoveInfo('', { interceptor: { hasRecentError: false, traceId: '' } });
 
       expect(queryByTestId(document.documentElement, 'system-error')).not.toBeInTheDocument();
     });
@@ -214,8 +213,8 @@ describe('TXO Move Info Container', () => {
       ['Move History', 'history'],
       ['Forbidden', 'evaluation-reports/123'], // Permission restricted
       ['Forbidden', 'evaluation-reports/report123/violations'], // Permission restricted
-    ])('should render the %s component when at the route: /moves/1A5PM3/%s', async (componentName, nestedPath) => {
-      renderTXOMoveInfo(null, nestedPath);
+    ])('should render the %s component when at the route: /moves/:moveCode/%s', async (componentName, nestedPath) => {
+      renderTXOMoveInfo(nestedPath);
 
       // Wait for loading to finish
       await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
