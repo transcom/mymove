@@ -39,6 +39,11 @@ Blank.args = {
   },
   tripNumber: 1,
   ppmNumber: 1,
+  order: {
+    entitlement: {
+      authorizedWeight: 2000,
+    },
+  },
 };
 
 export const FilledIn = Template.bind({});
