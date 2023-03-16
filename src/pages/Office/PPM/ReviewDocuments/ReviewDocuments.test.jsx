@@ -6,7 +6,7 @@ import { ReviewDocuments } from './ReviewDocuments';
 
 import PPMDocumentsStatus from 'constants/ppms';
 import { ppmShipmentStatuses } from 'constants/shipments';
-import { usePPMShipmentDocsQueries } from 'hooks/queries';
+import { usePPMShipmentDocsQueries, useReviewShipmentWeightsQuery } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
 import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
@@ -46,6 +46,7 @@ jest.mock('components/DocumentViewer/Content/Content', () => {
 
 jest.mock('hooks/queries', () => ({
   usePPMShipmentDocsQueries: jest.fn(),
+  useReviewShipmentWeightsQuery: jest.fn(),
 }));
 
 const mtoShipment = createPPMShipmentWithFinalIncentive({
@@ -78,6 +79,22 @@ const usePPMShipmentDocsQueriesReturnValueAllDocs = {
   isSuccess: true,
 };
 
+/** @constant {Object} useReviewShipmentWeightsQueryReturnValueAllDocs
+ * @description The mocked return values from the useReviewShipmentWeightsQuery
+ * that is being used by the EditPPMNetWeight component inside of the
+ * ReviewWeightTicket component
+ * */
+const useReviewShipmentWeightsQueryReturnValueAll = {
+  orders: {
+    orderID: {
+      entitlement: {
+        authorizedWeight: '1000',
+      },
+    },
+  },
+  mtoShipments: [],
+};
+
 const requiredProps = {
   match: { params: { shipmentId: mtoShipment.id, moveCode: 'READY1' } },
 };
@@ -98,6 +115,7 @@ describe('ReviewDocuments', () => {
 
     it('renders the Loading Placeholder when the query is still loading', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(loadingReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
 
       const h2 = await screen.findByRole('heading', { name: 'Loading, please wait...', level: 2 });
@@ -105,6 +123,7 @@ describe('ReviewDocuments', () => {
     });
     it('renders the Something Went Wrong component when the query errors', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(errorReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
 
       const errorMessage = await screen.findByText(/Something went wrong./);
@@ -132,6 +151,7 @@ describe('ReviewDocuments', () => {
 
     it('renders the DocumentViewer', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
 
       const docMenuButton = await screen.findByRole('button', { name: /open menu/i });
@@ -165,6 +185,8 @@ describe('ReviewDocuments', () => {
 
     it('renders and handles the Continue button with the appropriate payload', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
 
       const newEmptyWeight = 14500;
@@ -225,6 +247,7 @@ describe('ReviewDocuments', () => {
 
     it('renders and handles the Close button', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
 
       const closeSidebarButton = await screen.findByRole('button', { name: /close sidebar/i });
@@ -253,6 +276,7 @@ describe('ReviewDocuments', () => {
 
     it('handles navigation properly using the continue/back buttons', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
 
       expect(await screen.findByRole('heading', { level: 2, name: '1 of 1 Document Sets' }));
@@ -292,6 +316,7 @@ describe('ReviewDocuments', () => {
 
     it('renders and handles the Accept button', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueMultipleWeightTickets);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
 
@@ -307,6 +332,7 @@ describe('ReviewDocuments', () => {
 
     it('renders and handles the Back button', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueMultipleWeightTickets);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
 
@@ -355,6 +381,7 @@ describe('ReviewDocuments', () => {
 
     it('handles moving from weight tickets the summary page when there are multiple types of documents', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
 
@@ -386,6 +413,7 @@ describe('ReviewDocuments', () => {
 
     it('shows an error when submitting without a status selected', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueProGearOnly);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
@@ -394,6 +422,7 @@ describe('ReviewDocuments', () => {
 
     it('shows an error when pro-gear is rejected and submitted without a written reason', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueProGearOnly);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
       const rejectionButton = screen.getByTestId('rejectRadio');
@@ -414,6 +443,7 @@ describe('ReviewDocuments', () => {
         },
       };
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueExpensesOnly);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
       await userEvent.click(screen.getByLabelText('Reject'));
@@ -433,6 +463,7 @@ describe('ReviewDocuments', () => {
         },
       };
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueExpensesOnly);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
       await userEvent.click(screen.getByLabelText('Exclude'));
