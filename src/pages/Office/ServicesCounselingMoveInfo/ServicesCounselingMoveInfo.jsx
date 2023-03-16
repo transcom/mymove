@@ -4,8 +4,6 @@ import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
 
-import ServicesCounselingAddShipment from '../ServicesCounselingAddShipment/ServicesCounselingAddShipment';
-
 import ServicesCounselorTabNav from 'components/Office/ServicesCounselingTabNav/ServicesCounselingTabNav';
 import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';
@@ -19,6 +17,9 @@ const ServicesCounselingMoveDocumentWrapper = lazy(() =>
 );
 const ServicesCounselingMoveDetails = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDetails/ServicesCounselingMoveDetails'),
+);
+const ServicesCounselingAddShipment = lazy(() =>
+  import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
 );
 const ServicesCounselingEditShipmentDetails = lazy(() =>
   import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
@@ -198,7 +199,7 @@ const ServicesCounselingMoveInfo = () => {
           />
 
           <Route
-            path="/shipments/:shipmentId/advance"
+            path={servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH}
             end
             element={<ServicesCounselingEditShipmentDetails onUpdate={onInfoSavedUpdate} isAdvancePage />}
           />
@@ -216,10 +217,7 @@ const ServicesCounselingMoveInfo = () => {
           />
 
           {/* TODO - clarify role/tab access */}
-          <Route
-            path={servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}
-            element={<Navigate to={servicesCounselingRoutes.MOVE_VIEW_PATH} replace />}
-          />
+          <Route path="/" element={<Navigate to={servicesCounselingRoutes.MOVE_VIEW_PATH} replace />} />
         </Routes>
       </Suspense>
     </>
