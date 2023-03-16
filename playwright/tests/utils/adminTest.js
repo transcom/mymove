@@ -61,10 +61,7 @@ class AdminPage extends BaseTestPage {
   }
 
   /**
-   * @param {string} locator
    * @param {Array<string>} labels
-   * @param {Object} options
-   * @param {boolean} [options.exact=true]
    * @returns {Promise<void>}
    */
   async expectLabels(labels) {
