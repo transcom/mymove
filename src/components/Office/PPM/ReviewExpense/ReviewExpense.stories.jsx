@@ -4,19 +4,22 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 import ReviewExpense from './ReviewExpense';
 
 import { expenseTypes } from 'constants/ppmExpenseTypes';
+import { MockProviders } from 'testUtils';
 
 export default {
   title: 'Office Components / PPM / Review Expense',
   component: ReviewExpense,
   decorators: [
     (Story) => (
-      <GridContainer>
-        <Grid row>
-          <Grid col desktop={{ col: 2, offset: 8 }}>
-            <Story />
+      <MockProviders>
+        <GridContainer>
+          <Grid row>
+            <Grid col desktop={{ col: 2, offset: 8 }}>
+              <Story />
+            </Grid>
           </Grid>
-        </Grid>
-      </GridContainer>
+        </GridContainer>
+      </MockProviders>
     ),
   ],
   argTypes: { onClose: { action: 'back button clicked' } },
@@ -26,27 +29,31 @@ const Template = (args) => <ReviewExpense {...args} />;
 
 export const Blank = Template.bind({});
 Blank.args = {
-  ppmShipment: {
-    actualMoveDate: '2022-04-30',
-    actualPickupPostalCode: '90210',
-    actualDestinationPostalCode: '94611',
-    hasReceivedAdvance: true,
-    advanceAmountReceived: 60000,
+  mtoShipment: {
+    ppmShipment: {
+      actualMoveDate: '2022-04-30',
+      actualPickupPostalCode: '90210',
+      actualDestinationPostalCode: '94611',
+      hasReceivedAdvance: true,
+      advanceAmountReceived: 60000,
+    },
   },
-  expenseNumber: 1,
+  tripNumber: 1,
   ppmNumber: 1,
 };
 
 export const NonStorage = Template.bind({});
 NonStorage.args = {
-  ppmShipment: {
-    actualMoveDate: '2022-04-30',
-    actualPickupPostalCode: '90210',
-    actualDestinationPostalCode: '94611',
-    hasReceivedAdvance: true,
-    advanceAmountReceived: 60000,
+  mtoShipment: {
+    ppmShipment: {
+      actualMoveDate: '2022-04-30',
+      actualPickupPostalCode: '90210',
+      actualDestinationPostalCode: '94611',
+      hasReceivedAdvance: true,
+      advanceAmountReceived: 60000,
+    },
   },
-  expenseNumber: 1,
+  tripNumber: 1,
   ppmNumber: 1,
   expense: {
     movingExpenseType: expenseTypes.PACKING_MATERIALS,
@@ -57,14 +64,16 @@ NonStorage.args = {
 
 export const Storage = Template.bind({});
 Storage.args = {
-  ppmShipment: {
-    actualMoveDate: '2022-04-30',
-    actualPickupPostalCode: '90210',
-    actualDestinationPostalCode: '94611',
-    hasReceivedAdvance: true,
-    advanceAmountReceived: 60000,
+  mtoShipment: {
+    ppmShipment: {
+      actualMoveDate: '2022-04-30',
+      actualPickupPostalCode: '90210',
+      actualDestinationPostalCode: '94611',
+      hasReceivedAdvance: true,
+      advanceAmountReceived: 60000,
+    },
   },
-  expenseNumber: 1,
+  tripNumber: 1,
   ppmNumber: 1,
   expense: {
     movingExpenseType: expenseTypes.STORAGE,

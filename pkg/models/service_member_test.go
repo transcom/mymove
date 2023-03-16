@@ -85,14 +85,12 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	emailPreferred := true
 	serviceMember.EmailIsPreferred = &emailPreferred
 
-	contactAssertions := testdatagen.Assertions{
-		BackupContact: BackupContact{
-			ServiceMember:   serviceMember,
-			ServiceMemberID: serviceMember.ID,
+	backupContact := factory.BuildBackupContact(nil, []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
 		},
-		Stub: true,
-	}
-	backupContact := testdatagen.MakeBackupContact(suite.DB(), contactAssertions)
+	}, nil)
 	serviceMember.BackupContacts = append(serviceMember.BackupContacts, backupContact)
 
 	suite.Equal(true, serviceMember.IsProfileComplete())
