@@ -322,6 +322,10 @@ func convertPPMShipmentDocumentUploadsToPDF(appCtx appcontext.AppContext, userUp
 
 	userUploads := gatherPPMShipmentUploads(appCtx, ppmShipment)
 
+	if len(userUploads) == 0 {
+		return nil
+	}
+
 	pdfsToMerge, conversionErr := convertUserUploadsToPDFs(appCtx, userUploader, userUploads)
 
 	if conversionErr != nil {
@@ -389,6 +393,15 @@ func gatherPPMShipmentUploads(_ appcontext.AppContext, ppmShipment *models.PPMSh
 func convertUserUploadsToPDFs(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, userUploads models.UserUploads) ([]io.ReadCloser, error) {
 	pdfsToMerge := []io.ReadCloser{}
 
+	// function to close all the PDFs we've opened if we encounter an error
+	closePDFs := func() {
+		for _, pdf := range pdfsToMerge {
+			if err := pdf.Close(); err != nil {
+				appCtx.Logger().Error("Failed to close PDF stream", zap.Error(err))
+			}
+		}
+	}
+
 	for _, userUpload := range userUploads {
 		userUpload := userUpload
 
@@ -398,6 +411,15 @@ func convertUserUploadsToPDFs(appCtx appcontext.AppContext, userUploader *upload
 		// doing that later on because of how we're using the streams.
 
 		if downloadErr != nil {
+			// This should be nil, but just in case, we'll try closing it.
+			if download != nil {
+				if err := download.Close(); err != nil {
+					appCtx.Logger().Error("Failed to close download stream", zap.Error(err))
+				}
+			}
+
+			closePDFs()
+
 			return nil, downloadErr
 		}
 
@@ -425,6 +447,15 @@ func convertUserUploadsToPDFs(appCtx appcontext.AppContext, userUploader *upload
 		// Not setting up closing of outputPDF file since we're returning it. Caller will need to close it.
 
 		if conversionErr != nil {
+			// This should be nil, but just in case, we'll try closing it.
+			if outputPDF != nil {
+				if err := outputPDF.Close(); err != nil {
+					appCtx.Logger().Error("Failed to close output PDF stream", zap.Error(err))
+				}
+			}
+
+			closePDFs()
+
 			return nil, conversionErr
 		}
 
@@ -517,6 +548,14 @@ func mergePDFs(appCtx appcontext.AppContext, pdfsToMerge []io.ReadCloser) (io.Re
 	// The endpoint we'll be using accepts multipart/form-data, so we set that up here.
 	writer := multipart.NewWriter(buf)
 
+	closeRemainingPDFs := func(i int) {
+		for j := i + 1; j < len(pdfsToMerge); j++ {
+			if err := pdfsToMerge[j].Close(); err != nil {
+				appCtx.Logger().Error("Failed to close PDF stream", zap.Error(err))
+			}
+		}
+	}
+
 	for i, pdf := range pdfsToMerge {
 		pdf := pdf
 
@@ -534,10 +573,14 @@ func mergePDFs(appCtx appcontext.AppContext, pdfsToMerge []io.ReadCloser) (io.Re
 		part, formFileErr := writer.CreateFormFile("files", fmt.Sprintf("file-%d.pdf", i))
 
 		if formFileErr != nil {
+			closeRemainingPDFs(i)
+
 			return nil, formFileErr
 		}
 
 		if _, err := io.Copy(part, pdf); err != nil {
+			closeRemainingPDFs(i)
+
 			return nil, err
 		}
 	}
