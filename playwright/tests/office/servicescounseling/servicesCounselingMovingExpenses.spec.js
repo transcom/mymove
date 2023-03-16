@@ -64,12 +64,12 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
 
   // Edit expense ticket to "Exclude", provide a reason, then save
   await page.getByText('Exclude').click();
-  await page.getByLabel('reason').fill('Reason for excluding expense');
+  await page.getByLabel('Reason').fill('Reason for excluding expense');
   await page.getByRole('button', { name: 'Continue' }).click();
 
   // Verify storage ticket, Edit to "Exclude", provide a reason, then save
   await page.getByText('Exclude').click();
-  await page.getByLabel('reason').fill('Reason for excluding storage');
+  await page.getByLabel('Reason').fill('Reason for excluding storage');
   await page.getByRole('button', { name: 'Continue' }).click();
 
   await scPage.waitForPage.reviewDocumentsConfirmation();
@@ -83,10 +83,10 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
 
   await expect(page.getByRole('heading', { name: 'Review receipt 1' })).toBeVisible();
   await expect(page.getByRole('radio', { name: 'Exclude' })).toBeChecked();
-  await expect(page.getByLabel('reason')).toHaveValue('Reason for excluding expense');
+  await expect(page.getByLabel('Reason')).toHaveValue('Reason for excluding expense');
 
   // Return to storage and verify that it's been excluded
   await page.getByRole('button', { name: 'Continue' }).click();
   await expect(page.getByRole('radio', { name: 'Exclude' })).toBeChecked();
-  await expect(page.getByLabel('reason')).toHaveValue('Reason for excluding storage');
+  await expect(page.getByLabel('Reason')).toHaveValue('Reason for excluding storage');
 });

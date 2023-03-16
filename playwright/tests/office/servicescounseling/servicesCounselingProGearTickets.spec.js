@@ -29,7 +29,7 @@ test('A service counselor can approve/reject pro-gear weight tickets', async ({ 
 
   // Weight ticket is first. Need to skip over to Pro-gear ticket
   await page.getByRole('button', { name: 'Continue' }).click();
-
+  await expect(page.getByRole('heading', { name: 'Review pro-gear 1' })).toBeVisible();
   await expect(page.getByRole('radio', { name: 'Accept' })).toBeChecked();
 
   // Click "Reject" on the Pro-gear ticket, provide a reason, then save
