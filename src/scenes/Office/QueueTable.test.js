@@ -1,9 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-// import { HashRouter as Router } from 'react-router-dom-old';
-
-import configureMockStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import userEvent from '@testing-library/user-event';
 
 import QueueTable from './QueueTable';
 import ReactTable from 'react-table-6';
@@ -11,11 +8,12 @@ import store from 'shared/store';
 import { mount } from 'enzyme/build';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockRouting } from 'testUtils';
+import { render, screen } from '@testing-library/react';
 
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
+const mockLogOut = jest.fn();
+jest.mock('store/auth/actions', () => ({
+  ...jest.requireActual('store/auth/actions'),
+  logOut: () => mockLogOut,
 }));
 
 describe('Shipments column', () => {
@@ -56,46 +54,58 @@ describe('Shipments column', () => {
 });
 
 describe('Refreshing', () => {
-  let wrapper;
-  it('loads the data again', (done) => {
-    const refreshSpy = jest.spyOn(QueueTable.WrappedComponent.prototype, 'refresh');
-    const fetchDataSpy = jest.spyOn(QueueTable.WrappedComponent.prototype, 'fetchData');
+  it('loads the data again', async () => {
+    const mockRetrieveMoves = jest.fn();
+    render(
+      <Provider store={store}>
+        <MockRouting>
+          <QueueTable queueType="new" retrieveMoves={mockRetrieveMoves} />
+        </MockRouting>
+      </Provider>,
+    );
 
-    wrapper = mountComponents(retrieveMovesStub());
+    // Should have fetched the data once on load
+    expect(mockRetrieveMoves).toHaveBeenCalledTimes(1);
 
-    wrapper.find('[data-testid="refreshQueue"]').at(0).simulate('click');
+    // Click the refresh button
+    const refreshButton = await screen.getByTestId('refreshQueue');
+    await userEvent.click(refreshButton);
 
-    setTimeout(() => {
-      expect(refreshSpy).toHaveBeenCalled();
-      expect(fetchDataSpy).toHaveBeenCalled();
-
-      done();
-    });
+    // Should have fetched the data again
+    await expect(mockRetrieveMoves).toHaveBeenCalledTimes(2);
   });
 });
 
 describe('on 401 unauthorized error', () => {
-  const middlewares = [thunk];
-  const mockStore = configureMockStore(middlewares);
+  it('force user log out', async () => {
+    const mockRetrieveMoves = jest.fn();
 
-  it('force user log out', (done) => {
-    const fetchDataSpy = jest.spyOn(QueueTable.WrappedComponent.prototype, 'fetchData');
+    render(
+      <Provider store={store}>
+        <MockRouting>
+          <QueueTable queueType="new" retrieveMoves={mockRetrieveMoves} />
+        </MockRouting>
+      </Provider>,
+    );
 
-    let error = new Error('Unauthorized');
-    error.status = 401;
+    // Should have initially retrieved moves without error and not logged out
+    await expect(mockRetrieveMoves).toHaveBeenCalledTimes(1);
+    await expect(mockLogOut).toHaveBeenCalledTimes(0);
 
-    const store = mockStore({});
-    const wrapper = mountComponents(retrieveMovesStub(null, error), 'new', store);
-    wrapper.find('[data-testid="refreshQueue"]').at(0).simulate('click');
-
-    setTimeout(() => {
-      expect(fetchDataSpy).toHaveBeenCalled();
-
-      const logOut = { type: 'LOG_OUT' };
-      expect(store.getActions()).toContainEqual(logOut);
-
-      done();
+    // Mock the retrieve moves function to throw a 401 error
+    mockRetrieveMoves.mockImplementation(() => {
+      let error = new Error('Unauthorized');
+      error.status = 401;
+      throw error;
     });
+
+    // Click the refresh button
+    const refreshButton = screen.getByTestId('refreshQueue');
+    await userEvent.click(refreshButton);
+
+    // Should have retreived moves and failed causing a log out
+    await expect(mockRetrieveMoves).toHaveBeenCalledTimes(2);
+    await expect(mockLogOut).toHaveBeenCalledTimes(1);
   });
 });
 
