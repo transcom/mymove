@@ -31,7 +31,7 @@ func BuildServiceMember(db *pop.Connection, customs []Customization, traits []Tr
 		tempResAddressCustoms = convertCustomizationInList(tempResAddressCustoms, Addresses.ResidentialAddress, Address)
 	}
 
-	resAddress := BuildAddress(db, tempResAddressCustoms, nil)
+	resAddress := BuildAddress(db, tempResAddressCustoms, traits)
 
 	// Find/create the BackupMailingAddress
 	tempBackupAddressCustoms := customs
@@ -40,7 +40,7 @@ func BuildServiceMember(db *pop.Connection, customs []Customization, traits []Tr
 		tempBackupAddressCustoms = convertCustomizationInList(tempBackupAddressCustoms, Addresses.BackupMailingAddress, Address)
 	}
 
-	backupAddress := BuildAddress(db, tempBackupAddressCustoms, nil)
+	backupAddress := BuildAddress(db, tempBackupAddressCustoms, traits)
 
 	// Find/create the user model
 	user := BuildUser(db, customs, traits)
@@ -77,6 +77,74 @@ func BuildServiceMember(db *pop.Connection, customs []Customization, traits []Tr
 
 	if db != nil {
 		mustCreate(db, &serviceMember)
+	}
+
+	return serviceMember
+}
+
+// BuildExtendedServiceMember creates a single ServiceMember
+// If not provided it will also create an associated
+//   - User,
+//   - ResidentialAddress
+//   - BackupMailingAddress
+//   - DutyLocation
+//   - BackupContact
+func BuildExtendedServiceMember(db *pop.Connection, customs []Customization, traits []Trait) models.ServiceMember {
+	customs = setupCustomizations(customs, traits)
+
+	// Find ServiceMember customization and extract the custom ServiceMember
+	var cServiceMember models.ServiceMember
+	if result := findValidCustomization(customs, ServiceMember); result != nil {
+		cServiceMember = result.Model.(models.ServiceMember)
+		if result.LinkOnly {
+			return cServiceMember
+		}
+	}
+
+	serviceMemModel := models.ServiceMember{
+		EmailIsPreferred: models.BoolPointer(true),
+		Telephone:        models.StringPointer("555-555-5555"),
+	}
+
+	// Overwrite values with those from customizations
+	testdatagen.MergeModels(&serviceMemModel, cServiceMember)
+
+	backupMailingAddress := BuildAddress(db, nil, []Trait{GetTraitAddress2})
+
+	dutyLocation := FetchOrBuildOrdersDutyLocation(db)
+
+	user := BuildUser(db, customs, traits)
+
+	serviceMember := BuildServiceMember(db, []Customization{
+		{
+			Model: serviceMemModel,
+		},
+		{
+			Model:    backupMailingAddress,
+			Type:     &Addresses.BackupMailingAddress,
+			LinkOnly: true,
+		},
+		{
+			Model:    dutyLocation,
+			LinkOnly: true,
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	backupContact := BuildBackupContact(db, []Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	serviceMember.BackupContacts = append(serviceMember.BackupContacts, backupContact)
+
+	if db != nil {
+		mustSave(db, &serviceMember)
 	}
 
 	return serviceMember

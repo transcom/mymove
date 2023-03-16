@@ -225,4 +225,46 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		suite.Equal(customLastName, serviceMember.LastName)
 		suite.Equal(customTelephone, serviceMember.Telephone)
 	})
+
+	suite.Run("Successful creation of customized ExtendedServiceMember", func() {
+		// Under test:      BuildExtendedServiceMember
+		// Set up:          Create a Service Member with residential address, backup mailing address, dutyLocation & backupContact
+		// Expected outcome:serviceMember should be created with custom residential address different from address attached backup mailing address as well as dutyLocation & backupContact
+
+		// SETUP
+		customRank := models.ServiceMemberRankE3
+		customAffiliation := models.AffiliationAIRFORCE
+
+		customServiceMember := models.ServiceMember{
+			FirstName:          models.StringPointer("Gregory"),
+			LastName:           models.StringPointer("Van der Heide"),
+			Telephone:          models.StringPointer("999-999-9999"),
+			SecondaryTelephone: models.StringPointer("123-555-9999"),
+			PersonalEmail:      models.StringPointer("peyton@example.com"),
+			Rank:               &customRank,
+			Edipi:              models.StringPointer("1000011111"),
+			Affiliation:        &customAffiliation,
+			Suffix:             models.StringPointer("Random suffix string"),
+		}
+
+		// CALL FUNCTION UNDER TEST
+		serviceMember := BuildExtendedServiceMember(suite.DB(), []Customization{
+			{Model: customServiceMember},
+		}, nil)
+
+		// VALIDATE RESULTS
+		suite.Equal(customServiceMember.FirstName, serviceMember.FirstName)
+		suite.Equal(customServiceMember.LastName, serviceMember.LastName)
+		suite.Equal(customServiceMember.Telephone, serviceMember.Telephone)
+		suite.Equal(customServiceMember.SecondaryTelephone, serviceMember.SecondaryTelephone)
+		suite.Equal(customServiceMember.PersonalEmail, serviceMember.PersonalEmail)
+		suite.Equal(customServiceMember.Rank, serviceMember.Rank)
+		suite.Equal(customServiceMember.Edipi, serviceMember.Edipi)
+		suite.Equal(customServiceMember.Affiliation, serviceMember.Affiliation)
+		suite.Equal(customServiceMember.Suffix, serviceMember.Suffix)
+
+		// Check that backup contact was made and appended to service member
+		suite.Equal(1, len(serviceMember.BackupContacts))
+		suite.Equal(models.BackupContactPermissionEDIT, serviceMember.BackupContacts[0].Permission)
+	})
 }

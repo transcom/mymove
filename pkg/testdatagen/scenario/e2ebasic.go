@@ -74,15 +74,17 @@ func serviceMemberNoUploadedOrders(appCtx appcontext.AppContext) {
 		},
 	}, nil)
 
-	testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("c52a9f13-ccc7-4c1b-b5ef-e1132a4f4db9"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("NEEDS"),
-			LastName:      models.StringPointer("ORDERS"),
-			PersonalEmail: models.StringPointer(email),
+	factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID:            uuid.FromStringOrNil("c52a9f13-ccc7-4c1b-b5ef-e1132a4f4db9"),
+				UserID:        uuid.FromStringOrNil(uuidStr),
+				FirstName:     models.StringPointer("NEEDS"),
+				LastName:      models.StringPointer("ORDERS"),
+				PersonalEmail: models.StringPointer(email),
+			},
 		},
-	})
+	}, nil)
 }
 
 func basicUserWithOfficeAccess(appCtx appcontext.AppContext) {
@@ -1007,16 +1009,18 @@ func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, user
 	}, nil)
 
 	smIDCombo := "f6bd793f-7042-4523-aa30-34946e7339c9"
-	smWithCombo := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil(smIDCombo),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Submitted"),
-			LastName:      models.StringPointer("Ppmhhg"),
-			Edipi:         models.StringPointer("6833908165"),
-			PersonalEmail: models.StringPointer(email),
+	smWithCombo := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID:            uuid.FromStringOrNil(smIDCombo),
+				UserID:        uuid.FromStringOrNil(uuidStr),
+				FirstName:     models.StringPointer("Submitted"),
+				LastName:      models.StringPointer("Ppmhhg"),
+				Edipi:         models.StringPointer("6833908165"),
+				PersonalEmail: models.StringPointer(email),
+			},
 		},
-	})
+	}, nil)
 	// currently don't have "combo move" selection option, so testing ppm office when type is HHG
 	selectedMoveType := models.SelectedMoveTypeHHG
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
@@ -1114,16 +1118,18 @@ func serviceMemberWithUnsubmittedHHG(appCtx appcontext.AppContext, userUploader 
 	}, nil)
 
 	smWithHHGID := "1d06ab96-cb72-4013-b159-321d6d29c6eb"
-	smWithHHG := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil(smWithHHGID),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Unsubmitted"),
-			LastName:      models.StringPointer("Hhg"),
-			Edipi:         models.StringPointer("5833908165"),
-			PersonalEmail: models.StringPointer(email),
+	smWithHHG := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID:            uuid.FromStringOrNil(smWithHHGID),
+				UserID:        uuid.FromStringOrNil(uuidStr),
+				FirstName:     models.StringPointer("Unsubmitted"),
+				LastName:      models.StringPointer("Hhg"),
+				Edipi:         models.StringPointer("5833908165"),
+				PersonalEmail: models.StringPointer(email),
+			},
 		},
-	})
+	}, nil)
 
 	selectedMoveType := models.SelectedMoveTypeHHG
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
@@ -1172,16 +1178,18 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContex
 	}, nil)
 
 	smWithNTSID := "e6e40998-36ff-4d23-93ac-07452edbe806"
-	smWithNTS := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil(smWithNTSID),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Unsubmitted"),
-			LastName:      models.StringPointer("Nts&Nts-r"),
-			Edipi:         models.StringPointer("5833908155"),
-			PersonalEmail: models.StringPointer(email),
+	smWithNTS := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID:            uuid.FromStringOrNil(smWithNTSID),
+				UserID:        uuid.FromStringOrNil(uuidStr),
+				FirstName:     models.StringPointer("Unsubmitted"),
+				LastName:      models.StringPointer("Nts&Nts-r"),
+				Edipi:         models.StringPointer("5833908155"),
+				PersonalEmail: models.StringPointer(email),
+			},
 		},
-	})
+	}, nil)
 
 	selectedMoveType := models.SelectedMoveTypeNTS
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
@@ -1259,16 +1267,18 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContex
 	}, nil)
 
 	smWithNTSID := "947645ca-06d6-4be9-82fe-3d7bd0a5792d"
-	smWithNTS := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil(smWithNTSID),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Unsubmitted"),
-			LastName:      models.StringPointer("Nts&Nts-r"),
-			Edipi:         models.StringPointer("0933240105"),
-			PersonalEmail: models.StringPointer(email),
+	smWithNTS := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID:            uuid.FromStringOrNil(smWithNTSID),
+				UserID:        uuid.FromStringOrNil(uuidStr),
+				FirstName:     models.StringPointer("Unsubmitted"),
+				LastName:      models.StringPointer("Nts&Nts-r"),
+				Edipi:         models.StringPointer("0933240105"),
+				PersonalEmail: models.StringPointer(email),
+			},
 		},
-	})
+	}, nil)
 
 	selectedMoveType := models.SelectedMoveTypeNTS
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
@@ -2661,11 +2671,13 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 
 func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	logger := appCtx.Logger()
-	customer := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b63"),
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b63"),
+			},
 		},
-	})
+	}, nil)
 	dependentsAuthorized := true
 	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
 		{
@@ -3902,13 +3914,15 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 	dlhCost := unit.Cents(99999)
 
 	serviceMemberID := "f0d00265-e1e3-4fc7-aefd-a8dbfc774c06"
-	serviceMember := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:        uuid.FromStringOrNil(serviceMemberID),
-			FirstName: models.StringPointer("NTS"),
-			LastName:  models.StringPointer("TIO"),
+	serviceMember := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID:        uuid.FromStringOrNil(serviceMemberID),
+				FirstName: models.StringPointer("NTS"),
+				LastName:  models.StringPointer("TIO"),
+			},
 		},
-	})
+	}, nil)
 
 	selectedMoveType := models.SelectedMoveTypeNTS
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
