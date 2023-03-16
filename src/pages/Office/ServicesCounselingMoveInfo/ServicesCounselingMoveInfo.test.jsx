@@ -69,7 +69,7 @@ const renderSCMoveInfo = (nestedPath = 'details', state = {}) => {
   });
 
   // Render the SC Move Info page with redux and routing setup.
-  // Nestes the SC MoveInfo under /counseling/moves/:moveCode/* as done in the app since the SCMoveInfo component uses nested pathing.
+  // Nestes the SC Move Info under /counseling/moves/:moveCode/* as done in the app since the SC Move Info component uses nested pathing.
   return render(
     <MemoryRouter initialEntries={[`/counseling/moves/${testMoveCode}/${nestedPath}`]}>
       <Provider store={mockStore.store}>
@@ -95,6 +95,7 @@ describe('Services Counseling Move Info Container', () => {
       const h2 = screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
     });
+
     it('should render the tab container with two tabs, move details and move history', async () => {
       renderSCMoveInfo();
 
