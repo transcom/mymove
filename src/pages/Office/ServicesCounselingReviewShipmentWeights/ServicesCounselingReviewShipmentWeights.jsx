@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Grid, GridContainer, Tag, Alert } from '@trussworks/react-uswds';
 import { Link, generatePath } from 'react-router-dom';
@@ -39,7 +39,9 @@ const sortShipments = (shipments) => {
   });
   return { hhgShipment, ppmShipment };
 };
+
 const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
+  const [showExcessWeightAlert, setShowExcessWeightAlert] = useState(null);
   const { orders, mtoShipments, isLoading, isError } = useReviewShipmentWeightsQuery(moveCode);
   const estimatedWeightTotal = calculateEstimatedWeight(mtoShipments);
   const moveWeightTotal = calculateWeightRequested(mtoShipments);
@@ -47,6 +49,10 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
     ? mtoShipments.filter((shipment) => shipment.usesExternalVendor).length
     : 0;
   const order = Object.values(orders)?.[0];
+
+  useEffect(() => {
+    setShowExcessWeightAlert(moveWeightTotal > order.entitlement.totalWeight);
+  }, [moveWeightTotal, order.entitlement.totalWeight]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -58,9 +64,11 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
     <div className={tabStyles.tabContent}>
       <GridContainer>
         <Grid className={styles.alertContainer}>
-          <Alert headingLevel="h4" slim type="warning">
-            <span>This move has excess weight. Review PPM weight ticket documents to resolve.</span>
-          </Alert>
+          {showExcessWeightAlert && (
+            <Alert headingLevel="h4" slim type="warning">
+              <span>This move has excess weight. Review PPM weight ticket documents to resolve.</span>
+            </Alert>
+          )}
         </Grid>
         <Grid row>
           <h1>Review shipment weights</h1>
