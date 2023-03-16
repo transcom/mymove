@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Grid, GridContainer, Tag } from '@trussworks/react-uswds';
+import { Grid, GridContainer, Tag, Alert } from '@trussworks/react-uswds';
 import { Link, generatePath } from 'react-router-dom';
 
 import tabStyles from '../TXOMoveInfo/TXOTab.module.scss';
@@ -30,6 +30,11 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
   return (
     <div className={tabStyles.tabContent}>
       <GridContainer>
+        <Grid className={styles.alertContainer}>
+          <Alert headingLevel="h4" slim type="warning">
+            <span>This move has excess weight. Review PPM weight ticket documents to resolve.</span>
+          </Alert>
+        </Grid>
         <Grid row>
           <h1>Review shipment weights</h1>
         </Grid>

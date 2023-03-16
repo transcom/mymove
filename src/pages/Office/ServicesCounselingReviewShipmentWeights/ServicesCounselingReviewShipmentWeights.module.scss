@@ -12,3 +12,7 @@
 .weightDisplay {
   flex: 1 1 0px;
 }
+
+.alertContainer {
+  @include u-margin-bottom(3);
+}
