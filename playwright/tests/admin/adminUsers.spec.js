@@ -38,7 +38,9 @@ test('Admin User Create Page', async ({ page, adminPage }) => {
   await page.getByLabel('First name').fill('Cypress');
   await page.getByLabel('Last name').fill('Test');
 
-  await page.getByLabel('Organization').click();
+  // The autocomplete form results in multiple matching elements, so
+  // pick the input element
+  await page.getByLabel('Organization').locator('input').click();
   await page.getByRole('option').first().click();
   await page.getByRole('button').filter({ hasText: 'Save' }).click();
   await adminPage.waitForAdminPageToLoad();
