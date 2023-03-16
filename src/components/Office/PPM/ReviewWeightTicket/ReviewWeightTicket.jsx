@@ -91,7 +91,7 @@ export default function ReviewWeightTicket({
    * editNetWeight - This gets passed down into the EditPPMNetWeight component to
    * be used for the onSave in the EditPPMNetWeightForm
    * @param {Object} formValues - The values that are returned from the EditPPMNetWeightForm component on click.
-   * @param {string} formValues.adjustedNetWeight - The adjusted ney weight as a string. This value needs to be parsed into an integer before mutation.
+   * @param {string} formValues.adjustedNetWeight - The adjusted net weight as a string. This value needs to be parsed into an integer before mutation.
    * @param {string} formValues.netWeightRemarks - The net weight remarks.
    * @param {Object} callbacks - These are the callbacks that React Query v4 uses when doing mutations.
    *                            <https://tkdodo.eu/blog/mastering-mutations-in-react-query#some-callbacks-might-not-fire>
