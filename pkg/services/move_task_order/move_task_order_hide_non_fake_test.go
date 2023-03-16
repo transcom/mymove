@@ -318,10 +318,10 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelB
 
 	phone := "999-999-9999"
 
-	invalidFakeData := []testdatagen.Assertions{
-		{BackupContact: models.BackupContact{Name: "Britney"}},
-		{BackupContact: models.BackupContact{Email: "Spears"}},
-		{BackupContact: models.BackupContact{Phone: swag.String("415-275-9467")}},
+	invalidFakeData := []models.BackupContact{
+		{Name: "Britney"},
+		{Email: "Spears"},
+		{Phone: swag.String("415-275-9467")},
 	}
 
 	suite.Run("valid backup contact", func() {
@@ -330,13 +330,15 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelB
 		// Set up:           Create a contact with valid data
 		// Expected outcome: Returns true, no error
 
-		validBackupContact := testdatagen.MakeBackupContact(suite.DB(), testdatagen.Assertions{
-			BackupContact: models.BackupContact{
-				Name:  "Robin Fenstermacher",
-				Email: "robin@example.com",
-				Phone: &phone,
+		validBackupContact := factory.BuildBackupContact(suite.DB(), []factory.Customization{
+			{
+				Model: models.BackupContact{
+					Name:  "Robin Fenstermacher",
+					Email: "robin@example.com",
+					Phone: &phone,
+				},
 			},
-		})
+		}, nil)
 		result, err := IsValidFakeModelBackupContact(validBackupContact)
 		suite.NoError(err)
 		suite.Equal(true, result)
@@ -350,7 +352,11 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelB
 
 	for idx, invalidData := range invalidFakeData {
 		suite.Run(fmt.Sprintf("invalid fake Backup Contact data %d", idx), func() {
-			bc := testdatagen.MakeBackupContact(suite.DB(), invalidData)
+			bc := factory.BuildBackupContact(nil, []factory.Customization{
+				{
+					Model: invalidData,
+				},
+			}, nil)
 			result, err := IsValidFakeModelBackupContact(bc)
 			suite.NoError(err)
 			suite.Equal(false, result)
