@@ -567,6 +567,19 @@ describe('MoveDetails page', () => {
       expect(screen.getAllByRole('button', { name: 'Review documents' }).length).toBe(2);
     });
 
+    it('renders review shipment weights button with correct path', async () => {
+      useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
+      const path = generatePath(servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH, {
+        moveCode: mockRequestedMoveCode,
+      });
+      render(mockedComponent);
+
+      const reviewShipmentWeightsBtn = screen.getByRole('button', { name: 'Review shipment weights' });
+
+      expect(reviewShipmentWeightsBtn).toBeInTheDocument();
+      expect(reviewShipmentWeightsBtn.getAttribute('data-testid')).toBe(path);
+    });
+
     it('shows an error if there is an advance requested and no advance status for a PPM shipment', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
       render(mockedComponent);

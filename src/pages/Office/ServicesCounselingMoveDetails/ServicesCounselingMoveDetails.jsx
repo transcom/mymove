@@ -39,6 +39,7 @@ import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
+import { ReviewButton } from 'components/form/IconButtons';
 import { calculateWeightRequested } from 'hooks/custom';
 
 const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCount }) => {
@@ -57,6 +58,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
   const moveWeightTotal = calculateWeightRequested(mtoShipments);
 
+  let counselorCanReview;
+  let reviewWeightsURL;
   let counselorCanEdit;
   let counselorCanEditNonPPM;
 
@@ -188,7 +191,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
       };
     });
 
-    const counselorCanReview = ppmShipmentsInfoNeedsApproval.length > 0;
+    counselorCanReview = ppmShipmentsInfoNeedsApproval.length > 0;
+    reviewWeightsURL = generatePath(servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH, { moveCode });
     counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && ppmShipmentsOtherStatuses.length > 0;
     counselorCanEditNonPPM =
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
@@ -251,7 +255,6 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
         id: shipment.id,
         displayInfo,
         editURL,
-        counselorCanReview,
         shipmentType: shipment.shipmentType,
       };
     });
@@ -309,6 +312,10 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     });
 
     history.push(addShipmentPath);
+  };
+
+  const handleReviewWeightsButton = (WeightsURL) => {
+    history.push(WeightsURL);
   };
 
   // use mutation calls
@@ -476,6 +483,16 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                     <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
                     <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
                   </ButtonDropdown>
+                )
+              }
+              reviewButton={
+                counselorCanReview && (
+                  <ReviewButton
+                    onClick={() => handleReviewWeightsButton(reviewWeightsURL)}
+                    data-testid={reviewWeightsURL}
+                    label="Review shipment weights"
+                    secondary
+                  />
                 )
               }
               financialReviewOpen={handleShowFinancialReviewModal}
