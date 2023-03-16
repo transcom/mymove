@@ -55,7 +55,7 @@ export class ServiceCounselorPage extends OfficePage {
       await expect(this.page.getByRole('heading', { name: 'Review trip 1', level: 3 })).toBeVisible();
     },
     reviewDocumentsConfirmation: async () => {
-      await expect(this.page.getByRole('heading', { name: 'Send to customer?', level: 3 })).toBeVisible();
+      await expect(this.page.getByRole('heading', { name: 'Send to customer?' })).toBeVisible();
     },
   };
 

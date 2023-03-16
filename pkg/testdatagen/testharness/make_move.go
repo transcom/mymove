@@ -2424,7 +2424,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext) mo
 		PPMShipment: models.PPMShipment{
 			ID:                          uuid.Must(uuid.NewV4()),
 			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -2441,7 +2441,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext) mo
 		ServiceMember: move.Orders.ServiceMember,
 	}
 	testdatagen.MakeWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
-	testdatagen.MakeMovingExpense(appCtx.DB(), ppmCloseoutAssertions)
+	// testdatagen.MakeMovingExpense(appCtx.DB(), ppmCloseoutAssertions)
 	testdatagen.MakeProgearWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
 
 	// re-fetch the move so that we ensure we have exactly what is in
@@ -2540,7 +2540,7 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 		PPMShipment: models.PPMShipment{
 			ID:                          uuid.Must(uuid.NewV4()),
 			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
