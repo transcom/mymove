@@ -1,4 +1,6 @@
 @import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
 
 .weightHeader {
   display: flex;
@@ -11,6 +13,32 @@
 
 .weightDisplay {
   flex: 1 1 0px;
+}
+
+.weightMovedContainer {
+  background-color: white;
+  padding: 32px;
+  @include u-margin-bottom(2);
+  border: 1px #dcdee0 solid;
+}
+
+.weightMovedHeader {
+  margin-top: 0;
+  @include u-margin-bottom(1);
+  color: $base-darkest;
+  font-weight: bold;
+  font-size: 28px;
+}
+
+.shipmentContainer {
+  @include u-margin-top(2);
+}
+.shipmentHeader {
+  margin-top: 0;
+  @include u-margin-bottom(0.5);
+  color: $base-darkest;
+  font-weight: bold;
+  font-size: 22px;
 }
 
 .alertContainer {
