@@ -67,7 +67,7 @@ describe('ReviewWeightTicket component', () => {
     it('renders blank form on load with defaults', async () => {
       render(
         <MockProviders>
-          <ReviewWeightTicket {...defaultProps} />;
+          <ReviewWeightTicket {...defaultProps} {...weightTicketRequiredProps} />
         </MockProviders>,
       );
 
