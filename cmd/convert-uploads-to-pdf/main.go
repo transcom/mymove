@@ -205,6 +205,8 @@ func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 		return err
 	}
 
+	// We need to override the environment variable here if it's different from the flag value because later on we'll
+	// be pulling from the environment to make it easier to compose the URL rather than having to pass it around.
 	protocol := v.GetString(GotenbergProtocolFlag)
 	if os.Getenv("GOTENBERG_PROTOCOL") != protocol {
 		os.Setenv("GOTENBERG_PROTOCOL", protocol)
@@ -214,6 +216,8 @@ func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 		return err
 	}
 
+	// We need to override the environment variable here if it's different from the flag value because later on we'll
+	// be pulling from the environment to make it easier to compose the URL rather than having to pass it around.
 	host := v.GetString(GotenbergHostFlag)
 	if os.Getenv("GOTENBERG_HOST") != host {
 		os.Setenv("GOTENBERG_HOST", host)
@@ -223,6 +227,8 @@ func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 		return err
 	}
 
+	// We need to override the environment variable here if it's different from the flag value because later on we'll
+	// be pulling from the environment to make it easier to compose the URL rather than having to pass it around.
 	port := strconv.Itoa(v.GetInt(GotenbergPortFlag))
 	if os.Getenv("GOTENBERG_PORT") != port {
 		os.Setenv("GOTENBERG_PORT", port)
@@ -590,8 +596,11 @@ func mergePDFs(appCtx appcontext.AppContext, pdfsToMerge []io.ReadCloser) (io.Re
 // saveMergedPDF uploads the merged PDF to storage and saves the relevant DB info.
 func saveMergedPDF(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, ppmShipment *models.PPMShipment, mergedPDF io.ReadCloser) error {
 	txnErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		// We'll need to decide if we want to load this like this, or if we'll have a custom loader for PPMShipment that
-		// includes the ServiceMember already.
+		// We'll need to decide if we want to load this info like this, or if we'll want to add another fetch function
+		// to the pkg/services/ppmshipment/ppm_shipment_fetcher.go file that is specifically for the AOA & payment
+		// packets. I think it would be better to set up a generic fetcher like the one for the MTOShipment fetcher
+		// https://github.com/transcom/mymove/blob/ab14a31c4e666ffda8197160ed21552da54edce7/pkg/services/mto_shipment/mto_shipment_fetcher.go#L117-L137
+		// so that we don't have to set up a new function every time we have a slightly different use case.
 		if err := txnAppCtx.DB().Load(&ppmShipment.Shipment,
 			"MoveTaskOrder.Orders.ServiceMember",
 		); err != nil {
