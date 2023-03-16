@@ -17,12 +17,12 @@
 
 .weightMovedContainer {
   background-color: white;
-padding: 32px;
-@include u-margin-bottom(2);
-border: 1px #DCDEE0 solid;
+  padding: 32px;
+  @include u-margin-bottom(2);
+  border: 1px #dcdee0 solid;
 }
 
-.weightMovedHeader{
+.weightMovedHeader {
   margin-top: 0;
   @include u-margin-bottom(1);
   color: $base-darkest;
@@ -33,7 +33,7 @@ border: 1px #DCDEE0 solid;
 .shipmentContainer {
   @include u-margin-top(2);
 }
-.shipmentHeader{
+.shipmentHeader {
   margin-top: 0;
   @include u-margin-bottom(0.5);
   color: $base-darkest;

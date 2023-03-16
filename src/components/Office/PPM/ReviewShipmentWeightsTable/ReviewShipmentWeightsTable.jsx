@@ -45,7 +45,7 @@ const ReviewShipmentWeightsTable = ({ tableData, tableConfig }) => {
             rows={rows}
             prepareRow={prepareRow}
             handleClick={() => {}}
-            tableStyle={styles.table}
+            tableStyle={styles.Table}
           />
         </div>
       ) : (

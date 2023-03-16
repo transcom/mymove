@@ -8,13 +8,12 @@
   flex-direction: column;
   flex: auto;
 
-  .table{
+  .Table {
     min-height: 0;
     tr:hover {
-      background-color: white; 
+      background-color: white;
     }
   }
-
 
   .tableContainer {
     flex: auto;
@@ -38,7 +37,7 @@
     text-align: right !important;
   }
 }
-.review-shipment-weights-table-row{
+.review-shipment-weights-table-row {
   text-align: left;
   padding-left: 8px;
 }
