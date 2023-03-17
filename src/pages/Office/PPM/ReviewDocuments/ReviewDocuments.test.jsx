@@ -200,7 +200,8 @@ describe('ReviewDocuments', () => {
       await userEvent.clear(fullWeightInput);
       await userEvent.type(fullWeightInput, newFullWeight.toString());
 
-      expect(screen.getByLabelText(/net weight/i)).toHaveTextContent('4,000 lbs');
+      const netWeightDisplay = screen.getByTestId('net-weight-display');
+      expect(netWeightDisplay).toHaveTextContent('4,000 lbs');
 
       expect(await screen.findByLabelText('Accept')).toBeInTheDocument();
 

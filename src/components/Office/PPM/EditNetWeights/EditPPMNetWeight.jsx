@@ -201,7 +201,7 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments, editNetWei
             type={showReduceWeight ? CALCULATION_TYPE.REDUCE_WEIGHT : CALCULATION_TYPE.NET_WEIGHT}
           />
           {!showEditForm ? (
-            <div className={styles.wrapper}>
+            <div data-testid="net-weight-display" className={styles.wrapper}>
               {formatWeight(netWeight)}
               {weightTicket.netWeightRemarks && (
                 <>
