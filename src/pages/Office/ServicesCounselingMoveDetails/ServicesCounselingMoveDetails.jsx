@@ -190,7 +190,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     });
 
     counselorCanReview = ppmShipmentsInfoNeedsApproval.length > 0;
-    reviewWeightsURL = generatePath(servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH, { moveCode });
+    reviewWeightsURL = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, { moveCode });
     counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && ppmShipmentsOtherStatuses.length > 0;
     counselorCanEditNonPPM =
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
@@ -310,8 +310,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     navigate(addShipmentPath);
   };
 
-  const handleReviewWeightsButton = (WeightsURL) => {
-    history.push(WeightsURL);
+  const handleReviewWeightsButton = (weightsURL) => {
+    navigate(weightsURL);
   };
 
   // use mutation calls
