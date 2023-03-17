@@ -2,7 +2,7 @@ import { test, expect } from './servicesCounselingTestFixture';
 
 test('A service counselor can approve/reject moving expenses', async ({ page, scPage }) => {
   // Create a move with TestHarness, and then navigate to the move details page for it
-  const move = await scPage.testHarness.buildApprovedMoveWithPPMMovingExpense();
+  const move = await scPage.testHarness.buildApprovedMoveWithPPMMovingExpenseOffice();
   await scPage.navigateToCloseoutMove(move.locator);
 
   // Navigate to the "Review documents" page
@@ -34,7 +34,7 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
 
   // Weight ticket is first. Need to skip over to expense ticket
   await page.getByRole('button', { name: 'Continue' }).click();
-
+  await expect(page.getByRole('heading', { name: 'Review receipt 1' })).toBeVisible();
   await expect(page.getByRole('radio', { name: 'Accept' })).toBeChecked();
 
   // Click "Reject" on the expense ticket, provide a reason, then save

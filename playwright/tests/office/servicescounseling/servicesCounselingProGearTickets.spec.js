@@ -2,7 +2,7 @@ import { test, expect } from './servicesCounselingTestFixture';
 
 test('A service counselor can approve/reject pro-gear weight tickets', async ({ page, scPage }) => {
   // Create a move with TestHarness, and then navigate to the move details page for it
-  const move = await scPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicket();
+  const move = await scPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicketOffice();
   await scPage.navigateToCloseoutMove(move.locator);
 
   // Navigate to the "Review documents" page
