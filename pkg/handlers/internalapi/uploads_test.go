@@ -36,7 +36,7 @@ const FixtureXLSX = "Weight Estimator.xlsx"
 const FixtureEmpty = "empty.pdf"
 
 func createPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, uploadop.CreateUploadParams) {
-	document := testdatagen.MakeDefaultDocument(suite.DB())
+	document := factory.BuildDocument(suite.DB(), nil, nil)
 
 	params := uploadop.NewCreateUploadParams()
 	params.DocumentID = handlers.FmtUUID(document.ID)
@@ -459,7 +459,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 		_, params := createPPMPrereqs(suite, FixtureXLS)
 
-		document := testdatagen.MakeDefaultDocument(suite.DB())
+		document := factory.BuildDocument(suite.DB(), nil, nil)
 		params.DocumentID = strfmt.UUID(document.ID.String())
 
 		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)

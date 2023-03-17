@@ -19,13 +19,7 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
 
-		baseDocumentAssertions := testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: serviceMember.ID,
-			},
-		}
-
-		document := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
+		document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 
 		now := time.Now()
 		if hasdocFiles {

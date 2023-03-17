@@ -878,7 +878,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		var moves models.Moves
 		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
-		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+		document := factory.BuildDocument(suite.DB(), nil, nil)
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
 				OriginDutyLocation:      &dutyLocation,

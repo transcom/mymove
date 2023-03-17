@@ -24,11 +24,7 @@ func (suite *ProgearWeightTicketSuite) TestDeleteProgearWeightTicket() {
 			},
 		})
 
-		progearDocument := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: serviceMember.ID,
-			},
-		})
+		progearDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 
 		if hasDocumentUploads {
 			for i := 0; i < 2; i++ {

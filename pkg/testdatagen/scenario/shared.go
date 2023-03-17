@@ -139,12 +139,7 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo MoveCrea
 }
 
 func makeOrdersForServiceMember(appCtx appcontext.AppContext, serviceMember models.ServiceMember, userUploader *uploader.UserUploader, fileNames *[]string) models.Order {
-	document := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
-		Document: models.Document{
-			ServiceMemberID: serviceMember.ID,
-			ServiceMember:   serviceMember,
-		},
-	})
+	document := factory.BuildDocumentLinkServiceMember(appCtx.DB(), serviceMember)
 
 	// Creates order upload documents from the files in this directory:
 	// pkg/testdatagen/testdata/bandwidth_test_docs

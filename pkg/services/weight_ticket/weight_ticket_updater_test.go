@@ -25,15 +25,9 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
 
-		baseDocumentAssertions := testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: serviceMember.ID,
-			},
-		}
-
-		emptyDocument := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
-		fullDocument := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
-		proofOfOwnership := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
+		emptyDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+		fullDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+		proofOfOwnership := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 
 		now := time.Now()
 		if hasEmptyFiles {
