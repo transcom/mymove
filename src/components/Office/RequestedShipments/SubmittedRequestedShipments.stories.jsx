@@ -10,7 +10,7 @@ import {
 } from './RequestedShipmentsTestData';
 import SubmittedRequestedShipments from './SubmittedRequestedShipments';
 
-import { MockProviders, MockRouting } from 'testUtils';
+import { MockProviders, MockRouterProvider } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 
 export default {
@@ -21,9 +21,9 @@ export default {
       // Don't wrap with permissions for the read only tests
       if (context.name.includes('Read Only')) {
         return (
-          <MockRouting>
+          <MockRouterProvider>
             <Story />
-          </MockRouting>
+          </MockRouterProvider>
         );
       }
 

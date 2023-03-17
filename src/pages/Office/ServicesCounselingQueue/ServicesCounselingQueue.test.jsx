@@ -5,7 +5,7 @@ import { render, screen } from '@testing-library/react';
 import ServicesCounselingQueue from './ServicesCounselingQueue';
 
 import { useUserQueries, useServicesCounselingQueueQueries, useServicesCounselingQueuePPMQueries } from 'hooks/queries';
-import { MockProviders, MockRouting } from 'testUtils';
+import { MockProviders, MockRouterProvider } from 'testUtils';
 import { MOVE_STATUSES } from 'shared/constants';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -164,9 +164,9 @@ describe('ServicesCounselingQueue', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
     useServicesCounselingQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
     const wrapper = mount(
-      <MockRouting path={pagePath} params={{ queueType: 'counseling' }}>
+      <MockRouterProvider path={pagePath} params={{ queueType: 'counseling' }}>
         <ServicesCounselingQueue />
-      </MockRouting>,
+      </MockRouterProvider>,
     );
 
     it('displays move header with count', () => {
@@ -186,9 +186,9 @@ describe('ServicesCounselingQueue', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
     useServicesCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
     const wrapper = mount(
-      <MockRouting path={pagePath} params={{ queueType: 'counseling' }}>
+      <MockRouterProvider path={pagePath} params={{ queueType: 'counseling' }}>
         <ServicesCounselingQueue />
-      </MockRouting>,
+      </MockRouterProvider>,
     );
 
     it('displays move header with needs service counseling count', () => {
@@ -271,9 +271,9 @@ describe('ServicesCounselingQueue', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
     useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
     const wrapper = mount(
-      <MockRouting path={pagePath} params={{ queueType: 'counseling' }}>
+      <MockRouterProvider path={pagePath} params={{ queueType: 'counseling' }}>
         <ServicesCounselingQueue />
-      </MockRouting>,
+      </MockRouterProvider>,
     );
 
     it('displays move header with needs service counseling count', () => {
@@ -307,7 +307,7 @@ describe('ServicesCounselingQueue', () => {
         useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
         useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
         render(
-          <MockProviders initialEntries={[servicesCounselingRoutes.DEFAULT_QUEUE_PATH]}>
+          <MockProviders>
             <ServicesCounselingQueue />
           </MockProviders>,
         );

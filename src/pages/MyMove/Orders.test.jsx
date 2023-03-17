@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { Orders } from './Orders';
 
 import { createOrders, getOrdersForServiceMember, getServiceMember, patchOrders } from 'services/internalApi';
-import { MockRouting, renderWithRouterProp } from 'testUtils';
+import { MockRouterProvider, renderWithRouterProp } from 'testUtils';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -417,9 +417,9 @@ describe('Orders page', () => {
   describe('with the allOrdersType feature flag set to false', () => {
     it('passes only the PCS option into the form', async () => {
       const wrapper = mount(
-        <MockRouting>
+        <MockRouterProvider>
           <Orders {...testProps} context={{ flags: { allOrdersTypes: false } }} router={{ navigate: mockNavigate }} />
-        </MockRouting>,
+        </MockRouterProvider>,
       );
       await waitFor(() => {
         expect(wrapper.find('OrdersInfoForm').prop('ordersTypeOptions')).toEqual([ordersOptions[0]]);

@@ -17,7 +17,7 @@ import {
 
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { MockProviders, MockRouting } from 'testUtils';
+import { MockProviders, MockRouterProvider } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 import ppmDocumentStatus from 'constants/ppms';
 
@@ -29,9 +29,9 @@ export default {
       // Dont wrap with permissions for the read only tests
       if (context.name.includes('Read Only')) {
         return (
-          <MockRouting>
+          <MockRouterProvider>
             <Story />
-          </MockRouting>
+          </MockRouterProvider>
         );
       }
 

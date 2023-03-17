@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import { act } from 'react-dom/test-utils';
 
 import { WizardPage } from 'shared/WizardPage';
-import { MockRouting } from 'testUtils';
+import { MockRouterProvider } from 'testUtils';
 
 const mockNavigate = jest.fn();
 
@@ -20,7 +20,7 @@ const mountWithRouting = (ui) => {
     params: { foo: 'dvorak' },
   };
 
-  return mount(<MockRouting>{React.cloneElement(ui, { router: { ...router } })}</MockRouting>);
+  return mount(<MockRouterProvider>{React.cloneElement(ui, { router: { ...router } })}</MockRouterProvider>);
 };
 
 describe('the WizardPage component', () => {

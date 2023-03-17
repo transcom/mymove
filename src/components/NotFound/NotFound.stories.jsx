@@ -3,14 +3,14 @@ import { action } from '@storybook/addon-actions';
 
 import NotFound from './NotFound';
 
-import { MockRouting } from 'testUtils';
+import { MockRouterProvider } from 'testUtils';
 
 export default {
   title: 'Components / Not Found',
 };
 
 export const NotFoundComponent = () => (
-  <MockRouting>
+  <MockRouterProvider>
     <NotFound handleOnClick={action('clicked')} />
-  </MockRouting>
+  </MockRouterProvider>
 );

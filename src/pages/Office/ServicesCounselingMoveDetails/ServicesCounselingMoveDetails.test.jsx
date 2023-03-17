@@ -14,7 +14,7 @@ import { permissionTypes } from 'constants/permissions';
 import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { formatDate } from 'shared/dates';
-import { MockProviders, MockRouting, ReactQueryWrapper } from 'testUtils';
+import { MockProviders, MockRouterProvider, ReactQueryWrapper } from 'testUtils';
 import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
 
 const mockRequestedMoveCode = 'LR4T8V';
@@ -780,9 +780,9 @@ describe('MoveDetails page', () => {
 
         render(
           <ReactQueryWrapper>
-            <MockRouting>
+            <MockRouterProvider>
               <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
-            </MockRouting>
+            </MockRouterProvider>
           </ReactQueryWrapper>,
         );
 

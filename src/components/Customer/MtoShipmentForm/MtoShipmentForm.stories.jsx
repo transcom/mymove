@@ -6,7 +6,7 @@ import MtoShipmentForm from './MtoShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { store } from 'shared/store';
-import { MockRouting } from 'testUtils';
+import { MockRouterProvider } from 'testUtils';
 
 const defaultProps = {
   pageList: ['page1', 'anotherPage/:foo/:bar'],
@@ -82,9 +82,9 @@ export default {
 function renderStory(props) {
   return (
     <Provider store={store}>
-      <MockRouting>
+      <MockRouterProvider>
         <MtoShipmentForm {...defaultProps} {...props} />
-      </MockRouting>
+      </MockRouterProvider>
     </Provider>
   );
 }

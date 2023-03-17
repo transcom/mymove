@@ -7,7 +7,7 @@ import ReactTable from 'react-table-6';
 import store from 'shared/store';
 import { mount } from 'enzyme/build';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { MockRouting } from 'testUtils';
+import { MockRouterProvider } from 'testUtils';
 import { render, screen } from '@testing-library/react';
 
 const mockLogOut = jest.fn();
@@ -58,9 +58,9 @@ describe('Refreshing', () => {
     const mockRetrieveMoves = jest.fn();
     render(
       <Provider store={store}>
-        <MockRouting>
+        <MockRouterProvider>
           <QueueTable queueType="new" retrieveMoves={mockRetrieveMoves} />
-        </MockRouting>
+        </MockRouterProvider>
       </Provider>,
     );
 
@@ -82,9 +82,9 @@ describe('on 401 unauthorized error', () => {
 
     render(
       <Provider store={store}>
-        <MockRouting>
+        <MockRouterProvider>
           <QueueTable queueType="new" retrieveMoves={mockRetrieveMoves} />
-        </MockRouting>
+        </MockRouterProvider>
       </Provider>,
     );
 
@@ -131,9 +131,9 @@ function retrieveMovesStub(params, throwError) {
 function mountComponents(getMoves, queueType = 'new', mockStore = store) {
   return mount(
     <Provider store={mockStore}>
-      <MockRouting>
+      <MockRouterProvider>
         <QueueTable queueType={queueType} retrieveMoves={getMoves} />
-      </MockRouting>
+      </MockRouterProvider>
     </Provider>,
   );
 }

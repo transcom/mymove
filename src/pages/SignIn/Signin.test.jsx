@@ -4,7 +4,7 @@ import routeData from 'react-router-dom';
 
 import SignIn from './SignIn';
 
-import { MockRouting } from 'testUtils';
+import { MockRouterProvider } from 'testUtils';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -24,9 +24,9 @@ afterEach(() => {
 describe('SignIn tests', () => {
   it('renders without crashing', () => {
     render(
-      <MockRouting>
+      <MockRouterProvider>
         <SignIn />
-      </MockRouting>,
+      </MockRouterProvider>,
     );
   });
 
@@ -39,9 +39,9 @@ describe('SignIn tests', () => {
 
     const context = { siteName: 'TestMove' };
     render(
-      <MockRouting>
+      <MockRouterProvider>
         <SignIn context={context} />
-      </MockRouting>,
+      </MockRouterProvider>,
     );
 
     expect(screen.getByText('An error occurred')).toBeInTheDocument();
@@ -54,9 +54,9 @@ describe('SignIn tests', () => {
   it('shows the EULA when the signin button is clicked and hides the EULA when cancel is clicked', () => {
     const context = { siteName: 'TestMove' };
     render(
-      <MockRouting>
+      <MockRouterProvider>
         <SignIn context={context} />
-      </MockRouting>,
+      </MockRouterProvider>,
     );
 
     expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
@@ -75,9 +75,9 @@ describe('SignIn tests', () => {
 
     const context = { siteName: 'TestMove' };
     render(
-      <MockRouting>
+      <MockRouterProvider>
         <SignIn context={context} />
-      </MockRouting>,
+      </MockRouterProvider>,
     );
 
     expect(screen.getByText('You have signed out of MilMove')).toBeInTheDocument();
@@ -92,9 +92,9 @@ describe('SignIn tests', () => {
 
     const context = { siteName: 'TestMove' };
     render(
-      <MockRouting>
+      <MockRouterProvider>
         <SignIn context={context} />
-      </MockRouting>,
+      </MockRouterProvider>,
     );
 
     expect(screen.queryByText('You have signed out of MilMove')).not.toBeInTheDocument();
@@ -109,9 +109,9 @@ describe('SignIn tests', () => {
 
     const context = { siteName: 'TestMove' };
     render(
-      <MockRouting>
+      <MockRouterProvider>
         <SignIn context={context} />
-      </MockRouting>,
+      </MockRouterProvider>,
     );
     expect(screen.getByText('You have been logged out due to inactivity.')).toBeInTheDocument();
   });
@@ -125,9 +125,9 @@ describe('SignIn tests', () => {
 
     const context = { siteName: 'TestMove' };
     render(
-      <MockRouting>
+      <MockRouterProvider>
         <SignIn context={context} />
-      </MockRouting>,
+      </MockRouterProvider>,
     );
     expect(screen.queryByText('You have been logged out due to inactivity.')).not.toBeInTheDocument();
   });
