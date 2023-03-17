@@ -79,7 +79,8 @@ const usePPMShipmentDocsQueriesReturnValueAllDocs = {
   isSuccess: true,
 };
 
-/** @constant {Object} useReviewShipmentWeightsQueryReturnValueAllDocs
+/**
+ * @constant {Object} useReviewShipmentWeightsQueryReturnValueAll
  * @description The mocked return values from the useReviewShipmentWeightsQuery
  * that is being used by the EditPPMNetWeight component inside of the
  * ReviewWeightTicket component
