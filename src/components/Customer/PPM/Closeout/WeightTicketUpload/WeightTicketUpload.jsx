@@ -45,19 +45,17 @@ const rentalAgreement = (
     <Alert type="info">
       If you do not upload legible certified weight tickets, your PPM incentive could be affected.
     </Alert>
-    <p>
-      Enter the PPM vehicle&apos;s weight as the empty weight. Your vehicle&apos;s weight can be obtained from:
-      <ul>
-        <li>The Branham Automobile Reference Book</li>
-        <li>
-          <Link href="https://www.jdpower.com/cars" target="_blank" rel="noopener">
-            National Automobile Dealers Association (NADA) Official Used Car Guide
-          </Link>
-        </li>
-        <li>Your owner&apos;s manual</li>
-        <li>Other appropriate reference sources of manufacturer&apos;s weight</li>
-      </ul>
-    </p>
+    <p>Enter the PPM vehicle&apos;s weight as the empty weight. Your vehicle&apos;s weight can be obtained from:</p>
+    <ul>
+      <li>The Branham Automobile Reference Book</li>
+      <li>
+        <Link href="https://www.jdpower.com/cars" target="_blank" rel="noopener">
+          National Automobile Dealers Association (NADA) Official Used Car Guide
+        </Link>
+      </li>
+      <li>Your owner&apos;s manual</li>
+      <li>Other appropriate reference sources of manufacturer&apos;s weight</li>
+    </ul>
   </>
 );
 
