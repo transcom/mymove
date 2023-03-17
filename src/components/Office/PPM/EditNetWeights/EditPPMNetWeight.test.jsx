@@ -4,11 +4,17 @@ import userEvent from '@testing-library/user-event';
 
 import EditPPMNetWeight from './EditPPMNetWeight';
 
+import { patchWeightTicket } from 'services/ghcApi';
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import { ReactQueryWrapper } from 'testUtils';
 
 jest.mock('formik', () => ({
   ...jest.requireActual('formik'),
+}));
+
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  patchWeightTicket: jest.fn(),
 }));
 
 const shipments = [
@@ -194,6 +200,7 @@ describe('EditNetPPMWeight', () => {
           <EditPPMNetWeight {...reduceWeight} />
         </ReactQueryWrapper>,
       );
+      patchWeightTicket.mockResolvedValue({});
       await act(() => userEvent.click(screen.getByRole('button', { name: 'Edit' })));
       const textInput = await screen.findByTestId('weightInput');
       await act(() => userEvent.type(textInput, '1000'));
