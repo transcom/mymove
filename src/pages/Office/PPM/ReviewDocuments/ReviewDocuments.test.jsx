@@ -88,7 +88,7 @@ const useReviewShipmentWeightsQueryReturnValueAll = {
   orders: {
     orderID: {
       entitlement: {
-        authorizedWeight: '1000',
+        authorizedWeight: 1000,
       },
     },
   },

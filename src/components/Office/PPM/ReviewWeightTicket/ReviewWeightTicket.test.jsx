@@ -11,6 +11,11 @@ beforeEach(() => {
 });
 
 const defaultProps = {
+  order: {
+    entitlement: {
+      authorizedWeight: 2000,
+    },
+  },
   ppmShipment: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     actualPickupPostalCode: '90210',
@@ -100,7 +105,7 @@ describe('ReviewWeightTicket component', () => {
       });
       expect(screen.getByLabelText('Empty weight', { description: 'Weight tickets' })).toHaveDisplayValue('400');
       expect(screen.getByLabelText('Full weight', { description: 'Weight tickets' })).toHaveDisplayValue('1,200');
-      expect(screen.getByText('800 lbs')).toBeInTheDocument();
+      expect(screen.getAllByText('800 lbs')).toHaveLength(2);
       expect(screen.getByLabelText('No')).toBeChecked();
     });
 
