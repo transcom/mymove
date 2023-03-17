@@ -726,7 +726,7 @@ const ShipmentForm = (props) => {
                     type="button"
                     secondary
                     onClick={() => {
-                      navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
+                      navigate(moveDetailsPath);
                     }}
                   >
                     Cancel
