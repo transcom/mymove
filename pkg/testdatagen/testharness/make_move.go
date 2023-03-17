@@ -2441,7 +2441,6 @@ func MakeApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext) mo
 		ServiceMember: move.Orders.ServiceMember,
 	}
 	testdatagen.MakeWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
-	// testdatagen.MakeMovingExpense(appCtx.DB(), ppmCloseoutAssertions)
 	testdatagen.MakeProgearWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
 
 	// re-fetch the move so that we ensure we have exactly what is in
@@ -2499,7 +2498,6 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 		ServiceMember: move.Orders.ServiceMember,
 	}
 	testdatagen.MakeWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
-	// testdatagen.MakeMovingExpense(appCtx.DB(), ppmCloseoutAssertions)
 	testdatagen.MakeProgearWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
 
 	// re-fetch the move so that we ensure we have exactly what is in
