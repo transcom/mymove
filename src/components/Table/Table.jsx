@@ -24,11 +24,12 @@ const Table = ({
   setPageSize,
   pageOptions,
   perPage,
+  tableStyle,
   pageIndex,
 }) => {
   return (
     /* eslint-disable react/jsx-props-no-spreading */
-    <div data-testid="react-table" className={styles.Table}>
+    <div data-testid="react-table" className={classNames(styles.Table, tableStyle && tableStyle)}>
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => (

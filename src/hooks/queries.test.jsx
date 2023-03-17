@@ -464,7 +464,7 @@ describe('usePaymentRequestQueries', () => {
 describe('useMoveDetailsQueries', () => {
   it('loads data', async () => {
     const moveCode = 'ABCDEF';
-    const { result, waitForNextUpdate } = renderHook(() => useMoveDetailsQueries(moveCode), { wrapper });
+    const { result, waitFor } = renderHook(() => useMoveDetailsQueries(moveCode), { wrapper });
 
     expect(result.current).toEqual({
       move: {
@@ -503,7 +503,7 @@ describe('useMoveDetailsQueries', () => {
       isSuccess: false,
     });
 
-    await waitForNextUpdate();
+    await waitFor(() => result.current.isSuccess);
 
     expect(result.current).toEqual({
       move: {
@@ -587,6 +587,17 @@ describe('useMoveDetailsQueries', () => {
             id: 'p1',
             shipmentId: 'c3',
             estimatedWeight: 100,
+            weightTickets: [
+              {
+                emptyWeight: 14500,
+                fullWeight: 18500,
+                id: 'ppmDoc1',
+                missingEmptyWeightTicket: false,
+                missingFullWeightTicket: false,
+                ownsTrailer: false,
+                vehicleDescription: '2022 Honda CR-V Hybrid',
+              },
+            ],
           },
         },
       ],
