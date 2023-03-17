@@ -46,10 +46,7 @@ const setUnapprovedServiceItemCount = jest.fn();
 const setExcessWeightRiskCount = jest.fn();
 const setUnapprovedSITExtensionCount = jest.fn();
 
-const moveCode = 'WE31AZ';
 const requiredProps = {
-  match: { params: { moveCode } },
-  history: { push: jest.fn() },
   setMessage: jest.fn(),
 };
 
