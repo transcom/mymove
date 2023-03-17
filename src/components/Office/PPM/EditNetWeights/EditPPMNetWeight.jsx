@@ -14,7 +14,7 @@ import { calculateWeightTicketWeightDifference, getWeightTicketNetWeight } from 
 import { useCalculatedWeightRequested } from 'hooks/custom';
 import { patchWeightTicket } from 'services/ghcApi';
 import { ShipmentShape, WeightTicketShape } from 'types/shipment';
-/* import { DOCUMENTS } from 'constants/queryKeys'; */
+import { DOCUMENTS } from 'constants/queryKeys';
 
 // Labels & constants
 
@@ -100,7 +100,9 @@ const EditPPMNetWeightForm = ({ onCancel, initialValues, weightTicket }) => {
   const { mutate: patchWeightTicketMutation } = useMutation({
     mutationFn: patchWeightTicket,
     onSuccess: () => {
-      queryClient.invalidateQueries(); // FIX: @rogeruiz - This invalidates everything for now.
+      queryClient.invalidateQueries({
+        queryKey: [DOCUMENTS],
+      });
       onCancel();
     },
   });
@@ -158,6 +160,7 @@ const EditPPMNetWeightForm = ({ onCancel, initialValues, weightTicket }) => {
                     eTag: weightTicket.eTag,
                   });
                 }}
+                type="button"
                 disabled={!isValid}
               >
                 Save changes
