@@ -25,19 +25,14 @@ func MakeNeedsOrdersUser(db *pop.Connection) models.User {
 
 	suffix := strings.Split(user.ID.String(), "-")[0]
 
-	factory.BuildExtendedServiceMember(db, []factory.Customization{
-		{
-			Model: models.ServiceMember{
-				PersonalEmail: models.StringPointer(email),
-				FirstName:     models.StringPointer("NEEDS" + suffix),
-				LastName:      models.StringPointer("ORDERS" + suffix),
-			},
+	testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			UserID:        user.ID,
+			PersonalEmail: models.StringPointer(email),
+			FirstName:     models.StringPointer("NEEDS" + suffix),
+			LastName:      models.StringPointer("ORDERS" + suffix),
 		},
-		{
-			Model:    user,
-			LinkOnly: true,
-		},
-	}, nil)
+	})
 
 	return user
 }
