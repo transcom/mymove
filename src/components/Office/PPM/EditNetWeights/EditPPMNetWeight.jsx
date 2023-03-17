@@ -103,13 +103,39 @@ const EditPPMNetWeightForm = ({ onCancel, initialValues, weightTicket }) => {
       queryClient.invalidateQueries({
         queryKey: [DOCUMENTS],
       });
-      onCancel();
     },
   });
 
+  /**
+   * @const onSubmit
+   * @description This function is used to submit the mini form represented by the EditPPMNetWeightForm.
+   * @param {Object} formValues - The values that are returned from the EditPPMNetWeightForm component on click.
+   * @param {string} formValues.adjustedNetWeight - The adjusted net weight as a string. This value needs to be parsed into an integer before mutation.
+   * @param {string} formValues.netWeightRemarks - The net weight remarks.
+   * */
+  const onSubmit = (formValues /* , actions */) => {
+    const payload = {
+      adjustedNetWeight: parseInt(formValues.adjustedNetWeight, 10),
+      netWeightRemarks: formValues.netWeightRemarks,
+    };
+    patchWeightTicketMutation(
+      {
+        ppmShipmentId: weightTicket.ppmShipmentId,
+        weightTicketId: weightTicket.id,
+        payload,
+        eTag: weightTicket.eTag,
+      },
+      {
+        onSuccess: () => {
+          onCancel();
+        },
+      },
+    );
+  };
+
   return (
-    <Formik initialValues={initialValues} validationSchema={validationSchema}>
-      {({ handleChange, values, isValid, errors, touched, setTouched }) => (
+    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+      {({ handleChange, handleSubmit, values, isValid, errors, touched, setTouched }) => (
         <div>
           <Fieldset className={styles.fieldset}>
             <MaskedTextField
@@ -126,7 +152,6 @@ const EditPPMNetWeightForm = ({ onCancel, initialValues, weightTicket }) => {
               inputClassName={styles.weightInput}
               errorClassName={styles.errors}
               labelClassName={styles.weightLabel}
-              value={values.adjustedNetWeight}
             />
             <Label htmlFor="remarks">Remarks</Label>
             <ErrorMessage className={styles.errors} display={!!touched.netWeightRemarks && !!errors.netWeightRemarks}>
@@ -146,23 +171,7 @@ const EditPPMNetWeightForm = ({ onCancel, initialValues, weightTicket }) => {
               />
             </ErrorIndicator>
             <FlexContainer className={styles.wrapper}>
-              <Button
-                onClick={() => {
-                  const formValues = { ...initialValues, ...values };
-                  const payload = {
-                    adjustedNetWeight: parseInt(formValues.adjustedNetWeight, 10),
-                    netWeightRemarks: formValues.netWeightRemarks,
-                  };
-                  patchWeightTicketMutation({
-                    ppmShipmentId: weightTicket.ppmShipmentId,
-                    weightTicketId: weightTicket.id,
-                    payload,
-                    eTag: weightTicket.eTag,
-                  });
-                }}
-                type="button"
-                disabled={!isValid}
-              >
+              <Button onClick={handleSubmit} type="submit" disabled={!isValid}>
                 Save changes
               </Button>
               <Button unstyled onClick={onCancel}>

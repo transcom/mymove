@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, act, fireEvent } from '@testing-library/react';
+import { render, screen, act, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import EditPPMNetWeight from './EditPPMNetWeight';
@@ -47,7 +47,6 @@ const defaultProps = {
   weightAllowance: 9000,
   weightTicket: { fullWeight: 1200, emptyWeight: 200 },
   shipments,
-  editNetWeight: () => {},
 };
 
 const excessWeight = {
@@ -195,21 +194,27 @@ describe('EditNetPPMWeight', () => {
       expect(screen.getByText('Required'));
     });
     it('saves changes when editing the form', async () => {
-      await render(
+      const netWeightRemarks = 'Reduced by as much as I can';
+      const adjustedNetWeight = 2600;
+      render(
         <ReactQueryWrapper>
           <EditPPMNetWeight {...reduceWeight} />
         </ReactQueryWrapper>,
       );
-      patchWeightTicket.mockResolvedValue({});
+
       await act(() => userEvent.click(screen.getByRole('button', { name: 'Edit' })));
       const textInput = await screen.findByTestId('weightInput');
-      await act(() => userEvent.type(textInput, '1000'));
+      await act(() => userEvent.clear(textInput));
+      await act(() => userEvent.type(textInput, adjustedNetWeight.toString(10)));
       const remarksField = await screen.findByTestId('formRemarks');
-      await act(() => userEvent.type(remarksField, 'Reduced by as much as I can'));
+      await act(() => userEvent.type(remarksField, netWeightRemarks));
       await act(() => userEvent.click(screen.getByRole('button', { name: 'Save changes' })));
-      expect(screen.getByText('0 lbs')).toBeInTheDocument();
-      expect(screen.getByText('Remarks')).toBeInTheDocument();
-      expect(screen.getByText('Reduced by as much as I can')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(patchWeightTicket.mock.calls.length).toBe(1);
+      });
+      expect(patchWeightTicket.mock.calls[0][0].payload.adjustedNetWeight).toBe(adjustedNetWeight);
+      expect(patchWeightTicket.mock.calls[0][0].payload.netWeightRemarks).toBe(netWeightRemarks);
     });
   });
 });
