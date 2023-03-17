@@ -78,6 +78,9 @@ describe('ReviewShipmentWeight component', () => {
     );
     await waitFor(async () => {
       expect(screen.getByTestId('reviewShipmentWeightsTable')).toBeInTheDocument();
+      expect(screen.getByText('Weight ticket')).toBeInTheDocument();
+      expect(screen.getByText('Review Documents')).toBeInTheDocument();
+      expect(screen.getByText('Review Documents').tagName).toBe('A');
       expect(screen.getByText('Pro-gear (lbs)')).toBeInTheDocument();
       expect(screen.getByText('1,000 lbs')).toBeInTheDocument();
       expect(screen.getByText('Spouse pro-gear')).toBeInTheDocument();
