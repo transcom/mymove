@@ -91,7 +91,7 @@ const WeightTicketUpload = ({
   };
 
   const weightTicketUploadHint = (isMissingWeightTicket) => {
-    return isMissingWeightTicket && !weightTicketRentalAgreement
+    return isMissingWeightTicket && !rentalAgreement
       ? SpreadsheetUploadInstructions
       : DocumentAndImageUploadInstructions;
   };
@@ -100,7 +100,8 @@ const WeightTicketUpload = ({
 
   return (
     <div className={styles.WeightTicketUpload}>
-      {missingWeightTicket && weightTicketRentalAgreement ? rentalAgreement : constructedWeightDownload}
+      {missingWeightTicket && weightTicketRentalAgreement && rentalAgreement}
+      {missingWeightTicket && !weightTicketRentalAgreement && constructedWeightDownload}
       <UploadsTable
         className={styles.uploadsTable}
         uploads={values[`${fieldName}`]}
