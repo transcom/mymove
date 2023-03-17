@@ -38,7 +38,7 @@ type Order struct {
 	Entitlement *Entitlements `json:"entitlement,omitempty"`
 
 	// id
-	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
