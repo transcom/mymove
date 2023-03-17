@@ -1,23 +1,16 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { generatePath } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
 import CustomerInfo from './CustomerInfo';
 
 import { MockProviders } from 'testUtils';
 import { updateCustomerInfo } from 'services/ghcApi';
-import { servicesCounselingRoutes } from 'constants/routes';
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   updateCustomerInfo: jest.fn(),
 }));
-
-const mockRequestedMoveCode = 'LR4T8V';
-const customerInfoEditURL = generatePath(servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH, {
-  moveCode: mockRequestedMoveCode,
-});
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -69,8 +62,8 @@ describe('CustomerInfo', () => {
       updateCustomerInfo.mockReturnValue(loadingReturnValue);
 
       render(
-        <MockProviders initialEntries={[customerInfoEditURL]}>
-          <CustomerInfo customer={mockCustomer} onUpdate={mockUpdate} ordersId="abc123" isLoading isError={false} />{' '}
+        <MockProviders>
+          <CustomerInfo customer={mockCustomer} onUpdate={mockUpdate} ordersId="abc123" isLoading isError={false} />
         </MockProviders>,
       );
 
@@ -82,8 +75,8 @@ describe('CustomerInfo', () => {
       updateCustomerInfo.mockReturnValue(errorReturnValue);
 
       render(
-        <MockProviders initialEntries={[customerInfoEditURL]}>
-          <CustomerInfo customer={mockCustomer} onUpdate={mockUpdate} ordersId="abc123" isLoading={false} isError />{' '}
+        <MockProviders>
+          <CustomerInfo customer={mockCustomer} onUpdate={mockUpdate} ordersId="abc123" isLoading={false} isError />
         </MockProviders>,
       );
 
@@ -94,7 +87,7 @@ describe('CustomerInfo', () => {
 
   it('populates initial field values', async () => {
     render(
-      <MockProviders initialEntries={[customerInfoEditURL]}>
+      <MockProviders>
         <CustomerInfo
           customer={mockCustomer}
           onUpdate={mockUpdate}
@@ -130,7 +123,7 @@ describe('CustomerInfo', () => {
   it('calls onUpdate prop with success on successful form submission', async () => {
     updateCustomerInfo.mockImplementation(() => Promise.resolve({ customer: { customerId: '123' } }));
     render(
-      <MockProviders initialEntries={[customerInfoEditURL]}>
+      <MockProviders>
         <CustomerInfo
           customer={mockCustomer}
           onUpdate={mockUpdate}
@@ -153,7 +146,7 @@ describe('CustomerInfo', () => {
     updateCustomerInfo.mockImplementation(() => Promise.reject());
 
     render(
-      <MockProviders initialEntries={[customerInfoEditURL]}>
+      <MockProviders>
         <CustomerInfo
           customer={mockCustomer}
           ordersId="abc123"

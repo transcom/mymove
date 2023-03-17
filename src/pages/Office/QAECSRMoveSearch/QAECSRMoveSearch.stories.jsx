@@ -12,7 +12,7 @@ const defaultProps = {};
 
 export const MoveSearch = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-    <MemoryRouter initialEntries={['/']}>
+    <MemoryRouter>
       <QAECSRMoveSearch {...defaultProps} />
     </MemoryRouter>
   </div>

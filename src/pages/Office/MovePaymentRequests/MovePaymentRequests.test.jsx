@@ -702,10 +702,7 @@ describe('MovePaymentRequests', () => {
 
     it('renders the financial review flag button when user has permission', async () => {
       render(
-        <MockProviders
-          initialEntries={[`/moves/L2BKD6/payment-requests`]}
-          permissions={[permissionTypes.updateFinancialReviewFlag]}
-        >
+        <MockProviders permissions={[permissionTypes.updateFinancialReviewFlag]}>
           <MovePaymentRequests {...testProps} />
         </MockProviders>,
       );
@@ -715,7 +712,7 @@ describe('MovePaymentRequests', () => {
 
     it('does not show the financial review flag button if user does not have permission', () => {
       render(
-        <MockProviders initialEntries={[`/moves/L2BKD6/payment-requests`]}>
+        <MockProviders>
           <MovePaymentRequests {...testProps} />
         </MockProviders>,
       );

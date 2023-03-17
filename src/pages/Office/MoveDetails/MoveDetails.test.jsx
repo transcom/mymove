@@ -11,8 +11,6 @@ import { MockProviders } from 'testUtils';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { permissionTypes } from 'constants/permissions';
 
-const mockRequestedMoveCode = 'LR4T8V';
-
 jest.mock('hooks/queries', () => ({
   useMoveDetailsQueries: jest.fn(),
 }));
@@ -726,7 +724,7 @@ describe('MoveDetails page', () => {
       useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
 
       render(
-        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+        <MockProviders>
           <MoveDetails
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
@@ -744,7 +742,7 @@ describe('MoveDetails page', () => {
       useMoveDetailsQueries.mockReturnValue(errorReturnValue);
 
       render(
-        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+        <MockProviders>
           <MoveDetails
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
@@ -762,7 +760,7 @@ describe('MoveDetails page', () => {
     useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsQuery);
 
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+      <MockProviders>
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
@@ -828,7 +826,7 @@ describe('MoveDetails page', () => {
     useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsQueryRetiree);
 
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+      <MockProviders>
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
@@ -848,7 +846,7 @@ describe('MoveDetails page', () => {
     useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsAmendedOrdersQuery);
 
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+      <MockProviders>
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
@@ -871,7 +869,7 @@ describe('MoveDetails page', () => {
     useMoveDetailsQueries.mockReturnValue(requestedAndApprovedMoveDetailsQuery);
 
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+      <MockProviders>
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
@@ -910,7 +908,7 @@ describe('MoveDetails page', () => {
         useMoveDetailsQueries.mockReturnValue(approvedMoveDetailsQuery);
 
         render(
-          <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+          <MockProviders>
             <MoveDetails
               setUnapprovedShipmentCount={setUnapprovedShipmentCount}
               setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
@@ -929,7 +927,7 @@ describe('MoveDetails page', () => {
     useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
 
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+      <MockProviders>
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
@@ -949,7 +947,7 @@ describe('MoveDetails page', () => {
       useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
 
       render(
-        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+        <MockProviders>
           <MoveDetails
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
@@ -973,10 +971,7 @@ describe('MoveDetails page', () => {
 
     it('renders the financial review flag button when user has permission', async () => {
       render(
-        <MockProviders
-          initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}
-          permissions={[permissionTypes.updateFinancialReviewFlag]}
-        >
+        <MockProviders permissions={[permissionTypes.updateFinancialReviewFlag]}>
           <MoveDetails {...testProps} />
         </MockProviders>,
       );
@@ -986,7 +981,7 @@ describe('MoveDetails page', () => {
 
     it('does not show the financial review flag button if user does not have permission', () => {
       render(
-        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+        <MockProviders>
           <MoveDetails {...testProps} />
         </MockProviders>,
       );
@@ -996,10 +991,7 @@ describe('MoveDetails page', () => {
 
     it('renders edit orders button when user has permission', async () => {
       render(
-        <MockProviders
-          initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}
-          permissions={[permissionTypes.updateOrders]}
-        >
+        <MockProviders permissions={[permissionTypes.updateOrders]}>
           <MoveDetails {...testProps} />
         </MockProviders>,
       );
@@ -1010,7 +1002,7 @@ describe('MoveDetails page', () => {
 
     it('renders view orders button if user does not have permission to update', async () => {
       render(
-        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+        <MockProviders>
           <MoveDetails {...testProps} />
         </MockProviders>,
       );
@@ -1021,10 +1013,7 @@ describe('MoveDetails page', () => {
 
     it('renders edit allowances button when user has permission', async () => {
       render(
-        <MockProviders
-          initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}
-          permissions={[permissionTypes.updateAllowances]}
-        >
+        <MockProviders permissions={[permissionTypes.updateAllowances]}>
           <MoveDetails {...testProps} />
         </MockProviders>,
       );
@@ -1035,7 +1024,7 @@ describe('MoveDetails page', () => {
 
     it('renders view allowances button if user does not have permission to update', async () => {
       render(
-        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+        <MockProviders>
           <MoveDetails {...testProps} />
         </MockProviders>,
       );

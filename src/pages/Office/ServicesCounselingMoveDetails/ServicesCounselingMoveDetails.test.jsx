@@ -395,8 +395,6 @@ const ppmShipmentQuery = {
   ],
 };
 
-const detailsURL = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode: mockRequestedMoveCode });
-
 const renderMockedComponent = (props) => {
   const client = new QueryClient();
   return render(
@@ -895,7 +893,7 @@ describe('MoveDetails page', () => {
 
       it('renders the financial review flag button when user has permission', async () => {
         render(
-          <MockProviders initialEntries={[detailsURL]} permissions={[permissionTypes.updateFinancialReviewFlag]}>
+          <MockProviders permissions={[permissionTypes.updateFinancialReviewFlag]}>
             <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
           </MockProviders>,
         );
@@ -905,7 +903,7 @@ describe('MoveDetails page', () => {
 
       it('does not show the financial review flag button if user does not have permission', () => {
         render(
-          <MockProviders initialEntries={[detailsURL]}>
+          <MockProviders>
             <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
           </MockProviders>,
         );
