@@ -97,12 +97,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasManyAssoci
 	// model with deleted_at with "has many" associations
 	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
-	document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{
-		Document: models.Document{
-			ServiceMemberID: serviceMember.ID,
-			ServiceMember:   serviceMember,
-		},
-	})
+	document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 	suite.MustSave(&document)
 	suite.Nil(document.DeletedAt)
 

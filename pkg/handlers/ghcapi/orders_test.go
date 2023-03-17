@@ -194,7 +194,7 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (sub
 	var err error
 	subtestData.userUploader, err = uploader.NewUserUploader(subtestData.handlerConfig.FileStorer(), 100*uploader.MB)
 	assert.NoError(suite.T(), err, "failed to create user uploader for amended orders")
-	amendedDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+	amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)
 	amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
 		UserUpload: models.UserUpload{
 			DocumentID: &amendedDocument.ID,
@@ -247,7 +247,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		destinationDutyLocation := subtestData.destinationDutyLocation
 		originDutyLocation := subtestData.originDutyLocation
 
-		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+		document := factory.BuildDocument(suite.DB(), nil, nil)
 		upload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
 			UserUpload: models.UserUpload{
 				DocumentID: &document.ID,

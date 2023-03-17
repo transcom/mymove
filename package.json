@@ -121,7 +121,7 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@babel/core": "~7.21.0",
+    "@babel/core": "~7.21.3",
     "@babel/helper-builder-react-jsx": "^7.19.0",
     "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
     "@dump247/storybook-state": "^1.6.1",
@@ -145,8 +145,8 @@
     "@testing-library/react": "^12.1.5",
     "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^14.4.3",
-    "@typescript-eslint/eslint-plugin": "^5.54.0",
-    "@typescript-eslint/parser": "^5.54.1",
+    "@typescript-eslint/eslint-plugin": "^5.55.0",
+    "@typescript-eslint/parser": "^5.55.0",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.8.0",
     "danger": "^11.2.4",
     "danger-plugin-jira-issue": "^1.4.1",
@@ -172,7 +172,7 @@
     "react-select-event": "^5.5.1",
     "react-test-renderer": "^17.0.1",
     "source-map-explorer": "^2.5.3",
-    "typescript": "^4.9.5"
+    "typescript": "^5.0.2"
   },
   "browserslist": [
     ">0.2%",

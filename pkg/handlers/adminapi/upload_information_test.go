@@ -39,12 +39,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 		})
 		suite.MustSave(&move)
 
-		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMember:   sm,
-				ServiceMemberID: sm.ID,
-			},
-		})
+		document := factory.BuildDocumentLinkServiceMember(suite.DB(), sm)
 		suite.MustSave(&document)
 
 		uploadID, _ := uuid.NewV4()
