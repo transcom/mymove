@@ -24,6 +24,9 @@ export const acceptableFileTypes = [
 
 const constructedWeightDownload = (
   <>
+    <Alert type="info">
+      If you do not upload legible certified weight tickets, your PPM incentive could be affected.
+    </Alert>
     <p>Download the official government spreadsheet to calculate constructed weight.</p>
     <Link
       className={classnames('usa-button', 'usa-button--secondary', styles.constructedWeightLink)}
@@ -33,16 +36,11 @@ const constructedWeightDownload = (
     >
       Go to download page
     </Link>
-    <p>
-      Enter the constructed weight you calculated.
-      <br />
-      <br />
-      Upload a completed copy of the spreadsheet.
-    </p>
+    <p className={styles.bold}>Enter the sum of your constructed weight and the empty weight as the full weight.</p>
   </>
 );
 
-const testComponent = (
+const rentalAgreement = (
   <>
     <Alert type="info">
       If you do not upload legible certified weight tickets, your PPM incentive could be affected.
@@ -51,9 +49,13 @@ const testComponent = (
       Enter the PPM vehicle&apos;s weight as the empty weight. Your vehicle&apos;s weight can be obtained from:
       <ul>
         <li>The Branham Automobile Reference Book</li>
-        <li>National Automobile Dealers Association (NADA) Official Used Car Guide</li>
-        <li>Your owner’s manual</li>
-        <li>Other appropriate reference sources of manufacturer’s weight</li>
+        <li>
+          <Link href="https://www.jdpower.com/cars" target="_blank" rel="noopener">
+            National Automobile Dealers Association (NADA) Official Used Car Guide
+          </Link>
+        </li>
+        <li>Your owner&apos;s manual</li>
+        <li>Other appropriate reference sources of manufacturer&apos;s weight</li>
       </ul>
     </p>
   </>
@@ -66,17 +68,17 @@ const WeightTicketUpload = ({
   onUploadComplete,
   onUploadDelete,
   fileUploadRef,
-  tempFlagName,
   values,
   formikProps: { touched, errors, setFieldTouched, setFieldValue },
 }) => {
-  const weightTicketUploadLabel = (name, showConstructedWeight) => {
-    if (showConstructedWeight || name === 'missingProGearWeightDocument') {
-      if (!tempFlagName) {
+  const weightTicketRentalAgreement = fieldName === 'emptyDocument' && missingWeightTicket;
+  const weightTicketUploadLabel = (name, isMissingWeightTicket) => {
+    if (isMissingWeightTicket || name === 'missingProGearWeightDocument') {
+      if (weightTicketRentalAgreement) {
         return `Since you do not have a certified weight ticket, upload the registration or rental agreement for the vehicle used
         during the PPM`;
       }
-      return 'Upload constructed weight spreadsheet';
+      return 'Upload your completed constructed weight spreadsheet';
     }
 
     if (name === 'emptyDocument') {
@@ -90,16 +92,17 @@ const WeightTicketUpload = ({
     return 'Upload full weight ticket';
   };
 
-  const weightTicketUploadHint = (showConstructedWeight) => {
-    return showConstructedWeight && tempFlagName ? SpreadsheetUploadInstructions : DocumentAndImageUploadInstructions;
+  const weightTicketUploadHint = (isMissingWeightTicket) => {
+    return isMissingWeightTicket && !weightTicketRentalAgreement
+      ? SpreadsheetUploadInstructions
+      : DocumentAndImageUploadInstructions;
   };
 
   const showError = touched[`${fieldName}`] && errors[`${fieldName}`];
 
   return (
     <div className={styles.WeightTicketUpload}>
-      {missingWeightTicket && tempFlagName && constructedWeightDownload}
-      {missingWeightTicket && !tempFlagName && testComponent}
+      {missingWeightTicket && weightTicketRentalAgreement ? rentalAgreement : constructedWeightDownload}
       <UploadsTable
         className={styles.uploadsTable}
         uploads={values[`${fieldName}`]}
