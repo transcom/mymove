@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Formik } from 'formik';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as Yup from 'yup';
-import { PropTypes, func, number } from 'prop-types';
+import { PropTypes, number } from 'prop-types';
 import { Button, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 
 import styles from './EditPPMNetWeight.module.scss';
@@ -12,7 +12,9 @@ import { ErrorMessage } from 'components/form/ErrorMessage';
 import { formatWeight } from 'utils/formatters';
 import { calculateWeightTicketWeightDifference, getWeightTicketNetWeight } from 'utils/shipmentWeights';
 import { useCalculatedWeightRequested } from 'hooks/custom';
+import { patchWeightTicket } from 'services/ghcApi';
 import { ShipmentShape, WeightTicketShape } from 'types/shipment';
+/* import { DOCUMENTS } from 'constants/queryKeys'; */
 
 // Labels & constants
 
@@ -92,8 +94,16 @@ const validationSchema = Yup.object({
   netWeightRemarks: Yup.string().required('Required'),
 });
 
-const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => {
+const EditPPMNetWeightForm = ({ onCancel, initialValues, weightTicket }) => {
   const queryClient = useQueryClient();
+
+  const { mutate: patchWeightTicketMutation } = useMutation({
+    mutationFn: patchWeightTicket,
+    onSuccess: () => {
+      queryClient.invalidateQueries(); // FIX: @rogeruiz - This invalidates everything for now.
+      onCancel();
+    },
+  });
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema}>
@@ -136,15 +146,17 @@ const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => {
             <FlexContainer className={styles.wrapper}>
               <Button
                 onClick={() => {
-                  onSave(
-                    { ...initialValues, ...values },
-                    {
-                      onSuccess: (/* data, variables, context */) => {
-                        queryClient.invalidateQueries(); // FIX: @rogeruiz - This invalidates everything for now.
-                        onCancel();
-                      },
-                    },
-                  );
+                  const formValues = { ...initialValues, ...values };
+                  const payload = {
+                    adjustedNetWeight: parseInt(formValues.adjustedNetWeight, 10),
+                    netWeightRemarks: formValues.netWeightRemarks,
+                  };
+                  patchWeightTicketMutation({
+                    ppmShipmentId: weightTicket.ppmShipmentId,
+                    weightTicketId: weightTicket.id,
+                    payload,
+                    eTag: weightTicket.eTag,
+                  });
                 }}
                 disabled={!isValid}
               >
@@ -161,7 +173,7 @@ const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => {
   );
 };
 
-const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments, editNetWeight }) => {
+const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
   const [showEditForm, setShowEditForm] = useState(false);
 
   const toggleEditForm = () => {
@@ -216,7 +228,7 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments, editNetWei
           ) : (
             <EditPPMNetWeightForm
               initialValues={{ adjustedNetWeight: String(netWeight), netWeightRemarks: weightTicket.netWeightRemarks }}
-              onSave={editNetWeight}
+              weightTicket={weightTicket}
               onCancel={toggleEditForm}
             />
           )}
@@ -230,7 +242,6 @@ EditPPMNetWeight.propTypes = {
   weightTicket: WeightTicketShape.isRequired,
   weightAllowance: number.isRequired,
   shipments: PropTypes.arrayOf(ShipmentShape).isRequired,
-  editNetWeight: func.isRequired,
 };
 
 export default EditPPMNetWeight;

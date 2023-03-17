@@ -54,7 +54,11 @@ export default function ReviewWeightTicket({
 }) {
   const [canEditRejection, setCanEditRejection] = useState(true);
 
-  const { mutate: patchWeightTicketMutation } = useMutation(patchWeightTicket);
+  const { mutate: patchWeightTicketMutation } = useMutation({
+    mutationFn: patchWeightTicket,
+    onSuccess,
+    onError,
+  });
 
   const ppmShipment = mtoShipment?.ppmShipment;
 
@@ -75,44 +79,12 @@ export default function ReviewWeightTicket({
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.rejectionReason,
       status: values.status,
     };
-    patchWeightTicketMutation(
-      {
-        ppmShipmentId: weightTicket.ppmShipmentId,
-        weightTicketId: weightTicket.id,
-        payload,
-        eTag: weightTicket.eTag,
-      },
-      {
-        onSuccess,
-        onError,
-      },
-    );
-  };
-
-  /**
-   * editNetWeight - This gets passed down into the EditPPMNetWeight component to
-   * be used for the onSave in the EditPPMNetWeightForm
-   * @param {Object} formValues - The values that are returned from the EditPPMNetWeightForm component on click.
-   * @param {string} formValues.adjustedNetWeight - The adjusted net weight as a string. This value needs to be parsed into an integer before mutation.
-   * @param {string} formValues.netWeightRemarks - The net weight remarks.
-   * @param {Object} callbacks - These are the callbacks that React Query v4 uses when doing mutations.
-   *                            <https://tkdodo.eu/blog/mastering-mutations-in-react-query#some-callbacks-might-not-fire>
-   * @param {func} callbacks.onSuccess - The function that gets passed from EditPPMNetWeightForm to close the form.
-   */
-  const editNetWeight = (formValues, callbacks) => {
-    const payload = {
-      adjustedNetWeight: parseInt(formValues.adjustedNetWeight, 10),
-      netWeightRemarks: formValues.netWeightRemarks,
-    };
-    patchWeightTicketMutation(
-      {
-        ppmShipmentId: weightTicket.ppmShipmentId,
-        weightTicketId: weightTicket.id,
-        payload,
-        eTag: weightTicket.eTag,
-      },
-      callbacks,
-    );
+    patchWeightTicketMutation({
+      ppmShipmentId: weightTicket.ppmShipmentId,
+      weightTicketId: weightTicket.id,
+      payload,
+      eTag: weightTicket.eTag,
+    });
   };
 
   const {
@@ -223,7 +195,6 @@ export default function ReviewWeightTicket({
                 weightTicket={weightTicket}
                 weightAllowance={authorizedWeight}
                 shipments={mtoShipments}
-                editNetWeight={editNetWeight}
               />
 
               <FormGroup>
