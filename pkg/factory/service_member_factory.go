@@ -101,38 +101,7 @@ func BuildExtendedServiceMember(db *pop.Connection, customs []Customization, tra
 		}
 	}
 
-	serviceMemModel := models.ServiceMember{
-		EmailIsPreferred: models.BoolPointer(true),
-		Telephone:        models.StringPointer("555-555-5555"),
-	}
-
-	// Overwrite values with those from customizations
-	testdatagen.MergeModels(&serviceMemModel, cServiceMember)
-
-	backupMailingAddress := BuildAddress(db, nil, []Trait{GetTraitAddress2})
-
-	dutyLocation := FetchOrBuildOrdersDutyLocation(db)
-
-	user := BuildUser(db, customs, traits)
-
-	serviceMember := BuildServiceMember(db, []Customization{
-		{
-			Model: serviceMemModel,
-		},
-		{
-			Model:    backupMailingAddress,
-			Type:     &Addresses.BackupMailingAddress,
-			LinkOnly: true,
-		},
-		{
-			Model:    dutyLocation,
-			LinkOnly: true,
-		},
-		{
-			Model:    user,
-			LinkOnly: true,
-		},
-	}, nil)
+	serviceMember := BuildServiceMember(db, customs, traits)
 
 	backupContact := BuildBackupContact(db, []Customization{
 		{

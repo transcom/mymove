@@ -113,21 +113,19 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo MoveCrea
 
 	smWithPPM := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
 		{
-			Model: models.User{
-				ID:            moveInfo.UserID,
-				LoginGovUUID:  models.UUIDPointer(uuid.Must(uuid.NewV4())),
-				LoginGovEmail: moveInfo.Email,
-				Active:        true,
-			},
-		},
-		{
 			Model: models.ServiceMember{
 				ID:            moveInfo.SmID,
-				UserID:        moveInfo.UserID,
 				FirstName:     models.StringPointer(moveInfo.FirstName),
 				LastName:      models.StringPointer(moveInfo.LastName),
 				Edipi:         models.StringPointer(factory.RandomEdipi()),
 				PersonalEmail: models.StringPointer(moveInfo.Email),
+			},
+		},
+		{
+			Model: models.User{
+				LoginGovUUID:  models.UUIDPointer(uuid.Must(uuid.NewV4())),
+				LoginGovEmail: moveInfo.Email,
+				Active:        true,
 			},
 		},
 	}, nil)
