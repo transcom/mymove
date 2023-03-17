@@ -1,6 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import { ErrorMessage, FormGroup, Label, Link } from '@trussworks/react-uswds';
+import { ErrorMessage, FormGroup, Label, Link, Alert } from '@trussworks/react-uswds';
 import { string, bool, func, shape } from 'prop-types';
 
 import styles from 'components/Customer/PPM/Closeout/WeightTicketUpload/WeightTicketUpload.module.scss';
@@ -42,6 +42,23 @@ const constructedWeightDownload = (
   </>
 );
 
+const testComponent = (
+  <>
+    <Alert type="info">
+      If you do not upload legible certified weight tickets, your PPM incentive could be affected.
+    </Alert>
+    <p>
+      Enter the PPM vehicle&apos;s weight as the empty weight. Your vehicle&apos;s weight can be obtained from:
+      <ul>
+        <li>The Branham Automobile Reference Book</li>
+        <li>National Automobile Dealers Association (NADA) Official Used Car Guide</li>
+        <li>Your owner’s manual</li>
+        <li>Other appropriate reference sources of manufacturer’s weight</li>
+      </ul>
+    </p>
+  </>
+);
+
 const WeightTicketUpload = ({
   fieldName,
   missingWeightTicket,
@@ -49,11 +66,16 @@ const WeightTicketUpload = ({
   onUploadComplete,
   onUploadDelete,
   fileUploadRef,
+  tempFlagName,
   values,
   formikProps: { touched, errors, setFieldTouched, setFieldValue },
 }) => {
   const weightTicketUploadLabel = (name, showConstructedWeight) => {
     if (showConstructedWeight || name === 'missingProGearWeightDocument') {
+      if (!tempFlagName) {
+        return `Since you do not have a certified weight ticket, upload the registration or rental agreement for the vehicle used
+        during the PPM`;
+      }
       return 'Upload constructed weight spreadsheet';
     }
 
@@ -69,14 +91,15 @@ const WeightTicketUpload = ({
   };
 
   const weightTicketUploadHint = (showConstructedWeight) => {
-    return showConstructedWeight ? SpreadsheetUploadInstructions : DocumentAndImageUploadInstructions;
+    return showConstructedWeight && tempFlagName ? SpreadsheetUploadInstructions : DocumentAndImageUploadInstructions;
   };
 
   const showError = touched[`${fieldName}`] && errors[`${fieldName}`];
 
   return (
     <div className={styles.WeightTicketUpload}>
-      {missingWeightTicket && constructedWeightDownload}
+      {missingWeightTicket && tempFlagName && constructedWeightDownload}
+      {missingWeightTicket && !tempFlagName && testComponent}
       <UploadsTable
         className={styles.uploadsTable}
         uploads={values[`${fieldName}`]}
