@@ -63,7 +63,7 @@ func serviceMemberNoUploadedOrders(appCtx appcontext.AppContext) {
 	uuidStr := "feac0e92-66ec-4cab-ad29-538129bf918e"
 	loginGovID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -84,9 +84,8 @@ func serviceMemberNoUploadedOrders(appCtx appcontext.AppContext) {
 			},
 		},
 		{
-			Model: models.User{
-				ID: uuid.FromStringOrNil(uuidStr),
-			},
+			Model:    user,
+			LinkOnly: true,
 		},
 	}, nil)
 }
@@ -1001,7 +1000,7 @@ func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, user
 	uuidStr := "6016e423-f8d5-44ca-98a8-af03c8445c94"
 	loginGovID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -1024,9 +1023,8 @@ func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, user
 			},
 		},
 		{
-			Model: models.User{
-				ID: uuid.FromStringOrNil(uuidStr),
-			},
+			Model:    user,
+			LinkOnly: true,
 		},
 	}, nil)
 	// currently don't have "combo move" selection option, so testing ppm office when type is HHG
@@ -1114,7 +1112,7 @@ func serviceMemberWithUnsubmittedHHG(appCtx appcontext.AppContext, userUploader 
 	uuidStr := "f08146cf-4d6b-43d5-9ca5-c8d239d37b3e"
 	loginGovID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -1137,9 +1135,8 @@ func serviceMemberWithUnsubmittedHHG(appCtx appcontext.AppContext, userUploader 
 			},
 		},
 		{
-			Model: models.User{
-				ID: uuid.FromStringOrNil(uuidStr),
-			},
+			Model:    user,
+			LinkOnly: true,
 		},
 	}, nil)
 
@@ -1178,7 +1175,7 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContex
 	uuidStr := "583cfbe1-cb34-4381-9e1f-54f68200da1b"
 	loginGovID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -1201,9 +1198,8 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContex
 			},
 		},
 		{
-			Model: models.User{
-				ID: uuid.FromStringOrNil(uuidStr),
-			},
+			Model:    user,
+			LinkOnly: true,
 		},
 	}, nil)
 
@@ -1271,7 +1267,7 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContex
 	uuidStr := "80da86f3-9dac-4298-8b03-b753b443668e"
 	loginGovID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -1294,9 +1290,8 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContex
 			},
 		},
 		{
-			Model: models.User{
-				ID: uuid.FromStringOrNil(uuidStr),
-			},
+			Model:    user,
+			LinkOnly: true,
 		},
 	}, nil)
 
