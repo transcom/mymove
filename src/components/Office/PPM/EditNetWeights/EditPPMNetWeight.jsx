@@ -226,7 +226,7 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
           />
           {!showEditForm ? (
             <div data-testid="net-weight-display" className={styles.wrapper}>
-              {formatWeight(netWeight)}
+              <div className={styles.netWeightDisplay}>{formatWeight(netWeight)}</div>
               {weightTicket.netWeightRemarks && (
                 <>
                   <h5 className={styles.remarksHeader}>Remarks</h5>

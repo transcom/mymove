@@ -87,6 +87,10 @@
   @include u-margin-top(2);
 }
 
+.netWeightDisplay {
+  padding-bottom: 16px;
+}
+
 .mainHeader {
   @include u-margin-bottom(2);
   color: $base-darker;
