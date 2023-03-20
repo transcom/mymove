@@ -83,42 +83,24 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo MoveCrea
 		log.Panic("All moveInfo fields must have non-zero values.")
 	}
 
-	user := models.User{
+	userModel := models.User{
 		ID:            moveInfo.UserID,
 		LoginGovUUID:  models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		LoginGovEmail: moveInfo.Email,
 		Active:        true,
 	}
 
-	testdatagen.MergeModels(&user, assertions.User)
+	testdatagen.MergeModels(&userModel, assertions.User)
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
-			Model: user,
+			Model: userModel,
 		},
 	}, nil)
 
-	smAssertions := testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            moveInfo.SmID,
-			UserID:        moveInfo.UserID,
-			FirstName:     models.StringPointer(moveInfo.FirstName),
-			LastName:      models.StringPointer(moveInfo.LastName),
-			Edipi:         models.StringPointer(testdatagen.RandomEdipi()),
-			PersonalEmail: models.StringPointer(moveInfo.Email),
-		},
-	}
-
-	testdatagen.MergeModels(&smAssertions, assertions)
-
 	smWithPPM := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
 		{
-			Model: models.User{
-				ID:            moveInfo.UserID,
-				LoginGovUUID:  models.UUIDPointer(uuid.Must(uuid.NewV4())),
-				LoginGovEmail: moveInfo.Email,
-				Active:        true,
-			},
+			Model:    user,
 			LinkOnly: true,
 		},
 		{
@@ -273,7 +255,7 @@ func createServiceMemberWithNoUploadedOrders(appCtx appcontext.AppContext) {
 	email := "needs@orde.rs"
 	uuidStr := "feac0e92-66ec-4cab-ad29-538129bf918e"
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	factory.BuildUser(db, []factory.Customization{
+	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -294,9 +276,7 @@ func createServiceMemberWithNoUploadedOrders(appCtx appcontext.AppContext) {
 			},
 		},
 		{
-			Model: models.User{
-				ID: uuid.FromStringOrNil(uuidStr),
-			},
+			Model:    user,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -311,7 +291,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	uuidStr := "6016e423-f8d5-44ca-98a8-af03c8445c94"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(db, []factory.Customization{
+	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -334,9 +314,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 			},
 		},
 		{
-			Model: models.User{
-				ID: uuid.FromStringOrNil(uuidStr),
-			},
+			Model:    user,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -2024,7 +2002,7 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            moveInfo.UserID,
@@ -2045,9 +2023,7 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 			},
 		},
 		{
-			Model: models.User{
-				ID: moveInfo.UserID,
-			},
+			Model:    user,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -2129,7 +2105,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            userID,
@@ -2148,9 +2124,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 			},
 		},
 		{
-			Model: models.User{
-				ID: userID,
-			},
+			Model:    user,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -2220,7 +2194,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            userID,
@@ -2240,9 +2214,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 			},
 		},
 		{
-			Model: models.User{
-				ID: userID,
-			},
+			Model:    user,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -2312,7 +2284,7 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            userID,
@@ -2332,9 +2304,7 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 			},
 		},
 		{
-			Model: models.User{
-				ID: userID,
-			},
+			Model:    user,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -2394,7 +2364,7 @@ func CreateMoveWithCloseoutOffice(appCtx appcontext.AppContext, moveInfo MoveCre
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Date(2020, time.December, 11, 12, 0, 0, 0, time.UTC)
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            moveInfo.UserID,
@@ -2416,9 +2386,7 @@ func CreateMoveWithCloseoutOffice(appCtx appcontext.AppContext, moveInfo MoveCre
 			},
 		},
 		{
-			Model: models.User{
-				ID: moveInfo.UserID,
-			},
+			Model:    user,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -2493,7 +2461,7 @@ func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            moveInfo.UserID,
@@ -2513,9 +2481,7 @@ func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 			},
 		},
 		{
-			Model: models.User{
-				ID: moveInfo.UserID,
-			},
+			Model:    user,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -2573,7 +2539,7 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 	submittedAt := time.Now()
 	sitLocationType := models.SITLocationTypeOrigin
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            userID,
@@ -2592,9 +2558,7 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 			},
 		},
 		{
-			Model: models.User{
-				ID: userID,
-			},
+			Model:    user,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -2719,7 +2683,7 @@ func createSubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext
 	email := "complete@ppm.submitted"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            userID,
@@ -2738,9 +2702,7 @@ func createSubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext
 			},
 		},
 		{
-			Model: models.User{
-				ID: userID,
-			},
+			Model:    user,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -2864,7 +2826,7 @@ func createUnsubmittedHHGMove(appCtx appcontext.AppContext) {
 	uuidStr := "f08146cf-4d6b-43d5-9ca5-c8d239d37b3e"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(db, []factory.Customization{
+	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -2886,9 +2848,7 @@ func createUnsubmittedHHGMove(appCtx appcontext.AppContext) {
 			},
 		},
 		{
-			Model: models.User{
-				ID: uuid.FromStringOrNil(uuidStr),
-			},
+			Model:    user,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -2931,7 +2891,7 @@ func createUnsubmittedHHGMoveMultipleDestinations(appCtx appcontext.AppContext) 
 	userID := "81fe79a1-faaa-4735-8426-fd159e641002"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(db, []factory.Customization{
+	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(userID)),
@@ -2953,9 +2913,7 @@ func createUnsubmittedHHGMoveMultipleDestinations(appCtx appcontext.AppContext) 
 			},
 		},
 		{
-			Model: models.User{
-				ID: uuid.FromStringOrNil(userID),
-			},
+			Model:    user,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -3010,7 +2968,7 @@ func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
 	uuidStr := "47fb0e80-6675-4ceb-b4eb-4f8e164c0f6e"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(db, []factory.Customization{
+	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -3032,9 +2990,7 @@ func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
 			},
 		},
 		{
-			Model: models.User{
-				ID: uuid.FromStringOrNil(uuidStr),
-			},
+			Model:    user,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -3107,7 +3063,7 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 	uuidStr := "c5f202b3-90d3-46aa-8e3b-83e937fcca99"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(db, []factory.Customization{
+	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -3129,9 +3085,7 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 			},
 		},
 		{
-			Model: models.User{
-				ID: uuid.FromStringOrNil(uuidStr),
-			},
+			Model:    user,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -7264,7 +7218,7 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 	email := "deprecatedPaymentRequest@hhg.hhg"
 	uuidStr := "6995a480-2e90-4d9b-90df-0f9b42277653"
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	factory.BuildUser(db, []factory.Customization{
+	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -7286,9 +7240,7 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 			},
 		},
 		{
-			Model: models.User{
-				ID: uuid.FromStringOrNil(uuidStr),
-			},
+			Model:    user,
 			LinkOnly: true,
 		},
 	}, nil)
