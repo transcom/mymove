@@ -266,8 +266,11 @@ export const formatAgeToDays = (age) => {
 
 /**
  * @name formatReviewShipmentWeightsDate
- * @description Format dates for review shipment weights page (ex. 25-Dec-23)
+ * @description Format dates for Review Shipment Weights page (example: from
+ * `25-Dec-23` to `Dec 25 2023`)
  * @param {string} date A string representing a date in the `DD-MMM-YY` format.
+ * @return {string} A date formated into a string representing a date in the
+ * following format: `Dec 25 2023`.
  */
 export function formatReviewShipmentWeightsDate(date) {
   /**
