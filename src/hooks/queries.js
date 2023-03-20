@@ -227,27 +227,30 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
 };
 
 export const useReviewShipmentWeightsQuery = (moveCode) => {
-  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
+  const { data: move, ...moveQuery } = useQuery({
+    queryKey: [MOVES, moveCode],
+    queryFn: ({ queryKey }) => getMove(...queryKey),
+  });
   const orderId = move?.ordersId;
 
   // get orders
-  const { data: { orders } = {}, ...orderQuery } = useQuery(
-    [ORDERS, orderId],
-    ({ queryKey }) => getOrder(...queryKey),
-    {
+  const { data: { orders } = {}, ...orderQuery } = useQuery({
+    queryKey: [ORDERS, orderId],
+    queryFn: ({ queryKey }) => getOrder(...queryKey),
+    options: {
       enabled: !!orderId,
     },
-  );
+  });
   const mtoID = move?.id;
 
   // get MTO shipments
-  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery(
-    [MTO_SHIPMENTS, mtoID, false],
-    ({ queryKey }) => getMTOShipments(...queryKey),
-    {
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery({
+    queryKey: [MTO_SHIPMENTS, mtoID, false],
+    queryFn: ({ queryKey }) => getMTOShipments(...queryKey),
+    options: {
       enabled: !!mtoID,
     },
-  );
+  });
 
   // Filter for ppm shipments to get their documents(including weight tickets)
   const shipmentIDs = mtoShipments?.filter((shipment) => shipment.ppmShipment).map((shipment) => shipment.id) ?? [];
@@ -664,46 +667,68 @@ export const usePWSViolationsQueries = () => {
 
 export const useMoveDetailsQueries = (moveCode) => {
   // Get the orders info so we can get the uploaded_orders_id (which is a document id)
-  const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
+  const { data: move = {}, ...moveQuery } = useQuery({
+    queryKey: [MOVES, moveCode],
+    queryFn: ({ queryKey }) => getMove(...queryKey),
+  });
 
   const moveId = move?.id;
   const orderId = move?.ordersId;
 
-  const { data: { orders } = {}, ...orderQuery } = useQuery(
-    [ORDERS, orderId],
-    ({ queryKey }) => getOrder(...queryKey),
-    {
+  const { data: { orders } = {}, ...orderQuery } = useQuery({
+    queryKey: [ORDERS, orderId],
+    queryFn: ({ queryKey }) => getOrder(...queryKey),
+    options: {
       enabled: !!orderId,
     },
-  );
+  });
 
   const order = Object.values(orders || {})?.[0];
 
-  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery(
-    [MTO_SHIPMENTS, moveId, false],
-    ({ queryKey }) => getMTOShipments(...queryKey),
-    {
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery({
+    queryKey: [MTO_SHIPMENTS, moveId, false],
+    queryFn: ({ queryKey }) => getMTOShipments(...queryKey),
+    options: {
       enabled: !!moveId,
     },
-  );
+  });
+
+  // Filter for ppm shipments to get their documents(including weight tickets)
+  const shipmentIDs = mtoShipments?.filter((shipment) => shipment.ppmShipment).map((shipment) => shipment.id) ?? [];
+
+  // get ppm documents
+  const ppmDocsQueriesResults = useQueries({
+    queries: shipmentIDs?.map((shipmentID) => {
+      return {
+        queryKey: [DOCUMENTS, shipmentID],
+        queryFn: ({ queryKey }) => getPPMDocuments(...queryKey),
+        enabled: !!shipmentID,
+        select: (data) => {
+          // Shove the weight tickets into the corresponding ppmShipment object
+          const shipment = mtoShipments.find((s) => s.id === shipmentID);
+          shipment.ppmShipment.weightTickets = data.WeightTickets;
+        },
+      };
+    }),
+  });
 
   const customerId = order?.customerID;
-  const { data: { customer } = {}, ...customerQuery } = useQuery(
-    [CUSTOMER, customerId],
-    ({ queryKey }) => getCustomer(...queryKey),
-    {
+  const { data: { customer } = {}, ...customerQuery } = useQuery({
+    queryKey: [CUSTOMER, customerId],
+    queryFn: ({ queryKey }) => getCustomer(...queryKey),
+    options: {
       enabled: !!customerId,
     },
-  );
+  });
   const customerData = customer && Object.values(customer)[0];
   const closeoutOffice = move.closeoutOffice && move.closeoutOffice.name;
 
   // Must account for basic service items here not tied to a shipment
-  const { data: mtoServiceItems, ...mtoServiceItemQuery } = useQuery(
-    [MTO_SERVICE_ITEMS, moveId, false],
-    ({ queryKey }) => getMTOServiceItems(...queryKey),
-    { enabled: !!moveId },
-  );
+  const { data: mtoServiceItems, ...mtoServiceItemQuery } = useQuery({
+    queryKey: [MTO_SERVICE_ITEMS, moveId, false],
+    queryFn: ({ queryKey }) => getMTOServiceItems(...queryKey),
+    options: { enabled: !!moveId },
+  });
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
@@ -711,6 +736,7 @@ export const useMoveDetailsQueries = (moveCode) => {
     customerQuery,
     mtoShipmentQuery,
     mtoServiceItemQuery,
+    ...ppmDocsQueriesResults,
   ]);
 
   return {

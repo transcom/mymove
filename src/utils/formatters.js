@@ -264,9 +264,24 @@ export const formatAgeToDays = (age) => {
   return `${Math.floor(age)} days`;
 };
 
-// Format dates for review shipment weights page (ex. Dec 25 2020)
+/**
+ * @name formatReviewShipmentWeightsDate
+ * @description Format dates for Review Shipment Weights page (example: from
+ * `25-Dec-23` to `Dec 25 2023`)
+ * @param {string} date A string representing a date in the `DD-MMM-YY` format.
+ * @return {string} A date formated into a string representing a date in the
+ * following format: `Dec 25 2023`.
+ */
 export function formatReviewShipmentWeightsDate(date) {
-  return moment(date).format('MMM DD YYYY');
+  /**
+   * @const INCOMING_DATE_FORMAT
+   * @description This is the format of the incoming `date` parameter. The
+   * reason this is passed into Moment is due to a quirk around browser
+   * support for parsing strings. Read more about *String + Format* here:
+   * <https://momentjs.com/docs/#/parsing/string/>
+   */
+  const INCOMING_DATE_FORMAT = 'DD-MMM-YY';
+  return moment(date, INCOMING_DATE_FORMAT).format('MMM DD YYYY');
 }
 // Format dates for customer app (ex. 25 Dec 2020)
 export function formatCustomerDate(date) {

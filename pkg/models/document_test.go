@@ -6,12 +6,12 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) Test_DocumentCreate() {
-	serviceMember := testdatagen.MakeStubbedServiceMember(suite.DB())
+	serviceMember := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.GetTraitServiceMemberSetIDs})
 
 	document := models.Document{
 		ServiceMemberID: serviceMember.ID,
@@ -36,7 +36,7 @@ func (suite *ModelSuite) Test_DocumentValidations() {
 func (suite *ModelSuite) TestFetchDocument() {
 	t := suite.T()
 
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 	session := auth.Session{
 		UserID:          serviceMember.UserID,
 		ApplicationName: auth.MilApp,
@@ -63,7 +63,7 @@ func (suite *ModelSuite) TestFetchDocument() {
 func (suite *ModelSuite) TestFetchDeletedDocument() {
 	t := suite.T()
 
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 	session := auth.Session{
 		UserID:          serviceMember.UserID,
 		ApplicationName: auth.MilApp,

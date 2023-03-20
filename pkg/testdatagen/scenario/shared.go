@@ -139,12 +139,7 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo MoveCrea
 }
 
 func makeOrdersForServiceMember(appCtx appcontext.AppContext, serviceMember models.ServiceMember, userUploader *uploader.UserUploader, fileNames *[]string) models.Order {
-	document := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
-		Document: models.Document{
-			ServiceMemberID: serviceMember.ID,
-			ServiceMember:   serviceMember,
-		},
-	})
+	document := factory.BuildDocumentLinkServiceMember(appCtx.DB(), serviceMember)
 
 	// Creates order upload documents from the files in this directory:
 	// pkg/testdatagen/testdata/bandwidth_test_docs
@@ -155,15 +150,20 @@ func makeOrdersForServiceMember(appCtx appcontext.AppContext, serviceMember mode
 		filePath := fmt.Sprintf("bandwidth_test_docs/%s", file)
 		fixture := testdatagen.Fixture(filePath)
 
-		upload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-			File: fixture,
-			UserUpload: models.UserUpload{
-				UploaderID: serviceMember.UserID,
-				DocumentID: &document.ID,
-				Document:   document,
+		upload := factory.BuildUserUpload(appCtx.DB(), []factory.Customization{
+			{
+				Model:    document,
+				LinkOnly: true,
 			},
-			UserUploader: userUploader,
-		})
+			{
+				Model: models.UserUpload{},
+				ExtendedParams: &factory.UserUploadExtendedParams{
+					UserUploader: userUploader,
+					AppContext:   appCtx,
+					File:         fixture,
+				},
+			},
+		}, nil)
 		document.UserUploads = append(document.UserUploads, upload)
 	}
 
@@ -1151,6 +1151,66 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 		},
 	}
 	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+}
+
+func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := MoveCreatorInfo{
+		UserID:      testdatagen.ConvertUUIDStringToUUID("d0b0fafc-cedf-4821-8914-34a9fdea506d"),
+		Email:       "expenses+closeout@ppm.approved",
+		SmID:        testdatagen.ConvertUUIDStringToUUID("df29b0c4-87e6-463a-a6ef-ac7d1523d9c8"),
+		FirstName:   "PPMCloseout",
+		LastName:    "Expenses",
+		MoveID:      testdatagen.ConvertUUIDStringToUUID("296d0c11-7b9d-4285-afd3-19c179b59508"),
+		MoveLocator: "CLOSE3",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("fce729a4-edce-45be-b91e-a70aa3cf09eb"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          testdatagen.ConvertUUIDStringToUUID("645f9cd3-1aa2-4912-89fe-d0aa327226f6"),
+			ApprovedAt:                  &approvedAt,
+			SubmittedAt:                 models.TimePointer(approvedAt.Add(7 * time.Hour * 24)),
+			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		UserUploader:  userUploader,
+	})
+
+	storageType := models.MovingExpenseReceiptTypeStorage
+
+	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		UserUploader:  userUploader,
+		MovingExpense: models.MovingExpense{
+			MovingExpenseType: &storageType,
+			Description:       models.StringPointer("Storage R Us monthly rental unit"),
+			SITStartDate:      models.TimePointer(time.Now()),
+			SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+		},
+	})
 }
 
 func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -4273,11 +4333,13 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	db := appCtx.DB()
 	msCost := unit.Cents(10000)
 
-	customer8 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("9e8da3c7-ffe5-4f7f-b45a-8f01ccc56591"),
+	customer8 := factory.BuildServiceMember(db, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: uuid.FromStringOrNil("9e8da3c7-ffe5-4f7f-b45a-8f01ccc56591"),
+			},
 		},
-	})
+	}, nil)
 	orders8 := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("1d49bb07-d9dd-4308-934d-baad94f2de9b"),
@@ -4612,11 +4674,13 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	/* Customer with two payment requests */
-	customer7 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
+	customer7 := factory.BuildServiceMember(db, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
+			},
 		},
-	})
+	}, nil)
 
 	orders7 := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
@@ -6406,12 +6470,12 @@ func createTXO(appCtx appcontext.AppContext) {
 			},
 		},
 	}, nil)
-	testdatagen.MakeServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			User:   user,
-			UserID: user.ID,
+	factory.BuildServiceMember(db, []factory.Customization{
+		{
+			Model:    user,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 }
 
 func createTXOUSMC(appCtx appcontext.AppContext) {

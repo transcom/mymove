@@ -153,7 +153,7 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveTest() {
 }
 
 func (suite *HandlerSuite) TestCreatePPMHandler() {
-	user1 := testdatagen.MakeDefaultServiceMember(suite.DB())
+	user1 := factory.BuildServiceMember(suite.DB(), nil, nil)
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
@@ -412,7 +412,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	newMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
 	initialMoveDate := newMoveDate.Add(-2 * 24 * time.Hour)
 
-	user2 := testdatagen.MakeDefaultServiceMember(suite.DB())
+	user2 := factory.BuildServiceMember(suite.DB(), nil, nil)
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
 	ppm1 := models.PersonallyProcuredMove{

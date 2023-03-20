@@ -1437,6 +1437,8 @@ func init() {
         "primeEstimatedWeight": {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "requestedPickupDate": {
@@ -2420,11 +2422,15 @@ func init() {
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeight": {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeightRecordedDate": {
@@ -2608,7 +2614,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
         },
         "moveCode": {
           "type": "string",
@@ -2691,7 +2697,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "linesOfAccounting": {
           "type": "string"
@@ -3675,11 +3681,15 @@ func init() {
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeight": {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "scheduledDeliveryDate": {
@@ -5798,6 +5808,8 @@ func init() {
         "primeEstimatedWeight": {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "requestedPickupDate": {
@@ -6781,11 +6793,15 @@ func init() {
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeight": {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeightRecordedDate": {
@@ -6969,7 +6985,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
         },
         "moveCode": {
           "type": "string",
@@ -7052,7 +7068,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "linesOfAccounting": {
           "type": "string"
@@ -8039,11 +8055,15 @@ func init() {
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeight": {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "scheduledDeliveryDate": {

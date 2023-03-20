@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -15,7 +16,7 @@ import (
 func (suite *ProgearWeightTicketSuite) TestDeleteProgearWeightTicket() {
 
 	setupForTest := func(appCtx appcontext.AppContext, overrides *models.ProgearWeightTicket, hasDocumentUploads bool) *models.ProgearWeightTicket {
-		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
 				ServiceMemberID: serviceMember.ID,
@@ -23,11 +24,7 @@ func (suite *ProgearWeightTicketSuite) TestDeleteProgearWeightTicket() {
 			},
 		})
 
-		progearDocument := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: serviceMember.ID,
-			},
-		})
+		progearDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 
 		if hasDocumentUploads {
 			for i := 0; i < 2; i++ {
@@ -35,14 +32,17 @@ func (suite *ProgearWeightTicketSuite) TestDeleteProgearWeightTicket() {
 				if i == 1 {
 					deletedAt = models.TimePointer(time.Now())
 				}
-				testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-					UserUpload: models.UserUpload{
-						UploaderID: serviceMember.UserID,
-						DocumentID: &progearDocument.ID,
-						Document:   progearDocument,
-						DeletedAt:  deletedAt,
+				factory.BuildUserUpload(suite.DB(), []factory.Customization{
+					{
+						Model:    progearDocument,
+						LinkOnly: true,
 					},
-				})
+					{
+						Model: models.UserUpload{
+							DeletedAt: deletedAt,
+						},
+					},
+				}, nil)
 			}
 		}
 

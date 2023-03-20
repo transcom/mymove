@@ -4,19 +4,22 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 import ReviewProGear from './ReviewProGear';
 
 import ppmDocumentStatus from 'constants/ppms';
+import { MockProviders } from 'testUtils';
 
 export default {
   title: 'Office Components / PPM / Review ProGear',
   component: ReviewProGear,
   decorators: [
     (Story) => (
-      <GridContainer>
-        <Grid row>
-          <Grid col desktop={{ col: 2, offset: 8 }}>
-            <Story />
+      <MockProviders>
+        <GridContainer>
+          <Grid row>
+            <Grid col desktop={{ col: 2, offset: 8 }}>
+              <Story />
+            </Grid>
           </Grid>
-        </Grid>
-      </GridContainer>
+        </GridContainer>
+      </MockProviders>
     ),
   ],
   argTypes: { onClose: { action: 'back button clicked' } },
@@ -26,12 +29,14 @@ const Template = (args) => <ReviewProGear {...args} />;
 
 export const Blank = Template.bind({});
 Blank.args = {
-  ppmShipment: {
-    actualMoveDate: '02-Dec-22',
-    actualPickupPostalCode: '90210',
-    actualDestinationPostalCode: '94611',
-    hasReceivedAdvance: true,
-    advanceAmountReceived: 60000,
+  mtoShipment: {
+    ppmShipment: {
+      actualMoveDate: '2022-04-30',
+      actualPickupPostalCode: '90210',
+      actualDestinationPostalCode: '94611',
+      hasReceivedAdvance: true,
+      advanceAmountReceived: 60000,
+    },
   },
   tripNumber: 1,
   ppmNumber: 1,
@@ -39,19 +44,21 @@ Blank.args = {
 
 export const FilledIn = Template.bind({});
 FilledIn.args = {
-  ppmShipment: {
-    actualMoveDate: '02-Dec-22',
-    actualPickupPostalCode: '90210',
-    actualDestinationPostalCode: '94611',
-    hasReceivedAdvance: true,
-    advanceAmountReceived: 60000,
+  mtoShipment: {
+    ppmShipment: {
+      actualMoveDate: '2023-05-13',
+      actualPickupPostalCode: '90210',
+      actualDestinationPostalCode: '94611',
+      hasReceivedAdvance: true,
+      advanceAmountReceived: 60000,
+    },
   },
   tripNumber: 1,
   ppmNumber: 1,
   proGear: {
-    selfProGear: true,
+    belongsToSelf: true,
     proGearDocument: [],
-    proGearWeight: 1,
+    weight: 1000,
     description: 'Description',
     missingWeightTicket: true,
     status: ppmDocumentStatus.REJECTED,

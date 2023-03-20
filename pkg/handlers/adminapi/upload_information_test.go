@@ -3,11 +3,10 @@ package adminapi
 import (
 	"fmt"
 	"net/http"
-	"time"
 
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/factory"
 	uploadop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -19,7 +18,7 @@ import (
 
 func (suite *HandlerSuite) TestGetUploadHandler() {
 	setupTestData := func() (models.UserUpload, models.Move) {
-		sm := testdatagen.MakeDefaultServiceMember(suite.DB())
+		sm := factory.BuildServiceMember(suite.DB(), nil, nil)
 		suite.MustSave(&sm)
 
 		orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
@@ -38,30 +37,22 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 		})
 		suite.MustSave(&move)
 
-		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMember:   sm,
-				ServiceMemberID: sm.ID,
-			},
-		})
+		document := factory.BuildDocumentLinkServiceMember(suite.DB(), sm)
 		suite.MustSave(&document)
 
-		uploadID, _ := uuid.NewV4()
-		uploadUserAssertions := models.UserUpload{
-			Document:   document,
-			DocumentID: &document.ID,
-			CreatedAt:  time.Now(),
-			UploaderID: sm.UserID,
-			Upload: models.Upload{
-				ID:          uploadID,
-				Filename:    "FileName",
-				Bytes:       int64(15),
-				ContentType: "application/pdf",
-				CreatedAt:   time.Now(),
+		uploadInstance := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    document,
+				LinkOnly: true,
 			},
-		}
-
-		uploadInstance := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{UserUpload: uploadUserAssertions})
+			{
+				Model: models.Upload{
+					Filename:    "FileName",
+					Bytes:       int64(15),
+					ContentType: "application/pdf",
+				},
+			},
+		}, nil)
 		suite.MustSave(&uploadInstance)
 
 		return uploadInstance, move

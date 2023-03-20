@@ -68,12 +68,7 @@ func makeServiceMember(appCtx appcontext.AppContext) models.ServiceMember {
 }
 
 func makeAmendedOrders(appCtx appcontext.AppContext, order models.Order, userUploader *uploader.UserUploader, fileNames *[]string) models.Order {
-	document := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
-		Document: models.Document{
-			ServiceMemberID: order.ServiceMemberID,
-			ServiceMember:   order.ServiceMember,
-		},
-	})
+	document := factory.BuildDocumentLinkServiceMember(appCtx.DB(), order.ServiceMember)
 
 	// Creates order upload documents from the files in this directory:
 	// pkg/testdatagen/testdata/bandwidth_test_docs
@@ -84,15 +79,20 @@ func makeAmendedOrders(appCtx appcontext.AppContext, order models.Order, userUpl
 		filePath := fmt.Sprintf("bandwidth_test_docs/%s", file)
 		fixture := testdatagen.Fixture(filePath)
 
-		upload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-			File: fixture,
-			UserUpload: models.UserUpload{
-				UploaderID: order.ServiceMember.UserID,
-				DocumentID: &document.ID,
-				Document:   document,
+		upload := factory.BuildUserUpload(appCtx.DB(), []factory.Customization{
+			{
+				Model:    document,
+				LinkOnly: true,
 			},
-			UserUploader: userUploader,
-		})
+			{
+				Model: models.UserUpload{},
+				ExtendedParams: &factory.UserUploadExtendedParams{
+					UserUploader: userUploader,
+					AppContext:   appCtx,
+					File:         fixture,
+				},
+			},
+		}, nil)
 		document.UserUploads = append(document.UserUploads, upload)
 	}
 

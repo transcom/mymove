@@ -54,7 +54,7 @@ type MoveTaskOrder struct {
 	ExcessWeightUploadID *strfmt.UUID `json:"excessWeightUploadId"`
 
 	// id
-	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Example: a502b4f1-b9c4-4faf-8bdd-68292501bf26
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 

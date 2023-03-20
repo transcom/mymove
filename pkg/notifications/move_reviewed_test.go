@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -80,7 +81,7 @@ func (suite *NotificationSuite) TestMoveReviewedFetchAlreadySentEmail() {
 
 func (suite *NotificationSuite) TestMoveReviewedOnSuccess() {
 	db := suite.DB()
-	sm := testdatagen.MakeDefaultServiceMember(db)
+	sm := factory.BuildServiceMember(db, nil, nil)
 	ei := EmailInfo{
 		ServiceMemberID: sm.ID,
 	}

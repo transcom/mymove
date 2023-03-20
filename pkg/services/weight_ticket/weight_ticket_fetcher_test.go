@@ -6,6 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/utilities"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -97,14 +98,12 @@ func (suite *WeightTicketSuite) TestGetWeightTicketFetcher() {
 		numValidUploads := len(existingWeightTicket.EmptyDocument.UserUploads)
 		suite.FatalTrue(numValidUploads > 0)
 
-		deletedUserUpload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-			Document: existingWeightTicket.EmptyDocument,
-			UserUpload: models.UserUpload{
-				DocumentID: &existingWeightTicket.EmptyDocument.ID,
-				Document:   existingWeightTicket.EmptyDocument,
-				UploaderID: existingWeightTicket.EmptyDocument.ServiceMember.UserID,
+		deletedUserUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    existingWeightTicket.EmptyDocument,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
 		storer := storageTest.NewFakeS3Storage(true)
 		userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
