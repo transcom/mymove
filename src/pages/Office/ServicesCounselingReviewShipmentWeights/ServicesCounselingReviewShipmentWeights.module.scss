@@ -40,3 +40,7 @@
   font-weight: bold;
   font-size: 22px;
 }
+
+.alertContainer {
+  @include u-margin-bottom(3);
+}
