@@ -301,6 +301,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build Use testharness to build submitted move with ppm and pro-gear
+   * @returns {Promise<Move>}
+   */
+  async buildApprovedMoveWithPPMProgearWeightTicketOffice() {
+    return this.buildDefault('ApprovedMoveWithPPMProgearWeightTicketOffice');
+  }
+
+  /**
    * Use testharness to build submitted move with ppm and weight ticket
    * @returns {Promise<Object>}
    */
@@ -314,6 +322,14 @@ export class TestHarness {
    */
   async buildApprovedMoveWithPPMMovingExpense() {
     return this.buildDefault('ApprovedMoveWithPPMMovingExpense');
+  }
+
+  /**
+   * Use testharness to build submitted move with ppm and moving expense
+   * @returns {Promise<Object>}
+   */
+  async buildApprovedMoveWithPPMMovingExpenseOffice() {
+    return this.buildDefault('ApprovedMoveWithPPMMovingExpenseOffice');
   }
 
   /**
