@@ -119,6 +119,7 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo MoveCrea
 				LoginGovEmail: moveInfo.Email,
 				Active:        true,
 			},
+			LinkOnly: true,
 		},
 		{
 			Model: models.ServiceMember{
@@ -296,6 +297,7 @@ func createServiceMemberWithNoUploadedOrders(appCtx appcontext.AppContext) {
 			Model: models.User{
 				ID: uuid.FromStringOrNil(uuidStr),
 			},
+			LinkOnly: true,
 		},
 	}, nil)
 }
@@ -335,6 +337,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 			Model: models.User{
 				ID: uuid.FromStringOrNil(uuidStr),
 			},
+			LinkOnly: true,
 		},
 	}, nil)
 	// SelectedMoveType could be either HHG or PPM depending on creation order of combo
@@ -2045,6 +2048,7 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 			Model: models.User{
 				ID: moveInfo.UserID,
 			},
+			LinkOnly: true,
 		},
 	}, nil)
 
@@ -2147,6 +2151,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 			Model: models.User{
 				ID: userID,
 			},
+			LinkOnly: true,
 		},
 	}, nil)
 
@@ -2238,6 +2243,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 			Model: models.User{
 				ID: userID,
 			},
+			LinkOnly: true,
 		},
 	}, nil)
 
@@ -2329,6 +2335,7 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 			Model: models.User{
 				ID: userID,
 			},
+			LinkOnly: true,
 		},
 	}, nil)
 
@@ -2412,6 +2419,7 @@ func CreateMoveWithCloseoutOffice(appCtx appcontext.AppContext, moveInfo MoveCre
 			Model: models.User{
 				ID: moveInfo.UserID,
 			},
+			LinkOnly: true,
 		},
 	}, nil)
 	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
@@ -2508,6 +2516,7 @@ func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 			Model: models.User{
 				ID: moveInfo.UserID,
 			},
+			LinkOnly: true,
 		},
 	}, nil)
 
@@ -2586,6 +2595,7 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 			Model: models.User{
 				ID: userID,
 			},
+			LinkOnly: true,
 		},
 	}, nil)
 
@@ -2731,6 +2741,7 @@ func createSubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext
 			Model: models.User{
 				ID: userID,
 			},
+			LinkOnly: true,
 		},
 	}, nil)
 
@@ -2878,6 +2889,7 @@ func createUnsubmittedHHGMove(appCtx appcontext.AppContext) {
 			Model: models.User{
 				ID: uuid.FromStringOrNil(uuidStr),
 			},
+			LinkOnly: true,
 		},
 	}, nil)
 
@@ -2944,6 +2956,7 @@ func createUnsubmittedHHGMoveMultipleDestinations(appCtx appcontext.AppContext) 
 			Model: models.User{
 				ID: uuid.FromStringOrNil(userID),
 			},
+			LinkOnly: true,
 		},
 	}, nil)
 
@@ -3022,6 +3035,7 @@ func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
 			Model: models.User{
 				ID: uuid.FromStringOrNil(uuidStr),
 			},
+			LinkOnly: true,
 		},
 	}, nil)
 
@@ -3118,6 +3132,7 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 			Model: models.User{
 				ID: uuid.FromStringOrNil(uuidStr),
 			},
+			LinkOnly: true,
 		},
 	}, nil)
 
@@ -7274,6 +7289,7 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 			Model: models.User{
 				ID: uuid.FromStringOrNil(uuidStr),
 			},
+			LinkOnly: true,
 		},
 	}, nil)
 
