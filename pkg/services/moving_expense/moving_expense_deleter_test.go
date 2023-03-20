@@ -31,14 +31,17 @@ func (suite *MovingExpenseSuite) TestDeleteMovingExpense() {
 				if i == 1 {
 					deletedAt = models.TimePointer(time.Now())
 				}
-				testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-					UserUpload: models.UserUpload{
-						UploaderID: serviceMember.UserID,
-						DocumentID: &expenseDocument.ID,
-						Document:   expenseDocument,
-						DeletedAt:  deletedAt,
+				factory.BuildUserUpload(suite.DB(), []factory.Customization{
+					{
+						Model:    expenseDocument,
+						LinkOnly: true,
 					},
-				})
+					{
+						Model: models.UserUpload{
+							DeletedAt: deletedAt,
+						},
+					},
+				}, nil)
 			}
 		}
 

@@ -53,6 +53,7 @@ var Role CustomType = "Role"
 var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
+var UserUpload CustomType = "UserUpload"
 var User CustomType = "User"
 var UsersRoles CustomType = "UsersRoles"
 
@@ -76,6 +77,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Tariff400ngZip3":      Tariff400ngZip3,
 	"models.TransportationOffice": TransportationOffice,
 	"models.Upload":               Upload,
+	"models.UserUpload":           UserUpload,
 	"models.User":                 User,
 	"models.UsersRoles":           UsersRoles,
 	"roles.Role":                  Role,
