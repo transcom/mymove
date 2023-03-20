@@ -79,14 +79,19 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
 		amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)
-		amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: models.UserUpload{
-				DocumentID: &amendedDocument.ID,
-				Document:   amendedDocument,
-				UploaderID: amendedDocument.ServiceMember.UserID,
+		amendedUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    amendedDocument,
+				LinkOnly: true,
 			},
-			UserUploader: userUploader,
-		})
+			{
+				Model: models.UserUpload{},
+				ExtendedParams: &factory.UserUploadExtendedParams{
+					UserUploader: userUploader,
+					AppContext:   suite.AppContextForTest(),
+				},
+			},
+		}, nil)
 
 		amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
 		now := time.Now()
@@ -272,14 +277,19 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
 		amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)
-		amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: models.UserUpload{
-				DocumentID: &amendedDocument.ID,
-				Document:   amendedDocument,
-				UploaderID: amendedDocument.ServiceMember.UserID,
+		amendedUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    amendedDocument,
+				LinkOnly: true,
 			},
-			UserUploader: userUploader,
-		})
+			{
+				Model: models.UserUpload{},
+				ExtendedParams: &factory.UserUploadExtendedParams{
+					UserUploader: userUploader,
+					AppContext:   suite.AppContextForTest(),
+				},
+			},
+		}, nil)
 
 		amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
 		now := time.Now()
@@ -463,14 +473,19 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
 		amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)
-		amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: models.UserUpload{
-				DocumentID: &amendedDocument.ID,
-				Document:   amendedDocument,
-				UploaderID: amendedDocument.ServiceMember.UserID,
+		amendedUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    amendedDocument,
+				LinkOnly: true,
 			},
-			UserUploader: userUploader,
-		})
+			{
+				Model: models.UserUpload{},
+				ExtendedParams: &factory.UserUploadExtendedParams{
+					UserUploader: userUploader,
+					AppContext:   suite.AppContextForTest(),
+				},
+			},
+		}, nil)
 
 		amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
 		now := time.Now()

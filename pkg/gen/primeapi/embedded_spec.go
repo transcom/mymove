@@ -2614,7 +2614,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
         },
         "moveCode": {
           "type": "string",
@@ -2697,7 +2697,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "linesOfAccounting": {
           "type": "string"
@@ -6985,7 +6985,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
         },
         "moveCode": {
           "type": "string",
@@ -7068,7 +7068,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "linesOfAccounting": {
           "type": "string"

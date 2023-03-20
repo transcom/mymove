@@ -272,13 +272,13 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	uploadUser1 := testdatagen.MakeDefaultUserUpload(suite.DB())
 	suite.Nil(uploadUser1.Upload.DeletedAt)
 
-	uploadUser2Assertions := testdatagen.Assertions{
-		UserUpload: models.UserUpload{
-			Document:   uploadUser1.Document,
-			DocumentID: &uploadUser1.Document.ID,
+	uploadUser2Customization := []factory.Customization{
+		{
+			Model:    uploadUser1.Document,
+			LinkOnly: true,
 		},
 	}
-	uploadUser2 := testdatagen.MakeUserUpload(suite.DB(), uploadUser2Assertions)
+	uploadUser2 := factory.BuildUserUpload(suite.DB(), uploadUser2Customization, nil)
 
 	file := suite.Fixture(FixturePDF)
 	fakeS3.Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)

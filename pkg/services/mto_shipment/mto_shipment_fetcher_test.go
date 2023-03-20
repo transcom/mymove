@@ -170,12 +170,12 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			PPMShipment:   ppmShipment,
 		})
 
-		userUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: move.Orders.ServiceMemberID,
-				ServiceMember:   move.Orders.ServiceMember,
+		userUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    move.Orders.ServiceMember,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
 		movingExpense := &models.MovingExpense{
 			PPMShipmentID: ppmShipment.ID,
