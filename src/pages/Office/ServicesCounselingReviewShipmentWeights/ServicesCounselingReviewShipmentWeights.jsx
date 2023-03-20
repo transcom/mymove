@@ -41,7 +41,7 @@ const sortShipments = (shipments) => {
 };
 
 const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
-  const [showExcessWeightAlert, setShowExcessWeightAlert] = useState(null);
+  const [showExcessWeightAlert, setShowExcessWeightAlert] = useState(false);
   const { orders, mtoShipments, isLoading, isError } = useReviewShipmentWeightsQuery(moveCode);
   const estimatedWeightTotal = calculateEstimatedWeight(mtoShipments);
   const moveWeightTotal = calculateWeightRequested(mtoShipments);
