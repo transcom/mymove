@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -8,11 +9,31 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-// BuildServiceMember creates a single ServiceMember
-// Also creates, if not provided:
-// - Residential Address of the ServiceMember
-// - User
-func BuildServiceMember(db *pop.Connection, customs []Customization, traits []Trait) models.ServiceMember {
+type serviceMemberBuildType byte
+
+const (
+	serviceMemberBuildBasic serviceMemberBuildType = iota
+	serviceMemberBuildExtended
+)
+
+// buildServiceMemberWithBuildType does the the actual work
+// if buildType is basic, it builds
+//   - User
+//   - ResidentialAddress
+//
+// if buildType is extended, it builds
+//   - User,
+//   - ResidentialAddress
+//   - BackupMailingAddress
+//   - DutyLocation
+//   - BackupContact
+//
+// basic build type will build User, ResidentialAddress,
+// BackupMailingAddress and DutyLocation if and only if a
+// customization is provided
+//
+// a BackupContact is only built for extended
+func buildServiceMemberWithBuildType(db *pop.Connection, customs []Customization, traits []Trait, buildType serviceMemberBuildType) models.ServiceMember {
 	customs = setupCustomizations(customs, traits)
 
 	// Find ServiceMember customization and extract the custom ServiceMember
@@ -33,20 +54,8 @@ func BuildServiceMember(db *pop.Connection, customs []Customization, traits []Tr
 
 	resAddress := BuildAddress(db, tempResAddressCustoms, traits)
 
-	// Find/create the BackupMailingAddress
-	tempBackupAddressCustoms := customs
-	backupAddressResult := findValidCustomization(customs, Addresses.BackupMailingAddress)
-	if backupAddressResult != nil {
-		tempBackupAddressCustoms = convertCustomizationInList(tempBackupAddressCustoms, Addresses.BackupMailingAddress, Address)
-	}
-
-	backupAddress := BuildAddress(db, tempBackupAddressCustoms, traits)
-
 	// Find/create the user model
 	user := BuildUser(db, customs, traits)
-
-	// Find/create the dutyLocation model
-	dutyLocation := BuildDutyLocation(db, customs, traits)
 
 	email := "leo_spaceman_sm@example.com"
 	agency := models.AffiliationARMY
@@ -55,21 +64,57 @@ func BuildServiceMember(db *pop.Connection, customs []Customization, traits []Tr
 	randomEdipi := RandomEdipi()
 
 	serviceMember := models.ServiceMember{
-		UserID:                 user.ID,
-		User:                   user,
-		Edipi:                  models.StringPointer(randomEdipi),
-		Affiliation:            &agency,
-		FirstName:              models.StringPointer("Leo"),
-		LastName:               models.StringPointer("Spacemen"),
-		Telephone:              models.StringPointer("212-123-4567"),
-		PersonalEmail:          &email,
-		ResidentialAddressID:   &resAddress.ID,
-		ResidentialAddress:     &resAddress,
-		BackupMailingAddressID: &backupAddress.ID,
-		BackupMailingAddress:   &backupAddress,
-		DutyLocationID:         &dutyLocation.ID,
-		DutyLocation:           dutyLocation,
-		Rank:                   &rank,
+		UserID:               user.ID,
+		User:                 user,
+		Edipi:                models.StringPointer(randomEdipi),
+		Affiliation:          &agency,
+		FirstName:            models.StringPointer("Leo"),
+		LastName:             models.StringPointer("Spacemen"),
+		Telephone:            models.StringPointer("212-123-4567"),
+		PersonalEmail:        &email,
+		ResidentialAddressID: &resAddress.ID,
+		ResidentialAddress:   &resAddress,
+		Rank:                 &rank,
+	}
+
+	backupAddressResult := findValidCustomization(customs, Addresses.BackupMailingAddress)
+	// Find/create the BackupMailingAddress if customization is
+	// provided
+	if backupAddressResult != nil {
+		backupAddressCustoms := convertCustomizationInList(customs, Addresses.BackupMailingAddress, Address)
+
+		backupAddress := BuildAddress(db, backupAddressCustoms, traits)
+		serviceMember.BackupMailingAddressID = &backupAddress.ID
+		serviceMember.BackupMailingAddress = &backupAddress
+	}
+
+	dutyLocationResult := findValidCustomization(customs, DutyLocation)
+	// Find/create the DutyLocation if customization is
+	// provided
+	if dutyLocationResult != nil {
+		dutyLocation := BuildDutyLocation(db, customs, traits)
+		serviceMember.DutyLocationID = &dutyLocation.ID
+		serviceMember.DutyLocation = dutyLocation
+	}
+
+	if buildType == serviceMemberBuildExtended {
+		serviceMember.EmailIsPreferred = swag.Bool(true)
+
+		// ensure extended service member has backup mailing address,
+		// even if customization is not provided
+		if serviceMember.BackupMailingAddressID == nil {
+			backupAddress := BuildAddress(db, customs, traits)
+			serviceMember.BackupMailingAddressID = &backupAddress.ID
+			serviceMember.BackupMailingAddress = &backupAddress
+		}
+
+		// ensure extended service member has duty location,
+		// even if customization is not provided
+		if serviceMember.DutyLocationID == nil {
+			dutyLocation := BuildDutyLocation(db, customs, traits)
+			serviceMember.DutyLocationID = &dutyLocation.ID
+			serviceMember.DutyLocation = dutyLocation
+		}
 	}
 
 	// Overwrite values with those from customizations
@@ -79,7 +124,44 @@ func BuildServiceMember(db *pop.Connection, customs []Customization, traits []Tr
 		mustCreate(db, &serviceMember)
 	}
 
+	if buildType == serviceMemberBuildExtended {
+		backupContactResult := findValidCustomization(customs, BackupContact)
+
+		// before building the backup contact, create a link only
+		// customization for the newly created service member if
+		// saving to the db
+		backupCustoms := []Customization{}
+		if db != nil {
+			backupCustoms = append(backupCustoms, Customization{
+				Model:    serviceMember,
+				LinkOnly: true,
+			})
+		}
+		// include any backup contact customizations
+		if backupContactResult != nil {
+			backupCustoms = append(backupCustoms, *backupContactResult)
+		}
+		backupContact := BuildBackupContact(db, backupCustoms, traits)
+		serviceMember.BackupContacts = append(serviceMember.BackupContacts, backupContact)
+		if db != nil {
+			mustSave(db, &serviceMember)
+		}
+	}
+
 	return serviceMember
+}
+
+// BuildServiceMember creates a single ServiceMember
+// Also creates, if not provided:
+// - Residential Address of the ServiceMember
+// - User
+//
+// Will also build User, ResidentialAddress, BackupMailingAddress and
+// DutyLocation if and only if a customization is provided
+//
+// Will never build a BackupContact
+func BuildServiceMember(db *pop.Connection, customs []Customization, traits []Trait) models.ServiceMember {
+	return buildServiceMemberWithBuildType(db, customs, traits, serviceMemberBuildBasic)
 }
 
 // BuildExtendedServiceMember creates a single ServiceMember
@@ -90,33 +172,7 @@ func BuildServiceMember(db *pop.Connection, customs []Customization, traits []Tr
 //   - DutyLocation
 //   - BackupContact
 func BuildExtendedServiceMember(db *pop.Connection, customs []Customization, traits []Trait) models.ServiceMember {
-	customs = setupCustomizations(customs, traits)
-
-	// Find ServiceMember customization and extract the custom ServiceMember
-	var cServiceMember models.ServiceMember
-	if result := findValidCustomization(customs, ServiceMember); result != nil {
-		cServiceMember = result.Model.(models.ServiceMember)
-		if result.LinkOnly {
-			return cServiceMember
-		}
-	}
-
-	serviceMember := BuildServiceMember(db, customs, traits)
-
-	backupContact := BuildBackupContact(db, []Customization{
-		{
-			Model:    serviceMember,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	serviceMember.BackupContacts = append(serviceMember.BackupContacts, backupContact)
-
-	if db != nil {
-		mustSave(db, &serviceMember)
-	}
-
-	return serviceMember
+	return buildServiceMemberWithBuildType(db, customs, traits, serviceMemberBuildExtended)
 }
 
 // GetTraitServiceMemberSetIDs is a sample GetTraitFunc
