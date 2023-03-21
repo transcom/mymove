@@ -3,6 +3,9 @@ package models
 import (
 	"time"
 
+	"github.com/gobuffalo/pop/v6"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -26,6 +29,17 @@ const (
 	PPMShipmentStatusPaymentApproved PPMShipmentStatus = "PAYMENT_APPROVED"
 )
 
+// AllowedPPMShipmentStatuses is a list of all the allowed values for the Status of a PPMShipment as strings. Needed for
+// validation.
+var AllowedPPMShipmentStatuses = []string{
+	string(PPMShipmentStatusDraft),
+	string(PPMShipmentStatusSubmitted),
+	string(PPMShipmentStatusWaitingOnCustomer),
+	string(PPMShipmentStatusNeedsAdvanceApproval),
+	string(PPMShipmentStatusNeedsPaymentApproval),
+	string(PPMShipmentStatusPaymentApproved),
+}
+
 // PPMAdvanceStatus represents the status of an advance that can be approved, edited or rejected by a SC
 type PPMAdvanceStatus string
 
@@ -38,6 +52,14 @@ const (
 	PPMAdvanceStatusRejected PPMAdvanceStatus = "REJECTED"
 )
 
+// AllowedPPMAdvanceStatuses is a list of all the allowed values for AdvanceStatus on a PPMShipment, as strings. Needed
+// for validation.
+var AllowedPPMAdvanceStatuses = []string{
+	string(PPMAdvanceStatusApproved),
+	string(PPMAdvanceStatusEdited),
+	string(PPMAdvanceStatusRejected),
+}
+
 // SITLocationType represents whether the SIT at the origin or destination
 type SITLocationType string
 
@@ -47,6 +69,13 @@ const (
 	// SITLocationTypeDestination captures enum value "DESTINATION"
 	SITLocationTypeDestination SITLocationType = "DESTINATION"
 )
+
+// AllowedSITLocationTypes is a list of all the allowed values for SITLocationType on a PPMShipment, as strings. Needed
+// for validation.
+var AllowedSITLocationTypes = []string{
+	string(SITLocationTypeOrigin),
+	string(SITLocationTypeDestination),
+}
 
 // PPMDocumentStatus represents the status of a PPMShipment's documents. Lives here since we have multiple PPM document
 // models.
@@ -61,6 +90,8 @@ const (
 	PPMDocumentStatusRejected PPMDocumentStatus = "REJECTED"
 )
 
+// AllowedPPMDocumentStatuses is a list of all the allowed values for the Status of a PPMShipment's documents, as
+// strings. Needed for validation.
 var AllowedPPMDocumentStatuses = []string{
 	string(PPMDocumentStatusApproved),
 	string(PPMDocumentStatusExcluded),
@@ -131,3 +162,41 @@ func (p PPMShipment) TableName() string {
 
 // PPMShipments is a list of PPMs
 type PPMShipments []PPMShipment
+
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate,
+// pop.ValidateAndUpdate) method. This should contain validation that is for data integrity. Business validation should
+// occur in service objects.
+func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
+	return validate.Validate(
+		&validators.UUIDIsPresent{Name: "ShipmentID", Field: p.ShipmentID},
+		&OptionalTimeIsPresent{Name: "DeletedAt", Field: p.DeletedAt},
+		&validators.TimeIsPresent{Name: "ExpectedDepartureDate", Field: p.ExpectedDepartureDate},
+		&validators.StringInclusion{Name: "Status", Field: string(p.Status), List: AllowedPPMShipmentStatuses},
+		&OptionalTimeIsPresent{Name: "ActualMoveDate", Field: p.ActualMoveDate},
+		&OptionalTimeIsPresent{Name: "SubmittedAt", Field: p.SubmittedAt},
+		&OptionalTimeIsPresent{Name: "ReviewedAt", Field: p.ReviewedAt},
+		&OptionalTimeIsPresent{Name: "ApprovedAt", Field: p.ApprovedAt},
+		&OptionalUUIDIsPresent{Name: "W2AddressID", Field: p.W2AddressID},
+		&validators.StringIsPresent{Name: "PickupPostalCode", Field: p.PickupPostalCode},
+		&StringIsNilOrNotBlank{Name: "SecondaryPickupPostalCode", Field: p.SecondaryPickupPostalCode},
+		&StringIsNilOrNotBlank{Name: "ActualPickupPostalCode", Field: p.ActualPickupPostalCode},
+		&validators.StringIsPresent{Name: "DestinationPostalCode", Field: p.DestinationPostalCode},
+		&StringIsNilOrNotBlank{Name: "SecondaryDestinationPostalCode", Field: p.SecondaryDestinationPostalCode},
+		&StringIsNilOrNotBlank{Name: "ActualDestinationPostalCode", Field: p.ActualDestinationPostalCode},
+		&OptionalPoundIsNonNegative{Name: "EstimatedWeight", Field: p.EstimatedWeight},
+		&OptionalPoundIsNonNegative{Name: "ProGearWeight", Field: p.ProGearWeight},
+		&OptionalPoundIsNonNegative{Name: "SpouseProGearWeight", Field: p.SpouseProGearWeight},
+		&OptionalCentIsPositive{Name: "EstimatedIncentive", Field: p.EstimatedIncentive},
+		&OptionalCentIsPositive{Name: "FinalIncentive", Field: p.FinalIncentive},
+		&OptionalCentIsPositive{Name: "AdvanceAmountRequested", Field: p.AdvanceAmountRequested},
+		&OptionalStringInclusion{Name: "AdvanceStatus", List: AllowedPPMAdvanceStatuses, Field: (*string)(p.AdvanceStatus)},
+		&OptionalCentIsPositive{Name: "AdvanceAmountReceived", Field: p.AdvanceAmountReceived},
+		&OptionalStringInclusion{Name: "SITLocation", List: AllowedSITLocationTypes, Field: (*string)(p.SITLocation)},
+		&OptionalPoundIsNonNegative{Name: "SITEstimatedWeight", Field: p.SITEstimatedWeight},
+		&OptionalTimeIsPresent{Name: "SITEstimatedEntryDate", Field: p.SITEstimatedEntryDate},
+		&OptionalTimeIsPresent{Name: "SITEstimatedDepartureDate", Field: p.SITEstimatedDepartureDate},
+		&OptionalCentIsPositive{Name: "SITEstimatedCost", Field: p.SITEstimatedCost},
+		&OptionalUUIDIsPresent{Name: "AOAPacketID", Field: p.AOAPacketID},
+		&OptionalUUIDIsPresent{Name: "PaymentPacketID", Field: p.PaymentPacketID},
+	), nil
+}
