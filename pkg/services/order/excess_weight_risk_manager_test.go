@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
@@ -77,15 +78,20 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 		storer := storageTest.NewFakeS3Storage(true)
 		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
-		amendedDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
-		amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: models.UserUpload{
-				DocumentID: &amendedDocument.ID,
-				Document:   amendedDocument,
-				UploaderID: amendedDocument.ServiceMember.UserID,
+		amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)
+		amendedUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    amendedDocument,
+				LinkOnly: true,
 			},
-			UserUploader: userUploader,
-		})
+			{
+				Model: models.UserUpload{},
+				ExtendedParams: &factory.UserUploadExtendedParams{
+					UserUploader: userUploader,
+					AppContext:   suite.AppContextForTest(),
+				},
+			},
+		}, nil)
 
 		amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
 		now := time.Now()
@@ -270,15 +276,20 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 		storer := storageTest.NewFakeS3Storage(true)
 		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
-		amendedDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
-		amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: models.UserUpload{
-				DocumentID: &amendedDocument.ID,
-				Document:   amendedDocument,
-				UploaderID: amendedDocument.ServiceMember.UserID,
+		amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)
+		amendedUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    amendedDocument,
+				LinkOnly: true,
 			},
-			UserUploader: userUploader,
-		})
+			{
+				Model: models.UserUpload{},
+				ExtendedParams: &factory.UserUploadExtendedParams{
+					UserUploader: userUploader,
+					AppContext:   suite.AppContextForTest(),
+				},
+			},
+		}, nil)
 
 		amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
 		now := time.Now()
@@ -461,15 +472,20 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		storer := storageTest.NewFakeS3Storage(true)
 		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
-		amendedDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
-		amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: models.UserUpload{
-				DocumentID: &amendedDocument.ID,
-				Document:   amendedDocument,
-				UploaderID: amendedDocument.ServiceMember.UserID,
+		amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)
+		amendedUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    amendedDocument,
+				LinkOnly: true,
 			},
-			UserUploader: userUploader,
-		})
+			{
+				Model: models.UserUpload{},
+				ExtendedParams: &factory.UserUploadExtendedParams{
+					UserUploader: userUploader,
+					AppContext:   suite.AppContextForTest(),
+				},
+			},
+		}, nil)
 
 		amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
 		now := time.Now()

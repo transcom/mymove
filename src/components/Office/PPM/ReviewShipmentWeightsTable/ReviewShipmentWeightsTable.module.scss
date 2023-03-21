@@ -8,11 +8,19 @@
   flex-direction: column;
   flex: auto;
 
+  .Table {
+    min-height: 0;
+    tr:hover {
+      background-color: white;
+    }
+  }
+
   .tableContainer {
     flex: auto;
     @include u-margin-top(1);
     width: 100%;
     overflow-x: auto;
+    @include u-margin-bottom(1);
   }
 
   table {
@@ -29,10 +37,7 @@
     text-align: right !important;
   }
 }
-
-
-
-.review-shipment-weights-table-row{
+.review-shipment-weights-table-row {
   text-align: left;
   padding-left: 8px;
 }
