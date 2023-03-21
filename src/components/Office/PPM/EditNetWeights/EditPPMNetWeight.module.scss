@@ -2,31 +2,32 @@
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
 
-
-.calculationWrapper{
-    flex: 1;
+.calculationWrapper {
+  flex: 1;
+  padding-top: 24px;
 }
 .calculations {
-    display: grid;
-    grid-template-columns: 1fr 3fr;
-    grid-template-rows: auto;
-    grid-column-gap: 0px;
-    grid-row-gap: 0px;
-    line-height: 18px;
-    font-size: 13px;
-    .value {
-        display: inline-block;
-        color: $base-darker
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  grid-template-rows: auto;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+  line-height: 18px;
+  font-size: 13px;
+  .value {
+    display: inline-block;
+    color: $base-darker;
+    text-align: right;
   }
   .label {
     color: $base;
-    flex: 1
+    flex: 1;
+    padding-left: 8px;
   }
 }
 
-
-.divider{
-    color: $base-dark;
+.equals_divider {
+  color: $base-dark;
 }
 
 .fieldset {
@@ -82,6 +83,10 @@
     font-size: 15px;
     padding: 8px 0px;
   }
+
+.main_wrapper {
+  padding-top: 32px;
+}
 
 .wrapper {
   padding-top: 8px;

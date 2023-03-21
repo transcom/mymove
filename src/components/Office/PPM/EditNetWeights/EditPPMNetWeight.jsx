@@ -62,7 +62,6 @@ const WeightCalculationHint = ({ type, firstValue, secondValue, thirdValue }) =>
   return (
     <>
       <FlexContainer className={styles.minus}>
-        {thirdValue && <>-</>}
         <div className={styles.calculationWrapper}>
           <div className={styles.calculations}>
             <strong className={styles.value}>{formatWeight(firstValue)}</strong>
@@ -70,7 +69,10 @@ const WeightCalculationHint = ({ type, firstValue, secondValue, thirdValue }) =>
           </div>
           {secondValue && (
             <div className={styles.calculations}>
-              <strong className={styles.value}>{formatWeight(secondValue)}</strong>
+              <strong className={styles.value}>
+                {thirdValue && <>– </>}
+                {formatWeight(secondValue)}
+              </strong>
               <span className={styles.label}> {secondLabel}</span>
             </div>
           )}
@@ -78,7 +80,7 @@ const WeightCalculationHint = ({ type, firstValue, secondValue, thirdValue }) =>
       </FlexContainer>
       {thirdValue && (
         <>
-          <hr className={styles.divider} />
+          <hr className={styles.equals_divider} />
           <div className={styles.calculations}>
             <strong className={styles.value}>{formatWeight(thirdValue)}</strong>
             <span className={styles.label}> {thirdLabel}</span>
@@ -203,7 +205,7 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
   const showWarning = Boolean(hasExcessWeight && !showEditForm);
   const showReduceWeight = Boolean(-originalWeight === toFitValue);
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.main_wrapper}>
       <div>
         <h4 className={styles.mainHeader}>Edit PPM net weight</h4>
         {Boolean(showEditForm && hasExcessWeight) && (
