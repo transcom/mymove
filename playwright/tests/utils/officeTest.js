@@ -65,36 +65,24 @@ export class OfficePage extends BaseTestPage {
    * Use devlocal auth to sign in as new Service Counselor
    */
   async signInAsNewServicesCounselorUser() {
-    await Promise.all([
-      // It is important to call waitForNavigation before click to set up waiting.
-      this.page.waitForNavigation(),
-      await this.signInAsNewUser(ServicesCounselorOfficeUserType),
-    ]);
-    await this.waitForLoading();
+    await this.signInAsNewUser(ServicesCounselorOfficeUserType);
+    await this.page.getByRole('heading', { name: 'Moves' }).waitFor();
   }
 
   /**
    * Use devlocal auth to sign in as new TIO
    */
   async signInAsNewTIOUser() {
-    await Promise.all([
-      // It is important to call waitForNavigation before click to set up waiting.
-      this.page.waitForNavigation(),
-      await this.signInAsNewUser(TIOOfficeUserType),
-    ]);
-    await this.waitForLoading();
+    await this.signInAsNewUser(TIOOfficeUserType);
+    await this.page.getByRole('heading', { name: 'Payment requests' }).waitFor();
   }
 
   /**
    * Use devlocal auth to sign in as new TOO
    */
   async signInAsNewTOOUser() {
-    await Promise.all([
-      // It is important to call waitForNavigation before click to set up waiting.
-      this.page.waitForNavigation(),
-      await this.signInAsNewUser(TOOOfficeUserType),
-    ]);
-    await this.waitForLoading();
+    await this.signInAsNewUser(TOOOfficeUserType);
+    await this.page.getByRole('heading', { name: 'All moves' }).waitFor();
   }
 
   /**
@@ -102,36 +90,24 @@ export class OfficePage extends BaseTestPage {
    */
   async signInAsNewTIOAndTOOUser() {
     const user = await this.testHarness.buildOfficeUserWithTOOAndTIO();
-    await Promise.all([
-      // It is important to call waitForNavigation before click to set up waiting.
-      this.page.waitForNavigation(),
-      this.signInAsExistingOfficeUser(user.login_gov_email),
-    ]);
-    await this.waitForLoading();
+    await this.signInAsExistingOfficeUser(user.login_gov_email);
+    await this.page.getByRole('heading', { name: 'All moves' }).waitFor();
   }
 
   /**
    * Use devlocal auth to sign in as office user with prime simulator role
    */
   async signInAsNewPrimeSimulatorUser() {
-    await Promise.all([
-      // It is important to call waitForNavigation before click to set up waiting.
-      this.page.waitForNavigation(),
-      await this.signInAsNewUser(PrimeSimulatorUserType),
-    ]);
-    await this.waitForLoading();
+    await this.signInAsNewUser(PrimeSimulatorUserType);
+    await this.page.getByRole('heading', { name: 'Moves available to Prime' }).waitFor();
   }
 
   /**
    * Use devlocal auth to sign in as office user with qaecsr role
    */
   async signInAsNewQAECSRUser() {
-    await Promise.all([
-      // It is important to call waitForNavigation before click to set up waiting.
-      this.page.waitForNavigation(),
-      await this.signInAsNewUser(QAECSROfficeUserType),
-    ]);
-    await this.waitForLoading();
+    await this.signInAsNewUser(QAECSROfficeUserType);
+    await this.page.getByRole('heading', { name: 'Search for a move' }).waitFor();
   }
 
   /**
@@ -143,7 +119,7 @@ export class OfficePage extends BaseTestPage {
     await this.page.locator('input[name="searchText"]').blur();
 
     await this.page.getByRole('button', { name: 'Search' }).click();
-    await this.waitForLoading();
+    await this.page.getByRole('heading', { name: 'Results' }).waitFor();
 
     await base.expect(this.page.locator('tbody >> tr')).toHaveCount(1);
     await base.expect(this.page.locator('tbody >> tr').first()).toContainText(moveLocator);
@@ -163,7 +139,6 @@ export class OfficePage extends BaseTestPage {
     await this.page.locator('#locator').type(moveLocator);
     await this.page.locator('th[data-testid="locator"]').first().click();
     await this.page.locator('[data-testid="locator-0"]').click();
-    await this.waitForLoading();
   }
 
   /**
@@ -176,8 +151,8 @@ export class OfficePage extends BaseTestPage {
 
     // click result to navigate to move details page
     await this.page.locator('tbody > tr').first().click();
-    await this.waitForLoading();
-    base.expect(this.page.url()).toContain(`/moves/${moveLocator}/details`);
+    await this.page.waitForURL(/\/moves\/[^/]+\/details/);
+    await this.page.getByRole('heading', { name: 'Move details' }).waitFor();
   }
 }
 

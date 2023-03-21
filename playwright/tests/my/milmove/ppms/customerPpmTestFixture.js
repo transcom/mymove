@@ -51,10 +51,7 @@ export class CustomerPpmPage extends CustomerPage {
   async clickOnUploadPPMDocumentsButton() {
     await expect(this.page.getByRole('heading', { name: 'Your move is in progress.' })).toBeVisible();
 
-    await Promise.all([
-      this.page.waitForNavigation(),
-      this.page.getByRole('button', { name: 'Upload PPM Documents' }).click(),
-    ]);
+    await this.page.getByRole('button', { name: 'Upload PPM Documents' }).click();
   }
 
   /**
@@ -138,34 +135,24 @@ export class CustomerPpmPage extends CustomerPage {
   async fillOutAboutPage(options = { selectAdvance: false }) {
     // editing this field with the keyboard instead of the date picker runs async validators for pre-filled postal codes
     // this helps debounce the API calls that would be triggered in quick succession
-    await this.page.locator('input[name="actualMoveDate"]').clear();
-    await this.page.locator('input[name="actualMoveDate"]').type('01 Feb 2022');
-    await this.page.locator('input[name="actualMoveDate"]').blur();
+    await this.page.locator('input[name="actualMoveDate"]').fill('01 Feb 2022');
 
-    await this.page.locator('input[name="actualPickupPostalCode"]').clear();
-    await this.page.locator('input[name="actualPickupPostalCode"]').type('90210');
-    await this.page.locator('input[name="actualPickupPostalCode"]').blur();
-    await this.page.locator('input[name="actualDestinationPostalCode"]').clear();
-    await this.page.locator('input[name="actualDestinationPostalCode"]').type('76127');
+    await this.page.locator('input[name="actualPickupPostalCode"]').fill('90210');
+    await this.page.locator('input[name="actualDestinationPostalCode"]').fill('76127');
     await this.page.locator('input[name="actualDestinationPostalCode"]').blur();
 
     if (options?.selectAdvance) {
       await this.page.locator('label[for="yes-has-received-advance"]').click();
-      await this.page.locator('input[name="advanceAmountReceived"]').clear();
-      await this.page.locator('input[name="advanceAmountReceived"]').type('5000');
+      await this.page.locator('input[name="advanceAmountReceived"]').fill('5000');
     } else {
       await this.page.locator('label[for="no-has-received-advance"]').click();
     }
 
-    await this.page.locator('input[name="w2Address.streetAddress1"]').clear();
-    await this.page.locator('input[name="w2Address.streetAddress1"]').type('1819 S Cedar Street');
+    await this.page.locator('input[name="w2Address.streetAddress1"]').fill('1819 S Cedar Street');
 
-    await this.page.locator('input[name="w2Address.city"]').clear();
-    await this.page.locator('input[name="w2Address.city"]').type('Yuma');
+    await this.page.locator('input[name="w2Address.city"]').fill('Yuma');
     await this.page.locator('select[name="w2Address.state"]').selectOption({ label: 'AZ' });
-    await this.page.locator('input[name="w2Address.postalCode"]').clear();
-    await this.page.locator('input[name="w2Address.postalCode"]').type('85369');
-    await this.page.locator('input[name="w2Address.postalCode"]').blur();
+    await this.page.locator('input[name="w2Address.postalCode"]').fill('85369');
 
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
   }
@@ -323,12 +310,8 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromWeightTicketPage() {
-    await Promise.all([
-      this.page.waitForNavigation(),
-      this.page.getByRole('button', { name: 'Save & Continue' }).click(),
-    ]);
-
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
   }
 
   /**
@@ -523,21 +506,19 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromReviewPageToHomePage() {
-    await Promise.all([this.page.waitForNavigation(), this.page.getByRole('button', { name: 'Return home' }).click()]);
-
-    expect(new URL(this.page.url()).pathname).toEqual('/');
+    // calculate the home url to wait for it after click
+    const url = new URL(this.page.url());
+    url.pathname = '/';
+    await this.page.getByRole('button', { name: 'Return home' }).click();
+    await this.page.waitForURL(url.href);
   }
 
   /**
    * returns {Promise<void>}
    */
   async navigateToFromHomePageToPPMCloseoutReview() {
-    await Promise.all([
-      this.page.waitForNavigation(),
-      this.page.getByRole('button', { name: 'Upload PPM Documents' }).click(),
-    ]);
-
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+    await this.page.getByRole('button', { name: 'Upload PPM Documents' }).click();
+    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
   }
 
   /**
@@ -688,83 +669,65 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToProGearPage() {
-    await Promise.all([
-      this.page.waitForNavigation(),
-      this.page.getByRole('link', { name: 'Add Pro-gear Weight' }).click(),
-    ]);
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
+    await this.page.getByRole('link', { name: 'Add Pro-gear Weight' }).click();
+    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
   }
 
   /**
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToEditProGearPage() {
-    await Promise.all([
-      this.page.waitForNavigation(),
-      this.page.locator('.progearSection a').getByText('Edit').click(),
-    ]);
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
+    await this.page.locator('.progearSection a').getByText('Edit').click();
+    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
   }
 
   /**
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToAddProGearPage() {
-    await Promise.all([
-      this.page.waitForNavigation(),
-      this.page.getByRole('link', { name: 'Add Pro-gear Weight' }).click(),
-    ]);
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
+    await this.page.getByRole('link', { name: 'Add Pro-gear Weight' }).click();
+    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
   }
 
   /**
    */
   async navigateFromCloseoutReviewPageToEditWeightTicketPage() {
-    await Promise.all([
-      this.page.waitForNavigation(),
-      this.page.locator('.reviewWeightTickets a').getByText('Edit').click(),
-    ]);
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
+    await this.page.locator('.reviewWeightTickets a').getByText('Edit').click();
+    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
   }
 
   /**
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToAddWeightTicketPage() {
-    await Promise.all([
-      this.page.waitForNavigation(),
-      this.page.getByRole('link', { name: 'Add More Weight' }).click(),
-    ]);
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
+    await this.page.getByRole('link', { name: 'Add More Weight' }).click();
+    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
   }
 
   /**
    */
   async cancelAddLineItemAndReturnToCloseoutReviewPage() {
-    await Promise.all([
-      this.page.waitForNavigation(),
-      this.page.getByRole('button', { name: 'Return to Homepage' }).click(),
-    ]);
-    expect(new URL(this.page.url()).pathname).toBe('/');
+    // calculate the home url to wait for it after click
+    const url = new URL(this.page.url());
+    url.pathname = '/';
+    await this.page.getByRole('button', { name: 'Return to Homepage' }).click();
+    await this.page.waitForURL(url.href);
     await this.navigateToPPMReviewPage();
   }
 
   /**
    */
   async navigateFromCloseoutReviewPageToEditExpensePage() {
-    await Promise.all([
-      this.page.waitForNavigation(),
-      this.page.locator('.reviewExpenses a').getByText('Edit').click(),
-    ]);
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
+    await this.page.locator('.reviewExpenses a').getByText('Edit').click();
+    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
   }
 
   /**
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToAddExpensePage() {
-    await Promise.all([this.page.waitForNavigation(), this.page.getByRole('link', { name: 'Add Expenses' }).click()]);
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
+    await this.page.getByRole('link', { name: 'Add Expenses' }).click();
+    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
   }
 
   /**
@@ -777,12 +740,8 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromProgearPage() {
-    await Promise.all([
-      this.page.waitForNavigation(),
-      this.page.getByRole('button', { name: 'Save & Continue' }).click(),
-    ]);
-
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
   }
 
   async verifySaveAndContinueDisabled() {
@@ -857,8 +816,8 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToExpensesPage() {
-    await Promise.all([this.page.waitForNavigation(), this.page.getByRole('link', { name: 'Add Expense' }).click()]);
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
+    await this.page.getByRole('link', { name: 'Add Expense' }).click();
+    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
   }
 
   /**
@@ -897,12 +856,8 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.locator('input[name="sitEndDate"]').type('20 Aug 2022');
     await this.page.locator('input[name="sitEndDate"]').blur();
 
-    await Promise.all([
-      this.page.waitForNavigation(),
-      this.page.getByRole('button', { name: 'Save & Continue' }).click(),
-    ]);
-
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
 
     const cloudStorage = this.page.getByText('Cloud storage');
     await expect(cloudStorage).toBeVisible();
@@ -944,12 +899,12 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async signCloseoutAgreement() {
     await this.page.locator('input[name="signature"]').type('Sofía Clark-Nuñez');
-    await Promise.all([
-      this.page.waitForNavigation(),
-      this.page.getByRole('button', { name: 'Submit PPM Documentation' }).click(),
-    ]);
 
-    expect(new URL(this.page.url()).pathname).toEqual('/');
+    // calculate the home url to wait for it after click
+    const url = new URL(this.page.url());
+    url.pathname = '/';
+    await this.page.getByRole('button', { name: 'Submit PPM Documentation' }).click();
+    await this.page.waitForURL(url.href);
 
     await expect(this.page.locator('.usa-alert--success')).toContainText('You submitted documentation for review.');
 

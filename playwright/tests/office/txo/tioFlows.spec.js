@@ -159,6 +159,7 @@ test.describe('TIO user', () => {
 
       tioFlowPage = new TioFlowPage(officePage, move);
       await officePage.tioNavigateToMove(move.locator);
+      await officePage.page.getByRole('heading', { name: 'Payment Requests', exact: true }).waitFor();
     });
 
     test('can use a payment request page to update orders and review a payment request', async ({ page }) => {
@@ -193,19 +194,13 @@ test.describe('TIO user', () => {
       await form.locator('input[name="sac"]').type('4K988AS098F');
       await form.locator('input[name="sac"]').blur();
       // Edit orders page | Save
-      await Promise.all([page.waitForNavigation(), page.getByRole('button', { name: 'Save' }).click()]);
+      await page.getByRole('button', { name: 'Save' }).click();
+      await page.waitForURL('**/details');
       await tioFlowPage.waitForLoading();
 
-      expect(page.url()).toContain('/details');
-
-      await Promise.all([
-        page.waitForNavigation(),
-        page.getByRole('link', { name: 'Payment requests', exact: true }).click(),
-      ]);
+      await page.getByRole('link', { name: 'Payment requests', exact: true }).click();
+      await page.waitForURL('**/payment-requests');
       await tioFlowPage.waitForLoading();
-
-      // Payment Requests page
-      expect(page.url()).toContain('/payment-requests');
 
       // confirm the move is set up as expected
       await expect(page.getByRole('heading', { name: '$1,130.21' })).toBeVisible();
@@ -213,24 +208,23 @@ test.describe('TIO user', () => {
 
       // again, find the first payment request by sequence number and
       // operate on that
-      await Promise.all([
-        page.waitForNavigation(),
-        prCard.getByRole('button', { name: 'Review service items' }).click(),
-      ]);
+      await prCard.getByRole('button', { name: 'Review service items' }).click();
+
+      // Payment Request detail page
+      await page.waitForURL(`**/payment-requests/${tioFlowPage.paymentRequest.id}`);
       await tioFlowPage.waitForLoading();
 
-      // // Payment Request detail page
-      expect(page.url()).toContain(`/payment-requests/${tioFlowPage.paymentRequest.id}`);
       await expect(page.getByTestId('ReviewServiceItems')).toBeVisible();
 
       // Approve the first service item
       await tioFlowPage.approveServiceItem();
       await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
 
       // Approve the second service item
       await tioFlowPage.approveServiceItem();
       await page.getByText('Next').click();
-      await tioFlowPage.waitForLoading();
+      await tioFlowPage.slowDown();
 
       // Approve the shuttling service item
 
@@ -284,7 +278,7 @@ test.describe('TIO user', () => {
       await page.getByText('Authorize payment').click();
       await tioFlowPage.waitForLoading();
 
-      await page.waitForLoadState('networkidle', { timeout: 10000 });
+      await tioFlowPage.slowDown();
 
       // Returns to payment requests overview for move
       expect(page.url()).toContain('/payment-requests');
@@ -317,16 +311,18 @@ test.describe('TIO user', () => {
       // Payment Requests page
       const secondPaymentRequest = tioFlowPage.findPaymentRequestBySequenceNumber(2);
       const paymentRequestCard = page.getByText(secondPaymentRequest.payment_request_number).locator('../..');
-      await Promise.all([page.waitForNavigation(), paymentRequestCard.getByText('Review service items').click()]);
-      await officePage.waitForLoading();
+      await paymentRequestCard.getByText('Review service items').click();
+      await expect(page.getByRole('heading', { name: 'Review service items' })).toBeVisible();
 
       // Approve the first service item
       await tioFlowPage.approveServiceItem();
       await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
 
       // Reject the second
       await tioFlowPage.rejectServiceItem();
       await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
 
       // Complete Request
       await page.getByText('Complete request').click();
@@ -419,7 +415,7 @@ test.describe('TIO user', () => {
       expect(page.url()).toContain('/payment-requests');
       await expect(page.getByTestId('MovePaymentRequests')).toBeVisible();
 
-      await Promise.all([page.waitForNavigation(), page.getByText('Review service items').first().click()]);
+      await page.getByText('Review service items').first().click();
 
       // await expect(page.locator('[data-testid="serviceItemName"]')).toContainText('Move management');
       // await page.locator('[data-testid="approveRadio"]').click({ force: true });
@@ -466,6 +462,7 @@ test.describe('TIO user', () => {
 
       tioFlowPage = new TioFlowPage(officePage, move);
       await officePage.tioNavigateToMove(move.locator);
+      await officePage.page.getByRole('heading', { name: 'Payment Requests', exact: true }).waitFor();
     });
 
     test('can review a NTS-R', async ({ page, officePage }) => {
@@ -583,6 +580,7 @@ test.describe('TIO user', () => {
 
       tioFlowPage = new TioFlowPage(officePage, move);
       await officePage.tioNavigateToMove(move.locator);
+      await officePage.page.getByRole('heading', { name: 'Payment Requests', exact: true }).waitFor();
     });
 
     test('can view calculation factors', async ({ page }) => {
