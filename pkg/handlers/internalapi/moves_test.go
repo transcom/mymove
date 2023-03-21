@@ -715,7 +715,7 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 	suite.Run("Submits move with amended orders for review", func() {
 		// Given: a set of orders, a move, user and service member
-		document := testdatagen.MakeDefaultDocument(suite.DB())
+		document := factory.BuildDocument(suite.DB(), nil, nil)
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
 				UploadedAmendedOrders:   &document,

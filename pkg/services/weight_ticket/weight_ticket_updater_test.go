@@ -25,15 +25,9 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
 
-		baseDocumentAssertions := testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: serviceMember.ID,
-			},
-		}
-
-		emptyDocument := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
-		fullDocument := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
-		proofOfOwnership := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
+		emptyDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+		fullDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+		proofOfOwnership := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 
 		now := time.Now()
 		if hasEmptyFiles {
@@ -46,14 +40,17 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 					deletedAt = &now
 				}
 
-				userUpload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-					UserUpload: models.UserUpload{
-						UploaderID: serviceMember.UserID,
-						DocumentID: &emptyDocument.ID,
-						Document:   emptyDocument,
-						DeletedAt:  deletedAt,
+				userUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+					{
+						Model:    emptyDocument,
+						LinkOnly: true,
 					},
-				})
+					{
+						Model: models.UserUpload{
+							DeletedAt: deletedAt,
+						},
+					},
+				}, nil)
 
 				if !markAsDeleted {
 					emptyDocument.UserUploads = append(emptyDocument.UserUploads, userUpload)
@@ -63,13 +60,12 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 		if hasFullFiles {
 			for i := 0; i < 2; i++ {
-				userUpload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-					UserUpload: models.UserUpload{
-						UploaderID: serviceMember.UserID,
-						DocumentID: &fullDocument.ID,
-						Document:   fullDocument,
+				userUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+					{
+						Model:    fullDocument,
+						LinkOnly: true,
 					},
-				})
+				}, nil)
 
 				fullDocument.UserUploads = append(fullDocument.UserUploads, userUpload)
 			}
@@ -77,13 +73,12 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 		if hasProofFiles {
 			for i := 0; i < 2; i++ {
-				userUpload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-					UserUpload: models.UserUpload{
-						UploaderID: serviceMember.UserID,
-						DocumentID: &proofOfOwnership.ID,
-						Document:   proofOfOwnership,
+				userUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+					{
+						Model:    proofOfOwnership,
+						LinkOnly: true,
 					},
-				})
+				}, nil)
 
 				proofOfOwnership.UserUploads = append(proofOfOwnership.UserUploads, userUpload)
 			}

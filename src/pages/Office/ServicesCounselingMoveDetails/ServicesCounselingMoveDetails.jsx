@@ -39,19 +39,27 @@ import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
+import { ReviewButton } from 'components/form/IconButtons';
+import { calculateWeightRequested } from 'hooks/custom';
 
 const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCount }) => {
   const { moveCode } = useParams();
   const history = useHistory();
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
+  const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
+  const [shipmentConcernCount, setShipmentConcernCount] = useState(0);
 
   const { order, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
   const { customer, entitlement: allowances } = order;
 
+  const moveWeightTotal = calculateWeightRequested(mtoShipments);
+
+  let counselorCanReview;
+  let reviewWeightsURL;
   let counselorCanEdit;
   let counselorCanEditNonPPM;
 
@@ -183,7 +191,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
       };
     });
 
-    const counselorCanReview = ppmShipmentsInfoNeedsApproval.length > 0;
+    counselorCanReview = ppmShipmentsInfoNeedsApproval.length > 0;
+    reviewWeightsURL = generatePath(servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH, { moveCode });
     counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && ppmShipmentsOtherStatuses.length > 0;
     counselorCanEditNonPPM =
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
@@ -246,7 +255,6 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
         id: shipment.id,
         displayInfo,
         editURL,
-        counselorCanReview,
         shipmentType: shipment.shipmentType,
       };
     });
@@ -306,6 +314,10 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     history.push(addShipmentPath);
   };
 
+  const handleReviewWeightsButton = (WeightsURL) => {
+    history.push(WeightsURL);
+  };
+
   // use mutation calls
   const queryClient = useQueryClient();
   const { mutate: mutateMoveStatus } = useMutation(updateMoveStatusServiceCounselingCompleted, {
@@ -340,10 +352,24 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     },
   });
 
+  useEffect(() => {
+    setMoveHasExcessWeight(moveWeightTotal > order.entitlement.totalWeight);
+  }, [moveWeightTotal, order.entitlement.totalWeight]);
+
   // Keep unapproved shipment count in sync
   useEffect(() => {
-    setUnapprovedShipmentCount(numberOfErrorIfMissingForAllShipments + numberOfWarnIfMissingForAllShipments);
-  }, [numberOfErrorIfMissingForAllShipments, numberOfWarnIfMissingForAllShipments, setUnapprovedShipmentCount]);
+    let shipmentConcerns = numberOfErrorIfMissingForAllShipments + numberOfWarnIfMissingForAllShipments;
+    if (moveHasExcessWeight) {
+      shipmentConcerns += 1;
+    }
+    setShipmentConcernCount(shipmentConcerns);
+    setUnapprovedShipmentCount(shipmentConcerns);
+  }, [
+    moveHasExcessWeight,
+    numberOfErrorIfMissingForAllShipments,
+    numberOfWarnIfMissingForAllShipments,
+    setUnapprovedShipmentCount,
+  ]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -382,10 +408,10 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
         <LeftNav sections={sections}>
           <LeftNavTag
             associatedSectionName="shipments"
-            showTag={numberOfErrorIfMissingForAllShipments !== 0 || numberOfWarnIfMissingForAllShipments !== 0}
+            showTag={shipmentConcernCount !== 0}
             testID="requestedShipmentsTag"
           >
-            {numberOfErrorIfMissingForAllShipments + numberOfWarnIfMissingForAllShipments}
+            {shipmentConcernCount}
           </LeftNavTag>
         </LeftNav>
         {isSubmitModalVisible && (
@@ -413,6 +439,13 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
                 <Alert headingLevel="h4" slim type={infoSavedAlert.alertType}>
                   {infoSavedAlert.message}
+                </Alert>
+              </Grid>
+            )}
+            {moveHasExcessWeight && (
+              <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
+                <Alert headingLevel="h4" slim type="warning">
+                  <span>This move has excess weight. Review PPM weight ticket documents to resolve.</span>
                 </Alert>
               </Grid>
             )}
@@ -450,6 +483,16 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                     <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
                     <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
                   </ButtonDropdown>
+                )
+              }
+              reviewButton={
+                counselorCanReview && (
+                  <ReviewButton
+                    onClick={() => handleReviewWeightsButton(reviewWeightsURL)}
+                    data-testid={reviewWeightsURL}
+                    label="Review shipment weights"
+                    secondary
+                  />
                 )
               }
               financialReviewOpen={handleShowFinancialReviewModal}

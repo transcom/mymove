@@ -295,7 +295,7 @@ const ppmShipmentQuery = {
         status: 'NEEDS_PAYMENT_APPROVAL',
         submittedAt: null,
         updatedAt: '2022-11-08T23:44:58.226Z',
-        weightTickets: null,
+        weightTickets: [{ emptyWeight: 0, fullWeight: 20000 }],
       },
       primeActualWeight: 980,
       requestedDeliveryDate: '0001-01-01',
@@ -469,7 +469,7 @@ describe('MoveDetails page', () => {
       },
     );
 
-    it('renders the number of missing information for all shipments in a section', async () => {
+    it('renders the number of shipment concerns for all shipments in a section', async () => {
       const moveDetailsQuery = {
         ...newMoveDetailsQuery,
         mtoShipments: [ntsrShipmentMissingRequiredInfo],
@@ -567,12 +567,38 @@ describe('MoveDetails page', () => {
       expect(screen.getAllByRole('button', { name: 'Review documents' }).length).toBe(2);
     });
 
+    it('renders review shipment weights button with correct path', async () => {
+      useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
+      const path = generatePath(servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH, {
+        moveCode: mockRequestedMoveCode,
+      });
+      render(mockedComponent);
+
+      const reviewShipmentWeightsBtn = screen.getByRole('button', { name: 'Review shipment weights' });
+
+      expect(reviewShipmentWeightsBtn).toBeInTheDocument();
+      expect(reviewShipmentWeightsBtn.getAttribute('data-testid')).toBe(path);
+    });
+
     it('shows an error if there is an advance requested and no advance status for a PPM shipment', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
       render(mockedComponent);
 
       const advanceStatusElement = screen.getAllByTestId('advanceRequestStatus')[0];
       expect(advanceStatusElement.parentElement).toHaveClass('missingInfoError');
+    });
+
+    it('renders the excess weight alert and additional shipment concern if there is excess weight', async () => {
+      useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
+      render(mockedComponent);
+      const excessWeightAlert = screen.getByText(
+        'This move has excess weight. Review PPM weight ticket documents to resolve.',
+      );
+      expect(excessWeightAlert).toBeInTheDocument();
+
+      // In this case, we would expect 6 shipment concerns since 3 shipments are missing counselor remarks,
+      // 2 shipments are missing advance status, and the move has excess weight
+      expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('6');
     });
 
     it('renders shipments info even if destination address is missing', async () => {

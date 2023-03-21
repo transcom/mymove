@@ -11,13 +11,13 @@ package uploader_test
 import (
 	"io"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *UploaderSuite) TestUserUploadFromLocalFile() {
-	document := testdatagen.MakeDefaultDocument(suite.DB())
+	document := factory.BuildDocument(suite.DB(), nil, nil)
 
 	userUploader, err := uploader.NewUserUploader(suite.storer, 25*uploader.MB)
 	suite.NoError(err)
@@ -31,7 +31,7 @@ func (suite *UploaderSuite) TestUserUploadFromLocalFile() {
 }
 
 func (suite *UploaderSuite) TestUserUploadFromLocalFileZeroLength() {
-	document := testdatagen.MakeDefaultDocument(suite.DB())
+	document := factory.BuildDocument(suite.DB(), nil, nil)
 
 	userUploader, err := uploader.NewUserUploader(suite.storer, 25*uploader.MB)
 	suite.NoError(err)
@@ -46,7 +46,7 @@ func (suite *UploaderSuite) TestUserUploadFromLocalFileZeroLength() {
 }
 
 func (suite *UploaderSuite) TestUserUploadFromLocalFileWrongContentType() {
-	document := testdatagen.MakeDefaultDocument(suite.DB())
+	document := factory.BuildDocument(suite.DB(), nil, nil)
 
 	userUploader, err := uploader.NewUserUploader(suite.storer, 25*uploader.MB)
 	suite.NoError(err)
@@ -62,7 +62,7 @@ func (suite *UploaderSuite) TestUserUploadFromLocalFileWrongContentType() {
 }
 
 func (suite *UploaderSuite) TestTooLargeUserUploadFromLocalFile() {
-	document := testdatagen.MakeDefaultDocument(suite.DB())
+	document := factory.BuildDocument(suite.DB(), nil, nil)
 
 	userUploader, err := uploader.NewUserUploader(suite.storer, 25*uploader.MB)
 	suite.NoError(err)
@@ -77,7 +77,7 @@ func (suite *UploaderSuite) TestTooLargeUserUploadFromLocalFile() {
 }
 
 func (suite *UploaderSuite) TestUserUploadStorerCalledWithTags() {
-	document := testdatagen.MakeDefaultDocument(suite.DB())
+	document := factory.BuildDocument(suite.DB(), nil, nil)
 	fakeS3 := test.NewFakeS3Storage(true)
 
 	userUploader, err := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
@@ -96,7 +96,7 @@ func (suite *UploaderSuite) TestUserUploadStorerCalledWithTags() {
 }
 
 func (suite *UploaderSuite) TestCreateUserUploadNoDocument() {
-	document := testdatagen.MakeDefaultDocument(suite.DB())
+	document := factory.BuildDocument(suite.DB(), nil, nil)
 	userID := document.ServiceMember.UserID
 
 	userUploader, err := uploader.NewUserUploader(suite.storer, 25*uploader.MB)

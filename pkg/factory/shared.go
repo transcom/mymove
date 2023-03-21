@@ -36,7 +36,9 @@ type CustomType string
 // where this address will get created and nested
 var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
+var BackupContact CustomType = "BackupContact"
 var Contractor CustomType = "Contractor"
+var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
@@ -51,6 +53,7 @@ var Role CustomType = "Role"
 var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
+var UserUpload CustomType = "UserUpload"
 var User CustomType = "User"
 var UsersRoles CustomType = "UsersRoles"
 
@@ -58,7 +61,9 @@ var UsersRoles CustomType = "UsersRoles"
 var defaultTypesMap = map[string]CustomType{
 	"models.Address":              Address,
 	"models.AdminUser":            AdminUser,
+	"models.BackupContact":        BackupContact,
 	"models.Contractor":           Contractor,
+	"models.Document":             Document,
 	"models.DutyLocation":         DutyLocation,
 	"models.Entitlement":          Entitlement,
 	"models.OfficePhoneLine":      OfficePhoneLine,
@@ -72,6 +77,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Tariff400ngZip3":      Tariff400ngZip3,
 	"models.TransportationOffice": TransportationOffice,
 	"models.Upload":               Upload,
+	"models.UserUpload":           UserUpload,
 	"models.User":                 User,
 	"models.UsersRoles":           UsersRoles,
 	"roles.Role":                  Role,
