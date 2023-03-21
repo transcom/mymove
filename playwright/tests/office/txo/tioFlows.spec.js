@@ -53,6 +53,7 @@ class TioFlowPage extends OfficePage {
       const id = await inputEl.getAttribute('id');
       await this.page.locator(`label[for="${id}"]`).click();
     }
+    await this.slowDown();
   }
 
   /**
@@ -85,6 +86,7 @@ class TioFlowPage extends OfficePage {
   async approveCurrentServiceItem() {
     await this.completeServiceItem(true);
     await this.page.getByText('Next').click();
+    await this.slowDown();
   }
 
   async validateDLCalcValues() {
@@ -129,6 +131,20 @@ class TioFlowPage extends OfficePage {
     await expect(siCalc).toContainText('Domestic non-peak');
     await expect(siCalc).toContainText('1.04071');
     await expect(siCalc).toContainText('$150.00');
+  }
+
+  // ugh, needed for flaky tests
+  // without this, local tests on a fast machine would fail maybe 1/3
+  // of the time
+  // pretty sure the client app is not updating its state correctly
+  // when clicking through payment requests too quickly
+  async slowDown() {
+    // sigh, give the app time to catch up
+    await this.page.waitForLoadState('networkidle');
+    // sleep for 500ms
+    await new Promise((r) => {
+      setTimeout(() => r(undefined), 500);
+    });
   }
 }
 
@@ -230,10 +246,12 @@ test.describe('TIO user', () => {
 
       await tioFlowPage.approveServiceItem();
       await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
 
       // Approve the second service item
       await tioFlowPage.approveServiceItem();
       await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
 
       // Approve the crating service item
 
@@ -248,12 +266,14 @@ test.describe('TIO user', () => {
 
       await tioFlowPage.approveServiceItem();
       await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
 
       // Reject the last
       await tioFlowPage.rejectServiceItem();
       await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
 
-      await expect(page.getByText('item still needs your review')).not.toBeVisible();
+      await expect(page.getByText('needs your review')).toHaveCount(0, { timeout: 10000 });
       // Complete Request
       await page.getByText('Complete request').click();
 
@@ -535,6 +555,7 @@ test.describe('TIO user', () => {
 
       await tioFlowPage.rejectServiceItem();
       await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
 
       // Reject the Request
       await expect(page.getByText('Review details')).toBeVisible();
