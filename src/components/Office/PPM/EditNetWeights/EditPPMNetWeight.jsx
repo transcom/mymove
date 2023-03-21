@@ -62,7 +62,7 @@ const WeightCalculationHint = ({ type, firstValue, secondValue, thirdValue }) =>
   return (
     <>
       <FlexContainer className={styles.minus}>
-        <div className={styles.calculationWrapper}>
+        <div className={(!thirdValue && styles.calculationWrapperDisplay) || styles.calculationWrapper}>
           <div className={styles.calculations}>
             <strong className={styles.value}>{formatWeight(firstValue)}</strong>
             <span className={styles.label}> {firstLabel}</span>
@@ -80,7 +80,7 @@ const WeightCalculationHint = ({ type, firstValue, secondValue, thirdValue }) =>
       </FlexContainer>
       {thirdValue && (
         <>
-          <hr className={styles.equals_divider} />
+          <hr className={styles.divider} />
           <div className={styles.calculations}>
             <strong className={styles.value}>{formatWeight(thirdValue)}</strong>
             <span className={styles.label}> {thirdLabel}</span>
@@ -93,7 +93,7 @@ const WeightCalculationHint = ({ type, firstValue, secondValue, thirdValue }) =>
 
 const validationSchema = Yup.object({
   adjustedNetWeight: Yup.number().min(0, 'Net weight must be 0 lbs or greater').required('Required'),
-  netWeightRemarks: Yup.string().required('Required'),
+  netWeightRemarks: Yup.string().nullable().required('Required'),
 });
 
 const EditPPMNetWeightForm = ({ onCancel, initialValues, weightTicket }) => {

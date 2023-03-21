@@ -6,6 +6,11 @@
   flex: 1;
   padding-top: 24px;
 }
+.calculationWrapperDisplay {
+  flex: 1;
+  padding-top: 8;
+}
+
 .calculations {
   display: grid;
   grid-template-columns: 1fr 3fr;
@@ -26,8 +31,16 @@
   }
 }
 
-.equals_divider {
+/**
+ * The !important is necessary here because the `hr` styles on the parent
+ * component is too broad. TODO: This needs to be refactored a bit better in
+ * the ReviewWeightTicket component styles so we can remove these `!important`
+ * directives.
+ */
+.divider {
   color: $base-dark;
+  position: initial !important;
+  margin: 0 !important;
 }
 
 .fieldset {
