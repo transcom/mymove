@@ -163,7 +163,7 @@ export default function ReviewWeightTicket({
                 label="Empty weight"
                 id="emptyWeight"
                 mask={Number}
-                description={missingEmptyWeightTicket ? 'Constructed weight' : 'Weight tickets'}
+                description={missingEmptyWeightTicket ? 'Vehicle weight' : 'Weight tickets'}
                 scale={0} // digits after point, 0 for integers
                 signed={false} // disallow negative
                 thousandsSeparator=","
