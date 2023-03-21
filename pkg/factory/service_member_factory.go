@@ -1,7 +1,6 @@
 package factory
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -16,7 +15,7 @@ const (
 	serviceMemberBuildExtended
 )
 
-// buildServiceMemberWithBuildType does the the actual work
+// buildServiceMemberWithBuildType does the actual work
 // if buildType is basic, it builds
 //   - User
 //   - ResidentialAddress
@@ -98,7 +97,7 @@ func buildServiceMemberWithBuildType(db *pop.Connection, customs []Customization
 	}
 
 	if buildType == serviceMemberBuildExtended {
-		serviceMember.EmailIsPreferred = swag.Bool(true)
+		serviceMember.EmailIsPreferred = models.BoolPointer(true)
 
 		// ensure extended service member has backup mailing address,
 		// even if customization is not provided
@@ -111,7 +110,7 @@ func buildServiceMemberWithBuildType(db *pop.Connection, customs []Customization
 		// ensure extended service member has duty location,
 		// even if customization is not provided
 		if serviceMember.DutyLocationID == nil {
-			dutyLocation := BuildDutyLocation(db, customs, traits)
+			dutyLocation := FetchOrBuildCurrentDutyLocation(db)
 			serviceMember.DutyLocationID = &dutyLocation.ID
 			serviceMember.DutyLocation = dutyLocation
 		}
