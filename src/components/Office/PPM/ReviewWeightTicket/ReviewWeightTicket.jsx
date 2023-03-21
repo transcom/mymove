@@ -74,6 +74,7 @@ export default function ReviewWeightTicket({
       missingEmptyWeightTicket: weightTicket.missingEmptyWeightTicket,
       fullWeight: parseInt(values.fullWeight, 10),
       missingFullWeightTicket: weightTicket.missingFullWeightTicket,
+      netWeightRemarks: weightTicket.netWeightRemarks,
       ownsTrailer,
       trailerMeetsCriteria,
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.rejectionReason,
