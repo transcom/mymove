@@ -88,12 +88,24 @@ func PoundPtrFromInt64Ptr(num *int64) *unit.Pound {
 	return &pound
 }
 
-// FmtNullableStringToStringPtr converts go-swagger nullable string type to a string pointer type
-func FmtNullableStringToStringPtr(n nullable.String) *string {
+// FmtNullableStringToStringPtrNilToBlankString converts go-swagger nullable string type to a string pointer type.
+// If the value is nil, it returns a pointer to an empty string. This can be useful for updating models so that
+// the service object knows to blank out the field.
+func FmtNullableStringToStringPtrNilToBlankString(n nullable.String) *string {
 	if n.Present {
 		if n.Value == nil {
 			return models.StringPointer("")
 		}
+		return n.Value
+	}
+	return nil
+}
+
+// FmtNullableStringToStringPtrNilToNil converts go-swagger nullable string type to a string pointer type.
+// If the value is nil, it returns nil. This can be useful for when we create a new model instance and don't want blank
+// string values to be saved to the database.
+func FmtNullableStringToStringPtrNilToNil(n nullable.String) *string {
+	if n.Present {
 		return n.Value
 	}
 	return nil
