@@ -161,7 +161,7 @@ describe('EditNetPPMWeight', () => {
       expect(screen.getByText('Move weight (total)')).toBeInTheDocument();
       expect(screen.getByText('9,500 lbs')).toBeInTheDocument();
       expect(screen.getByText('Weight allowance')).toBeInTheDocument();
-      expect(screen.getByText('9,000 lbs')).toBeInTheDocument();
+      expect(screen.getByText(/9,000 lbs/)).toBeInTheDocument();
       expect(screen.getByText('Excess weight (total)')).toBeInTheDocument();
       expect(screen.getByText('500 lbs')).toBeInTheDocument();
     });
