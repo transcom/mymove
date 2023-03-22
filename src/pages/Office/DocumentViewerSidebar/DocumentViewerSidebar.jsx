@@ -14,6 +14,7 @@ export default function DocumentViewerSidebar({
   supertitle,
   onClose,
   defaultH3,
+  hyperlink,
 }) {
   return (
     <div
@@ -28,6 +29,7 @@ export default function DocumentViewerSidebar({
           <h1>{title}</h1>
           {subtitle && <h2>{subtitle}</h2>}
           {description && <h3>{description}</h3>}
+          {hyperlink && <p>{hyperlink}</p>}
         </div>
         <Button className={styles.closeButton} data-testid="closeSidebar" onClick={onClose} type="button" unstyled>
           <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />

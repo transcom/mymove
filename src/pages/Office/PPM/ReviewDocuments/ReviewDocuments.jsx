@@ -1,7 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button } from '@trussworks/react-uswds';
+import { Alert, Button, Grid } from '@trussworks/react-uswds';
 import { generatePath, useHistory, withRouter } from 'react-router-dom';
+
+import { calculateWeightRequested } from '../../../../hooks/custom';
 
 import styles from './ReviewDocuments.module.scss';
 
@@ -36,12 +38,17 @@ export const ReviewDocuments = ({ match }) => {
   const order = Object.values(orders)?.[0];
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
+  const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
 
   let documentSets = [];
-
   const weightTickets = documents?.WeightTickets ?? [];
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
   const movingExpenses = documents?.MovingExpenses ?? [];
+
+  const moveWeightTotal = calculateWeightRequested(mtoShipments);
+  useEffect(() => {
+    setMoveHasExcessWeight(moveWeightTotal > order.entitlement.totalWeight);
+  }, [moveWeightTotal, order.entitlement.totalWeight]);
 
   if (weightTickets.length > 0) {
     weightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
@@ -147,6 +154,13 @@ export const ReviewDocuments = ({ match }) => {
   const currentDocumentSet = documentSets[documentSetIndex];
   const disableBackButton = documentSetIndex === 0 && !showOverview;
 
+  const reviewShipmentWeightsURL = generatePath(servicesCounselingRoutes.SHIPMENT_REVIEW_PATH, {
+    moveCode,
+    shipmentId,
+  });
+
+  const reviewShipmentWeightsLink = <a href={reviewShipmentWeightsURL}>Review shipment weights</a>;
+
   return (
     <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
@@ -158,9 +172,17 @@ export const ReviewDocuments = ({ match }) => {
         className={styles.sidebar}
         supertitle={`${documentSetIndex + 1} of ${documentSets.length} Document Sets`}
         defaultH3
+        hyperlink={reviewShipmentWeightsLink}
       >
         <DocumentViewerSidebar.Content mainRef={mainRef}>
           <NotificationScrollToTop dependency={documentSetIndex || serverError} target={mainRef.current} />
+          {moveHasExcessWeight && (
+            <Grid className={styles.alertContainer}>
+              <Alert headingLevel="h4" slim type="warning">
+                <span>This move has excess weight. Edit the PPM net weight to resolve.</span>
+              </Alert>
+            </Grid>
+          )}
           <ErrorMessage display={!!serverError}>{serverError}</ErrorMessage>
           {documentSets &&
             (showOverview ? (
