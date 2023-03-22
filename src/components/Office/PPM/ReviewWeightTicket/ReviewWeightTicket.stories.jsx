@@ -4,6 +4,7 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 import ReviewWeightTicket from './ReviewWeightTicket';
 
 import { MockProviders } from 'testUtils';
+import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 
 export default {
   title: 'Office Components / PPM / Review Weight Ticket',
@@ -39,6 +40,31 @@ Blank.args = {
   },
   tripNumber: 1,
   ppmNumber: 1,
+  weightTicket: {
+    vehicleDescription: 'Kia Forte',
+    emptyWeight: 600,
+    fullWeight: 1200,
+    ownsTrailer: true,
+    trailerMeetsCriteria: false,
+  },
+  order: {
+    entitlement: {
+      authorizedWeight: 2000,
+    },
+  },
+  mtoShipments: [
+    { primeActualWeight: 1000, reweigh: null, status: 'APPROVED' },
+    { primeActualWeight: 2000, reweigh: { weight: 1000 }, status: 'APPROVED' },
+    {
+      ppmShipment: {
+        weightTickets: [
+          createCompleteWeightTicket({}, { fullWeight: 1200, emptyWeight: 200 }),
+          createCompleteWeightTicket({}, { fullWeight: 1200, emptyWeight: 200 }),
+        ],
+      },
+      status: 'APPROVED',
+    },
+  ],
 };
 
 export const FilledIn = Template.bind({});
@@ -61,4 +87,22 @@ FilledIn.args = {
     ownsTrailer: true,
     trailerMeetsCriteria: false,
   },
+  order: {
+    entitlement: {
+      authorizedWeight: 2000,
+    },
+  },
+  mtoShipments: [
+    { primeActualWeight: 1000, reweigh: null, status: 'APPROVED' },
+    { primeActualWeight: 2000, reweigh: { weight: 1000 }, status: 'APPROVED' },
+    {
+      ppmShipment: {
+        weightTickets: [
+          createCompleteWeightTicket({}, { fullWeight: 1200, emptyWeight: 200 }),
+          createCompleteWeightTicket({}, { fullWeight: 1200, emptyWeight: 200 }),
+        ],
+      },
+      status: 'APPROVED',
+    },
+  ],
 };
