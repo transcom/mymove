@@ -70,6 +70,7 @@ const WeightTicketUpload = ({
   formikProps: { touched, errors, setFieldTouched, setFieldValue },
 }) => {
   const weightTicketRentalAgreement = fieldName === 'emptyDocument' && missingWeightTicket;
+
   const weightTicketUploadLabel = (name, isMissingWeightTicket) => {
     if (isMissingWeightTicket || name === 'missingProGearWeightDocument') {
       if (weightTicketRentalAgreement) {
@@ -90,8 +91,8 @@ const WeightTicketUpload = ({
     return 'Upload full weight ticket';
   };
 
-  const weightTicketUploadHint = (isMissingWeightTicket) => {
-    return isMissingWeightTicket && !rentalAgreement
+  const weightTicketUploadHint = () => {
+    return missingWeightTicket && !weightTicketRentalAgreement
       ? SpreadsheetUploadInstructions
       : DocumentAndImageUploadInstructions;
   };
@@ -114,7 +115,7 @@ const WeightTicketUpload = ({
           </Label>
         </div>
         {showError && <ErrorMessage>{errors[`${fieldName}`]}</ErrorMessage>}
-        <Hint className={styles.uploadTypeHint}>{weightTicketUploadHint(missingWeightTicket)}</Hint>
+        <Hint className={styles.uploadTypeHint}>{weightTicketUploadHint()}</Hint>
         <FileUpload
           name={fieldName}
           className={fieldName}
