@@ -58,11 +58,13 @@ func createHHGMove25mb(appCtx appcontext.AppContext, userUploader *uploader.User
 
 func makeServiceMember(appCtx appcontext.AppContext) models.ServiceMember {
 	affiliation := models.AffiliationCOASTGUARD
-	serviceMember := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			Affiliation: &affiliation,
+	serviceMember := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &affiliation,
+			},
 		},
-	})
+	}, nil)
 
 	return serviceMember
 }
