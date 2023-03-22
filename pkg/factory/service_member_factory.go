@@ -123,6 +123,9 @@ func buildServiceMemberWithBuildType(db *pop.Connection, customs []Customization
 		mustCreate(db, &serviceMember)
 	}
 
+	// Extended service members also have a backup contact. Backup
+	// contacts need a service member, and so need to wait until after
+	// creating the service member before building a backup contact.
 	if buildType == serviceMemberBuildExtended {
 		backupContactResult := findValidCustomization(customs, BackupContact)
 
