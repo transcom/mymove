@@ -1105,9 +1105,19 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		officeUser := setupTestData()
 		// Create a PPM submitted on April 1st
 		closeoutInitiatedDate1 := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
+		closeoutOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{Gbloc: "KKFA"},
+			},
+		}, nil)
+
 		ppm1 := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
 				SubmittedAt: &closeoutInitiatedDate1,
+			},
+			Move: models.Move{
+				CloseoutOffice:   &closeoutOffice,
+				CloseoutOfficeID: &closeoutOffice.ID,
 			},
 		})
 
@@ -1116,6 +1126,10 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		ppm2 := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
 				SubmittedAt: &closeoutInitiatedDate2,
+			},
+			Move: models.Move{
+				CloseoutOffice:   &closeoutOffice,
+				CloseoutOfficeID: &closeoutOffice.ID,
 			},
 		})
 
@@ -1205,10 +1219,20 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 				},
 			},
 		}, nil)
+		closeoutOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{Gbloc: "KKFA"},
+			},
+		}, nil)
+
 		ppmShipmentA := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
 				NewDutyLocationID: dutyLocationA.ID,
 				NewDutyLocation:   dutyLocationA,
+			},
+			Move: models.Move{
+				CloseoutOffice:   &closeoutOffice,
+				CloseoutOfficeID: &closeoutOffice.ID,
 			},
 		})
 		dutyLocationB := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
@@ -1222,6 +1246,10 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 			Order: models.Order{
 				NewDutyLocationID: dutyLocationB.ID,
 				NewDutyLocation:   dutyLocationB,
+			},
+			Move: models.Move{
+				CloseoutOffice:   &closeoutOffice,
+				CloseoutOfficeID: &closeoutOffice.ID,
 			},
 		})
 
@@ -1252,14 +1280,23 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 
 	suite.Run("Sort by PPM type (full or partial)", func() {
 		officeUser := setupTestData()
+		closeoutOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{Gbloc: "KKFA"},
+			},
+		}, nil)
 		ppmShipmentPartial := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
-				PPMType: swag.String("Partial"),
+				PPMType:          swag.String("Partial"),
+				CloseoutOffice:   &closeoutOffice,
+				CloseoutOfficeID: &closeoutOffice.ID,
 			},
 		})
 		ppmShipmentFull := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
-				PPMType: swag.String("FULL"),
+				PPMType:          swag.String("FULL"),
+				CloseoutOffice:   &closeoutOffice,
+				CloseoutOfficeID: &closeoutOffice.ID,
 			},
 		})
 
