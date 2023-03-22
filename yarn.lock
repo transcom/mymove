@@ -11083,10 +11083,10 @@ handlebars@^4.7.7:
   optionalDependencies:
     uglify-js "^3.1.4"
 
-happo-plugin-storybook@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/happo-plugin-storybook/-/happo-plugin-storybook-3.2.0.tgz#f9f61a637f4199c6863f6cb19a2d2845cd70b346"
-  integrity sha512-d4iDnLQZZmxjg+/ggMGsnAvPW5Jx9OIcRZd7xNC1B8AohugIcgGeFkNoyWbXK3fefBrmQCbns3xgMZcBaHx7hw==
+happo-plugin-storybook@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/happo-plugin-storybook/-/happo-plugin-storybook-3.2.1.tgz#efa4328ddff7d4ce1bfc1ef903e2864200323f62"
+  integrity sha512-6+dX5Y6/juZMnyBiSyhxWrxzjiMB/VwSJAfj0U4zYBGjuhFgs2G+ATKW7SDE9AMZB9yIm+Bg8iR7Hw1tPV1fRw==
   dependencies:
     "@babel/runtime" ">=7.0.0"
     archiver "^3.0.0"
