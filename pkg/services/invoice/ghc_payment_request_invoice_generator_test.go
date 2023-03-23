@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -264,11 +265,13 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		paymentServiceItems = models.PaymentServiceItems{}
 		paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dnpk, dupk, ddfsit, ddasit, dofsit, doasit, doshut, ddshut, dcrt, ducrt, dddsit, dopsit)
 
-		serviceMember = testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				ID: uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
+		serviceMember = factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					ID: uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
+				},
 			},
-		})
+		}, nil)
 
 		// setup known next value
 		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
