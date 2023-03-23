@@ -703,6 +703,11 @@ const approvedMoveDetailsQuery = {
   ],
 };
 
+const undefinedMTOShipmentsMoveDetailsQuery = {
+  ...requestedMoveDetailsQuery,
+  mtoShipments: undefined,
+};
+
 const loadingReturnValue = {
   isLoading: true,
   isError: false,
@@ -1037,6 +1042,25 @@ describe('MoveDetails page', () => {
 
       expect(await screen.getByRole('link', { name: 'View allowances' })).toBeInTheDocument();
       expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('when MTO shipments are not yet defined', () => {
+    it('does not show the "Something Went Wrong" error', () => {
+      useMoveDetailsQueries.mockReturnValue(undefinedMTOShipmentsMoveDetailsQuery);
+
+      render(
+        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+          <MoveDetails
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
     });
   });
 });
