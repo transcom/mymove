@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications/mocks"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 func (suite *ClientCertServiceSuite) TestUpdateClientCert() {
@@ -17,7 +18,9 @@ func (suite *ClientCertServiceSuite) TestUpdateClientCert() {
 
 	allowPrime := true
 	payload := &adminmessages.ClientCertificateUpdate{
-		AllowPrime: &allowPrime,
+		Subject:      "new-subject",
+		Sha256Digest: "new-sha",
+		AllowPrime:   &allowPrime,
 	}
 
 	// Happy path
@@ -26,7 +29,7 @@ func (suite *ClientCertServiceSuite) TestUpdateClientCert() {
 			return nil, nil
 		}
 
-		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
+		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
 			return nil
 		}
 
@@ -48,7 +51,7 @@ func (suite *ClientCertServiceSuite) TestUpdateClientCert() {
 			return nil, nil
 		}
 
-		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
+		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
 			return models.ErrFetchNotFound
 		}
 

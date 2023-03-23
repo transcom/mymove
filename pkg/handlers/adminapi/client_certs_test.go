@@ -170,6 +170,7 @@ func (suite *HandlerSuite) TestCreateClientCertificateHandler() {
 		AllowPrime:   true,
 		UserID:       uuid.Nil,
 	}
+	email := "fakecncert@example.com"
 
 	suite.Run("Successful create", func() {
 		params := clientcertop.CreateClientCertificateParams{
@@ -177,6 +178,7 @@ func (suite *HandlerSuite) TestCreateClientCertificateHandler() {
 			ClientCertificate: &adminmessages.ClientCertificateCreate{
 				Subject:      &clientCert.Subject,
 				Sha256Digest: &clientCert.Sha256Digest,
+				Email:        &email,
 				AllowPrime:   true,
 			},
 		}
@@ -184,7 +186,7 @@ func (suite *HandlerSuite) TestCreateClientCertificateHandler() {
 		clientCertCreator := &mocks.ClientCertCreator{}
 		clientCertCreator.On("CreateClientCert",
 			mock.AnythingOfType("*appcontext.appContext"),
-			"",
+			email,
 			&clientCert).Return(&clientCert, nil, nil).Once()
 
 		handler := CreateClientCertHandler{
@@ -202,6 +204,7 @@ func (suite *HandlerSuite) TestCreateClientCertificateHandler() {
 			ClientCertificate: &adminmessages.ClientCertificateCreate{
 				Subject:      &clientCert.Subject,
 				Sha256Digest: &clientCert.Sha256Digest,
+				Email:        &email,
 				AllowPrime:   true,
 			},
 		}
@@ -210,7 +213,7 @@ func (suite *HandlerSuite) TestCreateClientCertificateHandler() {
 		clientCertCreator := &mocks.ClientCertCreator{}
 		clientCertCreator.On("CreateClientCert",
 			mock.AnythingOfType("*appcontext.appContext"),
-			"",
+			email,
 			&clientCert).Return(&models.ClientCert{}, nil, expectedError).Once()
 
 		handler := CreateClientCertHandler{
@@ -286,5 +289,63 @@ func (suite *HandlerSuite) TestUpdateClientCertificateHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&clientcertop.UpdateClientCertificateInternalServerError{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestDeleteClientCertificateHandler() {
+	clientCert := models.ClientCert{
+		ID:         uuid.Must(uuid.NewV4()),
+		AllowPrime: false,
+		UserID:     uuid.Nil,
+	}
+	queryFilter := mocks.QueryFilter{}
+	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
+	suite.Run("Successful delete", func() {
+		params := clientcertop.RemoveClientCertificateParams{
+			HTTPRequest:         suite.setupAuthenticatedRequest("DELETE", fmt.Sprintf("/client-certificates/%s", clientCert.ID)),
+			ClientCertificateID: strfmt.UUID(clientCert.ID.String()),
+		}
+
+		clientCertRemover := &mocks.ClientCertRemover{}
+		clientCertRemover.On("RemoveClientCert",
+			mock.AnythingOfType("*appcontext.appContext"),
+			clientCert.ID,
+		).Return(&clientCert, nil, nil).Once()
+		handler := RemoveClientCertHandler{
+			suite.HandlerConfig(),
+			clientCertRemover,
+			newQueryFilter,
+		}
+		response := handler.Handle(params)
+		suite.IsType(&clientcertop.UpdateClientCertificateOK{}, response)
+
+	})
+
+	suite.Run("Failed update", func() {
+		// TESTCASE SCENARIO
+		// Under test: DeleteClientCertificateHandler
+		// Mocked: DeleteClientCertificate
+		// Set up: DeleteClientCertificate is mocked to return validation errors as if an error was encountered
+		// Expected outcome: The handler should see the validation errors and also return an error
+
+		params := clientcertop.RemoveClientCertificateParams{
+			HTTPRequest:         suite.setupAuthenticatedRequest("DELETE", fmt.Sprintf("/client-certificates/%s", clientCert.ID)),
+			ClientCertificateID: strfmt.UUID(clientCert.ID.String()),
+		}
+
+		err := validate.NewErrors()
+		clientCertRemover := &mocks.ClientCertRemover{}
+		clientCertRemover.On("RemoveClientCert",
+			mock.AnythingOfType("*appcontext.appContext"),
+			clientCert.ID,
+		).Return(nil, err, nil).Once()
+		handler := RemoveClientCertHandler{
+			suite.HandlerConfig(),
+			clientCertRemover,
+			newQueryFilter,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&clientcertop.RemoveClientCertificateInternalServerError{}, response)
 	})
 }

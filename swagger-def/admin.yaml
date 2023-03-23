@@ -349,6 +349,7 @@ definitions:
     required:
       - sha256Digest
       - subject
+      - email
     properties:
       email:
         type: string
@@ -386,6 +387,12 @@ definitions:
   ClientCertificateUpdate:
     type: object
     properties:
+      sha256Digest:
+        type: string
+        example: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+      subject:
+        type: string
+        example: CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US
       allowDpsAuthAPI:
         type: boolean
         x-nullable: true

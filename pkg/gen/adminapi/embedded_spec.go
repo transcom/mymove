@@ -2064,7 +2064,8 @@ func init() {
       "type": "object",
       "required": [
         "sha256Digest",
-        "subject"
+        "subject",
+        "email"
       ],
       "properties": {
         "allowAirForceOrdersRead": {
@@ -2171,6 +2172,14 @@ func init() {
         "allowPrime": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "sha256Digest": {
+          "type": "string",
+          "example": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        },
+        "subject": {
+          "type": "string",
+          "example": "CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US"
         }
       }
     },
@@ -5259,7 +5268,8 @@ func init() {
       "type": "object",
       "required": [
         "sha256Digest",
-        "subject"
+        "subject",
+        "email"
       ],
       "properties": {
         "allowAirForceOrdersRead": {
@@ -5366,6 +5376,14 @@ func init() {
         "allowPrime": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "sha256Digest": {
+          "type": "string",
+          "example": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        },
+        "subject": {
+          "type": "string",
+          "example": "CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US"
         }
       }
     },

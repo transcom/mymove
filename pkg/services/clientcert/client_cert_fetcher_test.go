@@ -14,13 +14,13 @@ import (
 )
 
 type testClientCertQueryBuilder struct {
-	fakeFetchOne  func(appConfig appcontext.AppContext, model interface{}) error
+	fakeFetchOne  func(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
 	fakeCreateOne func(appConfig appcontext.AppContext, models interface{}) (*validate.Errors, error)
 	fakeUpdateOne func(appConfig appcontext.AppContext, models interface{}, eTag *string) (*validate.Errors, error)
 }
 
 func (t *testClientCertQueryBuilder) FetchOne(appConfig appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
-	m := t.fakeFetchOne(appConfig, model)
+	m := t.fakeFetchOne(appConfig, model, filters)
 	return m
 }
 
@@ -40,7 +40,7 @@ func (suite *ClientCertServiceSuite) TestFetchClientCert() {
 	suite.Run("if the user is fetched, it should be returned", func() {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
-		fakeFetchOne := func(appConfig appcontext.AppContext, model interface{}) error {
+		fakeFetchOne := func(appConfig appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
 			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(id))
 			return nil
 		}
@@ -59,7 +59,7 @@ func (suite *ClientCertServiceSuite) TestFetchClientCert() {
 	})
 
 	suite.Run("if there is an error, we get it with zero admin user", func() {
-		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
+		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
 			return errors.New("Fetch error")
 		}
 		builder := &testClientCertQueryBuilder{

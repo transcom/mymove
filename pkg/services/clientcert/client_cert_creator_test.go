@@ -1,6 +1,8 @@
 package clientcert
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 
 	"github.com/gobuffalo/validate/v3"
@@ -30,9 +32,14 @@ func setUpMockNotificationSender() notifications.NotificationSender {
 }
 
 func (suite *ClientCertServiceSuite) TestCreateClientCert() {
+	email := "fake@example.com"
+	hash := sha256.Sum256([]byte("fake"))
+	digest := hex.EncodeToString(hash[:])
 	queryBuilder := query.NewQueryBuilder()
+
 	suite.Run("If the client cert is created successfully it should be returned", func() {
 		builder := &testClientCertQueryBuilder{
+			fakeFetchOne:  queryBuilder.FetchOne,
 			fakeCreateOne: queryBuilder.CreateOne,
 		}
 		associator := usersroles.NewUsersRolesCreator()
@@ -42,12 +49,12 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 
 		clientCertInfo := models.ClientCert{
 			Subject:      "fake subject",
-			Sha256Digest: "fake digest",
+			Sha256Digest: digest,
 			UserID:       user.ID,
 		}
 
 		creator := NewClientCertCreator(builder, associator, mockSender)
-		clientCert, verrs, err := creator.CreateClientCert(suite.AppContextWithSessionForTest(&auth.Session{}), "", &clientCertInfo)
+		clientCert, verrs, err := creator.CreateClientCert(suite.AppContextWithSessionForTest(&auth.Session{}), email, &clientCertInfo)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(clientCert.ID)
@@ -74,12 +81,13 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 			}
 		}
 		builder := &testClientCertQueryBuilder{
+			fakeFetchOne:  queryBuilder.FetchOne,
 			fakeCreateOne: fakeCreateOne,
 		}
 
 		clientCertInfo := models.ClientCert{
 			Subject:      "fake subject",
-			Sha256Digest: "fake digest",
+			Sha256Digest: digest,
 		}
 
 		associator := &services_mocks.UserRoleAssociator{}
@@ -91,7 +99,7 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 
 		creator := NewClientCertCreator(builder, associator, setUpMockNotificationSender())
 		_, verrs, _ := creator.CreateClientCert(suite.AppContextForTest(),
-			"", &clientCertInfo)
+			email, &clientCertInfo)
 		suite.NotNil(verrs)
 		suite.True(verrs.HasAny())
 		suite.NotNil(verrs.Errors)
@@ -111,12 +119,13 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 		}
 
 		builder := &testClientCertQueryBuilder{
+			fakeFetchOne:  queryBuilder.FetchOne,
 			fakeCreateOne: fakeCreateOne,
 		}
 
 		clientCertInfo := models.ClientCert{
 			Subject:      "fake subject",
-			Sha256Digest: "fake digest",
+			Sha256Digest: digest,
 		}
 
 		associator := &services_mocks.UserRoleAssociator{}
@@ -127,7 +136,7 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 		).Return([]models.UsersRoles{}, nil)
 		creator := NewClientCertCreator(builder, associator, setUpMockNotificationSender())
 		_, _, err := creator.CreateClientCert(suite.AppContextForTest(),
-			"", &clientCertInfo)
+			email, &clientCertInfo)
 		suite.EqualError(err, "uniqueness constraint conflict")
 	})
 }

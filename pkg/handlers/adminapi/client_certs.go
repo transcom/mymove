@@ -150,7 +150,7 @@ func (h CreateClientCertHandler) Handle(params clientcertop.CreateClientCertific
 				AllowPrime:                  payload.AllowPrime,
 			}
 
-			createdClientCert, verrs, err := h.ClientCertCreator.CreateClientCert(appCtx, payload.Email, &clientCert)
+			createdClientCert, verrs, err := h.ClientCertCreator.CreateClientCert(appCtx, *payload.Email, &clientCert)
 			if err != nil || verrs != nil {
 				appCtx.Logger().Error("Error saving user", zap.Error(err), zap.Error(verrs))
 				return handlers.ResponseForConflictErrors(appCtx.Logger(), err), err

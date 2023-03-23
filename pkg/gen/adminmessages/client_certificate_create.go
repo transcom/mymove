@@ -57,7 +57,8 @@ type ClientCertificateCreate struct {
 
 	// email
 	// Example: user@example.com
-	Email string `json:"email,omitempty"`
+	// Required: true
+	Email *string `json:"email"`
 
 	// sha256 digest
 	// Example: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
@@ -74,6 +75,10 @@ type ClientCertificateCreate struct {
 func (m *ClientCertificateCreate) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateEmail(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateSha256Digest(formats); err != nil {
 		res = append(res, err)
 	}
@@ -85,6 +90,15 @@ func (m *ClientCertificateCreate) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ClientCertificateCreate) validateEmail(formats strfmt.Registry) error {
+
+	if err := validate.Required("email", "body", m.Email); err != nil {
+		return err
+	}
+
 	return nil
 }
 

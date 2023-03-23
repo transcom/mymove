@@ -1,7 +1,7 @@
 package clientcert
 
 import (
-	"fmt"
+	"strings"
 
 	"github.com/gobuffalo/validate/v3"
 
@@ -33,14 +33,21 @@ func (o *clientCertCreator) CreateClientCert(
 	// We don't want to be left with a user record and no admin user so setup a transaction to rollback
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 
-		// if the email is not provided, create a user with our
-		// standard convention using the sha256 digest to create the
-		// email address
+		// A user may already exist with the email from a previous user
+		// (admin, office, ...) if we are creating a CAC login certificate
 		var user models.User
-		if email == "" {
+		userEmailFilter := query.NewQueryFilter("login_gov_email", "=", email)
+		err = o.builder.FetchOne(appCtx, &user, []services.QueryFilter{userEmailFilter})
+
+		// if the fetch failed, the user doesn't exist, so we will
+		// need to create one
+		// This logic is similar to what is used when creating office users
+		if err != nil {
 			user = models.User{
-				LoginGovEmail: cert.Sha256Digest + "@api.move.mil",
+				LoginGovEmail: strings.ToLower(email),
+				Active:        true,
 			}
+
 			verrs, err = o.builder.CreateOne(txnAppCtx, &user)
 			if verrs != nil {
 				return apperror.NewInvalidCreateInputError(verrs, "Invalid user params")
@@ -48,16 +55,11 @@ func (o *clientCertCreator) CreateClientCert(
 			if err != nil {
 				return err
 			}
-		} else {
-			userEmailFilter := query.NewQueryFilter("login_gov_email", "=", email)
-			fetchErr := o.builder.FetchOne(appCtx, &user, []services.QueryFilter{userEmailFilter})
-
-			if fetchErr != nil {
-				return fmt.Errorf("Error finding user with login_gov_email %s: %w", email, fetchErr)
-			}
 		}
 
-		// Get the current roles for the user
+		// The user exists now, get the current roles for the user
+		// unfortunately, this logic is copied from the office user
+		// handlers
 		err = appCtx.DB().Q().Join("users_roles", "users_roles.role_id = roles.id").
 			Where("users_roles.deleted_at IS NULL AND users_roles.user_id = ?", (user.ID)).
 			All(&user.Roles)

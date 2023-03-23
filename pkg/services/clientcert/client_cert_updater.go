@@ -27,6 +27,12 @@ func (o *clientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id uu
 		return nil, nil, err
 	}
 
+	if payload.Sha256Digest != "" {
+		foundClientCert.Sha256Digest = payload.Sha256Digest
+	}
+	if payload.Subject != "" {
+		foundClientCert.Subject = payload.Subject
+	}
 	if payload.AllowOrdersAPI != nil {
 		foundClientCert.AllowOrdersAPI = *payload.AllowOrdersAPI
 	}

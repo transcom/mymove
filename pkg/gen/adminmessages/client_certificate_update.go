@@ -55,6 +55,14 @@ type ClientCertificateUpdate struct {
 
 	// allow prime
 	AllowPrime *bool `json:"allowPrime,omitempty"`
+
+	// sha256 digest
+	// Example: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+	Sha256Digest string `json:"sha256Digest,omitempty"`
+
+	// subject
+	// Example: CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US
+	Subject string `json:"subject,omitempty"`
 }
 
 // Validate validates this client certificate update
