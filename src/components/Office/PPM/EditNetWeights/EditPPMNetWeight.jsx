@@ -14,7 +14,7 @@ import { calculateWeightTicketWeightDifference, getWeightTicketNetWeight } from 
 import { useCalculatedWeightRequested } from 'hooks/custom';
 import { patchWeightTicket } from 'services/ghcApi';
 import { ShipmentShape, WeightTicketShape } from 'types/shipment';
-import { DOCUMENTS } from 'constants/queryKeys';
+import { DOCUMENTS, MTO_SHIPMENTS } from 'constants/queryKeys';
 
 // Labels & constants
 
@@ -91,12 +91,14 @@ const WeightCalculationHint = ({ type, firstValue, secondValue, thirdValue }) =>
   );
 };
 
-const validationSchema = Yup.object({
-  adjustedNetWeight: Yup.number().min(0, 'Net weight must be 0 lbs or greater').required('Required'),
-  netWeightRemarks: Yup.string().nullable().required('Required'),
-});
-
 const EditPPMNetWeightForm = ({ onCancel, initialValues, weightTicket }) => {
+  const validationSchema = Yup.object({
+    adjustedNetWeight: Yup.number()
+      .min(0, 'Net weight must be 0 lbs or greater')
+      .lessThan(weightTicket.fullWeight, 'Net weight must be less than or equal to the full weight')
+      .required('Required'),
+    netWeightRemarks: Yup.string().nullable().required('Required'),
+  });
   const queryClient = useQueryClient();
 
   const { mutate: patchWeightTicketMutation } = useMutation({
@@ -104,6 +106,9 @@ const EditPPMNetWeightForm = ({ onCancel, initialValues, weightTicket }) => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [DOCUMENTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [MTO_SHIPMENTS],
       });
     },
   });
@@ -201,6 +206,7 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
   const excessWeight = moveWeightTotal - weightAllowance;
   const hasExcessWeight = Boolean(excessWeight > 0);
   const netWeight = getWeightTicketNetWeight(weightTicket);
+
   const toFitValue = hasExcessWeight ? -Math.min(excessWeight, netWeight) : null;
   const showWarning = Boolean(hasExcessWeight && !showEditForm);
   const showReduceWeight = Boolean(-originalWeight === toFitValue);
@@ -241,7 +247,11 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
             </div>
           ) : (
             <EditPPMNetWeightForm
-              initialValues={{ adjustedNetWeight: String(netWeight), netWeightRemarks: weightTicket.netWeightRemarks }}
+              initialValues={{
+                adjustedNetWeight: String(netWeight),
+                netWeightRemarks: weightTicket.netWeightRemarks,
+                fullWeight: weightTicket.fullWeight,
+              }}
               weightTicket={weightTicket}
               onCancel={toggleEditForm}
             />
