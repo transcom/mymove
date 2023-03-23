@@ -15,6 +15,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -262,11 +263,13 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		prs := suite.createPaymentRequest(4)
 
-		_ = testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				ID: uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
+		_ = factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					ID: uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
+				},
 			},
-		})
+		}, nil)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
 		icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)

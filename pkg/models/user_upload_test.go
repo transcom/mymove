@@ -6,12 +6,13 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/dberr"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) Test_UserUploadCreate() {
-	document := testdatagen.MakeDefaultDocument(suite.DB())
+	document := factory.BuildDocument(suite.DB(), nil, nil)
 
 	upload := models.Upload{
 		Filename:    "test.pdf",
@@ -44,7 +45,7 @@ func (suite *ModelSuite) Test_UserUploadValidations() {
 }
 
 func (suite *ModelSuite) TestCreateUserUploadWithNoUpload() {
-	document := testdatagen.MakeDefaultDocument(suite.DB())
+	document := factory.BuildDocument(suite.DB(), nil, nil)
 
 	uploadUser := models.UserUpload{
 		DocumentID: &document.ID,

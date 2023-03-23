@@ -26,11 +26,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 			},
 		})
 
-		expenseDocument := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: serviceMember.ID,
-			},
-		})
+		expenseDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 
 		if hasDocumentUploads {
 			for i := 0; i < 2; i++ {
@@ -38,14 +34,17 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 				if i == 1 {
 					deletedAt = models.TimePointer(time.Now())
 				}
-				testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-					UserUpload: models.UserUpload{
-						UploaderID: serviceMember.UserID,
-						DocumentID: &expenseDocument.ID,
-						Document:   expenseDocument,
-						DeletedAt:  deletedAt,
+				factory.BuildUserUpload(suite.DB(), []factory.Customization{
+					{
+						Model:    expenseDocument,
+						LinkOnly: true,
 					},
-				})
+					{
+						Model: models.UserUpload{
+							DeletedAt: deletedAt,
+						},
+					},
+				}, nil)
 			}
 		}
 

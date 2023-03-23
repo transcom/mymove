@@ -194,15 +194,20 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (sub
 	var err error
 	subtestData.userUploader, err = uploader.NewUserUploader(subtestData.handlerConfig.FileStorer(), 100*uploader.MB)
 	assert.NoError(suite.T(), err, "failed to create user uploader for amended orders")
-	amendedDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
-	amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-		UserUpload: models.UserUpload{
-			DocumentID: &amendedDocument.ID,
-			Document:   amendedDocument,
-			UploaderID: amendedDocument.ServiceMember.UserID,
+	amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)
+	amendedUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+		{
+			Model:    amendedDocument,
+			LinkOnly: true,
 		},
-		UserUploader: subtestData.userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: subtestData.userUploader,
+				AppContext:   suite.AppContextForTest(),
+			},
+		},
+	}, nil)
 
 	amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
 	subtestData.approvalsRequestedMove = testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
@@ -247,15 +252,21 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		destinationDutyLocation := subtestData.destinationDutyLocation
 		originDutyLocation := subtestData.originDutyLocation
 
-		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
-		upload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: models.UserUpload{
-				DocumentID: &document.ID,
-				Document:   document,
-				UploaderID: document.ServiceMember.UserID,
+		document := factory.BuildDocument(suite.DB(), nil, nil)
+
+		upload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    document,
+				LinkOnly: true,
 			},
-			UserUploader: userUploader,
-		})
+			{
+				Model: models.UserUpload{},
+				ExtendedParams: &factory.UserUploadExtendedParams{
+					UserUploader: userUploader,
+					AppContext:   suite.AppContextForTest(),
+				},
+			},
+		}, nil)
 
 		document.UserUploads = append(document.UserUploads, upload)
 		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
