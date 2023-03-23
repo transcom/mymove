@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { GridContainer, Grid, Button } from '@trussworks/react-uswds';
 import { Link, useParams, generatePath } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import classnames from 'classnames';
 
 import styles from './Review.module.scss';
@@ -16,57 +16,83 @@ import { selectMTOShipmentById } from 'store/entities/selectors';
 import ReviewItems from 'components/Customer/PPM/Closeout/ReviewItems/ReviewItems';
 import {
   calculateTotalMovingExpensesAmount,
-  calculateTotalNetWeightForProGearWeightTickets,
-  calculateTotalNetWeightForWeightTickets,
   formatAboutYourPPMItem,
   formatExpenseItems,
   formatProGearItems,
   formatWeightTicketItems,
 } from 'utils/ppmCloseout';
+import {
+  calculateTotalNetWeightForProGearWeightTickets,
+  getTotalNetWeightForWeightTickets,
+} from 'utils/shipmentWeights';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { formatCents, formatWeight } from 'utils/formatters';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
-import { deleteWeightTicket } from 'services/internalApi';
+import {
+  deleteWeightTicket,
+  deleteProGearWeightTicket,
+  deleteMovingExpense,
+  getMTOShipmentsForMove,
+} from 'services/internalApi';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import { hasCompletedAllWeightTickets, hasCompletedAllExpenses, hasCompletedAllProGear } from 'utils/shipments';
+import { updateMTOShipment } from 'store/entities/actions';
 
-const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => (
-  <div>
-    <Overlay />
-    <ModalContainer>
-      <Modal>
-        <ModalClose handleClick={() => onClose(false)} />
-        <ModalTitle>
-          <h3>Delete this?</h3>
-        </ModalTitle>
-        <p>Your information will be gone. You’ll need to start over if you want it back.</p>
-        <ModalActions>
-          <Button
-            className="usa-button--destructive"
-            type="submit"
-            onClick={() => onSubmit(itemToDelete.itemType, itemToDelete.itemId, itemToDelete.itemETag)}
-          >
-            Yes, Delete
-          </Button>
-          <Button type="button" onClick={() => onClose(false)} data-testid="modalBackButton" secondary>
-            No, Keep It
-          </Button>
-        </ModalActions>
-      </Modal>
-    </ModalContainer>
-  </div>
-);
+const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
+  const deleteDetailMessage = <p>You are about to delete {itemToDelete.itemNumber}. This cannot be undone.</p>;
+  return (
+    <div>
+      <Overlay />
+      <ModalContainer>
+        <Modal>
+          <ModalClose handleClick={() => onClose(false)} />
+          <ModalTitle>
+            <h3>Delete this?</h3>
+          </ModalTitle>
+          {deleteDetailMessage}
+          <ModalActions>
+            <Button
+              className="usa-button--destructive"
+              type="submit"
+              onClick={() => onSubmit(itemToDelete.itemType, itemToDelete.itemId, itemToDelete.itemNumber)}
+            >
+              Yes, Delete
+            </Button>
+            <Button type="button" onClick={() => onClose(false)} data-testid="modalBackButton" secondary>
+              No, Keep It
+            </Button>
+          </ModalActions>
+        </Modal>
+      </ModalContainer>
+    </div>
+  );
+};
+
+function deleteLineItem(ppmShipmentId, itemType, itemId) {
+  if (itemType === 'weightTicket') {
+    return deleteWeightTicket(ppmShipmentId, itemId);
+  }
+  if (itemType === 'proGear') {
+    return deleteProGearWeightTicket(ppmShipmentId, itemId);
+  }
+  if (itemType === 'expense') {
+    return deleteMovingExpense(ppmShipmentId, itemId);
+  }
+  return Promise.reject();
+}
 
 const Review = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [itemToDelete, setItemToDelete] = useState();
+  const [alert, setAlert] = useState(null);
   const { moveId, mtoShipmentId } = useParams();
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
   const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
   const proGear = mtoShipment?.ppmShipment?.proGearWeightTickets;
   const expenses = mtoShipment?.ppmShipment?.movingExpenses;
+  const dispatch = useDispatch();
 
   if (!mtoShipment) {
     return <LoadingPlaceholder />;
@@ -80,23 +106,29 @@ const Review = () => {
   const expensesCreatePath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_PATH, { moveId, mtoShipmentId });
   const completePath = generatePath(customerRoutes.SHIPMENT_PPM_COMPLETE_PATH, { moveId, mtoShipmentId });
 
-  const handleDelete = (itemType, itemId, itemETag) => {
+  const handleDelete = (itemType, itemId, itemETag, itemNumber) => {
     setItemToDelete(() => ({
       itemType,
       itemId,
       itemETag,
+      itemNumber,
     }));
     setIsDeleteModalVisible(true);
   };
 
-  const onDeleteSubmit = (itemType, itemId, itemETag) => {
-    if (itemType === 'weightTicket') {
-      deleteWeightTicket(itemId, itemETag)
-        .then(() => {
-          setIsDeleteModalVisible(false);
-        })
-        .catch(() => {});
-    }
+  const onDeleteSubmit = (itemType, itemId, itemNumber) => {
+    deleteLineItem(mtoShipment.ppmShipment.id, itemType, itemId)
+      .then(() => {
+        setIsDeleteModalVisible(false);
+        getMTOShipmentsForMove(mtoShipment.moveTaskOrderID).then((moveResponse) =>
+          dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
+        );
+      })
+      .then(() => setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }))
+      .catch(() => {
+        setIsDeleteModalVisible(false);
+        setAlert({ type: 'error', message: `Something went wrong deleting ${itemNumber}. Please try again.` });
+      });
   };
 
   const aboutYourPPM = formatAboutYourPPMItem(mtoShipment?.ppmShipment, customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
@@ -111,7 +143,7 @@ const Review = () => {
     handleDelete,
   );
 
-  const weightTicketsTotal = calculateTotalNetWeightForWeightTickets(weightTickets);
+  const weightTicketsTotal = getTotalNetWeightForWeightTickets(weightTickets);
 
   const canAdvance =
     hasCompletedAllWeightTickets(weightTickets) && hasCompletedAllExpenses(expenses) && hasCompletedAllProGear(proGear);
@@ -149,6 +181,12 @@ const Review = () => {
                 itemToDelete={itemToDelete}
               />
             )}
+            {alert && (
+              <>
+                <Alert type={alert.type}>{alert.message}</Alert>
+                <br />
+              </>
+            )}
             {!canAdvance && (
               <>
                 <Alert type="error">
@@ -179,7 +217,7 @@ const Review = () => {
                     Add More Weight
                   </Link>
                 )}
-                emptyMessage="No weight tickets uploaded. Add at least one set of weight tickets to request payment."
+                emptyMessage="No weight moved documented. At least one trip is required to continue."
               />
               <ReviewItems
                 className={classnames(styles.reviewItems, 'progearSection')}

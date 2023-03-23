@@ -1,11 +1,5 @@
-/**
- * Semi-automated converted from a cypress test, and thus may contain
- * non best-practices, in particular: heavy use of `page.locator`
- * instead of `page.getBy*`.
- */
-
 // @ts-check
-const { test } = require('../../utils/customerTest');
+import { test } from '../../utils/customerTest';
 
 test('A customer can go through onboarding', async ({ page, customerPage }) => {
   // Create new customer user
@@ -18,9 +12,9 @@ test('A customer can go through onboarding', async ({ page, customerPage }) => {
 
   // Branch/DOD ID/Rank section
   await customerPage.waitForPage.onboardingDodId();
-  await page.getByRole('combobox', { name: 'Branch of service' }).selectOption('ARMY');
+  await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Army' });
   await page.getByTestId('textInput').fill('1231231234');
-  await page.getByRole('combobox', { name: 'Rank' }).selectOption('E_7');
+  await page.getByRole('combobox', { name: 'Rank' }).selectOption({ label: 'E-7' });
   await customerPage.navigateForward();
 
   // Name secton
@@ -40,7 +34,7 @@ test('A customer can go through onboarding', async ({ page, customerPage }) => {
   await page.getByLabel('What is your current duty location?').fill('Scott AFB');
   // 'mark' is not yet supported by react testing library
   // https://github.com/testing-library/dom-testing-library/issues/1150
-  // @ts-ignore:next-line
+  // @ts-expect-error:next-line
   await page.getByRole('mark').click();
   await customerPage.navigateForward();
 
@@ -48,7 +42,7 @@ test('A customer can go through onboarding', async ({ page, customerPage }) => {
   await customerPage.waitForPage.onboardingCurrentAddress();
   await page.getByLabel('Address 1').fill('7 Q St');
   await page.getByLabel('City').fill('Atco');
-  await page.getByLabel('State').selectOption('NJ');
+  await page.getByLabel('State').selectOption({ label: 'NJ' });
   await page.getByLabel('ZIP').fill('08004');
   await page.getByLabel('ZIP').blur();
   await customerPage.navigateForward();
@@ -57,7 +51,7 @@ test('A customer can go through onboarding', async ({ page, customerPage }) => {
   await customerPage.waitForPage.onboardingBackupAddress();
   await page.getByLabel('Address 1').fill('7 Q St');
   await page.getByLabel('City').fill('Atco');
-  await page.getByLabel('State').selectOption('NJ');
+  await page.getByLabel('State').selectOption({ label: 'NJ' });
   await page.getByLabel('ZIP').fill('08004');
   await page.getByLabel('ZIP').blur();
   await customerPage.navigateForward();

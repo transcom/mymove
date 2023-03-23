@@ -108,6 +108,11 @@ func (o *DeleteMTOShipmentNoContent) IsCode(code int) bool {
 	return code == 204
 }
 
+// Code gets the status code for the delete m t o shipment no content response
+func (o *DeleteMTOShipmentNoContent) Code() int {
+	return 204
+}
+
 func (o *DeleteMTOShipmentNoContent) Error() string {
 	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentNoContent ", 204)
 }
@@ -158,6 +163,11 @@ func (o *DeleteMTOShipmentBadRequest) IsServerError() bool {
 // IsCode returns true when this delete m t o shipment bad request response a status code equal to that given
 func (o *DeleteMTOShipmentBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the delete m t o shipment bad request response
+func (o *DeleteMTOShipmentBadRequest) Code() int {
+	return 400
 }
 
 func (o *DeleteMTOShipmentBadRequest) Error() string {
@@ -223,6 +233,11 @@ func (o *DeleteMTOShipmentForbidden) IsCode(code int) bool {
 	return code == 403
 }
 
+// Code gets the status code for the delete m t o shipment forbidden response
+func (o *DeleteMTOShipmentForbidden) Code() int {
+	return 403
+}
+
 func (o *DeleteMTOShipmentForbidden) Error() string {
 	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentForbidden  %+v", 403, o.Payload)
 }
@@ -284,6 +299,11 @@ func (o *DeleteMTOShipmentNotFound) IsServerError() bool {
 // IsCode returns true when this delete m t o shipment not found response a status code equal to that given
 func (o *DeleteMTOShipmentNotFound) IsCode(code int) bool {
 	return code == 404
+}
+
+// Code gets the status code for the delete m t o shipment not found response
+func (o *DeleteMTOShipmentNotFound) Code() int {
+	return 404
 }
 
 func (o *DeleteMTOShipmentNotFound) Error() string {
@@ -349,6 +369,11 @@ func (o *DeleteMTOShipmentConflict) IsCode(code int) bool {
 	return code == 409
 }
 
+// Code gets the status code for the delete m t o shipment conflict response
+func (o *DeleteMTOShipmentConflict) Code() int {
+	return 409
+}
+
 func (o *DeleteMTOShipmentConflict) Error() string {
 	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentConflict  %+v", 409, o.Payload)
 }
@@ -412,6 +437,11 @@ func (o *DeleteMTOShipmentUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the delete m t o shipment unprocessable entity response
+func (o *DeleteMTOShipmentUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *DeleteMTOShipmentUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -473,6 +503,11 @@ func (o *DeleteMTOShipmentInternalServerError) IsServerError() bool {
 // IsCode returns true when this delete m t o shipment internal server error response a status code equal to that given
 func (o *DeleteMTOShipmentInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the delete m t o shipment internal server error response
+func (o *DeleteMTOShipmentInternalServerError) Code() int {
+	return 500
 }
 
 func (o *DeleteMTOShipmentInternalServerError) Error() string {

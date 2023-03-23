@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { withRouter, Link } from 'react-router-dom';
+import { withRouter, Link, generatePath } from 'react-router-dom';
 import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { queryCache, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 import classnames from 'classnames';
@@ -48,7 +48,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
 import { MatchShape } from 'types/router';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
-import { includedStatusesForCalculatingWeights, useCalculatedWeightRequested } from 'hooks/custom';
+import { calculateEstimatedWeight, useCalculatedWeightRequested } from 'hooks/custom';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
@@ -57,6 +57,7 @@ import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import { tooRoutes } from 'constants/routes';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
@@ -117,7 +118,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   } = props;
 
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
-
   const order = Object.values(orders)?.[0];
 
   const shipmentServiceItems = useMemo(() => {
@@ -151,14 +151,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     });
     return serviceItemsForShipment;
   }, [mtoServiceItems]);
-
-  const [mutateMTOServiceItemStatus] = useMutation(patchMTOServiceItemStatus, {
+  const queryClient = useQueryClient();
+  const { mutate: mutateMTOServiceItemStatus } = useMutation(patchMTOServiceItemStatus, {
     onSuccess: (data, variables) => {
       const newMTOServiceItem = data.mtoServiceItems[variables.mtoServiceItemID];
       mtoServiceItems[mtoServiceItems.find((serviceItem) => serviceItem.id === newMTOServiceItem.id)] =
         newMTOServiceItem;
-      queryCache.setQueryData([MTO_SERVICE_ITEMS, variables.moveId, false], mtoServiceItems);
-      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, variables.moveId]);
+      queryClient.setQueryData([MTO_SERVICE_ITEMS, variables.moveId, false], mtoServiceItems);
+      queryClient.invalidateQueries([MTO_SERVICE_ITEMS, variables.moveId]);
       setIsModalVisible(false);
       setSelectedServiceItem({});
     },
@@ -168,22 +168,22 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateMTOShipment] = useMutation(updateMTOShipment, {
+  const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
     onSuccess: (_, variables) => {
-      queryCache.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
+      queryClient.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
     },
   });
 
-  const [mutateMTOShipmentStatus] = useMutation(updateMTOShipmentStatus, {
+  const { mutate: mutateMTOShipmentStatus } = useMutation(updateMTOShipmentStatus, {
     onSuccess: (data, variables) => {
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       // Update mtoShipments with our updated status and set query data to match
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestCancellation button to update immediately
-      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
 
       setIsCancelModalVisible(false);
       // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
@@ -195,15 +195,15 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateMTOShipmentRequestReweigh] = useMutation(updateMTOShipmentRequestReweigh, {
+  const { mutate: mutateMTOShipmentRequestReweigh } = useMutation(updateMTOShipmentRequestReweigh, {
     onSuccess: (data, variables) => {
       // Update mtoShipments with our updated status and set query data to match
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === data.shipmentID)] = data;
-      queryCache.setQueryData([MTO_SHIPMENTS, move.id, false], mtoShipments);
+      queryClient.setQueryData([MTO_SHIPMENTS, move.id, false], mtoShipments);
 
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestReweigh button to update immediately
-      queryCache.invalidateQueries([MTO_SHIPMENTS, move.id]);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, move.id]);
 
       setIsReweighModalVisible(false);
       // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
@@ -215,16 +215,16 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateOrderBillableWeight] = useMutation(updateBillableWeight, {
+  const { mutate: mutateOrderBillableWeight } = useMutation(updateBillableWeight, {
     onSuccess: (data, variables) => {
-      queryCache.invalidateQueries([MOVES, move.locator]);
+      queryClient.invalidateQueries([MOVES, move.locator]);
       const updatedOrder = data.orders[variables.orderID];
-      queryCache.setQueryData([ORDERS, variables.orderID], {
+      queryClient.setQueryData([ORDERS, variables.orderID], {
         orders: {
           [`${variables.orderID}`]: updatedOrder,
         },
       });
-      queryCache.invalidateQueries([ORDERS, variables.orderID]);
+      queryClient.invalidateQueries([ORDERS, variables.orderID]);
       setIsWeightModalVisible(false);
 
       setMessage(
@@ -241,9 +241,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateAcknowledgeExcessWeightRisk] = useMutation(acknowledgeExcessWeightRisk, {
+  const { mutate: mutateAcknowledgeExcessWeightRisk } = useMutation(acknowledgeExcessWeightRisk, {
     onSuccess: () => {
-      queryCache.invalidateQueries([MOVES, move.locator]);
+      queryClient.invalidateQueries([MOVES, move.locator]);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -261,12 +261,12 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateSITExtensionApproval] = useMutation(approveSITExtension, {
+  const { mutate: mutateSITExtensionApproval } = useMutation(approveSITExtension, {
     onSuccess: (data, variables) => {
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -274,12 +274,12 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateSITExtensionDenial] = useMutation(denySITExtension, {
+  const { mutate: mutateSITExtensionDenial } = useMutation(denySITExtension, {
     onSuccess: (data, variables) => {
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -287,13 +287,13 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateSubmitSITExtension] = useMutation(submitSITExtension, {
+  const { mutate: mutateSubmitSITExtension } = useMutation(submitSITExtension, {
     onSuccess: (data, variables) => {
       setIsSuccessAlertVisible(true);
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -301,10 +301,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
+  const { mutate: mutateFinancialReview } = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
-      queryCache.setQueryData([MOVES, data.locator], data);
-      queryCache.invalidateQueries([MOVES, data.locator]);
+      queryClient.setQueryData([MOVES, data.locator], data);
+      queryClient.invalidateQueries([MOVES, data.locator]);
       if (data.financialReviewFlag) {
         setAlertMessage('Move flagged for financial review.');
         setAlertType('success');
@@ -499,19 +499,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   }, [mtoShipments]);
 
   useEffect(() => {
-    let estimatedWeightCalc = null;
+    setEstimatedWeightTotal(calculateEstimatedWeight(mtoShipments));
     let excessBillableWeightCount = 0;
     const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
-
-    if (mtoShipments?.some((s) => s.primeEstimatedWeight && includedStatusesForCalculatingWeights(s.status))) {
-      estimatedWeightCalc = mtoShipments
-        ?.filter((s) => s.primeEstimatedWeight && includedStatusesForCalculatingWeights(s.status))
-        .reduce((prev, current) => {
-          return prev + current.primeEstimatedWeight;
-        }, 0);
-    }
-
-    setEstimatedWeightTotal(estimatedWeightCalc);
 
     if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
       excessBillableWeightCount = 1;
@@ -523,7 +513,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     const showWeightAlert = !riskOfExcessAcknowledged && !!excessBillableWeightCount;
 
     setIsWeightAlertVisible(showWeightAlert);
-  }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, move]);
+  }, [
+    estimatedWeightTotal,
+    move?.excess_weight_acknowledged_at,
+    mtoShipments,
+    order?.entitlement.totalWeight,
+    setEstimatedWeightTotal,
+    setExcessWeightRiskCount,
+  ]);
 
   // Edge case of diversion shipments being counted twice
   const moveWeightTotal = useCalculatedWeightRequested(mtoShipments);
@@ -729,8 +726,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                 externalVendorShipmentCount > 0 && <br />}
               {externalVendorShipmentCount > 0 && (
                 <small>
-                  {externalVendorShipmentCount} shipment not moved by GHC prime.{' '}
-                  <Link className="usa-link" to={`/moves/${moveCode}`}>
+                  {externalVendorShipmentCount} shipment{externalVendorShipmentCount > 1 && 's'} not moved by GHC prime.{' '}
+                  <Link className="usa-link" to={generatePath(tooRoutes.MOVE_VIEW_PATH, { moveCode })}>
                     View move details
                   </Link>
                 </small>

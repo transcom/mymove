@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -160,7 +161,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	})
 
 	suite.Run("fetch not found due to bad id", func() {
-		sm := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{})
+		sm := factory.BuildServiceMember(suite.DB(), nil, nil)
 		session := &auth.Session{
 			ApplicationName: auth.MilApp,
 			UserID:          sm.UserID,
@@ -177,7 +178,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	suite.Run("forbidden user cannot fetch order", func() {
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
 		// User is forbidden from fetching order
-		serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
+		serviceMember2 := factory.BuildServiceMember(suite.DB(), nil, nil)
 		session := &auth.Session{
 			ApplicationName: auth.MilApp,
 			UserID:          serviceMember2.UserID,
@@ -190,25 +191,37 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	})
 
 	suite.Run("successfully excludes deleted orders uploads", func() {
-		nonDeletedOrdersUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: UserUpload{
-				Document:  nonDeletedOrdersUpload.Document,
-				DeletedAt: TimePointer(time.Now()),
+		nonDeletedOrdersUpload := factory.BuildUserUpload(suite.DB(), nil, nil)
+		factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    nonDeletedOrdersUpload.Document,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: UserUpload{
+					DeletedAt: TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 
-		nonDeletedAmendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: UserUpload{
-				UploaderID: nonDeletedOrdersUpload.Document.ServiceMember.UserID,
+		nonDeletedAmendedUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model: UserUpload{
+					UploaderID: nonDeletedOrdersUpload.Document.ServiceMember.UserID,
+				},
 			},
-		})
-		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: UserUpload{
-				Document:  nonDeletedAmendedUpload.Document,
-				DeletedAt: TimePointer(time.Now()),
+		}, nil)
+		factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    nonDeletedAmendedUpload.Document,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: UserUpload{
+					DeletedAt: TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 
 		expectedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: Order{
@@ -238,9 +251,9 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 }
 
 func (suite *ModelSuite) TestFetchOrderNotForUser() {
-	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceMember1 := factory.BuildServiceMember(suite.DB(), nil, nil)
 
-	dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -283,9 +296,9 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 }
 
 func (suite *ModelSuite) TestOrderStateMachine() {
-	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceMember1 := factory.BuildServiceMember(suite.DB(), nil, nil)
 
-	dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION

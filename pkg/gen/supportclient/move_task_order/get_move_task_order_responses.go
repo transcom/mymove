@@ -97,6 +97,11 @@ func (o *GetMoveTaskOrderOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the get move task order o k response
+func (o *GetMoveTaskOrderOK) Code() int {
+	return 200
+}
+
 func (o *GetMoveTaskOrderOK) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderOK  %+v", 200, o.Payload)
 }
@@ -158,6 +163,11 @@ func (o *GetMoveTaskOrderUnauthorized) IsServerError() bool {
 // IsCode returns true when this get move task order unauthorized response a status code equal to that given
 func (o *GetMoveTaskOrderUnauthorized) IsCode(code int) bool {
 	return code == 401
+}
+
+// Code gets the status code for the get move task order unauthorized response
+func (o *GetMoveTaskOrderUnauthorized) Code() int {
+	return 401
 }
 
 func (o *GetMoveTaskOrderUnauthorized) Error() string {
@@ -223,6 +233,11 @@ func (o *GetMoveTaskOrderForbidden) IsCode(code int) bool {
 	return code == 403
 }
 
+// Code gets the status code for the get move task order forbidden response
+func (o *GetMoveTaskOrderForbidden) Code() int {
+	return 403
+}
+
 func (o *GetMoveTaskOrderForbidden) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderForbidden  %+v", 403, o.Payload)
 }
@@ -286,6 +301,11 @@ func (o *GetMoveTaskOrderNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the get move task order not found response
+func (o *GetMoveTaskOrderNotFound) Code() int {
+	return 404
+}
+
 func (o *GetMoveTaskOrderNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderNotFound  %+v", 404, o.Payload)
 }
@@ -347,6 +367,11 @@ func (o *GetMoveTaskOrderInternalServerError) IsServerError() bool {
 // IsCode returns true when this get move task order internal server error response a status code equal to that given
 func (o *GetMoveTaskOrderInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the get move task order internal server error response
+func (o *GetMoveTaskOrderInternalServerError) Code() int {
+	return 500
 }
 
 func (o *GetMoveTaskOrderInternalServerError) Error() string {

@@ -5,22 +5,15 @@
  */
 
 // @ts-check
-const { test, expect, ScPpmPage } = require('./scPpmTestFixture');
+import { test, expect } from './ppmTestFixture';
 
 test.describe('Services counselor user', () => {
-  /** @type {ScPpmPage} */
-  let scPpmPage;
-
-  test.beforeEach(async ({ officePage }) => {
-    const move = await officePage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
-    await officePage.signInAsNewServicesCounselorUser();
-    scPpmPage = new ScPpmPage(officePage, move);
-    await scPpmPage.navigateToMove();
+  test.beforeEach(async ({ ppmPage }) => {
+    const move = await ppmPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
+    await ppmPage.navigateToMove(move.locator);
   });
 
-  test('is able to add a new PPM shipment', async ({ page }) => {
-    // const moveLocator = 'PPMADD';
-
+  test('is able to add a new PPM shipment', async ({ page, ppmPage }) => {
     // Delete existing shipment
     await page.locator('[data-testid="ShipmentContainer"] .usa-button').click();
     await page.locator('[data-testid="grid"] button').getByText('Delete shipment').click();
@@ -34,25 +27,25 @@ test.describe('Services counselor user', () => {
     await page.locator('[data-testid="dropdown"]').first().selectOption({ label: 'PPM' });
 
     // Fill out page one
-    await scPpmPage.fillOutOriginInfo();
-    await scPpmPage.fillOutDestinationInfo();
-    await scPpmPage.fillOutWeight({ hasProGear: true });
-    await scPpmPage.selectDutyLocation('JPPSO NORTHWEST', 'closeoutOffice');
+    await ppmPage.fillOutOriginInfo();
+    await ppmPage.fillOutDestinationInfo();
+    await ppmPage.fillOutWeight({ hasProGear: true });
+    await ppmPage.selectDutyLocation('JPPSO NORTHWEST', 'closeoutOffice');
 
     await page.locator('[data-testid="submitForm"]').click();
-    await scPpmPage.waitForLoading();
+    await ppmPage.waitForLoading();
 
     // Fill out page two
     await expect(page.getByText('Incentive & advance')).toBeVisible();
-    await scPpmPage.fillOutIncentiveAndAdvance({ advance: '5987' });
+    await ppmPage.fillOutIncentiveAndAdvance({ advance: '5987' });
     await page.locator('[data-testid="counselor-remarks"]').type('The requested advance amount has been added.');
     await page.locator('[data-testid="counselor-remarks"]').blur();
 
     await page.locator('[data-testid="submitForm"]').click();
-    await scPpmPage.waitForLoading();
+    await ppmPage.waitForLoading();
 
     // Confirm new shipment is visible
-    expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();
+    await expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();
     const shipmentContainer = page.locator('[data-testid="ShipmentContainer"]');
     // Verify unexpanded view
     await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('09 Jun 2022');

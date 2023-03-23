@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import { queryCache, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import styles from './PaymentRequestReview.module.scss';
 
@@ -29,11 +29,11 @@ export const PaymentRequestReview = ({ history, match, order }) => {
     isLoading,
     isError,
   } = usePaymentRequestQueries(paymentRequestId);
-
-  const [mutatePaymentRequest] = useMutation(patchPaymentRequest, {
+  const queryClient = useQueryClient();
+  const { mutate: mutatePaymentRequest } = useMutation(patchPaymentRequest, {
     onSuccess: (data, variables) => {
       const { paymentRequestID } = variables;
-      queryCache.setQueryData([PAYMENT_REQUESTS, paymentRequestID], {
+      queryClient.setQueryData([PAYMENT_REQUESTS, paymentRequestID], {
         paymentRequests: data.paymentRequests,
         paymentServiceItems,
       });
@@ -46,7 +46,7 @@ export const PaymentRequestReview = ({ history, match, order }) => {
     },
   });
 
-  const [mutatePaymentServiceItemStatus] = useMutation(patchPaymentServiceItemStatus, {
+  const { mutate: mutatePaymentServiceItemStatus } = useMutation(patchPaymentServiceItemStatus, {
     onSuccess: (data, variables) => {
       const newPaymentServiceItem = data.paymentServiceItems[variables.paymentServiceItemID];
       const oldPaymentServiceItem = paymentServiceItems[variables.paymentServiceItemID];
@@ -59,7 +59,7 @@ export const PaymentRequestReview = ({ history, match, order }) => {
       newPaymentServiceItem.mtoServiceItemCode = oldPaymentServiceItem.mtoServiceItemCode;
       newPaymentServiceItem.paymentServiceItemParams = oldPaymentServiceItem.paymentServiceItemParams;
 
-      queryCache.setQueryData([PAYMENT_REQUESTS, paymentRequestId], {
+      queryClient.setQueryData([PAYMENT_REQUESTS, paymentRequestId], {
         paymentRequests,
         paymentServiceItems: {
           ...paymentServiceItems,

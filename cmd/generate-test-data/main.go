@@ -166,17 +166,20 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
-	scenario := v.GetInt(scenarioFlag)
-	namedScenario := v.GetString(namedScenarioFlag)
-	namedSubScenario := v.GetString(namedSubScenarioFlag)
+	// run inside a transaction as some of the testdatagen needs it
+	err = appcontext.NewAppContext(dbConnection, logger, nil).NewTransaction(
+		func(appCtx appcontext.AppContext) error {
 
-	if scenario == 4 {
-		err = tdgs.RunPPMSITEstimateScenario1(appCtx)
-	} else if scenario == 5 {
-		err = tdgs.RunRateEngineScenario1(appCtx)
-	} else if scenario == 6 {
-		query := `DELETE FROM transportation_service_provider_performances;
+			scenario := v.GetInt(scenarioFlag)
+			namedScenario := v.GetString(namedScenarioFlag)
+			namedSubScenario := v.GetString(namedSubScenarioFlag)
+
+			if scenario == 4 {
+				return tdgs.RunPPMSITEstimateScenario1(appCtx)
+			} else if scenario == 5 {
+				return tdgs.RunRateEngineScenario1(appCtx)
+			} else if scenario == 6 {
+				query := `DELETE FROM transportation_service_provider_performances;
 				  DELETE FROM transportation_service_providers;
 				  DELETE FROM traffic_distribution_lists;
 				  DELETE FROM tariff400ng_zip3s;
@@ -187,74 +190,71 @@ func main() {
 				  DELETE FROM tariff400ng_full_pack_rates;
 				  DELETE FROM tariff400ng_full_unpack_rates;`
 
-		err = dbConnection.RawQuery(query).Exec()
-		if err != nil {
-			logger.Fatal("Failed to run raw query", zap.Error(err))
-		}
-		err = tdgs.RunRateEngineScenario2(appCtx)
-	} else if namedScenario != "" {
-		// Initialize logger
-		logger, newDevelopmentErr := zap.NewDevelopment()
-		if newDevelopmentErr != nil {
-			logger.Fatal("Problem with zap NewDevelopment", zap.Error(newDevelopmentErr))
-		}
+				qerr := dbConnection.RawQuery(query).Exec()
+				if qerr != nil {
+					logger.Fatal("Failed to run raw query", zap.Error(qerr))
+				}
+				return tdgs.RunRateEngineScenario2(appCtx)
+			} else if namedScenario != "" {
 
-		// Initialize storage and uploader
-		var session *awssession.Session
-		storageBackend := v.GetString(cli.StorageBackendFlag)
-		if storageBackend == "s3" {
-			c := &aws.Config{
-				Region: aws.String(v.GetString(cli.AWSRegionFlag)),
+				// Initialize storage and uploader
+				var session *awssession.Session
+				storageBackend := v.GetString(cli.StorageBackendFlag)
+				if storageBackend == "s3" {
+					c := &aws.Config{
+						Region: aws.String(v.GetString(cli.AWSRegionFlag)),
+					}
+					s, errorSession := awssession.NewSession(c)
+
+					if errorSession != nil {
+						logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
+					}
+
+					session = s
+				}
+				storer := storage.InitStorage(v, session, logger)
+
+				userUploader, uploaderErr := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+				if uploaderErr != nil {
+					logger.Fatal("could not instantiate user uploader", zap.Error(err))
+				}
+				primeUploader, uploaderErr := uploader.NewPrimeUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+				if uploaderErr != nil {
+					logger.Fatal("could not instantiate prime uploader", zap.Error(err))
+				}
+
+				if namedScenario == tdgs.E2eBasicScenario.Name {
+					tdgs.E2eBasicScenario.Run(appCtx, userUploader, primeUploader)
+				} else if namedScenario == tdgs.DevSeedScenario.Name {
+					// Something is different about our cert config in CI so only running this
+					// for the devseed scenario not e2e_basic for Cypress
+					certificates, rootCAs, certErr := certs.InitDoDCertificates(v, logger)
+					if certificates == nil || rootCAs == nil || certErr != nil {
+						logger.Fatal("Failed to initialize DOD certificates", zap.Error(certErr))
+					}
+
+					// Initialize setup
+					tdgs.DevSeedScenario.Setup(appCtx, userUploader, primeUploader)
+
+					// Sub-scenarios are generated at run time
+					// Check config
+					// optional flag
+					if serr := checkConfigNamedSubScenarioFlag(v, tdgs.NamedScenario(tdgs.DevSeedScenario)); serr != nil {
+						logger.Fatal("invalid configuration", zap.Error(serr))
+					}
+
+					// Run seed
+					tdgs.DevSeedScenario.Run(appCtx, namedSubScenario)
+				} else if namedScenario == tdgs.BandwidthScenario.Name {
+					tdgs.BandwidthScenario.Run(appCtx, userUploader, primeUploader)
+				}
+
+				logger.Info("Success! Created e2e test data.")
+			} else {
+				flag.PrintDefaults()
 			}
-			s, errorSession := awssession.NewSession(c)
-
-			if errorSession != nil {
-				logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
-			}
-
-			session = s
-		}
-		storer := storage.InitStorage(v, session, logger)
-
-		userUploader, uploaderErr := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
-		if uploaderErr != nil {
-			logger.Fatal("could not instantiate user uploader", zap.Error(err))
-		}
-		primeUploader, uploaderErr := uploader.NewPrimeUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
-		if uploaderErr != nil {
-			logger.Fatal("could not instantiate prime uploader", zap.Error(err))
-		}
-
-		if namedScenario == tdgs.E2eBasicScenario.Name {
-			tdgs.E2eBasicScenario.Run(appCtx, userUploader, primeUploader)
-		} else if namedScenario == tdgs.DevSeedScenario.Name {
-			// Something is different about our cert config in CI so only running this
-			// for the devseed scenario not e2e_basic for Cypress
-			certificates, rootCAs, certErr := certs.InitDoDCertificates(v, logger)
-			if certificates == nil || rootCAs == nil || certErr != nil {
-				logger.Fatal("Failed to initialize DOD certificates", zap.Error(certErr))
-			}
-
-			// Initialize setup
-			tdgs.DevSeedScenario.Setup(appCtx, userUploader, primeUploader)
-
-			// Sub-scenarios are generated at run time
-			// Check config
-			// optional flag
-			if err = checkConfigNamedSubScenarioFlag(v, tdgs.NamedScenario(tdgs.DevSeedScenario)); err != nil {
-				logger.Fatal("invalid configuration", zap.Error(err))
-			}
-
-			// Run seed
-			tdgs.DevSeedScenario.Run(appCtx, namedSubScenario)
-		} else if namedScenario == tdgs.BandwidthScenario.Name {
-			tdgs.BandwidthScenario.Run(appCtx, userUploader, primeUploader)
-		}
-
-		logger.Info("Success! Created e2e test data.")
-	} else {
-		flag.PrintDefaults()
-	}
+			return nil
+		})
 	if err != nil {
 		log.Fatal("Failed to load scenario", zap.Error(err))
 	}

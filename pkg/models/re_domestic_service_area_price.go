@@ -28,11 +28,14 @@ type ReDomesticServiceAreaPrice struct {
 	DomesticServiceArea ReDomesticServiceArea `belongs_to:"re_domestic_service_area" fk_id:"domestic_service_area_id"`
 }
 
-// ReDomesticServiceAreaPrices is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (r ReDomesticServiceAreaPrice) TableName() string {
+	return "re_domestic_service_area_prices"
+}
+
 type ReDomesticServiceAreaPrices []ReDomesticServiceAreaPrice
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (r *ReDomesticServiceAreaPrice) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},

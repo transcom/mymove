@@ -121,6 +121,11 @@ func (o *UpdatePaymentRequestStatusOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the update payment request status o k response
+func (o *UpdatePaymentRequestStatusOK) Code() int {
+	return 200
+}
+
 func (o *UpdatePaymentRequestStatusOK) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusOK  %+v", 200, o.Payload)
 }
@@ -182,6 +187,11 @@ func (o *UpdatePaymentRequestStatusBadRequest) IsServerError() bool {
 // IsCode returns true when this update payment request status bad request response a status code equal to that given
 func (o *UpdatePaymentRequestStatusBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the update payment request status bad request response
+func (o *UpdatePaymentRequestStatusBadRequest) Code() int {
+	return 400
 }
 
 func (o *UpdatePaymentRequestStatusBadRequest) Error() string {
@@ -247,6 +257,11 @@ func (o *UpdatePaymentRequestStatusUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the update payment request status unauthorized response
+func (o *UpdatePaymentRequestStatusUnauthorized) Code() int {
+	return 401
+}
+
 func (o *UpdatePaymentRequestStatusUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusUnauthorized  %+v", 401, o.Payload)
 }
@@ -308,6 +323,11 @@ func (o *UpdatePaymentRequestStatusForbidden) IsServerError() bool {
 // IsCode returns true when this update payment request status forbidden response a status code equal to that given
 func (o *UpdatePaymentRequestStatusForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the update payment request status forbidden response
+func (o *UpdatePaymentRequestStatusForbidden) Code() int {
+	return 403
 }
 
 func (o *UpdatePaymentRequestStatusForbidden) Error() string {
@@ -373,6 +393,11 @@ func (o *UpdatePaymentRequestStatusNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the update payment request status not found response
+func (o *UpdatePaymentRequestStatusNotFound) Code() int {
+	return 404
+}
+
 func (o *UpdatePaymentRequestStatusNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusNotFound  %+v", 404, o.Payload)
 }
@@ -434,6 +459,11 @@ func (o *UpdatePaymentRequestStatusConflict) IsServerError() bool {
 // IsCode returns true when this update payment request status conflict response a status code equal to that given
 func (o *UpdatePaymentRequestStatusConflict) IsCode(code int) bool {
 	return code == 409
+}
+
+// Code gets the status code for the update payment request status conflict response
+func (o *UpdatePaymentRequestStatusConflict) Code() int {
+	return 409
 }
 
 func (o *UpdatePaymentRequestStatusConflict) Error() string {
@@ -499,6 +529,11 @@ func (o *UpdatePaymentRequestStatusPreconditionFailed) IsCode(code int) bool {
 	return code == 412
 }
 
+// Code gets the status code for the update payment request status precondition failed response
+func (o *UpdatePaymentRequestStatusPreconditionFailed) Code() int {
+	return 412
+}
+
 func (o *UpdatePaymentRequestStatusPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusPreconditionFailed  %+v", 412, o.Payload)
 }
@@ -562,6 +597,11 @@ func (o *UpdatePaymentRequestStatusUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the update payment request status unprocessable entity response
+func (o *UpdatePaymentRequestStatusUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *UpdatePaymentRequestStatusUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -623,6 +663,11 @@ func (o *UpdatePaymentRequestStatusInternalServerError) IsServerError() bool {
 // IsCode returns true when this update payment request status internal server error response a status code equal to that given
 func (o *UpdatePaymentRequestStatusInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the update payment request status internal server error response
+func (o *UpdatePaymentRequestStatusInternalServerError) Code() int {
+	return 500
 }
 
 func (o *UpdatePaymentRequestStatusInternalServerError) Error() string {

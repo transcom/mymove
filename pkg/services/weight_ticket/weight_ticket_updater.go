@@ -106,6 +106,8 @@ func mergeWeightTicket(weightTicket models.WeightTicket, originalWeightTicket mo
 	mergedWeightTicket.MissingFullWeightTicket = services.SetNoNilOptionalBoolField(weightTicket.MissingFullWeightTicket, mergedWeightTicket.MissingFullWeightTicket)
 	mergedWeightTicket.OwnsTrailer = services.SetNoNilOptionalBoolField(weightTicket.OwnsTrailer, mergedWeightTicket.OwnsTrailer)
 	mergedWeightTicket.TrailerMeetsCriteria = services.SetNoNilOptionalBoolField(weightTicket.TrailerMeetsCriteria, mergedWeightTicket.TrailerMeetsCriteria)
+	mergedWeightTicket.AdjustedNetWeight = services.SetNoNilOptionalPoundField(weightTicket.AdjustedNetWeight, mergedWeightTicket.AdjustedNetWeight)
+	mergedWeightTicket.NetWeightRemarks = services.SetOptionalStringField(weightTicket.NetWeightRemarks, mergedWeightTicket.NetWeightRemarks)
 	mergedWeightTicket.Reason = services.SetOptionalStringField(weightTicket.Reason, mergedWeightTicket.Reason)
 	status := services.SetOptionalStringField((*string)(weightTicket.Status), (*string)(mergedWeightTicket.Status))
 	if status != nil {
@@ -122,10 +124,15 @@ func hasTotalWeightChanged(originalWeightTicket, newWeightTicket models.WeightTi
 	var newWeight unit.Pound
 	var oldWeight unit.Pound
 
-	if newWeightTicket.FullWeight != nil && newWeightTicket.EmptyWeight != nil {
+	if newWeightTicket.AdjustedNetWeight != nil {
+		newWeight = *newWeightTicket.AdjustedNetWeight
+	} else if newWeightTicket.FullWeight != nil && newWeightTicket.EmptyWeight != nil {
 		newWeight = *newWeightTicket.FullWeight - *newWeightTicket.EmptyWeight
 	}
-	if originalWeightTicket.FullWeight != nil && originalWeightTicket.EmptyWeight != nil {
+
+	if originalWeightTicket.AdjustedNetWeight != nil {
+		oldWeight = *originalWeightTicket.AdjustedNetWeight
+	} else if originalWeightTicket.FullWeight != nil && originalWeightTicket.EmptyWeight != nil {
 		oldWeight = *originalWeightTicket.FullWeight - *originalWeightTicket.EmptyWeight
 	}
 

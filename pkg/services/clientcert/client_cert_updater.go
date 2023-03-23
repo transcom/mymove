@@ -18,7 +18,7 @@ type clientCertUpdater struct {
 	sender  notifications.NotificationSender
 }
 
-func (o *clientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.ClientCertUpdatePayload) (*models.ClientCert, *validate.Errors, error) {
+func (o *clientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.ClientCertificateUpdate) (*models.ClientCert, *validate.Errors, error) {
 	var foundClientCert models.ClientCert
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	err := o.builder.FetchOne(appCtx, &foundClientCert, filters)

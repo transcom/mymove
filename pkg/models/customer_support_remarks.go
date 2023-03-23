@@ -19,9 +19,9 @@ type CustomerSupportRemark struct {
 	DeletedAt    *time.Time `db:"deleted_at"`
 }
 
-type CustomerSupportRemarks []CustomerSupportRemark
-
 // TableName overrides the table name used by Pop.
-func (o CustomerSupportRemark) TableName() string {
+func (c CustomerSupportRemark) TableName() string {
 	return "customer_support_remarks"
 }
+
+type CustomerSupportRemarks []CustomerSupportRemark

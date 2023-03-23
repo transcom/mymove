@@ -6,7 +6,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	notificationsop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notification"
+	notificationsop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -20,7 +20,7 @@ func payloadForNotificationModel(n models.Notification) *adminmessages.Notificat
 		ServiceMemberID:  handlers.FmtUUID(n.ServiceMemberID),
 		SesMessageID:     handlers.FmtString(n.SESMessageID),
 		NotificationType: handlers.FmtString(string(n.NotificationType)),
-		CreatedAt:        handlers.FmtDateTime(n.CreatedAt),
+		CreatedAt:        *handlers.FmtDateTime(n.CreatedAt),
 		Email:            handlers.FmtString(n.ServiceMember.User.LoginGovEmail),
 	}
 }

@@ -28,27 +28,18 @@ type User struct {
 	CurrentMilSessionID    string      `json:"current_mil_session_id" db:"current_mil_session_id"`
 }
 
-// Users is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (u User) TableName() string {
+	return "users"
+}
+
 type Users []User
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: u.LoginGovEmail, Name: "LoginGovEmail"},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (u *User) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }
 
 // GetUser loads the associated User from the DB using the user ID
@@ -196,7 +187,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 				ou.middle_initials AS ou_middle
 			FROM office_users as ou
 			JOIN users on ou.user_id = users.id
-			ORDER BY users.created_at LIMIT $1`
+			ORDER BY users.created_at DESC LIMIT $1`
 	case auth.AdminApp:
 		query = `SELECT users.id,
 				users.login_gov_email AS email,
@@ -207,7 +198,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 				au.last_name AS au_lname
 			FROM admin_users as au
 			JOIN users on au.user_id = users.id
-			ORDER BY users.created_at LIMIT $1`
+			ORDER BY users.created_at DESC LIMIT $1`
 	default:
 		query = `SELECT users.id,
 				users.login_gov_email AS email,
@@ -219,7 +210,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 			FROM service_members as sm
 			JOIN users on sm.user_id = users.id
 			WHERE users.login_gov_email != 'first.last@login.gov.test'
-			ORDER BY users.created_at LIMIT $1`
+			ORDER BY users.created_at DESC LIMIT $1`
 	}
 
 	err := db.RawQuery(query, limit).All(&identities)

@@ -115,6 +115,11 @@ func (o *CreateMTOServiceItemOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the create m t o service item o k response
+func (o *CreateMTOServiceItemOK) Code() int {
+	return 200
+}
+
 func (o *CreateMTOServiceItemOK) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemOK  %+v", 200, o.Payload)
 }
@@ -176,6 +181,11 @@ func (o *CreateMTOServiceItemBadRequest) IsServerError() bool {
 // IsCode returns true when this create m t o service item bad request response a status code equal to that given
 func (o *CreateMTOServiceItemBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the create m t o service item bad request response
+func (o *CreateMTOServiceItemBadRequest) Code() int {
+	return 400
 }
 
 func (o *CreateMTOServiceItemBadRequest) Error() string {
@@ -241,6 +251,11 @@ func (o *CreateMTOServiceItemUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the create m t o service item unauthorized response
+func (o *CreateMTOServiceItemUnauthorized) Code() int {
+	return 401
+}
+
 func (o *CreateMTOServiceItemUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemUnauthorized  %+v", 401, o.Payload)
 }
@@ -302,6 +317,11 @@ func (o *CreateMTOServiceItemForbidden) IsServerError() bool {
 // IsCode returns true when this create m t o service item forbidden response a status code equal to that given
 func (o *CreateMTOServiceItemForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the create m t o service item forbidden response
+func (o *CreateMTOServiceItemForbidden) Code() int {
+	return 403
 }
 
 func (o *CreateMTOServiceItemForbidden) Error() string {
@@ -367,6 +387,11 @@ func (o *CreateMTOServiceItemNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the create m t o service item not found response
+func (o *CreateMTOServiceItemNotFound) Code() int {
+	return 404
+}
+
 func (o *CreateMTOServiceItemNotFound) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemNotFound  %+v", 404, o.Payload)
 }
@@ -428,6 +453,11 @@ func (o *CreateMTOServiceItemConflict) IsServerError() bool {
 // IsCode returns true when this create m t o service item conflict response a status code equal to that given
 func (o *CreateMTOServiceItemConflict) IsCode(code int) bool {
 	return code == 409
+}
+
+// Code gets the status code for the create m t o service item conflict response
+func (o *CreateMTOServiceItemConflict) Code() int {
+	return 409
 }
 
 func (o *CreateMTOServiceItemConflict) Error() string {
@@ -493,6 +523,11 @@ func (o *CreateMTOServiceItemUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the create m t o service item unprocessable entity response
+func (o *CreateMTOServiceItemUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *CreateMTOServiceItemUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -554,6 +589,11 @@ func (o *CreateMTOServiceItemInternalServerError) IsServerError() bool {
 // IsCode returns true when this create m t o service item internal server error response a status code equal to that given
 func (o *CreateMTOServiceItemInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the create m t o service item internal server error response
+func (o *CreateMTOServiceItemInternalServerError) Code() int {
+	return 500
 }
 
 func (o *CreateMTOServiceItemInternalServerError) Error() string {

@@ -20,15 +20,15 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/client_certs"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/move"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notification"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/client_certificates"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_orders"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/moves"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances_t_s_p_ps"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 )
@@ -58,8 +58,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		AdminUsersCreateAdminUserHandler: admin_users.CreateAdminUserHandlerFunc(func(params admin_users.CreateAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.CreateAdminUser has not yet been implemented")
 		}),
-		ClientCertsCreateClientCertHandler: client_certs.CreateClientCertHandlerFunc(func(params client_certs.CreateClientCertParams) middleware.Responder {
-			return middleware.NotImplemented("operation client_certs.CreateClientCert has not yet been implemented")
+		ClientCertificatesCreateClientCertificateHandler: client_certificates.CreateClientCertificateHandlerFunc(func(params client_certificates.CreateClientCertificateParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certificates.CreateClientCertificate has not yet been implemented")
 		}),
 		OfficeUsersCreateOfficeUserHandler: office_users.CreateOfficeUserHandlerFunc(func(params office_users.CreateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.CreateOfficeUser has not yet been implemented")
@@ -70,23 +70,23 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		AdminUsersGetAdminUserHandler: admin_users.GetAdminUserHandlerFunc(func(params admin_users.GetAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.GetAdminUser has not yet been implemented")
 		}),
-		ClientCertsGetClientCertHandler: client_certs.GetClientCertHandlerFunc(func(params client_certs.GetClientCertParams) middleware.Responder {
-			return middleware.NotImplemented("operation client_certs.GetClientCert has not yet been implemented")
+		ClientCertificatesGetClientCertificateHandler: client_certificates.GetClientCertificateHandlerFunc(func(params client_certificates.GetClientCertificateParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certificates.GetClientCertificate has not yet been implemented")
 		}),
-		ElectronicOrderGetElectronicOrdersTotalsHandler: electronic_order.GetElectronicOrdersTotalsHandlerFunc(func(params electronic_order.GetElectronicOrdersTotalsParams) middleware.Responder {
-			return middleware.NotImplemented("operation electronic_order.GetElectronicOrdersTotals has not yet been implemented")
+		ElectronicOrdersGetElectronicOrdersTotalsHandler: electronic_orders.GetElectronicOrdersTotalsHandlerFunc(func(params electronic_orders.GetElectronicOrdersTotalsParams) middleware.Responder {
+			return middleware.NotImplemented("operation electronic_orders.GetElectronicOrdersTotals has not yet been implemented")
 		}),
-		MoveGetMoveHandler: move.GetMoveHandlerFunc(func(params move.GetMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation move.GetMove has not yet been implemented")
+		MovesGetMoveHandler: moves.GetMoveHandlerFunc(func(params moves.GetMoveParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.GetMove has not yet been implemented")
 		}),
 		OfficeUsersGetOfficeUserHandler: office_users.GetOfficeUserHandlerFunc(func(params office_users.GetOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.GetOfficeUser has not yet been implemented")
 		}),
-		TransportationServiceProviderPerformancesGetTSPPHandler: transportation_service_provider_performances.GetTSPPHandlerFunc(func(params transportation_service_provider_performances.GetTSPPParams) middleware.Responder {
-			return middleware.NotImplemented("operation transportation_service_provider_performances.GetTSPP has not yet been implemented")
+		TransportationServiceProviderPerformancestspPsGetTSPPHandler: transportation_service_provider_performances_t_s_p_ps.GetTSPPHandlerFunc(func(params transportation_service_provider_performances_t_s_p_ps.GetTSPPParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_service_provider_performances_t_s_p_ps.GetTSPP has not yet been implemented")
 		}),
-		UploadGetUploadHandler: upload.GetUploadHandlerFunc(func(params upload.GetUploadParams) middleware.Responder {
-			return middleware.NotImplemented("operation upload.GetUpload has not yet been implemented")
+		UploadsGetUploadHandler: uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
 		}),
 		UsersGetUserHandler: users.GetUserHandlerFunc(func(params users.GetUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.GetUser has not yet been implemented")
@@ -97,29 +97,29 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		AdminUsersIndexAdminUsersHandler: admin_users.IndexAdminUsersHandlerFunc(func(params admin_users.IndexAdminUsersParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.IndexAdminUsers has not yet been implemented")
 		}),
-		ClientCertsIndexClientCertsHandler: client_certs.IndexClientCertsHandlerFunc(func(params client_certs.IndexClientCertsParams) middleware.Responder {
-			return middleware.NotImplemented("operation client_certs.IndexClientCerts has not yet been implemented")
+		ClientCertificatesIndexClientCertificatesHandler: client_certificates.IndexClientCertificatesHandlerFunc(func(params client_certificates.IndexClientCertificatesParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certificates.IndexClientCertificates has not yet been implemented")
 		}),
-		ElectronicOrderIndexElectronicOrdersHandler: electronic_order.IndexElectronicOrdersHandlerFunc(func(params electronic_order.IndexElectronicOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation electronic_order.IndexElectronicOrders has not yet been implemented")
+		ElectronicOrdersIndexElectronicOrdersHandler: electronic_orders.IndexElectronicOrdersHandlerFunc(func(params electronic_orders.IndexElectronicOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation electronic_orders.IndexElectronicOrders has not yet been implemented")
 		}),
-		MoveIndexMovesHandler: move.IndexMovesHandlerFunc(func(params move.IndexMovesParams) middleware.Responder {
-			return middleware.NotImplemented("operation move.IndexMoves has not yet been implemented")
+		MovesIndexMovesHandler: moves.IndexMovesHandlerFunc(func(params moves.IndexMovesParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.IndexMoves has not yet been implemented")
 		}),
-		NotificationIndexNotificationsHandler: notification.IndexNotificationsHandlerFunc(func(params notification.IndexNotificationsParams) middleware.Responder {
-			return middleware.NotImplemented("operation notification.IndexNotifications has not yet been implemented")
+		NotificationsIndexNotificationsHandler: notifications.IndexNotificationsHandlerFunc(func(params notifications.IndexNotificationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation notifications.IndexNotifications has not yet been implemented")
 		}),
 		OfficeUsersIndexOfficeUsersHandler: office_users.IndexOfficeUsersHandlerFunc(func(params office_users.IndexOfficeUsersParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.IndexOfficeUsers has not yet been implemented")
 		}),
-		OfficeIndexOfficesHandler: office.IndexOfficesHandlerFunc(func(params office.IndexOfficesParams) middleware.Responder {
-			return middleware.NotImplemented("operation office.IndexOffices has not yet been implemented")
+		TransportationOfficesIndexOfficesHandler: transportation_offices.IndexOfficesHandlerFunc(func(params transportation_offices.IndexOfficesParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_offices.IndexOffices has not yet been implemented")
 		}),
-		OrganizationIndexOrganizationsHandler: organization.IndexOrganizationsHandlerFunc(func(params organization.IndexOrganizationsParams) middleware.Responder {
-			return middleware.NotImplemented("operation organization.IndexOrganizations has not yet been implemented")
+		OrganizationsIndexOrganizationsHandler: organizations.IndexOrganizationsHandlerFunc(func(params organizations.IndexOrganizationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation organizations.IndexOrganizations has not yet been implemented")
 		}),
-		TransportationServiceProviderPerformancesIndexTSPPsHandler: transportation_service_provider_performances.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances.IndexTSPPsParams) middleware.Responder {
-			return middleware.NotImplemented("operation transportation_service_provider_performances.IndexTSPPs has not yet been implemented")
+		TransportationServiceProviderPerformancestspPsIndexTSPPsHandler: transportation_service_provider_performances_t_s_p_ps.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances_t_s_p_ps.IndexTSPPsParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_service_provider_performances_t_s_p_ps.IndexTSPPs has not yet been implemented")
 		}),
 		UsersIndexUsersHandler: users.IndexUsersHandlerFunc(func(params users.IndexUsersParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.IndexUsers has not yet been implemented")
@@ -127,17 +127,17 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		WebhookSubscriptionsIndexWebhookSubscriptionsHandler: webhook_subscriptions.IndexWebhookSubscriptionsHandlerFunc(func(params webhook_subscriptions.IndexWebhookSubscriptionsParams) middleware.Responder {
 			return middleware.NotImplemented("operation webhook_subscriptions.IndexWebhookSubscriptions has not yet been implemented")
 		}),
-		ClientCertsRemoveClientCertHandler: client_certs.RemoveClientCertHandlerFunc(func(params client_certs.RemoveClientCertParams) middleware.Responder {
-			return middleware.NotImplemented("operation client_certs.RemoveClientCert has not yet been implemented")
+		ClientCertificatesRemoveClientCertificateHandler: client_certificates.RemoveClientCertificateHandlerFunc(func(params client_certificates.RemoveClientCertificateParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certificates.RemoveClientCertificate has not yet been implemented")
 		}),
 		AdminUsersUpdateAdminUserHandler: admin_users.UpdateAdminUserHandlerFunc(func(params admin_users.UpdateAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.UpdateAdminUser has not yet been implemented")
 		}),
-		ClientCertsUpdateClientCertHandler: client_certs.UpdateClientCertHandlerFunc(func(params client_certs.UpdateClientCertParams) middleware.Responder {
-			return middleware.NotImplemented("operation client_certs.UpdateClientCert has not yet been implemented")
+		ClientCertificatesUpdateClientCertificateHandler: client_certificates.UpdateClientCertificateHandlerFunc(func(params client_certificates.UpdateClientCertificateParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certificates.UpdateClientCertificate has not yet been implemented")
 		}),
-		MoveUpdateMoveHandler: move.UpdateMoveHandlerFunc(func(params move.UpdateMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation move.UpdateMove has not yet been implemented")
+		MovesUpdateMoveHandler: moves.UpdateMoveHandlerFunc(func(params moves.UpdateMoveParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.UpdateMove has not yet been implemented")
 		}),
 		OfficeUsersUpdateOfficeUserHandler: office_users.UpdateOfficeUserHandlerFunc(func(params office_users.UpdateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.UpdateOfficeUser has not yet been implemented")
@@ -190,60 +190,60 @@ type MymoveAPI struct {
 
 	// AdminUsersCreateAdminUserHandler sets the operation handler for the create admin user operation
 	AdminUsersCreateAdminUserHandler admin_users.CreateAdminUserHandler
-	// ClientCertsCreateClientCertHandler sets the operation handler for the create client cert operation
-	ClientCertsCreateClientCertHandler client_certs.CreateClientCertHandler
+	// ClientCertificatesCreateClientCertificateHandler sets the operation handler for the create client certificate operation
+	ClientCertificatesCreateClientCertificateHandler client_certificates.CreateClientCertificateHandler
 	// OfficeUsersCreateOfficeUserHandler sets the operation handler for the create office user operation
 	OfficeUsersCreateOfficeUserHandler office_users.CreateOfficeUserHandler
 	// WebhookSubscriptionsCreateWebhookSubscriptionHandler sets the operation handler for the create webhook subscription operation
 	WebhookSubscriptionsCreateWebhookSubscriptionHandler webhook_subscriptions.CreateWebhookSubscriptionHandler
 	// AdminUsersGetAdminUserHandler sets the operation handler for the get admin user operation
 	AdminUsersGetAdminUserHandler admin_users.GetAdminUserHandler
-	// ClientCertsGetClientCertHandler sets the operation handler for the get client cert operation
-	ClientCertsGetClientCertHandler client_certs.GetClientCertHandler
-	// ElectronicOrderGetElectronicOrdersTotalsHandler sets the operation handler for the get electronic orders totals operation
-	ElectronicOrderGetElectronicOrdersTotalsHandler electronic_order.GetElectronicOrdersTotalsHandler
-	// MoveGetMoveHandler sets the operation handler for the get move operation
-	MoveGetMoveHandler move.GetMoveHandler
+	// ClientCertificatesGetClientCertificateHandler sets the operation handler for the get client certificate operation
+	ClientCertificatesGetClientCertificateHandler client_certificates.GetClientCertificateHandler
+	// ElectronicOrdersGetElectronicOrdersTotalsHandler sets the operation handler for the get electronic orders totals operation
+	ElectronicOrdersGetElectronicOrdersTotalsHandler electronic_orders.GetElectronicOrdersTotalsHandler
+	// MovesGetMoveHandler sets the operation handler for the get move operation
+	MovesGetMoveHandler moves.GetMoveHandler
 	// OfficeUsersGetOfficeUserHandler sets the operation handler for the get office user operation
 	OfficeUsersGetOfficeUserHandler office_users.GetOfficeUserHandler
-	// TransportationServiceProviderPerformancesGetTSPPHandler sets the operation handler for the get t s p p operation
-	TransportationServiceProviderPerformancesGetTSPPHandler transportation_service_provider_performances.GetTSPPHandler
-	// UploadGetUploadHandler sets the operation handler for the get upload operation
-	UploadGetUploadHandler upload.GetUploadHandler
+	// TransportationServiceProviderPerformancestspPsGetTSPPHandler sets the operation handler for the get t s p p operation
+	TransportationServiceProviderPerformancestspPsGetTSPPHandler transportation_service_provider_performances_t_s_p_ps.GetTSPPHandler
+	// UploadsGetUploadHandler sets the operation handler for the get upload operation
+	UploadsGetUploadHandler uploads.GetUploadHandler
 	// UsersGetUserHandler sets the operation handler for the get user operation
 	UsersGetUserHandler users.GetUserHandler
 	// WebhookSubscriptionsGetWebhookSubscriptionHandler sets the operation handler for the get webhook subscription operation
 	WebhookSubscriptionsGetWebhookSubscriptionHandler webhook_subscriptions.GetWebhookSubscriptionHandler
 	// AdminUsersIndexAdminUsersHandler sets the operation handler for the index admin users operation
 	AdminUsersIndexAdminUsersHandler admin_users.IndexAdminUsersHandler
-	// ClientCertsIndexClientCertsHandler sets the operation handler for the index client certs operation
-	ClientCertsIndexClientCertsHandler client_certs.IndexClientCertsHandler
-	// ElectronicOrderIndexElectronicOrdersHandler sets the operation handler for the index electronic orders operation
-	ElectronicOrderIndexElectronicOrdersHandler electronic_order.IndexElectronicOrdersHandler
-	// MoveIndexMovesHandler sets the operation handler for the index moves operation
-	MoveIndexMovesHandler move.IndexMovesHandler
-	// NotificationIndexNotificationsHandler sets the operation handler for the index notifications operation
-	NotificationIndexNotificationsHandler notification.IndexNotificationsHandler
+	// ClientCertificatesIndexClientCertificatesHandler sets the operation handler for the index client certificates operation
+	ClientCertificatesIndexClientCertificatesHandler client_certificates.IndexClientCertificatesHandler
+	// ElectronicOrdersIndexElectronicOrdersHandler sets the operation handler for the index electronic orders operation
+	ElectronicOrdersIndexElectronicOrdersHandler electronic_orders.IndexElectronicOrdersHandler
+	// MovesIndexMovesHandler sets the operation handler for the index moves operation
+	MovesIndexMovesHandler moves.IndexMovesHandler
+	// NotificationsIndexNotificationsHandler sets the operation handler for the index notifications operation
+	NotificationsIndexNotificationsHandler notifications.IndexNotificationsHandler
 	// OfficeUsersIndexOfficeUsersHandler sets the operation handler for the index office users operation
 	OfficeUsersIndexOfficeUsersHandler office_users.IndexOfficeUsersHandler
-	// OfficeIndexOfficesHandler sets the operation handler for the index offices operation
-	OfficeIndexOfficesHandler office.IndexOfficesHandler
-	// OrganizationIndexOrganizationsHandler sets the operation handler for the index organizations operation
-	OrganizationIndexOrganizationsHandler organization.IndexOrganizationsHandler
-	// TransportationServiceProviderPerformancesIndexTSPPsHandler sets the operation handler for the index t s p ps operation
-	TransportationServiceProviderPerformancesIndexTSPPsHandler transportation_service_provider_performances.IndexTSPPsHandler
+	// TransportationOfficesIndexOfficesHandler sets the operation handler for the index offices operation
+	TransportationOfficesIndexOfficesHandler transportation_offices.IndexOfficesHandler
+	// OrganizationsIndexOrganizationsHandler sets the operation handler for the index organizations operation
+	OrganizationsIndexOrganizationsHandler organizations.IndexOrganizationsHandler
+	// TransportationServiceProviderPerformancestspPsIndexTSPPsHandler sets the operation handler for the index t s p ps operation
+	TransportationServiceProviderPerformancestspPsIndexTSPPsHandler transportation_service_provider_performances_t_s_p_ps.IndexTSPPsHandler
 	// UsersIndexUsersHandler sets the operation handler for the index users operation
 	UsersIndexUsersHandler users.IndexUsersHandler
 	// WebhookSubscriptionsIndexWebhookSubscriptionsHandler sets the operation handler for the index webhook subscriptions operation
 	WebhookSubscriptionsIndexWebhookSubscriptionsHandler webhook_subscriptions.IndexWebhookSubscriptionsHandler
-	// ClientCertsRemoveClientCertHandler sets the operation handler for the remove client cert operation
-	ClientCertsRemoveClientCertHandler client_certs.RemoveClientCertHandler
+	// ClientCertificatesRemoveClientCertificateHandler sets the operation handler for the remove client certificate operation
+	ClientCertificatesRemoveClientCertificateHandler client_certificates.RemoveClientCertificateHandler
 	// AdminUsersUpdateAdminUserHandler sets the operation handler for the update admin user operation
 	AdminUsersUpdateAdminUserHandler admin_users.UpdateAdminUserHandler
-	// ClientCertsUpdateClientCertHandler sets the operation handler for the update client cert operation
-	ClientCertsUpdateClientCertHandler client_certs.UpdateClientCertHandler
-	// MoveUpdateMoveHandler sets the operation handler for the update move operation
-	MoveUpdateMoveHandler move.UpdateMoveHandler
+	// ClientCertificatesUpdateClientCertificateHandler sets the operation handler for the update client certificate operation
+	ClientCertificatesUpdateClientCertificateHandler client_certificates.UpdateClientCertificateHandler
+	// MovesUpdateMoveHandler sets the operation handler for the update move operation
+	MovesUpdateMoveHandler moves.UpdateMoveHandler
 	// OfficeUsersUpdateOfficeUserHandler sets the operation handler for the update office user operation
 	OfficeUsersUpdateOfficeUserHandler office_users.UpdateOfficeUserHandler
 	// UsersUpdateUserHandler sets the operation handler for the update user operation
@@ -330,8 +330,8 @@ func (o *MymoveAPI) Validate() error {
 	if o.AdminUsersCreateAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.CreateAdminUserHandler")
 	}
-	if o.ClientCertsCreateClientCertHandler == nil {
-		unregistered = append(unregistered, "client_certs.CreateClientCertHandler")
+	if o.ClientCertificatesCreateClientCertificateHandler == nil {
+		unregistered = append(unregistered, "client_certificates.CreateClientCertificateHandler")
 	}
 	if o.OfficeUsersCreateOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.CreateOfficeUserHandler")
@@ -342,23 +342,23 @@ func (o *MymoveAPI) Validate() error {
 	if o.AdminUsersGetAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.GetAdminUserHandler")
 	}
-	if o.ClientCertsGetClientCertHandler == nil {
-		unregistered = append(unregistered, "client_certs.GetClientCertHandler")
+	if o.ClientCertificatesGetClientCertificateHandler == nil {
+		unregistered = append(unregistered, "client_certificates.GetClientCertificateHandler")
 	}
-	if o.ElectronicOrderGetElectronicOrdersTotalsHandler == nil {
-		unregistered = append(unregistered, "electronic_order.GetElectronicOrdersTotalsHandler")
+	if o.ElectronicOrdersGetElectronicOrdersTotalsHandler == nil {
+		unregistered = append(unregistered, "electronic_orders.GetElectronicOrdersTotalsHandler")
 	}
-	if o.MoveGetMoveHandler == nil {
-		unregistered = append(unregistered, "move.GetMoveHandler")
+	if o.MovesGetMoveHandler == nil {
+		unregistered = append(unregistered, "moves.GetMoveHandler")
 	}
 	if o.OfficeUsersGetOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.GetOfficeUserHandler")
 	}
-	if o.TransportationServiceProviderPerformancesGetTSPPHandler == nil {
-		unregistered = append(unregistered, "transportation_service_provider_performances.GetTSPPHandler")
+	if o.TransportationServiceProviderPerformancestspPsGetTSPPHandler == nil {
+		unregistered = append(unregistered, "transportation_service_provider_performances_t_s_p_ps.GetTSPPHandler")
 	}
-	if o.UploadGetUploadHandler == nil {
-		unregistered = append(unregistered, "upload.GetUploadHandler")
+	if o.UploadsGetUploadHandler == nil {
+		unregistered = append(unregistered, "uploads.GetUploadHandler")
 	}
 	if o.UsersGetUserHandler == nil {
 		unregistered = append(unregistered, "users.GetUserHandler")
@@ -369,29 +369,29 @@ func (o *MymoveAPI) Validate() error {
 	if o.AdminUsersIndexAdminUsersHandler == nil {
 		unregistered = append(unregistered, "admin_users.IndexAdminUsersHandler")
 	}
-	if o.ClientCertsIndexClientCertsHandler == nil {
-		unregistered = append(unregistered, "client_certs.IndexClientCertsHandler")
+	if o.ClientCertificatesIndexClientCertificatesHandler == nil {
+		unregistered = append(unregistered, "client_certificates.IndexClientCertificatesHandler")
 	}
-	if o.ElectronicOrderIndexElectronicOrdersHandler == nil {
-		unregistered = append(unregistered, "electronic_order.IndexElectronicOrdersHandler")
+	if o.ElectronicOrdersIndexElectronicOrdersHandler == nil {
+		unregistered = append(unregistered, "electronic_orders.IndexElectronicOrdersHandler")
 	}
-	if o.MoveIndexMovesHandler == nil {
-		unregistered = append(unregistered, "move.IndexMovesHandler")
+	if o.MovesIndexMovesHandler == nil {
+		unregistered = append(unregistered, "moves.IndexMovesHandler")
 	}
-	if o.NotificationIndexNotificationsHandler == nil {
-		unregistered = append(unregistered, "notification.IndexNotificationsHandler")
+	if o.NotificationsIndexNotificationsHandler == nil {
+		unregistered = append(unregistered, "notifications.IndexNotificationsHandler")
 	}
 	if o.OfficeUsersIndexOfficeUsersHandler == nil {
 		unregistered = append(unregistered, "office_users.IndexOfficeUsersHandler")
 	}
-	if o.OfficeIndexOfficesHandler == nil {
-		unregistered = append(unregistered, "office.IndexOfficesHandler")
+	if o.TransportationOfficesIndexOfficesHandler == nil {
+		unregistered = append(unregistered, "transportation_offices.IndexOfficesHandler")
 	}
-	if o.OrganizationIndexOrganizationsHandler == nil {
-		unregistered = append(unregistered, "organization.IndexOrganizationsHandler")
+	if o.OrganizationsIndexOrganizationsHandler == nil {
+		unregistered = append(unregistered, "organizations.IndexOrganizationsHandler")
 	}
-	if o.TransportationServiceProviderPerformancesIndexTSPPsHandler == nil {
-		unregistered = append(unregistered, "transportation_service_provider_performances.IndexTSPPsHandler")
+	if o.TransportationServiceProviderPerformancestspPsIndexTSPPsHandler == nil {
+		unregistered = append(unregistered, "transportation_service_provider_performances_t_s_p_ps.IndexTSPPsHandler")
 	}
 	if o.UsersIndexUsersHandler == nil {
 		unregistered = append(unregistered, "users.IndexUsersHandler")
@@ -399,17 +399,17 @@ func (o *MymoveAPI) Validate() error {
 	if o.WebhookSubscriptionsIndexWebhookSubscriptionsHandler == nil {
 		unregistered = append(unregistered, "webhook_subscriptions.IndexWebhookSubscriptionsHandler")
 	}
-	if o.ClientCertsRemoveClientCertHandler == nil {
-		unregistered = append(unregistered, "client_certs.RemoveClientCertHandler")
+	if o.ClientCertificatesRemoveClientCertificateHandler == nil {
+		unregistered = append(unregistered, "client_certificates.RemoveClientCertificateHandler")
 	}
 	if o.AdminUsersUpdateAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.UpdateAdminUserHandler")
 	}
-	if o.ClientCertsUpdateClientCertHandler == nil {
-		unregistered = append(unregistered, "client_certs.UpdateClientCertHandler")
+	if o.ClientCertificatesUpdateClientCertificateHandler == nil {
+		unregistered = append(unregistered, "client_certificates.UpdateClientCertificateHandler")
 	}
-	if o.MoveUpdateMoveHandler == nil {
-		unregistered = append(unregistered, "move.UpdateMoveHandler")
+	if o.MovesUpdateMoveHandler == nil {
+		unregistered = append(unregistered, "moves.UpdateMoveHandler")
 	}
 	if o.OfficeUsersUpdateOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.UpdateOfficeUserHandler")
@@ -511,47 +511,47 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/admin_users"] = admin_users.NewCreateAdminUser(o.context, o.AdminUsersCreateAdminUserHandler)
+	o.handlers["POST"]["/admin-users"] = admin_users.NewCreateAdminUser(o.context, o.AdminUsersCreateAdminUserHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/client_certs"] = client_certs.NewCreateClientCert(o.context, o.ClientCertsCreateClientCertHandler)
+	o.handlers["POST"]["/client-certificates"] = client_certificates.NewCreateClientCertificate(o.context, o.ClientCertificatesCreateClientCertificateHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/office_users"] = office_users.NewCreateOfficeUser(o.context, o.OfficeUsersCreateOfficeUserHandler)
+	o.handlers["POST"]["/office-users"] = office_users.NewCreateOfficeUser(o.context, o.OfficeUsersCreateOfficeUserHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/webhook_subscriptions"] = webhook_subscriptions.NewCreateWebhookSubscription(o.context, o.WebhookSubscriptionsCreateWebhookSubscriptionHandler)
+	o.handlers["POST"]["/webhook-subscriptions"] = webhook_subscriptions.NewCreateWebhookSubscription(o.context, o.WebhookSubscriptionsCreateWebhookSubscriptionHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/admin_users/{adminUserId}"] = admin_users.NewGetAdminUser(o.context, o.AdminUsersGetAdminUserHandler)
+	o.handlers["GET"]["/admin-users/{adminUserId}"] = admin_users.NewGetAdminUser(o.context, o.AdminUsersGetAdminUserHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/client_certs/{clientCertId}"] = client_certs.NewGetClientCert(o.context, o.ClientCertsGetClientCertHandler)
+	o.handlers["GET"]["/client-certificates/{clientCertificateId}"] = client_certificates.NewGetClientCertificate(o.context, o.ClientCertificatesGetClientCertificateHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/electronic_orders/totals"] = electronic_order.NewGetElectronicOrdersTotals(o.context, o.ElectronicOrderGetElectronicOrdersTotalsHandler)
+	o.handlers["GET"]["/electronic-orders/totals"] = electronic_orders.NewGetElectronicOrdersTotals(o.context, o.ElectronicOrdersGetElectronicOrdersTotalsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/moves/{moveID}"] = move.NewGetMove(o.context, o.MoveGetMoveHandler)
+	o.handlers["GET"]["/moves/{moveID}"] = moves.NewGetMove(o.context, o.MovesGetMoveHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/office_users/{officeUserId}"] = office_users.NewGetOfficeUser(o.context, o.OfficeUsersGetOfficeUserHandler)
+	o.handlers["GET"]["/office-users/{officeUserId}"] = office_users.NewGetOfficeUser(o.context, o.OfficeUsersGetOfficeUserHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/transportation_service_provider_performances/{tsppId}"] = transportation_service_provider_performances.NewGetTSPP(o.context, o.TransportationServiceProviderPerformancesGetTSPPHandler)
+	o.handlers["GET"]["/transportation-service-provider-performances/{tsppId}"] = transportation_service_provider_performances_t_s_p_ps.NewGetTSPP(o.context, o.TransportationServiceProviderPerformancestspPsGetTSPPHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/uploads/{uploadId}"] = upload.NewGetUpload(o.context, o.UploadGetUploadHandler)
+	o.handlers["GET"]["/uploads/{uploadId}"] = uploads.NewGetUpload(o.context, o.UploadsGetUploadHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -559,43 +559,43 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/webhook_subscriptions/{webhookSubscriptionId}"] = webhook_subscriptions.NewGetWebhookSubscription(o.context, o.WebhookSubscriptionsGetWebhookSubscriptionHandler)
+	o.handlers["GET"]["/webhook-subscriptions/{webhookSubscriptionId}"] = webhook_subscriptions.NewGetWebhookSubscription(o.context, o.WebhookSubscriptionsGetWebhookSubscriptionHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/admin_users"] = admin_users.NewIndexAdminUsers(o.context, o.AdminUsersIndexAdminUsersHandler)
+	o.handlers["GET"]["/admin-users"] = admin_users.NewIndexAdminUsers(o.context, o.AdminUsersIndexAdminUsersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/client_certs"] = client_certs.NewIndexClientCerts(o.context, o.ClientCertsIndexClientCertsHandler)
+	o.handlers["GET"]["/client-certificates"] = client_certificates.NewIndexClientCertificates(o.context, o.ClientCertificatesIndexClientCertificatesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/electronic_orders"] = electronic_order.NewIndexElectronicOrders(o.context, o.ElectronicOrderIndexElectronicOrdersHandler)
+	o.handlers["GET"]["/electronic-orders"] = electronic_orders.NewIndexElectronicOrders(o.context, o.ElectronicOrdersIndexElectronicOrdersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/moves"] = move.NewIndexMoves(o.context, o.MoveIndexMovesHandler)
+	o.handlers["GET"]["/moves"] = moves.NewIndexMoves(o.context, o.MovesIndexMovesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/notifications"] = notification.NewIndexNotifications(o.context, o.NotificationIndexNotificationsHandler)
+	o.handlers["GET"]["/notifications"] = notifications.NewIndexNotifications(o.context, o.NotificationsIndexNotificationsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/office_users"] = office_users.NewIndexOfficeUsers(o.context, o.OfficeUsersIndexOfficeUsersHandler)
+	o.handlers["GET"]["/office-users"] = office_users.NewIndexOfficeUsers(o.context, o.OfficeUsersIndexOfficeUsersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/offices"] = office.NewIndexOffices(o.context, o.OfficeIndexOfficesHandler)
+	o.handlers["GET"]["/offices"] = transportation_offices.NewIndexOffices(o.context, o.TransportationOfficesIndexOfficesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/organizations"] = organization.NewIndexOrganizations(o.context, o.OrganizationIndexOrganizationsHandler)
+	o.handlers["GET"]["/organizations"] = organizations.NewIndexOrganizations(o.context, o.OrganizationsIndexOrganizationsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/transportation_service_provider_performances"] = transportation_service_provider_performances.NewIndexTSPPs(o.context, o.TransportationServiceProviderPerformancesIndexTSPPsHandler)
+	o.handlers["GET"]["/transportation-service-provider-performances"] = transportation_service_provider_performances_t_s_p_ps.NewIndexTSPPs(o.context, o.TransportationServiceProviderPerformancestspPsIndexTSPPsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -603,27 +603,27 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/webhook_subscriptions"] = webhook_subscriptions.NewIndexWebhookSubscriptions(o.context, o.WebhookSubscriptionsIndexWebhookSubscriptionsHandler)
+	o.handlers["GET"]["/webhook-subscriptions"] = webhook_subscriptions.NewIndexWebhookSubscriptions(o.context, o.WebhookSubscriptionsIndexWebhookSubscriptionsHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
-	o.handlers["DELETE"]["/client_certs/{clientCertId}"] = client_certs.NewRemoveClientCert(o.context, o.ClientCertsRemoveClientCertHandler)
+	o.handlers["DELETE"]["/client-certificates/{clientCertificateId}"] = client_certificates.NewRemoveClientCertificate(o.context, o.ClientCertificatesRemoveClientCertificateHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/admin_users/{adminUserId}"] = admin_users.NewUpdateAdminUser(o.context, o.AdminUsersUpdateAdminUserHandler)
+	o.handlers["PATCH"]["/admin-users/{adminUserId}"] = admin_users.NewUpdateAdminUser(o.context, o.AdminUsersUpdateAdminUserHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/client_certs/{clientCertId}"] = client_certs.NewUpdateClientCert(o.context, o.ClientCertsUpdateClientCertHandler)
+	o.handlers["PATCH"]["/client-certificates/{clientCertificateId}"] = client_certificates.NewUpdateClientCertificate(o.context, o.ClientCertificatesUpdateClientCertificateHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/moves/{moveID}"] = move.NewUpdateMove(o.context, o.MoveUpdateMoveHandler)
+	o.handlers["PATCH"]["/moves/{moveID}"] = moves.NewUpdateMove(o.context, o.MovesUpdateMoveHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/office_users/{officeUserId}"] = office_users.NewUpdateOfficeUser(o.context, o.OfficeUsersUpdateOfficeUserHandler)
+	o.handlers["PATCH"]["/office-users/{officeUserId}"] = office_users.NewUpdateOfficeUser(o.context, o.OfficeUsersUpdateOfficeUserHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
@@ -631,7 +631,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/webhook_subscriptions/{webhookSubscriptionId}"] = webhook_subscriptions.NewUpdateWebhookSubscription(o.context, o.WebhookSubscriptionsUpdateWebhookSubscriptionHandler)
+	o.handlers["PATCH"]["/webhook-subscriptions/{webhookSubscriptionId}"] = webhook_subscriptions.NewUpdateWebhookSubscription(o.context, o.WebhookSubscriptionsUpdateWebhookSubscriptionHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

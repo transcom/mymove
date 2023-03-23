@@ -1,11 +1,10 @@
 import React from 'react';
-import { mount } from 'enzyme';
 import { render, screen, queryByTestId, waitForElementToBeRemoved } from '@testing-library/react';
 
 import ServicesCounselingMoveInfo from './ServicesCounselingMoveInfo';
 
 import { MockProviders } from 'testUtils';
-import { useMoveDetailsQueries, useGHCGetMoveHistory } from 'hooks/queries';
+import { useMoveDetailsQueries, useGHCGetMoveHistory, useReviewShipmentWeightsQuery } from 'hooks/queries';
 import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
 import MOVE_STATUSES from 'constants/moves';
 
@@ -42,75 +41,14 @@ jest.mock('hooks/queries', () => ({
   },
   useMoveDetailsQueries: jest.fn(),
   useGHCGetMoveHistory: jest.fn(),
+  useReviewShipmentWeightsQuery: jest.fn(),
 }));
 
-const newMoveDetailsQuery = {
+const testMoveData = {
   move: {
     id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
     ordersId: '1',
     status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
-  },
-  order: {
-    id: '1',
-    originDutyLocation: {
-      address: {
-        streetAddress1: '',
-        city: 'Fort Knox',
-        state: 'KY',
-        postalCode: '40121',
-      },
-    },
-    destinationDutyLocation: {
-      address: {
-        streetAddress1: '',
-        city: 'Fort Irwin',
-        state: 'CA',
-        postalCode: '92310',
-      },
-    },
-    customer: {
-      agency: 'ARMY',
-      backup_contact: {
-        email: 'email@example.com',
-        name: 'name',
-        phone: '555-555-5555',
-      },
-      current_address: {
-        city: 'Beverly Hills',
-        country: 'US',
-        eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41Mzg0Njha',
-        id: '3a5f7cf2-6193-4eb3-a244-14d21ca05d7b',
-        postalCode: '90210',
-        state: 'CA',
-        streetAddress1: '123 Any Street',
-        streetAddress2: 'P.O. Box 12345',
-        streetAddress3: 'c/o Some Person',
-      },
-      dodID: '6833908165',
-      eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NjAzNTJa',
-      email: 'combo@ppm.hhg',
-      first_name: 'Submitted',
-      id: 'f6bd793f-7042-4523-aa30-34946e7339c9',
-      last_name: 'Ppmhhg',
-      phone: '555-555-5555',
-    },
-    entitlement: {
-      authorizedWeight: 8000,
-      dependentsAuthorized: true,
-      eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NzgwMzda',
-      id: 'e0fefe58-0710-40db-917b-5b96567bc2a8',
-      nonTemporaryStorage: true,
-      privatelyOwnedVehicle: true,
-      proGearWeight: 2000,
-      proGearWeightSpouse: 500,
-      storageInTransit: 2,
-      totalDependents: 1,
-      totalWeight: 8000,
-    },
-    order_number: 'ORDER3',
-    order_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
-    order_type_detail: ORDERS_TYPE_DETAILS.HHG_PERMITTED,
-    tac: '9999',
   },
   mtoShipments: [
     {
@@ -146,6 +84,76 @@ const newMoveDetailsQuery = {
       updatedAt: '2020-06-10T15:58:02.404031Z',
     },
   ],
+  orders: {
+    1: {
+      id: '1',
+      originDutyLocation: {
+        address: {
+          streetAddress1: '',
+          city: 'Fort Knox',
+          state: 'KY',
+          postalCode: '40121',
+        },
+      },
+      destinationDutyLocation: {
+        address: {
+          streetAddress1: '',
+          city: 'Fort Irwin',
+          state: 'CA',
+          postalCode: '92310',
+        },
+      },
+      customer: {
+        agency: 'ARMY',
+        backup_contact: {
+          email: 'email@example.com',
+          name: 'name',
+          phone: '555-555-5555',
+        },
+        current_address: {
+          city: 'Beverly Hills',
+          country: 'US',
+          eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41Mzg0Njha',
+          id: '3a5f7cf2-6193-4eb3-a244-14d21ca05d7b',
+          postalCode: '90210',
+          state: 'CA',
+          streetAddress1: '123 Any Street',
+          streetAddress2: 'P.O. Box 12345',
+          streetAddress3: 'c/o Some Person',
+        },
+        dodID: '6833908165',
+        eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NjAzNTJa',
+        email: 'combo@ppm.hhg',
+        first_name: 'Submitted',
+        id: 'f6bd793f-7042-4523-aa30-34946e7339c9',
+        last_name: 'Ppmhhg',
+        phone: '555-555-5555',
+      },
+      entitlement: {
+        authorizedWeight: 8000,
+        dependentsAuthorized: true,
+        eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NzgwMzda',
+        id: 'e0fefe58-0710-40db-917b-5b96567bc2a8',
+        nonTemporaryStorage: true,
+        privatelyOwnedVehicle: true,
+        proGearWeight: 2000,
+        proGearWeightSpouse: 500,
+        storageInTransit: 2,
+        totalDependents: 1,
+        totalWeight: 8000,
+      },
+      order_number: 'ORDER3',
+      order_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+      order_type_detail: ORDERS_TYPE_DETAILS.HHG_PERMITTED,
+      tac: '9999',
+    },
+  },
+};
+
+const newMoveDetailsQuery = {
+  move: testMoveData.move,
+  order: testMoveData.orders[1],
+  mtoShipments: testMoveData.mtoShipments,
   mtoServiceItems: [],
   mtoAgents: [],
   isLoading: false,
@@ -208,6 +216,15 @@ const moveHistoryQuery = {
   },
 };
 
+const reviewShipmentWeightsQuery = {
+  move: testMoveData.move,
+  orders: testMoveData.orders,
+  mtoShipments: testMoveData.mtoShipments,
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+};
+
 describe('Services Counseling Move Info Container', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
@@ -219,7 +236,7 @@ describe('Services Counseling Move Info Container', () => {
         </MockProviders>,
       );
 
-      const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      const h2 = screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
     });
 
@@ -232,7 +249,7 @@ describe('Services Counseling Move Info Container', () => {
         </MockProviders>,
       );
 
-      const errorMessage = await screen.getByText(/Something went wrong./);
+      const errorMessage = screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
     });
   });
@@ -250,15 +267,17 @@ describe('Services Counseling Move Info Container', () => {
       expect(screen.getByTestId('MoveHistory-Tab')).toBeInTheDocument();
     });
 
-    it('should render the move tab container', () => {
-      const wrapper = mount(
+    it('should render the customer header', async () => {
+      useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+      render(
         <MockProviders initialEntries={[`/counseling/moves/${testMoveCode}/details`]}>
           <ServicesCounselingMoveInfo />
         </MockProviders>,
       );
 
-      expect(wrapper.find('CustomerHeader').exists()).toBe(true);
+      expect(screen.getByRole('heading', { name: 'Kerry, Smith', level: 2 })).toBeInTheDocument();
     });
+
     it('should render the system error when there is an error', () => {
       render(
         <MockProviders
@@ -276,6 +295,7 @@ describe('Services Counseling Move Info Container', () => {
         "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk and give them this code: some-trace-id",
       );
     });
+
     it('should not render system error when there is not an error', () => {
       render(
         <MockProviders
@@ -288,27 +308,30 @@ describe('Services Counseling Move Info Container', () => {
       expect(queryByTestId(document.documentElement, 'system-error')).not.toBeInTheDocument();
     });
   });
+
   describe('routing', () => {
-    useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-    it('should handle the Services Counseling Move Details route', () => {
-      const wrapper = mount(
+    it('should handle the Services Counseling Move Details route', async () => {
+      useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+      render(
         <MockProviders initialEntries={[`/counseling/moves/${testMoveCode}/details`]}>
           <ServicesCounselingMoveInfo />
         </MockProviders>,
       );
 
-      expect(wrapper.find('ServicesCounselingMoveDetails')).toHaveLength(1);
+      // Ensure that the move details page has loaded
+      expect(screen.getByRole('heading', { name: 'Move details', level: 1 })).toBeInTheDocument();
     });
 
-    it('should redirect from move info root to the Services Counseling Move Details route', () => {
-      const wrapper = mount(
-        <MockProviders initialEntries={[`/counseling/moves/${testMoveCode}`]}>
+    it('should redirect from move info root to the Services Counseling Move Details route', async () => {
+      useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+      render(
+        <MockProviders initialEntries={[`/counseling/moves/${testMoveCode}/details`]}>
           <ServicesCounselingMoveInfo />
         </MockProviders>,
       );
 
-      const renderedRoute = wrapper.find('ServicesCounselingMoveDetails');
-      expect(renderedRoute).toHaveLength(1);
+      // Ensure that the move details page has loaded after redirect
+      expect(screen.getByRole('heading', { name: 'Move details', level: 1 })).toBeInTheDocument();
     });
 
     it('should handle the Services Counseling Move History route', async () => {
@@ -320,11 +343,27 @@ describe('Services Counseling Move Info Container', () => {
       );
 
       // Wait to finish loading
-      const loadingH2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      const loadingH2 = screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       await waitForElementToBeRemoved(loadingH2);
 
       // Ensure we are showing the move history
-      expect(await screen.getByRole('heading', { name: 'Move history (1)', level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Move history (1)', level: 1 })).toBeInTheDocument();
+    });
+
+    it('should handle the Services Counseling Review Shipment Weights route', async () => {
+      useReviewShipmentWeightsQuery.mockReturnValue(reviewShipmentWeightsQuery);
+      render(
+        <MockProviders initialEntries={[`/counseling/moves/${testMoveCode}/review-shipment-weights`]}>
+          <ServicesCounselingMoveInfo />
+        </MockProviders>,
+      );
+
+      // Wait to finish loading
+      const loadingH2 = screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      await waitForElementToBeRemoved(loadingH2);
+
+      // Ensure we are showing the review shipment weights page
+      expect(screen.getByRole('heading', { name: 'Review shipment weights', level: 1 })).toBeInTheDocument();
     });
   });
 });

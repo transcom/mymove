@@ -70,7 +70,7 @@ describe('ShipmentQAEReportHeader', () => {
   it('renders HHG shipment', () => {
     render(
       <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
-        <ShipmentQAEReportHeader shipment={hhgShipment} shipmentNumber={1} />
+        <ShipmentQAEReportHeader destinationDutyLocationPostalCode="" shipment={hhgShipment} shipmentNumber={1} />
       </MockProviders>,
     );
     expect(screen.getByRole('heading', { level: 4, name: /HHG Shipment ID #C3C64/ })).toBeInTheDocument();
@@ -82,7 +82,7 @@ describe('ShipmentQAEReportHeader', () => {
   it('renders NTS shipment', () => {
     render(
       <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
-        <ShipmentQAEReportHeader shipment={ntsShipment} shipmentNumber={1} />
+        <ShipmentQAEReportHeader destinationDutyLocationPostalCode="" shipment={ntsShipment} shipmentNumber={1} />
       </MockProviders>,
     );
     expect(screen.getByRole('heading', { level: 4, name: /NTS Shipment ID #C3C64/ })).toBeInTheDocument();
@@ -94,7 +94,11 @@ describe('ShipmentQAEReportHeader', () => {
   it('renders NTS-R shipment', () => {
     render(
       <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
-        <ShipmentQAEReportHeader shipment={ntsReleaseShipment} shipmentNumber={1} />
+        <ShipmentQAEReportHeader
+          destinationDutyLocationPostalCode=""
+          shipment={ntsReleaseShipment}
+          shipmentNumber={1}
+        />
       </MockProviders>,
     );
     expect(screen.getByRole('heading', { level: 4, name: /NTS-Release Shipment ID #C3C64/ })).toBeInTheDocument();
@@ -106,7 +110,7 @@ describe('ShipmentQAEReportHeader', () => {
   it('renders PPM shipment', () => {
     render(
       <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
-        <ShipmentQAEReportHeader shipment={ppmShipment} shipmentNumber={1} />
+        <ShipmentQAEReportHeader destinationDutyLocationPostalCode="" shipment={ppmShipment} shipmentNumber={1} />
       </MockProviders>,
     );
     expect(screen.getByRole('heading', { level: 4, name: /PPM Shipment ID #C3C64/ })).toBeInTheDocument();

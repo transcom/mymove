@@ -413,7 +413,6 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primemessages.PPMShipment {
 		SitEstimatedCost:               handlers.FmtCost(ppmShipment.SITEstimatedCost),
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
-		NetWeight:                      handlers.FmtPoundPtr(ppmShipment.NetWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
@@ -489,11 +488,11 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	}
 
 	if mtoShipment.PrimeEstimatedWeight != nil {
-		payload.PrimeEstimatedWeight = int64(*mtoShipment.PrimeEstimatedWeight)
+		payload.PrimeEstimatedWeight = handlers.FmtInt64(mtoShipment.PrimeEstimatedWeight.Int64())
 	}
 
 	if mtoShipment.PrimeActualWeight != nil {
-		payload.PrimeActualWeight = int64(*mtoShipment.PrimeActualWeight)
+		payload.PrimeActualWeight = handlers.FmtInt64(mtoShipment.PrimeActualWeight.Int64())
 	}
 
 	if mtoShipment.NTSRecordedWeight != nil {

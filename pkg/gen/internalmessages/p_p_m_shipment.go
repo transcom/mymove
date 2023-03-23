@@ -49,7 +49,7 @@ type PPMShipment struct {
 	AdvanceAmountRequested *int64 `json:"advanceAmountRequested"`
 
 	// advance status
-	AdvanceStatus PPMAdvanceStatus `json:"advanceStatus,omitempty"`
+	AdvanceStatus *PPMAdvanceStatus `json:"advanceStatus,omitempty"`
 
 	// The timestamp of when the shipment was approved and the service member can begin their move.
 	// Format: date-time
@@ -113,11 +113,6 @@ type PPMShipment struct {
 
 	// All expense documentation receipt records of this PPM shipment.
 	MovingExpenses []*MovingExpense `json:"movingExpenses"`
-
-	// The net weight of the shipment once it has been weighed.
-	//
-	// Example: 4300
-	NetWeight *int64 `json:"netWeight"`
 
 	// ZIP
 	//
@@ -366,13 +361,15 @@ func (m *PPMShipment) validateAdvanceStatus(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.AdvanceStatus.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("advanceStatus")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("advanceStatus")
+	if m.AdvanceStatus != nil {
+		if err := m.AdvanceStatus.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("advanceStatus")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("advanceStatus")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -782,13 +779,15 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 
 func (m *PPMShipment) contextValidateAdvanceStatus(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.AdvanceStatus.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("advanceStatus")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("advanceStatus")
+	if m.AdvanceStatus != nil {
+		if err := m.AdvanceStatus.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("advanceStatus")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("advanceStatus")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil

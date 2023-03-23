@@ -16,7 +16,7 @@ func (suite *ClientCertServiceSuite) TestUpdateClientCert() {
 	mockSender := setUpMockNotificationSender()
 
 	allowPrime := true
-	payload := &adminmessages.ClientCertUpdatePayload{
+	payload := &adminmessages.ClientCertificateUpdate{
 		AllowPrime: &allowPrime,
 	}
 

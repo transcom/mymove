@@ -399,7 +399,6 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
-		NetWeight:                      handlers.PoundPtrFromInt64Ptr(ppmShipment.NetWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
@@ -429,6 +428,11 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 	if ppmShipment.SitLocation != nil {
 		sitLocation := models.SITLocationType(*ppmShipment.SitLocation)
 		model.SITLocation = &sitLocation
+	}
+
+	if ppmShipment.AdvanceStatus != nil {
+		advanceStatus := models.PPMAdvanceStatus(*ppmShipment.AdvanceStatus)
+		model.AdvanceStatus = &advanceStatus
 	}
 
 	model.SITEstimatedWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.SitEstimatedWeight)
@@ -473,6 +477,8 @@ func WeightTicketModelFromUpdate(weightTicket *ghcmessages.UpdateWeightTicket) *
 		TrailerMeetsCriteria: handlers.FmtBool(weightTicket.TrailerMeetsCriteria),
 		Status:               (*models.PPMDocumentStatus)(handlers.FmtString(string(weightTicket.Status))),
 		Reason:               handlers.FmtString(weightTicket.Reason),
+		AdjustedNetWeight:    handlers.PoundPtrFromInt64Ptr(weightTicket.AdjustedNetWeight),
+		NetWeightRemarks:     handlers.FmtString(weightTicket.NetWeightRemarks),
 	}
 	return model
 }

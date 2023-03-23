@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -156,12 +157,28 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createApprovedMoveWithPPMWithAboutFormComplete6(appCtx, userUploader)
 		createApprovedMoveWithPPM2(appCtx, userUploader)
 		createApprovedMoveWithPPMWeightTicket(appCtx, userUploader)
+		createApprovedMoveWithPPMExcessWeight(appCtx, userUploader,
+			MoveCreatorInfo{
+				UserID:      uuid.Must(uuid.NewV4()),
+				Email:       "excessweightsPPM@ppm.approved",
+				SmID:        uuid.Must(uuid.NewV4()),
+				FirstName:   "PPM",
+				LastName:    "ExcessWeights",
+				MoveID:      uuid.Must(uuid.NewV4()),
+				MoveLocator: "XSWT01",
+			})
+		createApprovedMoveWithPPMExcessWeightsAnd2WeightTickets(appCtx, userUploader)
+		createApprovedMoveWith2PPMShipmentsAndExcessWeights(appCtx, userUploader)
+		createApprovedMoveWithPPMAndHHGShipmentsAndExcessWeights(appCtx, userUploader)
+		createApprovedMoveWithAllShipmentTypesAndExcessWeights(appCtx, userUploader)
 		createApprovedMoveWithPPMMovingExpense(appCtx, nil, userUploader)
 		createApprovedMoveWithPPMProgearWeightTicket(appCtx, userUploader)
 		createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)
 		createMoveWithPPMShipmentReadyForFinalCloseout(appCtx, userUploader)
 		createApprovedMoveWithPPMCloseoutComplete(appCtx, userUploader)
 		createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx, userUploader)
+		createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx, userUploader)
+		createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx, userUploader)
 	}
 }
 
@@ -236,7 +253,7 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 			Status:          models.MTOShipmentStatusSubmitted,
 		}})
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
 			CustomerSupportRemark: models.CustomerSupportRemark{
 				Content: "This is a customer support remark. It can have text content like this." +
@@ -251,7 +268,7 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 				MoveID:       remarkMove.ID,
 			},
 		})
-		officeUser2 := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
+		officeUser2 := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
 			CustomerSupportRemark: models.CustomerSupportRemark{
 				Content:      "The customer mentioned that there was some damage done to their grandfather clock.",
@@ -300,12 +317,7 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 		}})
 		testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{Move: move})
 
-		storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(), testdatagen.Assertions{
-			StorageFacility: models.StorageFacility{
-				FacilityName: "Storage R Us",
-			},
-		})
-
+		storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
 		ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{

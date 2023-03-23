@@ -24,25 +24,36 @@ func init() {
   "produces": [
     "application/json"
   ],
+  "schemes": [
+    "https"
+  ],
   "swagger": "2.0",
   "info": {
     "description": "The Admin API is a RESTful API that enables the Admin application for MilMove.\n\nAll endpoints are located under ` + "`" + `/admin/v1` + "`" + `.\n",
     "title": "MilMove Admin API",
+    "contact": {
+      "name": "MilMove AppEng",
+      "email": "support@movemil.pagerduty.com"
+    },
     "license": {
       "name": "MIT",
       "url": "https://github.com/transcom/mymove/blob/main/LICENSE.md"
     },
     "version": "1.0.0"
   },
+  "host": "admin.move.mil",
   "basePath": "/admin/v1",
   "paths": {
-    "/admin_users": {
+    "/admin-users": {
       "get": {
-        "description": "Returns a list of admin users",
-        "tags": [
-          "admin_users"
+        "description": "This endpoint returns a list of Admin Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List admin users",
+        "tags": [
+          "Admin users"
+        ],
+        "summary": "List Admin Users",
         "operationId": "indexAdminUsers",
         "parameters": [
           {
@@ -94,7 +105,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "admin users not found"
+            "description": "Admin Users not found"
           },
           "500": {
             "description": "server error"
@@ -102,19 +113,25 @@ func init() {
         }
       },
       "post": {
-        "description": "creates and returns an admin user record",
-        "tags": [
-          "admin_users"
+        "description": "This endpoint creates an Admin User record and returns the created record in the\n` + "`" + `201` + "`" + ` response. Do not use this endpoint directly as it is meant to be used with\nthe Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
         ],
-        "summary": "create an admin user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Admin users"
+        ],
+        "summary": "Create an Admin User",
         "operationId": "createAdminUser",
         "parameters": [
           {
-            "description": "Admin user information",
+            "description": "Admin User information",
             "name": "adminUser",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/AdminUserCreatePayload"
+              "$ref": "#/definitions/AdminUserCreate"
             }
           }
         ],
@@ -132,7 +149,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to create an admin user"
+            "description": "Not authorized to create an Admin User"
           },
           "500": {
             "description": "Server error"
@@ -140,13 +157,16 @@ func init() {
         }
       }
     },
-    "/admin_users/{adminUserId}": {
+    "/admin-users/{adminUserId}": {
       "get": {
-        "description": "Returns a single admin user",
-        "tags": [
-          "admin_users"
+        "description": "This endpoint returns a single Admin User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Fetch a specific admin user",
+        "tags": [
+          "Admin users"
+        ],
+        "summary": "Fetch a specific Admin User",
         "operationId": "getAdminUser",
         "parameters": [
           {
@@ -171,7 +191,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "admin user not found"
+            "description": "Admin User not found"
           },
           "500": {
             "description": "server error"
@@ -179,10 +199,17 @@ func init() {
         }
       },
       "patch": {
-        "tags": [
-          "admin_users"
+        "description": "This endpoint updates a single Admin User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
         ],
-        "summary": "Updates an admin user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Admin users"
+        ],
+        "summary": "Updates an Admin User",
         "operationId": "updateAdminUser",
         "parameters": [
           {
@@ -193,12 +220,12 @@ func init() {
             "required": true
           },
           {
-            "description": "Admin user information",
+            "description": "Admin User information",
             "name": "adminUser",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/AdminUserUpdatePayload"
+              "$ref": "#/definitions/AdminUserUpdate"
             }
           }
         ],
@@ -216,7 +243,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update an admin user"
+            "description": "Not authorized to update an Admin User"
           },
           "500": {
             "description": "Server error"
@@ -224,14 +251,17 @@ func init() {
         }
       }
     },
-    "/client_certs": {
+    "/client-certificates": {
       "get": {
-        "description": "Returns a list of client certs",
-        "tags": [
-          "client_certs"
+        "description": "This endpoint returns a list of Client Certificates. Do not use this\nendpoint directly as it is meant to be used with the Admin UI\nexclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List client certs",
-        "operationId": "indexClientCerts",
+        "tags": [
+          "Client certificates"
+        ],
+        "summary": "List client certificates",
+        "operationId": "indexClientCertificates",
         "parameters": [
           {
             "type": "string",
@@ -263,7 +293,7 @@ func init() {
           "200": {
             "description": "success",
             "schema": {
-              "$ref": "#/definitions/ClientCerts"
+              "$ref": "#/definitions/ClientCertificates"
             },
             "headers": {
               "Content-Range": {
@@ -287,27 +317,33 @@ func init() {
         }
       },
       "post": {
-        "description": "creates and returns a client cert record",
+        "description": "This endpoint creates a Client Certificate record and returns the\ncreated record in the ` + "`" + `201` + "`" + ` response. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
-          "client_certs"
+          "Client certificates"
         ],
         "summary": "create a client cert",
-        "operationId": "createClientCert",
+        "operationId": "createClientCertificate",
         "parameters": [
           {
             "description": "client cert information",
-            "name": "clientCert",
+            "name": "clientCertificate",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/ClientCertCreatePayload"
+              "$ref": "#/definitions/ClientCertificateCreate"
             }
           }
         ],
         "responses": {
           "201": {
-            "description": "Successfully created client cert",
+            "description": "Successfully created client certificate",
             "schema": {
-              "$ref": "#/definitions/ClientCert"
+              "$ref": "#/definitions/ClientCertificate"
             }
           },
           "400": {
@@ -317,7 +353,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to create a client cert"
+            "description": "Not authorized to create a client certificate"
           },
           "500": {
             "description": "Server error"
@@ -325,19 +361,22 @@ func init() {
         }
       }
     },
-    "/client_certs/{clientCertId}": {
+    "/client-certificates/{clientCertificateId}": {
       "get": {
-        "description": "Returns the given client certificate",
+        "description": "This endpoint returns a single Client Certificate by ID. Do not use\nthis endpoint directly as it is meant to be used with the Admin UI\nexclusively.\n",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
-          "client_certs"
+          "Client certificates"
         ],
         "summary": "Get a client certificate",
-        "operationId": "getClientCert",
+        "operationId": "getClientCertificate",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
-            "name": "clientCertId",
+            "name": "clientCertificateId",
             "in": "path",
             "required": true
           }
@@ -346,7 +385,7 @@ func init() {
           "200": {
             "description": "success",
             "schema": {
-              "$ref": "#/definitions/ClientCert"
+              "$ref": "#/definitions/ClientCertificate"
             }
           },
           "400": {
@@ -364,25 +403,32 @@ func init() {
         }
       },
       "delete": {
+        "description": "This endpoint removes a single Client Certificate by ID. Do not use\nthis endpoint directly as it is meant to be used with the Admin UI\nexclusively.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
-          "client_certs"
+          "Client certificates"
         ],
         "summary": "removes a client certificate",
-        "operationId": "removeClientCert",
+        "operationId": "removeClientCertificate",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
-            "name": "clientCertId",
+            "name": "clientCertificateId",
             "in": "path",
             "required": true
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully removed Client Cert",
+            "description": "Successfully removed Client Certificate",
             "schema": {
-              "$ref": "#/definitions/ClientCert"
+              "$ref": "#/definitions/ClientCertificate"
             }
           },
           "400": {
@@ -392,7 +438,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to remove a client cert"
+            "description": "Not authorized to remove a client certificate"
           },
           "500": {
             "description": "Server error"
@@ -400,34 +446,41 @@ func init() {
         }
       },
       "patch": {
+        "description": "This endpoint updates a single Client Certificate by ID. Do not use\nthis endpoint directly as it is meant to be used with the Admin UI\nexclusively.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
-          "client_certs"
+          "Client certificates"
         ],
         "summary": "Updates a client certificate",
-        "operationId": "updateClientCert",
+        "operationId": "updateClientCertificate",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
-            "name": "clientCertId",
+            "name": "clientCertificateId",
             "in": "path",
             "required": true
           },
           {
             "description": "client cert information",
-            "name": "clientCert",
+            "name": "clientCertificate",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ClientCertUpdatePayload"
+              "$ref": "#/definitions/ClientCertificateUpdate"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated Client Cert",
+            "description": "Successfully updated Client Certificate",
             "schema": {
-              "$ref": "#/definitions/ClientCert"
+              "$ref": "#/definitions/ClientCertificate"
             }
           },
           "400": {
@@ -437,7 +490,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update a client cert"
+            "description": "Not authorized to update a client certificate"
           },
           "500": {
             "description": "Server error"
@@ -445,13 +498,16 @@ func init() {
         }
       }
     },
-    "/electronic_orders": {
+    "/electronic-orders": {
       "get": {
-        "description": "Returns a list of electronic orders",
-        "tags": [
-          "electronic_order"
+        "description": "This endpoint returns a list of Electronic Orders. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List electronic orders",
+        "tags": [
+          "Electronic orders"
+        ],
+        "summary": "List Electronic Orders",
         "operationId": "indexElectronicOrders",
         "parameters": [
           {
@@ -503,7 +559,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Electronic Order not found"
           },
           "500": {
             "description": "server error"
@@ -511,11 +567,14 @@ func init() {
         }
       }
     },
-    "/electronic_orders/totals": {
+    "/electronic-orders/totals": {
       "get": {
-        "description": "Returns a list of record counts for orders",
+        "description": "This endpoint returns a list of record counts for Electronic Orders. Do not use\nthis endpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
-          "electronic_order"
+          "Electronic orders"
         ],
         "summary": "Get total counts for the orders stored in MilMove",
         "operationId": "getElectronicOrdersTotals",
@@ -551,7 +610,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Total count for Electronic Orders not found"
           },
           "500": {
             "description": "server error"
@@ -561,11 +620,14 @@ func init() {
     },
     "/moves": {
       "get": {
-        "description": "Returns a list of moves",
-        "tags": [
-          "move"
+        "description": "This endpoint returns a list of Moves. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List moves",
+        "tags": [
+          "Moves"
+        ],
+        "summary": "List Moves",
         "operationId": "indexMoves",
         "parameters": [
           {
@@ -614,7 +676,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Moves not found"
           },
           "500": {
             "description": "server error"
@@ -624,11 +686,14 @@ func init() {
     },
     "/moves/{moveID}": {
       "get": {
-        "description": "Returns the given move and its relevant info",
-        "tags": [
-          "move"
+        "description": "This endpoint returns a single Move by ID. Do not use this endpoint directly as\nit is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Get information about a move",
+        "tags": [
+          "Moves"
+        ],
+        "summary": "Get information about a Move",
         "operationId": "getMove",
         "parameters": [
           {
@@ -661,11 +726,17 @@ func init() {
         }
       },
       "patch": {
-        "description": "Allows the user to change the ` + "`" + `show` + "`" + ` field on the selected field to either ` + "`" + `True` + "`" + ` or ` + "`" + `False` + "`" + `. A \"shown\" move will appear to all users as normal, a \"hidden\" move will not be returned or editable using any other endpoint (besides those in the Support API), and thus effectively deactivated.\n",
-        "tags": [
-          "move"
+        "description": "This endpoint updates a single Move by ID. This allows the Admin User to change\nthe ` + "`" + `show` + "`" + ` field on the selected field to either ` + "`" + `True` + "`" + ` or ` + "`" + `False` + "`" + `. A \"shown\"\nMove will appear to all users as normal, a \"hidden\" Move will not be returned or\neditable using any other endpoint (besides those in the Support API), and thus\neffectively deactivated. Do not use this endpoint directly as it is meant to be\nused with the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
         ],
-        "summary": "Disables or re-enables a move",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Moves"
+        ],
+        "summary": "Toggle Move visibility",
         "operationId": "updateMove",
         "parameters": [
           {
@@ -681,13 +752,13 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MoveUpdatePayload"
+              "$ref": "#/definitions/MoveUpdate"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated the Mov",
+            "description": "Successfully updated the Move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -699,7 +770,7 @@ func init() {
             "description": "Must be authenticated to use this endpoint"
           },
           "403": {
-            "description": "Not authorized to update this move"
+            "description": "Not authorized to update this Move"
           },
           "404": {
             "description": "Move not found"
@@ -715,11 +786,14 @@ func init() {
     },
     "/notifications": {
       "get": {
-        "description": "Returns a list of notifications that have been sent to service members",
-        "tags": [
-          "notification"
+        "description": "This endpoint returns a list of Notifications that have been sent to Service\nMembers. Do not use this endpoint directly as it is meant to be used with the\nAdmin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List notifications",
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "List Notifications",
         "operationId": "indexNotifications",
         "parameters": [
           {
@@ -768,7 +842,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Notifications not found"
           },
           "500": {
             "description": "server error"
@@ -776,13 +850,16 @@ func init() {
         }
       }
     },
-    "/office_users": {
+    "/office-users": {
       "get": {
-        "description": "Returns a list of office users",
-        "tags": [
-          "office_users"
+        "description": "This endpoint returns a list of Office Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List office users",
+        "tags": [
+          "Office users"
+        ],
+        "summary": "List of Office Users",
         "operationId": "indexOfficeUsers",
         "parameters": [
           {
@@ -831,7 +908,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "Office User not found"
           },
           "500": {
             "description": "server error"
@@ -839,19 +916,25 @@ func init() {
         }
       },
       "post": {
-        "description": "creates and returns an office user record",
-        "tags": [
-          "office_users"
+        "description": "This endpoint creates an Office User record and returns the created record in\nthe ` + "`" + `201` + "`" + ` response. If there are issues with the Office User information\nprovided a ` + "`" + `422` + "`" + ` response will occur with information about invalid fields and\nadditional details. Do not use this endpoint directly as it is meant to be used\nwith the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
         ],
-        "summary": "create an office user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Create an Office User",
         "operationId": "createOfficeUser",
         "parameters": [
           {
-            "description": "Office user information",
+            "description": "Office User information",
             "name": "officeUser",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/OfficeUserCreatePayload"
+              "$ref": "#/definitions/OfficeUserCreate"
             }
           }
         ],
@@ -874,13 +957,16 @@ func init() {
         }
       }
     },
-    "/office_users/{officeUserId}": {
+    "/office-users/{officeUserId}": {
       "get": {
-        "description": "Returns the given office user",
-        "tags": [
-          "office_users"
+        "description": "This endpoint returns a single Office User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Get an office user",
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Get an Office User",
         "operationId": "getOfficeUser",
         "parameters": [
           {
@@ -905,7 +991,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "Office User not found"
           },
           "500": {
             "description": "server error"
@@ -913,10 +999,17 @@ func init() {
         }
       },
       "patch": {
-        "tags": [
-          "office_users"
+        "description": "This endpoint updates a single Office User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
         ],
-        "summary": "Updates an office user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Updates an Office User",
         "operationId": "updateOfficeUser",
         "parameters": [
           {
@@ -927,12 +1020,12 @@ func init() {
             "required": true
           },
           {
-            "description": "Office user information",
+            "description": "Office User information",
             "name": "officeUser",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/OfficeUserUpdatePayload"
+              "$ref": "#/definitions/OfficeUserUpdate"
             }
           }
         ],
@@ -950,7 +1043,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update an office user"
+            "description": "Not authorized to update an Office User"
           },
           "500": {
             "description": "Server error"
@@ -960,11 +1053,14 @@ func init() {
     },
     "/offices": {
       "get": {
-        "description": "Returns a list of transportation offices",
-        "tags": [
-          "office"
+        "description": "This endpoint returns a list of Transportation Offices. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List transportation offices",
+        "tags": [
+          "Transportation offices"
+        ],
+        "summary": "List Transportation Offices",
         "operationId": "indexOffices",
         "parameters": [
           {
@@ -1013,7 +1109,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "Transportation Office not found"
           },
           "500": {
             "description": "server error"
@@ -1023,11 +1119,14 @@ func init() {
     },
     "/organizations": {
       "get": {
-        "description": "Returns a list of organizations",
-        "tags": [
-          "organization"
+        "description": "This endpoint returns a list of Organizations. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List organizations",
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "List Organizations",
         "operationId": "indexOrganizations",
         "parameters": [
           {
@@ -1079,7 +1178,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Organizations not found"
           },
           "500": {
             "description": "server error"
@@ -1087,13 +1186,16 @@ func init() {
         }
       }
     },
-    "/transportation_service_provider_performances": {
+    "/transportation-service-provider-performances": {
       "get": {
-        "description": "Returns a list of transportation service provider performances (TSPPs)",
-        "tags": [
-          "transportation_service_provider_performances"
+        "description": "This endpoint returns a list of Transportation Service Provider Performances\n(TSPPs). Do not use this endpoint directly as it is meant to be used with the\nAdmin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List transportation service provider performances (TSPPs)",
+        "tags": [
+          "Transportation service provider performances (TSPPs)"
+        ],
+        "summary": "List Transportation Service Provider Performances (TSPPs)",
         "operationId": "indexTSPPs",
         "parameters": [
           {
@@ -1142,7 +1244,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "Transportation Service Provider Performances (TSPPs) not found"
           },
           "500": {
             "description": "server error"
@@ -1150,13 +1252,16 @@ func init() {
         }
       }
     },
-    "/transportation_service_provider_performances/{tsppId}": {
+    "/transportation-service-provider-performances/{tsppId}": {
       "get": {
-        "description": "Returns a single tspp",
-        "tags": [
-          "transportation_service_provider_performances"
+        "description": "This endpoint returns a single Transportation Service Provider Performances\n(TSPPs) record by ID. Do not use this endpoint directly as it is meant to be\nused with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Fetch a specific tspp",
+        "tags": [
+          "Transportation service provider performances (TSPPs)"
+        ],
+        "summary": "Fetch a specific TSPP",
         "operationId": "getTSPP",
         "parameters": [
           {
@@ -1181,7 +1286,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "tspp not found"
+            "description": "Transportation Service Provider Performances (TSPPs) not found"
           },
           "500": {
             "description": "server error"
@@ -1191,11 +1296,14 @@ func init() {
     },
     "/uploads/{uploadId}": {
       "get": {
-        "description": "Returns the given upload and information about the uploader and move",
-        "tags": [
-          "upload"
+        "description": "This endpoint returns a single Upload by ID containing the given Upload and\ninformation about the Uploader and Move. Do not use this endpoint directly as it\nis meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Get information about an upload",
+        "tags": [
+          "Uploads"
+        ],
+        "summary": "Get information about an Upload",
         "operationId": "getUpload",
         "parameters": [
           {
@@ -1220,7 +1328,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "upload not found"
+            "description": "Upload not found"
           },
           "500": {
             "description": "server error"
@@ -1230,11 +1338,14 @@ func init() {
     },
     "/users": {
       "get": {
-        "description": "Returns a list of users",
-        "tags": [
-          "users"
+        "description": "This endpoint returns a list of Users. Do not use this endpoint directly as it\nis meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List users",
+        "tags": [
+          "Users"
+        ],
+        "summary": "List Users",
         "operationId": "indexUsers",
         "parameters": [
           {
@@ -1283,7 +1394,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "users not found"
+            "description": "Users not found"
           },
           "500": {
             "description": "server error"
@@ -1293,11 +1404,14 @@ func init() {
     },
     "/users/{userId}": {
       "get": {
-        "description": "Returns the given user and their sessions",
-        "tags": [
-          "users"
+        "description": "This endpoint returns a single User by ID. This also returns the User's sessions\nas well. Do not use this endpoint directly as it is meant to be used with the\nAdmin UI exclusively.\n\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Get information about a user",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get information about a User",
         "operationId": "getUser",
         "parameters": [
           {
@@ -1322,7 +1436,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "user not found"
+            "description": "User not found"
           },
           "500": {
             "description": "server error"
@@ -1330,10 +1444,17 @@ func init() {
         }
       },
       "patch": {
-        "tags": [
-          "users"
+        "description": "This endpoint updates a single User by ID. This can be used by the Admin User to\nupdate the User's session or the User's active status. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
         ],
-        "summary": "Update a user's session or active status",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update a User's session or active status",
         "operationId": "updateUser",
         "parameters": [
           {
@@ -1349,7 +1470,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserUpdatePayload"
+              "$ref": "#/definitions/UserUpdate"
             }
           }
         ],
@@ -1367,7 +1488,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update this user"
+            "description": "Not authorized to update this User"
           },
           "404": {
             "description": "Not found"
@@ -1384,13 +1505,16 @@ func init() {
         }
       }
     },
-    "/webhook_subscriptions": {
+    "/webhook-subscriptions": {
       "get": {
-        "description": "Returns a list of webhook subscriptions",
-        "tags": [
-          "webhook_subscriptions"
+        "description": "This endpoint returns a list of Webhook Subscriptions. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Lists webhook subscriptions",
+        "tags": [
+          "Webhook subscriptions"
+        ],
+        "summary": "Lists Webhook Subscriptions",
         "operationId": "indexWebhookSubscriptions",
         "parameters": [
           {
@@ -1439,7 +1563,7 @@ func init() {
             "description": "Not authenticated for this endpoint"
           },
           "404": {
-            "description": "Webhook subscriptions not found"
+            "description": "Webhook Subscriptions not found"
           },
           "500": {
             "description": "Server error"
@@ -1447,11 +1571,17 @@ func init() {
         }
       },
       "post": {
-        "description": "creates and returns a webhook subscription",
-        "tags": [
-          "webhook_subscriptions"
+        "description": "This endpoint creates a Webhook Subscription and returns the created record in\nthe ` + "`" + `201` + "`" + ` response. Do not use this endpoint directly as it is meant to be used\nwith the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
         ],
-        "summary": "create a webhook subscription",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Webhook subscriptions"
+        ],
+        "summary": "Create a Webhook Subscription",
         "operationId": "createWebhookSubscription",
         "parameters": [
           {
@@ -1465,7 +1595,7 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "Successfully created webhook subscription",
+            "description": "Successfully created Webhook Subscription",
             "schema": {
               "$ref": "#/definitions/WebhookSubscription"
             }
@@ -1477,7 +1607,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to create a webhook subscription"
+            "description": "Not authorized to create a Webhook Subscription"
           },
           "500": {
             "description": "Server error"
@@ -1485,13 +1615,16 @@ func init() {
         }
       }
     },
-    "/webhook_subscriptions/{webhookSubscriptionId}": {
+    "/webhook-subscriptions/{webhookSubscriptionId}": {
       "get": {
-        "description": "Returns the given webhook subscription and its details",
-        "tags": [
-          "webhook_subscriptions"
+        "description": "This endpoint returns a single Webhook Subscription by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Get information about a webhook subscription",
+        "tags": [
+          "Webhook subscriptions"
+        ],
+        "summary": "Get information about a Webhook Subscription",
         "operationId": "getWebhookSubscription",
         "parameters": [
           {
@@ -1516,7 +1649,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "subscription not found"
+            "description": "Webhook Subscription not found"
           },
           "500": {
             "description": "server error"
@@ -1524,10 +1657,17 @@ func init() {
         }
       },
       "patch": {
-        "tags": [
-          "webhook_subscriptions"
+        "description": "This endpoint updates a single Webhook Subscription by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
         ],
-        "summary": "Update a webhook subscription",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Webhook subscriptions"
+        ],
+        "summary": "Update a Webhook Subscription",
         "operationId": "updateWebhookSubscription",
         "parameters": [
           {
@@ -1538,7 +1678,7 @@ func init() {
             "required": true
           },
           {
-            "description": "Webhook subscription information",
+            "description": "Webhook Subscription information",
             "name": "WebhookSubscription",
             "in": "body",
             "required": true,
@@ -1556,7 +1696,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated webhook subscription",
+            "description": "Successfully updated Webhook Subscription",
             "schema": {
               "$ref": "#/definitions/WebhookSubscription"
             }
@@ -1568,10 +1708,10 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update this webhook subscription"
+            "description": "Not authorized to update this Webhook Subscription"
           },
           "404": {
-            "description": "subscription not found"
+            "description": "Webhook Subscription not found"
           },
           "412": {
             "description": "Precondition failed"
@@ -1766,7 +1906,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -1790,7 +1931,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "userId": {
           "type": "string",
@@ -1798,7 +1940,7 @@ func init() {
         }
       }
     },
-    "AdminUserCreatePayload": {
+    "AdminUserCreate": {
       "type": "object",
       "properties": {
         "email": {
@@ -1821,7 +1963,7 @@ func init() {
         }
       }
     },
-    "AdminUserUpdatePayload": {
+    "AdminUserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -1846,7 +1988,7 @@ func init() {
         "$ref": "#/definitions/AdminUser"
       }
     },
-    "ClientCert": {
+    "ClientCertificate": {
       "type": "object",
       "properties": {
         "allowAirForceOrdersRead": {
@@ -1890,7 +2032,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1907,7 +2050,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "userId": {
           "type": "string",
@@ -1916,7 +2060,7 @@ func init() {
         }
       }
     },
-    "ClientCertCreatePayload": {
+    "ClientCertificateCreate": {
       "type": "object",
       "required": [
         "sha256Digest",
@@ -1959,6 +2103,10 @@ func init() {
         "allowPrime": {
           "type": "boolean"
         },
+        "email": {
+          "type": "string",
+          "example": "user@example.com"
+        },
         "sha256Digest": {
           "type": "string",
           "example": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
@@ -1969,7 +2117,7 @@ func init() {
         }
       }
     },
-    "ClientCertUpdatePayload": {
+    "ClientCertificateUpdate": {
       "type": "object",
       "properties": {
         "allowAirForceOrdersRead": {
@@ -2026,10 +2174,10 @@ func init() {
         }
       }
     },
-    "ClientCerts": {
+    "ClientCertificates": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/ClientCert"
+        "$ref": "#/definitions/ClientCertificate"
       }
     },
     "ClientError": {
@@ -2092,7 +2240,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2109,7 +2258,8 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Updated at"
+          "title": "Updated at",
+          "readOnly": true
         }
       }
     },
@@ -2160,7 +2310,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2188,7 +2339,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2208,7 +2360,7 @@ func init() {
         "SUBMITTED": "Submitted"
       }
     },
-    "MoveUpdatePayload": {
+    "MoveUpdate": {
       "type": "object",
       "required": [
         "show"
@@ -2238,7 +2390,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string"
@@ -2291,7 +2444,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -2329,7 +2483,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "userId": {
           "type": "string",
@@ -2337,7 +2492,7 @@ func init() {
         }
       }
     },
-    "OfficeUserCreatePayload": {
+    "OfficeUserCreate": {
       "type": "object",
       "properties": {
         "email": {
@@ -2395,7 +2550,7 @@ func init() {
         }
       }
     },
-    "OfficeUserUpdatePayload": {
+    "OfficeUserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -2456,7 +2611,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -2482,7 +2638,8 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Updated at"
+          "title": "Updated at",
+          "readOnly": true
         }
       }
     },
@@ -2504,7 +2661,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2521,7 +2679,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2572,7 +2731,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "gbloc": {
           "type": "string",
@@ -2609,7 +2769,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2643,7 +2804,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2695,7 +2857,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2719,7 +2882,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "filename": {
           "type": "string"
@@ -2809,7 +2973,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "currentAdminSessionId": {
           "type": "string",
@@ -2835,11 +3000,12 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
-    "UserUpdatePayload": {
+    "UserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -2898,7 +3064,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "eTag": {
           "type": "string",
@@ -2931,7 +3098,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2956,7 +3124,93 @@ func init() {
         "$ref": "#/definitions/WebhookSubscription"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "description": "Information about Admin UI users",
+      "name": "Admin users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about Client Certificates",
+      "name": "Client certificates",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about electronic orders",
+      "name": "Electronic orders",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about moves",
+      "name": "Moves",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about notifications",
+      "name": "Notifications",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about transportation offices",
+      "name": "Transportation offices",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about office users",
+      "name": "Office users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about organizations",
+      "name": "Organizations",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about Transportation Service Provider performances",
+      "name": "Transportation service provider performances (TSPPs)",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about uploads",
+      "name": "Uploads",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about users",
+      "name": "Users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about Webhook subscriptions",
+      "name": "Webhook subscriptions",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    }
+  ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "consumes": [
@@ -2965,25 +3219,36 @@ func init() {
   "produces": [
     "application/json"
   ],
+  "schemes": [
+    "https"
+  ],
   "swagger": "2.0",
   "info": {
     "description": "The Admin API is a RESTful API that enables the Admin application for MilMove.\n\nAll endpoints are located under ` + "`" + `/admin/v1` + "`" + `.\n",
     "title": "MilMove Admin API",
+    "contact": {
+      "name": "MilMove AppEng",
+      "email": "support@movemil.pagerduty.com"
+    },
     "license": {
       "name": "MIT",
       "url": "https://github.com/transcom/mymove/blob/main/LICENSE.md"
     },
     "version": "1.0.0"
   },
+  "host": "admin.move.mil",
   "basePath": "/admin/v1",
   "paths": {
-    "/admin_users": {
+    "/admin-users": {
       "get": {
-        "description": "Returns a list of admin users",
-        "tags": [
-          "admin_users"
+        "description": "This endpoint returns a list of Admin Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List admin users",
+        "tags": [
+          "Admin users"
+        ],
+        "summary": "List Admin Users",
         "operationId": "indexAdminUsers",
         "parameters": [
           {
@@ -3035,7 +3300,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "admin users not found"
+            "description": "Admin Users not found"
           },
           "500": {
             "description": "server error"
@@ -3043,19 +3308,25 @@ func init() {
         }
       },
       "post": {
-        "description": "creates and returns an admin user record",
-        "tags": [
-          "admin_users"
+        "description": "This endpoint creates an Admin User record and returns the created record in the\n` + "`" + `201` + "`" + ` response. Do not use this endpoint directly as it is meant to be used with\nthe Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
         ],
-        "summary": "create an admin user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Admin users"
+        ],
+        "summary": "Create an Admin User",
         "operationId": "createAdminUser",
         "parameters": [
           {
-            "description": "Admin user information",
+            "description": "Admin User information",
             "name": "adminUser",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/AdminUserCreatePayload"
+              "$ref": "#/definitions/AdminUserCreate"
             }
           }
         ],
@@ -3073,7 +3344,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to create an admin user"
+            "description": "Not authorized to create an Admin User"
           },
           "500": {
             "description": "Server error"
@@ -3081,13 +3352,16 @@ func init() {
         }
       }
     },
-    "/admin_users/{adminUserId}": {
+    "/admin-users/{adminUserId}": {
       "get": {
-        "description": "Returns a single admin user",
-        "tags": [
-          "admin_users"
+        "description": "This endpoint returns a single Admin User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Fetch a specific admin user",
+        "tags": [
+          "Admin users"
+        ],
+        "summary": "Fetch a specific Admin User",
         "operationId": "getAdminUser",
         "parameters": [
           {
@@ -3112,7 +3386,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "admin user not found"
+            "description": "Admin User not found"
           },
           "500": {
             "description": "server error"
@@ -3120,10 +3394,17 @@ func init() {
         }
       },
       "patch": {
-        "tags": [
-          "admin_users"
+        "description": "This endpoint updates a single Admin User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
         ],
-        "summary": "Updates an admin user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Admin users"
+        ],
+        "summary": "Updates an Admin User",
         "operationId": "updateAdminUser",
         "parameters": [
           {
@@ -3134,12 +3415,12 @@ func init() {
             "required": true
           },
           {
-            "description": "Admin user information",
+            "description": "Admin User information",
             "name": "adminUser",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/AdminUserUpdatePayload"
+              "$ref": "#/definitions/AdminUserUpdate"
             }
           }
         ],
@@ -3157,7 +3438,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update an admin user"
+            "description": "Not authorized to update an Admin User"
           },
           "500": {
             "description": "Server error"
@@ -3165,14 +3446,17 @@ func init() {
         }
       }
     },
-    "/client_certs": {
+    "/client-certificates": {
       "get": {
-        "description": "Returns a list of client certs",
-        "tags": [
-          "client_certs"
+        "description": "This endpoint returns a list of Client Certificates. Do not use this\nendpoint directly as it is meant to be used with the Admin UI\nexclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List client certs",
-        "operationId": "indexClientCerts",
+        "tags": [
+          "Client certificates"
+        ],
+        "summary": "List client certificates",
+        "operationId": "indexClientCertificates",
         "parameters": [
           {
             "type": "string",
@@ -3204,7 +3488,7 @@ func init() {
           "200": {
             "description": "success",
             "schema": {
-              "$ref": "#/definitions/ClientCerts"
+              "$ref": "#/definitions/ClientCertificates"
             },
             "headers": {
               "Content-Range": {
@@ -3228,27 +3512,33 @@ func init() {
         }
       },
       "post": {
-        "description": "creates and returns a client cert record",
+        "description": "This endpoint creates a Client Certificate record and returns the\ncreated record in the ` + "`" + `201` + "`" + ` response. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
-          "client_certs"
+          "Client certificates"
         ],
         "summary": "create a client cert",
-        "operationId": "createClientCert",
+        "operationId": "createClientCertificate",
         "parameters": [
           {
             "description": "client cert information",
-            "name": "clientCert",
+            "name": "clientCertificate",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/ClientCertCreatePayload"
+              "$ref": "#/definitions/ClientCertificateCreate"
             }
           }
         ],
         "responses": {
           "201": {
-            "description": "Successfully created client cert",
+            "description": "Successfully created client certificate",
             "schema": {
-              "$ref": "#/definitions/ClientCert"
+              "$ref": "#/definitions/ClientCertificate"
             }
           },
           "400": {
@@ -3258,7 +3548,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to create a client cert"
+            "description": "Not authorized to create a client certificate"
           },
           "500": {
             "description": "Server error"
@@ -3266,19 +3556,22 @@ func init() {
         }
       }
     },
-    "/client_certs/{clientCertId}": {
+    "/client-certificates/{clientCertificateId}": {
       "get": {
-        "description": "Returns the given client certificate",
+        "description": "This endpoint returns a single Client Certificate by ID. Do not use\nthis endpoint directly as it is meant to be used with the Admin UI\nexclusively.\n",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
-          "client_certs"
+          "Client certificates"
         ],
         "summary": "Get a client certificate",
-        "operationId": "getClientCert",
+        "operationId": "getClientCertificate",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
-            "name": "clientCertId",
+            "name": "clientCertificateId",
             "in": "path",
             "required": true
           }
@@ -3287,7 +3580,7 @@ func init() {
           "200": {
             "description": "success",
             "schema": {
-              "$ref": "#/definitions/ClientCert"
+              "$ref": "#/definitions/ClientCertificate"
             }
           },
           "400": {
@@ -3305,25 +3598,32 @@ func init() {
         }
       },
       "delete": {
+        "description": "This endpoint removes a single Client Certificate by ID. Do not use\nthis endpoint directly as it is meant to be used with the Admin UI\nexclusively.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
-          "client_certs"
+          "Client certificates"
         ],
         "summary": "removes a client certificate",
-        "operationId": "removeClientCert",
+        "operationId": "removeClientCertificate",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
-            "name": "clientCertId",
+            "name": "clientCertificateId",
             "in": "path",
             "required": true
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully removed Client Cert",
+            "description": "Successfully removed Client Certificate",
             "schema": {
-              "$ref": "#/definitions/ClientCert"
+              "$ref": "#/definitions/ClientCertificate"
             }
           },
           "400": {
@@ -3333,7 +3633,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to remove a client cert"
+            "description": "Not authorized to remove a client certificate"
           },
           "500": {
             "description": "Server error"
@@ -3341,34 +3641,41 @@ func init() {
         }
       },
       "patch": {
+        "description": "This endpoint updates a single Client Certificate by ID. Do not use\nthis endpoint directly as it is meant to be used with the Admin UI\nexclusively.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
-          "client_certs"
+          "Client certificates"
         ],
         "summary": "Updates a client certificate",
-        "operationId": "updateClientCert",
+        "operationId": "updateClientCertificate",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
-            "name": "clientCertId",
+            "name": "clientCertificateId",
             "in": "path",
             "required": true
           },
           {
             "description": "client cert information",
-            "name": "clientCert",
+            "name": "clientCertificate",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ClientCertUpdatePayload"
+              "$ref": "#/definitions/ClientCertificateUpdate"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated Client Cert",
+            "description": "Successfully updated Client Certificate",
             "schema": {
-              "$ref": "#/definitions/ClientCert"
+              "$ref": "#/definitions/ClientCertificate"
             }
           },
           "400": {
@@ -3378,7 +3685,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update a client cert"
+            "description": "Not authorized to update a client certificate"
           },
           "500": {
             "description": "Server error"
@@ -3386,13 +3693,16 @@ func init() {
         }
       }
     },
-    "/electronic_orders": {
+    "/electronic-orders": {
       "get": {
-        "description": "Returns a list of electronic orders",
-        "tags": [
-          "electronic_order"
+        "description": "This endpoint returns a list of Electronic Orders. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List electronic orders",
+        "tags": [
+          "Electronic orders"
+        ],
+        "summary": "List Electronic Orders",
         "operationId": "indexElectronicOrders",
         "parameters": [
           {
@@ -3444,7 +3754,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Electronic Order not found"
           },
           "500": {
             "description": "server error"
@@ -3452,11 +3762,14 @@ func init() {
         }
       }
     },
-    "/electronic_orders/totals": {
+    "/electronic-orders/totals": {
       "get": {
-        "description": "Returns a list of record counts for orders",
+        "description": "This endpoint returns a list of record counts for Electronic Orders. Do not use\nthis endpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
-          "electronic_order"
+          "Electronic orders"
         ],
         "summary": "Get total counts for the orders stored in MilMove",
         "operationId": "getElectronicOrdersTotals",
@@ -3492,7 +3805,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Total count for Electronic Orders not found"
           },
           "500": {
             "description": "server error"
@@ -3502,11 +3815,14 @@ func init() {
     },
     "/moves": {
       "get": {
-        "description": "Returns a list of moves",
-        "tags": [
-          "move"
+        "description": "This endpoint returns a list of Moves. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List moves",
+        "tags": [
+          "Moves"
+        ],
+        "summary": "List Moves",
         "operationId": "indexMoves",
         "parameters": [
           {
@@ -3555,7 +3871,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Moves not found"
           },
           "500": {
             "description": "server error"
@@ -3565,11 +3881,14 @@ func init() {
     },
     "/moves/{moveID}": {
       "get": {
-        "description": "Returns the given move and its relevant info",
-        "tags": [
-          "move"
+        "description": "This endpoint returns a single Move by ID. Do not use this endpoint directly as\nit is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Get information about a move",
+        "tags": [
+          "Moves"
+        ],
+        "summary": "Get information about a Move",
         "operationId": "getMove",
         "parameters": [
           {
@@ -3602,11 +3921,17 @@ func init() {
         }
       },
       "patch": {
-        "description": "Allows the user to change the ` + "`" + `show` + "`" + ` field on the selected field to either ` + "`" + `True` + "`" + ` or ` + "`" + `False` + "`" + `. A \"shown\" move will appear to all users as normal, a \"hidden\" move will not be returned or editable using any other endpoint (besides those in the Support API), and thus effectively deactivated.\n",
-        "tags": [
-          "move"
+        "description": "This endpoint updates a single Move by ID. This allows the Admin User to change\nthe ` + "`" + `show` + "`" + ` field on the selected field to either ` + "`" + `True` + "`" + ` or ` + "`" + `False` + "`" + `. A \"shown\"\nMove will appear to all users as normal, a \"hidden\" Move will not be returned or\neditable using any other endpoint (besides those in the Support API), and thus\neffectively deactivated. Do not use this endpoint directly as it is meant to be\nused with the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
         ],
-        "summary": "Disables or re-enables a move",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Moves"
+        ],
+        "summary": "Toggle Move visibility",
         "operationId": "updateMove",
         "parameters": [
           {
@@ -3622,13 +3947,13 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MoveUpdatePayload"
+              "$ref": "#/definitions/MoveUpdate"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated the Mov",
+            "description": "Successfully updated the Move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -3640,7 +3965,7 @@ func init() {
             "description": "Must be authenticated to use this endpoint"
           },
           "403": {
-            "description": "Not authorized to update this move"
+            "description": "Not authorized to update this Move"
           },
           "404": {
             "description": "Move not found"
@@ -3656,11 +3981,14 @@ func init() {
     },
     "/notifications": {
       "get": {
-        "description": "Returns a list of notifications that have been sent to service members",
-        "tags": [
-          "notification"
+        "description": "This endpoint returns a list of Notifications that have been sent to Service\nMembers. Do not use this endpoint directly as it is meant to be used with the\nAdmin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List notifications",
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "List Notifications",
         "operationId": "indexNotifications",
         "parameters": [
           {
@@ -3709,7 +4037,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Notifications not found"
           },
           "500": {
             "description": "server error"
@@ -3717,13 +4045,16 @@ func init() {
         }
       }
     },
-    "/office_users": {
+    "/office-users": {
       "get": {
-        "description": "Returns a list of office users",
-        "tags": [
-          "office_users"
+        "description": "This endpoint returns a list of Office Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List office users",
+        "tags": [
+          "Office users"
+        ],
+        "summary": "List of Office Users",
         "operationId": "indexOfficeUsers",
         "parameters": [
           {
@@ -3772,7 +4103,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "Office User not found"
           },
           "500": {
             "description": "server error"
@@ -3780,19 +4111,25 @@ func init() {
         }
       },
       "post": {
-        "description": "creates and returns an office user record",
-        "tags": [
-          "office_users"
+        "description": "This endpoint creates an Office User record and returns the created record in\nthe ` + "`" + `201` + "`" + ` response. If there are issues with the Office User information\nprovided a ` + "`" + `422` + "`" + ` response will occur with information about invalid fields and\nadditional details. Do not use this endpoint directly as it is meant to be used\nwith the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
         ],
-        "summary": "create an office user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Create an Office User",
         "operationId": "createOfficeUser",
         "parameters": [
           {
-            "description": "Office user information",
+            "description": "Office User information",
             "name": "officeUser",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/OfficeUserCreatePayload"
+              "$ref": "#/definitions/OfficeUserCreate"
             }
           }
         ],
@@ -3815,13 +4152,16 @@ func init() {
         }
       }
     },
-    "/office_users/{officeUserId}": {
+    "/office-users/{officeUserId}": {
       "get": {
-        "description": "Returns the given office user",
-        "tags": [
-          "office_users"
+        "description": "This endpoint returns a single Office User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Get an office user",
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Get an Office User",
         "operationId": "getOfficeUser",
         "parameters": [
           {
@@ -3846,7 +4186,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "Office User not found"
           },
           "500": {
             "description": "server error"
@@ -3854,10 +4194,17 @@ func init() {
         }
       },
       "patch": {
-        "tags": [
-          "office_users"
+        "description": "This endpoint updates a single Office User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
         ],
-        "summary": "Updates an office user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Updates an Office User",
         "operationId": "updateOfficeUser",
         "parameters": [
           {
@@ -3868,12 +4215,12 @@ func init() {
             "required": true
           },
           {
-            "description": "Office user information",
+            "description": "Office User information",
             "name": "officeUser",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/OfficeUserUpdatePayload"
+              "$ref": "#/definitions/OfficeUserUpdate"
             }
           }
         ],
@@ -3891,7 +4238,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update an office user"
+            "description": "Not authorized to update an Office User"
           },
           "500": {
             "description": "Server error"
@@ -3901,11 +4248,14 @@ func init() {
     },
     "/offices": {
       "get": {
-        "description": "Returns a list of transportation offices",
-        "tags": [
-          "office"
+        "description": "This endpoint returns a list of Transportation Offices. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List transportation offices",
+        "tags": [
+          "Transportation offices"
+        ],
+        "summary": "List Transportation Offices",
         "operationId": "indexOffices",
         "parameters": [
           {
@@ -3954,7 +4304,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "Transportation Office not found"
           },
           "500": {
             "description": "server error"
@@ -3964,11 +4314,14 @@ func init() {
     },
     "/organizations": {
       "get": {
-        "description": "Returns a list of organizations",
-        "tags": [
-          "organization"
+        "description": "This endpoint returns a list of Organizations. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List organizations",
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "List Organizations",
         "operationId": "indexOrganizations",
         "parameters": [
           {
@@ -4020,7 +4373,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "not found"
+            "description": "Organizations not found"
           },
           "500": {
             "description": "server error"
@@ -4028,13 +4381,16 @@ func init() {
         }
       }
     },
-    "/transportation_service_provider_performances": {
+    "/transportation-service-provider-performances": {
       "get": {
-        "description": "Returns a list of transportation service provider performances (TSPPs)",
-        "tags": [
-          "transportation_service_provider_performances"
+        "description": "This endpoint returns a list of Transportation Service Provider Performances\n(TSPPs). Do not use this endpoint directly as it is meant to be used with the\nAdmin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List transportation service provider performances (TSPPs)",
+        "tags": [
+          "Transportation service provider performances (TSPPs)"
+        ],
+        "summary": "List Transportation Service Provider Performances (TSPPs)",
         "operationId": "indexTSPPs",
         "parameters": [
           {
@@ -4083,7 +4439,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "Transportation Service Provider Performances (TSPPs) not found"
           },
           "500": {
             "description": "server error"
@@ -4091,13 +4447,16 @@ func init() {
         }
       }
     },
-    "/transportation_service_provider_performances/{tsppId}": {
+    "/transportation-service-provider-performances/{tsppId}": {
       "get": {
-        "description": "Returns a single tspp",
-        "tags": [
-          "transportation_service_provider_performances"
+        "description": "This endpoint returns a single Transportation Service Provider Performances\n(TSPPs) record by ID. Do not use this endpoint directly as it is meant to be\nused with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Fetch a specific tspp",
+        "tags": [
+          "Transportation service provider performances (TSPPs)"
+        ],
+        "summary": "Fetch a specific TSPP",
         "operationId": "getTSPP",
         "parameters": [
           {
@@ -4122,7 +4481,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "tspp not found"
+            "description": "Transportation Service Provider Performances (TSPPs) not found"
           },
           "500": {
             "description": "server error"
@@ -4132,11 +4491,14 @@ func init() {
     },
     "/uploads/{uploadId}": {
       "get": {
-        "description": "Returns the given upload and information about the uploader and move",
-        "tags": [
-          "upload"
+        "description": "This endpoint returns a single Upload by ID containing the given Upload and\ninformation about the Uploader and Move. Do not use this endpoint directly as it\nis meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Get information about an upload",
+        "tags": [
+          "Uploads"
+        ],
+        "summary": "Get information about an Upload",
         "operationId": "getUpload",
         "parameters": [
           {
@@ -4161,7 +4523,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "upload not found"
+            "description": "Upload not found"
           },
           "500": {
             "description": "server error"
@@ -4171,11 +4533,14 @@ func init() {
     },
     "/users": {
       "get": {
-        "description": "Returns a list of users",
-        "tags": [
-          "users"
+        "description": "This endpoint returns a list of Users. Do not use this endpoint directly as it\nis meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "List users",
+        "tags": [
+          "Users"
+        ],
+        "summary": "List Users",
         "operationId": "indexUsers",
         "parameters": [
           {
@@ -4224,7 +4589,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "users not found"
+            "description": "Users not found"
           },
           "500": {
             "description": "server error"
@@ -4234,11 +4599,14 @@ func init() {
     },
     "/users/{userId}": {
       "get": {
-        "description": "Returns the given user and their sessions",
-        "tags": [
-          "users"
+        "description": "This endpoint returns a single User by ID. This also returns the User's sessions\nas well. Do not use this endpoint directly as it is meant to be used with the\nAdmin UI exclusively.\n\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Get information about a user",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get information about a User",
         "operationId": "getUser",
         "parameters": [
           {
@@ -4263,7 +4631,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "user not found"
+            "description": "User not found"
           },
           "500": {
             "description": "server error"
@@ -4271,10 +4639,17 @@ func init() {
         }
       },
       "patch": {
-        "tags": [
-          "users"
+        "description": "This endpoint updates a single User by ID. This can be used by the Admin User to\nupdate the User's session or the User's active status. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
         ],
-        "summary": "Update a user's session or active status",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update a User's session or active status",
         "operationId": "updateUser",
         "parameters": [
           {
@@ -4290,7 +4665,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserUpdatePayload"
+              "$ref": "#/definitions/UserUpdate"
             }
           }
         ],
@@ -4308,7 +4683,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update this user"
+            "description": "Not authorized to update this User"
           },
           "404": {
             "description": "Not found"
@@ -4325,13 +4700,16 @@ func init() {
         }
       }
     },
-    "/webhook_subscriptions": {
+    "/webhook-subscriptions": {
       "get": {
-        "description": "Returns a list of webhook subscriptions",
-        "tags": [
-          "webhook_subscriptions"
+        "description": "This endpoint returns a list of Webhook Subscriptions. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Lists webhook subscriptions",
+        "tags": [
+          "Webhook subscriptions"
+        ],
+        "summary": "Lists Webhook Subscriptions",
         "operationId": "indexWebhookSubscriptions",
         "parameters": [
           {
@@ -4380,7 +4758,7 @@ func init() {
             "description": "Not authenticated for this endpoint"
           },
           "404": {
-            "description": "Webhook subscriptions not found"
+            "description": "Webhook Subscriptions not found"
           },
           "500": {
             "description": "Server error"
@@ -4388,11 +4766,17 @@ func init() {
         }
       },
       "post": {
-        "description": "creates and returns a webhook subscription",
-        "tags": [
-          "webhook_subscriptions"
+        "description": "This endpoint creates a Webhook Subscription and returns the created record in\nthe ` + "`" + `201` + "`" + ` response. Do not use this endpoint directly as it is meant to be used\nwith the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
         ],
-        "summary": "create a webhook subscription",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Webhook subscriptions"
+        ],
+        "summary": "Create a Webhook Subscription",
         "operationId": "createWebhookSubscription",
         "parameters": [
           {
@@ -4406,7 +4790,7 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "Successfully created webhook subscription",
+            "description": "Successfully created Webhook Subscription",
             "schema": {
               "$ref": "#/definitions/WebhookSubscription"
             }
@@ -4418,7 +4802,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to create a webhook subscription"
+            "description": "Not authorized to create a Webhook Subscription"
           },
           "500": {
             "description": "Server error"
@@ -4426,13 +4810,16 @@ func init() {
         }
       }
     },
-    "/webhook_subscriptions/{webhookSubscriptionId}": {
+    "/webhook-subscriptions/{webhookSubscriptionId}": {
       "get": {
-        "description": "Returns the given webhook subscription and its details",
-        "tags": [
-          "webhook_subscriptions"
+        "description": "This endpoint returns a single Webhook Subscription by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Get information about a webhook subscription",
+        "tags": [
+          "Webhook subscriptions"
+        ],
+        "summary": "Get information about a Webhook Subscription",
         "operationId": "getWebhookSubscription",
         "parameters": [
           {
@@ -4457,7 +4844,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "subscription not found"
+            "description": "Webhook Subscription not found"
           },
           "500": {
             "description": "server error"
@@ -4465,10 +4852,17 @@ func init() {
         }
       },
       "patch": {
-        "tags": [
-          "webhook_subscriptions"
+        "description": "This endpoint updates a single Webhook Subscription by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
         ],
-        "summary": "Update a webhook subscription",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Webhook subscriptions"
+        ],
+        "summary": "Update a Webhook Subscription",
         "operationId": "updateWebhookSubscription",
         "parameters": [
           {
@@ -4479,7 +4873,7 @@ func init() {
             "required": true
           },
           {
-            "description": "Webhook subscription information",
+            "description": "Webhook Subscription information",
             "name": "WebhookSubscription",
             "in": "body",
             "required": true,
@@ -4497,7 +4891,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated webhook subscription",
+            "description": "Successfully updated Webhook Subscription",
             "schema": {
               "$ref": "#/definitions/WebhookSubscription"
             }
@@ -4509,10 +4903,10 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to update this webhook subscription"
+            "description": "Not authorized to update this Webhook Subscription"
           },
           "404": {
-            "description": "subscription not found"
+            "description": "Webhook Subscription not found"
           },
           "412": {
             "description": "Precondition failed"
@@ -4707,7 +5101,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -4731,7 +5126,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "userId": {
           "type": "string",
@@ -4739,7 +5135,7 @@ func init() {
         }
       }
     },
-    "AdminUserCreatePayload": {
+    "AdminUserCreate": {
       "type": "object",
       "properties": {
         "email": {
@@ -4762,7 +5158,7 @@ func init() {
         }
       }
     },
-    "AdminUserUpdatePayload": {
+    "AdminUserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -4787,7 +5183,7 @@ func init() {
         "$ref": "#/definitions/AdminUser"
       }
     },
-    "ClientCert": {
+    "ClientCertificate": {
       "type": "object",
       "properties": {
         "allowAirForceOrdersRead": {
@@ -4831,7 +5227,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -4848,7 +5245,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "userId": {
           "type": "string",
@@ -4857,7 +5255,7 @@ func init() {
         }
       }
     },
-    "ClientCertCreatePayload": {
+    "ClientCertificateCreate": {
       "type": "object",
       "required": [
         "sha256Digest",
@@ -4900,6 +5298,10 @@ func init() {
         "allowPrime": {
           "type": "boolean"
         },
+        "email": {
+          "type": "string",
+          "example": "user@example.com"
+        },
         "sha256Digest": {
           "type": "string",
           "example": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
@@ -4910,7 +5312,7 @@ func init() {
         }
       }
     },
-    "ClientCertUpdatePayload": {
+    "ClientCertificateUpdate": {
       "type": "object",
       "properties": {
         "allowAirForceOrdersRead": {
@@ -4967,10 +5369,10 @@ func init() {
         }
       }
     },
-    "ClientCerts": {
+    "ClientCertificates": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/ClientCert"
+        "$ref": "#/definitions/ClientCertificate"
       }
     },
     "ClientError": {
@@ -5033,7 +5435,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -5050,7 +5453,8 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Updated at"
+          "title": "Updated at",
+          "readOnly": true
         }
       }
     },
@@ -5102,7 +5506,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -5130,7 +5535,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -5150,7 +5556,7 @@ func init() {
         "SUBMITTED": "Submitted"
       }
     },
-    "MoveUpdatePayload": {
+    "MoveUpdate": {
       "type": "object",
       "required": [
         "show"
@@ -5180,7 +5586,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string"
@@ -5233,7 +5640,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -5271,7 +5679,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "userId": {
           "type": "string",
@@ -5279,7 +5688,7 @@ func init() {
         }
       }
     },
-    "OfficeUserCreatePayload": {
+    "OfficeUserCreate": {
       "type": "object",
       "properties": {
         "email": {
@@ -5337,7 +5746,7 @@ func init() {
         }
       }
     },
-    "OfficeUserUpdatePayload": {
+    "OfficeUserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -5398,7 +5807,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -5424,7 +5834,8 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Updated at"
+          "title": "Updated at",
+          "readOnly": true
         }
       }
     },
@@ -5446,7 +5857,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -5463,7 +5875,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -5514,7 +5927,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "gbloc": {
           "type": "string",
@@ -5551,7 +5965,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -5585,7 +6000,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -5637,7 +6053,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -5661,7 +6078,8 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Created at"
+          "title": "Created at",
+          "readOnly": true
         },
         "filename": {
           "type": "string"
@@ -5751,7 +6169,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "currentAdminSessionId": {
           "type": "string",
@@ -5777,11 +6196,12 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
-    "UserUpdatePayload": {
+    "UserUpdate": {
       "type": "object",
       "properties": {
         "active": {
@@ -5843,7 +6263,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "eTag": {
           "type": "string",
@@ -5877,7 +6298,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -5902,6 +6324,92 @@ func init() {
         "$ref": "#/definitions/WebhookSubscription"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "description": "Information about Admin UI users",
+      "name": "Admin users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about Client Certificates",
+      "name": "Client certificates",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about electronic orders",
+      "name": "Electronic orders",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about moves",
+      "name": "Moves",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about notifications",
+      "name": "Notifications",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about transportation offices",
+      "name": "Transportation offices",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about office users",
+      "name": "Office users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about organizations",
+      "name": "Organizations",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about Transportation Service Provider performances",
+      "name": "Transportation service provider performances (TSPPs)",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about uploads",
+      "name": "Uploads",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about users",
+      "name": "Users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about Webhook subscriptions",
+      "name": "Webhook subscriptions",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    }
+  ]
 }`))
 }

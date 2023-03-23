@@ -21,6 +21,10 @@ func (_m *ExcessWeightRiskManager) AcknowledgeExcessWeightRisk(appCtx appcontext
 	ret := _m.Called(appCtx, moveID, eTag)
 
 	var r0 *models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) (*models.Move, error)); ok {
+		return rf(appCtx, moveID, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) *models.Move); ok {
 		r0 = rf(appCtx, moveID, eTag)
 	} else {
@@ -29,7 +33,6 @@ func (_m *ExcessWeightRiskManager) AcknowledgeExcessWeightRisk(appCtx appcontext
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string) error); ok {
 		r1 = rf(appCtx, moveID, eTag)
 	} else {
@@ -44,6 +47,11 @@ func (_m *ExcessWeightRiskManager) UpdateBillableWeightAsTOO(appCtx appcontext.A
 	ret := _m.Called(appCtx, orderID, weight, eTag)
 
 	var r0 *models.Order
+	var r1 uuid.UUID
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *int, string) (*models.Order, uuid.UUID, error)); ok {
+		return rf(appCtx, orderID, weight, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *int, string) *models.Order); ok {
 		r0 = rf(appCtx, orderID, weight, eTag)
 	} else {
@@ -52,7 +60,6 @@ func (_m *ExcessWeightRiskManager) UpdateBillableWeightAsTOO(appCtx appcontext.A
 		}
 	}
 
-	var r1 uuid.UUID
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *int, string) uuid.UUID); ok {
 		r1 = rf(appCtx, orderID, weight, eTag)
 	} else {
@@ -61,7 +68,6 @@ func (_m *ExcessWeightRiskManager) UpdateBillableWeightAsTOO(appCtx appcontext.A
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *int, string) error); ok {
 		r2 = rf(appCtx, orderID, weight, eTag)
 	} else {
@@ -76,6 +82,11 @@ func (_m *ExcessWeightRiskManager) UpdateMaxBillableWeightAsTIO(appCtx appcontex
 	ret := _m.Called(appCtx, orderID, weight, remarks, eTag)
 
 	var r0 *models.Order
+	var r1 uuid.UUID
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *int, *string, string) (*models.Order, uuid.UUID, error)); ok {
+		return rf(appCtx, orderID, weight, remarks, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *int, *string, string) *models.Order); ok {
 		r0 = rf(appCtx, orderID, weight, remarks, eTag)
 	} else {
@@ -84,7 +95,6 @@ func (_m *ExcessWeightRiskManager) UpdateMaxBillableWeightAsTIO(appCtx appcontex
 		}
 	}
 
-	var r1 uuid.UUID
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *int, *string, string) uuid.UUID); ok {
 		r1 = rf(appCtx, orderID, weight, remarks, eTag)
 	} else {
@@ -93,7 +103,6 @@ func (_m *ExcessWeightRiskManager) UpdateMaxBillableWeightAsTIO(appCtx appcontex
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *int, *string, string) error); ok {
 		r2 = rf(appCtx, orderID, weight, remarks, eTag)
 	} else {

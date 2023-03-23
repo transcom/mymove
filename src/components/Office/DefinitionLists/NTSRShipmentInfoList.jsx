@@ -9,7 +9,13 @@ import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent, formatAccountingCode } from 'utils/shipmentDisplay';
 import { formatWeight } from 'utils/formatters';
-import { setFlagStyles, setDisplayFlags, getDisplayFlags, getMissingOrDash } from 'utils/displayFlags';
+import {
+  setFlagStyles,
+  setDisplayFlags,
+  getDisplayFlags,
+  getMissingOrDash,
+  fieldValidationShape,
+} from 'utils/displayFlags';
 
 const NTSRShipmentInfoList = ({
   className,
@@ -311,8 +317,8 @@ NTSRShipmentInfoList.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
   isExpanded: PropTypes.bool,
-  warnIfMissing: PropTypes.arrayOf(PropTypes.string),
-  errorIfMissing: PropTypes.arrayOf(PropTypes.string),
+  warnIfMissing: PropTypes.arrayOf(fieldValidationShape),
+  errorIfMissing: PropTypes.arrayOf(fieldValidationShape),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
   isForEvaluationReport: PropTypes.bool,
 };

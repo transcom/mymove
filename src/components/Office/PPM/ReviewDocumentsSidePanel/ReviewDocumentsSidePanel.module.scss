@@ -3,6 +3,9 @@
 @import 'shared/styles/variables';
 
 .ReviewDocumentsSidePanel {
+  main {
+    padding: 0;
+  }
 
   header {
     @include u-padding(2);
@@ -34,12 +37,20 @@
       margin: 12px 8px;
     }
   }
+  ul {
+    margin: 0;
+    padding: 0;
+    li {
+      list-style: none;
+    }
+  }
   .row {
     display: flex;
     flex-direction: row;
     border-top: 1px solid #dcdee0;
     padding: 12px 8px;
-    h3 {
+
+    .tripNumber {
       @include u-font-size('body', 'xs');
       @include u-margin-bottom(0);
       font-weight: normal;
@@ -80,4 +91,13 @@
     margin-left: 17px;
     margin-right: 9px;
   }
+}
+
+.container .ReviewDocumentsSidePanel main {
+  padding: 0;
+}
+
+.sidebar {
+  @include u-margin-top(0);
+  @include u-margin-bottom(0);
 }

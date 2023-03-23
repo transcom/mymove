@@ -165,6 +165,16 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_docs.DeleteMoveDocument has not yet been implemented")
 		})
 	}
+	if api.PpmDeleteMovingExpenseHandler == nil {
+		api.PpmDeleteMovingExpenseHandler = ppm.DeleteMovingExpenseHandlerFunc(func(params ppm.DeleteMovingExpenseParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.DeleteMovingExpense has not yet been implemented")
+		})
+	}
+	if api.PpmDeleteProGearWeightTicketHandler == nil {
+		api.PpmDeleteProGearWeightTicketHandler = ppm.DeleteProGearWeightTicketHandlerFunc(func(params ppm.DeleteProGearWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.DeleteProGearWeightTicket has not yet been implemented")
+		})
+	}
 	if api.MtoShipmentDeleteShipmentHandler == nil {
 		api.MtoShipmentDeleteShipmentHandler = mto_shipment.DeleteShipmentHandlerFunc(func(params mto_shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.DeleteShipment has not yet been implemented")
@@ -178,6 +188,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.UploadsDeleteUploadsHandler == nil {
 		api.UploadsDeleteUploadsHandler = uploads.DeleteUploadsHandlerFunc(func(params uploads.DeleteUploadsParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.DeleteUploads has not yet been implemented")
+		})
+	}
+	if api.PpmDeleteWeightTicketHandler == nil {
+		api.PpmDeleteWeightTicketHandler = ppm.DeleteWeightTicketHandlerFunc(func(params ppm.DeleteWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.DeleteWeightTicket has not yet been implemented")
 		})
 	}
 	if api.TransportationOfficesGetTransportationOfficesHandler == nil {

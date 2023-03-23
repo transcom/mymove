@@ -138,7 +138,6 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
-		NetWeight:                      handlers.PoundPtrFromInt64Ptr(ppmShipment.NetWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
@@ -273,6 +272,8 @@ func WeightTicketModelFromUpdate(weightTicket *internalmessages.UpdateWeightTick
 		MissingFullWeightTicket:  handlers.FmtBool(weightTicket.MissingFullWeightTicket),
 		OwnsTrailer:              handlers.FmtBool(weightTicket.OwnsTrailer),
 		TrailerMeetsCriteria:     handlers.FmtBool(weightTicket.TrailerMeetsCriteria),
+		AdjustedNetWeight:        handlers.PoundPtrFromInt64Ptr(weightTicket.AdjustedNetWeight),
+		NetWeightRemarks:         handlers.FmtString(weightTicket.NetWeightRemarks),
 	}
 	return model
 }

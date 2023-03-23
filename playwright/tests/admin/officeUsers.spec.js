@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, expect } = require('../utils/adminTest');
+import { test, expect } from '../utils/adminTest';
 
 /**
  * @param {import('@playwright/test').Page} page
@@ -29,7 +29,7 @@ test.describe('Office Users List Page', () => {
 
     // now we'll come back to the office users page:
     await page.getByRole('menuitem', { name: 'Office users' }).click();
-    expect(page.url()).toContain('/system/office_users');
+    expect(page.url()).toContain('/system/office-users');
     await expect(page.locator('header')).toContainText('Office Users');
 
     const columnLabels = ['Id', 'Email', 'First name', 'Last name', 'Transportation Office', 'User Id', 'Active'];
@@ -43,12 +43,12 @@ test.describe('Office User Create Page', () => {
     await adminPage.signInAsNewAdminUser();
     // we tested the side nav in the previous test,
     // so let's work with the assumption that we were already redirected to this page:
-    expect(page.url()).toContain('/system/office_users');
+    expect(page.url()).toContain('/system/office-users');
 
     await page.getByRole('button', { name: 'Create' }).click();
     await expect(page.getByRole('heading', { name: 'Create Office Users' })).toBeVisible();
 
-    expect(page.url()).toContain('/system/office_users/create');
+    expect(page.url()).toContain('/system/office-users/create');
 
     // we need to add the date to the email so that it is unique every time (only one record per email allowed in db)
     const testEmail = `cy.admin_user.${Date.now()}@example.com`;
@@ -64,7 +64,9 @@ test.describe('Office User Create Page', () => {
     await page.getByLabel('Email').fill(testEmail);
     await page.getByLabel('Telephone').fill('222-555-1234');
     await page.getByText('Services Counselor').click();
-    await page.getByLabel('Transportation Office').fill('JPPSO Testy McTest');
+    // The autocomplete form results in multiple matching elements, so
+    // pick the input element
+    await page.getByLabel('Transportation Office').locator('input').fill('JPPSO Testy McTest');
     // the autocomplete might return multiples because of concurrent
     // tests running that are adding offices
     await page.getByRole('option', { name: 'JPPSOTestyMcTest' }).first().click();
@@ -93,9 +95,9 @@ test.describe('Office Users Show Page', () => {
     await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
     await adminPage.signInAsNewAdminUser();
 
-    expect(page.url()).toContain('/system/office_users');
+    expect(page.url()).toContain('/system/office-users');
 
-    await page.locator('tr[resource="office_users"]').first().click();
+    await page.locator('tr[resource="office-users"]').first().click();
 
     // check that the office user's name is shown in the page title
     const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();
@@ -131,7 +133,7 @@ test.describe('Office Users Edit Page', () => {
 
     await adminPage.signInAsNewAdminUser();
 
-    expect(page.url()).toContain('/system/office_users');
+    expect(page.url()).toContain('/system/office-users');
     await searchForOfficeUser(page, email);
     await page.getByText(email).click();
     await adminPage.waitForAdminPageToLoad();
@@ -150,7 +152,9 @@ test.describe('Office Users Edit Page', () => {
     await page.getByLabel('Last name').clear();
     await page.getByLabel('Last name').fill('NewLast');
 
-    await expect(page.getByLabel('Transportation Office')).toBeEditable();
+    // The autocomplete form results in multiple matching elements, so
+    // pick the input element
+    await expect(page.getByLabel('Transportation Office').locator('input')).toBeEditable();
 
     // set the user to the active status they did NOT have before
     const activeStatus = await page.locator('div:has(label :text-is("Active")) >> input[name="active"]').inputValue();

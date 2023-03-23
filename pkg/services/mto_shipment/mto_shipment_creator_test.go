@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -179,9 +180,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
-			Stub: true,
-		})
+		storageFacility := factory.BuildStorageFacility(nil, nil, nil)
 
 		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
@@ -290,19 +289,8 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			models.ReServiceCodeDOFSIT,
 		}
 
-		var reServiceCode models.ReService
-		if err := appCtx.DB().Where("code = $1", expectedReServiceCodes[0]).First(&reServiceCode); err != nil {
-			// Something is truncating these when all server tests run, but we need some values for reServices
-			for _, serviceCode := range expectedReServiceCodes {
-				testdatagen.MakeReService(appCtx.DB(), testdatagen.Assertions{
-					ReService: models.ReService{
-						Code:      serviceCode,
-						Name:      "test",
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					},
-				})
-			}
+		for _, serviceCode := range expectedReServiceCodes {
+			factory.BuildReServiceByCode(appCtx.DB(), serviceCode)
 		}
 
 		serviceItemsList := []models.MTOServiceItem{

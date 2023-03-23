@@ -14,6 +14,7 @@ import (
 	moveops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movehistory "github.com/transcom/mymove/pkg/services/move_history"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -34,7 +35,7 @@ func getMoveHistoryForTest() models.MoveHistory {
 			{
 				ID:              uuid.Must(uuid.NewV4()),
 				SchemaName:      "",
-				TableName:       "orders",
+				AuditedTable:    "orders",
 				RelID:           16879,
 				ObjectID:        &localUUID,
 				SessionUserID:   &localUUID,
@@ -100,7 +101,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		suite.Equal(maudit.ObjectID.String(), paudit.ObjectID.String())
 		suite.Equal(maudit.SessionUserID.String(), paudit.SessionUserID.String())
 		suite.Equal(maudit.SchemaName, paudit.SchemaName)
-		suite.Equal(maudit.TableName, paudit.TableName)
+		suite.Equal(maudit.AuditedTable, paudit.TableName)
 		suite.Equal(maudit.RelID, paudit.RelID)
 		suite.Equal(maudit.Action, paudit.Action)
 		suite.Equal(maudit.EventName, paudit.EventName)
@@ -216,7 +217,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		})
 
 		// Build history request for a TIO user
-		officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 		request := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 

@@ -13,6 +13,6 @@ type GHCDomesticTransitTime struct {
 }
 
 // TableName overrides the table name used by Pop.
-func (m GHCDomesticTransitTime) TableName() string {
+func (g GHCDomesticTransitTime) TableName() string {
 	return "ghc_domestic_transit_times"
 }

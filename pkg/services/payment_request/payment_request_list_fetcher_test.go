@@ -8,7 +8,9 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -17,7 +19,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
 	suite.Run("Only returns visible (where Move.Show is not false) payment requests matching office user GBLOC", func() {
 		paymentRequestListFetcher := NewPaymentRequestListFetcher()
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{Locator: "ABC123"},
@@ -60,7 +62,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 	var paymentRequest models.PaymentRequest
 
 	suite.PreloadData(func() {
-		officeUser = testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		expectedMove = testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
 		// we need a mapping for the pickup address postal code to our user's gbloc
@@ -165,7 +167,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 	var pendingPaymentRequest, reviewedPaymentRequest, sentToGexPaymentRequest, recByGexPaymentRequest, rejectedPaymentRequest, paidPaymentRequest models.PaymentRequest
 
 	suite.PreloadData(func() {
-		officeUser = testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 		expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
@@ -284,7 +286,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 		officeUUID, _ := uuid.NewV4()
 		marines := models.AffiliationMARINES
 		army := models.AffiliationARMY
-		officeUser = testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		expectedMoveNotUSMC := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
@@ -330,7 +332,20 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 			ServiceMember: models.ServiceMember{Affiliation: &army},
 		})
 
-		officeUserUSMC = testdatagen.MakeOfficeUserWithUSMCGBLOC(suite.DB())
+		tioRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTIO)
+		tooRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
+		officeUserUSMC = factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "USMC",
+				},
+			},
+			{
+				Model: models.User{
+					Roles: []roles.Role{tioRole, tooRole},
+				},
+			},
+		}, nil)
 	})
 
 	suite.Run("returns USMC payment requests", func() {
@@ -368,7 +383,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListNoGBLOCMatch
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 
 	suite.Run("No results when GBLOC does not match", func() {
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			TransportationOffice: models.TransportationOffice{
@@ -405,7 +420,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListFailure() {
 
 func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListWithPagination() {
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 	expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 	expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
@@ -454,19 +469,23 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 	//
 	suite.PreloadData(func() {
-		officeUser = testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
-		originDutyLocation1 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-			DutyLocation: models.DutyLocation{
-				Name: "Applewood, CA 99999",
+		originDutyLocation1 := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Applewood, CA 99999",
+				},
 			},
-		})
+		}, nil)
 
-		originDutyLocation2 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-			DutyLocation: models.DutyLocation{
-				Name: "Scott AFB",
+		originDutyLocation2 := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Scott AFB",
+				},
 			},
-		})
+		}, nil)
 
 		expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			ServiceMember: models.ServiceMember{

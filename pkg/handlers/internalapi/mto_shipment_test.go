@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
@@ -80,7 +81,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	makeCreateSubtestData := func(appCtx appcontext.AppContext) (subtestData mtoCreateSubtestData) {
 		db := appCtx.DB()
 
-		subtestData.serviceMember = testdatagen.MakeDefaultServiceMember(db)
+		subtestData.serviceMember = factory.BuildServiceMember(db, nil, nil)
 
 		mto := testdatagen.MakeMove(db, testdatagen.Assertions{
 			Order: models.Order{
@@ -404,7 +405,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		subtestData := makeCreateSubtestData(appCtx)
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		req := subtestData.params.HTTPRequest
 		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1231,7 +1232,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.Run("PATCH failure - 403- permission denied - wrong application / user", func() {
 		appCtx := suite.AppContextForTest()
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
 
@@ -1418,7 +1419,6 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 				suite.Equal(expectedShipment.PPMShipment.SecondaryDestinationPostalCode, returnedShipment.PpmShipment.SecondaryDestinationPostalCode)
 				suite.Equal(*expectedShipment.PPMShipment.SITExpected, *returnedShipment.PpmShipment.SitExpected)
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.EstimatedWeight, returnedShipment.PpmShipment.EstimatedWeight)
-				suite.EqualPoundPointers(expectedShipment.PPMShipment.NetWeight, returnedShipment.PpmShipment.NetWeight)
 				suite.Equal(expectedShipment.PPMShipment.HasProGear, returnedShipment.PpmShipment.HasProGear)
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.ProGearWeight, returnedShipment.PpmShipment.ProGearWeight)
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.SpouseProGearWeight, returnedShipment.PpmShipment.SpouseProGearWeight)
@@ -1489,7 +1489,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 	suite.Run("POST failure - 401 - permission denied - not authenticated", func() {
 		subtestData := suite.makeListSubtestData()
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		unauthorizedReq := suite.AuthenticateOfficeRequest(subtestData.params.HTTPRequest, officeUser)
 		unauthorizedParams := mtoshipmentops.ListMTOShipmentsParams{
 			HTTPRequest:     unauthorizedReq,
@@ -1633,8 +1633,8 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 403 when servicemember ID doesn't match shipment", func() {
-		sm1 := testdatagen.MakeStubbedServiceMember(suite.DB())
-		sm2 := testdatagen.MakeStubbedServiceMember(suite.DB())
+		sm1 := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.GetTraitServiceMemberSetIDs})
+		sm2 := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.GetTraitServiceMemberSetIDs})
 		order := testdatagen.MakeDefaultOrder(suite.DB())
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: order,

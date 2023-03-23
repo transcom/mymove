@@ -35,11 +35,11 @@ type UpdateOfficeUserParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*Office user information
+	/*Office User information
 	  Required: true
 	  In: body
 	*/
-	OfficeUser *adminmessages.OfficeUserUpdatePayload
+	OfficeUser *adminmessages.OfficeUserUpdate
 	/*
 	  Required: true
 	  In: path
@@ -58,7 +58,7 @@ func (o *UpdateOfficeUserParams) BindRequest(r *http.Request, route *middleware.
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body adminmessages.OfficeUserUpdatePayload
+		var body adminmessages.OfficeUserUpdate
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("officeUser", "body", ""))

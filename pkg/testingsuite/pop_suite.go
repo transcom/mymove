@@ -181,6 +181,10 @@ func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) *PopTe
 	pts := &PopTestSuite{
 		PackageName: packageName,
 	}
+	// provide a way to enable pop debugging when running tests
+	if envy.Get("POP_TEST_DEBUG", "") != "" {
+		pop.Debug = true
+	}
 
 	// Apply the user-supplied options to the PopTestSuite object.
 	for _, opt := range opts {

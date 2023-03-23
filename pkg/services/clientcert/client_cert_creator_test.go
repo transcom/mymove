@@ -47,7 +47,7 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 		}
 
 		creator := NewClientCertCreator(builder, associator, mockSender)
-		clientCert, verrs, err := creator.CreateClientCert(suite.AppContextWithSessionForTest(&auth.Session{}), &clientCertInfo)
+		clientCert, verrs, err := creator.CreateClientCert(suite.AppContextWithSessionForTest(&auth.Session{}), "", &clientCertInfo)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(clientCert.ID)
@@ -91,7 +91,7 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 
 		creator := NewClientCertCreator(builder, associator, setUpMockNotificationSender())
 		_, verrs, _ := creator.CreateClientCert(suite.AppContextForTest(),
-			&clientCertInfo)
+			"", &clientCertInfo)
 		suite.NotNil(verrs)
 		suite.True(verrs.HasAny())
 		suite.NotNil(verrs.Errors)
@@ -127,7 +127,7 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 		).Return([]models.UsersRoles{}, nil)
 		creator := NewClientCertCreator(builder, associator, setUpMockNotificationSender())
 		_, _, err := creator.CreateClientCert(suite.AppContextForTest(),
-			&clientCertInfo)
+			"", &clientCertInfo)
 		suite.EqualError(err, "uniqueness constraint conflict")
 	})
 }

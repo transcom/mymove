@@ -34,7 +34,6 @@ export const PPMShipmentShape = shape({
   actualDestinationPostalCode: string,
   sitExpected: bool,
   estimatedWeight: number,
-  netWeight: number,
   hasProGear: bool,
   proGearWeight: number,
   spouseProGearWeight: number,
@@ -137,6 +136,8 @@ export const WeightTicketShape = shape({
   proofOfTrailerOwnershipDocument: DocumentShape,
   reason: string,
   status: string,
+  adjustedNetWeight: number,
+  netWeightRemarks: string,
 });
 
 export const ExpenseShape = shape({

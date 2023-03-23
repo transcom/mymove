@@ -109,6 +109,11 @@ func (o *CreateMoveTaskOrderCreated) IsCode(code int) bool {
 	return code == 201
 }
 
+// Code gets the status code for the create move task order created response
+func (o *CreateMoveTaskOrderCreated) Code() int {
+	return 201
+}
+
 func (o *CreateMoveTaskOrderCreated) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderCreated  %+v", 201, o.Payload)
 }
@@ -170,6 +175,11 @@ func (o *CreateMoveTaskOrderBadRequest) IsServerError() bool {
 // IsCode returns true when this create move task order bad request response a status code equal to that given
 func (o *CreateMoveTaskOrderBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the create move task order bad request response
+func (o *CreateMoveTaskOrderBadRequest) Code() int {
+	return 400
 }
 
 func (o *CreateMoveTaskOrderBadRequest) Error() string {
@@ -235,6 +245,11 @@ func (o *CreateMoveTaskOrderUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the create move task order unauthorized response
+func (o *CreateMoveTaskOrderUnauthorized) Code() int {
+	return 401
+}
+
 func (o *CreateMoveTaskOrderUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderUnauthorized  %+v", 401, o.Payload)
 }
@@ -296,6 +311,11 @@ func (o *CreateMoveTaskOrderForbidden) IsServerError() bool {
 // IsCode returns true when this create move task order forbidden response a status code equal to that given
 func (o *CreateMoveTaskOrderForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the create move task order forbidden response
+func (o *CreateMoveTaskOrderForbidden) Code() int {
+	return 403
 }
 
 func (o *CreateMoveTaskOrderForbidden) Error() string {
@@ -361,6 +381,11 @@ func (o *CreateMoveTaskOrderNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the create move task order not found response
+func (o *CreateMoveTaskOrderNotFound) Code() int {
+	return 404
+}
+
 func (o *CreateMoveTaskOrderNotFound) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderNotFound  %+v", 404, o.Payload)
 }
@@ -424,6 +449,11 @@ func (o *CreateMoveTaskOrderUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the create move task order unprocessable entity response
+func (o *CreateMoveTaskOrderUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *CreateMoveTaskOrderUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -485,6 +515,11 @@ func (o *CreateMoveTaskOrderInternalServerError) IsServerError() bool {
 // IsCode returns true when this create move task order internal server error response a status code equal to that given
 func (o *CreateMoveTaskOrderInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the create move task order internal server error response
+func (o *CreateMoveTaskOrderInternalServerError) Code() int {
+	return 500
 }
 
 func (o *CreateMoveTaskOrderInternalServerError) Error() string {

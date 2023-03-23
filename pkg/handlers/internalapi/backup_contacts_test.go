@@ -7,17 +7,17 @@ import (
 
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/factory"
 	contactop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 	t := suite.T()
 
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	newContactPayload := internalmessages.CreateServiceMemberBackupContactPayload{
 		Email:      swag.String("email@example.com"),
@@ -66,7 +66,7 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 func (suite *HandlerSuite) TestIndexBackupContactsHandler() {
 	t := suite.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.DB())
+	contact := factory.BuildBackupContact(suite.DB(), nil, nil)
 
 	indexPath := fmt.Sprintf("/service_member/%v/backup_contacts", contact.ServiceMember.ID.String())
 	req := httptest.NewRequest("GET", indexPath, nil)
@@ -94,8 +94,8 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandler() {
 func (suite *HandlerSuite) TestIndexBackupContactsHandlerWrongUser() {
 	t := suite.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.DB())
-	otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	contact := factory.BuildBackupContact(suite.DB(), nil, nil)
+	otherServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	indexPath := fmt.Sprintf("/service_member/%v/backup_contacts", contact.ServiceMember.ID.String())
 	req := httptest.NewRequest("GET", indexPath, nil)
@@ -120,7 +120,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandlerWrongUser() {
 func (suite *HandlerSuite) TestShowBackupContactsHandler() {
 	t := suite.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.DB())
+	contact := factory.BuildBackupContact(suite.DB(), nil, nil)
 
 	showPath := fmt.Sprintf("/service_member/%v/backup_contacts/%v", contact.ServiceMember.ID.String(), contact.ID.String())
 	req := httptest.NewRequest("GET", showPath, nil)
@@ -144,8 +144,8 @@ func (suite *HandlerSuite) TestShowBackupContactsHandler() {
 func (suite *HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
 	t := suite.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.DB())
-	otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	contact := factory.BuildBackupContact(suite.DB(), nil, nil)
+	otherServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	showPath := fmt.Sprintf("/service_member/%v/backup_contacts/%v", contact.ServiceMember.ID.String(), contact.ID.String())
 	req := httptest.NewRequest("GET", showPath, nil)
@@ -170,7 +170,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
 func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 	t := suite.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.DB())
+	contact := factory.BuildBackupContact(suite.DB(), nil, nil)
 
 	updatePath := fmt.Sprintf("/service_member/%v/backup_contacts/%v", contact.ServiceMember.ID.String(), contact.ID.String())
 	req := httptest.NewRequest("PUT", updatePath, nil)
@@ -202,8 +202,8 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 	t := suite.T()
 
-	contact := testdatagen.MakeDefaultBackupContact(suite.DB())
-	otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	contact := factory.BuildBackupContact(suite.DB(), nil, nil)
+	otherServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	updatePath := fmt.Sprintf("/service_member/%v/backup_contacts/%v", contact.ServiceMember.ID.String(), contact.ID.String())
 	req := httptest.NewRequest("PUT", updatePath, nil)

@@ -85,6 +85,11 @@ func (o *CreateWebhookNotificationCreated) IsCode(code int) bool {
 	return code == 201
 }
 
+// Code gets the status code for the create webhook notification created response
+func (o *CreateWebhookNotificationCreated) Code() int {
+	return 201
+}
+
 func (o *CreateWebhookNotificationCreated) Error() string {
 	return fmt.Sprintf("[POST /webhook-notifications][%d] createWebhookNotificationCreated  %+v", 201, o.Payload)
 }
@@ -148,6 +153,11 @@ func (o *CreateWebhookNotificationUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the create webhook notification unprocessable entity response
+func (o *CreateWebhookNotificationUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *CreateWebhookNotificationUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /webhook-notifications][%d] createWebhookNotificationUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -209,6 +219,11 @@ func (o *CreateWebhookNotificationInternalServerError) IsServerError() bool {
 // IsCode returns true when this create webhook notification internal server error response a status code equal to that given
 func (o *CreateWebhookNotificationInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the create webhook notification internal server error response
+func (o *CreateWebhookNotificationInternalServerError) Code() int {
+	return 500
 }
 
 func (o *CreateWebhookNotificationInternalServerError) Error() string {

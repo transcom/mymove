@@ -26,6 +26,8 @@ do
     fi
     if [[ "$deployed_commit" != "$target_commit" ]]; then
       echo "* On host $host, the deployed commit ($deployed_commit) DOES NOT match the given commit ($target_commit)."
+      echo "* Re-run this job from failure to try again."
+      echo "* This may happen due to multiple deployments happening at the same time."
       exit 1
     else
       echo "* On host $host, the deployed commit ($deployed_commit) matches given commit ($target_commit)."

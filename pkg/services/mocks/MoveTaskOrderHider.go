@@ -19,6 +19,10 @@ func (_m *MoveTaskOrderHider) Hide(appCtx appcontext.AppContext) (services.Hidde
 	ret := _m.Called(appCtx)
 
 	var r0 services.HiddenMoves
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) (services.HiddenMoves, error)); ok {
+		return rf(appCtx)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext) services.HiddenMoves); ok {
 		r0 = rf(appCtx)
 	} else {
@@ -27,7 +31,6 @@ func (_m *MoveTaskOrderHider) Hide(appCtx appcontext.AppContext) (services.Hidde
 		}
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext) error); ok {
 		r1 = rf(appCtx)
 	} else {

@@ -73,7 +73,18 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		//				status set to False.
 
 		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
-		officeUser := testdatagen.MakeActiveOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Active: true,
+				},
+			},
+			{
+				Model: models.User{
+					Active: true,
+				},
+			},
+		}, nil)
 
 		// Deactivate: Update the user with an inactive status. This should also
 		// update their officeUser status in parallel.

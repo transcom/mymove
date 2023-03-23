@@ -11,7 +11,7 @@ import (
 
 // AdminUserListFetcher is the exported interface for fetching multiple admin users
 //
-//go:generate mockery --name AdminUserListFetcher --disable-version-string
+//go:generate mockery --name AdminUserListFetcher
 type AdminUserListFetcher interface {
 	FetchAdminUserList(appCtx appcontext.AppContext, filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.AdminUsers, error)
 	FetchAdminUserCount(appCtx appcontext.AppContext, filters []QueryFilter) (int, error)
@@ -19,21 +19,21 @@ type AdminUserListFetcher interface {
 
 // AdminUserFetcher is the exported interface for fetching a single admin user
 //
-//go:generate mockery --name AdminUserFetcher --disable-version-string
+//go:generate mockery --name AdminUserFetcher
 type AdminUserFetcher interface {
 	FetchAdminUser(appCtx appcontext.AppContext, filters []QueryFilter) (models.AdminUser, error)
 }
 
 // AdminUserCreator is the exported interface for creating an admin user
 //
-//go:generate mockery --name AdminUserCreator --disable-version-string
+//go:generate mockery --name AdminUserCreator
 type AdminUserCreator interface {
 	CreateAdminUser(appCtx appcontext.AppContext, user *models.AdminUser, organizationIDFilter []QueryFilter) (*models.AdminUser, *validate.Errors, error)
 }
 
 // AdminUserUpdater is the exported interface for creating an admin user
 //
-//go:generate mockery --name AdminUserUpdater --disable-version-string
+//go:generate mockery --name AdminUserUpdater
 type AdminUserUpdater interface {
-	UpdateAdminUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.AdminUserUpdatePayload) (*models.AdminUser, *validate.Errors, error)
+	UpdateAdminUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.AdminUserUpdate) (*models.AdminUser, *validate.Errors, error)
 }

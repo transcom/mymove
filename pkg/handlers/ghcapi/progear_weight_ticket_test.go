@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	progearops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -37,7 +38,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		subtestData.ppmShipment = subtestData.progear.PPMShipment
 
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/pro-gear-weight-tickets/%s", subtestData.ppmShipment.ID.String(), subtestData.progear.ID.String())
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 		req := httptest.NewRequest("PATCH", endpoint, nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		eTag := etag.GenerateEtag(subtestData.progear.UpdatedAt)
@@ -64,12 +65,12 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 
 		params := subtestData.params
 
-		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: models.UserUpload{
-				DocumentID: &subtestData.progear.DocumentID,
-				Document:   subtestData.progear.Document,
+		factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.progear.Document,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
 		hasWeightTickets := true
 		belongsToSelf := true

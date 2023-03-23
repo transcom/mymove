@@ -3,7 +3,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useHistory, useParams, withRouter } from 'react-router-dom';
 import { generatePath } from 'react-router';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { Alert, Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
@@ -39,7 +39,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
 
-  const [mutateMTOShipmentStatus] = useMutation(updatePrimeMTOShipmentStatus, {
+  const { mutateAsync: mutateMTOShipmentStatus } = useMutation(updatePrimeMTOShipmentStatus, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((mtoShipment) => mtoShipment.id === updatedMTOShipment.id)] =
         updatedMTOShipment;
@@ -82,7 +82,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     },
   });
 
-  const [mutateMTOShipment] = useMutation(updatePrimeMTOShipment, {
+  const { mutateAsync: mutateMTOShipment } = useMutation(updatePrimeMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((mtoShipment) => mtoShipment.id === updatedMTOShipment.id)] =
         updatedMTOShipment;
@@ -167,7 +167,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           sitEstimatedEntryDate,
           sitEstimatedDepartureDate,
           estimatedWeight,
-          netWeight,
           hasProGear,
           proGearWeight,
           spouseProGearWeight,
@@ -189,7 +188,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
             sitEstimatedDepartureDate: sitEstimatedDepartureDate ? formatSwaggerDate(sitEstimatedDepartureDate) : null,
           }),
           estimatedWeight: estimatedWeight ? parseInt(estimatedWeight, 10) : null,
-          netWeight: netWeight ? parseInt(netWeight, 10) : null,
           hasProGear,
           ...(hasProGear && {
             proGearWeight: proGearWeight ? parseInt(proGearWeight, 10) : null,
@@ -247,7 +245,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         sitEstimatedEntryDate: shipment.ppmShipment.sitEstimatedEntryDate,
         sitEstimatedDepartureDate: shipment.ppmShipment.sitEstimatedDepartureDate,
         estimatedWeight: shipment.ppmShipment.estimatedWeight?.toString(),
-        netWeight: shipment.ppmShipment.netWeight?.toString(),
         hasProGear: shipment.ppmShipment.hasProGear,
         proGearWeight: shipment.ppmShipment.proGearWeight?.toString(),
         spouseProGearWeight: shipment.ppmShipment.spouseProGearWeight?.toString(),
@@ -285,7 +282,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         //     schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
         // }),
         estimatedWeight: Yup.number().required('Required'),
-        netWeight: Yup.number(),
         hasProGear: Yup.boolean().required('Required'),
         proGearWeight: Yup.number().when(['hasProGear', 'spouseProGearWeight'], {
           is: (hasProGear, spouseProGearWeight) => hasProGear && !spouseProGearWeight,

@@ -12,15 +12,15 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/client_certs"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/move"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notification"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/client_certificates"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_orders"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/moves"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances_t_s_p_ps"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 )
@@ -54,9 +54,9 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation admin_users.CreateAdminUser has not yet been implemented")
 		})
 	}
-	if api.ClientCertsCreateClientCertHandler == nil {
-		api.ClientCertsCreateClientCertHandler = client_certs.CreateClientCertHandlerFunc(func(params client_certs.CreateClientCertParams) middleware.Responder {
-			return middleware.NotImplemented("operation client_certs.CreateClientCert has not yet been implemented")
+	if api.ClientCertificatesCreateClientCertificateHandler == nil {
+		api.ClientCertificatesCreateClientCertificateHandler = client_certificates.CreateClientCertificateHandlerFunc(func(params client_certificates.CreateClientCertificateParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certificates.CreateClientCertificate has not yet been implemented")
 		})
 	}
 	if api.OfficeUsersCreateOfficeUserHandler == nil {
@@ -74,19 +74,19 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation admin_users.GetAdminUser has not yet been implemented")
 		})
 	}
-	if api.ClientCertsGetClientCertHandler == nil {
-		api.ClientCertsGetClientCertHandler = client_certs.GetClientCertHandlerFunc(func(params client_certs.GetClientCertParams) middleware.Responder {
-			return middleware.NotImplemented("operation client_certs.GetClientCert has not yet been implemented")
+	if api.ClientCertificatesGetClientCertificateHandler == nil {
+		api.ClientCertificatesGetClientCertificateHandler = client_certificates.GetClientCertificateHandlerFunc(func(params client_certificates.GetClientCertificateParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certificates.GetClientCertificate has not yet been implemented")
 		})
 	}
-	if api.ElectronicOrderGetElectronicOrdersTotalsHandler == nil {
-		api.ElectronicOrderGetElectronicOrdersTotalsHandler = electronic_order.GetElectronicOrdersTotalsHandlerFunc(func(params electronic_order.GetElectronicOrdersTotalsParams) middleware.Responder {
-			return middleware.NotImplemented("operation electronic_order.GetElectronicOrdersTotals has not yet been implemented")
+	if api.ElectronicOrdersGetElectronicOrdersTotalsHandler == nil {
+		api.ElectronicOrdersGetElectronicOrdersTotalsHandler = electronic_orders.GetElectronicOrdersTotalsHandlerFunc(func(params electronic_orders.GetElectronicOrdersTotalsParams) middleware.Responder {
+			return middleware.NotImplemented("operation electronic_orders.GetElectronicOrdersTotals has not yet been implemented")
 		})
 	}
-	if api.MoveGetMoveHandler == nil {
-		api.MoveGetMoveHandler = move.GetMoveHandlerFunc(func(params move.GetMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation move.GetMove has not yet been implemented")
+	if api.MovesGetMoveHandler == nil {
+		api.MovesGetMoveHandler = moves.GetMoveHandlerFunc(func(params moves.GetMoveParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.GetMove has not yet been implemented")
 		})
 	}
 	if api.OfficeUsersGetOfficeUserHandler == nil {
@@ -94,14 +94,14 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation office_users.GetOfficeUser has not yet been implemented")
 		})
 	}
-	if api.TransportationServiceProviderPerformancesGetTSPPHandler == nil {
-		api.TransportationServiceProviderPerformancesGetTSPPHandler = transportation_service_provider_performances.GetTSPPHandlerFunc(func(params transportation_service_provider_performances.GetTSPPParams) middleware.Responder {
-			return middleware.NotImplemented("operation transportation_service_provider_performances.GetTSPP has not yet been implemented")
+	if api.TransportationServiceProviderPerformancestspPsGetTSPPHandler == nil {
+		api.TransportationServiceProviderPerformancestspPsGetTSPPHandler = transportation_service_provider_performances_t_s_p_ps.GetTSPPHandlerFunc(func(params transportation_service_provider_performances_t_s_p_ps.GetTSPPParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_service_provider_performances_t_s_p_ps.GetTSPP has not yet been implemented")
 		})
 	}
-	if api.UploadGetUploadHandler == nil {
-		api.UploadGetUploadHandler = upload.GetUploadHandlerFunc(func(params upload.GetUploadParams) middleware.Responder {
-			return middleware.NotImplemented("operation upload.GetUpload has not yet been implemented")
+	if api.UploadsGetUploadHandler == nil {
+		api.UploadsGetUploadHandler = uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
 		})
 	}
 	if api.UsersGetUserHandler == nil {
@@ -119,24 +119,24 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation admin_users.IndexAdminUsers has not yet been implemented")
 		})
 	}
-	if api.ClientCertsIndexClientCertsHandler == nil {
-		api.ClientCertsIndexClientCertsHandler = client_certs.IndexClientCertsHandlerFunc(func(params client_certs.IndexClientCertsParams) middleware.Responder {
-			return middleware.NotImplemented("operation client_certs.IndexClientCerts has not yet been implemented")
+	if api.ClientCertificatesIndexClientCertificatesHandler == nil {
+		api.ClientCertificatesIndexClientCertificatesHandler = client_certificates.IndexClientCertificatesHandlerFunc(func(params client_certificates.IndexClientCertificatesParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certificates.IndexClientCertificates has not yet been implemented")
 		})
 	}
-	if api.ElectronicOrderIndexElectronicOrdersHandler == nil {
-		api.ElectronicOrderIndexElectronicOrdersHandler = electronic_order.IndexElectronicOrdersHandlerFunc(func(params electronic_order.IndexElectronicOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation electronic_order.IndexElectronicOrders has not yet been implemented")
+	if api.ElectronicOrdersIndexElectronicOrdersHandler == nil {
+		api.ElectronicOrdersIndexElectronicOrdersHandler = electronic_orders.IndexElectronicOrdersHandlerFunc(func(params electronic_orders.IndexElectronicOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation electronic_orders.IndexElectronicOrders has not yet been implemented")
 		})
 	}
-	if api.MoveIndexMovesHandler == nil {
-		api.MoveIndexMovesHandler = move.IndexMovesHandlerFunc(func(params move.IndexMovesParams) middleware.Responder {
-			return middleware.NotImplemented("operation move.IndexMoves has not yet been implemented")
+	if api.MovesIndexMovesHandler == nil {
+		api.MovesIndexMovesHandler = moves.IndexMovesHandlerFunc(func(params moves.IndexMovesParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.IndexMoves has not yet been implemented")
 		})
 	}
-	if api.NotificationIndexNotificationsHandler == nil {
-		api.NotificationIndexNotificationsHandler = notification.IndexNotificationsHandlerFunc(func(params notification.IndexNotificationsParams) middleware.Responder {
-			return middleware.NotImplemented("operation notification.IndexNotifications has not yet been implemented")
+	if api.NotificationsIndexNotificationsHandler == nil {
+		api.NotificationsIndexNotificationsHandler = notifications.IndexNotificationsHandlerFunc(func(params notifications.IndexNotificationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation notifications.IndexNotifications has not yet been implemented")
 		})
 	}
 	if api.OfficeUsersIndexOfficeUsersHandler == nil {
@@ -144,19 +144,19 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation office_users.IndexOfficeUsers has not yet been implemented")
 		})
 	}
-	if api.OfficeIndexOfficesHandler == nil {
-		api.OfficeIndexOfficesHandler = office.IndexOfficesHandlerFunc(func(params office.IndexOfficesParams) middleware.Responder {
-			return middleware.NotImplemented("operation office.IndexOffices has not yet been implemented")
+	if api.TransportationOfficesIndexOfficesHandler == nil {
+		api.TransportationOfficesIndexOfficesHandler = transportation_offices.IndexOfficesHandlerFunc(func(params transportation_offices.IndexOfficesParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_offices.IndexOffices has not yet been implemented")
 		})
 	}
-	if api.OrganizationIndexOrganizationsHandler == nil {
-		api.OrganizationIndexOrganizationsHandler = organization.IndexOrganizationsHandlerFunc(func(params organization.IndexOrganizationsParams) middleware.Responder {
-			return middleware.NotImplemented("operation organization.IndexOrganizations has not yet been implemented")
+	if api.OrganizationsIndexOrganizationsHandler == nil {
+		api.OrganizationsIndexOrganizationsHandler = organizations.IndexOrganizationsHandlerFunc(func(params organizations.IndexOrganizationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation organizations.IndexOrganizations has not yet been implemented")
 		})
 	}
-	if api.TransportationServiceProviderPerformancesIndexTSPPsHandler == nil {
-		api.TransportationServiceProviderPerformancesIndexTSPPsHandler = transportation_service_provider_performances.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances.IndexTSPPsParams) middleware.Responder {
-			return middleware.NotImplemented("operation transportation_service_provider_performances.IndexTSPPs has not yet been implemented")
+	if api.TransportationServiceProviderPerformancestspPsIndexTSPPsHandler == nil {
+		api.TransportationServiceProviderPerformancestspPsIndexTSPPsHandler = transportation_service_provider_performances_t_s_p_ps.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances_t_s_p_ps.IndexTSPPsParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_service_provider_performances_t_s_p_ps.IndexTSPPs has not yet been implemented")
 		})
 	}
 	if api.UsersIndexUsersHandler == nil {
@@ -169,9 +169,9 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation webhook_subscriptions.IndexWebhookSubscriptions has not yet been implemented")
 		})
 	}
-	if api.ClientCertsRemoveClientCertHandler == nil {
-		api.ClientCertsRemoveClientCertHandler = client_certs.RemoveClientCertHandlerFunc(func(params client_certs.RemoveClientCertParams) middleware.Responder {
-			return middleware.NotImplemented("operation client_certs.RemoveClientCert has not yet been implemented")
+	if api.ClientCertificatesRemoveClientCertificateHandler == nil {
+		api.ClientCertificatesRemoveClientCertificateHandler = client_certificates.RemoveClientCertificateHandlerFunc(func(params client_certificates.RemoveClientCertificateParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certificates.RemoveClientCertificate has not yet been implemented")
 		})
 	}
 	if api.AdminUsersUpdateAdminUserHandler == nil {
@@ -179,14 +179,14 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation admin_users.UpdateAdminUser has not yet been implemented")
 		})
 	}
-	if api.ClientCertsUpdateClientCertHandler == nil {
-		api.ClientCertsUpdateClientCertHandler = client_certs.UpdateClientCertHandlerFunc(func(params client_certs.UpdateClientCertParams) middleware.Responder {
-			return middleware.NotImplemented("operation client_certs.UpdateClientCert has not yet been implemented")
+	if api.ClientCertificatesUpdateClientCertificateHandler == nil {
+		api.ClientCertificatesUpdateClientCertificateHandler = client_certificates.UpdateClientCertificateHandlerFunc(func(params client_certificates.UpdateClientCertificateParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certificates.UpdateClientCertificate has not yet been implemented")
 		})
 	}
-	if api.MoveUpdateMoveHandler == nil {
-		api.MoveUpdateMoveHandler = move.UpdateMoveHandlerFunc(func(params move.UpdateMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation move.UpdateMove has not yet been implemented")
+	if api.MovesUpdateMoveHandler == nil {
+		api.MovesUpdateMoveHandler = moves.UpdateMoveHandlerFunc(func(params moves.UpdateMoveParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.UpdateMove has not yet been implemented")
 		})
 	}
 	if api.OfficeUsersUpdateOfficeUserHandler == nil {

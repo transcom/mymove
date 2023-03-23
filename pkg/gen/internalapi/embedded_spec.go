@@ -2311,6 +2311,56 @@ func init() {
       }
     },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
+      "delete": {
+        "description": "Removes a single moving expense receipt from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a moving expense by ID",
+        "operationId": "deleteMovingExpense",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the moving expense to be deleted",
+            "name": "movingExpenseId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the moving expense"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "patch": {
         "description": "Any fields sent in this request will be set on the moving expense referenced",
         "tags": [
@@ -2419,6 +2469,56 @@ func init() {
       ]
     },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
+      "delete": {
+        "description": "Removes a single pro-gear weight ticket set from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a pro-gear weight line item by ID",
+        "operationId": "deleteProGearWeightTicket",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the pro-gear weight ticket to be deleted",
+            "name": "proGearWeightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the pro-gear weight ticket"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
         "consumes": [
@@ -2725,6 +2825,56 @@ func init() {
       }
     },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
+      "delete": {
+        "description": "Removes a single weight ticket from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database. This may change the PPM shipment's final\nincentive.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a weight ticket by ID",
+        "operationId": "deleteWeightTicket",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the weight ticket to be deleted",
+            "name": "weightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the weight ticket"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "patch": {
         "description": "Updates a weight ticket document with the new information",
         "tags": [
@@ -5633,13 +5783,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",
@@ -5823,13 +5975,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/MovingExpense"
           }
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weighed.\n",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
@@ -7338,12 +7483,6 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weight\n",
-          "type": "integer",
-          "x-nullable": true,
-          "example": 4300
-        },
         "pickupPostalCode": {
           "description": "zip code",
           "type": "string",
@@ -7598,6 +7737,10 @@ func init() {
     "UpdateWeightTicket": {
       "type": "object",
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer"
+        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer"
@@ -7613,6 +7756,10 @@ func init() {
         "missingFullWeightTicket": {
           "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean"
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string"
         },
         "ownsTrailer": {
           "description": "Indicates if the customer used a trailer they own for the move.",
@@ -7756,6 +7903,12 @@ func init() {
         "proofOfTrailerOwnershipDocumentId"
       ],
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -7827,6 +7980,12 @@ func init() {
         "missingFullWeightTicket": {
           "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -10443,6 +10602,82 @@ func init() {
       }
     },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
+      "delete": {
+        "description": "Removes a single moving expense receipt from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a moving expense by ID",
+        "operationId": "deleteMovingExpense",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the moving expense to be deleted",
+            "name": "movingExpenseId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the moving expense"
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "patch": {
         "description": "Any fields sent in this request will be set on the moving expense referenced",
         "tags": [
@@ -10612,6 +10847,82 @@ func init() {
       ]
     },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
+      "delete": {
+        "description": "Removes a single pro-gear weight ticket set from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a pro-gear weight line item by ID",
+        "operationId": "deleteProGearWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the pro-gear weight ticket to be deleted",
+            "name": "proGearWeightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the pro-gear weight ticket"
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
         "consumes": [
@@ -11047,6 +11358,82 @@ func init() {
       }
     },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
+      "delete": {
+        "description": "Removes a single weight ticket from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database. This may change the PPM shipment's final\nincentive.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a weight ticket by ID",
+        "operationId": "deleteWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the weight ticket to be deleted",
+            "name": "weightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the weight ticket"
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "patch": {
         "description": "Updates a weight ticket document with the new information",
         "tags": [
@@ -14022,13 +14409,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",
@@ -14212,13 +14601,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/MovingExpense"
           }
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weighed.\n",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
@@ -15732,12 +16114,6 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weight\n",
-          "type": "integer",
-          "x-nullable": true,
-          "example": 4300
-        },
         "pickupPostalCode": {
           "description": "zip code",
           "type": "string",
@@ -15996,6 +16372,11 @@ func init() {
     "UpdateWeightTicket": {
       "type": "object",
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "minimum": 0
+        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer",
@@ -16013,6 +16394,10 @@ func init() {
         "missingFullWeightTicket": {
           "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean"
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string"
         },
         "ownsTrailer": {
           "description": "Indicates if the customer used a trailer they own for the move.",
@@ -16159,6 +16544,13 @@ func init() {
         "proofOfTrailerOwnershipDocumentId"
       ],
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -16232,6 +16624,12 @@ func init() {
         "missingFullWeightTicket": {
           "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },

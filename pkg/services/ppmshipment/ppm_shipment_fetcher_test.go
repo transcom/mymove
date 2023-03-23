@@ -81,8 +81,8 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 		actualShipment, err := FindPPMShipment(suite.AppContextForTest(), ppmShipment.ID)
 		suite.NoError(err)
 
-		suite.Len(actualShipment.ProgearExpenses, 1)
-		suite.NotEmpty(actualShipment.ProgearExpenses[0].Document.UserUploads[0].Upload)
+		suite.Len(actualShipment.ProgearWeightTickets, 1)
+		suite.NotEmpty(actualShipment.ProgearWeightTickets[0].Document.UserUploads[0].Upload)
 
 		suite.Len(actualShipment.MovingExpenses, 1)
 		suite.NotEmpty(actualShipment.MovingExpenses[0].Document.UserUploads[0].Upload)
@@ -151,7 +151,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 		suite.Len(actualShipment.WeightTickets[0].EmptyDocument.UserUploads, 1)
 		suite.Len(actualShipment.WeightTickets[0].FullDocument.UserUploads, 1)
 		suite.Len(actualShipment.WeightTickets[0].ProofOfTrailerOwnershipDocument.UserUploads, 1)
-		suite.Len(actualShipment.ProgearExpenses[0].Document.UserUploads, 1)
+		suite.Len(actualShipment.ProgearWeightTickets[0].Document.UserUploads, 1)
 		suite.Len(actualShipment.MovingExpenses[0].Document.UserUploads, 1)
 
 		err = utilities.SoftDestroy(suite.DB(), &actualShipment.WeightTickets[0].EmptyDocument.UserUploads[0])
@@ -163,7 +163,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 		err = utilities.SoftDestroy(suite.DB(), &actualShipment.WeightTickets[0].ProofOfTrailerOwnershipDocument.UserUploads[0])
 		suite.NoError(err)
 
-		err = utilities.SoftDestroy(suite.DB(), &actualShipment.ProgearExpenses[0].Document.UserUploads[0])
+		err = utilities.SoftDestroy(suite.DB(), &actualShipment.ProgearWeightTickets[0].Document.UserUploads[0])
 		suite.NoError(err)
 
 		err = utilities.SoftDestroy(suite.DB(), &actualShipment.MovingExpenses[0].Document.UserUploads[0])
@@ -175,7 +175,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 		suite.Len(actualShipment.WeightTickets[0].EmptyDocument.UserUploads, 0)
 		suite.Len(actualShipment.WeightTickets[0].FullDocument.UserUploads, 0)
 		suite.Len(actualShipment.WeightTickets[0].ProofOfTrailerOwnershipDocument.UserUploads, 0)
-		suite.Len(actualShipment.ProgearExpenses[0].Document.UserUploads, 0)
+		suite.Len(actualShipment.ProgearWeightTickets[0].Document.UserUploads, 0)
 		suite.Len(actualShipment.MovingExpenses[0].Document.UserUploads, 0)
 	})
 
@@ -245,5 +245,45 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 				err.Error(),
 			)
 		}
+	})
+
+	suite.Run("FindPPMShipmentByMTOID - Success deleted line items are excluded", func() {
+		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{})
+
+		weightTicketToDelete := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+			PPMShipment: ppmShipment,
+		})
+
+		err := utilities.SoftDestroy(suite.DB(), &weightTicketToDelete)
+		suite.NoError(err)
+
+		testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
+			PPMShipment: ppmShipment,
+		})
+
+		proGearToDelete := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
+			PPMShipment: ppmShipment,
+		})
+
+		err = utilities.SoftDestroy(suite.DB(), &proGearToDelete)
+		suite.NoError(err)
+
+		testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
+			PPMShipment: ppmShipment,
+		})
+
+		movingExpenseToDelete := testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
+			PPMShipment: ppmShipment,
+		})
+
+		err = utilities.SoftDestroy(suite.DB(), &movingExpenseToDelete)
+		suite.NoError(err)
+
+		actualShipment, err := FindPPMShipmentByMTOID(suite.AppContextForTest(), ppmShipment.ShipmentID)
+		suite.NoError(err)
+
+		suite.Len(actualShipment.WeightTickets, 1)
+		suite.Len(actualShipment.ProgearWeightTickets, 1)
+		suite.Len(actualShipment.MovingExpenses, 1)
 	})
 }

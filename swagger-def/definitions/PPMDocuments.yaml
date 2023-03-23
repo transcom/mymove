@@ -8,4 +8,4 @@ properties:
   ProGearWeightTickets:
     $ref: 'ProGearWeightTickets.yaml'
   MovingExpenses:
-    $ref: 'ProGearWeightTickets.yaml'
+    $ref: 'MovingExpenses.yaml'

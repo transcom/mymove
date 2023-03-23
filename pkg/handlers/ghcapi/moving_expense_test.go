@@ -11,6 +11,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	movingexpenseops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -51,7 +52,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerUnit() {
 
 		req := httptest.NewRequest("PATCH", endpoint, nil)
 
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
@@ -253,7 +254,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 
 		req := httptest.NewRequest("PATCH", endpoint, nil)
 
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 

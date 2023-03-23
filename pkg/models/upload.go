@@ -36,7 +36,11 @@ type Upload struct {
 	DeletedAt   *time.Time `db:"deleted_at"`
 }
 
-// Uploads is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (u Upload) TableName() string {
+	return "uploads"
+}
+
 type Uploads []Upload
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

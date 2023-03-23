@@ -155,7 +155,6 @@ const approvedMoveTaskOrder = {
           hasReceivedAdvance: true,
           hasRequestedAdvance: true,
           id: 'd733fe2f-b08d-434a-ad8d-551f4d597b03',
-          netWeight: 3900,
           pickupPostalCode: '90210',
           proGearWeight: 1987,
           reviewedAt: '2022-07-02T14:20:14.636Z',

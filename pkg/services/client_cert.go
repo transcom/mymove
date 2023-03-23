@@ -28,14 +28,14 @@ type ClientCertFetcher interface {
 //
 //go:generate mockery --name ClientCertCreator --disable-version-string
 type ClientCertCreator interface {
-	CreateClientCert(appCtx appcontext.AppContext, user *models.ClientCert) (*models.ClientCert, *validate.Errors, error)
+	CreateClientCert(appCtx appcontext.AppContext, email string, user *models.ClientCert) (*models.ClientCert, *validate.Errors, error)
 }
 
 // ClientCertUpdater is the exported interface for updating an client cert
 //
 //go:generate mockery --name ClientCertUpdater --disable-version-string
 type ClientCertUpdater interface {
-	UpdateClientCert(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.ClientCertUpdatePayload) (*models.ClientCert, *validate.Errors, error)
+	UpdateClientCert(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.ClientCertificateUpdate) (*models.ClientCert, *validate.Errors, error)
 }
 
 // ClientCertRemover is the exported interface for updating an client cert

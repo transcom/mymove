@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 
+	"github.com/transcom/mymove/pkg/factory"
 	tacop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -14,7 +15,7 @@ import (
 func (suite *HandlerSuite) TestTacValidation() {
 
 	suite.Run("TAC validation", func() {
-		user := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		user := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		transportationAccountingCode := testdatagen.MakeDefaultTransportationAccountingCode(suite.DB())
 		tests := []struct {
 			tacCode string
@@ -73,7 +74,7 @@ func (suite *HandlerSuite) TestTacValidation() {
 	})
 
 	suite.Run("Unauthorized user for TAC validation is forbidden", func() {
-		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		unauthorizedUser := serviceMember.User
 		tac := "4EVR"
 		request := httptest.NewRequest("GET", fmt.Sprintf("/tac/valid?tac=%s", tac), nil)

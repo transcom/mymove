@@ -64,7 +64,27 @@ type MovingExpense struct {
 	SITEndDate        *time.Time                `json:"sit_end_date" db:"sit_end_date"`
 }
 
+// TableName overrides the table name used by Pop.
+func (m MovingExpense) TableName() string {
+	return "moving_expenses"
+}
+
 type MovingExpenses []MovingExpense
+
+func (e MovingExpenses) FilterDeleted() MovingExpenses {
+	if len(e) == 0 {
+		return e
+	}
+
+	nonDeletedExpenses := MovingExpenses{}
+	for _, expense := range e {
+		if expense.DeletedAt == nil {
+			nonDeletedExpenses = append(nonDeletedExpenses, expense)
+		}
+	}
+
+	return nonDeletedExpenses
+}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate,
 // pop.ValidateAndUpdate) method. This should contain validation that is for data integrity. Business validation should

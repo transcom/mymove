@@ -327,7 +327,7 @@ func MoveAuditHistory(logger *zap.Logger, auditHistory models.AuditHistory) *ghc
 		Context:              removeEscapeJSONtoArray(logger, auditHistory.Context),
 		ContextID:            auditHistory.ContextID,
 		StatementOnly:        auditHistory.StatementOnly,
-		TableName:            auditHistory.TableName,
+		TableName:            auditHistory.AuditedTable,
 		SchemaName:           auditHistory.SchemaName,
 		TransactionID:        auditHistory.TransactionID,
 	}
@@ -715,7 +715,6 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
-		NetWeight:                      handlers.FmtPoundPtr(ppmShipment.NetWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
@@ -735,8 +734,10 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 		sitLocation := ghcmessages.SITLocationType(*ppmShipment.SITLocation)
 		payloadPPMShipment.SitLocation = &sitLocation
 	}
+
 	if ppmShipment.AdvanceStatus != nil {
-		payloadPPMShipment.AdvanceStatus = ghcmessages.PPMAdvanceStatus(*ppmShipment.AdvanceStatus)
+		advanceStatus := ghcmessages.PPMAdvanceStatus(*ppmShipment.AdvanceStatus)
+		payloadPPMShipment.AdvanceStatus = &advanceStatus
 	}
 
 	if ppmShipment.W2Address != nil {
@@ -896,6 +897,8 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		TrailerMeetsCriteria:              weightTicket.TrailerMeetsCriteria,
 		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
 		ProofOfTrailerOwnershipDocument:   proofOfTrailerOwnershipDocument,
+		AdjustedNetWeight:                 handlers.FmtPoundPtr(weightTicket.AdjustedNetWeight),
+		NetWeightRemarks:                  weightTicket.NetWeightRemarks,
 		ETag:                              etag.GenerateEtag(weightTicket.UpdatedAt),
 	}
 
@@ -907,6 +910,22 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 	if weightTicket.Reason != nil {
 		reason := ghcmessages.PPMDocumentStatusReason(*weightTicket.Reason)
 		payload.Reason = &reason
+	}
+
+	return payload
+}
+
+// PPMDocuments payload
+func PPMDocuments(storer storage.FileStorer, ppmDocuments *models.PPMDocuments) *ghcmessages.PPMDocuments {
+
+	if ppmDocuments == nil {
+		return nil
+	}
+
+	payload := &ghcmessages.PPMDocuments{
+		WeightTickets:        WeightTickets(storer, ppmDocuments.WeightTickets),
+		MovingExpenses:       MovingExpenses(storer, ppmDocuments.MovingExpenses),
+		ProGearWeightTickets: ProGearWeightTickets(storer, ppmDocuments.ProgearWeightTickets),
 	}
 
 	return payload
@@ -966,15 +985,19 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
-		payload.RequestedPickupDate = *handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
+		payload.RequestedPickupDate = handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
 	}
 
 	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
 		payload.ActualPickupDate = handlers.FmtDatePtr(mtoShipment.ActualPickupDate)
 	}
 
+	if mtoShipment.ActualDeliveryDate != nil && !mtoShipment.ActualDeliveryDate.IsZero() {
+		payload.ActualDeliveryDate = handlers.FmtDatePtr(mtoShipment.ActualDeliveryDate)
+	}
+
 	if mtoShipment.RequestedDeliveryDate != nil && !mtoShipment.RequestedDeliveryDate.IsZero() {
-		payload.RequestedDeliveryDate = *handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate)
+		payload.RequestedDeliveryDate = handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate)
 	}
 
 	if mtoShipment.RequiredDeliveryDate != nil && !mtoShipment.RequiredDeliveryDate.IsZero() {
@@ -1353,12 +1376,12 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		var earliestRequestedPickup *time.Time
 		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
 		for _, shipment := range move.MTOShipments {
-			if queueIncludeShipmentStatus(shipment.Status) {
-				if earliestRequestedPickup == nil {
-					earliestRequestedPickup = shipment.RequestedPickupDate
-				} else if shipment.RequestedPickupDate != nil && shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
-					earliestRequestedPickup = shipment.RequestedPickupDate
+			if queueIncludeShipmentStatus(shipment.Status) && shipment.DeletedAt == nil {
+				earliestDateInCurrentShipment := findEarliestDate(shipment)
+				if earliestRequestedPickup == nil || (earliestDateInCurrentShipment != nil && earliestDateInCurrentShipment.Before(*earliestRequestedPickup)) {
+					earliestRequestedPickup = earliestDateInCurrentShipment
 				}
+
 				validMTOShipments = append(validMTOShipments, shipment)
 			}
 		}
@@ -1415,6 +1438,28 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		}
 	}
 	return &queueMoves
+}
+
+func findEarliestDate(shipment models.MTOShipment) (earliestDate *time.Time) {
+	var possibleValues []*time.Time
+
+	if shipment.RequestedPickupDate != nil {
+		possibleValues = append(possibleValues, shipment.RequestedPickupDate)
+	}
+	if shipment.RequestedDeliveryDate != nil {
+		possibleValues = append(possibleValues, shipment.RequestedDeliveryDate)
+	}
+	if shipment.PPMShipment != nil {
+		possibleValues = append(possibleValues, &shipment.PPMShipment.ExpectedDepartureDate)
+	}
+
+	for _, date := range possibleValues {
+		if earliestDate == nil || date.Before(*earliestDate) {
+			earliestDate = date
+		}
+	}
+
+	return earliestDate
 }
 
 var (

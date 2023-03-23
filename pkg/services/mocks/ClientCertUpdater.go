@@ -21,11 +21,16 @@ type ClientCertUpdater struct {
 }
 
 // UpdateClientCert provides a mock function with given fields: appCtx, id, payload
-func (_m *ClientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.ClientCertUpdatePayload) (*models.ClientCert, *validate.Errors, error) {
+func (_m *ClientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.ClientCertificateUpdate) (*models.ClientCert, *validate.Errors, error) {
 	ret := _m.Called(appCtx, id, payload)
 
 	var r0 *models.ClientCert
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *adminmessages.ClientCertUpdatePayload) *models.ClientCert); ok {
+	var r1 *validate.Errors
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *adminmessages.ClientCertificateUpdate) (*models.ClientCert, *validate.Errors, error)); ok {
+		return rf(appCtx, id, payload)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *adminmessages.ClientCertificateUpdate) *models.ClientCert); ok {
 		r0 = rf(appCtx, id, payload)
 	} else {
 		if ret.Get(0) != nil {
@@ -33,8 +38,7 @@ func (_m *ClientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id u
 		}
 	}
 
-	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *adminmessages.ClientCertUpdatePayload) *validate.Errors); ok {
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *adminmessages.ClientCertificateUpdate) *validate.Errors); ok {
 		r1 = rf(appCtx, id, payload)
 	} else {
 		if ret.Get(1) != nil {
@@ -42,8 +46,7 @@ func (_m *ClientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id u
 		}
 	}
 
-	var r2 error
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *adminmessages.ClientCertUpdatePayload) error); ok {
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *adminmessages.ClientCertificateUpdate) error); ok {
 		r2 = rf(appCtx, id, payload)
 	} else {
 		r2 = ret.Error(2)

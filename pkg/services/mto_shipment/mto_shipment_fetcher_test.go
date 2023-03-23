@@ -106,7 +106,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 	suite.Run("Loads all shipment associations", func() {
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
-		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{})
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 
 		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
@@ -170,12 +170,12 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			PPMShipment:   ppmShipment,
 		})
 
-		userUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: move.Orders.ServiceMemberID,
-				ServiceMember:   move.Orders.ServiceMember,
+		userUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    move.Orders.ServiceMember,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
 		movingExpense := &models.MovingExpense{
 			PPMShipmentID: ppmShipment.ID,
@@ -211,8 +211,8 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		suite.Len(actualPPMShipment.MovingExpenses, 1)
 		suite.Len(actualPPMShipment.MovingExpenses[0].Document.UserUploads, 1)
 
-		suite.Len(actualPPMShipment.ProgearExpenses, 1)
-		suite.Len(actualPPMShipment.ProgearExpenses[0].Document.UserUploads, 1)
+		suite.Len(actualPPMShipment.ProgearWeightTickets, 1)
+		suite.Len(actualPPMShipment.ProgearWeightTickets[0].Document.UserUploads, 1)
 	})
 }
 

@@ -112,7 +112,7 @@ func (o *UpdateOfficeUserUnauthorized) WriteResponse(rw http.ResponseWriter, pro
 const UpdateOfficeUserForbiddenCode int = 403
 
 /*
-UpdateOfficeUserForbidden Not authorized to update an office user
+UpdateOfficeUserForbidden Not authorized to update an Office User
 
 swagger:response updateOfficeUserForbidden
 */

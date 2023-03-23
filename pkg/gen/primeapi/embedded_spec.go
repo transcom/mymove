@@ -136,7 +136,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.\n\nPPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).\n",
+        "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder to indicate that the Prime has completed Counseling.\nThis update uses the moveTaskOrderID provided in the path, updates the move status and marks child elements of the move to indicate the update.\nNo body object is expected for this request.\n",
         "consumes": [
           "application/json"
         ],
@@ -291,7 +291,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n\n### Errors\n\nCurrently this is not implemented and will generated the NotImplemented error.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
         "consumes": [
           "application/json"
         ],
@@ -900,11 +900,7 @@ func init() {
             }
           },
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           }
         ],
         "responses": {
@@ -1075,7 +1071,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n",
+        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items,\nthe shipment *must* be updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n**Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be\nupdated on the shipment.\n\nTo create a paymentRequest for a SIT Delivery mtoServiceItem, the item must\nfirst have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).\n",
         "consumes": [
           "application/json"
         ],
@@ -1441,6 +1437,8 @@ func init() {
         "primeEstimatedWeight": {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "requestedPickupDate": {
@@ -2424,11 +2422,15 @@ func init() {
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeight": {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeightRecordedDate": {
@@ -2612,7 +2614,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
         },
         "moveCode": {
           "type": "string",
@@ -2695,7 +2697,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "linesOfAccounting": {
           "type": "string"
@@ -2839,13 +2841,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weight\n",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
@@ -3686,11 +3681,15 @@ func init() {
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeight": {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "scheduledDeliveryDate": {
@@ -4021,6 +4020,7 @@ func init() {
       "name": "mtoServiceItem"
     },
     {
+      "description": "The contractor submits a **paymentRequest** to the TIO for approval in order to be reimbursed for 1 or more\n**mtoServiceItems** on a **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
       "name": "paymentRequest"
     }
   ],
@@ -4182,7 +4182,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.\n\nPPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).\n",
+        "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder to indicate that the Prime has completed Counseling.\nThis update uses the moveTaskOrderID provided in the path, updates the move status and marks child elements of the move to indicate the update.\nNo body object is expected for this request.\n",
         "consumes": [
           "application/json"
         ],
@@ -4392,7 +4392,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n\n### Errors\n\nCurrently this is not implemented and will generated the NotImplemented error.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
         "consumes": [
           "application/json"
         ],
@@ -5406,7 +5406,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n",
+        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items,\nthe shipment *must* be updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n**Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be\nupdated on the shipment.\n\nTo create a paymentRequest for a SIT Delivery mtoServiceItem, the item must\nfirst have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).\n",
         "consumes": [
           "application/json"
         ],
@@ -5808,6 +5808,8 @@ func init() {
         "primeEstimatedWeight": {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "requestedPickupDate": {
@@ -6791,11 +6793,15 @@ func init() {
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeight": {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeightRecordedDate": {
@@ -6979,7 +6985,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
         },
         "moveCode": {
           "type": "string",
@@ -7062,7 +7068,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "linesOfAccounting": {
           "type": "string"
@@ -7206,13 +7212,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weight\n",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
@@ -8056,11 +8055,15 @@ func init() {
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeight": {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
           "example": 4500
         },
         "scheduledDeliveryDate": {
@@ -8391,6 +8394,7 @@ func init() {
       "name": "mtoServiceItem"
     },
     {
+      "description": "The contractor submits a **paymentRequest** to the TIO for approval in order to be reimbursed for 1 or more\n**mtoServiceItems** on a **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
       "name": "paymentRequest"
     }
   ],

@@ -11,6 +11,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -67,12 +68,7 @@ func makeServiceMember(appCtx appcontext.AppContext) models.ServiceMember {
 }
 
 func makeAmendedOrders(appCtx appcontext.AppContext, order models.Order, userUploader *uploader.UserUploader, fileNames *[]string) models.Order {
-	document := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
-		Document: models.Document{
-			ServiceMemberID: order.ServiceMemberID,
-			ServiceMember:   order.ServiceMember,
-		},
-	})
+	document := factory.BuildDocumentLinkServiceMember(appCtx.DB(), order.ServiceMember)
 
 	// Creates order upload documents from the files in this directory:
 	// pkg/testdatagen/testdata/bandwidth_test_docs
@@ -83,15 +79,20 @@ func makeAmendedOrders(appCtx appcontext.AppContext, order models.Order, userUpl
 		filePath := fmt.Sprintf("bandwidth_test_docs/%s", file)
 		fixture := testdatagen.Fixture(filePath)
 
-		upload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-			File: fixture,
-			UserUpload: models.UserUpload{
-				UploaderID: order.ServiceMember.UserID,
-				DocumentID: &document.ID,
-				Document:   document,
+		upload := factory.BuildUserUpload(appCtx.DB(), []factory.Customization{
+			{
+				Model:    document,
+				LinkOnly: true,
 			},
-			UserUploader: userUploader,
-		})
+			{
+				Model: models.UserUpload{},
+				ExtendedParams: &factory.UserUploadExtendedParams{
+					UserUploader: userUploader,
+					AppContext:   appCtx,
+					File:         fixture,
+				},
+			},
+		}, nil)
 		document.UserUploads = append(document.UserUploads, upload)
 	}
 
@@ -241,23 +242,31 @@ func createOfficeUser(appCtx appcontext.AppContext) {
 
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            tooTioUUID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         []roles.Role{tooRole, tioRole},
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:            tooTioUUID,
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{tooRole, tioRole},
+			},
 		},
-	})
-	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
-			Email:  email,
-			Active: true,
-			UserID: &tooTioUUID,
+	}, nil)
+	factory.BuildOfficeUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
+				Email:  email,
+				Active: true,
+				UserID: &tooTioUUID,
+			},
 		},
-	})
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func filesInBandwidthTestDirectory(fileNames *[]string) []string {

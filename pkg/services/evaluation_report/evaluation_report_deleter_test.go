@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -20,7 +21,7 @@ func (suite *EvaluationReportSuite) TestEvaluationReportDeleter() {
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			OfficeUser:  officeUser,
 			MTOShipment: shipment,

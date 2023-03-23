@@ -16,10 +16,6 @@ const (
 	// ReviewBaseDomainDefault is the default base domain for review apps
 	ReviewBaseDomainDefault = "review.localhost"
 
-	// EnvironmentProd is the Production Environment name
-	EnvironmentProd string = "prod"
-	// EnvironmentStaging is the Staging Environment name
-	EnvironmentStaging string = "staging"
 	// EnvironmentExperimental is the Experimental Environment name
 	EnvironmentExperimental string = "experimental"
 	// EnvironmentTest is the Test Environment name
@@ -41,8 +37,6 @@ const (
 )
 
 var environments = []string{
-	EnvironmentProd,
-	EnvironmentStaging,
 	EnvironmentExperimental,
 	EnvironmentTest,
 	EnvironmentDevelopment,

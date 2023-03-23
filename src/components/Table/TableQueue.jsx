@@ -41,7 +41,7 @@ const TableQueue = ({
 
   const {
     queueResult: { totalCount = 0, data = [], page = 1, perPage = 20 },
-    isLoading,
+    isInitialLoading: isLoading,
     isError,
   } = useQueries({
     sort: id,

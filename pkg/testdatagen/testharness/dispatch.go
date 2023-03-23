@@ -2,6 +2,7 @@ package testharness
 
 import (
 	"errors"
+	"sort"
 
 	"go.uber.org/zap"
 
@@ -99,8 +100,38 @@ var actionDispatcher = map[string]actionFunc{
 	"PPMMoveWithCloseoutOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakePPMMoveWithCloseoutOffice(appCtx)
 	},
+	"ApprovedMoveWithPPM": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPM(appCtx)
+	},
 	"SubmittedMoveWithPPMShipmentForSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeSubmittedMoveWithPPMShipmentForSC(appCtx)
+	},
+	"UnSubmittedMoveWithPPMShipmentThroughEstimatedWeights": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx)
+	},
+	"ApprovedMoveWithPPMWithAboutFormComplete": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMWithAboutFormComplete(appCtx)
+	},
+	"UnsubmittedMoveWithMultipleFullPPMShipmentComplete": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeUnsubmittedMoveWithMultipleFullPPMShipmentComplete(appCtx)
+	},
+	"ApprovedMoveWithPPMProgearWeightTicket": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMProgearWeightTicket(appCtx)
+	},
+	"ApprovedMoveWithPPMProgearWeightTicketOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx)
+	},
+	"ApprovedMoveWithPPMWeightTicketOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMWeightTicketOffice(appCtx)
+	},
+	"ApprovedMoveWithPPMMovingExpense": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMMovingExpense(appCtx)
+	},
+	"ApprovedMoveWithPPMMovingExpenseOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx)
+	},
+	"DraftMoveWithPPMWithDepartureDate": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeDraftMoveWithPPMWithDepartureDate(appCtx)
 	},
 	"OfficeUserWithTOOAndTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeOfficeUserWithTOOAndTIO(appCtx)
@@ -108,6 +139,15 @@ var actionDispatcher = map[string]actionFunc{
 	"WebhookSubscription": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return testdatagen.MakeWebhookSubscription(appCtx.DB(), testdatagen.Assertions{})
 	},
+}
+
+func Actions() []string {
+	actions := make([]string, 0, len(actionDispatcher))
+	for k := range actionDispatcher {
+		actions = append(actions, k)
+	}
+	sort.Strings(actions)
+	return actions
 }
 
 func Dispatch(appCtx appcontext.AppContext, action string) (testHarnessResponse, error) {

@@ -106,3 +106,35 @@ export const advanceRequestedWithMinAmountError = () => {
     </Formik>
   );
 };
+
+export const advanceRequestedAndApproved = () => {
+  const estimatedIncentive = 1111111;
+
+  return (
+    <Formik initialValues={{ advanceRequested: true, advance: '350', advanceStatus: 'APPROVED' }}>
+      {() => {
+        return (
+          <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
+            <ShipmentIncentiveAdvance estimatedIncentive={estimatedIncentive} />
+          </Form>
+        );
+      }}
+    </Formik>
+  );
+};
+
+export const advanceRequestedAndRejected = () => {
+  const estimatedIncentive = 1111111;
+
+  return (
+    <Formik initialValues={{ advanceRequested: true, advance: '350', advanceStatus: 'REJECTED' }}>
+      {() => {
+        return (
+          <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
+            <ShipmentIncentiveAdvance estimatedIncentive={estimatedIncentive} />
+          </Form>
+        );
+      }}
+    </Formik>
+  );
+};

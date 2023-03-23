@@ -56,7 +56,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithInvalidMove() 
 	// service items can only be created if a Move's status is Approved or
 	// Approvals Requested
 	move := testdatagen.MakeDefaultMove(suite.DB())
-	reServiceDDFSIT := testdatagen.MakeDDFSITReService(suite.DB())
+	reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: move,
 	})
@@ -82,7 +82,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	reServiceDDFSIT := testdatagen.MakeDDFSITReService(suite.DB())
+	reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: move,
 	})
@@ -102,11 +102,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 
 func (suite *MTOServiceItemServiceSuite) buildValidDOSHUTServiceItemWithValidMove() models.MTOServiceItem {
 	move := testdatagen.MakeAvailableMove(suite.DB())
-	reServiceDOSHUT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOSHUT,
-		},
-	})
+	reServiceDOSHUT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
 
 	estimatedPrimeWeight := unit.Pound(6000)
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -143,7 +139,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithNoStatusAndVal
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{})
+	reService := factory.BuildReService(suite.DB(), nil, nil)
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: move,
 	})
@@ -369,11 +365,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		//             Success, CS and MS can be created on moves without shipments.
 
 		move := testdatagen.MakeAvailableMove(suite.DB())
-		reServiceCS := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeCS,
-			},
-		})
+		reServiceCS := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 		serviceItemCS := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
 			MoveTaskOrder:   move,
@@ -387,11 +379,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		createdServiceItemCSList := *createdServiceItemsCS
 		suite.Equal(createdServiceItemCSList[0].Status, models.MTOServiceItemStatus("APPROVED"))
 
-		reServiceMS := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeMS,
-			},
-		})
+		reServiceMS := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 		serviceItemMS := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
 			MoveTaskOrder:   move,
@@ -416,11 +404,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: "ANY",
-			},
-		})
+		reService := factory.BuildReServiceByCode(suite.DB(), "ANY")
 		serviceItemBadShip := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
 			MoveTaskOrder:   move,
@@ -450,11 +434,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			Move: move,
 		})
 
-		reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDSHUT,
-			},
-		})
+		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDSHUT)
 
 		serviceItemNoWeight := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
@@ -476,7 +456,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
-		reServiceDDFSIT := testdatagen.MakeDDFSITReService(suite.DB())
+		reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
 
 		contact := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeFirst,
@@ -590,23 +570,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			Move: move,
 		})
 
-		reServiceDOASIT = testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
-			},
-		})
+		reServiceDOASIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
+		reServiceDOFSIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		reServiceDOPSIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOPSIT)
 
-		reServiceDOFSIT = testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-			},
-		})
-
-		reServiceDOPSIT = testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
-			},
-		})
 		return mtoShipment
 	}
 
@@ -934,11 +901,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 			Move: move,
 		})
 
-		reServiceDOFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-			},
-		})
+		reServiceDOFSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		serviceItemDOFSIT := models.MTOServiceItem{
 			MoveTaskOrder:   move,
@@ -977,27 +940,15 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		moveRouter := moverouter.NewMoveRouter()
 		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
-		reServiceDDFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-			},
-		})
+		reServiceDDFSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 		return shipment, creator, reServiceDDFSIT
 
 	}
 
 	setupAdditionalSIT := func() (models.ReService, models.ReService) {
 		// These codes will be needed for the following tests:
-		reServiceDDASIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDASIT,
-			},
-		})
-		reServiceDDDSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
-			},
-		})
+		reServiceDDASIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
+		reServiceDDDSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
 		return reServiceDDASIT, reServiceDDDSIT
 	}
 
@@ -1201,11 +1152,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 		// Make the necessary SIT code objects
 		reServiceDDASIT, _ := setupAdditionalSIT()
-		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-			},
-		})
+		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 
 		// Make a shipment with no DDFSIT
 		now := time.Now()

@@ -23,6 +23,11 @@ func (_m *ClientCertRemover) RemoveClientCert(appCtx appcontext.AppContext, id u
 	ret := _m.Called(appCtx, id)
 
 	var r0 *models.ClientCert
+	var r1 *validate.Errors
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.ClientCert, *validate.Errors, error)); ok {
+		return rf(appCtx, id)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.ClientCert); ok {
 		r0 = rf(appCtx, id)
 	} else {
@@ -31,7 +36,6 @@ func (_m *ClientCertRemover) RemoveClientCert(appCtx appcontext.AppContext, id u
 		}
 	}
 
-	var r1 *validate.Errors
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) *validate.Errors); ok {
 		r1 = rf(appCtx, id)
 	} else {
@@ -40,7 +44,6 @@ func (_m *ClientCertRemover) RemoveClientCert(appCtx appcontext.AppContext, id u
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r2 = rf(appCtx, id)
 	} else {

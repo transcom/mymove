@@ -22,11 +22,14 @@ type Zip3Distance struct {
 	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
 }
 
-// Zip3Distances is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (z Zip3Distance) TableName() string {
+	return "zip3_distances"
+}
+
 type Zip3Distances []Zip3Distance
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (z *Zip3Distance) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringLengthInRange{Field: z.FromZip3, Name: "FromZip3", Min: 3, Max: 3},

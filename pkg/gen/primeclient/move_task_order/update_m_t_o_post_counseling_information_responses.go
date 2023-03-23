@@ -115,6 +115,11 @@ func (o *UpdateMTOPostCounselingInformationOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the update m t o post counseling information o k response
+func (o *UpdateMTOPostCounselingInformationOK) Code() int {
+	return 200
+}
+
 func (o *UpdateMTOPostCounselingInformationOK) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationOK  %+v", 200, o.Payload)
 }
@@ -176,6 +181,11 @@ func (o *UpdateMTOPostCounselingInformationUnauthorized) IsServerError() bool {
 // IsCode returns true when this update m t o post counseling information unauthorized response a status code equal to that given
 func (o *UpdateMTOPostCounselingInformationUnauthorized) IsCode(code int) bool {
 	return code == 401
+}
+
+// Code gets the status code for the update m t o post counseling information unauthorized response
+func (o *UpdateMTOPostCounselingInformationUnauthorized) Code() int {
+	return 401
 }
 
 func (o *UpdateMTOPostCounselingInformationUnauthorized) Error() string {
@@ -241,6 +251,11 @@ func (o *UpdateMTOPostCounselingInformationForbidden) IsCode(code int) bool {
 	return code == 403
 }
 
+// Code gets the status code for the update m t o post counseling information forbidden response
+func (o *UpdateMTOPostCounselingInformationForbidden) Code() int {
+	return 403
+}
+
 func (o *UpdateMTOPostCounselingInformationForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationForbidden  %+v", 403, o.Payload)
 }
@@ -302,6 +317,11 @@ func (o *UpdateMTOPostCounselingInformationNotFound) IsServerError() bool {
 // IsCode returns true when this update m t o post counseling information not found response a status code equal to that given
 func (o *UpdateMTOPostCounselingInformationNotFound) IsCode(code int) bool {
 	return code == 404
+}
+
+// Code gets the status code for the update m t o post counseling information not found response
+func (o *UpdateMTOPostCounselingInformationNotFound) Code() int {
+	return 404
 }
 
 func (o *UpdateMTOPostCounselingInformationNotFound) Error() string {
@@ -367,6 +387,11 @@ func (o *UpdateMTOPostCounselingInformationConflict) IsCode(code int) bool {
 	return code == 409
 }
 
+// Code gets the status code for the update m t o post counseling information conflict response
+func (o *UpdateMTOPostCounselingInformationConflict) Code() int {
+	return 409
+}
+
 func (o *UpdateMTOPostCounselingInformationConflict) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationConflict  %+v", 409, o.Payload)
 }
@@ -428,6 +453,11 @@ func (o *UpdateMTOPostCounselingInformationPreconditionFailed) IsServerError() b
 // IsCode returns true when this update m t o post counseling information precondition failed response a status code equal to that given
 func (o *UpdateMTOPostCounselingInformationPreconditionFailed) IsCode(code int) bool {
 	return code == 412
+}
+
+// Code gets the status code for the update m t o post counseling information precondition failed response
+func (o *UpdateMTOPostCounselingInformationPreconditionFailed) Code() int {
+	return 412
 }
 
 func (o *UpdateMTOPostCounselingInformationPreconditionFailed) Error() string {
@@ -493,6 +523,11 @@ func (o *UpdateMTOPostCounselingInformationUnprocessableEntity) IsCode(code int)
 	return code == 422
 }
 
+// Code gets the status code for the update m t o post counseling information unprocessable entity response
+func (o *UpdateMTOPostCounselingInformationUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *UpdateMTOPostCounselingInformationUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -554,6 +589,11 @@ func (o *UpdateMTOPostCounselingInformationInternalServerError) IsServerError() 
 // IsCode returns true when this update m t o post counseling information internal server error response a status code equal to that given
 func (o *UpdateMTOPostCounselingInformationInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the update m t o post counseling information internal server error response
+func (o *UpdateMTOPostCounselingInformationInternalServerError) Code() int {
+	return 500
 }
 
 func (o *UpdateMTOPostCounselingInformationInternalServerError) Error() string {

@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -223,11 +224,11 @@ func (suite *HandlerSuite) moveTaskOrderPopulated(response *movetaskorderops.Cre
 func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	setupTestData := func() (models.DutyLocation, models.DutyLocation, models.ServiceMember, *supportmessages.MoveTaskOrder) {
 		// Create the objects that are already in the db
-		destinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-		originDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
-		customer := testdatagen.MakeDefaultServiceMember(suite.DB())
-		contractor := testdatagen.MakeDefaultContractor(suite.DB())
-		document := testdatagen.MakeDefaultDocument(suite.DB())
+		destinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		customer := factory.BuildServiceMember(suite.DB(), nil, nil)
+		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
+		document := factory.BuildDocument(suite.DB(), nil, nil)
 
 		// Create the mto payload we will be requesting to create
 		issueDate := swag.Time(time.Now())

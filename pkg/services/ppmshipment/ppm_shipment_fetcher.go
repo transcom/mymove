@@ -29,6 +29,7 @@ func FindPPMShipmentAndWeightTickets(appCtx appcontext.AppContext, id uuid.UUID)
 			return nil, apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipmentAndWeightTickets")
 		}
 	}
+	ppmShipment.WeightTickets = ppmShipment.WeightTickets.FilterDeleted()
 
 	return &ppmShipment, nil
 }
@@ -41,7 +42,7 @@ func FindPPMShipmentByMTOID(appCtx appcontext.AppContext, mtoID uuid.UUID) (*mod
 			"Shipment",
 			"WeightTickets",
 			"MovingExpenses",
-			"ProgearExpenses",
+			"ProgearWeightTickets",
 			"W2Address",
 		).
 		Where("shipment_id = ?", mtoID).First(&ppmShipment)
@@ -72,7 +73,7 @@ func FindPPMShipment(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShi
 			"Shipment",
 			"WeightTickets",
 			"MovingExpenses",
-			"ProgearExpenses",
+			"ProgearWeightTickets",
 			"W2Address",
 		).
 		Find(&ppmShipment, id)
@@ -95,47 +96,47 @@ func FindPPMShipment(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShi
 }
 
 func loadPPMAssociations(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error {
+	ppmShipment.WeightTickets = ppmShipment.WeightTickets.FilterDeleted()
 	for i := range ppmShipment.WeightTickets {
-		if weightTicket := &ppmShipment.WeightTickets[i]; weightTicket.DeletedAt == nil {
-			err := appCtx.DB().Load(weightTicket,
-				"EmptyDocument.UserUploads.Upload",
-				"FullDocument.UserUploads.Upload",
-				"ProofOfTrailerOwnershipDocument.UserUploads.Upload")
+		weightTicket := &ppmShipment.WeightTickets[i]
+		err := appCtx.DB().Load(weightTicket,
+			"EmptyDocument.UserUploads.Upload",
+			"FullDocument.UserUploads.Upload",
+			"ProofOfTrailerOwnershipDocument.UserUploads.Upload")
 
-			if err != nil {
-				return apperror.NewQueryError("WeightTicket", err, "failed to load WeightTicket document uploads")
-			}
-
-			weightTicket.EmptyDocument.UserUploads = weightTicket.EmptyDocument.UserUploads.FilterDeleted()
-			weightTicket.FullDocument.UserUploads = weightTicket.FullDocument.UserUploads.FilterDeleted()
-			weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightTicket.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
+		if err != nil {
+			return apperror.NewQueryError("WeightTicket", err, "failed to load WeightTicket document uploads")
 		}
+
+		weightTicket.EmptyDocument.UserUploads = weightTicket.EmptyDocument.UserUploads.FilterDeleted()
+		weightTicket.FullDocument.UserUploads = weightTicket.FullDocument.UserUploads.FilterDeleted()
+		weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightTicket.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
 	}
 
-	for i := range ppmShipment.ProgearExpenses {
-		if progearExpense := &ppmShipment.ProgearExpenses[i]; progearExpense.DeletedAt == nil {
-			err := appCtx.DB().Load(progearExpense,
-				"Document.UserUploads.Upload")
+	ppmShipment.ProgearWeightTickets = ppmShipment.ProgearWeightTickets.FilterDeleted()
+	for i := range ppmShipment.ProgearWeightTickets {
+		progearWeightTicket := &ppmShipment.ProgearWeightTickets[i]
+		err := appCtx.DB().Load(progearWeightTicket,
+			"Document.UserUploads.Upload")
 
-			if err != nil {
-				return apperror.NewQueryError("ProgearExpenses", err, "failed to load ProgearExpenses document uploads")
-			}
-
-			progearExpense.Document.UserUploads = progearExpense.Document.UserUploads.FilterDeleted()
+		if err != nil {
+			return apperror.NewQueryError("ProgearWeightTickets", err, "failed to load ProgearWeightTickets document uploads")
 		}
+
+		progearWeightTicket.Document.UserUploads = progearWeightTicket.Document.UserUploads.FilterDeleted()
 	}
 
+	ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterDeleted()
 	for i := range ppmShipment.MovingExpenses {
-		if movingExpense := &ppmShipment.MovingExpenses[i]; movingExpense.DeletedAt == nil {
-			err := appCtx.DB().Load(movingExpense,
-				"Document.UserUploads.Upload")
+		movingExpense := &ppmShipment.MovingExpenses[i]
+		err := appCtx.DB().Load(movingExpense,
+			"Document.UserUploads.Upload")
 
-			if err != nil {
-				return apperror.NewQueryError("MovingExpenses", err, "failed to load ProgearExpenses document uploads")
-			}
-
-			movingExpense.Document.UserUploads = movingExpense.Document.UserUploads.FilterDeleted()
+		if err != nil {
+			return apperror.NewQueryError("MovingExpenses", err, "failed to load  MovingExpenses document uploads")
 		}
+
+		movingExpense.Document.UserUploads = movingExpense.Document.UserUploads.FilterDeleted()
 	}
 
 	// We can't load SignedCertification with EagerPreload because of a bug in Pop, so we'll load it directly next.

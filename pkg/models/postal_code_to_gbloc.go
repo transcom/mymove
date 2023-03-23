@@ -15,5 +15,9 @@ type PostalCodeToGBLOC struct {
 	UpdatedAt  time.Time `db:"updated_at"`
 }
 
-// PostalCodeToGBLOCs is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (p PostalCodeToGBLOC) TableName() string {
+	return "postal_code_to_gblocs"
+}
+
 type PostalCodeToGBLOCs []PostalCodeToGBLOC

@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, expect } = require('../utils/adminTest');
+import { test, expect } from '../utils/adminTest';
 
 test('Admin Users List Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();
@@ -38,7 +38,9 @@ test('Admin User Create Page', async ({ page, adminPage }) => {
   await page.getByLabel('First name').fill('Cypress');
   await page.getByLabel('Last name').fill('Test');
 
-  await page.getByLabel('Organization').click();
+  // The autocomplete form results in multiple matching elements, so
+  // pick the input element
+  await page.getByLabel('Organization').locator('input').click();
   await page.getByRole('option').first().click();
   await page.getByRole('button').filter({ hasText: 'Save' }).click();
   await adminPage.waitForAdminPageToLoad();
@@ -62,7 +64,7 @@ test('Admin Users Show Page', async ({ page, adminPage }) => {
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
   // click on first row
-  await page.locator('tr[resource="admin_users"]').first().click();
+  await page.locator('tr[resource="admin-users"]').first().click();
   await adminPage.waitForAdminPageToLoad();
 
   const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();
@@ -103,7 +105,7 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
   // go directly to the show page for the admin user because if we
   // have created more than 25 admin users, the user may not be on the
   // first page and we don't have a search functionality for admin users
-  await page.goto(`/system/admin_users/${adminUserId}/show`);
+  await page.goto(`/system/admin-users/${adminUserId}/show`);
   await adminPage.waitForAdminPageToLoad();
 
   await page.getByRole('button', { name: 'Edit' }).click();

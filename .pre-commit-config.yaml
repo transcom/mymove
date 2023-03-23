@@ -1,3 +1,9 @@
+default_language_version:
+  golang: system
+
+# Specifying minimum pre-commit version to allow for use of default language with golang envs.
+minimum_pre_commit_version: 3.1.0
+
 repos:
   - repo: local
     hooks:
@@ -50,7 +56,7 @@ repos:
         exclude: ^public/swagger-ui/
 
   - repo: https://github.com/golangci/golangci-lint
-    rev: v1.50.1
+    rev: v1.51.2
     hooks:
       - id: golangci-lint
         entry: bash -c 'exec golangci-lint run ${GOLANGCI_LINT_VERBOSE} -j=${GOLANGCI_LINT_CONCURRENCY:-1}' # custom bash so we can override concurrency for faster dev runs
@@ -74,7 +80,7 @@ repos:
         language: script
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.32.2
+    rev: v0.33.0
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md
@@ -111,15 +117,24 @@ repos:
 
   - repo: local
     hooks:
+      - id: playwright_tsc
+        name: playwright_tsc
+        entry: node_modules/.bin/tsc -p playwright/tests/tsconfig.json
+        language: node
+        files: ^playwright/tests/.*\.js$
+        pass_filenames: false
+
+  - repo: local
+    hooks:
       - id: swagger
         name: Swagger
         entry: scripts/pre-commit-swagger-validate
         language: script
-        files: swagger/*
+        files: swagger/.*
         types: [yaml]
-        exclude: swagger-def/* # These are partial swagger files that are compiled into the ones in swagger/*.
-                               # They will be checked unless explicitly excluded, but they will fail.
-                               # By only validating the compiled files, we are effectively checking these files as well.
+        exclude: swagger-def/.* # These are partial swagger files that are compiled into the ones in swagger/*.
+                                # They will be checked unless explicitly excluded, but they will fail.
+                                # By only validating the compiled files, we are effectively checking these files as well.
         require_serial: true # Make sure that we only call the script once with all affected YAML files as CI seems to
                              # have sporadic failures if we call this script in parallel.
 
@@ -163,7 +178,7 @@ repos:
         name: Spectral yaml linter
         entry: scripts/lint-yaml-with-spectral
         language: script
-        files: swagger/(support|prime).yaml
+        files: swagger/(admin|prime|support).yaml
         types: [yaml]
 
   - repo: local

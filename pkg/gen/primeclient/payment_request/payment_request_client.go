@@ -45,6 +45,18 @@ type ClientService interface {
 A newly created payment request is assigned the status `PENDING`.
 A move task order can have multiple payment requests, and
 a final payment request can be marked using boolean `isFinal`.
+
+If a `PENDING` payment request is recalculated,
+a new payment request is created and the original request is
+marked with the status `DEPRECATED`.
+
+**NOTE**: In order to create a payment request for most service items,
+the shipment *must* be updated with the `PrimeActualWeight` value via [updateMTOShipment](#operation/updateMTOShipment).
+**Fuel Surcharge** service items require `ActualPickupDate` to be
+updated on the shipment.
+
+To create a paymentRequest for a SIT Delivery mtoServiceItem, the item must
+first have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).
 */
 func (a *Client) CreatePaymentRequest(params *CreatePaymentRequestParams, opts ...ClientOption) (*CreatePaymentRequestCreated, error) {
 	// TODO: Validate the params before sending

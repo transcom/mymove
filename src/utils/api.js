@@ -8,7 +8,8 @@ import { checkResponse, getClient, requestInterceptor } from 'shared/Swagger/api
 export const getQueriesStatus = (queries) => {
   // Queries should be an array of statuses returned by useQuery (https://react-query.tanstack.com/docs/api#usequery)
   return {
-    isLoading: queries.some((q) => q.isLoading),
+    // isIntialLoading is the react-query key designated for loading states (https://tanstack.com/query/v4/docs/guides/migrating-to-react-query-4#disabled-queries)
+    isLoading: queries.some((q) => q.isInitialLoading),
     isError: queries.some((q) => q.isError),
     isSuccess: queries.every((q) => q.isSuccess),
     errors: queries.reduce((errors, q) => (q.error ? [...errors, q.error] : errors), []),

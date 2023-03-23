@@ -10,28 +10,24 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 	ppmShipmentUpdater := mocks.PPMShipmentUpdater{}
 
 	setupForTest := func(appCtx appcontext.AppContext, overrides *models.WeightTicket, hasEmptyFiles bool, hasFullFiles bool, hasProofFiles bool) *models.WeightTicket {
-		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
 
-		baseDocumentAssertions := testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: serviceMember.ID,
-			},
-		}
-
-		emptyDocument := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
-		fullDocument := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
-		proofOfOwnership := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
+		emptyDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+		fullDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+		proofOfOwnership := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 
 		now := time.Now()
 		if hasEmptyFiles {
@@ -44,14 +40,17 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 					deletedAt = &now
 				}
 
-				userUpload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-					UserUpload: models.UserUpload{
-						UploaderID: serviceMember.UserID,
-						DocumentID: &emptyDocument.ID,
-						Document:   emptyDocument,
-						DeletedAt:  deletedAt,
+				userUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+					{
+						Model:    emptyDocument,
+						LinkOnly: true,
 					},
-				})
+					{
+						Model: models.UserUpload{
+							DeletedAt: deletedAt,
+						},
+					},
+				}, nil)
 
 				if !markAsDeleted {
 					emptyDocument.UserUploads = append(emptyDocument.UserUploads, userUpload)
@@ -61,13 +60,12 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 		if hasFullFiles {
 			for i := 0; i < 2; i++ {
-				userUpload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-					UserUpload: models.UserUpload{
-						UploaderID: serviceMember.UserID,
-						DocumentID: &fullDocument.ID,
-						Document:   fullDocument,
+				userUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+					{
+						Model:    fullDocument,
+						LinkOnly: true,
 					},
-				})
+				}, nil)
 
 				fullDocument.UserUploads = append(fullDocument.UserUploads, userUpload)
 			}
@@ -75,13 +73,12 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 		if hasProofFiles {
 			for i := 0; i < 2; i++ {
-				userUpload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-					UserUpload: models.UserUpload{
-						UploaderID: serviceMember.UserID,
-						DocumentID: &proofOfOwnership.ID,
-						Document:   proofOfOwnership,
+				userUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+					{
+						Model:    proofOfOwnership,
+						LinkOnly: true,
 					},
-				})
+				}, nil)
 
 				proofOfOwnership.UserUploads = append(proofOfOwnership.UserUploads, userUpload)
 			}
@@ -188,6 +185,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			MissingFullWeightTicket:  models.BoolPointer(true),
 			OwnsTrailer:              models.BoolPointer(false),
 			TrailerMeetsCriteria:     models.BoolPointer(false),
+			AdjustedNetWeight:        models.PoundPointer(1200),
+			NetWeightRemarks:         models.StringPointer("Weight has been adjusted"),
 		}
 
 		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
@@ -204,6 +203,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(*desiredWeightTicket.MissingFullWeightTicket, *updatedWeightTicket.MissingFullWeightTicket)
 		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.OwnsTrailer)
 		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.TrailerMeetsCriteria)
+		suite.Equal(*desiredWeightTicket.AdjustedNetWeight, *updatedWeightTicket.AdjustedNetWeight)
+		suite.Equal(*desiredWeightTicket.NetWeightRemarks, *updatedWeightTicket.NetWeightRemarks)
 	})
 
 	suite.Run("Succesfully updates when files are required", func() {
@@ -226,6 +227,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			MissingFullWeightTicket:  models.BoolPointer(false),
 			OwnsTrailer:              models.BoolPointer(true),
 			TrailerMeetsCriteria:     models.BoolPointer(true),
+			AdjustedNetWeight:        models.PoundPointer(1200),
+			NetWeightRemarks:         models.StringPointer("Weight has been adjusted"),
 		}
 
 		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
@@ -242,6 +245,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(*desiredWeightTicket.MissingFullWeightTicket, *updatedWeightTicket.MissingFullWeightTicket)
 		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.OwnsTrailer)
 		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.TrailerMeetsCriteria)
+		suite.Equal(*desiredWeightTicket.AdjustedNetWeight, *updatedWeightTicket.AdjustedNetWeight)
+		suite.Equal(*desiredWeightTicket.NetWeightRemarks, *updatedWeightTicket.NetWeightRemarks)
 		suite.Equal(1, len(updatedWeightTicket.EmptyDocument.UserUploads))
 		suite.Equal(2, len(updatedWeightTicket.FullDocument.UserUploads))
 		suite.Equal(2, len(updatedWeightTicket.ProofOfTrailerOwnershipDocument.UserUploads))
@@ -271,6 +276,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			MissingFullWeightTicket:  models.BoolPointer(true),
 			OwnsTrailer:              models.BoolPointer(false),
 			TrailerMeetsCriteria:     models.BoolPointer(false),
+			AdjustedNetWeight:        models.PoundPointer(1200),
+			NetWeightRemarks:         models.StringPointer("Weight has been adjusted"),
 		}
 
 		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
@@ -287,6 +294,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(*desiredWeightTicket.MissingFullWeightTicket, *updatedWeightTicket.MissingFullWeightTicket)
 		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.OwnsTrailer)
 		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.TrailerMeetsCriteria)
+		suite.Equal(*desiredWeightTicket.AdjustedNetWeight, *updatedWeightTicket.AdjustedNetWeight)
+		suite.Equal(*desiredWeightTicket.NetWeightRemarks, *updatedWeightTicket.NetWeightRemarks)
 	})
 
 	suite.Run("Successfully updates and does not call ppmShipmentUpdater when total weight is unchanged", func() {
@@ -309,6 +318,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			MissingFullWeightTicket:  models.BoolPointer(true),
 			OwnsTrailer:              models.BoolPointer(false),
 			TrailerMeetsCriteria:     models.BoolPointer(false),
+			AdjustedNetWeight:        models.PoundPointer(1200),
+			NetWeightRemarks:         models.StringPointer("Weight has been adjusted"),
 		}
 
 		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
@@ -325,6 +336,52 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(*desiredWeightTicket.MissingFullWeightTicket, *updatedWeightTicket.MissingFullWeightTicket)
 		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.OwnsTrailer)
 		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.TrailerMeetsCriteria)
+		suite.Equal(*desiredWeightTicket.AdjustedNetWeight, *updatedWeightTicket.AdjustedNetWeight)
+		suite.Equal(*desiredWeightTicket.NetWeightRemarks, *updatedWeightTicket.NetWeightRemarks)
+	})
+
+	suite.Run("Successfully updates when total weight is changed - taking adjustedNetWeight into account", func() {
+		appCtx := suite.AppContextForTest()
+
+		override := models.WeightTicket{
+			EmptyWeight:       models.PoundPointer(3000),
+			FullWeight:        models.PoundPointer(4200),
+			AdjustedNetWeight: models.PoundPointer(1200),
+			NetWeightRemarks:  models.StringPointer("Weight has been adjusted"),
+		}
+		originalWeightTicket := setupForTest(appCtx, &override, true, true, false)
+
+		updater := NewOfficeWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
+
+		desiredWeightTicket := &models.WeightTicket{
+			ID:                       originalWeightTicket.ID,
+			VehicleDescription:       models.StringPointer("2004 Toyota Prius"),
+			EmptyWeight:              models.PoundPointer(1000),
+			MissingEmptyWeightTicket: models.BoolPointer(true),
+			FullWeight:               models.PoundPointer(2200),
+			MissingFullWeightTicket:  models.BoolPointer(true),
+			OwnsTrailer:              models.BoolPointer(false),
+			TrailerMeetsCriteria:     models.BoolPointer(false),
+			AdjustedNetWeight:        models.PoundPointer(1000),
+			NetWeightRemarks:         models.StringPointer("Weight has been adjusted"),
+		}
+
+		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
+
+		suite.Nil(updateErr)
+		suite.Equal(originalWeightTicket.ID, updatedWeightTicket.ID)
+		suite.Equal(originalWeightTicket.EmptyDocumentID, updatedWeightTicket.EmptyDocumentID)
+		suite.Equal(originalWeightTicket.FullDocumentID, updatedWeightTicket.FullDocumentID)
+		suite.Equal(originalWeightTicket.ProofOfTrailerOwnershipDocumentID, updatedWeightTicket.ProofOfTrailerOwnershipDocumentID)
+		suite.Equal(*desiredWeightTicket.VehicleDescription, *updatedWeightTicket.VehicleDescription)
+		suite.Equal(*desiredWeightTicket.EmptyWeight, *updatedWeightTicket.EmptyWeight)
+		suite.Equal(*desiredWeightTicket.MissingEmptyWeightTicket, *updatedWeightTicket.MissingEmptyWeightTicket)
+		suite.Equal(*desiredWeightTicket.FullWeight, *updatedWeightTicket.FullWeight)
+		suite.Equal(*desiredWeightTicket.MissingFullWeightTicket, *updatedWeightTicket.MissingFullWeightTicket)
+		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.OwnsTrailer)
+		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.TrailerMeetsCriteria)
+		suite.Equal(*desiredWeightTicket.AdjustedNetWeight, *updatedWeightTicket.AdjustedNetWeight)
+		suite.Equal(*desiredWeightTicket.NetWeightRemarks, *updatedWeightTicket.NetWeightRemarks)
 	})
 
 	suite.Run("Fails to update when files are missing", func() {
@@ -343,6 +400,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			MissingFullWeightTicket:  models.BoolPointer(false),
 			OwnsTrailer:              models.BoolPointer(true),
 			TrailerMeetsCriteria:     models.BoolPointer(true),
+			AdjustedNetWeight:        models.PoundPointer(1200),
+			NetWeightRemarks:         models.StringPointer("Weight has been adjusted"),
 		}
 
 		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
@@ -351,6 +410,77 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.NotNil(updateErr)
 		suite.IsType(apperror.InvalidInputError{}, updateErr)
 		suite.Equal("Invalid input found while validating the weight ticket.", updateErr.Error())
+	})
+
+	suite.Run("hasTotalWeightChanged function", func() {
+		suite.Run("should return true if there's a change in total weight based off adjusted net weight for both tickets", func() {
+			//Default net weight of 4,000 - full weight of 18500 - empty weight of 14500
+			oldAdjustedNetWeight := unit.Pound(3999)
+			originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+				WeightTicket: models.WeightTicket{
+					AdjustedNetWeight: &oldAdjustedNetWeight,
+				},
+			})
+
+			newWeightTicket := originalWeightTicket
+			newAdjustedNetWeight := unit.Pound(3000)
+			newWeightTicket.AdjustedNetWeight = &newAdjustedNetWeight
+
+			totalWeightHasChanged := hasTotalWeightChanged(originalWeightTicket, newWeightTicket)
+			suite.Equal(true, totalWeightHasChanged)
+		})
+
+		suite.Run("should return true if there's a change in total weight when only one ticket has an adjusted net weight value", func() {
+			//Default net weight of 4,000 - full weight of 18500 - empty weight of 14500
+			originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+
+			newWeightTicket := originalWeightTicket
+			newAdjustedNetWeight := unit.Pound(3500)
+			newWeightTicket.AdjustedNetWeight = &newAdjustedNetWeight
+
+			totalWeightHasChanged := hasTotalWeightChanged(originalWeightTicket, newWeightTicket)
+			suite.Equal(true, totalWeightHasChanged)
+		})
+
+		suite.Run("should return true if there's a change in total weight based off full and empty weight", func() {
+			//Default net weight of 4,000 - full weight of 18500 - empty weight of 14500
+			originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+
+			newWeightTicket := originalWeightTicket
+			newFullWeight := unit.Pound(15000)
+			newEmptyWeight := unit.Pound(10000)
+			newWeightTicket.FullWeight = &newFullWeight
+			newWeightTicket.EmptyWeight = &newEmptyWeight
+
+			totalWeightHasChanged := hasTotalWeightChanged(originalWeightTicket, newWeightTicket)
+			suite.Equal(true, totalWeightHasChanged)
+		})
+
+		suite.Run("should return false when the total weight is the same", func() {
+			//Default net weight of 4,000 - full weight of 18500 - empty weight of 14500
+			originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+
+			newWeightTicket := originalWeightTicket
+			newFullWeight := unit.Pound(16500)
+			newEmptyWeight := unit.Pound(12500)
+			newWeightTicket.FullWeight = &newFullWeight
+			newWeightTicket.EmptyWeight = &newEmptyWeight
+
+			totalWeightHasChanged := hasTotalWeightChanged(originalWeightTicket, newWeightTicket)
+			suite.Equal(false, totalWeightHasChanged)
+		})
+
+		suite.Run("should return false when there's different values but the total weight remains the same", func() {
+			//Default net weight of 4,000 - full weight of 18500 - empty weight of 14500
+			originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+
+			newWeightTicket := originalWeightTicket
+			newAdjustedNetWeight := unit.Pound(4000)
+			newWeightTicket.AdjustedNetWeight = &newAdjustedNetWeight
+
+			totalWeightHasChanged := hasTotalWeightChanged(originalWeightTicket, newWeightTicket)
+			suite.Equal(false, totalWeightHasChanged)
+		})
 	})
 
 	suite.Run("Status and reason related", func() {
@@ -455,6 +585,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 					TrailerMeetsCriteria:     models.BoolPointer(false),
 					Status:                   &status,
 					Reason:                   models.StringPointer("bad data"),
+					AdjustedNetWeight:        models.PoundPointer(1000),
+					NetWeightRemarks:         models.StringPointer("Weight has been adjusted"),
 				}
 
 				updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))

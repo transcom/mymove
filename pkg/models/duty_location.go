@@ -27,28 +27,19 @@ type DutyLocation struct {
 	ProvidesServicesCounseling bool                          `json:"provides_services_counseling" db:"provides_services_counseling"`
 }
 
-// DutyLocations is not required by pop and may be deleted
+// TableName overrides the table name used by Pop.
+func (d DutyLocation) TableName() string {
+	return "duty_locations"
+}
+
 type DutyLocations []DutyLocation
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (d *DutyLocation) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: d.Name, Name: "Name"},
 		&validators.UUIDIsPresent{Field: d.AddressID, Name: "AddressID"},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (d *DutyLocation) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (d *DutyLocation) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }
 
 // DutyLocationTransportInfo contains all info needed for notifications emails
@@ -95,7 +86,8 @@ func FetchDutyLocation(tx *pop.Connection, id uuid.UUID) (DutyLocation, error) {
 // FetchDutyLocationByName returns a DutyLocation for a given unique name
 func FetchDutyLocationByName(tx *pop.Connection, name string) (DutyLocation, error) {
 	var dutyLocation DutyLocation
-	err := tx.Where("name = ?", name).Eager("Address").First(&dutyLocation)
+	err := tx.Where("name = ?", name).Eager("Address", "TransportationOffice",
+		"TransportationOffice.Address", "TransportationOffice.PhoneLines").First(&dutyLocation)
 	return dutyLocation, err
 }
 

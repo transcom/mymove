@@ -72,7 +72,7 @@ var AllowedPPMDocumentStatuses = []string{
 type PPMDocuments struct {
 	WeightTickets
 	MovingExpenses
-	ProgearExpenses ProgearWeightTickets
+	ProgearWeightTickets
 }
 
 // PPMShipment is the portion of a move that a service member performs themselves
@@ -98,7 +98,6 @@ type PPMShipment struct {
 	SecondaryDestinationPostalCode *string              `json:"secondary_destination_postal_code" db:"secondary_destination_postal_code"`
 	ActualDestinationPostalCode    *string              `json:"actual_destination_postal_code" db:"actual_destination_postal_code"`
 	EstimatedWeight                *unit.Pound          `json:"estimated_weight" db:"estimated_weight"`
-	NetWeight                      *unit.Pound          `json:"net_weight" db:"net_weight"`
 	HasProGear                     *bool                `json:"has_pro_gear" db:"has_pro_gear"`
 	ProGearWeight                  *unit.Pound          `json:"pro_gear_weight" db:"pro_gear_weight"`
 	SpouseProGearWeight            *unit.Pound          `json:"spouse_pro_gear_weight" db:"spouse_pro_gear_weight"`
@@ -117,14 +116,14 @@ type PPMShipment struct {
 	SITEstimatedCost               *unit.Cents          `json:"sit_estimated_cost" db:"sit_estimated_cost"`
 	WeightTickets                  WeightTickets        `has_many:"weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	MovingExpenses                 MovingExpenses       `has_many:"moving_expenses" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
-	ProgearExpenses                ProgearWeightTickets `has_many:"progear_weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
+	ProgearWeightTickets           ProgearWeightTickets `has_many:"progear_weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	SignedCertification            *SignedCertification `has_one:"signed_certification" fk_id:"ppm_id"`
+}
+
+// TableName overrides the table name used by Pop.
+func (p PPMShipment) TableName() string {
+	return "ppm_shipments"
 }
 
 // PPMShipments is a list of PPMs
 type PPMShipments []PPMShipment
-
-// TableName overrides the table name used by Pop. By default it tries using the name `ppmshipments`.
-func (p PPMShipment) TableName() string {
-	return "ppm_shipments"
-}

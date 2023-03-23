@@ -121,6 +121,11 @@ func (o *UpdateMTOServiceItemOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the update m t o service item o k response
+func (o *UpdateMTOServiceItemOK) Code() int {
+	return 200
+}
+
 func (o *UpdateMTOServiceItemOK) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemOK  %+v", 200, o.Payload)
 }
@@ -182,6 +187,11 @@ func (o *UpdateMTOServiceItemBadRequest) IsServerError() bool {
 // IsCode returns true when this update m t o service item bad request response a status code equal to that given
 func (o *UpdateMTOServiceItemBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the update m t o service item bad request response
+func (o *UpdateMTOServiceItemBadRequest) Code() int {
+	return 400
 }
 
 func (o *UpdateMTOServiceItemBadRequest) Error() string {
@@ -247,6 +257,11 @@ func (o *UpdateMTOServiceItemUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the update m t o service item unauthorized response
+func (o *UpdateMTOServiceItemUnauthorized) Code() int {
+	return 401
+}
+
 func (o *UpdateMTOServiceItemUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemUnauthorized  %+v", 401, o.Payload)
 }
@@ -308,6 +323,11 @@ func (o *UpdateMTOServiceItemForbidden) IsServerError() bool {
 // IsCode returns true when this update m t o service item forbidden response a status code equal to that given
 func (o *UpdateMTOServiceItemForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the update m t o service item forbidden response
+func (o *UpdateMTOServiceItemForbidden) Code() int {
+	return 403
 }
 
 func (o *UpdateMTOServiceItemForbidden) Error() string {
@@ -373,6 +393,11 @@ func (o *UpdateMTOServiceItemNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the update m t o service item not found response
+func (o *UpdateMTOServiceItemNotFound) Code() int {
+	return 404
+}
+
 func (o *UpdateMTOServiceItemNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemNotFound  %+v", 404, o.Payload)
 }
@@ -434,6 +459,11 @@ func (o *UpdateMTOServiceItemConflict) IsServerError() bool {
 // IsCode returns true when this update m t o service item conflict response a status code equal to that given
 func (o *UpdateMTOServiceItemConflict) IsCode(code int) bool {
 	return code == 409
+}
+
+// Code gets the status code for the update m t o service item conflict response
+func (o *UpdateMTOServiceItemConflict) Code() int {
+	return 409
 }
 
 func (o *UpdateMTOServiceItemConflict) Error() string {
@@ -499,6 +529,11 @@ func (o *UpdateMTOServiceItemPreconditionFailed) IsCode(code int) bool {
 	return code == 412
 }
 
+// Code gets the status code for the update m t o service item precondition failed response
+func (o *UpdateMTOServiceItemPreconditionFailed) Code() int {
+	return 412
+}
+
 func (o *UpdateMTOServiceItemPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemPreconditionFailed  %+v", 412, o.Payload)
 }
@@ -562,6 +597,11 @@ func (o *UpdateMTOServiceItemUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the update m t o service item unprocessable entity response
+func (o *UpdateMTOServiceItemUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *UpdateMTOServiceItemUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -623,6 +663,11 @@ func (o *UpdateMTOServiceItemInternalServerError) IsServerError() bool {
 // IsCode returns true when this update m t o service item internal server error response a status code equal to that given
 func (o *UpdateMTOServiceItemInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the update m t o service item internal server error response
+func (o *UpdateMTOServiceItemInternalServerError) Code() int {
+	return 500
 }
 
 func (o *UpdateMTOServiceItemInternalServerError) Error() string {

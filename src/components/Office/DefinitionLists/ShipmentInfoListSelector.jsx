@@ -7,6 +7,7 @@ import PPMShipmentInfoList from 'components/Office/DefinitionLists/PPMShipmentIn
 import NTSRShipmentInfoList from 'components/Office/DefinitionLists/NTSRShipmentInfoList';
 import NTSShipmentInfoList from 'components/Office/DefinitionLists/NTSShipmentInfoList';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { fieldValidationShape } from 'utils/displayFlags';
 
 const ShipmentInfoListSelector = ({
   className,
@@ -92,8 +93,8 @@ ShipmentInfoListSelector.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
   isExpanded: PropTypes.bool,
-  warnIfMissing: PropTypes.arrayOf(PropTypes.string),
-  errorIfMissing: PropTypes.arrayOf(PropTypes.string),
+  warnIfMissing: PropTypes.arrayOf(fieldValidationShape),
+  errorIfMissing: PropTypes.arrayOf(fieldValidationShape),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
   neverShow: PropTypes.arrayOf(PropTypes.string),
   shipmentType: PropTypes.oneOf([

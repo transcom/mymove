@@ -109,6 +109,11 @@ func (o *ProcessReviewedPaymentRequestsOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the process reviewed payment requests o k response
+func (o *ProcessReviewedPaymentRequestsOK) Code() int {
+	return 200
+}
+
 func (o *ProcessReviewedPaymentRequestsOK) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsOK  %+v", 200, o.Payload)
 }
@@ -168,6 +173,11 @@ func (o *ProcessReviewedPaymentRequestsBadRequest) IsServerError() bool {
 // IsCode returns true when this process reviewed payment requests bad request response a status code equal to that given
 func (o *ProcessReviewedPaymentRequestsBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the process reviewed payment requests bad request response
+func (o *ProcessReviewedPaymentRequestsBadRequest) Code() int {
+	return 400
 }
 
 func (o *ProcessReviewedPaymentRequestsBadRequest) Error() string {
@@ -233,6 +243,11 @@ func (o *ProcessReviewedPaymentRequestsUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the process reviewed payment requests unauthorized response
+func (o *ProcessReviewedPaymentRequestsUnauthorized) Code() int {
+	return 401
+}
+
 func (o *ProcessReviewedPaymentRequestsUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsUnauthorized  %+v", 401, o.Payload)
 }
@@ -294,6 +309,11 @@ func (o *ProcessReviewedPaymentRequestsForbidden) IsServerError() bool {
 // IsCode returns true when this process reviewed payment requests forbidden response a status code equal to that given
 func (o *ProcessReviewedPaymentRequestsForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the process reviewed payment requests forbidden response
+func (o *ProcessReviewedPaymentRequestsForbidden) Code() int {
+	return 403
 }
 
 func (o *ProcessReviewedPaymentRequestsForbidden) Error() string {
@@ -359,6 +379,11 @@ func (o *ProcessReviewedPaymentRequestsNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the process reviewed payment requests not found response
+func (o *ProcessReviewedPaymentRequestsNotFound) Code() int {
+	return 404
+}
+
 func (o *ProcessReviewedPaymentRequestsNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsNotFound  %+v", 404, o.Payload)
 }
@@ -422,6 +447,11 @@ func (o *ProcessReviewedPaymentRequestsUnprocessableEntity) IsCode(code int) boo
 	return code == 422
 }
 
+// Code gets the status code for the process reviewed payment requests unprocessable entity response
+func (o *ProcessReviewedPaymentRequestsUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *ProcessReviewedPaymentRequestsUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -483,6 +513,11 @@ func (o *ProcessReviewedPaymentRequestsInternalServerError) IsServerError() bool
 // IsCode returns true when this process reviewed payment requests internal server error response a status code equal to that given
 func (o *ProcessReviewedPaymentRequestsInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the process reviewed payment requests internal server error response
+func (o *ProcessReviewedPaymentRequestsInternalServerError) Code() int {
+	return 500
 }
 
 func (o *ProcessReviewedPaymentRequestsInternalServerError) Error() string {

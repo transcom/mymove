@@ -3,6 +3,7 @@ package serviceparamvaluelookups
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -81,11 +82,7 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		// ServiceItemParamNameEIAFuelPrice
 
 		// FSC
-		reService1 := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeFSC,
-			},
-		})
+		reService1 := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeFSC)
 
 		// FSC
 		mtoServiceItemFSC := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
@@ -96,14 +93,16 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		})
 
 		// EIAFuelPrice
-		serviceItemParamKey1 := testdatagen.FetchOrMakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameEIAFuelPrice,
-				Description: "EIA Fuel Price",
-				Type:        models.ServiceItemParamTypeInteger,
-				Origin:      models.ServiceItemParamOriginSystem,
+		serviceItemParamKey1 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNameEIAFuelPrice,
+					Description: "EIA Fuel Price",
+					Type:        models.ServiceItemParamTypeInteger,
+					Origin:      models.ServiceItemParamOriginSystem,
+				},
 			},
-		})
+		}, nil)
 
 		_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
 			ServiceParam: models.ServiceParam{

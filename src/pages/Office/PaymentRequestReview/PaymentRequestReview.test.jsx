@@ -8,6 +8,7 @@ import { SHIPMENT_OPTIONS } from '../../../shared/constants';
 import { PaymentRequestReview } from './PaymentRequestReview';
 
 import { usePaymentRequestQueries } from 'hooks/queries';
+import { ReactQueryWrapper } from 'testUtils';
 
 const mockPDFUpload = {
   contentType: 'application/pdf',
@@ -182,7 +183,11 @@ describe('PaymentRequestReview', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       usePaymentRequestQueries.mockReturnValue(loadingReturnValue);
 
-      render(<PaymentRequestReview {...requiredProps} />);
+      render(
+        <ReactQueryWrapper>
+          <PaymentRequestReview {...requiredProps} />
+        </ReactQueryWrapper>,
+      );
 
       const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
@@ -191,7 +196,11 @@ describe('PaymentRequestReview', () => {
     it('renders the Something Went Wrong component when the query errors', async () => {
       usePaymentRequestQueries.mockReturnValue(errorReturnValue);
 
-      render(<PaymentRequestReview {...requiredProps} />);
+      render(
+        <ReactQueryWrapper>
+          <PaymentRequestReview {...requiredProps} />
+        </ReactQueryWrapper>,
+      );
 
       const errorMessage = await screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
@@ -200,7 +209,11 @@ describe('PaymentRequestReview', () => {
 
   describe('with data loaded', () => {
     usePaymentRequestQueries.mockReturnValue(usePaymentRequestQueriesReturnValue);
-    const wrapper = mount(<PaymentRequestReview {...requiredProps} />);
+    const wrapper = mount(
+      <ReactQueryWrapper>
+        <PaymentRequestReview {...requiredProps} />
+      </ReactQueryWrapper>,
+    );
 
     it('renders without errors', () => {
       expect(wrapper.find('[data-testid="PaymentRequestReview"]').exists()).toBe(true);

@@ -2,8 +2,12 @@ import { setFlagStyles, setDisplayFlags, getDisplayFlags, getMissingOrDash } fro
 
 describe('setAndRetrieveFlags', () => {
   // example fields and data to use for testing, not reflective of reality
-  const errorIfMissing = ['firstName'];
-  const warnIfMissing = ['counselorRemarks'];
+  const errorIfMissing = [{ fieldName: 'firstName' }];
+  const errorIfMissingWithConditions = [
+    { fieldName: 'fieldWithTrueCondition', condition: (shipment) => shipment.lastName },
+    { fieldName: 'fieldWithFalseCondition', condition: (shipment) => shipment.customerRemarks },
+  ];
+  const warnIfMissing = [{ fieldName: 'counselorRemarks' }];
   const showWhenCollapsed = ['shipmentAddress'];
   const neverShow = ['postalCode'];
   const shipment = {
@@ -25,6 +29,18 @@ describe('setAndRetrieveFlags', () => {
 
     expect(result.alwaysShow).toEqual(true);
     expect(result.classes).toEqual('row error');
+  });
+
+  it('can set and retrieve error flags with conditions', () => {
+    setDisplayFlags(errorIfMissingWithConditions, null, null, null, shipment);
+
+    setFlagStyles(styles);
+
+    const fieldWithTrueConditionFlags = getDisplayFlags('fieldWithTrueCondition');
+    expect(fieldWithTrueConditionFlags.classes).toEqual('row error');
+
+    const fieldWithFalseConditionFlags = getDisplayFlags('fieldWithFalseCondition');
+    expect(fieldWithFalseConditionFlags.classes).toEqual('row');
   });
 
   it('can set and retrieve warning flags', () => {

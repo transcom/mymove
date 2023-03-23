@@ -10,3 +10,9 @@ export const ReviewDocumentsStatus = {
   REJECT: 'Reject',
   EXCLUDE: 'Exclude',
 };
+
+export const ADVANCE_STATUSES = {
+  APPROVED: { apiValue: 'APPROVED', displayValue: 'Approved' },
+  REJECTED: { apiValue: 'REJECTED', displayValue: 'Rejected' },
+  EDITED: { apiValue: 'EDITED', displayValue: 'Approved with adjustment' },
+};

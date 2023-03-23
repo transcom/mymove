@@ -50,7 +50,7 @@ type TestDataAuditHistory struct {
 }
 
 // TableName overrides the table name used by Pop.
-func (t *TestDataAuditHistory) TableName() string {
+func (t TestDataAuditHistory) TableName() string {
 	return "audit_history"
 }
 

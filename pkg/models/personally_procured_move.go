@@ -80,27 +80,19 @@ type PersonallyProcuredMove struct {
 	HasProGearOverThousand        *ProGearStatus `json:"has_pro_gear_over_thousand" db:"has_pro_gear_over_thousand"`
 }
 
+// TableName overrides the table name used by Pop.
+func (p PersonallyProcuredMove) TableName() string {
+	return "personally_procured_moves"
+}
+
 // PersonallyProcuredMoves is a list of PPMs
 type PersonallyProcuredMoves []PersonallyProcuredMove
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (p *PersonallyProcuredMove) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: string(p.Status), Name: "Status"},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (p *PersonallyProcuredMove) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }
 
 // State Machinery

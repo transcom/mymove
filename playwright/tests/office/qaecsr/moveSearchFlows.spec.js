@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-const { test, expect } = require('../../utils/officeTest');
+import { test, expect } from '../../utils/officeTest';
 
 test.describe('QAE/CSR Move Search', () => {
   test('is able to search by move code', async ({ page, officePage }) => {
@@ -45,8 +45,8 @@ test.describe('QAE/CSR Move Search', () => {
 
     // Verify results table contents
     await expect(page.locator('tbody >> tr')).toHaveCount(1);
-    expect(page.locator('tbody >> tr').first()).toContainText(moveLocator);
-    expect(page.locator('tbody >> tr').first()).toContainText(edipi);
+    await expect(page.locator('tbody >> tr').first()).toContainText(moveLocator);
+    await expect(page.locator('tbody >> tr').first()).toContainText(edipi);
 
     // Click result to navigate to move details page
     await page.locator('tbody > tr').first().click();
@@ -82,7 +82,7 @@ test.describe('QAE/CSR Move Search', () => {
 
     // Verify results table contents
     await expect(page.locator('tbody >> tr')).toHaveCount(1);
-    expect(page.locator('tbody >> tr').first()).toContainText(lastName);
+    await expect(page.locator('tbody >> tr').first()).toContainText(lastName);
 
     // Click result to navigate to move details page
     await page.locator('tbody > tr').first().click();

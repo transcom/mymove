@@ -20,7 +20,7 @@ import (
 
 func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	var moveTaskOrder models.Move
-	var mtoServiceItem1, mtoServiceItem2, mtoServiceItem3 models.MTOServiceItem
+	var mtoServiceItem1, mtoServiceItem2, mtoServiceItem3, mtoServiceItemSubmitted, mtoServiceItemRejected models.MTOServiceItem
 	var serviceItemParamKey1, serviceItemParamKey2, serviceItemParamKey3 models.ServiceItemParamKey
 	var displayParams models.PaymentServiceItemParams
 
@@ -42,6 +42,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			MTOShipment: models.MTOShipment{
 				PrimeEstimatedWeight: &estimatedWeight,
 			},
+			MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
 		})
 		mtoServiceItem2 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			Move: moveTaskOrder,
@@ -51,6 +52,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			MTOShipment: models.MTOShipment{
 				PrimeEstimatedWeight: &estimatedWeight,
 			},
+			MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
 		})
 		mtoServiceItem3 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			Move: moveTaskOrder,
@@ -61,67 +63,104 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				PrimeEstimatedWeight: &estimatedWeight,
 				UsesExternalVendor:   true,
 			},
+			MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
 		})
-		serviceItemParamKey1 = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameWeightEstimated,
-				Description: "estimated weight",
-				Type:        models.ServiceItemParamTypeInteger,
-				Origin:      models.ServiceItemParamOriginPrime,
+		mtoServiceItemSubmitted = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: moveTaskOrder,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOP,
 			},
-		})
-		serviceItemParamKey2 = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameRequestedPickupDate,
-				Description: "requested pickup date",
-				Type:        models.ServiceItemParamTypeDate,
-				Origin:      models.ServiceItemParamOriginPrime,
+			MTOShipment: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				UsesExternalVendor:   true,
 			},
+			MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusSubmitted},
 		})
-		serviceItemParamKey3 = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameZipPickupAddress,
-				Description: "zip pickup address",
-				Type:        models.ServiceItemParamTypeString,
-				Origin:      models.ServiceItemParamOriginPrime,
+		mtoServiceItemRejected = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: moveTaskOrder,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOP,
 			},
+			MTOShipment: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				UsesExternalVendor:   true,
+			},
+			MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusRejected},
 		})
+		serviceItemParamKey1 = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNameWeightEstimated,
+					Description: "estimated weight",
+					Type:        models.ServiceItemParamTypeInteger,
+					Origin:      models.ServiceItemParamOriginPrime,
+				},
+			},
+		}, nil)
+		serviceItemParamKey2 = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNameRequestedPickupDate,
+					Description: "requested pickup date",
+					Type:        models.ServiceItemParamTypeDate,
+					Origin:      models.ServiceItemParamOriginPrime,
+				},
+			},
+		}, nil)
+		serviceItemParamKey3 = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNameZipPickupAddress,
+					Description: "zip pickup address",
+					Type:        models.ServiceItemParamTypeString,
+					Origin:      models.ServiceItemParamOriginPrime,
+				},
+			},
+		}, nil)
 
-		serviceItemParamKey4 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameEscalationCompounded,
-				Description: "escalation factor",
-				Type:        models.ServiceItemParamTypeDecimal,
-				Origin:      models.ServiceItemParamOriginPricer,
+		serviceItemParamKey4 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNameEscalationCompounded,
+					Description: "escalation factor",
+					Type:        models.ServiceItemParamTypeDecimal,
+					Origin:      models.ServiceItemParamOriginPricer,
+				},
 			},
-		})
+		}, nil)
 
-		serviceItemParamKey5 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameContractYearName,
-				Description: "contract year name",
-				Type:        models.ServiceItemParamTypeString,
-				Origin:      models.ServiceItemParamOriginPricer,
+		serviceItemParamKey5 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNameContractYearName,
+					Description: "contract year name",
+					Type:        models.ServiceItemParamTypeString,
+					Origin:      models.ServiceItemParamOriginPricer,
+				},
 			},
-		})
+		}, nil)
 
-		serviceItemParamKey6 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameIsPeak,
-				Description: "is peak",
-				Type:        models.ServiceItemParamTypeBoolean,
-				Origin:      models.ServiceItemParamOriginPricer,
+		serviceItemParamKey6 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNameIsPeak,
+					Description: "is peak",
+					Type:        models.ServiceItemParamTypeBoolean,
+					Origin:      models.ServiceItemParamOriginPricer,
+				},
 			},
-		})
+		}, nil)
 
-		serviceItemParamKey7 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNamePriceRateOrFactor,
-				Description: "Price, rate, or factor used in calculation",
-				Type:        models.ServiceItemParamTypeDecimal,
-				Origin:      models.ServiceItemParamOriginPricer,
+		serviceItemParamKey7 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:         models.ServiceItemParamNamePriceRateOrFactor,
+					Description: "Price, rate, or factor used in calculation",
+					Type:        models.ServiceItemParamTypeDecimal,
+					Origin:      models.ServiceItemParamOriginPricer,
+				},
 			},
-		})
+		}, nil)
 
 		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
 			ServiceParam: models.ServiceParam{
@@ -725,6 +764,34 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.Equal(fmt.Sprintf("ID: %s not found for MTO Service Item", badID), err.Error())
 	})
 
+	suite.Run("Given a submitted (not approved) service item, the create should fail", func() {
+		invalidPaymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItemSubmitted.ID,
+				},
+			},
+		}
+		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest)
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+	})
+	suite.Run("Given a submitted (not approved) service item, the create should fail", func() {
+		invalidPaymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItemRejected.ID,
+				},
+			},
+		}
+		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest)
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+	})
 	suite.Run("Given a non-existent service item param key id, the create should fail", func() {
 		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		invalidPaymentRequest := models.PaymentRequest{
@@ -1104,12 +1171,12 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	}, nil)
 
 	// Make a storage facility
-	storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
-		StorageFacility: models.StorageFacility{
-			Address: storageFacilityAddress,
+	storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
+		{
+			Model:    storageFacilityAddress,
+			LinkOnly: true,
 		},
-	})
-
+	}, nil)
 	// Contract year, service area, rate area, zip3
 	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
 		ReContractYear: models.ReContractYear{

@@ -10,22 +10,22 @@ import (
 
 // CustomerSupportRemarksFetcher is the exported interface for fetching office remarks for a move.
 //
-//go:generate mockery --name CustomerSupportRemarksFetcher --disable-version-string
+//go:generate mockery --name CustomerSupportRemarksFetcher
 type CustomerSupportRemarksFetcher interface {
 	ListCustomerSupportRemarks(appCtx appcontext.AppContext, moveCode string) (*models.CustomerSupportRemarks, error)
 }
 
-//go:generate mockery --name CustomerSupportRemarksCreator --disable-version-string
+//go:generate mockery --name CustomerSupportRemarksCreator
 type CustomerSupportRemarksCreator interface {
 	CreateCustomerSupportRemark(appCtx appcontext.AppContext, customerSupportRemark *models.CustomerSupportRemark, moveCode string) (*models.CustomerSupportRemark, error)
 }
 
-//go:generate mockery --name CustomerSupportRemarkUpdater --disable-version-string
+//go:generate mockery --name CustomerSupportRemarkUpdater
 type CustomerSupportRemarkUpdater interface {
 	UpdateCustomerSupportRemark(appCtx appcontext.AppContext, params customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams) (*models.CustomerSupportRemark, error)
 }
 
-//go:generate mockery --name CustomerSupportRemarkDeleter --disable-version-string
+//go:generate mockery --name CustomerSupportRemarkDeleter
 type CustomerSupportRemarkDeleter interface {
 	DeleteCustomerSupportRemark(appCtx appcontext.AppContext, customerSupportRemarkID uuid.UUID) error
 }

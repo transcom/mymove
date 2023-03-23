@@ -330,8 +330,17 @@ export async function patchWeightTicket(ppmShipmentId, weightTicketId, payload, 
   );
 }
 
-export async function deleteWeightTicket() {
-  return Promise.resolve();
+export async function deleteWeightTicket(ppmShipmentId, weightTicketId) {
+  return makeInternalRequest(
+    'ppm.deleteWeightTicket',
+    {
+      ppmShipmentId,
+      weightTicketId,
+    },
+    {
+      normalize: false,
+    },
+  );
 }
 
 export async function createProGearWeightTicket(ppmShipmentId) {
@@ -361,8 +370,17 @@ export async function patchProGearWeightTicket(ppmShipmentId, proGearWeightTicke
   );
 }
 
-export async function deleteProGearWeightTicket() {
-  return Promise.resolve();
+export async function deleteProGearWeightTicket(ppmShipmentId, proGearWeightTicketId) {
+  return makeInternalRequest(
+    'ppm.deleteProGearWeightTicket',
+    {
+      ppmShipmentId,
+      proGearWeightTicketId,
+    },
+    {
+      normalize: false,
+    },
+  );
 }
 
 /** PPMS */
@@ -483,6 +501,19 @@ export async function patchMovingExpense(ppmShipmentId, movingExpenseId, payload
       movingExpenseId,
       'If-Match': eTag,
       updateMovingExpense: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteMovingExpense(ppmShipmentId, movingExpenseId) {
+  return makeInternalRequest(
+    'ppm.deleteMovingExpense',
+    {
+      ppmShipmentId,
+      movingExpenseId,
     },
     {
       normalize: false,

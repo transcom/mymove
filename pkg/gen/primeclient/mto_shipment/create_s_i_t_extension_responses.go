@@ -115,6 +115,11 @@ func (o *CreateSITExtensionCreated) IsCode(code int) bool {
 	return code == 201
 }
 
+// Code gets the status code for the create s i t extension created response
+func (o *CreateSITExtensionCreated) Code() int {
+	return 201
+}
+
 func (o *CreateSITExtensionCreated) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionCreated  %+v", 201, o.Payload)
 }
@@ -176,6 +181,11 @@ func (o *CreateSITExtensionBadRequest) IsServerError() bool {
 // IsCode returns true when this create s i t extension bad request response a status code equal to that given
 func (o *CreateSITExtensionBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the create s i t extension bad request response
+func (o *CreateSITExtensionBadRequest) Code() int {
+	return 400
 }
 
 func (o *CreateSITExtensionBadRequest) Error() string {
@@ -241,6 +251,11 @@ func (o *CreateSITExtensionUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the create s i t extension unauthorized response
+func (o *CreateSITExtensionUnauthorized) Code() int {
+	return 401
+}
+
 func (o *CreateSITExtensionUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionUnauthorized  %+v", 401, o.Payload)
 }
@@ -302,6 +317,11 @@ func (o *CreateSITExtensionForbidden) IsServerError() bool {
 // IsCode returns true when this create s i t extension forbidden response a status code equal to that given
 func (o *CreateSITExtensionForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the create s i t extension forbidden response
+func (o *CreateSITExtensionForbidden) Code() int {
+	return 403
 }
 
 func (o *CreateSITExtensionForbidden) Error() string {
@@ -367,6 +387,11 @@ func (o *CreateSITExtensionNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the create s i t extension not found response
+func (o *CreateSITExtensionNotFound) Code() int {
+	return 404
+}
+
 func (o *CreateSITExtensionNotFound) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionNotFound  %+v", 404, o.Payload)
 }
@@ -428,6 +453,11 @@ func (o *CreateSITExtensionConflict) IsServerError() bool {
 // IsCode returns true when this create s i t extension conflict response a status code equal to that given
 func (o *CreateSITExtensionConflict) IsCode(code int) bool {
 	return code == 409
+}
+
+// Code gets the status code for the create s i t extension conflict response
+func (o *CreateSITExtensionConflict) Code() int {
+	return 409
 }
 
 func (o *CreateSITExtensionConflict) Error() string {
@@ -493,6 +523,11 @@ func (o *CreateSITExtensionUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the create s i t extension unprocessable entity response
+func (o *CreateSITExtensionUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *CreateSITExtensionUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -554,6 +589,11 @@ func (o *CreateSITExtensionInternalServerError) IsServerError() bool {
 // IsCode returns true when this create s i t extension internal server error response a status code equal to that given
 func (o *CreateSITExtensionInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the create s i t extension internal server error response
+func (o *CreateSITExtensionInternalServerError) Code() int {
+	return 500
 }
 
 func (o *CreateSITExtensionInternalServerError) Error() string {

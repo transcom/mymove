@@ -81,7 +81,6 @@
 
     .subheadingWrapper {
       @include u-margin-top(0);
-     // @include u-padding-x(3);
 
       h1, h2, h3, h4, h5, h6, dl {
         @include u-margin-top(0);

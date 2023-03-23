@@ -148,6 +148,11 @@ type MTOShipment struct {
 	DeletedAt                        *time.Time        `db:"deleted_at"`
 }
 
+// TableName overrides the table name used by Pop.
+func (m MTOShipment) TableName() string {
+	return "mto_shipments"
+}
+
 // MTOShipments is a list of mto shipments
 type MTOShipments []MTOShipment
 
@@ -165,10 +170,10 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	}})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
 	if m.PrimeEstimatedWeight != nil {
-		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeEstimatedWeight.Int(), Compared: -1, Name: "PrimeEstimatedWeight"})
+		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeEstimatedWeight.Int(), Compared: 0, Name: "PrimeEstimatedWeight"})
 	}
 	if m.PrimeActualWeight != nil {
-		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeActualWeight.Int(), Compared: -1, Name: "PrimeActualWeight"})
+		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeActualWeight.Int(), Compared: 0, Name: "PrimeActualWeight"})
 	}
 	if m.NTSRecordedWeight != nil {
 		vs = append(vs, &validators.IntIsGreaterThan{Field: m.NTSRecordedWeight.Int(), Compared: -1, Name: "NTSRecordedWeight"})
@@ -221,11 +226,6 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	}})
 
 	return validate.Validate(vs...), nil
-}
-
-// TableName overrides the table name used by Pop.
-func (m MTOShipment) TableName() string {
-	return "mto_shipments"
 }
 
 // GetCustomerFromShipment gets the service member given a shipment id

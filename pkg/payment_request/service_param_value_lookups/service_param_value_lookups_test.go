@@ -350,12 +350,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	suite.Run("Correct addresses are used for NTS and NTS-release shipments", func() {
 		// Make a move and service for reuse.
 		move := testdatagen.MakeDefaultMove(suite.DB())
-		reService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDLH,
-			},
-		})
+		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
 
 		// NTS should have a pickup address and storage facility address.
 		pickupPostalCode := "29212"
@@ -367,11 +362,13 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			},
 		}, nil)
 		storageFacilityPostalCode := "30907"
-		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				PostalCode: storageFacilityPostalCode,
+		storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: storageFacilityPostalCode,
+				},
 			},
-		})
+		}, nil)
 		ntsServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			Move:      move,
 			ReService: reService,

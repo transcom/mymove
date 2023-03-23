@@ -14,6 +14,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -66,7 +67,7 @@ func (suite *ModelSuite) TestPPMStateMachine() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.MustSave(&orders)
-	testdatagen.MakeDefaultContractor(suite.DB())
+	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 

@@ -1,6 +1,8 @@
 package testdatagen
 
 import (
+	"log"
+
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -55,14 +57,51 @@ func MakeDefaultDutyLocation(db *pop.Connection) models.DutyLocation {
 
 // FetchOrMakeDefaultCurrentDutyLocation returns a default duty location - Yuma AFB
 func FetchOrMakeDefaultCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
-	// Check if Yuma Duty Location exists, if not, create it.
 	defaultLocation, err := models.FetchDutyLocationByName(db, "Yuma AFB")
+	if err == nil {
+		return defaultLocation
+	}
+
+	// Now that playwright tests create data on demand, it's possible
+	// multiple tests will try to fetch or create the current duty
+	// location simultaneously. If we do nothing, we can get failures
+	// from the race condition of two different tests calling this at
+	// the same time.
+	//
+	// *sigh*, pop doesn't know about nested transactions, so manage
+	// it ourselves.
+	//
+	// Assume we are in a transation so we can start a postgresql
+	// SAVEPOINT (aka nested transaction)
+	beginSavepoint := "SAVEPOINT default_duty_location"
+	commitSavepoint := "RELEASE SAVEPOINT default_duty_location"
+	err = db.RawQuery(beginSavepoint).Exec()
 	if err != nil {
-		return MakeDutyLocation(db, Assertions{
+		log.Fatalf("Error starting duty location savepoint/txn: %s", err)
+	}
+	// lock the table exclusively, fetch to make sure no one has beat
+	// us to it, and then create if necessary. This is not the most
+	// performant way, but this is for tests and so being slightly
+	// slower than theoritically optimal is ok.
+	//
+	// Use EXCLUSIVE lock so reads can happen, but not writes
+	// https://www.postgresql.org/docs/current/explicit-locking.html
+	err = db.RawQuery("LOCK TABLE duty_locations IN EXCLUSIVE MODE").Exec()
+	if err != nil {
+		log.Fatalf("Error locking duty location table: %s", err)
+	}
+	defaultLocation, err = models.FetchDutyLocationByName(db, "Yuma AFB")
+	if err != nil {
+		defaultLocation = MakeDutyLocation(db, Assertions{
 			DutyLocation: models.DutyLocation{
 				Name: "Yuma AFB",
 			}})
 	}
+	err = db.RawQuery(commitSavepoint).Exec()
+	if err != nil {
+		log.Fatalf("Error commit duty location savepoint/tx: %s", err)
+	}
+
 	return defaultLocation
 }
 

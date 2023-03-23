@@ -90,7 +90,7 @@ export const NTSMissingInfo = () => (
       pickupAddress: info.pickupAddress,
       sacType: info.sacType,
     }}
-    errorIfMissing={['storageFacility', 'serviceOrderNumber', 'tacType']}
+    errorIfMissing={[{ fieldName: 'storageFacility' }, { fieldName: 'serviceOrderNumber' }, { fieldName: 'tacType' }]}
   />
 );
 
@@ -102,7 +102,7 @@ export const NTSWarning = () => (
       pickupAddress: info.pickupAddress,
       sacType: info.sacType,
     }}
-    warnIfMissing={['storageFacility', 'serviceOrderNumber', 'tacType']}
+    warnIfMissing={[{ fieldName: 'storageFacility' }, { fieldName: 'serviceOrderNumber' }, { fieldName: 'tacType' }]}
   />
 );
 

@@ -5,6 +5,9 @@ import CustomerInfoList from '../DefinitionLists/CustomerInfoList';
 
 import DetailsPanel from './DetailsPanel';
 
+import { ReviewButton } from 'components/form/IconButtons';
+import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
+
 export default {
   title: 'Office Components/DetailsPanel',
   component: DetailsPanel,
@@ -29,6 +32,33 @@ export const WithEditButton = () => (
       }
     >
       <p>Child content!</p>
+    </DetailsPanel>
+  </div>
+);
+
+export const WithDropdownButton = () => (
+  <div className="officeApp">
+    <DetailsPanel
+      title="With Dropdown Button"
+      editButton={
+        <ButtonDropdown>
+          <option value="">Dropdown Button</option>
+          <option>Option 1</option>
+          <option>Option 2</option>
+          <option>Option 3</option>
+          <option>Option 4</option>
+        </ButtonDropdown>
+      }
+    >
+      <p>Child Content!</p>
+    </DetailsPanel>
+  </div>
+);
+
+export const WithReviewButton = () => (
+  <div className="officeApp">
+    <DetailsPanel title="With Review Button" reviewButton={<ReviewButton label="Review Button" secondary />}>
+      <p>Child Content!</p>
     </DetailsPanel>
   </div>
 );

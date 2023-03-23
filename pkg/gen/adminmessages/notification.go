@@ -22,8 +22,9 @@ type Notification struct {
 
 	// created at
 	// Required: true
+	// Read Only: true
 	// Format: date-time
-	CreatedAt *strfmt.DateTime `json:"createdAt"`
+	CreatedAt strfmt.DateTime `json:"createdAt"`
 
 	// email
 	// Required: true
@@ -86,7 +87,7 @@ func (m *Notification) Validate(formats strfmt.Registry) error {
 
 func (m *Notification) validateCreatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("createdAt", "body", m.CreatedAt); err != nil {
+	if err := validate.Required("createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
 		return err
 	}
 
@@ -184,8 +185,26 @@ func (m *Notification) validateSesMessageID(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this notification based on context it is used
+// ContextValidate validate this notification based on the context it is used
 func (m *Notification) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Notification) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
 	return nil
 }
 

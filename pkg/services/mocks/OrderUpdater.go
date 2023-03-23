@@ -29,6 +29,11 @@ func (_m *OrderUpdater) UpdateAllowanceAsCounselor(appCtx appcontext.AppContext,
 	ret := _m.Called(appCtx, orderID, payload, eTag)
 
 	var r0 *models.Order
+	var r1 uuid.UUID
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, ghcmessages.CounselingUpdateAllowancePayload, string) (*models.Order, uuid.UUID, error)); ok {
+		return rf(appCtx, orderID, payload, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, ghcmessages.CounselingUpdateAllowancePayload, string) *models.Order); ok {
 		r0 = rf(appCtx, orderID, payload, eTag)
 	} else {
@@ -37,7 +42,6 @@ func (_m *OrderUpdater) UpdateAllowanceAsCounselor(appCtx appcontext.AppContext,
 		}
 	}
 
-	var r1 uuid.UUID
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, ghcmessages.CounselingUpdateAllowancePayload, string) uuid.UUID); ok {
 		r1 = rf(appCtx, orderID, payload, eTag)
 	} else {
@@ -46,7 +50,6 @@ func (_m *OrderUpdater) UpdateAllowanceAsCounselor(appCtx appcontext.AppContext,
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, ghcmessages.CounselingUpdateAllowancePayload, string) error); ok {
 		r2 = rf(appCtx, orderID, payload, eTag)
 	} else {
@@ -61,6 +64,11 @@ func (_m *OrderUpdater) UpdateAllowanceAsTOO(appCtx appcontext.AppContext, order
 	ret := _m.Called(appCtx, orderID, payload, eTag)
 
 	var r0 *models.Order
+	var r1 uuid.UUID
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, ghcmessages.UpdateAllowancePayload, string) (*models.Order, uuid.UUID, error)); ok {
+		return rf(appCtx, orderID, payload, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, ghcmessages.UpdateAllowancePayload, string) *models.Order); ok {
 		r0 = rf(appCtx, orderID, payload, eTag)
 	} else {
@@ -69,7 +77,6 @@ func (_m *OrderUpdater) UpdateAllowanceAsTOO(appCtx appcontext.AppContext, order
 		}
 	}
 
-	var r1 uuid.UUID
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, ghcmessages.UpdateAllowancePayload, string) uuid.UUID); ok {
 		r1 = rf(appCtx, orderID, payload, eTag)
 	} else {
@@ -78,7 +85,6 @@ func (_m *OrderUpdater) UpdateAllowanceAsTOO(appCtx appcontext.AppContext, order
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, ghcmessages.UpdateAllowancePayload, string) error); ok {
 		r2 = rf(appCtx, orderID, payload, eTag)
 	} else {
@@ -93,6 +99,11 @@ func (_m *OrderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, ord
 	ret := _m.Called(appCtx, orderID, payload, eTag)
 
 	var r0 *models.Order
+	var r1 uuid.UUID
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, ghcmessages.CounselingUpdateOrderPayload, string) (*models.Order, uuid.UUID, error)); ok {
+		return rf(appCtx, orderID, payload, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, ghcmessages.CounselingUpdateOrderPayload, string) *models.Order); ok {
 		r0 = rf(appCtx, orderID, payload, eTag)
 	} else {
@@ -101,7 +112,6 @@ func (_m *OrderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, ord
 		}
 	}
 
-	var r1 uuid.UUID
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, ghcmessages.CounselingUpdateOrderPayload, string) uuid.UUID); ok {
 		r1 = rf(appCtx, orderID, payload, eTag)
 	} else {
@@ -110,7 +120,6 @@ func (_m *OrderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, ord
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, ghcmessages.CounselingUpdateOrderPayload, string) error); ok {
 		r2 = rf(appCtx, orderID, payload, eTag)
 	} else {
@@ -125,6 +134,11 @@ func (_m *OrderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID u
 	ret := _m.Called(appCtx, orderID, payload, eTag)
 
 	var r0 *models.Order
+	var r1 uuid.UUID
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, ghcmessages.UpdateOrderPayload, string) (*models.Order, uuid.UUID, error)); ok {
+		return rf(appCtx, orderID, payload, eTag)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, ghcmessages.UpdateOrderPayload, string) *models.Order); ok {
 		r0 = rf(appCtx, orderID, payload, eTag)
 	} else {
@@ -133,7 +147,6 @@ func (_m *OrderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID u
 		}
 	}
 
-	var r1 uuid.UUID
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, ghcmessages.UpdateOrderPayload, string) uuid.UUID); ok {
 		r1 = rf(appCtx, orderID, payload, eTag)
 	} else {
@@ -142,7 +155,6 @@ func (_m *OrderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID u
 		}
 	}
 
-	var r2 error
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, ghcmessages.UpdateOrderPayload, string) error); ok {
 		r2 = rf(appCtx, orderID, payload, eTag)
 	} else {
@@ -157,20 +169,24 @@ func (_m *OrderUpdater) UploadAmendedOrdersAsCustomer(appCtx appcontext.AppConte
 	ret := _m.Called(appCtx, userID, orderID, file, filename, storer)
 
 	var r0 models.Upload
+	var r1 string
+	var r2 *validate.Errors
+	var r3 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) (models.Upload, string, *validate.Errors, error)); ok {
+		return rf(appCtx, userID, orderID, file, filename, storer)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) models.Upload); ok {
 		r0 = rf(appCtx, userID, orderID, file, filename, storer)
 	} else {
 		r0 = ret.Get(0).(models.Upload)
 	}
 
-	var r1 string
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) string); ok {
 		r1 = rf(appCtx, userID, orderID, file, filename, storer)
 	} else {
 		r1 = ret.Get(1).(string)
 	}
 
-	var r2 *validate.Errors
 	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) *validate.Errors); ok {
 		r2 = rf(appCtx, userID, orderID, file, filename, storer)
 	} else {
@@ -179,7 +195,6 @@ func (_m *OrderUpdater) UploadAmendedOrdersAsCustomer(appCtx appcontext.AppConte
 		}
 	}
 
-	var r3 error
 	if rf, ok := ret.Get(3).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) error); ok {
 		r3 = rf(appCtx, userID, orderID, file, filename, storer)
 	} else {

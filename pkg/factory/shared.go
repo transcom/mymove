@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -33,33 +34,55 @@ type CustomType string
 // This does not have to match the model type but generally will
 // You can have CustomType like ResidentialAddress to define specifically
 // where this address will get created and nested
-var control CustomType = "Control"
 var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
+var BackupContact CustomType = "BackupContact"
+var ClientCert CustomType = "ClientCert"
+var Contractor CustomType = "Contractor"
+var Document CustomType = "Document"
+var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
+var Organization CustomType = "Organization"
+var ReService CustomType = "ReService"
+var ServiceItemParamKey CustomType = "ServiceItemParamKey"
 var ServiceMember CustomType = "ServiceMember"
+var StorageFacility CustomType = "StorageFacility"
+var Role CustomType = "Role"
 var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
+var UserUpload CustomType = "UserUpload"
 var User CustomType = "User"
-var ClientCert CustomType = "ClientCert"
+var UsersRoles CustomType = "UsersRoles"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
 	"models.Address":              Address,
 	"models.AdminUser":            AdminUser,
+	"models.BackupContact":        BackupContact,
+	"models.ClientCert":           ClientCert,
+	"models.Contractor":           Contractor,
+	"models.Document":             Document,
+	"models.DutyLocation":         DutyLocation,
 	"models.Entitlement":          Entitlement,
 	"models.OfficePhoneLine":      OfficePhoneLine,
 	"models.OfficeUser":           OfficeUser,
 	"models.Order":                Order,
+	"models.Organization":         Organization,
+	"models.ReService":            ReService,
+	"models.ServiceItemParamKey":  ServiceItemParamKey,
 	"models.ServiceMember":        ServiceMember,
+	"models.StorageFacility":      StorageFacility,
 	"models.Tariff400ngZip3":      Tariff400ngZip3,
 	"models.TransportationOffice": TransportationOffice,
 	"models.Upload":               Upload,
+	"models.UserUpload":           UserUpload,
 	"models.User":                 User,
+	"models.UsersRoles":           UsersRoles,
+	"roles.Role":                  Role,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
@@ -71,6 +94,9 @@ type addressGroup struct {
 	DeliveryAddress          CustomType
 	SecondaryDeliveryAddress CustomType
 	ResidentialAddress       CustomType
+	BackupMailingAddress     CustomType
+	DutyLocationAddress      CustomType
+	DutyLocationTOAddress    CustomType
 }
 
 // Addresses is the struct to access the various fields externally
@@ -79,6 +105,9 @@ var Addresses = addressGroup{
 	DeliveryAddress:          "DeliveryAddress",
 	SecondaryDeliveryAddress: "SecondaryDeliveryAddress",
 	ResidentialAddress:       "ResidentialAddress",
+	BackupMailingAddress:     "BackupMailingAddress",
+	DutyLocationAddress:      "DutyLocationAddress",
+	DutyLocationTOAddress:    "DutyLocationTOAddress",
 }
 
 // dimensionGroup is a grouping of all the Dimension related fields
@@ -107,11 +136,9 @@ var DutyLocations = dutyLocationsGroup{
 	NewDutyLocation:    "NewDutyLocation",
 }
 
-// controlObject is a struct used to control the global behavior of a
-// set of customizations
-type controlObject struct {
-	isValid bool // has this set of customizations been validated
-}
+// Below are errors returned by various functions
+
+var ErrNestedModel = errors.New("NESTED_MODEL_ERROR")
 
 // Trait is a function that returns a set of customizations
 // Every Trait should start with GetTrait for discoverability
@@ -162,30 +189,12 @@ func linkOnlyHasID(clist []Customization) error {
 // by applying and merging the traits.
 // customs is a slice that will be modified by setupCustomizations.
 //
-//   - Ensures a control object has been created
-//   - Assigns default types to all default customizations
+//   - Ensures linkOnly customizations have ID
 //   - Merges customizations and traits
+//   - Assigns default types to all default customizations
 //   - Ensure there's only one customization per type
 func setupCustomizations(customs []Customization, traits []Trait) []Customization {
 
-	// If a valid control object does not exist, create
-	_, controlCustom := findCustomWithIdx(customs, control)
-	if controlCustom == nil {
-		controlCustom = &Customization{
-			Model: controlObject{
-				isValid: false,
-			},
-			Type: &control,
-		}
-		customs = append(customs, *controlCustom)
-	}
-	// If it exists and is valid, return, this list has been setup and validated
-	controller := controlCustom.Model.(controlObject)
-	if controller.isValid {
-		return customs
-	}
-
-	// If not valid:
 	// Ensure LinkOnly customizations all have ID
 	err := linkOnlyHasID(customs)
 	if err != nil {
@@ -200,8 +209,7 @@ func setupCustomizations(customs []Customization, traits []Trait) []Customizatio
 	if err != nil {
 		log.Panic(err)
 	}
-	// Store the validation result
-	controller.isValid = true
+
 	return customs
 
 }
@@ -229,10 +237,13 @@ func isUnique(customs []Customization) error {
 }
 
 // findCustomWithIdx is a helper function to find a customization of a specific type and its index
+// Returns:
+//   - index of the found customization
+//   - pointer to the customization
 func findCustomWithIdx(customs []Customization, customType CustomType) (int, *Customization) {
-	for i, custom := range customs {
-		if custom.Type != nil && *custom.Type == customType {
-			return i, &custom
+	for i := 0; i < len(customs); i++ {
+		if customs[i].Type != nil && *customs[i].Type == customType {
+			return i, &customs[i]
 		}
 	}
 	return -1, nil
@@ -351,7 +362,13 @@ func findValidCustomization(customs []Customization, customType CustomType) *Cus
 
 	// Else check that the customization is valid
 	if err := checkNestedModels(*custom); err != nil {
-		log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", *custom.Type, err))
+		if errors.Is(err, ErrNestedModel) {
+			if !custom.LinkOnly {
+				log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", *custom.Type, err))
+			}
+		} else {
+			log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", *custom.Type, err))
+		}
 	}
 	return custom
 }
@@ -392,7 +409,7 @@ func checkNestedModels(c interface{}) error {
 			ft := field.Type()
 			if field.Kind() == reflect.Struct && strings.HasPrefix(ft.String(), "models.") {
 				if !reflect.DeepEqual(field.Interface(), reflect.Zero(field.Type()).Interface()) {
-					return fmt.Errorf("%s cannot be populated, no nested models allowed", fieldName)
+					return fmt.Errorf("%s cannot be populated, no nested models allowed: %w", fieldName, ErrNestedModel)
 				}
 			}
 
@@ -400,7 +417,7 @@ func checkNestedModels(c interface{}) error {
 			if field.Kind() == reflect.Pointer {
 				nf := field.Elem()
 				if !field.IsNil() && nf.Kind() == reflect.Struct && strings.HasPrefix(nf.Type().String(), "models.") {
-					return fmt.Errorf("%s cannot be populated, no nested models allowed", fieldName)
+					return fmt.Errorf("%s cannot be populated, no nested models allowed: %w", fieldName, ErrNestedModel)
 				}
 			}
 		}

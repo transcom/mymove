@@ -33,10 +33,10 @@ type CreateAdminUserParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*Admin user information
+	/*Admin User information
 	  In: body
 	*/
-	AdminUser *adminmessages.AdminUserCreatePayload
+	AdminUser *adminmessages.AdminUserCreate
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -50,7 +50,7 @@ func (o *CreateAdminUserParams) BindRequest(r *http.Request, route *middleware.M
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body adminmessages.AdminUserCreatePayload
+		var body adminmessages.AdminUserCreate
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			res = append(res, errors.NewParseError("adminUser", "body", "", err))
 		} else {

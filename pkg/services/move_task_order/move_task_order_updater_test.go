@@ -71,22 +71,20 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	})
 
 	suite.Run("MTO status is updated successfully with facility info", func() {
-		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
-			StorageFacility: models.StorageFacility{
-				Address: factory.BuildAddress(suite.DB(), []factory.Customization{
-					{
-						Model: models.Address{
-							StreetAddress1: "1234 Over Here Street",
-							City:           "Houston",
-							State:          "TX",
-							PostalCode:     "77083",
-							Country:        models.StringPointer("US"),
-						},
-					},
-				}, nil),
-				Email: swag.String("old@email.com"),
+		storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
+			{Model: models.StorageFacility{
+				Email: models.StringPointer("old@email.com"),
+			}},
+			{
+				Model: models.Address{
+					StreetAddress1: "1234 Over Here Street",
+					City:           "Houston",
+					State:          "TX",
+					PostalCode:     "77083",
+					Country:        models.StringPointer("US"),
+				},
 			},
-		})
+		}, nil)
 
 		expectedMTOWithFacility := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -660,17 +658,6 @@ func (suite *MoveTaskOrderServiceSuite) containsServiceCode(items models.MTOServ
 }
 
 func (suite *MoveTaskOrderServiceSuite) createMSAndCSReServices() {
-	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			ID:   uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"),
-			Code: models.ReServiceCodeMS,
-		},
-	})
-
-	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			ID:   uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"),
-			Code: models.ReServiceCodeCS,
-		},
-	})
+	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
+	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 }

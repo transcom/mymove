@@ -2,6 +2,7 @@ package factory
 
 import (
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 func (suite *FactorySuite) TestBuildUser() {
@@ -113,5 +114,46 @@ func (suite *FactorySuite) TestBuildDefaultUser() {
 		user := BuildDefaultUser(nil)
 		suite.Equal(defaultEmail, user.LoginGovEmail)
 		suite.True(user.Active)
+	})
+
+	suite.Run("Successful creation of User, Roles, and UsersRoles using BuildUserAndUsersRoles", func() {
+		// Under test:      BuildUserAndUsersRoles
+		// Mocked:          None
+		// Set up:          Use helper function BuildUserAndUsersRoles
+		// Expected outcome:User with correct roles, Role, and UsersRoles should be created
+
+		precountRole, err := suite.DB().Count(&roles.Role{})
+		suite.NoError(err)
+
+		precountUsersRoles, err := suite.DB().Count(&models.UsersRoles{})
+		suite.NoError(err)
+
+		tioRole := roles.Role{
+			RoleType: roles.RoleTypeTIO,
+		}
+
+		user := BuildUserAndUsersRoles(suite.DB(), []Customization{
+			{
+				Model: models.User{
+					Roles: []roles.Role{tioRole},
+				},
+			},
+		}, nil)
+
+		// Check that the user has the office user role
+		role, hasRole := user.Roles.GetRole(roles.RoleTypeTIO)
+		suite.True(hasRole)
+		suite.Equal(role.ID, user.Roles[0].ID)
+
+		// Count how many roles are in the DB, new role should have been created.
+		count, err := suite.DB().Count(&roles.Role{})
+		suite.NoError(err)
+		suite.Equal(precountRole+1, count)
+
+		// Count how many UsersRoles are in the DB, new UsersRoles should have been created.
+		count, err = suite.DB().Count(&roles.Role{})
+		suite.NoError(err)
+		suite.Equal(precountUsersRoles+1, count)
+
 	})
 }

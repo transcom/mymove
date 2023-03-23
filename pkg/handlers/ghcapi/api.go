@@ -25,7 +25,7 @@ import (
 	order "github.com/transcom/mymove/pkg/services/order"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	paymentserviceitem "github.com/transcom/mymove/pkg/services/payment_service_item"
-	"github.com/transcom/mymove/pkg/services/ppmshipment"
+	ppmshipment "github.com/transcom/mymove/pkg/services/ppmshipment"
 	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	pwsviolation "github.com/transcom/mymove/pkg/services/pws_violation"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -407,12 +407,14 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		progear.NewOfficeProgearWeightTicketUpdater(),
 	}
 
-	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
+	ppmDocumentsFetcher := ppmshipment.NewPPMDocumentFetcher()
 
-	ghcAPI.PpmGetWeightTicketsHandler = GetWeightTicketsHandler{
+	ghcAPI.PpmGetPPMDocumentsHandler = GetPPMDocumentsHandler{
 		handlerConfig,
-		weightTicketFetcher,
+		ppmDocumentsFetcher,
 	}
+
+	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
 
 	ghcAPI.PpmUpdateWeightTicketHandler = UpdateWeightTicketHandler{
 		handlerConfig,

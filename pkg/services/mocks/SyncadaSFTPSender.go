@@ -20,13 +20,16 @@ func (_m *SyncadaSFTPSender) SendToSyncadaViaSFTP(appCtx appcontext.AppContext, 
 	ret := _m.Called(appCtx, localDataReader, syncadaFileName)
 
 	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, io.Reader, string) (int64, error)); ok {
+		return rf(appCtx, localDataReader, syncadaFileName)
+	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, io.Reader, string) int64); ok {
 		r0 = rf(appCtx, localDataReader, syncadaFileName)
 	} else {
 		r0 = ret.Get(0).(int64)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, io.Reader, string) error); ok {
 		r1 = rf(appCtx, localDataReader, syncadaFileName)
 	} else {

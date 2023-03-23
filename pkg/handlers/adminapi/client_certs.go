@@ -4,11 +4,12 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	clientcertop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/client_certs"
+	clientcertop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/client_certificates"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -17,14 +18,14 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-func payloadForClientCertModel(o models.ClientCert) *adminmessages.ClientCert {
-	payload := &adminmessages.ClientCert{
-		ID:                          *handlers.FmtUUID(o.ID),
+func payloadForClientCertModel(o models.ClientCert) *adminmessages.ClientCertificate {
+	payload := &adminmessages.ClientCertificate{
+		ID:                          strfmt.UUID(o.ID.String()),
 		Sha256Digest:                o.Sha256Digest,
 		Subject:                     o.Subject,
-		UserID:                      *handlers.FmtUUID(o.UserID),
-		CreatedAt:                   *handlers.FmtDateTime(o.CreatedAt),
-		UpdatedAt:                   *handlers.FmtDateTime(o.UpdatedAt),
+		UserID:                      strfmt.UUID(o.UserID.String()),
+		CreatedAt:                   strfmt.DateTime(o.CreatedAt),
+		UpdatedAt:                   strfmt.DateTime(o.UpdatedAt),
 		AllowOrdersAPI:              o.AllowOrdersAPI,
 		AllowAirForceOrdersRead:     o.AllowAirForceOrdersRead,
 		AllowAirForceOrdersWrite:    o.AllowAirForceOrdersWrite,
@@ -52,7 +53,7 @@ type IndexClientCertsHandler struct {
 // Handle retrieves a list of client certificates.
 // This list is used to authorize certificates used in the authentication and
 // authorization of Prime API requests.
-func (h IndexClientCertsHandler) Handle(params clientcertop.IndexClientCertsParams) middleware.Responder {
+func (h IndexClientCertsHandler) Handle(params clientcertop.IndexClientCertificatesParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
@@ -74,13 +75,13 @@ func (h IndexClientCertsHandler) Handle(params clientcertop.IndexClientCertsPara
 
 			queriedClientCertsCount := len(clientCerts)
 
-			payload := make(adminmessages.ClientCerts, queriedClientCertsCount)
+			payload := make(adminmessages.ClientCertificates, queriedClientCertsCount)
 
 			for i, s := range clientCerts {
 				payload[i] = payloadForClientCertModel(s)
 			}
 
-			return clientcertop.NewIndexClientCertsOK().WithContentRange(fmt.Sprintf("office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedClientCertsCount, totalOfficeUsersCount)).WithPayload(payload), nil
+			return clientcertop.NewIndexClientCertificatesOK().WithContentRange(fmt.Sprintf("office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedClientCertsCount, totalOfficeUsersCount)).WithPayload(payload), nil
 
 		})
 }
@@ -101,11 +102,11 @@ type GetClientCertHandler struct {
 }
 
 // Handle retrieves a new admin user
-func (h GetClientCertHandler) Handle(params clientcertop.GetClientCertParams) middleware.Responder {
+func (h GetClientCertHandler) Handle(params clientcertop.GetClientCertificateParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			clientCertID := params.ClientCertID
+			clientCertID := params.ClientCertificateID
 
 			queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", clientCertID)}
 
@@ -116,7 +117,7 @@ func (h GetClientCertHandler) Handle(params clientcertop.GetClientCertParams) mi
 
 			payload := payloadForClientCertModel(clientCert)
 
-			return clientcertop.NewGetClientCertOK().WithPayload(payload), nil
+			return clientcertop.NewGetClientCertificateOK().WithPayload(payload), nil
 		})
 }
 
@@ -127,10 +128,10 @@ type CreateClientCertHandler struct {
 }
 
 // Handle creates a client certificate
-func (h CreateClientCertHandler) Handle(params clientcertop.CreateClientCertParams) middleware.Responder {
+func (h CreateClientCertHandler) Handle(params clientcertop.CreateClientCertificateParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			payload := params.ClientCert
+			payload := params.ClientCertificate
 
 			clientCert := models.ClientCert{
 				Sha256Digest:                *payload.Sha256Digest,
@@ -149,7 +150,7 @@ func (h CreateClientCertHandler) Handle(params clientcertop.CreateClientCertPara
 				AllowPrime:                  payload.AllowPrime,
 			}
 
-			createdClientCert, verrs, err := h.ClientCertCreator.CreateClientCert(appCtx, &clientCert)
+			createdClientCert, verrs, err := h.ClientCertCreator.CreateClientCert(appCtx, payload.Email, &clientCert)
 			if err != nil || verrs != nil {
 				appCtx.Logger().Error("Error saving user", zap.Error(err), zap.Error(verrs))
 				return handlers.ResponseForConflictErrors(appCtx.Logger(), err), err
@@ -161,7 +162,7 @@ func (h CreateClientCertHandler) Handle(params clientcertop.CreateClientCertPara
 			}
 
 			returnPayload := payloadForClientCertModel(*createdClientCert)
-			return clientcertop.NewCreateClientCertCreated().WithPayload(returnPayload), nil
+			return clientcertop.NewCreateClientCertificateCreated().WithPayload(returnPayload), nil
 		})
 }
 
@@ -173,21 +174,21 @@ type UpdateClientCertHandler struct {
 }
 
 // Handle updates admin users
-func (h UpdateClientCertHandler) Handle(params clientcertop.UpdateClientCertParams) middleware.Responder {
+func (h UpdateClientCertHandler) Handle(params clientcertop.UpdateClientCertificateParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			payload := params.ClientCert
+			payload := params.ClientCertificate
 
-			clientCertID, err := uuid.FromString(params.ClientCertID.String())
+			clientCertID, err := uuid.FromString(params.ClientCertificateID.String())
 			if err != nil {
-				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.ClientCertID.String()), zap.Error(err))
+				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.ClientCertificateID.String()), zap.Error(err))
 			}
 
 			updatedClientCert, verrs, err := h.ClientCertUpdater.UpdateClientCert(appCtx, clientCertID, payload)
 
 			if err != nil || verrs != nil {
 				appCtx.Logger().Error("Error saving client_cert", zap.Error(err))
-				return clientcertop.NewUpdateClientCertInternalServerError(), err
+				return clientcertop.NewUpdateClientCertificateInternalServerError(), err
 			}
 
 			// We have a POAM requirement to log if if the account was enabled
@@ -206,7 +207,7 @@ func (h UpdateClientCertHandler) Handle(params clientcertop.UpdateClientCertPara
 
 			returnPayload := payloadForClientCertModel(*updatedClientCert)
 
-			return clientcertop.NewUpdateClientCertOK().WithPayload(returnPayload), nil
+			return clientcertop.NewUpdateClientCertificateOK().WithPayload(returnPayload), nil
 		})
 }
 
@@ -218,21 +219,21 @@ type RemoveClientCertHandler struct {
 }
 
 // Handle updates admin users
-func (h RemoveClientCertHandler) Handle(params clientcertop.RemoveClientCertParams) middleware.Responder {
+func (h RemoveClientCertHandler) Handle(params clientcertop.RemoveClientCertificateParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			clientCertID, err := uuid.FromString(params.ClientCertID.String())
+			clientCertID, err := uuid.FromString(params.ClientCertificateID.String())
 			if err != nil {
-				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.ClientCertID.String()), zap.Error(err))
-				return clientcertop.NewRemoveClientCertInternalServerError(), err
+				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.ClientCertificateID.String()), zap.Error(err))
+				return clientcertop.NewRemoveClientCertificateInternalServerError(), err
 			}
 
 			removedClientCert, verrs, err := h.ClientCertRemover.RemoveClientCert(appCtx, clientCertID)
 
 			if err != nil || verrs != nil {
 				appCtx.Logger().Error("Error removing client_cert", zap.Error(err))
-				return clientcertop.NewRemoveClientCertInternalServerError(), err
+				return clientcertop.NewRemoveClientCertificateInternalServerError(), err
 			}
 
 			// We have a POAM requirement to log if if the account was enabled
@@ -249,6 +250,6 @@ func (h RemoveClientCertHandler) Handle(params clientcertop.RemoveClientCertPara
 
 			returnPayload := payloadForClientCertModel(*removedClientCert)
 
-			return clientcertop.NewUpdateClientCertOK().WithPayload(returnPayload), nil
+			return clientcertop.NewUpdateClientCertificateOK().WithPayload(returnPayload), nil
 		})
 }

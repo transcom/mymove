@@ -60,8 +60,8 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 
 func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 	// Given: Servicemember trying to load another
-	notLoggedInUser := testdatagen.MakeDefaultServiceMember(suite.DB())
-	loggedInUser := testdatagen.MakeDefaultServiceMember(suite.DB())
+	notLoggedInUser := factory.BuildServiceMember(suite.DB(), nil, nil)
+	loggedInUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/service_members/%s", notLoggedInUser.ID.String()), nil)
 	req = suite.AuthenticateRequest(req, loggedInUser)
@@ -211,7 +211,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	origEmailIsPreferred := swag.Bool(true)
 	newEmailIsPreferred := swag.Bool(false)
 
-	dutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+	dutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 
 	newServiceMember := models.ServiceMember{
 		UserID:             user.ID,
@@ -232,7 +232,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	}
 	suite.MustSave(&newServiceMember)
 
-	orderDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+	orderDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 	orderGrade := (string)(models.ServiceMemberRankE5)
 	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
@@ -317,8 +317,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	origAffiliation := models.AffiliationAIRFORCE
 	newAffiliation := internalmessages.AffiliationARMY
 
-	origDutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
-	newDutyLocation := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
+	origDutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+	newDutyLocation := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	newDutyLocationID := strfmt.UUID(newDutyLocation.ID.String())
 
 	origFirstName := swag.String("random string bla")

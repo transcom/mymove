@@ -9,14 +9,21 @@ import (
 
 // MovingExpenseCreator creates a MovingExpense that is associated with a PPMShipment
 //
-//go:generate mockery --name MovingExpenseCreator --disable-version-string
+//go:generate mockery --name MovingExpenseCreator
 type MovingExpenseCreator interface {
 	CreateMovingExpense(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.MovingExpense, error)
 }
 
 // MovingExpenseUpdater updates a MovingExpense
 //
-//go:generate mockery --name MovingExpenseUpdater --disable-version-string
+//go:generate mockery --name MovingExpenseUpdater
 type MovingExpenseUpdater interface {
 	UpdateMovingExpense(appCtx appcontext.AppContext, movingExpense models.MovingExpense, eTag string) (*models.MovingExpense, error)
+}
+
+// MovingExpenseDeleter deletes a MovingExpense
+//
+//go:generate mockery --name MovingExpenseDeleter
+type MovingExpenseDeleter interface {
+	DeleteMovingExpense(appCtx appcontext.AppContext, movingExpenseID uuid.UUID) error
 }

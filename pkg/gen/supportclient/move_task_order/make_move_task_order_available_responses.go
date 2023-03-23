@@ -115,6 +115,11 @@ func (o *MakeMoveTaskOrderAvailableOK) IsCode(code int) bool {
 	return code == 200
 }
 
+// Code gets the status code for the make move task order available o k response
+func (o *MakeMoveTaskOrderAvailableOK) Code() int {
+	return 200
+}
+
 func (o *MakeMoveTaskOrderAvailableOK) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableOK  %+v", 200, o.Payload)
 }
@@ -176,6 +181,11 @@ func (o *MakeMoveTaskOrderAvailableBadRequest) IsServerError() bool {
 // IsCode returns true when this make move task order available bad request response a status code equal to that given
 func (o *MakeMoveTaskOrderAvailableBadRequest) IsCode(code int) bool {
 	return code == 400
+}
+
+// Code gets the status code for the make move task order available bad request response
+func (o *MakeMoveTaskOrderAvailableBadRequest) Code() int {
+	return 400
 }
 
 func (o *MakeMoveTaskOrderAvailableBadRequest) Error() string {
@@ -241,6 +251,11 @@ func (o *MakeMoveTaskOrderAvailableUnauthorized) IsCode(code int) bool {
 	return code == 401
 }
 
+// Code gets the status code for the make move task order available unauthorized response
+func (o *MakeMoveTaskOrderAvailableUnauthorized) Code() int {
+	return 401
+}
+
 func (o *MakeMoveTaskOrderAvailableUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableUnauthorized  %+v", 401, o.Payload)
 }
@@ -302,6 +317,11 @@ func (o *MakeMoveTaskOrderAvailableForbidden) IsServerError() bool {
 // IsCode returns true when this make move task order available forbidden response a status code equal to that given
 func (o *MakeMoveTaskOrderAvailableForbidden) IsCode(code int) bool {
 	return code == 403
+}
+
+// Code gets the status code for the make move task order available forbidden response
+func (o *MakeMoveTaskOrderAvailableForbidden) Code() int {
+	return 403
 }
 
 func (o *MakeMoveTaskOrderAvailableForbidden) Error() string {
@@ -367,6 +387,11 @@ func (o *MakeMoveTaskOrderAvailableNotFound) IsCode(code int) bool {
 	return code == 404
 }
 
+// Code gets the status code for the make move task order available not found response
+func (o *MakeMoveTaskOrderAvailableNotFound) Code() int {
+	return 404
+}
+
 func (o *MakeMoveTaskOrderAvailableNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableNotFound  %+v", 404, o.Payload)
 }
@@ -428,6 +453,11 @@ func (o *MakeMoveTaskOrderAvailablePreconditionFailed) IsServerError() bool {
 // IsCode returns true when this make move task order available precondition failed response a status code equal to that given
 func (o *MakeMoveTaskOrderAvailablePreconditionFailed) IsCode(code int) bool {
 	return code == 412
+}
+
+// Code gets the status code for the make move task order available precondition failed response
+func (o *MakeMoveTaskOrderAvailablePreconditionFailed) Code() int {
+	return 412
 }
 
 func (o *MakeMoveTaskOrderAvailablePreconditionFailed) Error() string {
@@ -493,6 +523,11 @@ func (o *MakeMoveTaskOrderAvailableUnprocessableEntity) IsCode(code int) bool {
 	return code == 422
 }
 
+// Code gets the status code for the make move task order available unprocessable entity response
+func (o *MakeMoveTaskOrderAvailableUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *MakeMoveTaskOrderAvailableUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableUnprocessableEntity  %+v", 422, o.Payload)
 }
@@ -554,6 +589,11 @@ func (o *MakeMoveTaskOrderAvailableInternalServerError) IsServerError() bool {
 // IsCode returns true when this make move task order available internal server error response a status code equal to that given
 func (o *MakeMoveTaskOrderAvailableInternalServerError) IsCode(code int) bool {
 	return code == 500
+}
+
+// Code gets the status code for the make move task order available internal server error response
+func (o *MakeMoveTaskOrderAvailableInternalServerError) Code() int {
+	return 500
 }
 
 func (o *MakeMoveTaskOrderAvailableInternalServerError) Error() string {

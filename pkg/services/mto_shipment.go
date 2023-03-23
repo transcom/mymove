@@ -12,7 +12,7 @@ import (
 
 // MTOShipmentFetcher is the service object interface for fetching all shipments of a move
 //
-//go:generate mockery --name MTOShipmentFetcher --disable-version-string
+//go:generate mockery --name MTOShipmentFetcher
 type MTOShipmentFetcher interface {
 	ListMTOShipments(appCtx appcontext.AppContext, moveID uuid.UUID) ([]models.MTOShipment, error)
 	GetShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssociations ...string) (*models.MTOShipment, error)
@@ -20,7 +20,7 @@ type MTOShipmentFetcher interface {
 
 // MTOShipmentUpdater is the service object interface for UpdateMTOShipment
 //
-//go:generate mockery --name MTOShipmentUpdater --disable-version-string
+//go:generate mockery --name MTOShipmentUpdater
 type MTOShipmentUpdater interface {
 	MTOShipmentsMTOAvailableToPrime(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error)
 	UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
@@ -36,70 +36,70 @@ type BillableWeightInputs struct {
 
 // ShipmentBillableWeightCalculator is the service object interface for approving a shipment diversion
 //
-//go:generate mockery --name ShipmentBillableWeightCalculator --disable-version-string
+//go:generate mockery --name ShipmentBillableWeightCalculator
 type ShipmentBillableWeightCalculator interface {
 	CalculateShipmentBillableWeight(shipment *models.MTOShipment) (BillableWeightInputs, error)
 }
 
 // ShipmentDeleter is the service object interface for deleting a shipment
 //
-//go:generate mockery --name ShipmentDeleter --disable-version-string
+//go:generate mockery --name ShipmentDeleter
 type ShipmentDeleter interface {
 	DeleteShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (uuid.UUID, error)
 }
 
 // ShipmentApprover is the service object interface for approving a shipment
 //
-//go:generate mockery --name ShipmentApprover --disable-version-string
+//go:generate mockery --name ShipmentApprover
 type ShipmentApprover interface {
 	ApproveShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }
 
 // ShipmentDiversionRequester is the service object interface for approving a shipment diversion
 //
-//go:generate mockery --name ShipmentDiversionRequester --disable-version-string
+//go:generate mockery --name ShipmentDiversionRequester
 type ShipmentDiversionRequester interface {
 	RequestShipmentDiversion(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }
 
 // ShipmentDiversionApprover is the service object interface for approving a shipment diversion
 //
-//go:generate mockery --name ShipmentDiversionApprover --disable-version-string
+//go:generate mockery --name ShipmentDiversionApprover
 type ShipmentDiversionApprover interface {
 	ApproveShipmentDiversion(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }
 
 // ShipmentRejecter is the service object interface for approving a shipment
 //
-//go:generate mockery --name ShipmentRejecter --disable-version-string
+//go:generate mockery --name ShipmentRejecter
 type ShipmentRejecter interface {
 	RejectShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string, reason *string) (*models.MTOShipment, error)
 }
 
 // ShipmentCancellationRequester is the service object interface for approving a shipment diversion
 //
-//go:generate mockery --name ShipmentCancellationRequester --disable-version-string
+//go:generate mockery --name ShipmentCancellationRequester
 type ShipmentCancellationRequester interface {
 	RequestShipmentCancellation(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }
 
 // ShipmentReweighRequester is the service object interface for approving a shipment diversion
 //
-//go:generate mockery --name ShipmentReweighRequester --disable-version-string
+//go:generate mockery --name ShipmentReweighRequester
 type ShipmentReweighRequester interface {
 	RequestShipmentReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID, requestor models.ReweighRequester) (*models.Reweigh, error)
 }
 
 // MTOShipmentStatusUpdater is the exported interface for updating an MTO shipment status
 //
-//go:generate mockery --name MTOShipmentStatusUpdater --disable-version-string
+//go:generate mockery --name MTOShipmentStatusUpdater
 type MTOShipmentStatusUpdater interface {
 	UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error)
 }
 
 // MTOShipmentCreator is the exported interface for creating a shipment
 //
-//go:generate mockery --name MTOShipmentCreator --disable-version-string
+//go:generate mockery --name MTOShipmentCreator
 type MTOShipmentCreator interface {
 	CreateMTOShipment(appCtx appcontext.AppContext, MTOShipment *models.MTOShipment) (*models.MTOShipment, error)
 }
@@ -111,7 +111,7 @@ type MTOShipmentAddressUpdater interface {
 
 // ShipmentRouter is used for setting the status on shipments at different stages
 //
-//go:generate mockery --name ShipmentRouter --disable-version-string
+//go:generate mockery --name ShipmentRouter
 type ShipmentRouter interface {
 	Submit(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
 	Approve(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
@@ -136,7 +136,7 @@ type SITStatus struct {
 
 // ShipmentSITStatus is the interface for calculating SIT service item summary balances of shipments
 //
-//go:generate mockery --name ShipmentSITStatus --disable-version-string
+//go:generate mockery --name ShipmentSITStatus
 type ShipmentSITStatus interface {
 	CalculateShipmentsSITStatuses(appCtx appcontext.AppContext, shipments []models.MTOShipment) map[string]SITStatus
 	CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*SITStatus, error)

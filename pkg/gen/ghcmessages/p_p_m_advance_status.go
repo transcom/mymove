@@ -16,6 +16,8 @@ import (
 
 // PPMAdvanceStatus PPM Advance Status
 //
+// Indicates whether an advance status has been accepted, rejected, or edited.
+//
 // swagger:model PPMAdvanceStatus
 type PPMAdvanceStatus string
 

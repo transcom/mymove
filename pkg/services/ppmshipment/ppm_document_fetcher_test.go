@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -33,15 +34,19 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 		// Add an extra upload to one of the weight ticket documents to verify we get all non-deleted uploads later
 		ppmShipment.WeightTickets[0].EmptyDocument.UserUploads = append(
 			ppmShipment.WeightTickets[0].EmptyDocument.UserUploads,
-			testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-				Document: ppmShipment.WeightTickets[0].EmptyDocument,
-				UserUpload: models.UserUpload{
-					DocumentID: &ppmShipment.WeightTickets[0].EmptyDocument.ID,
-					Document:   ppmShipment.WeightTickets[0].EmptyDocument,
-					UploaderID: ppmShipment.WeightTickets[0].EmptyDocument.ServiceMember.UserID,
+			factory.BuildUserUpload(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.WeightTickets[0].EmptyDocument,
+					LinkOnly: true,
 				},
-				UserUploader: userUploader,
-			}),
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
 		)
 
 		// The PPM shipment generated above only has a weight ticket, but we want to ensure the service works with all
@@ -58,19 +63,23 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 		// Add an extra upload to the moving expense document to verify we get all non-deleted uploads later
 		ppmShipment.MovingExpenses[0].Document.UserUploads = append(
 			ppmShipment.MovingExpenses[0].Document.UserUploads,
-			testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-				Document: ppmShipment.MovingExpenses[0].Document,
-				UserUpload: models.UserUpload{
-					DocumentID: &ppmShipment.MovingExpenses[0].Document.ID,
-					Document:   ppmShipment.MovingExpenses[0].Document,
-					UploaderID: ppmShipment.MovingExpenses[0].Document.ServiceMember.UserID,
+			factory.BuildUserUpload(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.MovingExpenses[0].Document,
+					LinkOnly: true,
 				},
-				UserUploader: userUploader,
-			}),
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
 		)
 
-		ppmShipment.ProgearExpenses = append(
-			ppmShipment.ProgearExpenses,
+		ppmShipment.ProgearWeightTickets = append(
+			ppmShipment.ProgearWeightTickets,
 			testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
 				ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
 				PPMShipment:   ppmShipment,
@@ -79,25 +88,29 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 		)
 
 		// Add an extra upload to the progear weight ticket document to verify we get all non-deleted uploads later
-		ppmShipment.ProgearExpenses[0].Document.UserUploads = append(
-			ppmShipment.ProgearExpenses[0].Document.UserUploads,
-			testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-				Document: ppmShipment.ProgearExpenses[0].Document,
-				UserUpload: models.UserUpload{
-					DocumentID: &ppmShipment.ProgearExpenses[0].Document.ID,
-					Document:   ppmShipment.ProgearExpenses[0].Document,
-					UploaderID: ppmShipment.ProgearExpenses[0].Document.ServiceMember.UserID,
+		ppmShipment.ProgearWeightTickets[0].Document.UserUploads = append(
+			ppmShipment.ProgearWeightTickets[0].Document.UserUploads,
+			factory.BuildUserUpload(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.ProgearWeightTickets[0].Document,
+					LinkOnly: true,
 				},
-				UserUploader: userUploader,
-			}),
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
 		)
 
 		suite.FatalTrue(len(ppmShipment.WeightTickets) > 0)
 		suite.FatalTrue(len(ppmShipment.WeightTickets[0].EmptyDocument.UserUploads) > 1)
 		suite.FatalTrue(len(ppmShipment.MovingExpenses) > 0)
 		suite.FatalTrue(len(ppmShipment.MovingExpenses[0].Document.UserUploads) > 1)
-		suite.FatalTrue(len(ppmShipment.ProgearExpenses) > 0)
-		suite.FatalTrue(len(ppmShipment.ProgearExpenses[0].Document.UserUploads) > 1)
+		suite.FatalTrue(len(ppmShipment.ProgearWeightTickets) > 0)
+		suite.FatalTrue(len(ppmShipment.ProgearWeightTickets[0].Document.UserUploads) > 1)
 
 		return &ppmShipment
 	}
@@ -132,14 +145,14 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 				}
 			}
 
-			suite.Equal(len(ppmShipment.ProgearExpenses), len(fetchedDocument.ProgearExpenses))
+			suite.Equal(len(ppmShipment.ProgearWeightTickets), len(fetchedDocument.ProgearWeightTickets))
 
-			for i := range ppmShipment.ProgearExpenses {
-				suite.Equal(ppmShipment.ProgearExpenses[i].ID, fetchedDocument.ProgearExpenses[i].ID)
-				suite.Equal(len(ppmShipment.ProgearExpenses[i].Document.UserUploads), len(fetchedDocument.ProgearExpenses[i].Document.UserUploads))
+			for i := range ppmShipment.ProgearWeightTickets {
+				suite.Equal(ppmShipment.ProgearWeightTickets[i].ID, fetchedDocument.ProgearWeightTickets[i].ID)
+				suite.Equal(len(ppmShipment.ProgearWeightTickets[i].Document.UserUploads), len(fetchedDocument.ProgearWeightTickets[i].Document.UserUploads))
 
-				for j := range ppmShipment.ProgearExpenses[i].Document.UserUploads {
-					suite.Equal(ppmShipment.ProgearExpenses[i].Document.UserUploads[j].ID, fetchedDocument.ProgearExpenses[i].Document.UserUploads[j].ID)
+				for j := range ppmShipment.ProgearWeightTickets[i].Document.UserUploads {
+					suite.Equal(ppmShipment.ProgearWeightTickets[i].Document.UserUploads[j].ID, fetchedDocument.ProgearWeightTickets[i].Document.UserUploads[j].ID)
 				}
 			}
 		}
@@ -184,15 +197,19 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 		numValidEmptyUploads := len(originalWeightTicket.EmptyDocument.UserUploads)
 		suite.FatalTrue(numValidEmptyUploads > 0)
 
-		deletedWeightTicketUpload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-			Document: originalWeightTicket.EmptyDocument,
-			UserUpload: models.UserUpload{
-				DocumentID: &originalWeightTicket.EmptyDocument.ID,
-				Document:   originalWeightTicket.EmptyDocument,
-				UploaderID: originalWeightTicket.EmptyDocument.ServiceMember.UserID,
+		deletedWeightTicketUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    originalWeightTicket.EmptyDocument,
+				LinkOnly: true,
 			},
-			UserUploader: userUploader,
-		})
+			{
+				Model: models.UserUpload{},
+				ExtendedParams: &factory.UserUploadExtendedParams{
+					UserUploader: userUploader,
+					AppContext:   suite.AppContextForTest(),
+				},
+			},
+		}, nil)
 
 		err := userUploader.DeleteUserUpload(appCtx, &deletedWeightTicketUpload)
 
@@ -202,19 +219,23 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 		suite.FatalNotNil(deletedWeightTicketUpload.DeletedAt)
 
 		// Create an upload for a progear weight ticket that we then delete
-		originalProgearWeightTicket := ppmShipment.ProgearExpenses[0]
+		originalProgearWeightTicket := ppmShipment.ProgearWeightTickets[0]
 		numValidProgearWeightTicketUploads := len(originalWeightTicket.EmptyDocument.UserUploads)
 		suite.FatalTrue(numValidProgearWeightTicketUploads > 0)
 
-		deletedProgearWeightTicketUpload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-			Document: originalProgearWeightTicket.Document,
-			UserUpload: models.UserUpload{
-				DocumentID: &originalProgearWeightTicket.Document.ID,
-				Document:   originalProgearWeightTicket.Document,
-				UploaderID: originalProgearWeightTicket.Document.ServiceMember.UserID,
+		deletedProgearWeightTicketUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    originalProgearWeightTicket.Document,
+				LinkOnly: true,
 			},
-			UserUploader: userUploader,
-		})
+			{
+				Model: models.UserUpload{},
+				ExtendedParams: &factory.UserUploadExtendedParams{
+					UserUploader: userUploader,
+					AppContext:   suite.AppContextForTest(),
+				},
+			},
+		}, nil)
 
 		err = userUploader.DeleteUserUpload(appCtx, &deletedProgearWeightTicketUpload)
 
@@ -228,15 +249,19 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 		numValidMovingExpenseUploads := len(originalWeightTicket.EmptyDocument.UserUploads)
 		suite.FatalTrue(numValidMovingExpenseUploads > 0)
 
-		deletedMovingExpenseUpload := testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-			Document: originalMovingExpense.Document,
-			UserUpload: models.UserUpload{
-				DocumentID: &originalMovingExpense.Document.ID,
-				Document:   originalMovingExpense.Document,
-				UploaderID: originalMovingExpense.Document.ServiceMember.UserID,
+		deletedMovingExpenseUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    originalMovingExpense.Document,
+				LinkOnly: true,
 			},
-			UserUploader: userUploader,
-		})
+			{
+				Model: models.UserUpload{},
+				ExtendedParams: &factory.UserUploadExtendedParams{
+					UserUploader: userUploader,
+					AppContext:   suite.AppContextForTest(),
+				},
+			},
+		}, nil)
 
 		err = userUploader.DeleteUserUpload(appCtx, &deletedMovingExpenseUpload)
 
@@ -273,10 +298,10 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 				}
 			}
 
-			suite.Equal(len(ppmShipment.ProgearExpenses), len(fetchedDocument.ProgearExpenses))
+			suite.Equal(len(ppmShipment.ProgearWeightTickets), len(fetchedDocument.ProgearWeightTickets))
 
-			suite.Equal(originalProgearWeightTicket.ID, fetchedDocument.ProgearExpenses[0].ID)
-			retrievedProgearWeightTicket := fetchedDocument.ProgearExpenses[0]
+			suite.Equal(originalProgearWeightTicket.ID, fetchedDocument.ProgearWeightTickets[0].ID)
+			retrievedProgearWeightTicket := fetchedDocument.ProgearWeightTickets[0]
 
 			if suite.Equal(numValidProgearWeightTicketUploads, len(retrievedProgearWeightTicket.Document.UserUploads)) {
 				for _, upload := range retrievedProgearWeightTicket.Document.UserUploads {

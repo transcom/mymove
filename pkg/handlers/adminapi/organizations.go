@@ -6,7 +6,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
+	organizationop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -20,8 +20,8 @@ func payloadForOrganizationModel(o models.Organization) *adminmessages.Organizat
 		Name:      handlers.FmtString(o.Name),
 		Email:     o.PocEmail,
 		Telephone: o.PocPhone,
-		CreatedAt: handlers.FmtDateTime(o.CreatedAt),
-		UpdatedAt: handlers.FmtDateTime(o.UpdatedAt),
+		CreatedAt: *handlers.FmtDateTime(o.CreatedAt),
+		UpdatedAt: *handlers.FmtDateTime(o.UpdatedAt),
 	}
 }
 
@@ -34,7 +34,7 @@ type IndexOrganizationsHandler struct {
 }
 
 // Handle retrieves a list of organizations
-func (h IndexOrganizationsHandler) Handle(params organization.IndexOrganizationsParams) middleware.Responder {
+func (h IndexOrganizationsHandler) Handle(params organizationop.IndexOrganizationsParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
@@ -60,6 +60,6 @@ func (h IndexOrganizationsHandler) Handle(params organization.IndexOrganizations
 				payload[i] = payloadForOrganizationModel(s)
 			}
 
-			return organization.NewIndexOrganizationsOK().WithContentRange(fmt.Sprintf("organizations %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOrganizationsCount, totalOrganizationsCount)).WithPayload(payload), nil
+			return organizationop.NewIndexOrganizationsOK().WithContentRange(fmt.Sprintf("organizations %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOrganizationsCount, totalOrganizationsCount)).WithPayload(payload), nil
 		})
 }

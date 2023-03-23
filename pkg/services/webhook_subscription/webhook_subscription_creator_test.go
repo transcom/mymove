@@ -3,9 +3,9 @@ package webhooksubscription
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *WebhookSubscriptionServiceSuite) TestCreateWebhookSubscription() {
@@ -14,7 +14,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestCreateWebhookSubscription() {
 
 	// Happy path
 	suite.Run("If the subscription is created successfully it should be returned", func() {
-		subscriber := testdatagen.MakeContractor(suite.DB(), testdatagen.Assertions{})
+		subscriber := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		webhookSubscriptionInfo := models.WebhookSubscription{
 			SubscriberID: subscriber.ID,
 			Status:       models.WebhookSubscriptionStatusActive,

@@ -1058,7 +1058,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.MTOServiceItem"
+        ]
       },
       "parameters": [
         {
@@ -2937,47 +2940,6 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/weight-tickets": {
-      "get": {
-        "description": "Retrieves all of the weight tickets and associated uploads for each document for the specified PPM shipment. This\nexcludes any deleted weight tickets or uploads.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Gets all the weight tickets for a PPM shipment",
-        "operationId": "getWeightTickets",
-        "responses": {
-          "200": {
-            "description": "All weight tickets and associated uploads for the specified PPM shipment.",
-            "schema": {
-              "$ref": "#/definitions/WeightTickets"
-            }
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "$ref": "#/parameters/ppmShipmentId"
-        }
-      ]
-    },
     "/pws-violations": {
       "get": {
         "description": "Fetch the possible PWS violations for an evaluation report",
@@ -3213,7 +3175,8 @@ func init() {
               "locator",
               "status",
               "originDutyLocation",
-              "destinationDutyLocation"
+              "destinationDutyLocation",
+              "requestedMoveDate"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -3258,6 +3221,12 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
             "in": "query"
           },
           {
@@ -5936,6 +5905,12 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualDeliveryDate": {
+          "description": "The actual date that the shipment was delivered to the destination address by the Prime",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "actualPickupDate": {
           "type": "string",
           "format": "date",
@@ -6045,11 +6020,13 @@ func init() {
         },
         "requestedDeliveryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "requestedPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "requiredDeliveryDate": {
           "type": "string",
@@ -6684,6 +6661,14 @@ func init() {
         }
       }
     },
+    "MovingExpenses": {
+      "description": "All moving expenses associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MovingExpense"
+      },
+      "x-omitempty": false
+    },
     "NullableString": {
       "type": "string",
       "x-go-type": {
@@ -6906,13 +6891,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatus": {
       "description": "Status of the PPM document.",
@@ -6939,7 +6926,7 @@ func init() {
       "type": "object",
       "properties": {
         "MovingExpenses": {
-          "$ref": "#/definitions/ProGearWeightTickets"
+          "$ref": "#/definitions/MovingExpenses"
         },
         "ProGearWeightTickets": {
           "$ref": "#/definitions/ProGearWeightTickets"
@@ -7093,13 +7080,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/MovingExpense"
           }
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weighed.\n",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
@@ -8686,6 +8666,10 @@ func init() {
           "format": "cents",
           "x-nullable": true
         },
+        "advanceStatus": {
+          "x-nullable": true,
+          "$ref": "#/definitions/PPMAdvanceStatus"
+        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -8714,12 +8698,6 @@ func init() {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weighed\n",
-          "type": "integer",
-          "x-nullable": true,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "zip code",
@@ -8923,6 +8901,10 @@ func init() {
     "UpdateWeightTicket": {
       "type": "object",
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer"
+        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer"
@@ -8930,6 +8912,10 @@ func init() {
         "fullWeight": {
           "description": "The weight of the vehicle when full.",
           "type": "integer"
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string"
         },
         "ownsTrailer": {
           "description": "Indicates if the customer used a trailer they own for the move.",
@@ -9045,6 +9031,12 @@ func init() {
         "proofOfTrailerOwnershipDocumentId"
       ],
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -9116,6 +9108,12 @@ func init() {
         "missingFullWeightTicket": {
           "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -10673,7 +10671,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.MTOServiceItem"
+        ]
       },
       "parameters": [
         {
@@ -13090,64 +13091,6 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/weight-tickets": {
-      "get": {
-        "description": "Retrieves all of the weight tickets and associated uploads for each document for the specified PPM shipment. This\nexcludes any deleted weight tickets or uploads.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Gets all the weight tickets for a PPM shipment",
-        "operationId": "getWeightTickets",
-        "responses": {
-          "200": {
-            "description": "All weight tickets and associated uploads for the specified PPM shipment.",
-            "schema": {
-              "$ref": "#/definitions/WeightTickets"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "UUID of the PPM shipment",
-          "name": "ppmShipmentId",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/pws-violations": {
       "get": {
         "description": "Fetch the possible PWS violations for an evaluation report",
@@ -13401,7 +13344,8 @@ func init() {
               "locator",
               "status",
               "originDutyLocation",
-              "destinationDutyLocation"
+              "destinationDutyLocation",
+              "requestedMoveDate"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -13446,6 +13390,12 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
             "in": "query"
           },
           {
@@ -16404,6 +16354,12 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualDeliveryDate": {
+          "description": "The actual date that the shipment was delivered to the destination address by the Prime",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "actualPickupDate": {
           "type": "string",
           "format": "date",
@@ -16513,11 +16469,13 @@ func init() {
         },
         "requestedDeliveryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "requestedPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "requiredDeliveryDate": {
           "type": "string",
@@ -17152,6 +17110,14 @@ func init() {
         }
       }
     },
+    "MovingExpenses": {
+      "description": "All moving expenses associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MovingExpense"
+      },
+      "x-omitempty": false
+    },
     "NullableString": {
       "type": "string",
       "x-go-type": {
@@ -17374,13 +17340,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
         "EDITED"
-      ]
+      ],
+      "x-nullable": true
     },
     "PPMDocumentStatus": {
       "description": "Status of the PPM document.",
@@ -17407,7 +17375,7 @@ func init() {
       "type": "object",
       "properties": {
         "MovingExpenses": {
-          "$ref": "#/definitions/ProGearWeightTickets"
+          "$ref": "#/definitions/MovingExpenses"
         },
         "ProGearWeightTickets": {
           "$ref": "#/definitions/ProGearWeightTickets"
@@ -17561,13 +17529,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/MovingExpense"
           }
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weighed.\n",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
@@ -19162,6 +19123,10 @@ func init() {
           "format": "cents",
           "x-nullable": true
         },
+        "advanceStatus": {
+          "x-nullable": true,
+          "$ref": "#/definitions/PPMAdvanceStatus"
+        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -19190,12 +19155,6 @@ func init() {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weighed\n",
-          "type": "integer",
-          "x-nullable": true,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "zip code",
@@ -19400,6 +19359,11 @@ func init() {
     "UpdateWeightTicket": {
       "type": "object",
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "minimum": 0
+        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer",
@@ -19409,6 +19373,10 @@ func init() {
           "description": "The weight of the vehicle when full.",
           "type": "integer",
           "minimum": 0
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string"
         },
         "ownsTrailer": {
           "description": "Indicates if the customer used a trailer they own for the move.",
@@ -19527,6 +19495,13 @@ func init() {
         "proofOfTrailerOwnershipDocumentId"
       ],
       "properties": {
+        "adjustedNetWeight": {
+          "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -19600,6 +19575,12 @@ func init() {
         "missingFullWeightTicket": {
           "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "netWeightRemarks": {
+          "description": "Remarks explaining any edits made to the net weight",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },

@@ -16,31 +16,34 @@ type ClientCertCreator struct {
 	mock.Mock
 }
 
-// CreateClientCert provides a mock function with given fields: appCtx, user
-func (_m *ClientCertCreator) CreateClientCert(appCtx appcontext.AppContext, user *models.ClientCert) (*models.ClientCert, *validate.Errors, error) {
-	ret := _m.Called(appCtx, user)
+// CreateClientCert provides a mock function with given fields: appCtx, email, user
+func (_m *ClientCertCreator) CreateClientCert(appCtx appcontext.AppContext, email string, user *models.ClientCert) (*models.ClientCert, *validate.Errors, error) {
+	ret := _m.Called(appCtx, email, user)
 
 	var r0 *models.ClientCert
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.ClientCert) *models.ClientCert); ok {
-		r0 = rf(appCtx, user)
+	var r1 *validate.Errors
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, *models.ClientCert) (*models.ClientCert, *validate.Errors, error)); ok {
+		return rf(appCtx, email, user)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, *models.ClientCert) *models.ClientCert); ok {
+		r0 = rf(appCtx, email, user)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.ClientCert)
 		}
 	}
 
-	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.ClientCert) *validate.Errors); ok {
-		r1 = rf(appCtx, user)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, *models.ClientCert) *validate.Errors); ok {
+		r1 = rf(appCtx, email, user)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
 		}
 	}
 
-	var r2 error
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *models.ClientCert) error); ok {
-		r2 = rf(appCtx, user)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, *models.ClientCert) error); ok {
+		r2 = rf(appCtx, email, user)
 	} else {
 		r2 = ret.Error(2)
 	}

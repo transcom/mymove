@@ -28,13 +28,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 
 	setupTestData := func() {
 
-		reService := testdatagen.FetchOrMakeReService(suite.DB(),
-			testdatagen.Assertions{
-				ReService: models.ReService{
-					Code: models.ReServiceCodeDOFSIT,
-				},
-			},
-		)
+		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		originAddress = factory.BuildAddress(suite.DB(),
 			[]factory.Customization{
@@ -172,5 +166,31 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.Error(err)
+	})
+
+	suite.Run("sets distance to one when origin and destination postal codes are the same", func() {
+		setupTestData()
+
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
+			testdatagen.Assertions{
+				MTOServiceItem: models.MTOServiceItem{
+					SITOriginHHGOriginalAddressID: &originAddress.ID,
+					SITOriginHHGOriginalAddress:   &originAddress,
+					SITOriginHHGActualAddressID:   &originAddress.ID,
+					SITOriginHHGActualAddress:     &originAddress,
+				},
+			},
+		)
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+
+		suite.FatalNoError(err)
+
+		distance, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.FatalNoError(err)
+
+		//Check if distance equal 1
+		suite.Equal("1", distance)
+
 	})
 }
