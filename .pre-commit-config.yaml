@@ -35,16 +35,16 @@ repos:
         #RA Modified Severity: CAT III
         exclude: >
           (?x)^(
-            config.milmove/tls/devlocal-ca.key$|
-            config.milmove/tls/devlocal-client_auth_secret.key$|
-            config.milmove/tls/devlocal-faux-air-force-orders.key$|
-            config.milmove/tls/devlocal-faux-all-orders.key$|
-            config.milmove/tls/devlocal-faux-army-hrc-orders.key$|
-            config.milmove/tls/devlocal-faux-coast-guard-orders.key$|
-            config.milmove/tls/devlocal-faux-marine-corps-orders.key$|
-            config.milmove/tls/devlocal-faux-navy-orders.key$|
-            config.milmove/tls/devlocal-https.key$|
-            config.milmove/tls/devlocal-mtls.key$|
+            config/tls/devlocal-ca.key$|
+            config/tls/devlocal-client_auth_secret.key$|
+            config/tls/devlocal-faux-air-force-orders.key$|
+            config/tls/devlocal-faux-all-orders.key$|
+            config/tls/devlocal-faux-army-hrc-orders.key$|
+            config/tls/devlocal-faux-coast-guard-orders.key$|
+            config/tls/devlocal-faux-marine-corps-orders.key$|
+            config/tls/devlocal-faux-navy-orders.key$|
+            config/tls/devlocal-https.key$|
+            config/tls/devlocal-mtls.key$|
             pkg/server/testdata/localhost.key$|
             pkg/server/testdata/localhost-invalid.key$|
             pkg/server/testdata/officelocal.key$|
