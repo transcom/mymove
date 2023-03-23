@@ -154,7 +154,7 @@ export const ReviewDocuments = ({ match }) => {
   const currentDocumentSet = documentSets[documentSetIndex];
   const disableBackButton = documentSetIndex === 0 && !showOverview;
 
-  const reviewShipmentWeightsURL = generatePath(servicesCounselingRoutes.SHIPMENT_REVIEW_PATH, {
+  const reviewShipmentWeightsURL = generatePath(servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH, {
     moveCode,
     shipmentId,
   });
