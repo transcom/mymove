@@ -1,23 +1,42 @@
 {
   "dependencies": {
+    "@babel/core": "^7.16.0",
     "@fortawesome/fontawesome-svg-core": "^6.3.0",
     "@fortawesome/free-regular-svg-icons": "^6.3.0",
     "@fortawesome/free-solid-svg-icons": "^6.3.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@material-ui/core": "^4.12.4",
     "@material-ui/icons": "^4.11.3",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
+    "@svgr/webpack": "^5.5.0",
     "@tanstack/react-query": "^4.19.1",
     "@tanstack/react-query-devtools": "^4.19.1",
     "@trussworks/react-file-viewer": "git+https://github.com/trussworks/react-file-viewer",
     "@trussworks/react-uswds": "3.2.0",
     "axe-playwright": "^1.2.3",
+    "babel-jest": "^27.4.2",
+    "babel-loader": "^8.2.3",
+    "babel-plugin-named-asset-import": "^0.3.8",
+    "babel-preset-react-app": "^10.0.1",
+    "bfj": "^7.0.2",
+    "browserslist": "^4.18.1",
     "bytes": "^3.1.2",
+    "camelcase": "^6.2.1",
+    "case-sensitive-paths-webpack-plugin": "^2.4.0",
     "classnames": "^2.3.2",
     "connected-react-router": "^6.9.3",
     "core-js": "^3.29.1",
+    "css-loader": "^6.5.1",
+    "css-minimizer-webpack-plugin": "^3.2.0",
     "customize-cra": "^1.0.0",
     "deep-object-diff": "^1.1.9",
+    "dotenv": "^10.0.0",
+    "dotenv-expand": "^5.1.0",
+    "eslint": "^8.3.0",
+    "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-react": "^7.32",
+    "eslint-webpack-plugin": "^3.1.1",
+    "file-loader": "^6.2.0",
     "filepond": "^4.30.4",
     "filepond-plugin-file-validate-size": "^2.2.8",
     "filepond-plugin-file-validate-type": "^1.2.8",
@@ -25,20 +44,33 @@
     "filepond-plugin-image-preview": "^4.6.11",
     "filepond-polyfill": "^1.0.2",
     "formik": "^2.2.9",
+    "fs-extra": "^10.0.0",
     "history": "^4.10.1",
+    "html-webpack-plugin": "^5.5.0",
     "http-proxy-middleware": "^2.0.6",
     "https-browserify": "^1.0.0",
+    "identity-obj-proxy": "^3.0.0",
     "is-mobile": "4.0.0",
+    "jest": "^27.4.3",
     "jest-canvas-mock": "^2.4.0",
+    "jest-resolve": "^27.4.2",
+    "jest-watch-typeahead": "^1.0.0",
     "js-cookie": "^3.0.1",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
+    "mini-css-extract-plugin": "^2.4.5",
     "moment": "^2.29.4",
     "normalizr": "^3.6.2",
     "numeral": "^2.0.6",
     "path": "^0.12.7",
     "path-to-regexp": "^6.2.1",
     "playwright": "^1.31.2",
+    "postcss": "^8.4.4",
+    "postcss-flexbugs-fixes": "^5.0.2",
+    "postcss-loader": "^6.2.1",
+    "postcss-normalize": "^10.0.1",
+    "postcss-preset-env": "^7.0.1",
+    "prompts": "^2.4.2",
     "prop-types": "^15.8.1",
     "query-string": "7",
     "ra-language-english": "^4.8.4",
@@ -47,6 +79,7 @@
     "react-admin-import-csv": "^1.0.33",
     "react-app-polyfill": "^3.0.0",
     "react-day-picker": "=7.4.10",
+    "react-dev-utils": "^12.0.1",
     "react-dom": "^17.0.1",
     "react-filepond": "^7.1.2",
     "react-idle-timer": "^5.5.3",
@@ -55,6 +88,7 @@
     "react-query": "^3.39.2",
     "react-rangeslider": "^2.2.0",
     "react-redux": "^7.2.9",
+    "react-refresh": "^0.11.0",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.3.4",
     "react-router-last-location": "^2.0.1",
@@ -73,12 +107,23 @@
     "redux-thunk": "^2.4.2",
     "regenerator-runtime": "^0.13.11",
     "reselect": "^4.1.7",
+    "resolve": "^1.20.0",
+    "resolve-url-loader": "^4.0.0",
     "sass": "^1.59.3",
+    "sass-loader": "^12.3.0",
+    "semver": "^7.3.5",
+    "source-map-loader": "^3.0.0",
+    "style-loader": "^3.3.1",
     "swagger-client": "^3.18.5",
     "swagger-ui-dist": "^4.18.1",
+    "tailwindcss": "^3.0.2",
+    "terser-webpack-plugin": "^5.2.5",
     "uswds": "2.13.3",
     "uuid": "^9.0.0",
-    "webpack": "5",
+    "webpack": "^5.64.4",
+    "webpack-dev-server": "^4.6.0",
+    "webpack-manifest-plugin": "^4.0.2",
+    "workbox-webpack-plugin": "^6.4.1",
     "yup": "^0.32.11"
   },
   "resolutions": {
@@ -98,16 +143,15 @@
   "private": true,
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "build": "react-app-rewired build",
+    "build": "node scripts-react/build.js",
     "clean": "rm -rvf ./node_modules",
     "clean:reset": "rm -rvf ./node_modules && yarn",
-    "eject": "react-scripts eject",
-    "start": "react-app-rewired start",
-    "test": "react-app-rewired test --env=jsdom",
-    "test:debug": "react-app-rewired --inspect-brk test --runInBand --env=jsdom",
-    "test:coverage": "react-app-rewired test --coverage --reporters=default --reporters=jest-junit --env=jsdom --coverageDirectory=coverage --runInBand --watchAll=false",
+    "start": "node scripts-react/start.js",
+    "test": "node scripts-react/test.js --env=jsdom",
+    "test:debug": "node --inspect-brk scripts-react/test.js  --runInBand --env=jsdom",
+    "test:coverage": "node scripts-react/test.js  --coverage --reporters=default --reporters=jest-junit --env=jsdom --coverageDirectory=coverage --runInBand --watchAll=false",
     "test:e2e": "playwright test --trace=on",
-    "prettier": "prettier --write --loglevel warn 'src/**/*.{js,jsx}' playwright/tests/**/*.js'",
+    "prettier": "prettier --write --loglevel warn 'src/**/*.{js,jsx}' playwright/tests/**/*.js",
     "prettier-ci": "prettier --check 'src/**/*.{js,jsx}' playwright/tests/**/*.js",
     "lint": "eslint --ext .js,.jsx --max-warnings=0 src playwright/tests",
     "lint:production": "NODE_ENV=production yarn lint",
@@ -168,7 +212,6 @@
     "mockdate": "^3.0.5",
     "prettier": "2.8.6",
     "react-app-rewired": "^2.2.1",
-    "react-scripts": "5.0.1",
     "react-select-event": "^5.5.1",
     "react-test-renderer": "^17.0.1",
     "source-map-explorer": "^2.5.3",
@@ -181,12 +224,64 @@
     "not op_mini all"
   ],
   "jest": {
-    "resetMocks": false,
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!src/**/*.d.ts"
+    ],
+    "setupFiles": [
+      "react-app-polyfill/jsdom"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupTests.js"
+    ],
+    "testMatch": [
+      "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
+      "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
+    ],
+    "testEnvironment": "jsdom",
+    "transform": {
+      "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$": "<rootDir>/config-react/jest/babelTransform.js",
+      "^.+\\.css$": "<rootDir>/config-react/jest/cssTransform.js",
+      "^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)": "<rootDir>/config-react/jest/fileTransform.js"
+    },
     "transformIgnorePatterns": [
       "node_modules/(?!(imask)/)/"
     ],
+    "modulePaths": [
+      "/Users/rsr/Developer/transcom/mymove/src"
+    ],
     "moduleNameMapper": {
+      "^react-native$": "react-native-web",
+      "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy",
       "react-markdown": "<rootDir>/node_modules/react-markdown/react-markdown.min.js"
-    }
+    },
+    "moduleFileExtensions": [
+      "web.js",
+      "js",
+      "web.ts",
+      "ts",
+      "web.tsx",
+      "tsx",
+      "json",
+      "web.jsx",
+      "jsx",
+      "node"
+    ],
+    "watchPlugins": [
+      "jest-watch-typeahead/filename",
+      "jest-watch-typeahead/testname"
+    ],
+    "resetMocks": false
+  },
+  "babel": {
+    "presets": [
+      "react-app"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
   }
 }
