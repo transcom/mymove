@@ -10,13 +10,14 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	notification_mocks "github.com/transcom/mymove/pkg/notifications/mocks"
 	services_mocks "github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/query"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func setUpMockNotificationSender() notifications.NotificationSender {
@@ -32,34 +33,78 @@ func setUpMockNotificationSender() notifications.NotificationSender {
 }
 
 func (suite *ClientCertServiceSuite) TestCreateClientCert() {
-	email := "fake@example.com"
 	hash := sha256.Sum256([]byte("fake"))
 	digest := hex.EncodeToString(hash[:])
 	queryBuilder := query.NewQueryBuilder()
 
-	suite.Run("If the client cert is created successfully it should be returned", func() {
-		builder := &testClientCertQueryBuilder{
-			fakeFetchOne:  queryBuilder.FetchOne,
-			fakeCreateOne: queryBuilder.CreateOne,
-		}
+	suite.Run("Create clientcert with prime to existing user", func() {
 		associator := usersroles.NewUsersRolesCreator()
 		mockSender := setUpMockNotificationSender()
 
-		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{})
+		user := factory.BuildUser(suite.DB(), nil, nil)
+		// make sure the prime role exists
+		factory.BuildRole(suite.DB(), []factory.Customization{
+			{
+				Model: roles.Role{
+					RoleType: roles.RoleTypePrime,
+				},
+			},
+		}, nil)
 
 		clientCertInfo := models.ClientCert{
-			Subject:      "fake subject",
+			Subject:      "existingUser",
 			Sha256Digest: digest,
 			UserID:       user.ID,
+			AllowPrime:   true,
 		}
 
-		creator := NewClientCertCreator(builder, associator, mockSender)
-		clientCert, verrs, err := creator.CreateClientCert(suite.AppContextWithSessionForTest(&auth.Session{}), email, &clientCertInfo)
+		creator := NewClientCertCreator(queryBuilder, associator, mockSender)
+		clientCert, verrs, err := creator.CreateClientCert(
+			suite.AppContextWithSessionForTest(&auth.Session{}),
+			user.LoginGovEmail, &clientCertInfo)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(clientCert.ID)
 		suite.Equal(clientCert.Subject, clientCertInfo.Subject)
 		suite.Equal(clientCert.Sha256Digest, clientCertInfo.Sha256Digest)
+		suite.Equal(clientCert.UserID, user.ID)
+		userRoles, err := roles.FetchRolesForUser(suite.DB(), user.ID)
+		suite.NoError(err)
+		suite.True(userRoles.HasRole(roles.RoleTypePrime))
+		mockSender.(*notification_mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 1)
+	})
+
+	suite.Run("Create clientcert with prime to new user", func() {
+		associator := usersroles.NewUsersRolesCreator()
+		mockSender := setUpMockNotificationSender()
+
+		// make sure  the prime role exists
+		factory.BuildRole(suite.DB(), []factory.Customization{
+			{
+				Model: roles.Role{
+					RoleType: roles.RoleTypePrime,
+				},
+			},
+		}, nil)
+
+		clientCertInfo := models.ClientCert{
+			Subject:      "newUser",
+			Sha256Digest: digest,
+			AllowPrime:   true,
+		}
+
+		creator := NewClientCertCreator(queryBuilder, associator, mockSender)
+		clientCert, verrs, err := creator.CreateClientCert(
+			suite.AppContextWithSessionForTest(&auth.Session{}),
+			"newuser@example.com", &clientCertInfo)
+		suite.NoError(err)
+		suite.Nil(verrs)
+		suite.NotNil(clientCert.ID)
+		suite.Equal(clientCert.Subject, clientCertInfo.Subject)
+		suite.Equal(clientCert.Sha256Digest, clientCertInfo.Sha256Digest)
+		userRoles, err := roles.FetchRolesForUser(suite.DB(), clientCert.UserID)
+		suite.NoError(err)
+		suite.True(userRoles.HasRole(roles.RoleTypePrime))
 		mockSender.(*notification_mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 1)
 	})
 
@@ -99,7 +144,7 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 
 		creator := NewClientCertCreator(builder, associator, setUpMockNotificationSender())
 		_, verrs, _ := creator.CreateClientCert(suite.AppContextForTest(),
-			email, &clientCertInfo)
+			"fake@example.com", &clientCertInfo)
 		suite.NotNil(verrs)
 		suite.True(verrs.HasAny())
 		suite.NotNil(verrs.Errors)
@@ -136,7 +181,7 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 		).Return([]models.UsersRoles{}, nil)
 		creator := NewClientCertCreator(builder, associator, setUpMockNotificationSender())
 		_, _, err := creator.CreateClientCert(suite.AppContextForTest(),
-			email, &clientCertInfo)
+			"fake@example.com", &clientCertInfo)
 		suite.EqualError(err, "uniqueness constraint conflict")
 	})
 }

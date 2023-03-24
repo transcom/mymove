@@ -186,7 +186,12 @@ func (h UpdateClientCertHandler) Handle(params clientcertop.UpdateClientCertific
 
 			updatedClientCert, verrs, err := h.ClientCertUpdater.UpdateClientCert(appCtx, clientCertID, payload)
 
-			if err != nil || verrs != nil {
+			if verrs != nil {
+				appCtx.Logger().Error("Error saving client_cert", zap.Error(err))
+				return clientcertop.NewUpdateClientCertificateBadRequest(), verrs
+			}
+
+			if err != nil {
 				appCtx.Logger().Error("Error saving client_cert", zap.Error(err))
 				return clientcertop.NewUpdateClientCertificateInternalServerError(), err
 			}

@@ -32,6 +32,10 @@ const ClientCertList = (props) => {
       perPage={25}
       bulkActionButtons={false}
       sort={defaultSort}
+      classes={{
+        dense: 'MuiDataGrid-root--densityCompact',
+      }}
+      dense
       filters={<ClientCertListFilter />}
     >
       <Datagrid rowClick="show">
@@ -50,7 +54,7 @@ const ClientCertList = (props) => {
         <BooleanField source="allowPrime" />
         <TextField source="id" />
         <TextField source="sha256Digest" />
-        <TextField source="userId" />
+        <TextField source="userId" label="User Id" />
       </Datagrid>
     </List>
   );

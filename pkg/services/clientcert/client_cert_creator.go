@@ -26,9 +26,7 @@ func (o *clientCertCreator) CreateClientCert(
 	email string,
 	cert *models.ClientCert,
 ) (*models.ClientCert, *validate.Errors, error) {
-
 	var verrs *validate.Errors
-	var err error
 	var userActivityEmail notifications.Notification
 	// We don't want to be left with a user record and no admin user so setup a transaction to rollback
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
@@ -37,7 +35,7 @@ func (o *clientCertCreator) CreateClientCert(
 		// (admin, office, ...) if we are creating a CAC login certificate
 		var user models.User
 		userEmailFilter := query.NewQueryFilter("login_gov_email", "=", email)
-		err = o.builder.FetchOne(appCtx, &user, []services.QueryFilter{userEmailFilter})
+		err := o.builder.FetchOne(txnAppCtx, &user, []services.QueryFilter{userEmailFilter})
 
 		// if the fetch failed, the user doesn't exist, so we will
 		// need to create one
@@ -57,24 +55,19 @@ func (o *clientCertCreator) CreateClientCert(
 			}
 		}
 
-		// The user exists now, get the current roles for the user
-		// unfortunately, this logic is copied from the office user
-		// handlers
-		err = appCtx.DB().Q().Join("users_roles", "users_roles.role_id = roles.id").
-			Where("users_roles.deleted_at IS NULL AND users_roles.user_id = ?", (user.ID)).
-			All(&user.Roles)
+		userRoles, err := roles.FetchRolesForUser(txnAppCtx.DB(), user.ID)
 		if err != nil {
 			return err
 		}
 
-		// ensure this user has the prime role
-		if !user.Roles.HasRole(roles.RoleTypePrime) {
+		// ensure this user has the prime role if necessary
+		if cert.AllowPrime && !userRoles.HasRole(roles.RoleTypePrime) {
 			newRoles := []roles.RoleType{}
-			for _, role := range user.Roles {
+			for _, role := range userRoles {
 				newRoles = append(newRoles, role.RoleType)
 			}
 			newRoles = append(newRoles, roles.RoleTypePrime)
-			_, err = o.UpdateUserRoles(appCtx, user.ID, newRoles)
+			_, err = o.UpdateUserRoles(txnAppCtx, user.ID, newRoles)
 			if err != nil {
 				return err
 			}
@@ -109,7 +102,7 @@ func (o *clientCertCreator) CreateClientCert(
 	}
 
 	if userActivityEmail != nil {
-		err = o.sender.SendNotification(appCtx, userActivityEmail)
+		err := o.sender.SendNotification(appCtx, userActivityEmail)
 		if err != nil {
 			return nil, nil, err
 		}

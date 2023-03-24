@@ -131,13 +131,12 @@ func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) []str
 // what we care about here is the string, so we can look it up for permissions --> roles.role_type
 func getRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]roles.RoleType, error) {
 	logger := appCtx.Logger()
-	var userRoleTypes []roles.RoleType
+	userRoles, err := roles.FetchRolesForUser(appCtx.DB(), userID)
 
-	err := appCtx.DB().RawQuery(`SELECT roles.role_type
-		FROM roles
-			LEFT JOIN users_roles ur
-			    ON roles.id = ur.role_id
-			WHERE ur.deleted_at IS NULL AND ur.user_id = ?`, userID).All(&userRoleTypes)
+	var userRoleTypes []roles.RoleType
+	for i := range userRoles {
+		userRoleTypes = append(userRoleTypes, userRoles[i].RoleType)
+	}
 
 	if err != nil {
 		logger.Warn("Error while looking up user roles: ", zap.String("user role lookup error: ", err.Error()))

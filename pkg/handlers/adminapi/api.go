@@ -205,12 +205,12 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	adminAPI.ClientCertificatesCreateClientCertificateHandler = CreateClientCertHandler{
 		handlerConfig,
 		clientcert.NewClientCertCreator(queryBuilder,
-			usersroles.NewUsersRolesCreator(), handlerConfig.NotificationSender()),
+			userRolesCreator, handlerConfig.NotificationSender()),
 	}
 
 	adminAPI.ClientCertificatesUpdateClientCertificateHandler = UpdateClientCertHandler{
 		handlerConfig,
-		clientcert.NewClientCertUpdater(queryBuilder, handlerConfig.NotificationSender()),
+		clientcert.NewClientCertUpdater(queryBuilder, userRolesCreator, handlerConfig.NotificationSender()),
 		query.NewQueryFilter,
 	}
 

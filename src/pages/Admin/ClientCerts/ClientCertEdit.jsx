@@ -12,16 +12,9 @@ const ClientCertEdit = (props) => (
   <Edit {...props}>
     <SimpleForm toolbar={<ClientCertEditToolbar />}>
       <TextInput source="id" disabled />
-      <TextInput source="subject" disabled />
-      <TextInput source="sha256Digest" disabled />
-      <TextInput source="user_id" disabled />
-      <SelectInput
-        source="allowDpsAuthAPI"
-        choices={[
-          { id: true, name: 'Yes' },
-          { id: false, name: 'No' },
-        ]}
-      />
+      <TextInput source="userId" disabled label="User Id" />
+      <TextInput source="subject" fullWidth />
+      <TextInput source="sha256Digest" fullWidth />
       <SelectInput
         source="allowOrdersAPI"
         choices={[

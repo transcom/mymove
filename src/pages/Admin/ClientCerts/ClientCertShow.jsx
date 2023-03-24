@@ -25,7 +25,7 @@ const ClientCertShow = (props) => {
         <TextField source="id" />
         <TextField source="subject" />
         <TextField source="sha256Digest" />
-        <TextField source="userId" />
+        <TextField source="userId" label="User Id" />
         <BooleanField source="allowOrdersAPI" label="Allow Orders API" />
         <BooleanField source="allowAirForceOrdersRead" />
         <BooleanField source="allowAirForceOrdersWrite" />

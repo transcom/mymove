@@ -19,9 +19,9 @@ const ClientCertCreate = (props) => (
         Indentity
       </Typography>
       <Typography paragraph>{IDENTITY_DESCRIPTION}</Typography>
-      <TextInput source="subject" validate={required()} multiline />
-      <TextInput source="sha256Digest" validate={required()} multiline />
-      <TextInput source="user_id" validate={required()} multiline />
+      <TextInput source="email" validate={required()} multiline />
+      <TextInput source="subject" fullWidth validate={required()} multiline />
+      <TextInput source="sha256Digest" fullWidth validate={required()} multiline />
       {/* <ReferenceInput source="user_id" validate={required()} reference="users" /> */}
       <Typography variant="h5" gutterBottom>
         Roles

@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -15,7 +16,8 @@ import (
 
 type clientCertUpdater struct {
 	builder clientCertQueryBuilder
-	sender  notifications.NotificationSender
+	services.UserRoleAssociator
+	sender notifications.NotificationSender
 }
 
 func (o *clientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.ClientCertificateUpdate) (*models.ClientCert, *validate.Errors, error) {
@@ -74,6 +76,26 @@ func (o *clientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id uu
 	if verrs != nil || err != nil {
 		return nil, verrs, err
 	}
+
+	userRoles, err := roles.FetchRolesForUser(appCtx.DB(), foundClientCert.UserID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// ensure this user does not has the prime role if necessary
+	if !foundClientCert.AllowPrime && userRoles.HasRole(roles.RoleTypePrime) {
+		newRoles := []roles.RoleType{}
+		for _, role := range userRoles {
+			if role.RoleType != roles.RoleTypePrime {
+				newRoles = append(newRoles, role.RoleType)
+			}
+			_, err = o.UpdateUserRoles(appCtx, foundClientCert.UserID, newRoles)
+			if err != nil {
+				return nil, nil, err
+			}
+		}
+	}
+
 	session := appCtx.Session()
 	if session == nil {
 		return nil, nil, apperror.NewContextError("Unable to find Session in Context")
@@ -93,6 +115,6 @@ func (o *clientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id uu
 }
 
 // NewClientCertUpdater returns a new admin user updater builder
-func NewClientCertUpdater(builder clientCertQueryBuilder, sender notifications.NotificationSender) services.ClientCertUpdater {
-	return &clientCertUpdater{builder, sender}
+func NewClientCertUpdater(builder clientCertQueryBuilder, userRoleAssociator services.UserRoleAssociator, sender notifications.NotificationSender) services.ClientCertUpdater {
+	return &clientCertUpdater{builder, userRoleAssociator, sender}
 }

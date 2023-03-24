@@ -101,7 +101,7 @@ const Home = () => (
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
       <Resource name="organizations" />
       <Resource
-        name="client_certs"
+        name="client-certificates"
         options={{ label: 'Client Certs' }}
         list={ClientCertList}
         show={ClientCertShow}

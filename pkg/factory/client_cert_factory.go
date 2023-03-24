@@ -20,8 +20,8 @@ func BuildClientCert(db *pop.Connection, customs []Customization, traits []Trait
 		}
 	}
 
-	// find/create user
-	user := BuildUser(db, customs, traits)
+	// find/create user and roles
+	user := BuildUserAndUsersRoles(db, customs, traits)
 
 	// create the client certificate
 	certificate := models.ClientCert{
