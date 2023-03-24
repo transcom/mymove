@@ -27,21 +27,9 @@ func (suite *WeightTicketSuite) TestDeleteWeightTicket() {
 			},
 		})
 
-		emptyDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: serviceMember.ID,
-			},
-		})
-		fullDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: serviceMember.ID,
-			},
-		})
-		trailerDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: serviceMember.ID,
-			},
-		})
+		emptyDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+		fullDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+		trailerDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 
 		if hasDocumentUploads {
 			for i := 0; i < 2; i++ {
@@ -49,14 +37,17 @@ func (suite *WeightTicketSuite) TestDeleteWeightTicket() {
 				if i == 1 {
 					deletedAt = models.TimePointer(time.Now())
 				}
-				testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-					UserUpload: models.UserUpload{
-						UploaderID: serviceMember.UserID,
-						DocumentID: &emptyDocument.ID,
-						Document:   emptyDocument,
-						DeletedAt:  deletedAt,
+				factory.BuildUserUpload(suite.DB(), []factory.Customization{
+					{
+						Model:    emptyDocument,
+						LinkOnly: true,
 					},
-				})
+					{
+						Model: models.UserUpload{
+							DeletedAt: deletedAt,
+						},
+					},
+				}, nil)
 			}
 		}
 

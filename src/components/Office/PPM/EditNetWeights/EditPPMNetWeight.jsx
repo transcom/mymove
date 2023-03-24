@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Formik } from 'formik';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as Yup from 'yup';
-// import { func, number, string, bool } from 'prop-types';
+import { PropTypes, number } from 'prop-types';
 import { Button, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 
 import styles from './EditPPMNetWeight.module.scss';
@@ -9,8 +10,11 @@ import styles from './EditPPMNetWeight.module.scss';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import { formatWeight } from 'utils/formatters';
-import { calculateWeightTicketWeightDifference } from 'utils/shipmentWeights';
-import { useCalculatedWeightRequested } from 'hooks/custom';
+import { calculateWeightTicketWeightDifference, getWeightTicketNetWeight } from 'utils/shipmentWeights';
+import { calculateWeightRequested } from 'hooks/custom';
+import { patchWeightTicket } from 'services/ghcApi';
+import { ShipmentShape, WeightTicketShape } from 'types/shipment';
+import { DOCUMENTS } from 'constants/queryKeys';
 
 // Labels & constants
 
@@ -58,15 +62,17 @@ const WeightCalculationHint = ({ type, firstValue, secondValue, thirdValue }) =>
   return (
     <>
       <FlexContainer className={styles.minus}>
-        {thirdValue && <>-</>}
-        <div className={styles.calculationWrapper}>
+        <div className={(!thirdValue && styles.calculationWrapperDisplay) || styles.calculationWrapper}>
           <div className={styles.calculations}>
             <strong className={styles.value}>{formatWeight(firstValue)}</strong>
             <span className={styles.label}> {firstLabel}</span>
           </div>
           {secondValue && (
             <div className={styles.calculations}>
-              <strong className={styles.value}>{formatWeight(secondValue)}</strong>
+              <strong className={styles.value}>
+                {thirdValue && <>– </>}
+                {formatWeight(secondValue)}
+              </strong>
               <span className={styles.label}> {secondLabel}</span>
             </div>
           )}
@@ -85,86 +91,124 @@ const WeightCalculationHint = ({ type, firstValue, secondValue, thirdValue }) =>
   );
 };
 
-const validationSchema = Yup.object({
-  ppmNetWeight: Yup.number().min(0, 'Net weight must be 0 lbs or greater').required('Required'),
-  ppmNetWeightRemarks: Yup.string().required('Required'),
-});
+const EditPPMNetWeightForm = ({ onCancel, initialValues, weightTicket }) => {
+  const validationSchema = Yup.object({
+    adjustedNetWeight: Yup.number()
+      .min(0, 'Net weight must be 0 lbs or greater')
+      .lessThan(weightTicket.fullWeight, 'Net weight must be less than or equal to the full weight')
+      .required('Required'),
+    netWeightRemarks: Yup.string().nullable().required('Required'),
+  });
+  const queryClient = useQueryClient();
 
-const EditPPMNetWeightForm = ({ onSave, onCancel, initialValues }) => (
-  <Formik initialValues={initialValues} validationSchema={validationSchema}>
-    {({ handleChange, values, isValid, errors, touched, setTouched }) => (
-      <div>
-        <Fieldset className={styles.fieldset}>
-          <MaskedTextField
-            data-testid="weightInput"
-            defaultValue="0"
-            id="ppmNetWeight"
-            name="ppmNetWeight"
-            mask={Number}
-            lazy={false}
-            scale={0}
-            signed={false} // no negative numbers
-            thousandsSeparator=","
-            suffix="lbs"
-            inputClassName={styles.weightInput}
-            errorClassName={styles.errors}
-            labelClassName={styles.weightLabel}
-          />
-          <Label htmlFor="remarks">Remarks</Label>
-          <ErrorMessage
-            className={styles.errors}
-            display={!!touched.ppmNetWeightRemarks && !!errors.ppmNetWeightRemarks}
-          >
-            {errors.ppmNetWeightRemarks}
-          </ErrorMessage>
-          <ErrorIndicator hasErrors={!!touched.ppmNetWeightRemarks && !!errors.ppmNetWeightRemarks}>
-            <Textarea
-              id="ppmNetWeightRemarks"
-              data-testid="formRemarks"
-              maxLength={500}
-              placeholder=""
-              onChange={handleChange}
-              onBlur={() => {
-                setTouched({ ppmNetWeightRemarks: true }, false);
-              }}
-              value={values.ppmNetWeightRemarks}
+  const { mutate: patchWeightTicketMutation } = useMutation({
+    mutationFn: patchWeightTicket,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [DOCUMENTS],
+      });
+    },
+  });
+
+  /**
+   * @const onSubmit
+   * @description This function is used to submit the mini form represented by the EditPPMNetWeightForm.
+   * @param {Object} formValues - The values that are returned from the EditPPMNetWeightForm component on click.
+   * @param {string} formValues.adjustedNetWeight - The adjusted net weight as a string. This value needs to be parsed into an integer before mutation.
+   * @param {string} formValues.netWeightRemarks - The net weight remarks.
+   * */
+  const onSubmit = (formValues /* , actions */) => {
+    const payload = {
+      adjustedNetWeight: parseInt(formValues.adjustedNetWeight, 10),
+      netWeightRemarks: formValues.netWeightRemarks,
+    };
+    patchWeightTicketMutation(
+      {
+        ppmShipmentId: weightTicket.ppmShipmentId,
+        weightTicketId: weightTicket.id,
+        payload,
+        eTag: weightTicket.eTag,
+      },
+      {
+        onSuccess: () => {
+          onCancel();
+        },
+      },
+    );
+  };
+
+  return (
+    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+      {({ handleChange, handleSubmit, values, isValid, errors, touched, setTouched }) => (
+        <div>
+          <Fieldset className={styles.fieldset}>
+            <MaskedTextField
+              data-testid="weightInput"
+              defaultValue="0"
+              id="adjustedNetWeight"
+              name="adjustedNetWeight"
+              mask={Number}
+              lazy={false}
+              scale={0}
+              signed={false} // no negative numbers
+              thousandsSeparator=","
+              suffix="lbs"
+              inputClassName={styles.weightInput}
+              errorClassName={styles.errors}
+              labelClassName={styles.weightLabel}
             />
-          </ErrorIndicator>
-          <FlexContainer className={styles.wrapper}>
-            <Button onClick={onSave} disabled={!isValid}>
-              Save changes
-            </Button>
-            <Button unstyled onClick={onCancel}>
-              Cancel
-            </Button>
-          </FlexContainer>
-        </Fieldset>
-      </div>
-    )}
-  </Formik>
-);
+            <Label htmlFor="remarks">Remarks</Label>
+            <ErrorMessage className={styles.errors} display={!!touched.netWeightRemarks && !!errors.netWeightRemarks}>
+              {errors.netWeightRemarks}
+            </ErrorMessage>
+            <ErrorIndicator hasErrors={!!touched.netWeightRemarks && !!errors.netWeightRemarks}>
+              <Textarea
+                id="netWeightRemarks"
+                data-testid="formRemarks"
+                maxLength={500}
+                placeholder=""
+                onChange={handleChange}
+                onBlur={() => {
+                  setTouched({ netWeightRemarks: true }, false);
+                }}
+                value={values.netWeightRemarks}
+              />
+            </ErrorIndicator>
+            <FlexContainer className={styles.wrapper}>
+              <Button onClick={handleSubmit} type="submit" disabled={!isValid}>
+                Save changes
+              </Button>
+              <Button unstyled onClick={onCancel}>
+                Cancel
+              </Button>
+            </FlexContainer>
+          </Fieldset>
+        </div>
+      )}
+    </Formik>
+  );
+};
 
-const EditPPMNetWeight = ({ netWeightRemarks, weightTicket, weightAllowance, shipments }) => {
+const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
   const [showEditForm, setShowEditForm] = useState(false);
-
-  // To-do: Add mutation and onSumbit handler
 
   const toggleEditForm = () => {
     setShowEditForm(!showEditForm);
   };
+
   // Original weight is the full weight - empty weight
   const originalWeight = calculateWeightTicketWeightDifference(weightTicket);
   // moveWeightTotal = Sum of all ppm weights + sum of all non-ppm shipments
-  const moveWeightTotal = useCalculatedWeightRequested(shipments);
+  const moveWeightTotal = calculateWeightRequested(shipments);
   const excessWeight = moveWeightTotal - weightAllowance;
   const hasExcessWeight = Boolean(excessWeight > 0);
-  // To-do: Once new netWeights can be saved, the toFit value should use that value here if its availble over using original weight
-  const netWeight = originalWeight;
+  const netWeight = getWeightTicketNetWeight(weightTicket);
+
   const toFitValue = hasExcessWeight ? -Math.min(excessWeight, netWeight) : null;
   const showWarning = Boolean(hasExcessWeight && !showEditForm);
   const showReduceWeight = Boolean(-originalWeight === toFitValue);
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.main_wrapper}>
       <div>
         <h4 className={styles.mainHeader}>Edit PPM net weight</h4>
         {Boolean(showEditForm && hasExcessWeight) && (
@@ -186,12 +230,12 @@ const EditPPMNetWeight = ({ netWeightRemarks, weightTicket, weightAllowance, shi
             type={showReduceWeight ? CALCULATION_TYPE.REDUCE_WEIGHT : CALCULATION_TYPE.NET_WEIGHT}
           />
           {!showEditForm ? (
-            <div className={styles.wrapper}>
-              {formatWeight(netWeight)}
-              {netWeightRemarks && (
+            <div data-testid="net-weight-display" className={styles.wrapper}>
+              <div className={styles.netWeightDisplay}>{formatWeight(netWeight)}</div>
+              {weightTicket.netWeightRemarks && (
                 <>
                   <h5 className={styles.remarksHeader}>Remarks</h5>
-                  <p className={styles.remarks}>{netWeightRemarks}</p>
+                  <p className={styles.remarks}>{weightTicket.netWeightRemarks}</p>
                 </>
               )}
               <Button onClick={toggleEditForm} className={styles.editButton}>
@@ -200,7 +244,11 @@ const EditPPMNetWeight = ({ netWeightRemarks, weightTicket, weightAllowance, shi
             </div>
           ) : (
             <EditPPMNetWeightForm
-              initialValues={{ ppmNetWeight: String(netWeight), netWeightRemarks }}
+              initialValues={{
+                adjustedNetWeight: String(netWeight),
+                netWeightRemarks: weightTicket.netWeightRemarks,
+              }}
+              weightTicket={weightTicket}
               onCancel={toggleEditForm}
             />
           )}
@@ -208,6 +256,12 @@ const EditPPMNetWeight = ({ netWeightRemarks, weightTicket, weightAllowance, shi
       </FlexContainer>
     </div>
   );
+};
+
+EditPPMNetWeight.propTypes = {
+  weightTicket: WeightTicketShape.isRequired,
+  weightAllowance: number.isRequired,
+  shipments: PropTypes.arrayOf(ShipmentShape).isRequired,
 };
 
 export default EditPPMNetWeight;

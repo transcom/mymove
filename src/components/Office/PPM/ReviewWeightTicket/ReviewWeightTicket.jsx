@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { func, number, object } from 'prop-types';
+import { func, number, object, PropTypes } from 'prop-types';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { Alert, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
 
 import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
+import EditPPMNetWeight from '../EditNetWeights/EditPPMNetWeight';
 
 import styles from './ReviewWeightTicket.module.scss';
 
 import { ErrorMessage, Form } from 'components/form';
 import { patchWeightTicket } from 'services/ghcApi';
 import { ShipmentShape, WeightTicketShape } from 'types/shipment';
+import { OrderShape } from 'types/order';
 import Fieldset from 'shared/Fieldset';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
-import { formatWeight } from 'utils/formatters';
 import ppmDocumentStatus from 'constants/ppms';
 
 const validationSchema = Yup.object().shape({
@@ -42,6 +43,8 @@ const validationSchema = Yup.object().shape({
 
 export default function ReviewWeightTicket({
   mtoShipment,
+  mtoShipments,
+  order,
   weightTicket,
   tripNumber,
   ppmNumber,
@@ -51,12 +54,15 @@ export default function ReviewWeightTicket({
 }) {
   const [canEditRejection, setCanEditRejection] = useState(true);
 
-  const { mutate: patchWeightTicketMutation } = useMutation(patchWeightTicket, {
+  const { mutate: patchWeightTicketMutation } = useMutation({
+    mutationFn: patchWeightTicket,
     onSuccess,
     onError,
   });
 
   const ppmShipment = mtoShipment?.ppmShipment;
+
+  const authorizedWeight = order.entitlement?.authorizedWeight;
 
   const handleSubmit = (values) => {
     const ownsTrailer = values.ownsTrailer === 'true';
@@ -68,6 +74,7 @@ export default function ReviewWeightTicket({
       missingEmptyWeightTicket: weightTicket.missingEmptyWeightTicket,
       fullWeight: parseInt(values.fullWeight, 10),
       missingFullWeightTicket: weightTicket.missingFullWeightTicket,
+      netWeightRemarks: weightTicket.netWeightRemarks,
       ownsTrailer,
       trailerMeetsCriteria,
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.rejectionReason,
@@ -163,7 +170,7 @@ export default function ReviewWeightTicket({
                 label="Empty weight"
                 id="emptyWeight"
                 mask={Number}
-                description={missingEmptyWeightTicket ? 'Constructed weight' : 'Weight tickets'}
+                description={missingEmptyWeightTicket ? 'Vehicle weight' : 'Weight tickets'}
                 scale={0} // digits after point, 0 for integers
                 signed={false} // disallow negative
                 thousandsSeparator=","
@@ -184,12 +191,13 @@ export default function ReviewWeightTicket({
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
               />
-              <Label id="netWeightLabel" className={styles.label}>
-                Net weight
-              </Label>
-              <div aria-labelledby="netWeightLabel" className={styles.displayValue}>
-                {formatWeight(values.fullWeight - values.emptyWeight)}
-              </div>
+
+              <EditPPMNetWeight
+                weightTicket={weightTicket}
+                weightAllowance={authorizedWeight}
+                shipments={mtoShipments}
+              />
+
               <FormGroup>
                 <Fieldset>
                   <legend className="usa-label">Did they use a trailer they owned?</legend>
@@ -321,6 +329,8 @@ ReviewWeightTicket.propTypes = {
   ppmNumber: number.isRequired,
   onSuccess: func,
   formRef: object,
+  mtoShipments: PropTypes.arrayOf(ShipmentShape),
+  order: OrderShape.isRequired,
 };
 
 ReviewWeightTicket.defaultProps = {
@@ -328,4 +338,5 @@ ReviewWeightTicket.defaultProps = {
   mtoShipment: null,
   onSuccess: null,
   formRef: null,
+  mtoShipments: [],
 };

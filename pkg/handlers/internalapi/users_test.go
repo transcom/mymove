@@ -35,7 +35,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 
 func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
 	suite.Run("current duty location missing", func() {
-		sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
+		sm := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
 
 		// Remove transportation office info from current duty location
 		dutyLocation := sm.DutyLocation

@@ -58,7 +58,7 @@ describe('calculateNetWeightForWeightTicket', () => {
   );
 });
 
-describe('calculateTotalNetWeightForWeightTickets', () => {
+describe('getTotalNetWeightForWeightTickets', () => {
   it.each([
     [[{ emptyWeight: 0, fullWeight: 400 }], 400],
     [

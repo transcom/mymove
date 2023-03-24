@@ -7,8 +7,8 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *CustomerServiceSuite) TestCustomerUpdater() {
@@ -22,14 +22,14 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 	})
 
 	suite.Run("PreconditionsError when etag is stale", func() {
-		expectedCustomer := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
+		expectedCustomer := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
 		staleEtag := etag.GenerateEtag(expectedCustomer.UpdatedAt.Add(-1 * time.Minute))
 		_, err := customerUpdater.UpdateCustomer(suite.AppContextForTest(), staleEtag, models.ServiceMember{ID: expectedCustomer.ID})
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 	suite.Run("Customer fields are updated", func() {
-		defaultCustomer := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
+		defaultCustomer := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
 
 		var backupContacts []models.BackupContact
 		backupContact := models.BackupContact{

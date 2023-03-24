@@ -24,11 +24,7 @@ func (suite *ProgearWeightTicketSuite) TestDeleteProgearWeightTicket() {
 			},
 		})
 
-		progearDocument := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: serviceMember.ID,
-			},
-		})
+		progearDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 
 		if hasDocumentUploads {
 			for i := 0; i < 2; i++ {
@@ -36,14 +32,17 @@ func (suite *ProgearWeightTicketSuite) TestDeleteProgearWeightTicket() {
 				if i == 1 {
 					deletedAt = models.TimePointer(time.Now())
 				}
-				testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-					UserUpload: models.UserUpload{
-						UploaderID: serviceMember.UserID,
-						DocumentID: &progearDocument.ID,
-						Document:   progearDocument,
-						DeletedAt:  deletedAt,
+				factory.BuildUserUpload(suite.DB(), []factory.Customization{
+					{
+						Model:    progearDocument,
+						LinkOnly: true,
 					},
-				})
+					{
+						Model: models.UserUpload{
+							DeletedAt: deletedAt,
+						},
+					},
+				}, nil)
 			}
 		}
 
