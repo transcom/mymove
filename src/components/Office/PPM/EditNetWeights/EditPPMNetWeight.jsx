@@ -11,10 +11,10 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import { formatWeight } from 'utils/formatters';
 import { calculateWeightTicketWeightDifference, getWeightTicketNetWeight } from 'utils/shipmentWeights';
-import { useCalculatedWeightRequested } from 'hooks/custom';
+import { calculateWeightRequested } from 'hooks/custom';
 import { patchWeightTicket } from 'services/ghcApi';
 import { ShipmentShape, WeightTicketShape } from 'types/shipment';
-import { DOCUMENTS, MTO_SHIPMENTS } from 'constants/queryKeys';
+import { DOCUMENTS } from 'constants/queryKeys';
 
 // Labels & constants
 
@@ -106,9 +106,6 @@ const EditPPMNetWeightForm = ({ onCancel, initialValues, weightTicket }) => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [DOCUMENTS],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [MTO_SHIPMENTS],
       });
     },
   });
@@ -202,7 +199,7 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
   // Original weight is the full weight - empty weight
   const originalWeight = calculateWeightTicketWeightDifference(weightTicket);
   // moveWeightTotal = Sum of all ppm weights + sum of all non-ppm shipments
-  const moveWeightTotal = useCalculatedWeightRequested(shipments);
+  const moveWeightTotal = calculateWeightRequested(shipments);
   const excessWeight = moveWeightTotal - weightAllowance;
   const hasExcessWeight = Boolean(excessWeight > 0);
   const netWeight = getWeightTicketNetWeight(weightTicket);
@@ -250,7 +247,6 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
               initialValues={{
                 adjustedNetWeight: String(netWeight),
                 netWeightRemarks: weightTicket.netWeightRemarks,
-                fullWeight: weightTicket.fullWeight,
               }}
               weightTicket={weightTicket}
               onCancel={toggleEditForm}
