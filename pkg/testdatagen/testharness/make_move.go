@@ -259,14 +259,19 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 			},
 		},
 	}, nil)
-	customer := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			UserID:        user.ID,
-			PersonalEmail: &userInfo.email,
-			FirstName:     &userInfo.firstName,
-			LastName:      &userInfo.lastName,
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+			},
 		},
-	})
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
 	dependentsAuthorized := true
 	entitlements := testdatagen.MakeEntitlement(appCtx.DB(), testdatagen.Assertions{
 		Entitlement: models.Entitlement{
@@ -673,13 +678,15 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 
 	// Create Customer
 	userInfo := newUserInfo("customer")
-	customer := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			PersonalEmail: &userInfo.email,
-			FirstName:     &userInfo.firstName,
-			LastName:      &userInfo.lastName,
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+			},
 		},
-	})
+	}, nil)
 
 	// Create Orders
 	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
@@ -813,13 +820,15 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 
 	// Create Customer
 	userInfo := newUserInfo("customer")
-	customer := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			PersonalEmail: &userInfo.email,
-			FirstName:     &userInfo.firstName,
-			LastName:      &userInfo.lastName,
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+			},
 		},
-	})
+	}, nil)
 
 	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
@@ -1199,13 +1208,15 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 
 	// Create Customer
 	userInfo := newUserInfo("customer")
-	customer := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			PersonalEmail: &userInfo.email,
-			FirstName:     &userInfo.firstName,
-			LastName:      &userInfo.lastName,
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+			},
 		},
-	})
+	}, nil)
 
 	// Create Orders
 	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{

@@ -167,6 +167,9 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 
 		// Check that Residential Address & Backup Mailing Address are different
 		suite.NotEqual(serviceMember.ResidentialAddress.StreetAddress1, serviceMember.BackupMailingAddress.StreetAddress1)
+
+		// no BackupContact for regular ServiceMember
+		suite.Equal(0, len(serviceMember.BackupContacts))
 	})
 
 	suite.Run("Successful return of linkOnly ServiceMember", func() {
@@ -224,5 +227,112 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		suite.Equal(customFirstName, serviceMember.FirstName)
 		suite.Equal(customLastName, serviceMember.LastName)
 		suite.Equal(customTelephone, serviceMember.Telephone)
+	})
+
+	suite.Run("Successful creation of customized ExtendedServiceMember", func() {
+		// Under test:      BuildExtendedServiceMember
+		//
+		// Set up: Create a Service Member with residential address,
+		// backup mailing address, dutyLocation & backupContact
+		//
+		// Expected outcome:serviceMember should be created with
+		// custom residential address and backup mailing address.
+		// The orders dutyLocation should be used for extended service
+		// members and a backupContact should be created
+
+		// SETUP
+		customRank := models.ServiceMemberRankE3
+		customAffiliation := models.AffiliationAIRFORCE
+
+		customServiceMember := models.ServiceMember{
+			FirstName:          models.StringPointer("Gregory"),
+			LastName:           models.StringPointer("Van der Heide"),
+			Telephone:          models.StringPointer("999-999-9999"),
+			SecondaryTelephone: models.StringPointer("123-555-9999"),
+			PersonalEmail:      models.StringPointer("peyton@example.com"),
+			Rank:               &customRank,
+			Edipi:              models.StringPointer("1000011111"),
+			Affiliation:        &customAffiliation,
+			Suffix:             models.StringPointer("Random suffix string"),
+		}
+
+		customUser := models.User{
+			LoginGovEmail: "custom.email@example.com",
+			Active:        true,
+		}
+		customResidentialAddress := GetTraitAddress2()[0].Model.(models.Address)
+		customBackupAddress := GetTraitAddress3()[0].Model.(models.Address)
+
+		// CALL FUNCTION UNDER TEST
+		serviceMember := BuildExtendedServiceMember(suite.DB(), []Customization{
+			{
+				Model: customServiceMember,
+			},
+			{
+				Model: customUser,
+			},
+			{
+				Model: customResidentialAddress,
+				Type:  &Addresses.ResidentialAddress,
+			},
+			{
+				Model: customBackupAddress,
+				Type:  &Addresses.BackupMailingAddress,
+			},
+		}, nil)
+
+		// VALIDATE RESULTS
+		suite.Equal(customServiceMember.FirstName, serviceMember.FirstName)
+		suite.Equal(customServiceMember.LastName, serviceMember.LastName)
+		suite.Equal(customServiceMember.Telephone, serviceMember.Telephone)
+		suite.Equal(customServiceMember.SecondaryTelephone, serviceMember.SecondaryTelephone)
+		suite.Equal(customServiceMember.PersonalEmail, serviceMember.PersonalEmail)
+		suite.Equal(customServiceMember.Rank, serviceMember.Rank)
+		suite.Equal(customServiceMember.Edipi, serviceMember.Edipi)
+		suite.Equal(customServiceMember.Affiliation, serviceMember.Affiliation)
+		suite.Equal(customServiceMember.Suffix, serviceMember.Suffix)
+		// extended service member defaults to email is preferred
+		suite.NotNil(serviceMember.EmailIsPreferred)
+		suite.True(*serviceMember.EmailIsPreferred)
+
+		// custom user
+		suite.Equal(customUser.Active, serviceMember.User.Active)
+		suite.Equal(customUser.LoginGovEmail, serviceMember.User.LoginGovEmail)
+
+		// custom residential address
+		suite.Equal(customResidentialAddress.StreetAddress1,
+			serviceMember.ResidentialAddress.StreetAddress1)
+		suite.Equal(customResidentialAddress.StreetAddress2,
+			serviceMember.ResidentialAddress.StreetAddress2)
+		suite.Equal(customResidentialAddress.StreetAddress3,
+			serviceMember.ResidentialAddress.StreetAddress3)
+		suite.Equal(customResidentialAddress.City,
+			serviceMember.ResidentialAddress.City)
+		suite.Equal(customResidentialAddress.State,
+			serviceMember.ResidentialAddress.State)
+		suite.Equal(customResidentialAddress.PostalCode,
+			serviceMember.ResidentialAddress.PostalCode)
+
+		// custom backup mailing address
+		suite.Equal(customBackupAddress.StreetAddress1,
+			serviceMember.BackupMailingAddress.StreetAddress1)
+		suite.Equal(customBackupAddress.StreetAddress2,
+			serviceMember.BackupMailingAddress.StreetAddress2)
+		suite.Equal(customBackupAddress.StreetAddress3,
+			serviceMember.BackupMailingAddress.StreetAddress3)
+		suite.Equal(customBackupAddress.City,
+			serviceMember.BackupMailingAddress.City)
+		suite.Equal(customBackupAddress.State,
+			serviceMember.BackupMailingAddress.State)
+		suite.Equal(customBackupAddress.PostalCode,
+			serviceMember.BackupMailingAddress.PostalCode)
+
+		ordersDutyLocation := FetchOrBuildCurrentDutyLocation(suite.DB())
+		suite.Equal(ordersDutyLocation.ID, serviceMember.DutyLocation.ID)
+		suite.Equal(ordersDutyLocation.Name, serviceMember.DutyLocation.Name)
+
+		// Check that backup contact was made and appended to service member
+		suite.Equal(1, len(serviceMember.BackupContacts))
+		suite.Equal(models.BackupContactPermissionEDIT, serviceMember.BackupContacts[0].Permission)
 	})
 }
