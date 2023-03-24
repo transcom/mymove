@@ -174,19 +174,23 @@ describe('EditNetPPMWeight', () => {
       await act(() => userEvent.click(screen.getByRole('button', { name: 'Edit' })));
       expect(await screen.getByRole('button', { name: 'Save changes' })).toBeDisabled();
     });
-    it('shows an error if there is incomplete fields in the form', async () => {
+    it('shows validation errors in the form', async () => {
       await render(
         <ReactQueryWrapper>
           <EditPPMNetWeight {...excessWeight} />
         </ReactQueryWrapper>,
       );
-      // Weight Input
+      // Weight Input is required
       await act(() => userEvent.click(screen.getByRole('button', { name: 'Edit' })));
       const textInput = await screen.findByTestId('weightInput');
       await act(() => userEvent.clear(textInput));
       expect(screen.getByText('Required'));
+
+      // Weight input cannot be greater than full weight
+      await act(() => userEvent.type(textInput, '10000'));
+      expect(screen.getByText('Net weight must be less than or equal to the full weight'));
       await act(() => userEvent.type(textInput, '1000'));
-      // Remarks
+      // Remarks Input is required
       const remarksField = await screen.findByTestId('formRemarks');
       await act(() => userEvent.clear(remarksField));
       await fireEvent.blur(remarksField);
@@ -195,7 +199,7 @@ describe('EditNetPPMWeight', () => {
     });
     it('saves changes when editing the form', async () => {
       const netWeightRemarks = 'Reduced by as much as I can';
-      const adjustedNetWeight = 2600;
+      const adjustedNetWeight = 0;
       render(
         <ReactQueryWrapper>
           <EditPPMNetWeight {...reduceWeight} />
