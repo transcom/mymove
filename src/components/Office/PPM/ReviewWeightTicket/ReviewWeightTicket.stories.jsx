@@ -106,3 +106,27 @@ FilledIn.args = {
     },
   ],
 };
+
+export const MissingWeightTickets = Template.bind({});
+MissingWeightTickets.args = {
+  mtoShipment: {
+    ppmShipment: {
+      actualMoveDate: '2022-04-30',
+      actualPickupPostalCode: '90210',
+      actualDestinationPostalCode: '94611',
+      hasReceivedAdvance: true,
+      advanceAmountReceived: 60000,
+    },
+  },
+  tripNumber: 1,
+  ppmNumber: 1,
+  weightTicket: {
+    vehicleDescription: 'Kia Forte',
+    emptyWeight: 6000,
+    fullWeight: 8000,
+    ownsTrailer: true,
+    trailerMeetsCriteria: false,
+    missingEmptyWeightTicket: true,
+    missingFullWeightTicket: true,
+  },
+};
