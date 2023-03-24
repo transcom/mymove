@@ -433,16 +433,16 @@ func verifyPeerCertificate(rawCerts [][]byte, verifiedChains [][]*x509.Certifica
 	}
 	switch ocspResponse.Status {
 	case ocsp.Good:
-		fmt.Printf("[+] Certificate status is Good\n")
+		fmt.Printf("[+] Certificate status is Good")
 	case ocsp.Revoked:
-		fmt.Printf("[-] Certificate status is Revoked\n")
-		return fmt.Errorf("the certificate was revoked!")
+		fmt.Printf("[-] Certificate status is Revoked")
+		return fmt.Errorf("the certificate was revoked")
 	case ocsp.Unknown:
-		fmt.Printf("[-] Certificate status is Unknown\n")
-		return fmt.Errorf("the certificate is unknown to OCSP server!")
+		fmt.Printf("[-] Certificate status is Unknown")
+		return fmt.Errorf("the certificate is unknown to OCSP server")
 	}
 
-	fmt.Printf("Server certificate was allowed\n")
+	fmt.Printf("Server certificate was allowed")
 	return nil
 }
 
@@ -453,7 +453,7 @@ func QueryOCSP(commonName string, cert, issuerCert *x509.Certificate, ocspServer
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("[*] Preparing HTTP request to OCSP server\n")
+	fmt.Printf("[*] Preparing HTTP request to OCSP server")
 	httpRequest, err := http.NewRequest(http.MethodPost, ocspServerURL, bytes.NewBuffer(buffer))
 	if err != nil {
 		return nil, err
@@ -466,7 +466,7 @@ func QueryOCSP(commonName string, cert, issuerCert *x509.Certificate, ocspServer
 	httpRequest.Header.Add("Accept", "application/ocsp-response")
 	httpRequest.Header.Add("host", ocspURL.Host)
 	httpClient := &http.Client{}
-	fmt.Printf("[*] Launching HTTP request to OCSP server\n")
+	fmt.Printf("[*] Launching HTTP request to OCSP server")
 	httpResponse, err := httpClient.Do(httpRequest)
 	if err != nil {
 		return nil, err
@@ -476,7 +476,7 @@ func QueryOCSP(commonName string, cert, issuerCert *x509.Certificate, ocspServer
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("[*] Parsing OCSP server response\n")
+	fmt.Printf("[*] Parsing OCSP server response")
 	ocspResponse, err := ocsp.ParseResponseForCert(output, cert, issuerCert)
 	return ocspResponse, err
 }
