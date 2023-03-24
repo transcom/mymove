@@ -435,7 +435,7 @@ func gblocFilterForSCinArmyAirForce(gbloc *string) QueryOption {
 	// The Army and Air Force SCs should see moves in the PPM closeout Tab when the postal code or origin duty station is in a different GBLOC.  A services counselor in a transportation office that provides Services Counseling should see all moves with PPMs that have selected a closeout office that matches the GBLOC of their transportation office that is ready for payment approval
 	return func(query *pop.Query) {
 		if gbloc != nil {
-			query.Where("mto_shipments.shipment_type = ? AND ppm_shipments.status = ? AND closeout_to.gbloc = ?", models.MTOShipmentTypePPM, models.PPMShipmentStatusNeedsPaymentApproval, *gbloc)
+			query.Where("mto_shipments.shipment_type = ? AND closeout_to.gbloc = ?", models.MTOShipmentTypePPM, *gbloc)
 		}
 	}
 }
