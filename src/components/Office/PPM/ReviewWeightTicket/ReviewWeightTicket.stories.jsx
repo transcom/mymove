@@ -129,4 +129,9 @@ MissingWeightTickets.args = {
     missingEmptyWeightTicket: true,
     missingFullWeightTicket: true,
   },
+  order: {
+    entitlement: {
+      totalWeight: 2000,
+    },
+  },
 };
