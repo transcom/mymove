@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -437,10 +436,10 @@ func verifyPeerCertificate(rawCerts [][]byte, verifiedChains [][]*x509.Certifica
 		fmt.Printf("[+] Certificate status is Good\n")
 	case ocsp.Revoked:
 		fmt.Printf("[-] Certificate status is Revoked\n")
-		return fmt.Errorf("The certificate was revoked!")
+		return fmt.Errorf("the certificate was revoked!")
 	case ocsp.Unknown:
 		fmt.Printf("[-] Certificate status is Unknown\n")
-		return fmt.Errorf("The certificate is unknown to OCSP server!")
+		return fmt.Errorf("the certificate is unknown to OCSP server!")
 	}
 
 	fmt.Printf("Server certificate was allowed\n")
@@ -473,7 +472,7 @@ func QueryOCSP(commonName string, cert, issuerCert *x509.Certificate, ocspServer
 		return nil, err
 	}
 	defer httpResponse.Body.Close()
-	output, err := ioutil.ReadAll(httpResponse.Body)
+	output, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 		return nil, err
 	}
