@@ -204,6 +204,10 @@ func MakeApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, assertions Ass
 		ppmShipment.AOAPacketID = &aoaPacket.ID
 	}
 
+	if !assertions.Stub {
+		MustSave(db, &ppmShipment)
+	}
+
 	// Because of the way we're working with the PPMShipment, the changes we've made to it aren't reflected in the
 	// pointer reference that the MTOShipment has, so we'll need to update it to point at the latest version.
 	ppmShipment.Shipment.PPMShipment = &ppmShipment
@@ -367,10 +371,6 @@ func MakePPMShipmentWithApprovedDocuments(db *pop.Connection, assertions Asserti
 		}
 	}
 
-	if !assertions.Stub {
-		MustSave(db, &ppmShipment)
-	}
-
 	if ppmShipment.HasReceivedAdvance != nil && *ppmShipment.HasReceivedAdvance {
 		paymentPacketFullAssertions := Assertions{
 			ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
@@ -393,6 +393,10 @@ func MakePPMShipmentWithApprovedDocuments(db *pop.Connection, assertions Asserti
 
 		ppmShipment.PaymentPacket = &paymentPacket
 		ppmShipment.PaymentPacketID = &paymentPacket.ID
+	}
+
+	if !assertions.Stub {
+		MustSave(db, &ppmShipment)
 	}
 
 	// Because of the way we're working with the PPMShipment, the changes we've made to it aren't reflected in the
