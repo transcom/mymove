@@ -16,5 +16,4 @@ the public domain. In places where it is eligible for copyright, such as some fo
 this work is licensed under [the MIT License](https://opensource.org/licenses/MIT), the full text of which is included
 in the [LICENSE.txt](./LICENSE.txt) file in this repository.
 
-
-For further information, please see the documentation inside of the [MilMove Developer Portal](https://transcom.github.io/mymove-docs/docs/about/Welcome#table-of-contents).
+For further information, please see the documentation inside of the [MilMove Developer Portal](https://transcom.github.io/mymove-docs/docs/about/).
