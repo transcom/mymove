@@ -12,6 +12,8 @@ describe('DocumentViewerSidebar', () => {
     const description = 'Shipment 1 of 2';
     const content = 'Some content';
     const buttonText = 'Review billable weights';
+    const linkTitle = 'Link Title';
+    const hyperlink = <a href="example.com">{linkTitle}</a>;
     const mockOnClose = jest.fn();
     render(
       <DocumentViewerSidebar
@@ -20,6 +22,7 @@ describe('DocumentViewerSidebar', () => {
         description={description}
         onClose={mockOnClose}
         supertitle={supertitle}
+        hyperlink={hyperlink}
       >
         <DocumentViewerSidebar.Content>{content}</DocumentViewerSidebar.Content>
         <DocumentViewerSidebar.Footer>
@@ -36,5 +39,7 @@ describe('DocumentViewerSidebar', () => {
     expect(screen.getByText(description)).toBeInTheDocument();
     expect(screen.getByText(content)).toBeInTheDocument();
     expect(screen.getByText(buttonText)).toBeInTheDocument();
+    expect(screen.getByText(linkTitle)).toBeInTheDocument();
+    expect(screen.getByTestId('hyperlink')).toBeInTheDocument();
   });
 });

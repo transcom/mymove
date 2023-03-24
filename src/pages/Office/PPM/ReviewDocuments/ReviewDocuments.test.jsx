@@ -8,7 +8,10 @@ import PPMDocumentsStatus from 'constants/ppms';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { usePPMShipmentDocsQueries, useReviewShipmentWeightsQuery } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
-import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
+import {
+  createPPMShipmentWithFinalIncentive,
+  createPPMShipmentWithExcessWeight,
+} from 'utils/test/factories/ppmShipment';
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import createUpload from 'utils/test/factories/upload';
 
@@ -90,6 +93,7 @@ const useReviewShipmentWeightsQueryReturnValueAll = {
     orderID: {
       entitlement: {
         authorizedWeight: 1000,
+        totalWeight: 1000,
       },
     },
   },
@@ -471,6 +475,32 @@ describe('ReviewDocuments', () => {
       await userEvent.click(screen.getByLabelText('Exclude'));
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       expect(screen.getByText('Add a reason why this receipt is excluded')).toBeInTheDocument();
+    });
+  });
+  describe('check over weight alerts', () => {
+    it('does not display an alert when move is not over weight', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+
+      render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
+      const alert = screen.queryByText('This move has excess weight. Edit the PPM net weight to resolve.');
+      expect(alert).toBeNull();
+    });
+
+    it('displays an alert when move is over weight', async () => {
+      const excessWeightPPMShipment = createPPMShipmentWithExcessWeight({
+        ppmShipment: { status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL },
+      });
+      const useReviewShipmentWeightsQueryReturnValueExcessWeight = {
+        ...useReviewShipmentWeightsQueryReturnValueAll,
+        mtoShipments: [excessWeightPPMShipment],
+      };
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueExcessWeight);
+
+      render(<ReviewDocuments {...requiredProps} />, { wrapper: MockProviders });
+      const alert = screen.getByText('This move has excess weight. Edit the PPM net weight to resolve.');
+      expect(alert).toBeInTheDocument();
     });
   });
 });
