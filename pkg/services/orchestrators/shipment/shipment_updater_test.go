@@ -322,4 +322,43 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 			mock.AnythingOfType("uuid.UUID"),
 		)
 	})
+	// TODO i think i'm in the wrong file here
+	suite.Run("Removes secondary pickup address if it is no longer needed", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeSubtestData(true, false)
+
+		secondaryPickupAddress := testdatagen.MakeDefaultAddress(appCtx.DB())
+		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				ShipmentType:           models.MTOShipmentTypeHHG,
+				SecondaryPickupAddress: &secondaryPickupAddress,
+			},
+		})
+
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, eTag)
+
+		suite.Nil(mtoShipment)
+
+		suite.Error(err)
+		suite.Equal(subtestData.fakeError, err)
+
+		subtestData.mockMTOShipmentUpdater.AssertCalled(
+			suite.T(),
+			updateMTOShipmentMethodName,
+			mock.AnythingOfType("*appcontext.appContext"),
+			&shipment,
+			eTag,
+		)
+
+		subtestData.mockPPMShipmentUpdater.AssertNotCalled(
+			suite.T(),
+			updatePPMShipmentMethodName,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.PPMShipment"),
+			mock.AnythingOfType("uuid.UUID"),
+		)
+	})
 }

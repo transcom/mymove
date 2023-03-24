@@ -10,6 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -158,10 +159,29 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.DestinationType = requestedUpdatedShipment.DestinationType
 	}
 
+	if requestedUpdatedShipment.HasSecondaryPickupAddress != nil {
+		dbShipment.HasSecondaryPickupAddress = requestedUpdatedShipment.HasSecondaryPickupAddress
+		if *requestedUpdatedShipment.HasSecondaryPickupAddress {
+			dbShipment.SecondaryPickupAddress = requestedUpdatedShipment.SecondaryPickupAddress
+		} else {
+			dbShipment.SecondaryPickupAddressID = nil
+			dbShipment.SecondaryPickupAddress = nil
+		}
+	}
+	// TODO should we delete this?
 	if requestedUpdatedShipment.SecondaryPickupAddress != nil {
 		dbShipment.SecondaryPickupAddress = requestedUpdatedShipment.SecondaryPickupAddress
 	}
 
+	if requestedUpdatedShipment.HasSecondaryDeliveryAddress != nil {
+		dbShipment.HasSecondaryDeliveryAddress = requestedUpdatedShipment.HasSecondaryDeliveryAddress
+		if *requestedUpdatedShipment.HasSecondaryDeliveryAddress {
+			dbShipment.SecondaryDeliveryAddress = requestedUpdatedShipment.SecondaryDeliveryAddress
+		} else {
+			dbShipment.SecondaryDeliveryAddressID = nil
+			dbShipment.SecondaryDeliveryAddress = nil
+		}
+	}
 	if requestedUpdatedShipment.SecondaryDeliveryAddress != nil {
 		dbShipment.SecondaryDeliveryAddress = requestedUpdatedShipment.SecondaryDeliveryAddress
 	}
@@ -270,6 +290,7 @@ func (e StaleIdentifierError) Error() string {
 
 // UpdateMTOShipment updates the mto shipment
 func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	appCtx.Logger().Debug("UpdateMTOShipment start | mtoShipment (passed in)", zap.Boolp("HasSecondaryPickup", mtoShipment.HasSecondaryPickupAddress), zap.Any("SecondaryPickupAddressID", mtoShipment.SecondaryPickupAddressID))
 	eagerAssociations := []string{"MoveTaskOrder",
 		"PickupAddress",
 		"DestinationAddress",
@@ -298,8 +319,11 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	if err != nil {
 		return nil, fmt.Errorf("error copying shipment data %w", err)
 	}
+	appCtx.Logger().Debug("UpdateMTOShipment (CopyWithOption) | mtoShipment", zap.Boolp("HasSecondaryPickup", mtoShipment.HasSecondaryPickupAddress), zap.Any("SecondaryPickupAddressID", mtoShipment.SecondaryPickupAddressID))
 	setNewShipmentFields(appCtx, oldShipment, mtoShipment)
+	appCtx.Logger().Debug("UpdateMTOShipment (setNewShipmentFields) | mtoShipment", zap.Boolp("HasSecondaryPickup", mtoShipment.HasSecondaryPickupAddress), zap.Any("SecondaryPickupAddressID", mtoShipment.SecondaryPickupAddressID))
 	newShipment := oldShipment // old shipment has now been updated with requested changes
+	appCtx.Logger().Debug("UpdateMTOShipment (setNewShipmentFields) | newShipment (from old shipment)", zap.Boolp("HasSecondaryPickup", newShipment.HasSecondaryPickupAddress), zap.Any("SecondaryPickupAddressID", newShipment.SecondaryPickupAddressID))
 	// db version is used to check if agents need creating or updating
 	err = f.updateShipmentRecord(appCtx, &dbShipment, newShipment, eTag)
 	if err != nil {
@@ -323,6 +347,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 // update fails, the entire transaction will be rolled back.
 func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string) error {
 	var autoReweighShipments models.MTOShipments
+	appCtx.Logger().Debug("updateShipmentRecord start | newShipment", zap.Boolp("HasSecondaryPickup", newShipment.HasSecondaryPickupAddress), zap.Any("SecondaryPickupAddressID", newShipment.SecondaryPickupAddressID))
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
 		updatedAt, err := etag.DecodeEtag(eTag)
@@ -365,8 +390,18 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 			newShipment.PickupAddressID = &newShipment.PickupAddress.ID
 		}
+		if newShipment.HasSecondaryPickupAddress != nil {
+			if !*newShipment.HasSecondaryPickupAddress {
+				newShipment.SecondaryDeliveryAddressID = nil
+			}
+		}
+		if newShipment.HasSecondaryDeliveryAddress != nil {
+			if !*newShipment.HasSecondaryDeliveryAddress {
+				newShipment.SecondaryDeliveryAddressID = nil
+			}
+		}
 
-		if newShipment.SecondaryPickupAddress != nil {
+		if newShipment.HasSecondaryPickupAddress != nil && *newShipment.HasSecondaryPickupAddress && newShipment.SecondaryPickupAddress != nil {
 			if dbShipment.SecondaryPickupAddressID != nil {
 				newShipment.SecondaryPickupAddress.ID = *dbShipment.SecondaryPickupAddressID
 			}
@@ -545,6 +580,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			newShipment.SACType = dbShipment.SACType
 		}
 
+		txnAppCtx.Logger().Debug("newShipment", zap.Boolp("HasSecondaryPickup", newShipment.HasSecondaryPickupAddress), zap.Any("SecondaryPickupAddressID", newShipment.SecondaryPickupAddressID))
 		if err := txnAppCtx.DB().Update(newShipment); err != nil {
 			return err
 		}

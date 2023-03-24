@@ -132,6 +132,9 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 		CustomerRemarks:  mtoShipment.CustomerRemarks,
 		Diversion:        mtoShipment.Diversion,
 		CounselorRemarks: mtoShipment.CounselorRemarks,
+		// TODO do we care about these here? do these need to be set?
+		HasSecondaryPickupAddress:   handlers.FmtBool(false),
+		HasSecondaryDeliveryAddress: handlers.FmtBool(false),
 	}
 
 	if mtoShipment.ShipmentType != nil {
@@ -283,6 +286,7 @@ func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mt
 		model.SecondaryPickupAddress = addressModel
 		secondaryPickupAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 		model.SecondaryPickupAddressID = &secondaryPickupAddressID
+		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
 	}
 
 	addressModel = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
@@ -290,6 +294,7 @@ func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mt
 		model.SecondaryDeliveryAddress = addressModel
 		secondaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 		model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
+		model.HasSecondaryDeliveryAddress = handlers.FmtBool(true)
 	}
 
 	if mtoShipment.PpmShipment != nil {

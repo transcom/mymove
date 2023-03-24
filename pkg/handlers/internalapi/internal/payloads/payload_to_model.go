@@ -178,15 +178,31 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 	requestedDeliveryDate := time.Time(mtoShipment.RequestedDeliveryDate)
 
 	model := &models.MTOShipment{
-		ShipmentType:          models.MTOShipmentType(mtoShipment.ShipmentType),
-		RequestedPickupDate:   &requestedPickupDate,
-		RequestedDeliveryDate: &requestedDeliveryDate,
-		CustomerRemarks:       mtoShipment.CustomerRemarks,
-		Status:                models.MTOShipmentStatus(mtoShipment.Status),
+		ShipmentType:                models.MTOShipmentType(mtoShipment.ShipmentType),
+		RequestedPickupDate:         &requestedPickupDate,
+		RequestedDeliveryDate:       &requestedDeliveryDate,
+		CustomerRemarks:             mtoShipment.CustomerRemarks,
+		Status:                      models.MTOShipmentStatus(mtoShipment.Status),
+		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
+		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
 	}
 
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
-	model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
+	//if mtoShipment.HasSecondaryPickupAddress != nil {
+	//	if *mtoShipment.HasSecondaryPickupAddress {
+	//		model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
+	//	}
+	//}
+	if mtoShipment.HasSecondaryPickupAddress != nil {
+		if *mtoShipment.HasSecondaryPickupAddress {
+			model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
+		}
+	}
+	if mtoShipment.HasSecondaryDeliveryAddress != nil {
+		if *mtoShipment.HasSecondaryDeliveryAddress {
+			model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
+		}
+	}
 	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
 	model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
 

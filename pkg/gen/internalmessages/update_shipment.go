@@ -29,6 +29,12 @@ type UpdateShipment struct {
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
+	// has secondary delivery address
+	HasSecondaryDeliveryAddress *bool `json:"hasSecondaryDeliveryAddress"`
+
+	// has secondary pickup address
+	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
+
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
