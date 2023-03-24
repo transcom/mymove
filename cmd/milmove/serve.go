@@ -1,14 +1,19 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"crypto"
 	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -32,6 +37,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/trussworks/otelhttp"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/ocsp"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
@@ -410,7 +416,70 @@ func initializeTLSConfig(appCtx appcontext.AppContext, v *viper.Viper) *tls.Conf
 	subjects := rootCAs.Subjects()
 	appCtx.Logger().Info("Trusted CAs", zap.Any("num", len(subjects)), zap.Any("subjects", subjects))
 
-	return &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+	return &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12, VerifyPeerCertificate: verifyPeerCertificate}
+}
+
+func verifyPeerCertificate(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+	cert := verifiedChains[0][0]
+	issuerCert := verifiedChains[0][1]
+
+	fmt.Printf("Server certificate: %s\n", cert.Subject.CommonName)
+	fmt.Printf("Server certificate issuer: %s\n", issuerCert.Subject.CommonName)
+
+	fmt.Printf("Validating server certificate with OCSP (serial: %s)\n", cert.SerialNumber.String())
+
+	ocspResponse, err := QueryOCSP(cert.Subject.CommonName, cert, issuerCert, cert.OCSPServer[0])
+	if err != nil {
+		return err
+	}
+	switch ocspResponse.Status {
+	case ocsp.Good:
+		fmt.Printf("[+] Certificate status is Good\n")
+	case ocsp.Revoked:
+		fmt.Printf("[-] Certificate status is Revoked\n")
+		return fmt.Errorf("The certificate was revoked!")
+	case ocsp.Unknown:
+		fmt.Printf("[-] Certificate status is Unknown\n")
+		return fmt.Errorf("The certificate is unknown to OCSP server!")
+	}
+
+	fmt.Printf("Server certificate was allowed\n")
+	return nil
+}
+
+func QueryOCSP(commonName string, cert, issuerCert *x509.Certificate, ocspServerURL string) (*ocsp.Response, error) {
+	fmt.Printf("[*] Crafting an OCSP request\n")
+	opts := &ocsp.RequestOptions{Hash: crypto.SHA256}
+	buffer, err := ocsp.CreateRequest(cert, issuerCert, opts)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("[*] Preparing HTTP request to OCSP server\n")
+	httpRequest, err := http.NewRequest(http.MethodPost, ocspServerURL, bytes.NewBuffer(buffer))
+	if err != nil {
+		return nil, err
+	}
+	ocspURL, err := url.Parse(ocspServerURL)
+	if err != nil {
+		return nil, err
+	}
+	httpRequest.Header.Add("Content-Type", "application/ocsp-request")
+	httpRequest.Header.Add("Accept", "application/ocsp-response")
+	httpRequest.Header.Add("host", ocspURL.Host)
+	httpClient := &http.Client{}
+	fmt.Printf("[*] Launching HTTP request to OCSP server\n")
+	httpResponse, err := httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	defer httpResponse.Body.Close()
+	output, err := ioutil.ReadAll(httpResponse.Body)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("[*] Parsing OCSP server response\n")
+	ocspResponse, err := ocsp.ParseResponseForCert(output, cert, issuerCert)
+	return ocspResponse, err
 }
 
 func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
