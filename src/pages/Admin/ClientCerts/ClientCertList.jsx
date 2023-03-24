@@ -15,6 +15,7 @@ const defaultSort = { field: 'subject', order: 'ASC' };
 
 const useStyles = makeStyles(() => ({
   tableCell: {
+    minWidth: 25,
     maxWidth: 150,
     whiteSpace: 'normal',
     overflow: 'scroll',
@@ -22,8 +23,15 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+const useHeaderStyles = makeStyles(() => ({
+  headerCell: {
+    minWidth: 25,
+  },
+}));
+
 const ClientCertList = (props) => {
   const classes = useStyles();
+  const headerClasses = useHeaderStyles();
   return (
     <List
       // eslint-disable-next-line react/jsx-props-no-spreading
@@ -32,29 +40,29 @@ const ClientCertList = (props) => {
       perPage={25}
       bulkActionButtons={false}
       sort={defaultSort}
-      classes={{
-        dense: 'MuiDataGrid-root--densityCompact',
-      }}
-      dense
       filters={<ClientCertListFilter />}
     >
-      <Datagrid rowClick="show">
+      <Datagrid rowClick="show" classes={headerClasses}>
         <TextField cellClassName={classes.tableCell} source="subject" />
-        <BooleanField source="allowOrdersAPI" label="Allow Orders API" />
-        <BooleanField source="allowAirForceOrdersRead" />
-        <BooleanField source="allowAirForceOrdersWrite" />
-        <BooleanField source="allowArmyOrdersRead" />
-        <BooleanField source="allowArmyOrdersWrite" />
-        <BooleanField source="allowCoastGuardOrdersRead" />
-        <BooleanField source="allowCoastGuardOrdersWrite" />
-        <BooleanField source="allowMarineCorpsOrdersRead" />
-        <BooleanField source="allowMarineCorpsOrdersWrite" />
-        <BooleanField source="allowNavyOrdersRead" />
-        <BooleanField source="allowNavyOrdersWrite" />
-        <BooleanField source="allowPrime" />
         <TextField source="id" />
         <TextField source="sha256Digest" />
         <TextField source="userId" label="User Id" />
+        <BooleanField cellClassName={classes.tableCell} source="allowPrime" label="Prime API" />
+        <BooleanField cellClassName={classes.tableCell} source="allowOrdersAPI" label="Orders API" />
+        <BooleanField cellClassName={classes.tableCell} source="allowAirForceOrdersRead" label="USAF Orders Read" />
+        <BooleanField cellClassName={classes.tableCell} source="allowAirForceOrdersWrite" label="USAF Orders Write" />
+        <BooleanField cellClassName={classes.tableCell} source="allowArmyOrdersRead" label="Army Orders Read" />
+        <BooleanField cellClassName={classes.tableCell} source="allowArmyOrdersWrite" label="Army Orders Write" />
+        <BooleanField cellClassName={classes.tableCell} source="allowCoastGuardOrdersRead" label="USCG Orders Read" />
+        <BooleanField cellClassName={classes.tableCell} source="allowCoastGuardOrdersWrite" label="USCG Orders Write" />
+        <BooleanField cellClassName={classes.tableCell} source="allowMarineCorpsOrdersRead" label="USMC Orders Read" />
+        <BooleanField
+          cellClassName={classes.tableCell}
+          source="allowMarineCorpsOrdersWrite"
+          label="USMC Orders Write"
+        />
+        <BooleanField cellClassName={classes.tableCell} source="allowNavyOrdersRead" label="Navy Orders Read" />
+        <BooleanField cellClassName={classes.tableCell} source="allowNavyOrdersWrite" label="Navy Orders Write" />
       </Datagrid>
     </List>
   );
