@@ -188,11 +188,6 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 	}
 
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
-	//if mtoShipment.HasSecondaryPickupAddress != nil {
-	//	if *mtoShipment.HasSecondaryPickupAddress {
-	//		model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
-	//	}
-	//}
 	if mtoShipment.HasSecondaryPickupAddress != nil {
 		if *mtoShipment.HasSecondaryPickupAddress {
 			model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)

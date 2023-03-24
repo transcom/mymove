@@ -124,8 +124,6 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			}
 
 			payload := params.Body
-			//appCtx.Logger().Debug("UpdateShipmentHandler payload", zap.Object("SecondaryPickupAddress", payload.SecondaryPickupAddress), zap.Boolp("hasSecondaryPickupAddress", payload.HasSecondaryPickupAddress))
-			//appCtx.Logger().Debug("UpdateShipmentHandler payload", zap.Any("SecondaryPickupAddress", payload.SecondaryPickupAddress), zap.Boolp("hasSecondaryPickupAddress", payload.HasSecondaryPickupAddress))
 			if payload == nil {
 				noBodyErr := apperror.NewBadDataError("Invalid mto shipment: params Body is nil")
 				appCtx.Logger().Error(noBodyErr.Error())
@@ -135,12 +133,6 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 
 			mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
 			mtoShipment.ID = uuid.FromStringOrNil(params.MtoShipmentID.String())
-			if mtoShipment.SecondaryPickupAddress == nil {
-				appCtx.Logger().Debug("UpdateShipmentHandler model", zap.String("SecondaryPickupAddress", "NIL"))
-			} else {
-				appCtx.Logger().Debug("UpdateShipmentHandler model", zap.Any("SecondaryPickupAddress", mtoShipment.SecondaryPickupAddress))
-			}
-			appCtx.Logger().Debug("UpdateShipmentHandler model", zap.Boolp("hasSecondaryPickupAddress", mtoShipment.HasSecondaryPickupAddress))
 
 			status := mtoShipment.Status
 			if status != "" && status != models.MTOShipmentStatusDraft && status != models.MTOShipmentStatusSubmitted {

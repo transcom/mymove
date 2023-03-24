@@ -1,7 +1,6 @@
 package testdatagen
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -48,7 +47,6 @@ func MakeBaseMTOShipment(db *pop.Connection, assertions Assertions) models.MTOSh
 // It will make delivery addresses if the shipment type is not one of (HHGOutOfNTSDom, PPM)
 // It will make a storage facility if the shipment type is HHGOutOfNTSDom
 func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
-	fmt.Println("hello from MakeMTOShipment! 🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈", assertions.MTOShipment.SecondaryPickupAddress)
 	shipmentType := models.MTOShipmentTypeHHG
 	shipmentStatus := models.MTOShipmentStatusDraft
 	mtoShipment := assertions.MTOShipment
@@ -81,7 +79,6 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		}
 
 		secondaryPickupAddress = assertions.SecondaryPickupAddress
-
 	}
 
 	var destinationAddress, secondaryDeliveryAddress models.Address
@@ -189,7 +186,6 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	}
 
 	if shipmentHasPickupDetails {
-		fmt.Println("shipmentHasPickupDetails 😈😈😈😈😈😈")
 		MTOShipment.PickupAddress = &pickupAddress
 		MTOShipment.PickupAddressID = &pickupAddress.ID
 
@@ -197,7 +193,6 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 			MTOShipment.SecondaryPickupAddress = &secondaryPickupAddress
 			MTOShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
 			MTOShipment.HasSecondaryPickupAddress = swag.Bool(true)
-			fmt.Println("We have a secondary pickup address!🦖🦖🦖🦖🦖🦖🦖")
 		}
 	}
 
