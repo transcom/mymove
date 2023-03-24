@@ -206,6 +206,18 @@ const createPPMShipmentWithFinalIncentive = (fieldOverrides = {}) => {
   };
 };
 
+const createPPMShipmentWithExcessWeight = (fieldOverrides = {}) => {
+  const shipment = createPPMShipmentWithActualShipmentInfo(fieldOverrides);
+
+  const ppmShipmentId = shipment.ppmShipment.id;
+  const fullWeight = 60000;
+  const serviceMemberId = v4();
+  shipment.ppmShipment.weightTickets.push(
+    createCompleteWeightTicket({ serviceMemberId }, { ppmShipmentId, fullWeight }),
+  );
+  return shipment;
+};
+
 export {
   createApprovedPPMShipment,
   createBasePPMShipment,
@@ -214,4 +226,5 @@ export {
   createPPMShipmentWithDocuments,
   createPPMShipmentWithFinalIncentive,
   createSubmittedPPMShipment,
+  createPPMShipmentWithExcessWeight,
 };

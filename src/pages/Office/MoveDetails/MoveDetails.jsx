@@ -212,11 +212,11 @@ const MoveDetails = ({
 
   const { customer, entitlement: allowances } = order;
 
-  if (submittedShipments.length > 0 && approvedOrCanceledShipments.length > 0) {
+  if (submittedShipments?.length > 0 && approvedOrCanceledShipments?.length > 0) {
     sections = ['requested-shipments', 'approved-shipments', ...sections];
-  } else if (approvedOrCanceledShipments.length > 0) {
+  } else if (approvedOrCanceledShipments?.length > 0) {
     sections = ['approved-shipments', ...sections];
-  } else if (submittedShipments.length > 0) {
+  } else if (submittedShipments?.length > 0) {
     sections = ['requested-shipments', ...sections];
   }
 
@@ -291,7 +291,7 @@ const MoveDetails = ({
             showTag={!shipmentMissingRequiredInformation}
             testID="requestedShipmentsTag"
           >
-            {submittedShipments?.length}
+            {submittedShipments?.length || 0}
           </LeftNavTag>
           <LeftNavTag
             className="usa-tag usa-tag--alert"
@@ -332,7 +332,7 @@ const MoveDetails = ({
               </Grid>
             )}
           </Grid>
-          {submittedShipments.length > 0 && (
+          {submittedShipments?.length > 0 && (
             <div className={styles.section} id="requested-shipments">
               <SubmittedRequestedShipments
                 mtoShipments={submittedShipments}
@@ -351,7 +351,7 @@ const MoveDetails = ({
               />
             </div>
           )}
-          {approvedOrCanceledShipments.length > 0 && (
+          {approvedOrCanceledShipments?.length > 0 && (
             <div className={styles.section} id="approved-shipments">
               <ApprovedRequestedShipments
                 mtoShipments={approvedOrCanceledShipments}

@@ -1,5 +1,6 @@
 @import 'shared/styles/colors.scss';
 @import 'shared/styles/_mixins.scss';
+@import 'shared/styles/_basics';
 
 .ReviewDocuments {
   display: flex;
@@ -26,4 +27,8 @@
 
 .footer {
   justify-self: flex-end;
+}
+
+.alertContainer {
+  @include u-margin-bottom(2);
 }
