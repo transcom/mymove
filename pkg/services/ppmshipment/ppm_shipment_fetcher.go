@@ -2,6 +2,7 @@ package ppmshipment
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/gofrs/uuid"
 
@@ -9,7 +10,90 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
+
+// ppmShipmentFetcher is the concrete struct implementing the PPMShipmentFetcher interface
+type ppmShipmentFetcher struct{}
+
+// NewPPMShipmentFetcher creates a new PPMShipmentFetcher
+func NewPPMShipmentFetcher() services.PPMShipmentFetcher {
+	return &ppmShipmentFetcher{}
+}
+
+// These are helper constants for requesting eager preload associations
+const (
+	// EagerPreloadAssociationShipment is the name of the association for the shipment
+	EagerPreloadAssociationShipment = "Shipment"
+	// EagerPreloadAssociationWeightTickets is the name of the association for the weight tickets
+	EagerPreloadAssociationWeightTickets = "WeightTickets"
+	// EagerPreloadAssociationProgearWeightTickets is the name of the association for the pro-gear weight tickets
+	EagerPreloadAssociationProgearWeightTickets = "ProgearWeightTickets"
+	// EagerPreloadAssociationMovingExpenses is the name of the association for the moving expenses
+	EagerPreloadAssociationMovingExpenses = "MovingExpenses"
+	// EagerPreloadAssociationW2Address is the name of the association for the W2 address
+	EagerPreloadAssociationW2Address = "W2Address"
+	// EagerPreloadAssociationAOAPacket is the name of the association for the AOA packet
+	EagerPreloadAssociationAOAPacket = "AOAPacket"
+	// EagerPreloadAssociationPaymentPacket is the name of the association for the payment packet
+	EagerPreloadAssociationPaymentPacket = "PaymentPacket"
+)
+
+// GetListOfAllPreloadAssociations returns all associations for a PPMShipment that can be eagerly preloaded for ease of use.
+func GetListOfAllPreloadAssociations() []string {
+	return []string{
+		EagerPreloadAssociationShipment,
+		EagerPreloadAssociationWeightTickets,
+		EagerPreloadAssociationProgearWeightTickets,
+		EagerPreloadAssociationMovingExpenses,
+		EagerPreloadAssociationW2Address,
+		EagerPreloadAssociationAOAPacket,
+		EagerPreloadAssociationPaymentPacket,
+	}
+}
+
+// GetPPMShipment returns a PPMShipment with any desired associations by ID
+func (f ppmShipmentFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, eagerPreloadAssociations []string) (*models.PPMShipment, error) {
+	if eagerPreloadAssociations != nil {
+		validPreloadAssociations := make(map[string]bool)
+		for _, v := range GetListOfAllPreloadAssociations() {
+			validPreloadAssociations[v] = true
+		}
+
+		for _, association := range eagerPreloadAssociations {
+
+			if !validPreloadAssociations[association] {
+				return nil, apperror.NewNotImplementedError(fmt.Sprintf("Requested eager preload association %s is not implemented", association))
+			}
+		}
+	}
+
+	var ppmShipment models.PPMShipment
+
+	q := appCtx.DB().Q().
+		Scope(utilities.ExcludeDeletedScope())
+
+	if eagerPreloadAssociations != nil {
+		q.EagerPreload(eagerPreloadAssociations...)
+	}
+
+	err := q.Find(&ppmShipment, ppmShipmentID)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(ppmShipmentID, "while looking for PPMShipment")
+		default:
+			return nil, apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipment")
+		}
+	}
+
+	ppmShipment.WeightTickets = ppmShipment.WeightTickets.FilterDeleted()
+	ppmShipment.ProgearWeightTickets = ppmShipment.ProgearWeightTickets.FilterDeleted()
+	ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterDeleted()
+
+	return &ppmShipment, nil
+}
 
 func FindPPMShipmentAndWeightTickets(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShipment, error) {
 	var ppmShipment models.PPMShipment

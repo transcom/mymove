@@ -8,8 +8,256 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/utilities"
+	"github.com/transcom/mymove/pkg/models"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/uploader"
 )
+
+func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+
+	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, uploader.MaxCustomerUserUploadFileSizeLimit)
+
+	suite.FatalNoError(uploaderErr)
+
+	fetcher := NewPPMShipmentFetcher()
+
+	suite.Run("GetPPMShipment", func() {
+		suite.Run("Can fetch a PPM Shipment", func() {
+			ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+
+			ppmShipmentReturned, err := fetcher.GetPPMShipment(
+				suite.AppContextForTest(),
+				ppmShipment.ID,
+				nil,
+			)
+
+			if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
+				suite.Equal(ppmShipment.ID, ppmShipmentReturned.ID)
+			}
+		})
+
+		associationTestCases := map[string]struct {
+			eagerPreloadAssociations []string
+			successAssertionFunc     func(*models.PPMShipment, *models.PPMShipment)
+		}{
+			"No associations": {
+				eagerPreloadAssociations: nil,
+				successAssertionFunc: func(expected *models.PPMShipment, actual *models.PPMShipment) {
+					suite.True(actual.Shipment.ID.IsNil())
+					suite.Nil(actual.WeightTickets)
+					suite.Nil(actual.ProgearWeightTickets)
+					suite.Nil(actual.MovingExpenses)
+					suite.Nil(actual.W2Address)
+					suite.Nil(actual.AOAPacket)
+					suite.Nil(actual.PaymentPacket)
+				},
+			},
+			"Shipment only": {
+				eagerPreloadAssociations: []string{EagerPreloadAssociationShipment},
+				successAssertionFunc: func(expected *models.PPMShipment, actual *models.PPMShipment) {
+					suite.False(actual.Shipment.ID.IsNil())
+					suite.Equal(expected.Shipment.ID, actual.Shipment.ID)
+
+					suite.Nil(actual.WeightTickets)
+					suite.Nil(actual.ProgearWeightTickets)
+					suite.Nil(actual.MovingExpenses)
+					suite.Nil(actual.W2Address)
+					suite.Nil(actual.AOAPacket)
+					suite.Nil(actual.PaymentPacket)
+				},
+			},
+			"Weight tickets only": {
+				eagerPreloadAssociations: []string{EagerPreloadAssociationWeightTickets},
+				successAssertionFunc: func(expected *models.PPMShipment, actual *models.PPMShipment) {
+					suite.True(actual.Shipment.ID.IsNil())
+
+					suite.NotNil(actual.WeightTickets)
+					suite.Equal(len(expected.WeightTickets), len(actual.WeightTickets))
+					suite.Equal(expected.WeightTickets[0].ID, actual.WeightTickets[0].ID)
+
+					suite.Nil(actual.ProgearWeightTickets)
+					suite.Nil(actual.MovingExpenses)
+					suite.Nil(actual.W2Address)
+					suite.Nil(actual.AOAPacket)
+					suite.Nil(actual.PaymentPacket)
+				},
+			},
+			"All eager preload associations": {
+				eagerPreloadAssociations: GetListOfAllPreloadAssociations(),
+				successAssertionFunc: func(expected *models.PPMShipment, actual *models.PPMShipment) {
+					suite.False(actual.Shipment.ID.IsNil())
+					suite.Equal(expected.Shipment.ID, actual.Shipment.ID)
+
+					if suite.NotNil(actual.WeightTickets) {
+						suite.Equal(len(expected.WeightTickets), len(actual.WeightTickets))
+						suite.Equal(expected.WeightTickets[0].ID, actual.WeightTickets[0].ID)
+					}
+
+					if suite.NotNil(actual.ProgearWeightTickets) {
+						suite.Equal(len(expected.ProgearWeightTickets), len(actual.ProgearWeightTickets))
+						suite.Equal(expected.ProgearWeightTickets[0].ID, actual.ProgearWeightTickets[0].ID)
+
+					}
+
+					if suite.NotNil(actual.MovingExpenses) {
+						suite.Equal(len(expected.MovingExpenses), len(actual.MovingExpenses))
+						suite.Equal(expected.MovingExpenses[0].ID, actual.MovingExpenses[0].ID)
+
+					}
+
+					if suite.NotNil(actual.W2Address) {
+						suite.Equal(expected.W2Address.ID, actual.W2Address.ID)
+					}
+
+					if suite.NotNil(actual.AOAPacket) {
+						suite.Equal(expected.AOAPacket.ID, actual.AOAPacket.ID)
+					}
+
+					if suite.NotNil(actual.PaymentPacket) {
+						suite.Equal(expected.PaymentPacket.ID, actual.PaymentPacket.ID)
+					}
+				},
+			},
+		}
+
+		for name, testCase := range associationTestCases {
+			name, testCase := name, testCase
+
+			suite.Run(fmt.Sprintf("Can fetch a PPM Shipment with associations: %s", name), func() {
+				ppmShipment := testdatagen.MakePPMShipmentWithAllDocTypesApproved(
+					suite.DB(),
+					testdatagen.Assertions{
+						UserUploader: userUploader,
+					},
+				)
+
+				ppmShipmentReturned, err := fetcher.GetPPMShipment(
+					suite.AppContextForTest(),
+					ppmShipment.ID,
+					testCase.eagerPreloadAssociations,
+				)
+
+				if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
+					suite.Equal(ppmShipment.ID, ppmShipmentReturned.ID)
+					suite.Equal(ppmShipment.ShipmentID, ppmShipmentReturned.ShipmentID)
+
+					testCase.successAssertionFunc(&ppmShipment, ppmShipmentReturned)
+				}
+			})
+		}
+
+		suite.Run("Returns a not found error if the PPM Shipment does not exist", func() {
+			nonexistentID := uuid.Must(uuid.NewV4())
+
+			ppmShipmentReturned, err := fetcher.GetPPMShipment(
+				suite.AppContextForTest(),
+				nonexistentID,
+				nil,
+			)
+
+			if suite.Error(err) && suite.Nil(ppmShipmentReturned) {
+				suite.IsType(apperror.NotFoundError{}, err)
+
+				suite.Equal(fmt.Sprintf("ID: %s not found while looking for PPMShipment", nonexistentID), err.Error())
+			}
+		})
+
+		suite.Run("Returns an error if an invalid association is requested", func() {
+			ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+
+			invalidAssociation := "invalid"
+			ppmShipmentReturned, err := fetcher.GetPPMShipment(
+				suite.AppContextForTest(),
+				ppmShipment.ID,
+				[]string{invalidAssociation},
+			)
+
+			if suite.Error(err) && suite.Nil(ppmShipmentReturned) {
+				suite.IsType(apperror.NotImplementedError{}, err)
+
+				suite.Contains(
+					err.Error(),
+					fmt.Sprintf("Requested eager preload association %s is not implemented", invalidAssociation),
+				)
+			}
+		})
+
+		suite.Run("Returns an error if the shipment has been deleted", func() {
+			ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+
+			err := utilities.SoftDestroy(suite.DB(), &ppmShipment)
+			suite.FatalNoError(err)
+
+			ppmShipmentReturned, err := fetcher.GetPPMShipment(
+				suite.AppContextForTest(),
+				ppmShipment.ID,
+				nil,
+			)
+
+			if suite.Error(err) && suite.Nil(ppmShipmentReturned) {
+				suite.IsType(apperror.NotFoundError{}, err)
+
+				suite.Equal(fmt.Sprintf("ID: %s not found while looking for PPMShipment", ppmShipment.ID), err.Error())
+			}
+		})
+
+		suite.Run("Excludes deleted documents", func() {
+			ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(
+				suite.DB(),
+				testdatagen.Assertions{
+					UserUploader: userUploader,
+				},
+			)
+
+			// create new ppm documents that are deleted
+			now := time.Now()
+
+			testdatagen.AddWeightTicketToPPMShipment(suite.DB(), &ppmShipment, testdatagen.Assertions{
+				UserUploader: userUploader,
+				WeightTicket: models.WeightTicket{
+					DeletedAt: &now,
+				},
+			})
+
+			testdatagen.AddProgearWeightTicketToPPMShipment(suite.DB(), &ppmShipment, testdatagen.Assertions{
+				UserUploader: userUploader,
+				ProgearWeightTicket: models.ProgearWeightTicket{
+					DeletedAt: &now,
+				},
+			})
+
+			testdatagen.AddMovingExpenseToPPMShipment(suite.DB(), &ppmShipment, testdatagen.Assertions{
+				UserUploader: userUploader,
+				MovingExpense: models.MovingExpense{
+					DeletedAt: &now,
+				},
+			})
+
+			ppmShipmentReturned, err := fetcher.GetPPMShipment(
+				suite.AppContextForTest(),
+				ppmShipment.ID,
+				[]string{
+					EagerPreloadAssociationWeightTickets,
+					EagerPreloadAssociationProgearWeightTickets,
+					EagerPreloadAssociationMovingExpenses,
+				},
+			)
+
+			if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
+				suite.Equal(len(ppmShipment.WeightTickets)-1, len(ppmShipmentReturned.WeightTickets))
+				suite.Equal(ppmShipment.WeightTickets[0].ID, ppmShipmentReturned.WeightTickets[0].ID)
+
+				suite.Equal(len(ppmShipment.ProgearWeightTickets)-1, len(ppmShipmentReturned.ProgearWeightTickets))
+				suite.Equal(ppmShipment.ProgearWeightTickets[0].ID, ppmShipmentReturned.ProgearWeightTickets[0].ID)
+
+				suite.Equal(len(ppmShipment.MovingExpenses)-1, len(ppmShipmentReturned.MovingExpenses))
+				suite.Equal(ppmShipment.MovingExpenses[0].ID, ppmShipmentReturned.MovingExpenses[0].ID)
+			}
+		})
+	})
+}
 
 func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	suite.Run("FindPPMShipmentWithDocument - document belongs to weight ticket", func() {

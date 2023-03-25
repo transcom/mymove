@@ -22,6 +22,13 @@ type PPMShipmentUpdater interface {
 	UpdatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmshipment *models.PPMShipment, mtoShipmentID uuid.UUID) (*models.PPMShipment, error)
 }
 
+// PPMShipmentFetcher fetches a PPM shipment
+//
+//go:generate mockery --name PPMShipmentFetcher
+type PPMShipmentFetcher interface {
+	GetPPMShipment(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, eagerPreloadAssociations []string) (*models.PPMShipment, error)
+}
+
 // PPMDocumentFetcher fetches all documents associated with a PPM shipment
 //
 //go:generate mockery --name PPMDocumentFetcher
