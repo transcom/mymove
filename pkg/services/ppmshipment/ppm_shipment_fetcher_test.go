@@ -24,6 +24,42 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 
 	fetcher := NewPPMShipmentFetcher()
 
+	checkWeightTicketUploads := func(expected *models.PPMShipment, actual *models.PPMShipment) {
+		suite.Equal(len(expected.WeightTickets), len(actual.WeightTickets))
+		suite.Greater(len(actual.WeightTickets), 0)
+		for i := range expected.WeightTickets {
+			if suite.False(actual.WeightTickets[i].EmptyDocument.ID.IsNil()) {
+				suite.Equal(expected.WeightTickets[i].EmptyDocument.ID, actual.WeightTickets[i].EmptyDocument.ID)
+
+				suite.Equal(
+					len(expected.WeightTickets[i].EmptyDocument.UserUploads),
+					len(actual.WeightTickets[i].EmptyDocument.UserUploads),
+				)
+
+				suite.False(actual.WeightTickets[i].EmptyDocument.UserUploads[0].Upload.ID.IsNil())
+				suite.Equal(
+					expected.WeightTickets[i].EmptyDocument.UserUploads[0].Upload.ID,
+					actual.WeightTickets[i].EmptyDocument.UserUploads[0].Upload.ID,
+				)
+			}
+
+			if suite.False(actual.WeightTickets[i].FullDocument.ID.IsNil()) {
+				suite.Equal(expected.WeightTickets[i].FullDocument.ID, actual.WeightTickets[i].FullDocument.ID)
+
+				suite.Equal(
+					len(expected.WeightTickets[i].FullDocument.UserUploads),
+					len(actual.WeightTickets[i].FullDocument.UserUploads),
+				)
+
+				suite.False(actual.WeightTickets[i].FullDocument.UserUploads[0].Upload.ID.IsNil())
+				suite.Equal(
+					expected.WeightTickets[i].FullDocument.UserUploads[0].Upload.ID,
+					actual.WeightTickets[i].FullDocument.UserUploads[0].Upload.ID,
+				)
+			}
+		}
+	}
+
 	suite.Run("GetPPMShipment", func() {
 		suite.Run("Can fetch a PPM Shipment", func() {
 			ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
@@ -31,6 +67,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 			ppmShipmentReturned, err := fetcher.GetPPMShipment(
 				suite.AppContextForTest(),
 				ppmShipment.ID,
+				nil,
 				nil,
 			)
 
@@ -138,6 +175,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 					suite.AppContextForTest(),
 					ppmShipment.ID,
 					testCase.eagerPreloadAssociations,
+					nil,
 				)
 
 				if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
@@ -156,6 +194,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 				suite.AppContextForTest(),
 				nonexistentID,
 				nil,
+				nil,
 			)
 
 			if suite.Error(err) && suite.Nil(ppmShipmentReturned) {
@@ -173,6 +212,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 				suite.AppContextForTest(),
 				ppmShipment.ID,
 				[]string{invalidAssociation},
+				nil,
 			)
 
 			if suite.Error(err) && suite.Nil(ppmShipmentReturned) {
@@ -194,6 +234,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 			ppmShipmentReturned, err := fetcher.GetPPMShipment(
 				suite.AppContextForTest(),
 				ppmShipment.ID,
+				nil,
 				nil,
 			)
 
@@ -244,6 +285,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 					EagerPreloadAssociationProgearWeightTickets,
 					EagerPreloadAssociationMovingExpenses,
 				},
+				nil,
 			)
 
 			if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
@@ -257,43 +299,86 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 				suite.Equal(ppmShipment.MovingExpenses[0].ID, ppmShipmentReturned.MovingExpenses[0].ID)
 			}
 		})
+
+		suite.Run("Can fetch a ppm shipment and get both eagerPreloadAssociations and postloadAssociations", func() {
+			appCtx := suite.AppContextForTest()
+
+			ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(
+				appCtx.DB(),
+				testdatagen.Assertions{},
+			)
+
+			ppmShipmentReturned, err := fetcher.GetPPMShipment(
+				appCtx,
+				ppmShipment.ID,
+				[]string{
+					EagerPreloadAssociationWeightTickets,
+				},
+				[]string{
+					PostLoadAssociationWeightTicketUploads,
+				},
+			)
+
+			if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
+				suite.Equal(ppmShipment.ID, ppmShipmentReturned.ID)
+
+				suite.NotNil(ppmShipmentReturned.WeightTickets)
+				suite.Equal(len(ppmShipment.WeightTickets), len(ppmShipmentReturned.WeightTickets))
+				suite.Equal(ppmShipment.WeightTickets[0].ID, ppmShipmentReturned.WeightTickets[0].ID)
+
+				checkWeightTicketUploads(&ppmShipment, ppmShipmentReturned)
+			}
+		})
+
+		suite.Run("Doesn't return postload association if a necessary higehr level association isn't eagerly preloaded", func() {
+			appCtx := suite.AppContextForTest()
+
+			ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(
+				appCtx.DB(),
+				testdatagen.Assertions{
+					UserUploader: userUploader,
+				},
+			)
+
+			suite.FatalTrue(len(ppmShipment.WeightTickets) > 0, "Test data that was set up is invalid, no weight tickets found")
+
+			ppmShipmentReturned, err := fetcher.GetPPMShipment(
+				appCtx,
+				ppmShipment.ID,
+				nil,
+				nil,
+			)
+
+			if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
+				suite.Equal(ppmShipment.ID, ppmShipmentReturned.ID)
+
+				suite.Nil(ppmShipmentReturned.WeightTickets)
+			}
+		})
+
+		suite.Run("Returns an error if an invalid postload association is passed in", func() {
+			ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+
+			invalidAssociation := "invalid"
+			ppmShipmentReturned, err := fetcher.GetPPMShipment(
+				suite.AppContextForTest(),
+				ppmShipment.ID,
+				nil,
+				[]string{invalidAssociation},
+			)
+
+			if suite.Error(err) && suite.Nil(ppmShipmentReturned) {
+				suite.IsType(apperror.NotImplementedError{}, err)
+
+				suite.Contains(
+					err.Error(),
+					fmt.Sprintf("Requested post load association %s is not implemented", invalidAssociation),
+				)
+			}
+		})
 	})
 
 	suite.Run("PostloadAssociations", func() {
-		checkWeightTicketUploads := func(expected *models.PPMShipment, actual *models.PPMShipment) {
-			suite.Equal(len(expected.WeightTickets), len(actual.WeightTickets))
-			suite.Greater(len(actual.WeightTickets), 0)
-			for i := range expected.WeightTickets {
-				suite.False(actual.WeightTickets[i].EmptyDocument.ID.IsNil())
-				suite.Equal(expected.WeightTickets[i].EmptyDocument.ID, actual.WeightTickets[i].EmptyDocument.ID)
-
-				suite.Equal(
-					len(expected.WeightTickets[i].EmptyDocument.UserUploads),
-					len(actual.WeightTickets[i].EmptyDocument.UserUploads),
-				)
-
-				suite.False(actual.WeightTickets[i].EmptyDocument.UserUploads[0].Upload.ID.IsNil())
-				suite.Equal(
-					expected.WeightTickets[i].EmptyDocument.UserUploads[0].Upload.ID,
-					actual.WeightTickets[i].EmptyDocument.UserUploads[0].Upload.ID,
-				)
-
-				suite.False(actual.WeightTickets[i].FullDocument.ID.IsNil())
-				suite.Equal(expected.WeightTickets[i].FullDocument.ID, actual.WeightTickets[i].FullDocument.ID)
-
-				suite.Equal(
-					len(expected.WeightTickets[i].FullDocument.UserUploads),
-					len(actual.WeightTickets[i].FullDocument.UserUploads),
-				)
-
-				suite.False(actual.WeightTickets[i].FullDocument.UserUploads[0].Upload.ID.IsNil())
-				suite.Equal(
-					expected.WeightTickets[i].FullDocument.UserUploads[0].Upload.ID,
-					actual.WeightTickets[i].FullDocument.UserUploads[0].Upload.ID,
-				)
-			}
-		}
-
 		postloadAssociationTestCases := map[string]struct {
 			postloadAssociations []string
 			successAssertionFunc func(*models.PPMShipment, *models.PPMShipment)
@@ -391,6 +476,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 					suite.AppContextForTest(),
 					ppmShipment.ID,
 					GetListOfAllPreloadAssociations(),
+					nil,
 				)
 
 				suite.FatalNoError(err, "failed to fetch PPM Shipment")
@@ -502,6 +588,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 				appCtx,
 				ppmShipment.ID,
 				GetListOfAllPreloadAssociations(),
+				nil,
 			)
 
 			suite.FatalNoError(err, "failed to fetch PPM Shipment")
@@ -574,7 +661,6 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 			}
 		})
 	})
-
 }
 
 func (suite *PPMShipmentSuite) TestFetchPPMShipment() {

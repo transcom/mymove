@@ -76,7 +76,7 @@ func GetListOfAllPostloadAssociations() []string {
 }
 
 // GetPPMShipment returns a PPMShipment with any desired associations by ID
-func (f ppmShipmentFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, eagerPreloadAssociations []string) (*models.PPMShipment, error) {
+func (f ppmShipmentFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, eagerPreloadAssociations []string, postloadAssociations []string) (*models.PPMShipment, error) {
 	if eagerPreloadAssociations != nil {
 		validPreloadAssociations := make(map[string]bool)
 		for _, v := range GetListOfAllPreloadAssociations() {
@@ -114,6 +114,14 @@ func (f ppmShipmentFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShip
 	ppmShipment.WeightTickets = ppmShipment.WeightTickets.FilterDeleted()
 	ppmShipment.ProgearWeightTickets = ppmShipment.ProgearWeightTickets.FilterDeleted()
 	ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterDeleted()
+
+	if postloadAssociations != nil {
+		postloadErr := f.PostloadAssociations(appCtx, &ppmShipment, postloadAssociations)
+
+		if postloadErr != nil {
+			return nil, postloadErr
+		}
+	}
 
 	return &ppmShipment, nil
 }
