@@ -39,6 +39,19 @@ const (
 	EagerPreloadAssociationPaymentPacket = "PaymentPacket"
 )
 
+// These are helper constants for requesting post load associations, meaning associations that can't be eager pre-loaded
+// due to bugs in pop
+const (
+	// PostLoadAssociationSignedCertification is the name of the association for the signed certification
+	PostLoadAssociationSignedCertification = "SignedCertification"
+	// PostLoadAssociationWeightTicketUploads is the name of the association for the weight ticket uploads
+	PostLoadAssociationWeightTicketUploads = "WeightTicketUploads"
+	// PostLoadAssociationProgearWeightTicketUploads is the name of the association for the pro-gear weight ticket uploads
+	PostLoadAssociationProgearWeightTicketUploads = "ProgearWeightTicketUploads"
+	// PostLoadAssociationMovingExpenseUploads is the name of the association for the moving expense uploads
+	PostLoadAssociationMovingExpenseUploads = "MovingExpenseUploads"
+)
+
 // GetListOfAllPreloadAssociations returns all associations for a PPMShipment that can be eagerly preloaded for ease of use.
 func GetListOfAllPreloadAssociations() []string {
 	return []string{
@@ -49,6 +62,16 @@ func GetListOfAllPreloadAssociations() []string {
 		EagerPreloadAssociationW2Address,
 		EagerPreloadAssociationAOAPacket,
 		EagerPreloadAssociationPaymentPacket,
+	}
+}
+
+// GetListOfAllPostloadAssociations returns all associations for a PPMShipment that can't be eagerly preloaded due to bugs in pop
+func GetListOfAllPostloadAssociations() []string {
+	return []string{
+		PostLoadAssociationSignedCertification,
+		PostLoadAssociationWeightTicketUploads,
+		PostLoadAssociationProgearWeightTicketUploads,
+		PostLoadAssociationMovingExpenseUploads,
 	}
 }
 
@@ -93,6 +116,73 @@ func (f ppmShipmentFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShip
 	ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterDeleted()
 
 	return &ppmShipment, nil
+}
+
+// PostloadAssociations loads associations that can't be eager preloaded due to bugs in pop
+func (f ppmShipmentFetcher) PostloadAssociations(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, postloadAssociations []string) error {
+	for _, association := range postloadAssociations {
+		switch association {
+		case PostLoadAssociationSignedCertification:
+			// We can't load SignedCertification with EagerPreload because of a bug in Pop, so we'll load it directly next.
+			loadErr := appCtx.DB().Load(ppmShipment, "SignedCertification")
+
+			// Pop will load an empty struct here and we'll get validation errors when attempting to save, if we don't set the
+			// field to nil
+			if ppmShipment.SignedCertification != nil && ppmShipment.SignedCertification.ID.IsNil() {
+				ppmShipment.SignedCertification = nil
+			}
+
+			if loadErr != nil {
+				return apperror.NewQueryError("PPMShipment", loadErr, "unable to load SignedCertification")
+			}
+		case PostLoadAssociationWeightTicketUploads:
+			for i := range ppmShipment.WeightTickets {
+				weightTicket := &ppmShipment.WeightTickets[i]
+
+				err := appCtx.DB().Load(weightTicket,
+					"EmptyDocument.UserUploads.Upload",
+					"FullDocument.UserUploads.Upload",
+					"ProofOfTrailerOwnershipDocument.UserUploads.Upload")
+
+				if err != nil {
+					return apperror.NewQueryError("WeightTicket", err, "failed to load WeightTicket document uploads")
+				}
+
+				weightTicket.EmptyDocument.UserUploads = weightTicket.EmptyDocument.UserUploads.FilterDeleted()
+				weightTicket.FullDocument.UserUploads = weightTicket.FullDocument.UserUploads.FilterDeleted()
+				weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightTicket.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
+			}
+		case PostLoadAssociationProgearWeightTicketUploads:
+			for i := range ppmShipment.ProgearWeightTickets {
+				progearWeightTicket := &ppmShipment.ProgearWeightTickets[i]
+				err := appCtx.DB().Load(progearWeightTicket,
+					"Document.UserUploads.Upload")
+
+				if err != nil {
+					return apperror.NewQueryError("ProgearWeightTickets", err, "failed to load ProgearWeightTickets document uploads")
+				}
+
+				progearWeightTicket.Document.UserUploads = progearWeightTicket.Document.UserUploads.FilterDeleted()
+			}
+
+		case PostLoadAssociationMovingExpenseUploads:
+			for i := range ppmShipment.MovingExpenses {
+				movingExpense := &ppmShipment.MovingExpenses[i]
+				err := appCtx.DB().Load(movingExpense,
+					"Document.UserUploads.Upload")
+
+				if err != nil {
+					return apperror.NewQueryError("MovingExpenses", err, "failed to load  MovingExpenses document uploads")
+				}
+
+				movingExpense.Document.UserUploads = movingExpense.Document.UserUploads.FilterDeleted()
+			}
+		default:
+			return apperror.NewNotImplementedError(fmt.Sprintf("Requested post load association %s is not implemented", association))
+		}
+	}
+
+	return nil
 }
 
 func FindPPMShipmentAndWeightTickets(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShipment, error) {
