@@ -258,25 +258,37 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 	})
 
 	suite.Run("successfully returns non deleted orders and amended orders uploads", func() {
-		nonDeletedOrdersUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: UserUpload{
-				Document:  nonDeletedOrdersUpload.Document,
-				DeletedAt: TimePointer(time.Now()),
+		nonDeletedOrdersUpload := factory.BuildUserUpload(suite.DB(), nil, nil)
+		factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    nonDeletedOrdersUpload.Document,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: UserUpload{
+					DeletedAt: TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 
-		nonDeletedAmendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: UserUpload{
-				UploaderID: nonDeletedOrdersUpload.Document.ServiceMember.UserID,
+		nonDeletedAmendedUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model: UserUpload{
+					UploaderID: nonDeletedOrdersUpload.Document.ServiceMember.UserID,
+				},
 			},
-		})
-		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: UserUpload{
-				Document:  nonDeletedAmendedUpload.Document,
-				DeletedAt: TimePointer(time.Now()),
+		}, nil)
+		factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    nonDeletedAmendedUpload.Document,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: UserUpload{
+					DeletedAt: TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 
 		expectedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: Order{

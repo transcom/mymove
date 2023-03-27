@@ -103,7 +103,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		// Under test: MoveRouter.RouteAfterAmendingOrders
 		// Set up: Submit an approved move with an orders record
 		// Expected outcome: move status updated to APPROVALSREQUESTED
-		document := testdatagen.MakeDefaultDocument(suite.DB())
+		document := factory.BuildDocument(suite.DB(), nil, nil)
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
 				ID:                    uuid.Must(uuid.NewV4()),
@@ -126,7 +126,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		// Under test: MoveRouter.RouteAfterAmendingOrders
 		// Set up: Create a CANCELLED move without an OrdersID
 		// Expected outcome: Error on ordersID
-		document := testdatagen.MakeDefaultDocument(suite.DB())
+		document := factory.BuildDocument(suite.DB(), nil, nil)
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
 				ID:                    uuid.Must(uuid.NewV4()),
@@ -149,7 +149,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		// Under test: MoveRouter.RouteAfterAmendingOrders
 		// Set up: Create a move amended orders acknowledged, then submit with amended orders
 		// Expected outcome: Status goes to APPROVALSREQUESTED and timestamp is cleared
-		document := testdatagen.MakeDefaultDocument(suite.DB())
+		document := factory.BuildDocument(suite.DB(), nil, nil)
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
 				ID:                    uuid.Must(uuid.NewV4()),
@@ -591,15 +591,20 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		storer := storageTest.NewFakeS3Storage(true)
 		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
-		amendedDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
-		amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: models.UserUpload{
-				DocumentID: &amendedDocument.ID,
-				Document:   amendedDocument,
-				UploaderID: amendedDocument.ServiceMember.UserID,
+		amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)
+		amendedUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    amendedDocument,
+				LinkOnly: true,
 			},
-			UserUploader: userUploader,
-		})
+			{
+				Model: models.UserUpload{},
+				ExtendedParams: &factory.UserUploadExtendedParams{
+					UserUploader: userUploader,
+					AppContext:   suite.AppContextForTest(),
+				},
+			},
+		}, nil)
 
 		amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
 		now := time.Now()

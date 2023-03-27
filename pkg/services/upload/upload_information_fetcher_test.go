@@ -28,8 +28,13 @@ func (suite *UploadServiceSuite) TestFetchUploadInformation() {
 				},
 			},
 		}, nil)
-		assertions := testdatagen.Assertions{UserUpload: models.UserUpload{UploaderID: *ou.UserID}}
-		uu := testdatagen.MakeUserUpload(suite.DB(), assertions)
+		uu := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model: models.UserUpload{
+					UploaderID: *ou.UserID,
+				},
+			},
+		}, nil)
 		uif := NewUploadInformationFetcher()
 		suite.NotNil(uu.UploadID)
 		suite.NotNil(uu.Upload)

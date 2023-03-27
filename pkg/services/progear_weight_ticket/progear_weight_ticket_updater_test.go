@@ -19,13 +19,7 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
 
-		baseDocumentAssertions := testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: serviceMember.ID,
-			},
-		}
-
-		document := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
+		document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 
 		now := time.Now()
 		if hasdocFiles {
@@ -34,14 +28,17 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 				if i == 1 {
 					deletedAt = &now
 				}
-				testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-					UserUpload: models.UserUpload{
-						UploaderID: serviceMember.UserID,
-						DocumentID: &document.ID,
-						Document:   document,
-						DeletedAt:  deletedAt,
+				factory.BuildUserUpload(suite.DB(), []factory.Customization{
+					{
+						Model:    document,
+						LinkOnly: true,
 					},
-				})
+					{
+						Model: models.UserUpload{
+							DeletedAt: deletedAt,
+						},
+					},
+				}, nil)
 			}
 		}
 
