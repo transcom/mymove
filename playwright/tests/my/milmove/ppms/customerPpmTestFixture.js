@@ -244,8 +244,6 @@ export class CustomerPpmPage extends CustomerPage {
       // second one for Full Weight. Not sure why getByLabel does not work
       await this.page.locator('label').getByText("I don't have this weight ticket").nth(1).click();
 
-      // this page has multiple labels with the same text, grab the
-      // second one for Full Weight
       const fullConstructed = this.page
         .locator('label')
         .getByText('Upload your completed constructed weight spreadsheet');
