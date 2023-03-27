@@ -982,6 +982,9 @@ func createApprovedMoveWithPPMExcessWeightsAnd2WeightTickets(appCtx appcontext.A
 			MoveLocator: "XSWT02",
 		})
 	secondWeightTicketAssertions := testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
 		PPMShipment:   shipment,
 		ServiceMember: move.Orders.ServiceMember,
 		WeightTicket: models.WeightTicket{
@@ -1005,6 +1008,9 @@ func createApprovedMoveWith2PPMShipmentsAndExcessWeights(appCtx appcontext.AppCo
 		})
 	secondPPMShipment := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
 		PPMShipment: models.PPMShipment{
 			ID: uuid.Must(uuid.NewV4()),
 		},
