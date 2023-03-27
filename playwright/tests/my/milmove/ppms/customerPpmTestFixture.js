@@ -230,10 +230,12 @@ export class CustomerPpmPage extends CustomerPage {
       let filepond = emptyRental.locator('../..').locator('.filepond--wrapper');
       await expect(filepond).toBeVisible();
 
-      await this.uploadFileViaFilepond(filepond, 'rentalWeight.pdf');
+      await this.uploadFileViaFilepond(filepond, 'sampleWeightTicket.jpg');
 
       // wait for the file to be visible in the uploads
-      await expect(filepond.locator('../..').locator('p').getByText('rentalWeight.pdf', { exact: true })).toBeVisible();
+      await expect(
+        filepond.locator('../..').locator('p').getByText('sampleWeightTicket.jpg', { exact: true }),
+      ).toBeVisible();
 
       await this.page.getByLabel('Full weight').clear();
       await this.page.getByLabel('Full weight').type('3000');
