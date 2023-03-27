@@ -36,7 +36,9 @@ export const useCalculatedTotalBillableWeight = (mtoShipments) => {
  * This function calculates the weight requested of a move,
  * by adding up all of the net weights of all shipments with the required statuses.
  *
- * This function includes PPM net weights in its calculation.
+ * This function includes PPM net weights in its calculation. In order to calculate the PPM net weights,
+ * the corresponding weight tickets must be attached to the PPM shipments.
+ * @see useAddWeightTicketsToPPMShipments in hooks/queries for information on adding weight tickets to PPM shipments
  * @param mtoShipments An array of MTO Shipments
  * @return {int|null} The total weight requested
  */
