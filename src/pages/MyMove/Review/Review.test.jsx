@@ -113,8 +113,6 @@ describe('Review page', () => {
 
     await userEvent.click(backButton);
 
-    screen.debug();
-
     expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 

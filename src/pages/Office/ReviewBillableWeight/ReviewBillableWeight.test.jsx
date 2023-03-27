@@ -331,7 +331,7 @@ describe('ReviewBillableWeight', () => {
 
       await userEvent.click(screen.getByText('Edit'));
       expect((await screen.findByTestId('maxWeight-weightAllowance')).textContent).toBe(weightAllowance);
-      screen.debug();
+
       expect(screen.getByTestId('maxWeight-estimatedWeight').textContent).toBe('11,000 lbs');
       expect(screen.getByText(move.tioRemarks)).toBeInTheDocument();
     });
