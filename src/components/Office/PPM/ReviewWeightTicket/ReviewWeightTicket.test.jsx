@@ -13,7 +13,7 @@ beforeEach(() => {
 const defaultProps = {
   order: {
     entitlement: {
-      authorizedWeight: 2000,
+      totalWeight: 2000,
     },
   },
   ppmShipment: {
@@ -116,7 +116,7 @@ describe('ReviewWeightTicket component', () => {
         </MockProviders>,
       );
       await waitFor(() => {
-        expect(screen.getByLabelText('Empty weight', { description: 'Constructed weight' })).toBeInTheDocument();
+        expect(screen.getByLabelText('Empty weight', { description: 'Vehicle weight' })).toBeInTheDocument();
       });
       expect(screen.getByLabelText('Full weight', { description: 'Constructed weight' })).toBeInTheDocument();
     });

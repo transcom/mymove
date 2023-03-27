@@ -11,7 +11,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import { formatWeight } from 'utils/formatters';
 import { calculateWeightTicketWeightDifference, getWeightTicketNetWeight } from 'utils/shipmentWeights';
-import { useCalculatedWeightRequested } from 'hooks/custom';
+import { calculateWeightRequested } from 'hooks/custom';
 import { patchWeightTicket } from 'services/ghcApi';
 import { ShipmentShape, WeightTicketShape } from 'types/shipment';
 import { DOCUMENTS } from 'constants/queryKeys';
@@ -91,12 +91,14 @@ const WeightCalculationHint = ({ type, firstValue, secondValue, thirdValue }) =>
   );
 };
 
-const validationSchema = Yup.object({
-  adjustedNetWeight: Yup.number().min(0, 'Net weight must be 0 lbs or greater').required('Required'),
-  netWeightRemarks: Yup.string().nullable().required('Required'),
-});
-
 const EditPPMNetWeightForm = ({ onCancel, initialValues, weightTicket }) => {
+  const validationSchema = Yup.object({
+    adjustedNetWeight: Yup.number()
+      .min(0, 'Net weight must be 0 lbs or greater')
+      .lessThan(weightTicket.fullWeight, 'Net weight must be less than or equal to the full weight')
+      .required('Required'),
+    netWeightRemarks: Yup.string().nullable().required('Required'),
+  });
   const queryClient = useQueryClient();
 
   const { mutate: patchWeightTicketMutation } = useMutation({
@@ -197,10 +199,11 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
   // Original weight is the full weight - empty weight
   const originalWeight = calculateWeightTicketWeightDifference(weightTicket);
   // moveWeightTotal = Sum of all ppm weights + sum of all non-ppm shipments
-  const moveWeightTotal = useCalculatedWeightRequested(shipments);
+  const moveWeightTotal = calculateWeightRequested(shipments);
   const excessWeight = moveWeightTotal - weightAllowance;
   const hasExcessWeight = Boolean(excessWeight > 0);
   const netWeight = getWeightTicketNetWeight(weightTicket);
+
   const toFitValue = hasExcessWeight ? -Math.min(excessWeight, netWeight) : null;
   const showWarning = Boolean(hasExcessWeight && !showEditForm);
   const showReduceWeight = Boolean(-originalWeight === toFitValue);
@@ -241,7 +244,10 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
             </div>
           ) : (
             <EditPPMNetWeightForm
-              initialValues={{ adjustedNetWeight: String(netWeight), netWeightRemarks: weightTicket.netWeightRemarks }}
+              initialValues={{
+                adjustedNetWeight: String(netWeight),
+                netWeightRemarks: weightTicket.netWeightRemarks,
+              }}
               weightTicket={weightTicket}
               onCancel={toggleEditForm}
             />

@@ -62,7 +62,7 @@ export default function ReviewWeightTicket({
 
   const ppmShipment = mtoShipment?.ppmShipment;
 
-  const authorizedWeight = order.entitlement?.authorizedWeight;
+  const weightAllowance = order.entitlement?.totalWeight;
 
   const handleSubmit = (values) => {
     const ownsTrailer = values.ownsTrailer === 'true';
@@ -170,7 +170,7 @@ export default function ReviewWeightTicket({
                 label="Empty weight"
                 id="emptyWeight"
                 mask={Number}
-                description={missingEmptyWeightTicket ? 'Constructed weight' : 'Weight tickets'}
+                description={missingEmptyWeightTicket ? 'Vehicle weight' : 'Weight tickets'}
                 scale={0} // digits after point, 0 for integers
                 signed={false} // disallow negative
                 thousandsSeparator=","
@@ -194,7 +194,7 @@ export default function ReviewWeightTicket({
 
               <EditPPMNetWeight
                 weightTicket={weightTicket}
-                weightAllowance={authorizedWeight}
+                weightAllowance={weightAllowance}
                 shipments={mtoShipments}
               />
 
