@@ -64,7 +64,7 @@ MockRouterProvider.defaultProps = {
   routes: null,
 };
 
-/** Wrap the three most common mock providers (permission, redux, and router) around the provided children */
+/** Wrap the four most common mock providers (permission, redux, and router) around the provided children */
 export const MockProviders = ({
   children,
   initialState, // redux
@@ -120,7 +120,7 @@ MockProviders.defaultProps = {
  * Enables rendered components to use routing hooks like `useParams` and `useLocation`.
  *
  * @param {*} ui - The component to be rendered using react-testing-library
- * @param {*} options - Routing options used to create a mock router. Prefered options are `path` and `params`. Other options are for extended use cases and supporting existiong patterns.
+ * @param {*} options - Routing options used to create a mock router. Prefered options are `path` and `params`. Other options are for extended use cases and supporting existing patterns.
  * @returns {*} - The result of the render call from react-testing-library
  */
 export const renderWithRouter = (ui, options) => {
@@ -136,7 +136,7 @@ export const renderWithProviders = (ui, options) => {
  * Sets up mock routing and adds a mock `router` prop to the component using the provided path and params in options to mock behavior of `withRouter`.
  *
  * @param {*} ui - The component to be rendered using react-testing-library
- * @param {*} options - Routing options used to create a mock router. Prefered options are `path` and `params`. Other options are for extended use cases and supporting existiong patterns.
+ * @param {*} options - Routing options used to create a mock router. Prefered options are `path` and `params`. Other options are for extended use cases and supporting existing patterns.
  * @returns {*} - The result of the render call from react-testing-library
  */
 export const renderWithRouterProp = (ui, options) => {
