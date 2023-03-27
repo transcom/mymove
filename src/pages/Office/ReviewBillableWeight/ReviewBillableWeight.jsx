@@ -21,8 +21,8 @@ import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import {
   includedStatusesForCalculatingWeights,
   useCalculatedTotalBillableWeight,
-  useCalculatedWeightRequested,
   useCalculatedEstimatedWeight,
+  calculateWeightRequested,
 } from 'hooks/custom';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -57,7 +57,7 @@ export default function ReviewBillableWeight() {
   const isLastShipment = filteredShipments && selectedShipmentIndex === filteredShipments.length - 1;
 
   const totalBillableWeight = useCalculatedTotalBillableWeight(filteredShipments);
-  const weightRequested = useCalculatedWeightRequested(filteredShipments);
+  const weightRequested = calculateWeightRequested(filteredShipments);
   const totalEstimatedWeight = useCalculatedEstimatedWeight(filteredShipments);
 
   const maxBillableWeight = order?.entitlement?.authorizedWeight;
