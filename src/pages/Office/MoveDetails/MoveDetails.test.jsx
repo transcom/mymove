@@ -1039,7 +1039,7 @@ describe('MoveDetails page', () => {
       useMoveDetailsQueries.mockReturnValue(undefinedMTOShipmentsMoveDetailsQuery);
 
       render(
-        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+        <MockProviders>
           <MoveDetails
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
