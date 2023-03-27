@@ -77,6 +77,9 @@ type Orders struct {
 	// origin duty location
 	OriginDutyLocation *DutyLocationPayload `json:"origin_duty_location,omitempty"`
 
+	// From what GBLOC do your orders originate?
+	OriginDutyLocationGbloc string `json:"origin_duty_location_gbloc,omitempty"`
+
 	// Report by
 	//
 	// Report By Date

@@ -5681,6 +5681,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DutyLocationPayload"
         },
+        "origin_duty_location_gbloc": {
+          "type": "string",
+          "title": "From what GBLOC do your orders originate?"
+        },
         "report_by_date": {
           "description": "Report By Date",
           "type": "string",
@@ -14319,6 +14323,10 @@ func init() {
         "origin_duty_location": {
           "x-nullable": true,
           "$ref": "#/definitions/DutyLocationPayload"
+        },
+        "origin_duty_location_gbloc": {
+          "type": "string",
+          "title": "From what GBLOC do your orders originate?"
         },
         "report_by_date": {
           "description": "Report By Date",
