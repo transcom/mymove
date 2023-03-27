@@ -42,7 +42,7 @@ type MTOShipment struct {
 	HasSecondaryDeliveryAddress *bool `json:"hasSecondaryDeliveryAddress"`
 
 	// has secondary pickup address
-	HasSecondaryPickupAddress bool `json:"hasSecondaryPickupAddress"`
+	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
 
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054

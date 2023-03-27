@@ -4760,6 +4760,7 @@ func init() {
         },
         "hasSecondaryPickupAddress": {
           "type": "boolean",
+          "x-nullable": true,
           "x-omitempty": false
         },
         "id": {
@@ -13403,6 +13404,7 @@ func init() {
         },
         "hasSecondaryPickupAddress": {
           "type": "boolean",
+          "x-nullable": true,
           "x-omitempty": false
         },
         "id": {

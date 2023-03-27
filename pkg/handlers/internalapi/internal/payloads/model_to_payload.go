@@ -117,10 +117,6 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 
 // MTOShipment payload
 func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
-	hasSecondaryPickupAddress := false
-	if mtoShipment.HasSecondaryPickupAddress != nil {
-		hasSecondaryPickupAddress = *mtoShipment.HasSecondaryPickupAddress
-	}
 	payload := &internalmessages.MTOShipment{
 		ID:                          strfmt.UUID(mtoShipment.ID.String()),
 		Agents:                      *MTOAgents(&mtoShipment.MTOAgents),
@@ -129,7 +125,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *in
 		CustomerRemarks:             mtoShipment.CustomerRemarks,
 		PickupAddress:               Address(mtoShipment.PickupAddress),
 		SecondaryPickupAddress:      Address(mtoShipment.SecondaryPickupAddress),
-		HasSecondaryPickupAddress:   hasSecondaryPickupAddress,
+		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
 		DestinationAddress:          Address(mtoShipment.DestinationAddress),
 		SecondaryDeliveryAddress:    Address(mtoShipment.SecondaryDeliveryAddress),
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
