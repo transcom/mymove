@@ -379,6 +379,9 @@ func MakeRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.Re
 			Move:        mto,
 			MTOShipment: mtoShipment,
 			ReService:   reService,
+			MTOServiceItem: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		})
 
 		return mtoServiceItem

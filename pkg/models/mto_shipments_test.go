@@ -71,8 +71,8 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			SACType:                     &tacType,
 		}
 		expErrors := map[string][]string{
-			"prime_estimated_weight":        {"-1000 is not greater than -1."},
-			"prime_actual_weight":           {"-980 is not greater than -1."},
+			"prime_estimated_weight":        {"-1000 is not greater than 0."},
+			"prime_actual_weight":           {"-980 is not greater than 0."},
 			"rejection_reason":              {"RejectionReason can not be blank."},
 			"billable_weight_cap":           {"-1 is less than zero."},
 			"billable_weight_justification": {"BillableWeightJustification can not be blank."},

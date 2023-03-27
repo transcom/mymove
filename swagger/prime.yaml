@@ -1242,6 +1242,8 @@ definitions:
           Prime contracter will need to contact the TOO to change it.
         type: integer
         example: 4500
+        minimum: 1
+        x-nullable: true
       customerRemarks:
         description: >
           The customer can use the customer remarks field to inform the services
@@ -1623,7 +1625,7 @@ definitions:
       - paymentRequests
     properties:
       id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        example: a502b4f1-b9c4-4faf-8bdd-68292501bf26
         format: uuid
         type: string
       moveCode:
@@ -2142,6 +2144,8 @@ definitions:
           Prime contracter will need to contact the TOO to change it.
         type: integer
         example: 4500
+        minimum: 1
+        x-nullable: true
       primeEstimatedWeightRecordedDate:
         description: >-
           The date when the Prime contractor recorded the shipment's estimated
@@ -2157,6 +2161,8 @@ definitions:
           picks up, and weighs a customer's shipment.
         type: integer
         example: 4500
+        minimum: 1
+        x-nullable: true
       ntsRecordedWeight:
         description: >-
           The previously recorded weight for the NTS Shipment. Used for NTS
@@ -2338,7 +2344,7 @@ definitions:
       - linesOfAccounting
     properties:
       id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
       customer:
@@ -2638,13 +2644,6 @@ definitions:
         description: The estimated weight of the PPM shipment goods being moved in pounds.
         type: integer
         example: 4200
-        x-nullable: true
-        x-omitempty: false
-      netWeight:
-        description: |
-          The net weight of the shipment once it has been weight
-        type: integer
-        example: 4300
         x-nullable: true
         x-omitempty: false
       hasProGear:
@@ -2979,12 +2978,16 @@ definitions:
           Prime contracter will need to contact the TOO to change it.
         type: integer
         example: 4500
+        minimum: 1
+        x-nullable: true
       primeActualWeight:
         description: >-
           The actual weight of the shipment, provided after the Prime packs,
           picks up, and weighs a customer's shipment.
         type: integer
         example: 4500
+        minimum: 1
+        x-nullable: true
       ntsRecordedWeight:
         description: >-
           The previously recorded weight for the NTS Shipment. Used for NTS

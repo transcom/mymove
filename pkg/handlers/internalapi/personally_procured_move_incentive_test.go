@@ -141,7 +141,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	user := testdatagen.MakeDefaultServiceMember(suite.DB())
+	user := factory.BuildServiceMember(suite.DB(), nil, nil)
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.AuthenticateRequest(req, user)
 

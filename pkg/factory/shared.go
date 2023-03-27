@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -35,7 +36,9 @@ type CustomType string
 // where this address will get created and nested
 var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
+var BackupContact CustomType = "BackupContact"
 var Contractor CustomType = "Contractor"
+var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
@@ -50,6 +53,7 @@ var Role CustomType = "Role"
 var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
+var UserUpload CustomType = "UserUpload"
 var User CustomType = "User"
 var UsersRoles CustomType = "UsersRoles"
 
@@ -57,7 +61,9 @@ var UsersRoles CustomType = "UsersRoles"
 var defaultTypesMap = map[string]CustomType{
 	"models.Address":              Address,
 	"models.AdminUser":            AdminUser,
+	"models.BackupContact":        BackupContact,
 	"models.Contractor":           Contractor,
+	"models.Document":             Document,
 	"models.DutyLocation":         DutyLocation,
 	"models.Entitlement":          Entitlement,
 	"models.OfficePhoneLine":      OfficePhoneLine,
@@ -71,6 +77,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Tariff400ngZip3":      Tariff400ngZip3,
 	"models.TransportationOffice": TransportationOffice,
 	"models.Upload":               Upload,
+	"models.UserUpload":           UserUpload,
 	"models.User":                 User,
 	"models.UsersRoles":           UsersRoles,
 	"roles.Role":                  Role,
@@ -85,6 +92,7 @@ type addressGroup struct {
 	DeliveryAddress          CustomType
 	SecondaryDeliveryAddress CustomType
 	ResidentialAddress       CustomType
+	BackupMailingAddress     CustomType
 	DutyLocationAddress      CustomType
 	DutyLocationTOAddress    CustomType
 }
@@ -95,6 +103,7 @@ var Addresses = addressGroup{
 	DeliveryAddress:          "DeliveryAddress",
 	SecondaryDeliveryAddress: "SecondaryDeliveryAddress",
 	ResidentialAddress:       "ResidentialAddress",
+	BackupMailingAddress:     "BackupMailingAddress",
 	DutyLocationAddress:      "DutyLocationAddress",
 	DutyLocationTOAddress:    "DutyLocationTOAddress",
 }
@@ -124,6 +133,10 @@ var DutyLocations = dutyLocationsGroup{
 	OriginDutyLocation: "OriginDutyLocation",
 	NewDutyLocation:    "NewDutyLocation",
 }
+
+// Below are errors returned by various functions
+
+var ErrNestedModel = errors.New("NESTED_MODEL_ERROR")
 
 // Trait is a function that returns a set of customizations
 // Every Trait should start with GetTrait for discoverability
@@ -347,7 +360,13 @@ func findValidCustomization(customs []Customization, customType CustomType) *Cus
 
 	// Else check that the customization is valid
 	if err := checkNestedModels(*custom); err != nil {
-		log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", *custom.Type, err))
+		if errors.Is(err, ErrNestedModel) {
+			if !custom.LinkOnly {
+				log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", *custom.Type, err))
+			}
+		} else {
+			log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", *custom.Type, err))
+		}
 	}
 	return custom
 }
@@ -388,7 +407,7 @@ func checkNestedModels(c interface{}) error {
 			ft := field.Type()
 			if field.Kind() == reflect.Struct && strings.HasPrefix(ft.String(), "models.") {
 				if !reflect.DeepEqual(field.Interface(), reflect.Zero(field.Type()).Interface()) {
-					return fmt.Errorf("%s cannot be populated, no nested models allowed", fieldName)
+					return fmt.Errorf("%s cannot be populated, no nested models allowed: %w", fieldName, ErrNestedModel)
 				}
 			}
 
@@ -396,7 +415,7 @@ func checkNestedModels(c interface{}) error {
 			if field.Kind() == reflect.Pointer {
 				nf := field.Elem()
 				if !field.IsNil() && nf.Kind() == reflect.Struct && strings.HasPrefix(nf.Type().String(), "models.") {
-					return fmt.Errorf("%s cannot be populated, no nested models allowed", fieldName)
+					return fmt.Errorf("%s cannot be populated, no nested models allowed: %w", fieldName, ErrNestedModel)
 				}
 			}
 		}
@@ -406,6 +425,16 @@ func checkNestedModels(c interface{}) error {
 
 func mustCreate(db *pop.Connection, model interface{}) {
 	verrs, err := db.ValidateAndCreate(model)
+	if err != nil {
+		log.Panic(fmt.Errorf("Errors encountered saving %#v: %v", model, err))
+	}
+	if verrs.HasAny() {
+		log.Panic(fmt.Errorf("Validation errors encountered saving %#v: %v", model, verrs))
+	}
+}
+
+func mustSave(db *pop.Connection, model interface{}) {
+	verrs, err := db.ValidateAndSave(model)
 	if err != nil {
 		log.Panic(fmt.Errorf("Errors encountered saving %#v: %v", model, err))
 	}

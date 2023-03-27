@@ -44,7 +44,6 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		ActualMoveDate:                handlers.FmtDatePtr(personallyProcuredMove.ActualMoveDate),
 		SubmitDate:                    handlers.FmtDateTimePtr(personallyProcuredMove.SubmitDate),
 		ApproveDate:                   handlers.FmtDateTimePtr(personallyProcuredMove.ApproveDate),
-		NetWeight:                     handlers.FmtPoundPtr(personallyProcuredMove.NetWeight),
 		PickupPostalCode:              personallyProcuredMove.PickupPostalCode,
 		HasAdditionalPostalCode:       personallyProcuredMove.HasAdditionalPostalCode,
 		AdditionalPickupPostalCode:    personallyProcuredMove.AdditionalPickupPostalCode,
@@ -192,9 +191,6 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 	if payload.IncentiveEstimateMin != nil {
 		incentiveEstimateMin := unit.Cents(int(*payload.IncentiveEstimateMin))
 		ppm.IncentiveEstimateMin = &incentiveEstimateMin
-	}
-	if payload.NetWeight != nil {
-		ppm.NetWeight = handlers.PoundPtrFromInt64Ptr(payload.NetWeight)
 	}
 	if payload.OriginalMoveDate != nil {
 		ppm.OriginalMoveDate = (*time.Time)(payload.OriginalMoveDate)

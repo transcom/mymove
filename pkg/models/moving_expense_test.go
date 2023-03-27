@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -75,12 +76,7 @@ func (suite *ModelSuite) TestMovingExpenseValidation() {
 
 		serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
-		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: serviceMember.ID,
-				ServiceMember:   serviceMember,
-			},
-		})
+		document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 
 		movingExpense := models.MovingExpense{
 			PPMShipmentID: ppmShipment.ID,

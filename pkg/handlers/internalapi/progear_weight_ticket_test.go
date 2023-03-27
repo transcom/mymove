@@ -173,12 +173,12 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 
 		params := subtestData.params
 
-		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: models.UserUpload{
-				DocumentID: &subtestData.progear.DocumentID,
-				Document:   subtestData.progear.Document,
+		factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.progear.Document,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
 		progearDes := "Pro gear desctription"
 		hasWeightTickets := true
@@ -375,7 +375,7 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 
 		subtestData := makeDeleteSubtestData(appCtx, false)
 
-		otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+		otherServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 		req := subtestData.params.HTTPRequest
 		unauthorizedReq := suite.AuthenticateRequest(req, otherServiceMember)

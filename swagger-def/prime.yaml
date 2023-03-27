@@ -215,69 +215,74 @@ paths:
                 summary: HHG
                 value:
                   {
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "shipmentType": "HHG",
-                    "requestedPickupDate": "2022-12-31",
-                    "pickupAddress": {
-                      "streetAddress1": "204 South Prospect Lane",
-                      "city": "Muldraugh",
-                      "state": "KY",
-                      "postalCode": "40155"
-                    }
+                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
+                    'shipmentType': 'HHG',
+                    'requestedPickupDate': '2022-12-31',
+                    'pickupAddress':
+                      {
+                        'streetAddress1': '204 South Prospect Lane',
+                        'city': 'Muldraugh',
+                        'state': 'KY',
+                        'postalCode': '40155',
+                      },
                   }
               nts:
                 summary: NTS
                 value:
                   {
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "shipmentType": "HHG_INTO_NTS_DOMESTIC",
-                    "requestedPickupDate": "2022-12-31",
-                    "pickupAddress": {
-                      "streetAddress1": "204 South Prospect Lane",
-                      "city": "Muldraugh",
-                      "state": "KY",
-                      "postalCode": "40155"
-                    },
-                    "agents": [
+                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
+                    'shipmentType': 'HHG_INTO_NTS_DOMESTIC',
+                    'requestedPickupDate': '2022-12-31',
+                    'pickupAddress':
                       {
-                        "firstName": "Edgar",
-                        "lastName": "Taylor",
-                        "email": "edgar.taylor@example.com",
-                        "phone": "555-555-5555",
-                        "agentType": "RELEASING_AGENT"
-                      }
-                    ]
+                        'streetAddress1': '204 South Prospect Lane',
+                        'city': 'Muldraugh',
+                        'state': 'KY',
+                        'postalCode': '40155',
+                      },
+                    'agents':
+                      [
+                        {
+                          'firstName': 'Edgar',
+                          'lastName': 'Taylor',
+                          'email': 'edgar.taylor@example.com',
+                          'phone': '555-555-5555',
+                          'agentType': 'RELEASING_AGENT',
+                        },
+                      ],
                   }
               nts-r:
                 summary: NTS Release
                 value:
                   {
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "shipmentType": "HHG_OUTOF_NTS_DOMESTIC",
-                    "agents": [
-                      {
-                        "firstName": "Edgar",
-                        "lastName": "Taylor",
-                        "email": "edgar.taylor@example.com",
-                        "phone": "555-555-5555",
-                        "agentType": "RECEIVING_AGENT"
-                      }
-                    ]
+                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
+                    'shipmentType': 'HHG_OUTOF_NTS_DOMESTIC',
+                    'agents':
+                      [
+                        {
+                          'firstName': 'Edgar',
+                          'lastName': 'Taylor',
+                          'email': 'edgar.taylor@example.com',
+                          'phone': '555-555-5555',
+                          'agentType': 'RECEIVING_AGENT',
+                        },
+                      ],
                   }
               ppm:
                 summary: PPM
                 value:
                   {
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "shipmentType": "PPM",
-                    "ppmShipment": {
-                      "pickupPostalCode": "90210",
-                      "destinationPostalCode": "10001",
-                      "expectedDepartureDate": "2022-10-01",
-                      "estimatedWeight": 4999,
-                      "hasProGear": false,
-                      "sitExpected": false
-                    }
+                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
+                    'shipmentType': 'PPM',
+                    'ppmShipment':
+                      {
+                        'pickupPostalCode': '90210',
+                        'destinationPostalCode': '10001',
+                        'expectedDepartureDate': '2022-10-01',
+                        'estimatedWeight': 4999,
+                        'hasProGear': false,
+                        'sitExpected': false,
+                      },
                   }
       responses:
         '200':
@@ -332,59 +337,62 @@ paths:
                 summary: HHG
                 value:
                   {
-                    "scheduledPickupDate": "2022-12-30",
-                    "actualPickupDate": "2022-12-29",
-                    "firstAvailableDeliveryDate": "2023-01-04",
-                    "primeEstimatedWeight": 4250,
-                    "primeActualWeight": 4500,
-                    "destinationAddress": {
-                      "streetAddress1": "6622 Airport Way S",
-                      "streetAddress2": "#1430",
-                      "city": "Great Bend",
-                      "state": "NY",
-                      "postalCode": "13643"
-                    },
-                    "pointOfContact": "peyton.wing@example.com"
+                    'scheduledPickupDate': '2022-12-30',
+                    'actualPickupDate': '2022-12-29',
+                    'firstAvailableDeliveryDate': '2023-01-04',
+                    'primeEstimatedWeight': 4250,
+                    'primeActualWeight': 4500,
+                    'destinationAddress':
+                      {
+                        'streetAddress1': '6622 Airport Way S',
+                        'streetAddress2': '#1430',
+                        'city': 'Great Bend',
+                        'state': 'NY',
+                        'postalCode': '13643',
+                      },
+                    'pointOfContact': 'peyton.wing@example.com',
                   }
               nts:
                 summary: NTS
                 value:
                   {
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "scheduledPickupDate": "2022-12-30",
-                    "actualPickupDate": "2022-12-29",
-                    "estimatedWeight": 4250,
-                    "actualWeight": 4500,
-                    "counselorRemarks": "Beware of dogs on property"
+                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
+                    'scheduledPickupDate': '2022-12-30',
+                    'actualPickupDate': '2022-12-29',
+                    'estimatedWeight': 4250,
+                    'actualWeight': 4500,
+                    'counselorRemarks': 'Beware of dogs on property',
                   }
               nts-r:
                 summary: NTS Release
                 value:
                   {
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "ntsRecordedWeight": 4500,
-                    "destinationAddress": {
-                      "streetAddress1": "812 S 129th Street",
-                      "city": "San Antonio",
-                      "state": "TX",
-                      "postalCode": "78245"
-                    }
+                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
+                    'ntsRecordedWeight': 4500,
+                    'destinationAddress':
+                      {
+                        'streetAddress1': '812 S 129th Street',
+                        'city': 'San Antonio',
+                        'state': 'TX',
+                        'postalCode': '78245',
+                      },
                   }
               ppm:
                 summary: PPM
                 value:
                   {
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "ppmShipment": {
-                      "hasProGear": true,
-                      "proGearWeight": 830,
-                      "spouseProGearWeight": 366,
-                      "sitExpected": true,
-                      "sitLocation": "DESTINATION",
-                      "sitEstimatedWeight": 1760,
-                      "sitEstimatedEntryDate": "2022-10-06",
-                      "sitEstimatedDepartureDate": "2022-10-13"
-                    }
+                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
+                    'ppmShipment':
+                      {
+                        'hasProGear': true,
+                        'proGearWeight': 830,
+                        'spouseProGearWeight': 366,
+                        'sitExpected': true,
+                        'sitLocation': 'DESTINATION',
+                        'sitEstimatedWeight': 1760,
+                        'sitEstimatedEntryDate': '2022-10-06',
+                        'sitEstimatedDepartureDate': '2022-10-13',
+                      },
                   }
         - $ref: 'parameters/ifMatch.yaml'
       responses:
@@ -1049,6 +1057,8 @@ definitions:
           the Prime contracter will need to contact the TOO to change it.
         type: integer
         example: 4500
+        minimum: 1
+        x-nullable: true
       customerRemarks:
         description: |
           The customer can use the customer remarks field to inform the services counselor and the movers about any
@@ -1403,7 +1413,7 @@ definitions:
       - paymentRequests
     properties:
       id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        example: a502b4f1-b9c4-4faf-8bdd-68292501bf26
         format: uuid
         type: string
       moveCode:
@@ -1876,6 +1886,8 @@ definitions:
           the Prime contracter will need to contact the TOO to change it.
         type: integer
         example: 4500
+        minimum: 1
+        x-nullable: true
       primeEstimatedWeightRecordedDate:
         description: The date when the Prime contractor recorded the shipment's estimated weight.
         format: date
@@ -1887,6 +1899,8 @@ definitions:
         description: The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
         type: integer
         example: 4500
+        minimum: 1
+        x-nullable: true
       ntsRecordedWeight:
         description: The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
         type: integer
@@ -2046,7 +2060,7 @@ definitions:
       - linesOfAccounting
     properties:
       id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
       customer:
@@ -2323,13 +2337,6 @@ definitions:
         description: The estimated weight of the PPM shipment goods being moved in pounds.
         type: integer
         example: 4200
-        x-nullable: true
-        x-omitempty: false
-      netWeight:
-        description: >
-          The net weight of the shipment once it has been weight
-        type: integer
-        example: 4300
         x-nullable: true
         x-omitempty: false
       hasProGear:
@@ -2624,10 +2631,14 @@ definitions:
           the Prime contracter will need to contact the TOO to change it.
         type: integer
         example: 4500
+        minimum: 1
+        x-nullable: true
       primeActualWeight:
         description: The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
         type: integer
         example: 4500
+        minimum: 1
+        x-nullable: true
       ntsRecordedWeight:
         description: The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
         type: integer

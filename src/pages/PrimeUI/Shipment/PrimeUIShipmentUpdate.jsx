@@ -167,7 +167,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           sitEstimatedEntryDate,
           sitEstimatedDepartureDate,
           estimatedWeight,
-          netWeight,
           hasProGear,
           proGearWeight,
           spouseProGearWeight,
@@ -189,7 +188,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
             sitEstimatedDepartureDate: sitEstimatedDepartureDate ? formatSwaggerDate(sitEstimatedDepartureDate) : null,
           }),
           estimatedWeight: estimatedWeight ? parseInt(estimatedWeight, 10) : null,
-          netWeight: netWeight ? parseInt(netWeight, 10) : null,
           hasProGear,
           ...(hasProGear && {
             proGearWeight: proGearWeight ? parseInt(proGearWeight, 10) : null,
@@ -247,7 +245,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         sitEstimatedEntryDate: shipment.ppmShipment.sitEstimatedEntryDate,
         sitEstimatedDepartureDate: shipment.ppmShipment.sitEstimatedDepartureDate,
         estimatedWeight: shipment.ppmShipment.estimatedWeight?.toString(),
-        netWeight: shipment.ppmShipment.netWeight?.toString(),
         hasProGear: shipment.ppmShipment.hasProGear,
         proGearWeight: shipment.ppmShipment.proGearWeight?.toString(),
         spouseProGearWeight: shipment.ppmShipment.spouseProGearWeight?.toString(),
@@ -285,7 +282,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         //     schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
         // }),
         estimatedWeight: Yup.number().required('Required'),
-        netWeight: Yup.number(),
         hasProGear: Yup.boolean().required('Required'),
         proGearWeight: Yup.number().when(['hasProGear', 'spouseProGearWeight'], {
           is: (hasProGear, spouseProGearWeight) => hasProGear && !spouseProGearWeight,

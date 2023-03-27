@@ -4,6 +4,8 @@
 
 .ReviewExpense {
   @include u-padding(2);
+  background-color: $bg-white;
+  position: relative;
 
   hr {
     @include u-margin-top(2);
@@ -19,7 +21,7 @@
     @include u-margin-bottom(1);
   }
 
-  .expenseNumber {
+  .tripNumber {
     @include u-margin-top(4);
   }
 
@@ -57,5 +59,9 @@
   div.reject,
   div.exclude {
     @include u-margin-top(2);
+  }
+
+  .statusOptions :global(.usa-radio__label) {
+    @include u-text('bold');
   }
 }

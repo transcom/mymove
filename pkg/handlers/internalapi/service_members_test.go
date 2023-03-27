@@ -32,11 +32,12 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 	// Given: A servicemember and a user
 	user := factory.BuildDefaultUser(suite.DB())
 
-	newServiceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			UserID: user.ID,
+	newServiceMember := factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
+		{
+			Model:    user,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 	suite.MustSave(&newServiceMember)
 
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
@@ -60,8 +61,8 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 
 func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 	// Given: Servicemember trying to load another
-	notLoggedInUser := testdatagen.MakeDefaultServiceMember(suite.DB())
-	loggedInUser := testdatagen.MakeDefaultServiceMember(suite.DB())
+	notLoggedInUser := factory.BuildServiceMember(suite.DB(), nil, nil)
+	loggedInUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/service_members/%s", notLoggedInUser.ID.String()), nil)
 	req = suite.AuthenticateRequest(req, loggedInUser)

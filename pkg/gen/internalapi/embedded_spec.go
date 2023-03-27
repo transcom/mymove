@@ -5980,13 +5980,6 @@ func init() {
             "$ref": "#/definitions/MovingExpense"
           }
         },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weighed.\n",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 4300
-        },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
@@ -7493,12 +7486,6 @@ func init() {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weight\n",
-          "type": "integer",
-          "x-nullable": true,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "zip code",
@@ -14623,13 +14610,6 @@ func init() {
             "$ref": "#/definitions/MovingExpense"
           }
         },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weighed.\n",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 4300
-        },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
@@ -16141,12 +16121,6 @@ func init() {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
-        },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weight\n",
-          "type": "integer",
-          "x-nullable": true,
-          "example": 4300
         },
         "pickupPostalCode": {
           "description": "zip code",

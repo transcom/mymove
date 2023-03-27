@@ -65,7 +65,6 @@ const ppmInfo = {
     expectedDepartureDate: '2020-03-15',
     hasProGear: true,
     id: 'b6ec215c-2cef-45fe-8d4a-35f445cd4768',
-    netWeight: null,
     pickupPostalCode: '90210',
     proGearWeight: 1987,
     reviewedAt: null,

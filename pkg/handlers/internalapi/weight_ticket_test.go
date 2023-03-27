@@ -196,12 +196,12 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		params := subtestData.params
 
 		// An upload must exist if trailer is owned and qualifies to be claimed
-		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: models.UserUpload{
-				DocumentID: &subtestData.weightTicket.ProofOfTrailerOwnershipDocumentID,
-				Document:   subtestData.weightTicket.ProofOfTrailerOwnershipDocument,
+		factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.weightTicket.ProofOfTrailerOwnershipDocument,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
 		// Add vehicleDescription
 		params.UpdateWeightTicketPayload = &internalmessages.UpdateWeightTicket{
@@ -410,7 +410,7 @@ func (suite *HandlerSuite) TestDeleteWeightTicketHandler() {
 
 		subtestData := makeDeleteSubtestData(appCtx, false)
 
-		otherServiceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+		otherServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 		req := subtestData.params.HTTPRequest
 		unauthorizedReq := suite.AuthenticateRequest(req, otherServiceMember)

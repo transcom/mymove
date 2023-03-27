@@ -20,7 +20,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
-	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
+	sm := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
 	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 

@@ -7,18 +7,18 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	t := suite.T()
 
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	params := documentop.NewCreateDocumentParams()
 	params.DocumentPayload = &internalmessages.PostDocumentPayload{
@@ -60,7 +60,7 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 func (suite *HandlerSuite) TestShowDocumentHandler() {
 	t := suite.T()
 
-	userUpload := testdatagen.MakeDefaultUserUpload(suite.DB())
+	userUpload := factory.BuildUserUpload(suite.DB(), nil, nil)
 
 	documentID := userUpload.DocumentID
 	var document models.Document
