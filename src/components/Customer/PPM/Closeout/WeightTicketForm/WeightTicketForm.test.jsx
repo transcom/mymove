@@ -111,8 +111,8 @@ const constructedWeightTrailerProps = {
           createdAt: '2022-06-22T23:25:50.490Z',
           bytes: 819200,
           url: 'a/fake/path',
-          filename: 'weight estimator.xls',
-          contentType: 'application/vnd.ms-excel',
+          filename: 'rentalAgreement.pdf',
+          contentType: 'application/pdf',
         },
       ],
     },
@@ -219,7 +219,7 @@ describe('WeightTicketForm component', () => {
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
-    it('populates edit form with constructed weight and trailer values', async () => {
+    it('populates edit form with the rental agreement and constructed weight and trailer values', async () => {
       render(<WeightTicketForm {...defaultProps} {...constructedWeightTrailerProps} />);
 
       let missingWeightInput;
@@ -228,14 +228,13 @@ describe('WeightTicketForm component', () => {
         expect(missingWeightInput[0]).toBeChecked();
       });
 
-      const downloadConstructedWeight = screen.getAllByRole('link');
-      expect(downloadConstructedWeight[0]).toHaveTextContent('Go to download page');
-      expect(downloadConstructedWeight[0]).toHaveAttribute(
-        'href',
-        'https://www.ustranscom.mil/dp3/weightestimator.cfm',
+      const missingWeightTicketLinks = screen.getAllByRole('link');
+      expect(missingWeightTicketLinks[0]).toHaveTextContent(
+        'National Automobile Dealers Association (NADA) Official Used Car Guide',
       );
+      expect(missingWeightTicketLinks[0]).toHaveAttribute('href', 'https://www.jdpower.com/cars');
 
-      expect(screen.getByText('weight estimator.xls')).toBeInTheDocument();
+      expect(screen.getByText('rentalAgreement.pdf')).toBeInTheDocument();
       const deleteButtons = screen.getAllByRole('button', { name: 'Delete' });
       expect(deleteButtons[0]).toBeInTheDocument();
       expect(screen.getByText('800KB')).toBeInTheDocument();
@@ -243,11 +242,8 @@ describe('WeightTicketForm component', () => {
 
       expect(missingWeightInput[1]).toBeChecked();
 
-      expect(downloadConstructedWeight[1]).toHaveTextContent('Go to download page');
-      expect(downloadConstructedWeight[1]).toHaveAttribute(
-        'href',
-        'https://www.ustranscom.mil/dp3/weightestimator.cfm',
-      );
+      expect(missingWeightTicketLinks[1]).toHaveTextContent('Go to download page');
+      expect(missingWeightTicketLinks[1]).toHaveAttribute('href', 'https://www.ustranscom.mil/dp3/weightestimator.cfm');
 
       expect(screen.getByText('weight estimator.xlsx')).toBeInTheDocument();
       expect(deleteButtons[1]).toBeInTheDocument();
@@ -384,8 +380,8 @@ describe('WeightTicketForm component', () => {
                 createdAt: '2022-06-22T23:25:50.490Z',
                 bytes: 819200,
                 url: 'a/fake/path',
-                filename: 'weight estimator.xls',
-                contentType: 'application/vnd.ms-excel',
+                filename: 'rentalAgreement.pdf',
+                contentType: 'application/pdf',
               },
             ],
             fullWeight: '7111',
