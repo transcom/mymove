@@ -221,20 +221,19 @@ export class CustomerPpmPage extends CustomerPage {
       // first one for Empty Weight. Not sure why getByLabel does not work
       await this.page.locator('label').getByText("I don't have this weight ticket").first().click();
 
-      // this page has multiple labels with the same text, grab the
-      // first one for Empty Weight
-      const emptyConstructed = this.page.locator('label').getByText('Upload constructed weight spreadsheet').first();
+      const emptyRental = this.page.locator('label').getByText(
+        `Since you do not have a certified weight ticket, upload the registration or rental agreement for the vehicle used
+      during the PPM`,
+      );
 
-      await expect(emptyConstructed).toBeVisible();
-      let filepond = emptyConstructed.locator('../..').locator('.filepond--wrapper');
+      await expect(emptyRental).toBeVisible();
+      let filepond = emptyRental.locator('../..').locator('.filepond--wrapper');
       await expect(filepond).toBeVisible();
 
-      await this.uploadFileViaFilepond(filepond, 'constructedWeight.xls');
+      await this.uploadFileViaFilepond(filepond, 'rentalWeight.pdf');
 
       // wait for the file to be visible in the uploads
-      await expect(
-        filepond.locator('../..').locator('p').getByText('constructedWeight.xls', { exact: true }),
-      ).toBeVisible();
+      await expect(filepond.locator('../..').locator('p').getByText('rentalWeight.pdf', { exact: true })).toBeVisible();
 
       await this.page.getByLabel('Full weight').clear();
       await this.page.getByLabel('Full weight').type('3000');
@@ -245,7 +244,10 @@ export class CustomerPpmPage extends CustomerPage {
 
       // this page has multiple labels with the same text, grab the
       // second one for Full Weight
-      const fullConstructed = this.page.locator('label').getByText('Upload constructed weight spreadsheet').nth(1);
+      const fullConstructed = this.page
+        .locator('label')
+        .getByText('Upload your completed constructed weight spreadsheet')
+        .nth(1);
 
       await expect(fullConstructed).toBeVisible();
       filepond = fullConstructed.locator('../..').locator('.filepond--wrapper');
