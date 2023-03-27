@@ -7,7 +7,6 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	movingexpenseops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
@@ -31,10 +30,9 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 		handler     CreateMovingExpenseHandler
 	}
 
-	makeCreateSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData movingExpenseCreateSubtestData) {
-		db := appCtx.DB()
+	makeCreateSubtestData := func(authenticateRequest bool) (subtestData movingExpenseCreateSubtestData) {
 
-		subtestData.ppmShipment = testdatagen.MakePPMShipment(db, testdatagen.Assertions{})
+		subtestData.ppmShipment = testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{})
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/moving-expense", subtestData.ppmShipment.ID.String())
 		req := httptest.NewRequest("POST", endpoint, nil)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
@@ -55,9 +53,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 		return subtestData
 	}
 	suite.Run("Successfully Create Moving Expense - Integration Test", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx, true)
+		subtestData := makeCreateSubtestData(true)
 
 		response := subtestData.handler.Handle(subtestData.params)
 
@@ -71,9 +67,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 	})
 
 	suite.Run("POST failure - 400- bad request", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx, true)
+		subtestData := makeCreateSubtestData(true)
 
 		params := subtestData.params
 		// Missing PPM Shipment ID
@@ -85,9 +79,8 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 	})
 
 	suite.Run("POST failure -401 - Unauthorized - unauthenticated user", func() {
-		appCtx := suite.AppContextForTest()
 		// user is unauthenticated to trigger 401
-		subtestData := makeCreateSubtestData(appCtx, false)
+		subtestData := makeCreateSubtestData(false)
 
 		response := subtestData.handler.Handle(subtestData.params)
 
@@ -95,9 +88,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 	})
 
 	suite.Run("POST failure - 403- permission denied - can't create moving expense due to wrong applicant", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx, false)
+		subtestData := makeCreateSubtestData(false)
 		// Create non-service member user
 		serviceCounselorOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
@@ -113,9 +104,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 
 	suite.Run("Post failure - 500 - Server Error", func() {
 		mockCreator := mocks.MovingExpenseCreator{}
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx, true)
+		subtestData := makeCreateSubtestData(true)
 		params := subtestData.params
 		serverErr := errors.New("ServerError")
 
@@ -150,11 +139,9 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 		params        movingexpenseops.UpdateMovingExpenseParams
 		handler       UpdateMovingExpenseHandler
 	}
-	makeUpdateSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData movingExpenseUpdateSubtestData) {
-		db := appCtx.DB()
-
+	makeUpdateSubtestData := func(authenticateRequest bool) (subtestData movingExpenseUpdateSubtestData) {
 		// Fake data:
-		subtestData.movingExpense = testdatagen.MakeMovingExpense(db, testdatagen.Assertions{})
+		subtestData.movingExpense = testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
 		subtestData.ppmShipment = subtestData.movingExpense.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
@@ -182,9 +169,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 	}
 
 	suite.Run("Successfully Update Moving Expense - Integration Test", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 
 		params := subtestData.params
 		// Add a Description
@@ -203,9 +188,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 		suite.Equal(params.UpdateMovingExpense.Description, updatedMovingExpense.Description)
 	})
 	suite.Run("PATCH failure -400 - nil body", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		subtestData.params.UpdateMovingExpense = nil
 		response := subtestData.handler.Handle(subtestData.params)
 
@@ -213,17 +196,14 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 	})
 
 	suite.Run("PATCH failure - 401- permission denied - not authenticated", func() {
-		appCtx := suite.AppContextForTest()
-		subtestData := makeUpdateSubtestData(appCtx, false)
+		subtestData := makeUpdateSubtestData(false)
 		response := subtestData.handler.Handle(subtestData.params)
 
 		suite.IsType(&movingexpenseops.UpdateMovingExpenseUnauthorized{}, response)
 	})
 
 	suite.Run("PATCH failure - 403- permission denied - wrong application / user", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, false)
+		subtestData := makeUpdateSubtestData(false)
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
@@ -238,9 +218,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 	})
 
 	suite.Run("PATCH failure - 404- not found", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		params := subtestData.params
 		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{}
 		// Wrong ID provided
@@ -253,9 +231,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 	})
 
 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		params := subtestData.params
 		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{}
 		params.IfMatch = "intentionally-bad-if-match-header-value"
@@ -266,9 +242,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 	})
 
 	suite.Run("PATCH failure -422 - Invalid Input", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		params := subtestData.params
 		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
 			Amount: handlers.FmtInt64(0),
@@ -281,9 +255,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 
 	suite.Run("PATCH failure - 500 - server error", func() {
 		mockUpdater := mocks.MovingExpenseUpdater{}
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		params := subtestData.params
 		contractedExpense := internalmessages.MovingExpenseType(models.MovingExpenseReceiptTypeContractedExpense)
 		description := "Cost of moving items to a different location"
@@ -328,11 +300,9 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 		params        movingexpenseops.DeleteMovingExpenseParams
 		handler       DeleteMovingExpenseHandler
 	}
-	makeDeleteSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData movingExpenseDeleteSubtestData) {
-		db := appCtx.DB()
-
+	makeDeleteSubtestData := func(authenticateRequest bool) (subtestData movingExpenseDeleteSubtestData) {
 		// Fake data:
-		subtestData.movingExpense = testdatagen.MakeMovingExpense(db, testdatagen.Assertions{})
+		subtestData.movingExpense = testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
 		subtestData.ppmShipment = subtestData.movingExpense.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
@@ -358,9 +328,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 	}
 
 	suite.Run("Successfully Delete Moving Expense - Integration Test", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeDeleteSubtestData(appCtx, true)
+		subtestData := makeDeleteSubtestData(true)
 
 		params := subtestData.params
 		response := subtestData.handler.Handle(params)
@@ -369,17 +337,14 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 	})
 
 	suite.Run("DELETE failure - 401 - permission denied - not authenticated", func() {
-		appCtx := suite.AppContextForTest()
-		subtestData := makeDeleteSubtestData(appCtx, false)
+		subtestData := makeDeleteSubtestData(false)
 		response := subtestData.handler.Handle(subtestData.params)
 
 		suite.IsType(&movingexpenseops.DeleteMovingExpenseUnauthorized{}, response)
 	})
 
 	suite.Run("DELETE failure - 403 - permission denied - wrong application / user", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeDeleteSubtestData(appCtx, false)
+		subtestData := makeDeleteSubtestData(false)
 
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
@@ -394,9 +359,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 	})
 
 	suite.Run("DELETE failure - 403 - permission denied - wrong service member user", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeDeleteSubtestData(appCtx, false)
+		subtestData := makeDeleteSubtestData(false)
 
 		otherServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
@@ -410,9 +373,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 		suite.IsType(&movingexpenseops.DeleteMovingExpenseForbidden{}, response)
 	})
 	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and moving expense ID don't match", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeDeleteSubtestData(appCtx, false)
+		subtestData := makeDeleteSubtestData(false)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
 		otherPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
@@ -430,9 +391,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 	})
 
 	suite.Run("DELETE failure - 404- not found", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeDeleteSubtestData(appCtx, true)
+		subtestData := makeDeleteSubtestData(true)
 		params := subtestData.params
 		// Wrong ID provided
 		uuidString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("e392b01d-3b23-45a9-8f98-e4d5b03c8a93"))
@@ -445,9 +404,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 
 	suite.Run("DELETE failure - 500 - server error", func() {
 		mockDeleter := mocks.MovingExpenseDeleter{}
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeDeleteSubtestData(appCtx, true)
+		subtestData := makeDeleteSubtestData(true)
 		params := subtestData.params
 
 		err := errors.New("ServerError")
