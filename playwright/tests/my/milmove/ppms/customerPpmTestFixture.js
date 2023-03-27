@@ -248,8 +248,7 @@ export class CustomerPpmPage extends CustomerPage {
       // second one for Full Weight
       const fullConstructed = this.page
         .locator('label')
-        .getByText('Upload your completed constructed weight spreadsheet')
-        .nth(1);
+        .getByText('Upload your completed constructed weight spreadsheet');
 
       await expect(fullConstructed).toBeVisible();
       filepond = fullConstructed.locator('../..').locator('.filepond--wrapper');
