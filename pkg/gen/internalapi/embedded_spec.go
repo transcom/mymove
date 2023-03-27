@@ -7714,11 +7714,13 @@ func init() {
         },
         "requestedDeliveryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "requestedPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "secondaryDeliveryAddress": {
           "$ref": "#/definitions/Address"
@@ -16349,11 +16351,13 @@ func init() {
         },
         "requestedDeliveryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "requestedPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "secondaryDeliveryAddress": {
           "$ref": "#/definitions/Address"
