@@ -128,11 +128,10 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 	}
 
 	model := &models.MTOShipment{
-		MoveTaskOrderID:  uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
-		CustomerRemarks:  mtoShipment.CustomerRemarks,
-		Diversion:        mtoShipment.Diversion,
-		CounselorRemarks: mtoShipment.CounselorRemarks,
-		// TODO do we care about these here? do these need to be set?
+		MoveTaskOrderID:             uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
+		CustomerRemarks:             mtoShipment.CustomerRemarks,
+		Diversion:                   mtoShipment.Diversion,
+		CounselorRemarks:            mtoShipment.CounselorRemarks,
 		HasSecondaryPickupAddress:   handlers.FmtBool(false),
 		HasSecondaryDeliveryAddress: handlers.FmtBool(false),
 	}

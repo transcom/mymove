@@ -92,8 +92,10 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
 	model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
+	model.HasSecondaryPickupAddress = handlers.FmtBool(mtoShipment.SecondaryPickupAddress != nil)
 	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
 	model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
+	model.HasSecondaryDeliveryAddress = handlers.FmtBool(mtoShipment.SecondaryDeliveryAddress != nil)
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
