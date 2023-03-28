@@ -2066,30 +2066,31 @@ func MakeHHGMoveForRetireeNeedsSC(appCtx appcontext.AppContext) models.Move {
 
 func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
 
 	userInfo := newUserInfo("customer")
 	moveInfo := scenario.MoveCreatorInfo{
-		UserID:      uuid.Must(uuid.NewV4()),
-		Email:       userInfo.email,
-		SmID:        uuid.Must(uuid.NewV4()),
-		FirstName:   userInfo.firstName,
-		LastName:    userInfo.lastName,
-		MoveID:      uuid.Must(uuid.NewV4()),
-		MoveLocator: models.GenerateLocator(),
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
-	closeoutOfficeID := uuid.Must(uuid.NewV4())
+
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
-		TransportationOffice: models.TransportationOffice{
-			ID:   closeoutOfficeID,
-			Name: "Awesome base",
-		},
 		Move: models.Move{
-			Status:           models.MoveStatusAPPROVED,
-			CloseoutOfficeID: &closeoutOfficeID,
+			Status: models.MoveStatusAPPROVED,
 		},
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusApproved,
@@ -2151,16 +2152,21 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 
 func MakePPMMoveWithCloseout(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
-
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
 	userInfo := newUserInfo("customer")
 	moveInfo := scenario.MoveCreatorInfo{
-		UserID:      uuid.Must(uuid.NewV4()),
-		Email:       userInfo.email,
-		SmID:        uuid.Must(uuid.NewV4()),
-		FirstName:   userInfo.firstName,
-		LastName:    userInfo.lastName,
-		MoveID:      uuid.Must(uuid.NewV4()),
-		MoveLocator: models.GenerateLocator(),
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
 	}
 
 	move := scenario.CreateMoveWithCloseOut(appCtx, userUploader, moveInfo, models.AffiliationARMY)
@@ -2466,16 +2472,22 @@ func MakeApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext) mo
 
 func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
 
 	userInfo := newUserInfo("customer")
 	moveInfo := scenario.MoveCreatorInfo{
-		UserID:      uuid.Must(uuid.NewV4()),
-		Email:       userInfo.email,
-		SmID:        uuid.Must(uuid.NewV4()),
-		FirstName:   userInfo.firstName,
-		LastName:    userInfo.lastName,
-		MoveID:      uuid.Must(uuid.NewV4()),
-		MoveLocator: models.GenerateLocator(),
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -2523,16 +2535,21 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 
 func MakeApprovedMoveWithPPMWeightTicketOffice(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
-
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
 	userInfo := newUserInfo("customer")
 	moveInfo := scenario.MoveCreatorInfo{
-		UserID:      uuid.Must(uuid.NewV4()),
-		Email:       userInfo.email,
-		SmID:        uuid.Must(uuid.NewV4()),
-		FirstName:   userInfo.firstName,
-		LastName:    userInfo.lastName,
-		MoveID:      uuid.Must(uuid.NewV4()),
-		MoveLocator: models.GenerateLocator(),
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -2651,16 +2668,22 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 
 func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
 
 	userInfo := newUserInfo("customer")
 	moveInfo := scenario.MoveCreatorInfo{
-		UserID:      uuid.Must(uuid.NewV4()),
-		Email:       userInfo.email,
-		SmID:        uuid.Must(uuid.NewV4()),
-		FirstName:   userInfo.firstName,
-		LastName:    userInfo.lastName,
-		MoveID:      uuid.Must(uuid.NewV4()),
-		MoveLocator: models.GenerateLocator(),
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
