@@ -174,13 +174,21 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 		return nil
 	}
 
-	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
-	requestedDeliveryDate := time.Time(mtoShipment.RequestedDeliveryDate)
+	var requestedPickupDate, requestedDeliveryDate *time.Time
+	if mtoShipment.RequestedPickupDate != nil {
+		date := time.Time(*mtoShipment.RequestedPickupDate)
+		requestedPickupDate = &date
+	}
+
+	if mtoShipment.RequestedDeliveryDate != nil {
+		date := time.Time(*mtoShipment.RequestedDeliveryDate)
+		requestedDeliveryDate = &date
+	}
 
 	model := &models.MTOShipment{
 		ShipmentType:          models.MTOShipmentType(mtoShipment.ShipmentType),
-		RequestedPickupDate:   &requestedPickupDate,
-		RequestedDeliveryDate: &requestedDeliveryDate,
+		RequestedPickupDate:   requestedPickupDate,
+		RequestedDeliveryDate: requestedDeliveryDate,
 		CustomerRemarks:       mtoShipment.CustomerRemarks,
 		Status:                models.MTOShipmentStatus(mtoShipment.Status),
 	}
