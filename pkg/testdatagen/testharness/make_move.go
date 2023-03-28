@@ -2787,14 +2787,22 @@ func MakeDraftMoveWithPPMWithDepartureDate(appCtx appcontext.AppContext) models.
 
 func MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
+
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
+
 	moveInfo := scenario.MoveCreatorInfo{
-		UserID:      uuid.Must(uuid.NewV4()),
-		Email:       "excessweightsPPM@ppm.approved",
-		SmID:        uuid.Must(uuid.NewV4()),
-		FirstName:   "One PPM",
-		LastName:    "ExcessWeights",
-		MoveID:      uuid.Must(uuid.NewV4()),
-		MoveLocator: models.GenerateLocator(),
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            "excessweightsPPM@ppm.approved",
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        "One PPM",
+		LastName:         "ExcessWeights",
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
 	}
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
