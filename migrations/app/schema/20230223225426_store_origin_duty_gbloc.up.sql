@@ -2,8 +2,6 @@
 ALTER TABLE orders
 	ADD COLUMN gbloc VARCHAR;
 
-CREATE INDEX orders_gbloc_idx ON orders (gbloc);
-
 COMMENT ON COLUMN orders.gbloc IS 'Services Counselor office users from transportation offices in this GBLOC will see these orders in their queue.';
 
 
@@ -17,6 +15,9 @@ SET gbloc = (
     WHERE dl.id = orders.origin_duty_location_id
 )
 WHERE orders.gbloc IS NULL;
+
+-- Apply index AFTER data backfill is complete
+CREATE INDEX orders_gbloc_idx ON orders (gbloc);
 
 -- Drop origin_duty_location_to_gbloc view
 DROP VIEW IF EXISTS origin_duty_location_to_gbloc

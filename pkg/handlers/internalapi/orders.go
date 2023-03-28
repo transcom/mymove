@@ -91,7 +91,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		OrdersType:              &ordersType,
 		OrdersTypeDetail:        order.OrdersTypeDetail,
 		OriginDutyLocation:      payloadForDutyLocationModel(originDutyLocation),
-		OriginDutyLocationGbloc: *order.OriginDutyLocationGBLOC,
+		OriginDutyLocationGbloc: handlers.FmtStringPtr(order.OriginDutyLocationGBLOC),
 		Grade:                   order.Grade,
 		NewDutyLocation:         payloadForDutyLocationModel(order.NewDutyLocation),
 		HasDependents:           handlers.FmtBool(order.HasDependents),

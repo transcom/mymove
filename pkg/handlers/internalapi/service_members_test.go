@@ -327,7 +327,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
 	// Editing SM info DutyLocation and Rank fields should edit Orders OriginDutyLocation and Grade fields
 	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyLocation.Name, newDutyLocation.Name)
-	suite.Equal(serviceMemberPayload.Orders[0].OriginDutyLocationGbloc, newGBLOC.GBLOC)
+	suite.Equal(serviceMemberPayload.Orders[0].OriginDutyLocationGbloc, &newGBLOC.GBLOC)
 	suite.Equal(*serviceMemberPayload.Orders[0].Grade, (string)(rank))
 	suite.NotEqual(*serviceMemberPayload.Orders[0].Grade, orderGrade)
 }

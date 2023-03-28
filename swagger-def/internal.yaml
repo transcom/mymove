@@ -1831,6 +1831,7 @@ definitions:
       originDutyLocationGbloc:
         type: string
         title: From what GBLOC do your orders originate?
+        x-nullable: true
       new_duty_location:
         $ref: 'definitions/DutyLocationPayload.yaml'
       uploaded_orders:
