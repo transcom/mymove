@@ -13,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestCreateDocumentsHandler() {
@@ -61,7 +60,7 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 func (suite *HandlerSuite) TestShowDocumentHandler() {
 	t := suite.T()
 
-	userUpload := testdatagen.MakeDefaultUserUpload(suite.DB())
+	userUpload := factory.BuildUserUpload(suite.DB(), nil, nil)
 
 	documentID := userUpload.DocumentID
 	var document models.Document
