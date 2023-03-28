@@ -96,6 +96,15 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 // FetchOrBuildCurrentDutyLocation returns a default duty location
 // It always fetches or builds a Yuma AFB Duty Location
 func FetchOrBuildCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
+	if db == nil {
+		return BuildDutyLocation(nil, []Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Yuma AFB",
+				},
+			},
+		}, nil)
+	}
 	// Check if Yuma Duty Location exists, if not, create it.
 	defaultLocation, err := models.FetchDutyLocationByName(db, "Yuma AFB")
 	if err != nil {

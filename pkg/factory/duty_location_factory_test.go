@@ -15,6 +15,10 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 
 		suite.Equal(dutyLocation.ID, dutyLocation.ID)
 	})
+	suite.Run("test fetch stubbed current duty location", func() {
+		dutyLocation := FetchOrBuildCurrentDutyLocation(nil)
+		suite.Equal("Yuma AFB", dutyLocation.Name)
+	})
 	suite.Run("Successful creation of default duty location", func() {
 		// Under test:      BuildDutyLocation
 		// Mocked:          None
