@@ -48,9 +48,10 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 			convertCustomizationInList(originDutyLocationCustoms,
 				DutyLocations.OriginDutyLocation, DutyLocation)
 	}
-	var originDutyLocation models.DutyLocation
+	originDutyLocation := BuildDutyLocation(db, originDutyLocationCustoms, nil)
 	if db != nil {
-		originDutyLocation = BuildDutyLocation(db, originDutyLocationCustoms, nil)
+		// can only do LinkOnly if we have an ID, which we won't have
+		// for a stubbed duty location
 		customs = replaceCustomization(customs, Customization{
 			Model:    originDutyLocation,
 			LinkOnly: true,
@@ -98,6 +99,8 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	if db != nil {
 		// Now we need  a LinkOnly customization for the created
 		// ServiceMember
+		// can only do LinkOnly if we have an ID, which we won't have
+		// for a stubbed service member
 		customs = replaceCustomization(customs, Customization{
 			Model:    serviceMember,
 			LinkOnly: true,
@@ -120,6 +123,8 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	// we have already created the document. So now we prepend a
 	// LinkOnly Document customization
 	if db != nil {
+		// can only do LinkOnly if we have an ID, which we won't have
+		// for a stubbed document
 		customs = replaceCustomization(customs, Customization{
 			Model:    uploadedOrders,
 			LinkOnly: true,

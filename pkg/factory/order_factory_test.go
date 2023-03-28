@@ -160,6 +160,8 @@ func (suite *FactorySuite) TestBuildOrder() {
 		suite.Equal(defaultIssueDate, order.IssueDate)
 		suite.Equal(defaultReportByDate, order.ReportByDate)
 
+		suite.NotEmpty(order.OriginDutyLocation.Address.PostalCode)
+
 		count, err := suite.DB().Count(&models.Order{})
 		suite.NoError(err)
 		suite.Equal(precount, count)
