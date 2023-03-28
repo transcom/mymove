@@ -305,87 +305,76 @@ func CustomerSupportRemarkModelFromCreate(remark *ghcmessages.CreateCustomerSupp
 	return model
 }
 
-// MTOShipmentModelFromUpdate model
-func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models.MTOShipment {
-	if mtoShipment == nil {
+// UpdateMTOShipmentModelWithPayload model
+func UpdateMTOShipmentModelWithPayload(shipmentUpdate *ghcmessages.UpdateShipment, mtoShipment *models.MTOShipment) *models.MTOShipment {
+	if shipmentUpdate == nil || mtoShipment == nil {
 		return nil
 	}
 
-	var requestedPickupDate *time.Time
-	if mtoShipment.RequestedPickupDate != nil {
-		rpd := time.Time(*mtoShipment.RequestedPickupDate)
-		requestedPickupDate = &rpd
-	}
-	var requestedDeliveryDate *time.Time
-	if mtoShipment.RequestedDeliveryDate != nil {
-		rdd := time.Time(*mtoShipment.RequestedDeliveryDate)
-		requestedDeliveryDate = &rdd
-	}
-	var billableWeightCap *unit.Pound
-	if mtoShipment.BillableWeightCap != nil {
-		bwc := unit.Pound(*mtoShipment.BillableWeightCap)
-		billableWeightCap = &bwc
+	if shipmentUpdate.RequestedPickupDate != nil {
+		rpd := time.Time(*shipmentUpdate.RequestedPickupDate)
+		mtoShipment.RequestedPickupDate = &rpd
 	}
 
-	var tacType *models.LOAType
-	if mtoShipment.TacType.Present {
-		tt := models.LOAType(*mtoShipment.TacType.Value)
-		tacType = &tt
+	if shipmentUpdate.RequestedDeliveryDate != nil {
+		rdd := time.Time(*shipmentUpdate.RequestedDeliveryDate)
+		mtoShipment.RequestedDeliveryDate = &rdd
 	}
 
-	var sacType *models.LOAType
-	if mtoShipment.SacType.Present {
-		tt := models.LOAType(*mtoShipment.SacType.Value)
-		sacType = &tt
+	if shipmentUpdate.BillableWeightCap != nil {
+		bwc := unit.Pound(*shipmentUpdate.BillableWeightCap)
+		mtoShipment.BillableWeightCap = &bwc
 	}
 
-	var usesExternalVendor bool
-	if mtoShipment.UsesExternalVendor != nil {
-		usesExternalVendor = *mtoShipment.UsesExternalVendor
+	if shipmentUpdate.TacType.Present {
+		tt := models.LOAType(*shipmentUpdate.TacType.Value)
+		mtoShipment.TACType = &tt
 	}
 
-	model := &models.MTOShipment{
-		BillableWeightCap:           billableWeightCap,
-		BillableWeightJustification: mtoShipment.BillableWeightJustification,
-		ShipmentType:                models.MTOShipmentType(mtoShipment.ShipmentType),
-		RequestedPickupDate:         requestedPickupDate,
-		RequestedDeliveryDate:       requestedDeliveryDate,
-		CustomerRemarks:             mtoShipment.CustomerRemarks,
-		CounselorRemarks:            mtoShipment.CounselorRemarks,
-		TACType:                     tacType,
-		SACType:                     sacType,
-		UsesExternalVendor:          usesExternalVendor,
-		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
+	if shipmentUpdate.SacType.Present {
+		st := models.LOAType(*shipmentUpdate.SacType.Value)
+		mtoShipment.SACType = &st
 	}
 
-	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)
-	model.DestinationAddress = AddressModel(&mtoShipment.DestinationAddress.Address)
-
-	if mtoShipment.DestinationType != nil {
-		valDestinationType := models.DestinationType(*mtoShipment.DestinationType)
-		model.DestinationType = &valDestinationType
+	if shipmentUpdate.UsesExternalVendor != nil {
+		mtoShipment.UsesExternalVendor = *shipmentUpdate.UsesExternalVendor
 	}
 
-	if mtoShipment.Agents != nil {
-		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
+	mtoShipment.BillableWeightJustification = shipmentUpdate.BillableWeightJustification
+	mtoShipment.ServiceOrderNumber = shipmentUpdate.ServiceOrderNumber
+	mtoShipment.CustomerRemarks = shipmentUpdate.CustomerRemarks
+	if shipmentUpdate.CounselorRemarks.Present {
+		mtoShipment.CounselorRemarks = shipmentUpdate.CounselorRemarks.Value
 	}
 
-	if mtoShipment.NtsRecordedWeight != nil {
-		ntsRecordedWeight := handlers.PoundPtrFromInt64Ptr(mtoShipment.NtsRecordedWeight)
-		model.NTSRecordedWeight = ntsRecordedWeight
+	mtoShipment.PickupAddress = AddressModel(&shipmentUpdate.PickupAddress.Address)
+	mtoShipment.DestinationAddress = AddressModel(&shipmentUpdate.DestinationAddress.Address)
+
+	if shipmentUpdate.DestinationType != nil {
+		valDestinationType := models.DestinationType(*shipmentUpdate.DestinationType)
+		mtoShipment.DestinationType = &valDestinationType
 	}
 
-	storageFacilityModel := StorageFacilityModel(mtoShipment.StorageFacility)
+	if shipmentUpdate.Agents != nil {
+		mtoShipment.MTOAgents = *MTOAgentsModel(&shipmentUpdate.Agents)
+	}
+
+	if shipmentUpdate.NtsRecordedWeight != nil {
+		ntsRecordedWeight := handlers.PoundPtrFromInt64Ptr(shipmentUpdate.NtsRecordedWeight)
+		mtoShipment.NTSRecordedWeight = ntsRecordedWeight
+	}
+
+	storageFacilityModel := StorageFacilityModel(shipmentUpdate.StorageFacility)
 	if storageFacilityModel != nil {
-		model.StorageFacility = storageFacilityModel
+		mtoShipment.StorageFacility = storageFacilityModel
 	}
 
-	if mtoShipment.PpmShipment != nil {
-		model.PPMShipment = PPMShipmentModelFromUpdate(mtoShipment.PpmShipment)
-		model.PPMShipment.Shipment = *model
+	if shipmentUpdate.PpmShipment != nil {
+		mtoShipment.PPMShipment = PPMShipmentModelFromUpdate(shipmentUpdate.PpmShipment)
+		mtoShipment.PPMShipment.Shipment = *mtoShipment
 	}
 
-	return model
+	return mtoShipment
 }
 
 // PPMShipmentModelFromUpdate model

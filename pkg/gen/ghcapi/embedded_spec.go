@@ -8827,8 +8827,7 @@ func init() {
           "example": "more weight than expected"
         },
         "counselorRemarks": {
-          "type": "string",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "counselor approved"
         },
         "customerRemarks": {
@@ -19285,8 +19284,7 @@ func init() {
           "example": "more weight than expected"
         },
         "counselorRemarks": {
-          "type": "string",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "counselor approved"
         },
         "customerRemarks": {

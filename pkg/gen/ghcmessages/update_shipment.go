@@ -33,7 +33,7 @@ type UpdateShipment struct {
 
 	// counselor remarks
 	// Example: counselor approved
-	CounselorRemarks *string `json:"counselorRemarks,omitempty"`
+	CounselorRemarks nullable.String `json:"counselorRemarks,omitempty"`
 
 	// customer remarks
 	// Example: handle with care
@@ -95,6 +95,10 @@ func (m *UpdateShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateCounselorRemarks(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
@@ -151,6 +155,23 @@ func (m *UpdateShipment) validateAgents(formats strfmt.Registry) error {
 			return ve.ValidateName("agents")
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("agents")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateShipment) validateCounselorRemarks(formats strfmt.Registry) error {
+	if swag.IsZero(m.CounselorRemarks) { // not required
+		return nil
+	}
+
+	if err := m.CounselorRemarks.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("counselorRemarks")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("counselorRemarks")
 		}
 		return err
 	}
@@ -314,6 +335,10 @@ func (m *UpdateShipment) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateCounselorRemarks(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -359,6 +384,20 @@ func (m *UpdateShipment) contextValidateAgents(ctx context.Context, formats strf
 			return ve.ValidateName("agents")
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("agents")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateShipment) contextValidateCounselorRemarks(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.CounselorRemarks.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("counselorRemarks")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("counselorRemarks")
 		}
 		return err
 	}
