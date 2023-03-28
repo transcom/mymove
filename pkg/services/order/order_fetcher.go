@@ -85,6 +85,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		gblocQuery = gblocFilterForPPMCloseoutForNavyMarineAndCG(gblocToFilterBy)
 	} else if needsCounseling {
 		gblocQuery = gblocFilterForSC(gblocToFilterBy)
+	} else if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
+		gblocQuery = gblocFilterForSCinArmyAirForce(gblocToFilterBy)
 	} else {
 		gblocQuery = gblocFilterForTOO(gblocToFilterBy)
 	}
@@ -425,6 +427,15 @@ func gblocFilterForTOO(gbloc *string) QueryOption {
 			// Note: extra parens necessary to keep precedence correct when AND'ing all filters together.
 			query.Where("((mto_shipments.shipment_type != ? AND move_to_gbloc.gbloc = ?) OR (mto_shipments.shipment_type = ? AND o_gbloc.gbloc = ?))",
 				models.MTOShipmentTypeHHGOutOfNTSDom, *gbloc, models.MTOShipmentTypeHHGOutOfNTSDom, *gbloc)
+		}
+	}
+}
+
+func gblocFilterForSCinArmyAirForce(gbloc *string) QueryOption {
+	// A services counselor in a transportation office that provides Services Counseling should see all moves with PPMs that have selected a closeout office that matches the GBLOC of their transportation office that is in waiting for customer, needs payment approval, or payment approved statuses. The Army and Air Force SCs should see moves in the PPM closeout Tab when the postal code or origin duty station is in a different GBLOC.
+	return func(query *pop.Query) {
+		if gbloc != nil {
+			query.Where("mto_shipments.shipment_type = ? AND closeout_to.gbloc = ?", models.MTOShipmentTypePPM, *gbloc)
 		}
 	}
 }

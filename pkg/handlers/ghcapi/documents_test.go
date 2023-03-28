@@ -6,16 +6,16 @@ import (
 
 	"github.com/go-openapi/strfmt"
 
+	"github.com/transcom/mymove/pkg/factory"
 	documentop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ghc_documents"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetDocumentHandler() {
 	t := suite.T()
 
-	userUpload := testdatagen.MakeDefaultUserUpload(suite.DB())
+	userUpload := factory.BuildUserUpload(suite.DB(), nil, nil)
 
 	documentID := userUpload.DocumentID
 	var document models.Document

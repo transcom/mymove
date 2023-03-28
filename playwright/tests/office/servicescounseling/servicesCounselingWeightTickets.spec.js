@@ -38,3 +38,43 @@ test('A service counselor can approve/reject weight tickets', async ({ page, scP
   await expect(page.getByRole('radio', { name: 'Reject' })).toBeChecked();
   await expect(page.getByLabel('Reason')).toHaveValue('Justification for rejection');
 });
+
+test('A services counselor can reduce PPM weights for a move with excess weight', async ({ page, scPage }) => {
+  const move = await scPage.testHarness.buildApprovedMoveWithPPMShipmentAndExcessWeight();
+  await scPage.navigateToCloseoutMove(move.locator);
+
+  // navigate to review-shipment-weights page and verify page components are rendered
+  await page.getByRole('button', { name: 'Review shipment weights' }).click();
+  await scPage.waitForPage.reviewShipmentWeights();
+
+  await expect(page.getByText('Weight allowance', { exact: true })).toBeVisible();
+  await expect(page.getByText('Estimated weight (total)', { exact: true })).toBeVisible();
+  await expect(page.getByText('Max billable weight', { exact: true })).toBeVisible();
+  await expect(page.getByText('Move weight (total)', { exact: true })).toBeVisible();
+  await expect(page.getByText('Weight moved by customer', { exact: true })).toBeVisible();
+  await expect(page.getByText('Weight moved', { exact: true })).toBeVisible();
+
+  // verify that the excess weight alert is visible, since the move has excess weight
+  await expect(
+    page.getByText('This move has excess weight. Review PPM weight ticket documents to resolve.'),
+  ).toBeVisible();
+
+  // navigate to review-documents page and decrease ppm shipment weight below threshold
+  await page.getByRole('link', { name: 'Review Documents' }).click();
+  await scPage.waitForPage.reviewDocuments();
+
+  await page.getByTestId('net-weight-display').getByTestId('button').click();
+  await page.getByTestId('weightInput').fill('0');
+  await page.getByTestId('formRemarks').fill('Reduce PPM weight to slash excess weight');
+  await page.getByRole('button', { name: 'Save changes' }).click();
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByTestId('closeSidebar').click();
+
+  // navigate to review-shipment-weights page and verify excess weight alert is no longer visible
+  await page.getByRole('button', { name: 'Review shipment weights' }).click();
+  await scPage.waitForPage.reviewShipmentWeights();
+
+  await expect(
+    page.getByText('This move has excess weight. Review PPM weight ticket documents to resolve.'),
+  ).toHaveCount(0);
+});

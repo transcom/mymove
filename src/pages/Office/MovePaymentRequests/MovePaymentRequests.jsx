@@ -25,9 +25,9 @@ import { formatPaymentRequestAddressString, getShipmentModificationType } from '
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import {
+  calculateWeightRequested,
   includedStatusesForCalculatingWeights,
   useCalculatedTotalBillableWeight,
-  useCalculatedWeightRequested,
 } from 'hooks/custom';
 import { updateFinancialFlag, updateMTOReviewedBillableWeights, updateMTOShipment } from 'services/ghcApi';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
@@ -140,7 +140,7 @@ const MovePaymentRequests = ({
   }, [paymentRequests, setPendingPaymentRequestCount]);
 
   const totalBillableWeight = useCalculatedTotalBillableWeight(mtoShipments);
-  const weightRequested = useCalculatedWeightRequested(mtoShipments);
+  const weightRequested = calculateWeightRequested(mtoShipments);
   const maxBillableWeight = order?.entitlement?.authorizedWeight;
   const billableWeightsReviewed = move?.billableWeightsReviewedAt;
 

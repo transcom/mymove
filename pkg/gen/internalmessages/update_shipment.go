@@ -43,11 +43,11 @@ type UpdateShipment struct {
 
 	// requested delivery date
 	// Format: date
-	RequestedDeliveryDate strfmt.Date `json:"requestedDeliveryDate,omitempty"`
+	RequestedDeliveryDate *strfmt.Date `json:"requestedDeliveryDate,omitempty"`
 
 	// requested pickup date
 	// Format: date
-	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
 	// secondary delivery address
 	SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`

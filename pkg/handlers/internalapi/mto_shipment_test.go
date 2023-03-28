@@ -651,8 +651,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				StreetAddress3: secondaryPickupAddress.StreetAddress3,
 			},
 			HasSecondaryPickupAddress: handlers.FmtBool(true),
-			RequestedPickupDate:       strfmt.Date(*originalShipment.RequestedPickupDate),
-			RequestedDeliveryDate:     strfmt.Date(*originalShipment.RequestedDeliveryDate),
+			RequestedPickupDate:       handlers.FmtDatePtr(originalShipment.RequestedPickupDate),
+			RequestedDeliveryDate:     handlers.FmtDatePtr(originalShipment.RequestedDeliveryDate),
 			ShipmentType:              internalmessages.MTOShipmentTypeHHG,
 		}
 

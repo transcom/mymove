@@ -11,6 +11,7 @@
 # - SERVER_REPORT: '1' will run go-junit-report and go coverage on output
 # - GO_JUNIT_REPORT: Use go-junit-report to generate the junit report
 # - LONG_TEST: '1' will remove the '-short' flag and run extended tests
+# - NO_RACE: disables the race detector, allowing the tests to run faster
 # - NO_DB: Will disable the db reset and migration steps
 #
 # Don't run tests in /cmd (those are done in acceptance testing) or for generated code (in /pkg/gen/ or mocks)
@@ -37,7 +38,9 @@ else
 fi
 
 gotest_args=("-count" "1")
-gotest_args+=("-race")
+if [ -z "${NO_RACE+x}" ]; then
+   gotest_args+=("-race")
+fi
 if [ -n "${CIRCLECI+x}" ]; then
 	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
   gotest_args+=("-parallel" "4")
