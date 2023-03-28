@@ -26,6 +26,18 @@
     }
   }
 
+  ul {
+    @include u-padding-left(3);
+  }
+
+  ul li {
+    color: $base-darkest;
+  }
+
+  .bold {
+    font-weight: bold;
+  }
+
   /* FilePond attempts to do some animating with inline styling but the label never transitions to visible in some
    browser environments. This might explain past Happo errors where labels were blank in the mobile visual diffs.
    Maybe we could make this a global fix for orders uploads too. I don't see another way to disable this animation. */
@@ -34,5 +46,9 @@
     opacity: 100 !important;
     visibility: visible !important;
     pointer-events: all !important;
+  }
+
+  :global(.usa-alert.usa-alert--info) {
+    @include u-margin-top(2);
   }
 }

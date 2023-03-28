@@ -48,7 +48,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
 import { MatchShape } from 'types/router';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
-import { calculateEstimatedWeight, useCalculatedWeightRequested } from 'hooks/custom';
+import { calculateEstimatedWeight, calculateWeightRequested } from 'hooks/custom';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
@@ -523,7 +523,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   ]);
 
   // Edge case of diversion shipments being counted twice
-  const moveWeightTotal = useCalculatedWeightRequested(mtoShipments);
+  const moveWeightTotal = calculateWeightRequested(mtoShipments);
 
   useEffect(() => {
     let unapprovedSITExtensionCount = 0;
