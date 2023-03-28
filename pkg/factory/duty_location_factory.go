@@ -124,6 +124,15 @@ func FetchOrBuildCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
 // It always fetches or builds a Fort Gordon duty location
 // It also creates a GA 208 tariff
 func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
+	if db == nil {
+		return BuildDutyLocation(nil, []Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Fort Gordon",
+				},
+			},
+		}, nil)
+	}
 	// Check if we already have a Fort Gordon Duty Location, return it if so
 	fortGordon, err := models.FetchDutyLocationByName(db, "Fort Gordon")
 	if err == nil {

@@ -67,7 +67,7 @@ func BuildOrder(db *pop.Connection, customs []Customization, traits []Trait) mod
 	} else {
 		// the dev did not provide any customizations for the new duty
 		// location, so use the default orders duty location trait
-		newDutyLocation = BuildDutyLocation(db, customs, []Trait{GetTraitDefaultOrdersDutyLocation})
+		newDutyLocation = FetchOrBuildOrdersDutyLocation(db)
 	}
 
 	// Find/create the user upload (and document and service member)
