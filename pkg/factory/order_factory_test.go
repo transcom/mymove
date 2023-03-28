@@ -140,7 +140,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 		suite.Equal(amendedOrders.ID, order.UploadedAmendedOrders.ID)
 	})
 	suite.Run("Successful creation of stubbed order", func() {
-		// Under test:      BuildAddress
+		// Under test:      BuildOrder
 		// Set up:          Create an order, but don't pass in a db
 		// Expected outcome:Order should be created
 		//                  No order should be created in database
@@ -156,6 +156,49 @@ func (suite *FactorySuite) TestBuildOrder() {
 		suite.Equal(defaultSpouseHasProGear, order.SpouseHasProGear)
 		suite.Equal(defaultOrdersType, order.OrdersType)
 		suite.Equal(defaultOrdersTypeDetail, *order.OrdersTypeDetail)
+		suite.Equal(defaultStatus, order.Status)
+		suite.Equal(defaultIssueDate, order.IssueDate)
+		suite.Equal(defaultReportByDate, order.ReportByDate)
+
+		count, err := suite.DB().Count(&models.Order{})
+		suite.NoError(err)
+		suite.Equal(precount, count)
+	})
+	suite.Run("Success creation of order without defaults", func() {
+		// Under test:      BuildOrderWithoutDefaults
+		// Set up:          Create an order without defaults
+		// Expected outcome:Order should be created
+
+		order := BuildOrderWithoutDefaults(suite.DB(), nil, nil)
+		suite.Nil(order.OrdersNumber)
+		suite.Nil(order.TAC)
+		suite.Nil(order.DepartmentIndicator)
+		suite.Nil(order.OrdersTypeDetail)
+		suite.Equal(defaultGrade, *order.Grade)
+		suite.Equal(defaultHasDependents, order.HasDependents)
+		suite.Equal(defaultSpouseHasProGear, order.SpouseHasProGear)
+		suite.Equal(defaultOrdersType, order.OrdersType)
+		suite.Equal(defaultStatus, order.Status)
+		suite.Equal(defaultIssueDate, order.IssueDate)
+		suite.Equal(defaultReportByDate, order.ReportByDate)
+	})
+	suite.Run("Success creation of stubbed order without defaults", func() {
+		// Under test:      BuildOrderWithoutDefaults
+		// Set up:          Create an order, but don't pass in a db
+		// Expected outcome:Order should be created
+		//                  No order should be created in database
+		precount, err := suite.DB().Count(&models.Order{})
+		suite.NoError(err)
+
+		order := BuildOrderWithoutDefaults(nil, nil, nil)
+		suite.Nil(order.OrdersNumber)
+		suite.Nil(order.TAC)
+		suite.Nil(order.DepartmentIndicator)
+		suite.Nil(order.OrdersTypeDetail)
+		suite.Equal(defaultGrade, *order.Grade)
+		suite.Equal(defaultHasDependents, order.HasDependents)
+		suite.Equal(defaultSpouseHasProGear, order.SpouseHasProGear)
+		suite.Equal(defaultOrdersType, order.OrdersType)
 		suite.Equal(defaultStatus, order.Status)
 		suite.Equal(defaultIssueDate, order.IssueDate)
 		suite.Equal(defaultReportByDate, order.ReportByDate)

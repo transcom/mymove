@@ -10,12 +10,14 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-// BuildOrder creates a Order.
-//
-// Params:
-//   - customs is a slice that will be modified by the factory
-//   - db can be set to nil to create a stubbed model that is not stored in DB.
-func BuildOrder(db *pop.Connection, customs []Customization, traits []Trait) models.Order {
+type orderBuildType byte
+
+const (
+	orderBuildBasic orderBuildType = iota
+	orderBuildWithoutDefaults
+)
+
+func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits []Trait, buildType orderBuildType) models.Order {
 	customs = setupCustomizations(customs, traits)
 
 	// Find upload assertion and convert to models upload
@@ -143,7 +145,9 @@ func BuildOrder(db *pop.Connection, customs []Customization, traits []Trait) mod
 	// Documents.UploadedAmendedOrders customization
 	uploadedAmendedOrdersCustoms := customs
 	var amendedOrdersDocument *models.Document
-	if result := findValidCustomization(customs, Documents.UploadedAmendedOrders); result != nil {
+	hasAmendedOrdersCustoms := findValidCustomization(customs, Documents.UploadedAmendedOrders)
+	// only basic builds include amended orders
+	if buildType == orderBuildBasic && hasAmendedOrdersCustoms != nil {
 		uploadedAmendedOrdersCustoms =
 			convertCustomizationInList(uploadedAmendedOrdersCustoms,
 				Documents.UploadedAmendedOrders, Document)
@@ -164,6 +168,19 @@ func BuildOrder(db *pop.Connection, customs []Customization, traits []Trait) mod
 	defaultReportByDate := time.Date(testYear, time.August, 1, 0, 0, 0, 0, time.UTC)
 	defaultStatus := models.OrderStatusDRAFT
 
+	var ordersNumber *string
+	var tac *string
+	var departmentsIndicator *string
+	var ordersTypeDetail *internalmessages.OrdersTypeDetail
+
+	// the basic build time adds additional defaults
+	if buildType == orderBuildBasic {
+		ordersNumber = &defaultOrdersNumber
+		tac = &defaultTACNumber
+		departmentsIndicator = &defaultDepartmentIndicator
+		ordersTypeDetail = &defaultOrdersTypeDetail
+	}
+
 	order := models.Order{
 		ServiceMember:        serviceMember,
 		ServiceMemberID:      serviceMember.ID,
@@ -174,18 +191,18 @@ func BuildOrder(db *pop.Connection, customs []Customization, traits []Trait) mod
 		IssueDate:            defaultIssueDate,
 		ReportByDate:         defaultReportByDate,
 		OrdersType:           defaultOrdersType,
-		OrdersNumber:         &defaultOrdersNumber,
+		OrdersNumber:         ordersNumber,
 		HasDependents:        defaultHasDependents,
 		SpouseHasProGear:     defaultSpouseHasProGear,
 		Status:               defaultStatus,
-		TAC:                  &defaultTACNumber,
-		DepartmentIndicator:  &defaultDepartmentIndicator,
+		TAC:                  tac,
+		DepartmentIndicator:  departmentsIndicator,
 		Grade:                &defaultGrade,
 		Entitlement:          &entitlement,
 		EntitlementID:        &entitlement.ID,
 		OriginDutyLocation:   &originDutyLocation,
 		OriginDutyLocationID: &originDutyLocation.ID,
-		OrdersTypeDetail:     &defaultOrdersTypeDetail,
+		OrdersTypeDetail:     ordersTypeDetail,
 	}
 
 	if amendedOrdersDocument != nil {
@@ -202,4 +219,23 @@ func BuildOrder(db *pop.Connection, customs []Customization, traits []Trait) mod
 	}
 
 	return order
+}
+
+// BuildOrder creates a Order.
+//
+// Params:
+//   - customs is a slice that will be modified by the factory
+//   - db can be set to nil to create a stubbed model that is not stored in DB.
+func BuildOrder(db *pop.Connection, customs []Customization, traits []Trait) models.Order {
+	return buildOrderWithBuildType(db, customs, traits, orderBuildBasic)
+}
+
+// BuildOrderWithout creates a Order that only includes fiels that the
+// server member would have supplied prior to uploading their documents
+//
+// Params:
+//   - customs is a slice that will be modified by the factory
+//   - db can be set to nil to create a stubbed model that is not stored in DB.
+func BuildOrderWithoutDefaults(db *pop.Connection, customs []Customization, traits []Trait) models.Order {
+	return buildOrderWithBuildType(db, customs, traits, orderBuildWithoutDefaults)
 }
