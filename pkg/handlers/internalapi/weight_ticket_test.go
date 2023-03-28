@@ -428,7 +428,7 @@ func (suite *HandlerSuite) TestDeleteWeightTicketHandler() {
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
 		otherPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{ServiceMemberID: serviceMember.ID},
+			Order: subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders,
 		})
 
 		subtestData.params.PpmShipmentID = *handlers.FmtUUID(otherPPMShipment.ID)

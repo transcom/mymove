@@ -1393,7 +1393,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 
 		var gbloc ghcmessages.GBLOC
 		if move.Status == models.MoveStatusNeedsServiceCounseling {
-			gbloc = ghcmessages.GBLOC(move.OriginDutyLocationGBLOC.GBLOC)
+			gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
 		} else if len(move.ShipmentGBLOC) > 0 {
 			// There is a Pop bug that prevents us from using a has_one association for
 			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
@@ -1405,7 +1405,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
 			// we need to fall back to the origin duty location GBLOC.  If that's not available for
 			// some reason, then we should get the empty string (no GBLOC).
-			gbloc = ghcmessages.GBLOC(move.OriginDutyLocationGBLOC.GBLOC)
+			gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
 		}
 		var closeoutLocation string
 		if move.CloseoutOffice != nil {
