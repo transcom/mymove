@@ -41,6 +41,7 @@ var Contractor CustomType = "Contractor"
 var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
+var Move CustomType = "Move"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
@@ -67,6 +68,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Document":             Document,
 	"models.DutyLocation":         DutyLocation,
 	"models.Entitlement":          Entitlement,
+	"models.Move":                 Move,
 	"models.OfficePhoneLine":      OfficePhoneLine,
 	"models.OfficeUser":           OfficeUser,
 	"models.Order":                Order,
