@@ -3,11 +3,26 @@ package factory
 import (
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *FactorySuite) TestBuildOrder() {
+	defaultOrdersNumber := "ORDER3"
+	defaultTACNumber := "F8E1"
+	defaultDepartmentIndicator := "AIR_FORCE"
+	defaultGrade := "E_1"
+	defaultHasDependents := false
+	defaultSpouseHasProGear := false
+	defaultOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	defaultOrdersTypeDetail := internalmessages.OrdersTypeDetail("HHG_PERMITTED")
+	defaultStatus := models.OrderStatusDRAFT
+	testYear := 2018
+	defaultIssueDate := time.Date(testYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+	defaultReportByDate := time.Date(testYear, time.August, 1, 0, 0, 0, 0, time.UTC)
+
 	suite.Run("Successful creation of default order", func() {
 		// Under test:      BuildOrder
 		// Set up:          Create a default order
@@ -15,19 +30,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 		// UserUpload, duty location, origin duty location
 
 		// SETUP
-		// Create a default order infor to compare values
-		defaultOrdersNumber := "ORDER3"
-		defaultTACNumber := "F8E1"
-		defaultDepartmentIndicator := "AIR_FORCE"
-		defaultGrade := "E_1"
-		defaultHasDependents := false
-		defaultSpouseHasProGear := false
-		defaultOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-		defaultOrdersTypeDetail := internalmessages.OrdersTypeDetail("HHG_PERMITTED")
-		defaultStatus := models.OrderStatusDRAFT
-		testYear := 2018
-		defaultIssueDate := time.Date(testYear, time.March, 15, 0, 0, 0, 0, time.UTC)
-		defaultReportByDate := time.Date(testYear, time.August, 1, 0, 0, 0, 0, time.UTC)
+		// Create a default order info to compare values
 
 		// Create order
 		order := BuildOrder(suite.DB(), nil, nil)
@@ -82,4 +85,84 @@ func (suite *FactorySuite) TestBuildOrder() {
 		suite.Nil(order.UploadedAmendedOrders)
 		suite.Nil(order.UploadedAmendedOrdersID)
 	})
+
+	suite.Run("Successful creation of customized order", func() {
+		originDutyLocation := models.DutyLocation{
+			Name: "Custom Origin",
+		}
+		firstName := "customFirst"
+		lastName := "customLast"
+		serviceMember := models.ServiceMember{
+			FirstName: &firstName,
+			LastName:  &lastName,
+		}
+		uploadedOrders := models.Document{
+			ID: uuid.Must(uuid.NewV4()),
+		}
+		dependents := 7
+		entitlement := models.Entitlement{
+			TotalDependents: &dependents,
+		}
+		amendedOrders := models.Document{
+			ID: uuid.Must(uuid.NewV4()),
+		}
+		customs := []Customization{
+			{
+				Model: originDutyLocation,
+				Type:  &DutyLocations.OriginDutyLocation,
+			},
+			{
+				Model: serviceMember,
+			},
+			{
+				Model: uploadedOrders,
+				Type:  &Documents.UploadedOrders,
+			},
+			{
+				Model: entitlement,
+			},
+			{
+				Model: amendedOrders,
+				Type:  &Documents.UploadedAmendedOrders,
+			},
+		}
+		// Create order
+		order := BuildOrder(suite.DB(), customs, nil)
+
+		suite.Equal(originDutyLocation.Name, order.OriginDutyLocation.Name)
+		suite.Equal(originDutyLocation.Name, order.ServiceMember.DutyLocation.Name)
+		suite.Equal(*serviceMember.FirstName, *order.ServiceMember.FirstName)
+		suite.Equal(*serviceMember.LastName, *order.ServiceMember.LastName)
+		suite.Equal(uploadedOrders.ID, order.UploadedOrdersID)
+		suite.Equal(uploadedOrders.ID, order.UploadedOrders.ID)
+		suite.Equal(*entitlement.TotalDependents, *order.Entitlement.TotalDependents)
+		suite.Equal(amendedOrders.ID, *order.UploadedAmendedOrdersID)
+		suite.Equal(amendedOrders.ID, order.UploadedAmendedOrders.ID)
+	})
+	suite.Run("Successful creation of stubbed order", func() {
+		// Under test:      BuildAddress
+		// Set up:          Create an order, but don't pass in a db
+		// Expected outcome:Order should be created
+		//                  No order should be created in database
+		precount, err := suite.DB().Count(&models.Order{})
+		suite.NoError(err)
+
+		order := BuildOrder(nil, nil, nil)
+		suite.Equal(defaultOrdersNumber, *order.OrdersNumber)
+		suite.Equal(defaultTACNumber, *order.TAC)
+		suite.Equal(defaultDepartmentIndicator, *order.DepartmentIndicator)
+		suite.Equal(defaultGrade, *order.Grade)
+		suite.Equal(defaultHasDependents, order.HasDependents)
+		suite.Equal(defaultSpouseHasProGear, order.SpouseHasProGear)
+		suite.Equal(defaultOrdersType, order.OrdersType)
+		suite.Equal(defaultOrdersTypeDetail, *order.OrdersTypeDetail)
+		suite.Equal(defaultStatus, order.Status)
+		suite.Equal(defaultIssueDate, order.IssueDate)
+		suite.Equal(defaultReportByDate, order.ReportByDate)
+
+		count, err := suite.DB().Count(&models.Order{})
+		suite.NoError(err)
+		suite.Equal(precount, count)
+	})
+
 }

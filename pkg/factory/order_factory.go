@@ -46,12 +46,15 @@ func BuildOrder(db *pop.Connection, customs []Customization, traits []Trait) mod
 			convertCustomizationInList(originDutyLocationCustoms,
 				DutyLocations.OriginDutyLocation, DutyLocation)
 	}
-	originDutyLocation := BuildDutyLocation(db, originDutyLocationCustoms, nil)
-	customs = replaceCustomization(customs, Customization{
-		Model:    originDutyLocation,
-		LinkOnly: true,
-		Type:     &DutyLocations.OriginDutyLocation,
-	})
+	var originDutyLocation models.DutyLocation
+	if db != nil {
+		originDutyLocation = BuildDutyLocation(db, originDutyLocationCustoms, nil)
+		customs = replaceCustomization(customs, Customization{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &DutyLocations.OriginDutyLocation,
+		})
+	}
 
 	var newDutyLocation models.DutyLocation
 	if result := findValidCustomization(customs, DutyLocations.NewDutyLocation); result != nil {
@@ -84,15 +87,20 @@ func BuildOrder(db *pop.Connection, customs []Customization, traits []Trait) mod
 
 	// convert the OriginDutyLocation customs to vanilla DutyLocation
 	// for BuildExtendedServiceMember
-	serviceMemberCustoms := convertCustomizationInList(customs, DutyLocations.OriginDutyLocation, DutyLocation)
+	serviceMemberCustoms := customs
+	if result := findValidCustomization(customs, DutyLocations.OriginDutyLocation); result != nil {
+		serviceMemberCustoms = convertCustomizationInList(customs, DutyLocations.OriginDutyLocation, DutyLocation)
+	}
 	serviceMember := BuildExtendedServiceMember(db, serviceMemberCustoms, traits)
 
-	// Now we need  a LinkOnly customization for the created
-	// ServiceMember
-	customs = replaceCustomization(customs, Customization{
-		Model:    serviceMember,
-		LinkOnly: true,
-	})
+	if db != nil {
+		// Now we need  a LinkOnly customization for the created
+		// ServiceMember
+		customs = replaceCustomization(customs, Customization{
+			Model:    serviceMember,
+			LinkOnly: true,
+		})
+	}
 
 	// Find the customizations for UploadedOrders and build the
 	// uploadedOrders
@@ -109,16 +117,22 @@ func BuildOrder(db *pop.Connection, customs []Customization, traits []Trait) mod
 	// BuildUserUpload with the provided customizations, it won't know
 	// we have already created the document. So now we prepend a
 	// LinkOnly Document customization
-	customs = replaceCustomization(customs, Customization{
-		Model:    uploadedOrders,
-		LinkOnly: true,
-		Type:     &Documents.UploadedOrders,
-	})
+	if db != nil {
+		customs = replaceCustomization(customs, Customization{
+			Model:    uploadedOrders,
+			LinkOnly: true,
+			Type:     &Documents.UploadedOrders,
+		})
+	}
 
-	// Now call BuildUserUpload with our re-jiggered customs
-	userUpload := BuildUserUpload(db,
-		convertCustomizationInList(customs, Documents.UploadedOrders, Document),
-		traits)
+	// Now call BuildUserUpload with our re-jiggered customs (only
+	// available if db != nil)
+	uploadCustoms := customs
+	if result := findValidCustomization(customs, Documents.UploadedOrders); result != nil {
+
+		uploadCustoms = convertCustomizationInList(customs, Documents.UploadedOrders, Document)
+	}
+	userUpload := BuildUserUpload(db, uploadCustoms, traits)
 	// make sure we append the upload to the uploadedOrders document
 	uploadedOrders.UserUploads = append(uploadedOrders.UserUploads, userUpload)
 
