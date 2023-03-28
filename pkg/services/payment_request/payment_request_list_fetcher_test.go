@@ -25,11 +25,6 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
 			Move: models.Move{Locator: "ABC123"},
 		})
 
-		// we need a mapping for the pickup address postal code to our user's gbloc
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(),
-			expectedMove.MTOShipments[0].PickupAddress.PostalCode,
-			officeUser.TransportationOffice.Gbloc)
-
 		// We need a payment request with a move that has a shipment that's within the GBLOC
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			PaymentRequest: models.PaymentRequest{
@@ -64,11 +59,6 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 	suite.PreloadData(func() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		expectedMove = testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-
-		// we need a mapping for the pickup address postal code to our user's gbloc
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(),
-			expectedMove.MTOShipments[0].PickupAddress.PostalCode,
-			officeUser.TransportationOffice.Gbloc)
 
 		// We need a payment request with a move that has a shipment that's within the GBLOC
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
@@ -175,10 +165,6 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 		expectedMove4 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 		expectedMove5 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 		expectedMove6 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(),
-			expectedMove1.MTOShipments[0].PickupAddress.PostalCode,
-			officeUser.TransportationOffice.Gbloc)
 
 		reviewedPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			PaymentRequest: models.PaymentRequest{
@@ -289,10 +275,6 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		expectedMoveNotUSMC := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(),
-			expectedMoveNotUSMC.MTOShipments[0].PickupAddress.PostalCode,
-			officeUser.TransportationOffice.Gbloc)
 
 		paymentRequestUSMC = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -440,10 +422,6 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListWithPaginati
 		},
 	})
 
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
-		expectedMove1.MTOShipments[0].PickupAddress.PostalCode,
-		officeUser.TransportationOffice.Gbloc)
-
 	expectedPaymentRequests, count, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(1)})
 
 	suite.NoError(err)
@@ -540,10 +518,6 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 				MoveTaskOrder:   expectedMove2,
 			},
 		})
-
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(),
-			expectedMove1.MTOShipments[0].PickupAddress.PostalCode,
-			officeUser.TransportationOffice.Gbloc)
 
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: paymentRequest2.MoveTaskOrder,

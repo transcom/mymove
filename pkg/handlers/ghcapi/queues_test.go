@@ -28,7 +28,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	})
 
 	hhgMoveType := models.SelectedMoveTypeHHG
-	// Default Origin Duty Location GBLOC is LKNQ
+	// Default Origin Duty Location GBLOC is KKFA
 	hhgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
@@ -59,8 +59,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -161,8 +159,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 	hhgMoveType := models.SelectedMoveTypeHHG
 
@@ -225,11 +221,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 		RoleType: roles.RoleTypeTOO,
 	})
 
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
-
 	hhgMoveType := models.SelectedMoveTypeHHG
-	// Default Origin Duty Location GBLOC is LKNQ
+	// Default Origin Duty Location GBLOC is KKFA
 	hhgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
@@ -341,8 +334,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		RoleType: roles.RoleTypeTOO,
 	})
 
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedMove := models.Move{
 		SelectedMoveType: &hhgMoveType,
@@ -581,7 +572,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	})
 
 	hhgMoveType := models.SelectedMoveTypeHHG
-	// Default Origin Duty Location GBLOC is LKNQ
+	// Default Origin Duty Location GBLOC is KKFA
 
 	serviceMember1 := factory.BuildServiceMember(nil, []factory.Customization{
 		{
@@ -644,9 +635,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		Move:        move2,
 		MTOShipment: shipment,
 	})
-
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -886,13 +874,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
-	// Default Origin Duty Location GBLOC is LKNQ
+	// Default Origin Duty Location GBLOC is KKFA
 	hhgMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-
-	// we need a mapping for the pickup address postal code to our user's gbloc
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
-		hhgMove.MTOShipments[0].PickupAddress.PostalCode,
-		officeUser.TransportationOffice.Gbloc)
 
 	// Fake this as a day and a half in the past so floating point age values can be tested
 	prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))
@@ -956,11 +939,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 
 	hhgMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 	hhgMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-
-	// we need a mapping for the pickup address postal code to our user's gbloc
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
-		hhgMove1.MTOShipments[0].PickupAddress.PostalCode,
-		officeUser.TransportationOffice.Gbloc)
 
 	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
@@ -1162,7 +1140,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 
 	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
-	// Default Origin Duty Location GBLOC is LKNQ
+	// Default Origin Duty Location GBLOC is KKFA
 	subtestData.needsCounselingMove = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
@@ -1180,9 +1158,6 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 			Status:                models.MTOShipmentStatusSubmitted,
 		},
 	})
-
-	// May have to create postalcodetogbolc for office user
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", subtestData.officeUser.TransportationOffice.Gbloc)
 
 	earlierRequestedPickup := requestedPickupDate.Add(-7 * 24 * time.Hour)
 	subtestData.needsCounselingEarliestShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -1217,12 +1192,14 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 				StreetAddress1: "Fort Gordon",
 				City:           "Augusta",
 				State:          "GA",
-				PostalCode:     "30813",
+				PostalCode:     "77777",
 				Country:        models.StringPointer("United States"),
 			},
 		},
 	}, nil)
 
+	// Create a custom postal code to GBLOC
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), dutyLocationAddress.PostalCode, "UUUU")
 	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -1235,10 +1212,14 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		},
 	}, nil)
 
+	// Create a move with an origin duty location outside of office user GBLOC
 	excludedGBLOCMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
 			Status:           models.MoveStatusNeedsServiceCounseling,
+		},
+		Order: models.Order{
+			OriginDutyLocation: &originDutyLocation,
 		},
 		OriginDutyLocation: originDutyLocation,
 	})
@@ -1253,7 +1234,6 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		},
 	})
 
-	// Create a move with an origin duty location outside of office user GBLOC
 	excludedStatusMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,

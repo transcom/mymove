@@ -5677,6 +5677,11 @@ func init() {
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
+        "originDutyLocationGbloc": {
+          "type": "string",
+          "title": "From what GBLOC do your orders originate?",
+          "x-nullable": true
+        },
         "origin_duty_location": {
           "x-nullable": true,
           "$ref": "#/definitions/DutyLocationPayload"
@@ -14304,6 +14309,11 @@ func init() {
         },
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "originDutyLocationGbloc": {
+          "type": "string",
+          "title": "From what GBLOC do your orders originate?",
+          "x-nullable": true
         },
         "origin_duty_location": {
           "x-nullable": true,
