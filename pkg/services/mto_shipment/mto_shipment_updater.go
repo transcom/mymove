@@ -158,31 +158,26 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.DestinationType = requestedUpdatedShipment.DestinationType
 	}
 
-	if requestedUpdatedShipment.HasSecondaryPickupAddress != nil {
+	// If HasSecondaryPickupAddress is false, we want to remove the address
+	// Otherwise, if a non-nil address is in the payload, we should save it
+	if requestedUpdatedShipment.HasSecondaryPickupAddress != nil && !*requestedUpdatedShipment.HasSecondaryPickupAddress {
 		dbShipment.HasSecondaryPickupAddress = requestedUpdatedShipment.HasSecondaryPickupAddress
-		if *requestedUpdatedShipment.HasSecondaryPickupAddress {
-			dbShipment.SecondaryPickupAddress = requestedUpdatedShipment.SecondaryPickupAddress
-		} else {
-			dbShipment.SecondaryPickupAddressID = nil
-			dbShipment.SecondaryPickupAddress = nil
-		}
-	}
-	// TODO should we delete this?
-	if requestedUpdatedShipment.SecondaryPickupAddress != nil {
+		dbShipment.SecondaryPickupAddress = nil
+		dbShipment.SecondaryPickupAddressID = nil
+	} else if requestedUpdatedShipment.SecondaryPickupAddress != nil {
 		dbShipment.SecondaryPickupAddress = requestedUpdatedShipment.SecondaryPickupAddress
+		dbShipment.HasSecondaryPickupAddress = swag.Bool(true)
 	}
 
-	if requestedUpdatedShipment.HasSecondaryDeliveryAddress != nil {
+	// If HasSecondaryDeliveryAddress is false, we want to remove the address
+	// Otherwise, if a non-nil address is in the payload, we should save it
+	if requestedUpdatedShipment.HasSecondaryDeliveryAddress != nil && !*requestedUpdatedShipment.HasSecondaryDeliveryAddress {
 		dbShipment.HasSecondaryDeliveryAddress = requestedUpdatedShipment.HasSecondaryDeliveryAddress
-		if *requestedUpdatedShipment.HasSecondaryDeliveryAddress {
-			dbShipment.SecondaryDeliveryAddress = requestedUpdatedShipment.SecondaryDeliveryAddress
-		} else {
-			dbShipment.SecondaryDeliveryAddressID = nil
-			dbShipment.SecondaryDeliveryAddress = nil
-		}
-	}
-	if requestedUpdatedShipment.SecondaryDeliveryAddress != nil {
+		dbShipment.SecondaryDeliveryAddress = nil
+		dbShipment.SecondaryDeliveryAddressID = nil
+	} else if requestedUpdatedShipment.SecondaryDeliveryAddress != nil {
 		dbShipment.SecondaryDeliveryAddress = requestedUpdatedShipment.SecondaryDeliveryAddress
+		dbShipment.HasSecondaryDeliveryAddress = swag.Bool(true)
 	}
 
 	if requestedUpdatedShipment.ShipmentType != "" {
