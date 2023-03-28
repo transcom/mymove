@@ -45,6 +45,8 @@ test('A services counselor can reduce PPM weights for a move with excess weight'
 
   // navigate to review-shipment-weights page and verify page components are rendered
   await page.getByRole('button', { name: 'Review shipment weights' }).click();
+  await scPage.waitForPage.reviewShipmentWeights();
+
   await expect(page.getByText('Weight allowance', { exact: true })).toBeVisible();
   await expect(page.getByText('Estimated weight (total)', { exact: true })).toBeVisible();
   await expect(page.getByText('Max billable weight', { exact: true })).toBeVisible();
@@ -59,6 +61,7 @@ test('A services counselor can reduce PPM weights for a move with excess weight'
 
   // navigate to review-documents page and decrease ppm shipment weight below threshold
   await page.getByRole('link', { name: 'Review Documents' }).click();
+  await scPage.waitForPage.reviewDocuments();
 
   await page.getByTestId('net-weight-display').getByTestId('button').click();
   await page.getByTestId('weightInput').fill('0');
@@ -69,6 +72,7 @@ test('A services counselor can reduce PPM weights for a move with excess weight'
 
   // navigate to review-shipment-weights page and verify excess weight alert is no longer visible
   await page.getByRole('button', { name: 'Review shipment weights' }).click();
+  await scPage.waitForPage.reviewShipmentWeights();
 
   await expect(
     page.getByText('This move has excess weight. Review PPM weight ticket documents to resolve.'),
