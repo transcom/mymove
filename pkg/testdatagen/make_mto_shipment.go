@@ -187,6 +187,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		if !isZeroUUID(secondaryDeliveryAddress.ID) {
 			MTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
 			MTOShipment.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
+			MTOShipment.HasSecondaryDeliveryAddress = swag.Bool(true)
 		}
 	}
 
@@ -197,6 +198,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		if !isZeroUUID(secondaryPickupAddress.ID) {
 			MTOShipment.SecondaryPickupAddress = &secondaryPickupAddress
 			MTOShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
+			MTOShipment.HasSecondaryPickupAddress = swag.Bool(true)
 		}
 	}
 

@@ -2339,8 +2339,16 @@ definitions:
         $ref: 'definitions/Address.yaml'
       secondaryPickupAddress:
         $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       secondaryDeliveryAddress:
         $ref: 'definitions/Address.yaml'
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       eTag:
         type: string
   MTOShipments:
@@ -2563,10 +2571,18 @@ definitions:
         $ref: 'definitions/Address.yaml'
       secondaryPickupAddress:
         $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+          type: boolean
+          x-nullable: true
+          x-omitempty: false
       destinationAddress:
         $ref: 'definitions/Address.yaml'
       secondaryDeliveryAddress:
         $ref: 'definitions/Address.yaml'
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       agents:
         $ref: '#/definitions/MTOAgents'
   ClientError:
