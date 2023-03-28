@@ -2761,3 +2761,54 @@ func MakeDraftMoveWithPPMWithDepartureDate(appCtx appcontext.AppContext) models.
 
 	return *newmove
 }
+
+func MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       "excessweightsPPM@ppm.approved",
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   "One PPM",
+		LastName:    "ExcessWeights",
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: models.GenerateLocator(),
+	}
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          uuid.Must(uuid.NewV4()),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			AdvanceStatus:               (*models.PPMAdvanceStatus)(models.StringPointer(string(models.PPMAdvanceStatusApproved))),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	weightTicketAssertions := testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		WeightTicket: models.WeightTicket{
+			EmptyWeight: models.PoundPointer(unit.Pound(1000)),
+			FullWeight:  models.PoundPointer(unit.Pound(20000)),
+		},
+	}
+	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+	return move
+}
