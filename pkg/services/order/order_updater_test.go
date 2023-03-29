@@ -96,7 +96,14 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
 		updatedDestinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
-		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "77777",
+				},
+			},
+		}, nil)
+		updatedGbloc := testdatagen.MakePostalCodeToGBLOC(suite.DB(), updatedOriginDutyLocation.Address.PostalCode, "UUUU")
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -139,6 +146,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.EqualValues(&updatedOriginDutyLocation.ID, fetchedSM.DutyLocationID)
 		suite.EqualValues(updatedOriginDutyLocation.ID, fetchedSM.DutyLocation.ID)
 		suite.EqualValues(updatedOriginDutyLocation.Name, fetchedSM.DutyLocation.Name)
+		suite.EqualValues(updatedGbloc.GBLOC, *updatedOrder.OriginDutyLocationGBLOC)
 
 		var moveInDB models.Move
 		err = suite.DB().Find(&moveInDB, move.ID)
@@ -785,14 +793,11 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 			},
 		}, nil)
 		var moves models.Moves
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				OriginDutyLocation: &dutyLocation,
-			},
-			Move: mto,
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			OriginDutyLocation: dutyLocation,
 		})
+
+		order := mto.Orders
 		order.Moves = append(moves, mto)
 
 		file := testdatagen.FixtureRuntimeFile("test.pdf")
@@ -878,7 +883,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		var moves models.Moves
 		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
-		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+		document := factory.BuildDocument(suite.DB(), nil, nil)
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
 				OriginDutyLocation:      &dutyLocation,

@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models/roles"
 	customerservice "github.com/transcom/mymove/pkg/services/office_user/customer"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
@@ -74,7 +73,7 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 	}
 	body.CurrentAddress.Address = currentAddress
 
-	customer := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
+	customer := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
 	request := httptest.NewRequest("PATCH", "/orders/{customerID}", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := customerops.UpdateCustomerParams{

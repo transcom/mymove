@@ -7,7 +7,6 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	weightticketops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
@@ -31,10 +30,8 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 		params      weightticketops.CreateWeightTicketParams
 		handler     CreateWeightTicketHandler
 	}
-	makeCreateSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData weightTicketCreateSubtestData) {
-		db := appCtx.DB()
-
-		subtestData.ppmShipment = testdatagen.MakePPMShipment(db, testdatagen.Assertions{})
+	makeCreateSubtestData := func(authenticateRequest bool) (subtestData weightTicketCreateSubtestData) {
+		subtestData.ppmShipment = testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{})
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/weight_ticket", subtestData.ppmShipment.ID.String())
 		req := httptest.NewRequest("POST", endpoint, nil)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
@@ -55,9 +52,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 	}
 
 	suite.Run("Successfully Create Weight Ticket - Integration Test", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx, true)
+		subtestData := makeCreateSubtestData(true)
 
 		response := subtestData.handler.Handle(subtestData.params)
 
@@ -72,9 +67,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 	})
 
 	suite.Run("POST failure - 400- bad request", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx, true)
+		subtestData := makeCreateSubtestData(true)
 		// Missing PPM Shipment ID
 		params := subtestData.params
 
@@ -86,9 +79,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 	})
 
 	suite.Run("POST failure -401 - Unauthorized - unauthenticated user", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx, false)
+		subtestData := makeCreateSubtestData(false)
 
 		response := subtestData.handler.Handle(subtestData.params)
 
@@ -96,9 +87,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 	})
 
 	suite.Run("POST failure - 403- permission denied - wrong application", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx, false)
+		subtestData := makeCreateSubtestData(false)
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
@@ -114,9 +103,8 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 
 	suite.Run("Post failure - 500 - Server Error", func() {
 		mockCreator := mocks.WeightTicketCreator{}
-		appCtx := suite.AppContextForTest()
 
-		subtestData := makeCreateSubtestData(appCtx, true)
+		subtestData := makeCreateSubtestData(true)
 		params := subtestData.params
 		serverErr := errors.New("ServerError")
 
@@ -152,11 +140,9 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		params       weightticketops.UpdateWeightTicketParams
 		handler      UpdateWeightTicketHandler
 	}
-	makeUpdateSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData weightTicketUpdateSubtestData) {
-		db := appCtx.DB()
-
+	makeUpdateSubtestData := func(authenticateRequest bool) (subtestData weightTicketUpdateSubtestData) {
 		// Use fake data:
-		subtestData.weightTicket = testdatagen.MakeWeightTicket(db, testdatagen.Assertions{})
+		subtestData.weightTicket = testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
 		subtestData.ppmShipment = subtestData.weightTicket.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
@@ -182,9 +168,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	}
 
 	suite.Run("Successfully Update Weight Ticket - Integration Test", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 
 		ppmShipmentUpdater.On(
 			"UpdatePPMShipmentWithDefaultCheck",
@@ -196,12 +180,12 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		params := subtestData.params
 
 		// An upload must exist if trailer is owned and qualifies to be claimed
-		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			UserUpload: models.UserUpload{
-				DocumentID: &subtestData.weightTicket.ProofOfTrailerOwnershipDocumentID,
-				Document:   subtestData.weightTicket.ProofOfTrailerOwnershipDocument,
+		factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.weightTicket.ProofOfTrailerOwnershipDocument,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
 		// Add vehicleDescription
 		params.UpdateWeightTicketPayload = &internalmessages.UpdateWeightTicket{
@@ -228,9 +212,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	})
 
 	suite.Run("PATCH failure -400 - nil body", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		subtestData.params.UpdateWeightTicketPayload = nil
 		response := subtestData.handler.Handle(subtestData.params)
 
@@ -238,9 +220,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	})
 
 	suite.Run("PATCH failure -422 - Invalid Input", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		params := subtestData.params
 		params.UpdateWeightTicketPayload = &internalmessages.UpdateWeightTicket{
 			VehicleDescription:       "Subaru",
@@ -258,9 +238,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	})
 
 	suite.Run("PATCH failure - 404- not found", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		params := subtestData.params
 		params.UpdateWeightTicketPayload = &internalmessages.UpdateWeightTicket{}
 		// This test should fail because of the wrong ID
@@ -273,9 +251,8 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	})
 
 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
-		appCtx := suite.AppContextForTest()
 
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		params := subtestData.params
 		params.UpdateWeightTicketPayload = &internalmessages.UpdateWeightTicket{}
 		params.IfMatch = "intentionally-bad-if-match-header-value"
@@ -287,9 +264,8 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 
 	suite.Run("PATCH failure - 500", func() {
 		mockUpdater := mocks.WeightTicketUpdater{}
-		appCtx := suite.AppContextForTest()
 
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		params := subtestData.params
 		params.UpdateWeightTicketPayload = &internalmessages.UpdateWeightTicket{
 			VehicleDescription:       "Subaru",
@@ -338,11 +314,9 @@ func (suite *HandlerSuite) TestDeleteWeightTicketHandler() {
 		params       weightticketops.DeleteWeightTicketParams
 		handler      DeleteWeightTicketHandler
 	}
-	makeDeleteSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData weightTicketDeleteSubtestData) {
-		db := appCtx.DB()
-
+	makeDeleteSubtestData := func(authenticateRequest bool) (subtestData weightTicketDeleteSubtestData) {
 		// Fake data:
-		subtestData.weightTicket = testdatagen.MakeWeightTicket(db, testdatagen.Assertions{})
+		subtestData.weightTicket = testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
 		subtestData.ppmShipment = subtestData.weightTicket.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
@@ -368,11 +342,10 @@ func (suite *HandlerSuite) TestDeleteWeightTicketHandler() {
 	}
 
 	suite.Run("Successfully Delete Weight Ticket - Integration Test", func() {
-		appCtx := suite.AppContextForTest()
 		mockIncentive := unit.Cents(100000)
 		estimator.On("FinalIncentiveWithDefaultChecks", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("models.PPMShipment"), mock.AnythingOfType("*models.PPMShipment")).Return(&mockIncentive, nil)
 
-		subtestData := makeDeleteSubtestData(appCtx, true)
+		subtestData := makeDeleteSubtestData(true)
 
 		params := subtestData.params
 		response := subtestData.handler.Handle(params)
@@ -381,17 +354,14 @@ func (suite *HandlerSuite) TestDeleteWeightTicketHandler() {
 	})
 
 	suite.Run("DELETE failure - 401 - permission denied - not authenticated", func() {
-		appCtx := suite.AppContextForTest()
-		subtestData := makeDeleteSubtestData(appCtx, false)
+		subtestData := makeDeleteSubtestData(false)
 		response := subtestData.handler.Handle(subtestData.params)
 
 		suite.IsType(&weightticketops.DeleteWeightTicketUnauthorized{}, response)
 	})
 
 	suite.Run("DELETE failure - 403 - permission denied - wrong application / user", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeDeleteSubtestData(appCtx, false)
+		subtestData := makeDeleteSubtestData(false)
 
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
@@ -406,9 +376,7 @@ func (suite *HandlerSuite) TestDeleteWeightTicketHandler() {
 	})
 
 	suite.Run("DELETE failure - 403 - permission denied - wrong service member user", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeDeleteSubtestData(appCtx, false)
+		subtestData := makeDeleteSubtestData(false)
 
 		otherServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
@@ -422,13 +390,11 @@ func (suite *HandlerSuite) TestDeleteWeightTicketHandler() {
 		suite.IsType(&weightticketops.DeleteWeightTicketForbidden{}, response)
 	})
 	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and weight ticket ID don't match", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeDeleteSubtestData(appCtx, false)
+		subtestData := makeDeleteSubtestData(false)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
 		otherPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{ServiceMemberID: serviceMember.ID},
+			Order: subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders,
 		})
 
 		subtestData.params.PpmShipmentID = *handlers.FmtUUID(otherPPMShipment.ID)
@@ -443,9 +409,7 @@ func (suite *HandlerSuite) TestDeleteWeightTicketHandler() {
 	})
 
 	suite.Run("DELETE failure - 404- not found", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeDeleteSubtestData(appCtx, true)
+		subtestData := makeDeleteSubtestData(true)
 		params := subtestData.params
 		// Wrong ID provided
 		uuidString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("e392b01d-3b23-45a9-8f98-e4d5b03c8a93"))
@@ -458,9 +422,8 @@ func (suite *HandlerSuite) TestDeleteWeightTicketHandler() {
 
 	suite.Run("DELETE failure - 500 - server error", func() {
 		mockDeleter := mocks.WeightTicketDeleter{}
-		appCtx := suite.AppContextForTest()
 
-		subtestData := makeDeleteSubtestData(appCtx, true)
+		subtestData := makeDeleteSubtestData(true)
 		params := subtestData.params
 
 		err := errors.New("ServerError")

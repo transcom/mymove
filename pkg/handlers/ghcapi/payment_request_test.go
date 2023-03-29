@@ -130,10 +130,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 
 		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 		moveLocator = move.Locator
-		// we need a mapping for the pickup address postal code to our user's gbloc
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(),
-			move.MTOShipments[0].PickupAddress.PostalCode,
-			officeUser.TransportationOffice.Gbloc)
 
 		// This should create all the other associated records we need.
 		paymentServiceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{

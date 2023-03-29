@@ -3,7 +3,9 @@ package models
 import (
 	"time"
 
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 )
 
 // PostalCodeToGBLOC is a mapping from Postal Codes to GBLOCs
@@ -21,3 +23,18 @@ func (p PostalCodeToGBLOC) TableName() string {
 }
 
 type PostalCodeToGBLOCs []PostalCodeToGBLOC
+
+// Fetches the GBLOC for a specific Postal Code
+func FetchGBLOCForPostalCode(db *pop.Connection, postalCode string) (PostalCodeToGBLOC, error) {
+	var postalCodeToGBLOC PostalCodeToGBLOC
+	err := db.Where("postal_code = $1", postalCode).First(&postalCodeToGBLOC)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return PostalCodeToGBLOC{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return PostalCodeToGBLOC{}, err
+	}
+
+	return postalCodeToGBLOC, nil
+}

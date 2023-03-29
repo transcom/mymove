@@ -127,10 +127,19 @@ export const PPMReviewWeightsTableColumns = [
     id: 'shipmentType',
     isFilterable: false,
   }),
-  createHeader('Weight ticket', (row) => <a href={row.ppmShipment.reviewURL}> Review Documents </a>, {
-    id: 'weightTicket',
-    isFilterable: false,
-  }),
+  createHeader(
+    'Weight ticket',
+    (row) =>
+      row.ppmShipment.weightTickets.length > 0 ? (
+        <a href={row.ppmShipment.reviewShipmentWeightsURL}> Review Documents </a>
+      ) : (
+        DASH
+      ),
+    {
+      id: 'weightTicket',
+      isFilterable: false,
+    },
+  ),
   createHeader(
     'Pro-gear (lbs)',
     (row) => (row.ppmShipment.proGearWeight > 0 ? formatWeight(row.ppmShipment.proGearWeight) : DASH),

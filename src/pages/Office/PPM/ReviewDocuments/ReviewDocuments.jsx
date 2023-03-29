@@ -1,7 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button } from '@trussworks/react-uswds';
+import { Alert, Button, Grid } from '@trussworks/react-uswds';
 import { generatePath, useHistory, withRouter } from 'react-router-dom';
+
+import { calculateWeightRequested } from '../../../../hooks/custom';
 
 import styles from './ReviewDocuments.module.scss';
 
@@ -14,11 +16,11 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
-import { usePPMShipmentDocsQueries } from 'hooks/queries';
+import { useReviewShipmentWeightsQuery, usePPMShipmentDocsQueries } from 'hooks/queries';
 import ReviewWeightTicket from 'components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket';
+import ReviewExpense from 'components/Office/PPM/ReviewExpense/ReviewExpense';
 import { DOCUMENTS } from 'constants/queryKeys';
 import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
-import ReviewExpense from 'components/Office/PPM/ReviewExpense/ReviewExpense';
 
 // TODO: This should be in src/constants/ppms.js, but it's causing a lot of errors in unrelated tests, so I'll leave
 //  this here for now.
@@ -30,15 +32,23 @@ const DOCUMENT_TYPES = {
 
 export const ReviewDocuments = ({ match }) => {
   const { shipmentId, moveCode } = match.params;
+  const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
+  const order = Object.values(orders)?.[0];
+
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
+  const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
 
   let documentSets = [];
-
   const weightTickets = documents?.WeightTickets ?? [];
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
   const movingExpenses = documents?.MovingExpenses ?? [];
+
+  const moveWeightTotal = calculateWeightRequested(mtoShipments);
+  useEffect(() => {
+    setMoveHasExcessWeight(moveWeightTotal > order.entitlement.totalWeight);
+  }, [moveWeightTotal, order.entitlement.totalWeight]);
 
   if (weightTickets.length > 0) {
     weightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
@@ -144,6 +154,13 @@ export const ReviewDocuments = ({ match }) => {
   const currentDocumentSet = documentSets[documentSetIndex];
   const disableBackButton = documentSetIndex === 0 && !showOverview;
 
+  const reviewShipmentWeightsURL = generatePath(servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH, {
+    moveCode,
+    shipmentId,
+  });
+
+  const reviewShipmentWeightsLink = <a href={reviewShipmentWeightsURL}>Review shipment weights</a>;
+
   return (
     <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
@@ -155,16 +172,23 @@ export const ReviewDocuments = ({ match }) => {
         className={styles.sidebar}
         supertitle={`${documentSetIndex + 1} of ${documentSets.length} Document Sets`}
         defaultH3
+        hyperlink={reviewShipmentWeightsLink}
       >
         <DocumentViewerSidebar.Content mainRef={mainRef}>
           <NotificationScrollToTop dependency={documentSetIndex || serverError} target={mainRef.current} />
+          {moveHasExcessWeight && (
+            <Grid className={styles.alertContainer}>
+              <Alert headingLevel="h4" slim type="warning">
+                <span>This move has excess weight. Edit the PPM net weight to resolve.</span>
+              </Alert>
+            </Grid>
+          )}
           <ErrorMessage display={!!serverError}>{serverError}</ErrorMessage>
           {documentSets &&
             (showOverview ? (
               <ReviewDocumentsSidePanel
                 ppmShipment={mtoShipment.ppmShipment}
                 weightTickets={weightTickets}
-                proGearTickets={proGearWeightTickets}
                 expenseTickets={movingExpenses}
                 onError={onError}
                 onSuccess={onConfirmSuccess}
@@ -178,6 +202,8 @@ export const ReviewDocuments = ({ match }) => {
                     ppmNumber={1}
                     tripNumber={currentDocumentSet.tripNumber}
                     mtoShipment={mtoShipment}
+                    order={order}
+                    mtoShipments={mtoShipments}
                     onError={onError}
                     onSuccess={onSuccess}
                     formRef={formRef}

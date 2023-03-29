@@ -5,7 +5,7 @@ import WeightTicketUpload from './WeightTicketUpload';
 
 import { MockProviders } from 'testUtils';
 
-const weightTicketUploadMissingWeightTicket = {
+const fullWeightTicketUploadMissingWeightTicket = {
   fieldName: 'document',
   missingWeightTicket: true,
   formikProps: { touched: {} },
@@ -15,11 +15,32 @@ const weightTicketUploadMissingWeightTicket = {
   onUploadComplete: jest.fn(),
   onUploadDelete: jest.fn(),
 };
+
+const emptyWeightTicketUploadMissingWeightTicket = {
+  ...fullWeightTicketUploadMissingWeightTicket,
+  fieldName: 'emptyDocument',
+};
+
 describe('WeightTicketUpload', () => {
-  it('populates form when weight ticket is missing', async () => {
-    render(<WeightTicketUpload {...weightTicketUploadMissingWeightTicket} />, { wrapper: MockProviders });
+  it('populates form when the full weight ticket is missing', async () => {
+    render(<WeightTicketUpload {...fullWeightTicketUploadMissingWeightTicket} />, { wrapper: MockProviders });
+    expect(
+      screen.getByText('If you do not upload legible certified weight tickets, your PPM incentive could be affected.'),
+    ).toBeInTheDocument();
     expect(
       screen.getByText('Download the official government spreadsheet to calculate constructed weight.'),
+    ).toBeInTheDocument();
+  });
+
+  it('populates form when empty weight ticket is missing', async () => {
+    render(<WeightTicketUpload {...emptyWeightTicketUploadMissingWeightTicket} />, { wrapper: MockProviders });
+    expect(
+      screen.getByText('If you do not upload legible certified weight tickets, your PPM incentive could be affected.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Since you do not have a certified weight ticket, upload the registration or rental agreement for the vehicle used during the PPM',
+      ),
     ).toBeInTheDocument();
   });
 });

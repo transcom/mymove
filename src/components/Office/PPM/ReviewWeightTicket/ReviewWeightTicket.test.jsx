@@ -11,6 +11,11 @@ beforeEach(() => {
 });
 
 const defaultProps = {
+  order: {
+    entitlement: {
+      totalWeight: 2000,
+    },
+  },
   ppmShipment: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     actualPickupPostalCode: '90210',
@@ -67,7 +72,7 @@ describe('ReviewWeightTicket component', () => {
     it('renders blank form on load with defaults', async () => {
       render(
         <MockProviders>
-          <ReviewWeightTicket {...defaultProps} />;
+          <ReviewWeightTicket {...defaultProps} {...weightTicketRequiredProps} />
         </MockProviders>,
       );
 
@@ -100,7 +105,7 @@ describe('ReviewWeightTicket component', () => {
       });
       expect(screen.getByLabelText('Empty weight', { description: 'Weight tickets' })).toHaveDisplayValue('400');
       expect(screen.getByLabelText('Full weight', { description: 'Weight tickets' })).toHaveDisplayValue('1,200');
-      expect(screen.getByText('800 lbs')).toBeInTheDocument();
+      expect(screen.getAllByText('800 lbs')).toHaveLength(2);
       expect(screen.getByLabelText('No')).toBeChecked();
     });
 
@@ -111,7 +116,7 @@ describe('ReviewWeightTicket component', () => {
         </MockProviders>,
       );
       await waitFor(() => {
-        expect(screen.getByLabelText('Empty weight', { description: 'Constructed weight' })).toBeInTheDocument();
+        expect(screen.getByLabelText('Empty weight', { description: 'Vehicle weight' })).toBeInTheDocument();
       });
       expect(screen.getByLabelText('Full weight', { description: 'Constructed weight' })).toBeInTheDocument();
     });

@@ -814,12 +814,12 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		userUploadedOrders := uploadedOrdersDocument.UserUploads[0]
 
 		// Create an amended orders that is associated with the service member
-		userUploadedAmendedOrders := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMember:   serviceMember,
-				ServiceMemberID: serviceMember.ID,
+		userUploadedAmendedOrders := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
 		// Update the orders with the amended orders
 		orders.UploadedAmendedOrdersID = &userUploadedAmendedOrders.Document.ID
@@ -1024,12 +1024,12 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		serviceMember := move.Orders.ServiceMember
 		suite.NotNil(serviceMember)
 
-		backupContact := testdatagen.MakeBackupContact(suite.DB(), testdatagen.Assertions{
-			BackupContact: models.BackupContact{
-				ServiceMember:   serviceMember,
-				ServiceMemberID: serviceMember.ID,
+		backupContact := factory.BuildBackupContact(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 		suite.NotNil(backupContact)
 
 		foundBackupContact := false

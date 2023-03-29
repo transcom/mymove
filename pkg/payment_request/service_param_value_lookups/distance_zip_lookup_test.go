@@ -352,4 +352,38 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		suite.Error(err)
 		suite.Equal(fmt.Sprintf("ID: %s not found looking for MTOShipmentID", mtoShipmentID), err.Error())
 	})
+
+	suite.Run("sets distance to one when origin and destination postal codes are the same", func() {
+		MTOShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			PickupAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						PostalCode: "90211",
+					},
+				},
+			}, nil),
+			DestinationAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						PostalCode: "90211",
+					},
+				},
+			}, nil),
+		})
+
+		distanceZipLookup := DistanceZipLookup{
+			PickupAddress:      models.Address{PostalCode: MTOShipment.PickupAddress.PostalCode},
+			DestinationAddress: models.Address{PostalCode: MTOShipment.DestinationAddress.PostalCode},
+		}
+
+		distance, err := distanceZipLookup.lookup(suite.AppContextForTest(), &ServiceItemParamKeyData{
+			planner:       suite.planner,
+			mtoShipmentID: &MTOShipment.ID,
+		})
+
+		//Check if distance equal 1
+		suite.Equal("1", distance)
+		suite.FatalNoError(err)
+
+	})
 }

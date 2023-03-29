@@ -1,6 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import { ErrorMessage, FormGroup, Label, Link } from '@trussworks/react-uswds';
+import { ErrorMessage, FormGroup, Label, Link, Alert } from '@trussworks/react-uswds';
 import { string, bool, func, shape } from 'prop-types';
 
 import styles from 'components/Customer/PPM/Closeout/WeightTicketUpload/WeightTicketUpload.module.scss';
@@ -24,6 +24,9 @@ export const acceptableFileTypes = [
 
 const constructedWeightDownload = (
   <>
+    <Alert type="info">
+      If you do not upload legible certified weight tickets, your PPM incentive could be affected.
+    </Alert>
     <p>Download the official government spreadsheet to calculate constructed weight.</p>
     <Link
       className={classnames('usa-button', 'usa-button--secondary', styles.constructedWeightLink)}
@@ -33,12 +36,26 @@ const constructedWeightDownload = (
     >
       Go to download page
     </Link>
-    <p>
-      Enter the constructed weight you calculated.
-      <br />
-      <br />
-      Upload a completed copy of the spreadsheet.
-    </p>
+    <p className={styles.bold}>Enter the sum of your constructed weight and the empty weight as the full weight.</p>
+  </>
+);
+
+const rentalAgreement = (
+  <>
+    <Alert type="info">
+      If you do not upload legible certified weight tickets, your PPM incentive could be affected.
+    </Alert>
+    <p>Enter the PPM vehicle&apos;s weight as the empty weight. Your vehicle&apos;s weight can be obtained from:</p>
+    <ul>
+      <li>The Branham Automobile Reference Book</li>
+      <li>
+        <Link href="https://www.jdpower.com/cars" target="_blank" rel="noopener">
+          National Automobile Dealers Association (NADA) Official Used Car Guide
+        </Link>
+      </li>
+      <li>Your owner&apos;s manual</li>
+      <li>Other appropriate reference sources of manufacturer&apos;s weight</li>
+    </ul>
   </>
 );
 
@@ -52,9 +69,15 @@ const WeightTicketUpload = ({
   values,
   formikProps: { touched, errors, setFieldTouched, setFieldValue },
 }) => {
-  const weightTicketUploadLabel = (name, showConstructedWeight) => {
-    if (showConstructedWeight || name === 'missingProGearWeightDocument') {
-      return 'Upload constructed weight spreadsheet';
+  const weightTicketRentalAgreement = fieldName === 'emptyDocument' && missingWeightTicket;
+
+  const weightTicketUploadLabel = (name, isMissingWeightTicket) => {
+    if (isMissingWeightTicket || name === 'missingProGearWeightDocument') {
+      if (weightTicketRentalAgreement) {
+        return `Since you do not have a certified weight ticket, upload the registration or rental agreement for the vehicle used
+        during the PPM`;
+      }
+      return 'Upload your completed constructed weight spreadsheet';
     }
 
     if (name === 'emptyDocument') {
@@ -68,15 +91,18 @@ const WeightTicketUpload = ({
     return 'Upload full weight ticket';
   };
 
-  const weightTicketUploadHint = (showConstructedWeight) => {
-    return showConstructedWeight ? SpreadsheetUploadInstructions : DocumentAndImageUploadInstructions;
+  const weightTicketUploadHint = () => {
+    return missingWeightTicket && !weightTicketRentalAgreement
+      ? SpreadsheetUploadInstructions
+      : DocumentAndImageUploadInstructions;
   };
 
   const showError = touched[`${fieldName}`] && errors[`${fieldName}`];
 
   return (
     <div className={styles.WeightTicketUpload}>
-      {missingWeightTicket && constructedWeightDownload}
+      {missingWeightTicket && weightTicketRentalAgreement && rentalAgreement}
+      {missingWeightTicket && !weightTicketRentalAgreement && constructedWeightDownload}
       <UploadsTable
         className={styles.uploadsTable}
         uploads={values[`${fieldName}`]}
@@ -89,7 +115,7 @@ const WeightTicketUpload = ({
           </Label>
         </div>
         {showError && <ErrorMessage>{errors[`${fieldName}`]}</ErrorMessage>}
-        <Hint className={styles.uploadTypeHint}>{weightTicketUploadHint(missingWeightTicket)}</Hint>
+        <Hint className={styles.uploadTypeHint}>{weightTicketUploadHint()}</Hint>
         <FileUpload
           name={fieldName}
           className={fieldName}

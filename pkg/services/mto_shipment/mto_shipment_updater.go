@@ -158,12 +158,26 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.DestinationType = requestedUpdatedShipment.DestinationType
 	}
 
-	if requestedUpdatedShipment.SecondaryPickupAddress != nil {
+	// If HasSecondaryPickupAddress is false, we want to remove the address
+	// Otherwise, if a non-nil address is in the payload, we should save it
+	if requestedUpdatedShipment.HasSecondaryPickupAddress != nil && !*requestedUpdatedShipment.HasSecondaryPickupAddress {
+		dbShipment.HasSecondaryPickupAddress = requestedUpdatedShipment.HasSecondaryPickupAddress
+		dbShipment.SecondaryPickupAddress = nil
+		dbShipment.SecondaryPickupAddressID = nil
+	} else if requestedUpdatedShipment.SecondaryPickupAddress != nil {
 		dbShipment.SecondaryPickupAddress = requestedUpdatedShipment.SecondaryPickupAddress
+		dbShipment.HasSecondaryPickupAddress = swag.Bool(true)
 	}
 
-	if requestedUpdatedShipment.SecondaryDeliveryAddress != nil {
+	// If HasSecondaryDeliveryAddress is false, we want to remove the address
+	// Otherwise, if a non-nil address is in the payload, we should save it
+	if requestedUpdatedShipment.HasSecondaryDeliveryAddress != nil && !*requestedUpdatedShipment.HasSecondaryDeliveryAddress {
+		dbShipment.HasSecondaryDeliveryAddress = requestedUpdatedShipment.HasSecondaryDeliveryAddress
+		dbShipment.SecondaryDeliveryAddress = nil
+		dbShipment.SecondaryDeliveryAddressID = nil
+	} else if requestedUpdatedShipment.SecondaryDeliveryAddress != nil {
 		dbShipment.SecondaryDeliveryAddress = requestedUpdatedShipment.SecondaryDeliveryAddress
+		dbShipment.HasSecondaryDeliveryAddress = swag.Bool(true)
 	}
 
 	if requestedUpdatedShipment.ShipmentType != "" {
@@ -365,8 +379,18 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 			newShipment.PickupAddressID = &newShipment.PickupAddress.ID
 		}
+		if newShipment.HasSecondaryPickupAddress != nil {
+			if !*newShipment.HasSecondaryPickupAddress {
+				newShipment.SecondaryDeliveryAddressID = nil
+			}
+		}
+		if newShipment.HasSecondaryDeliveryAddress != nil {
+			if !*newShipment.HasSecondaryDeliveryAddress {
+				newShipment.SecondaryDeliveryAddressID = nil
+			}
+		}
 
-		if newShipment.SecondaryPickupAddress != nil {
+		if newShipment.HasSecondaryPickupAddress != nil && *newShipment.HasSecondaryPickupAddress && newShipment.SecondaryPickupAddress != nil {
 			if dbShipment.SecondaryPickupAddressID != nil {
 				newShipment.SecondaryPickupAddress.ID = *dbShipment.SecondaryPickupAddressID
 			}

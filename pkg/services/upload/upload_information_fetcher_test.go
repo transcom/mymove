@@ -5,7 +5,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *UploadServiceSuite) TestFetchUploadInformation() {
@@ -28,8 +27,13 @@ func (suite *UploadServiceSuite) TestFetchUploadInformation() {
 				},
 			},
 		}, nil)
-		assertions := testdatagen.Assertions{UserUpload: models.UserUpload{UploaderID: *ou.UserID}}
-		uu := testdatagen.MakeUserUpload(suite.DB(), assertions)
+		uu := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model: models.UserUpload{
+					UploaderID: *ou.UserID,
+				},
+			},
+		}, nil)
 		uif := NewUploadInformationFetcher()
 		suite.NotNil(uu.UploadID)
 		suite.NotNil(uu.Upload)
@@ -46,7 +50,7 @@ func (suite *UploadServiceSuite) TestFetchUploadInformation() {
 	})
 
 	suite.Run("fetch service member upload", func() {
-		uu := testdatagen.MakeDefaultUserUpload(suite.DB())
+		uu := factory.BuildUserUpload(suite.DB(), nil, nil)
 		uif := NewUploadInformationFetcher()
 		suite.NotNil(uu.UploadID)
 		suite.NotNil(uu.Upload)

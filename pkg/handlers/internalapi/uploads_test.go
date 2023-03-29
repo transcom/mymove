@@ -36,7 +36,7 @@ const FixtureXLSX = "Weight Estimator.xlsx"
 const FixtureEmpty = "empty.pdf"
 
 func createPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, uploadop.CreateUploadParams) {
-	document := testdatagen.MakeDefaultDocument(suite.DB())
+	document := factory.BuildDocument(suite.DB(), nil, nil)
 
 	params := uploadop.NewCreateUploadParams()
 	params.DocumentID = handlers.FmtUUID(document.ID)
@@ -239,7 +239,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
-	uploadUser := testdatagen.MakeDefaultUserUpload(suite.DB())
+	uploadUser := factory.BuildUserUpload(suite.DB(), nil, nil)
 	suite.Nil(uploadUser.Upload.DeletedAt)
 
 	file := suite.Fixture(FixturePDF)
@@ -269,16 +269,16 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
-	uploadUser1 := testdatagen.MakeDefaultUserUpload(suite.DB())
+	uploadUser1 := factory.BuildUserUpload(suite.DB(), nil, nil)
 	suite.Nil(uploadUser1.Upload.DeletedAt)
 
-	uploadUser2Assertions := testdatagen.Assertions{
-		UserUpload: models.UserUpload{
-			Document:   uploadUser1.Document,
-			DocumentID: &uploadUser1.Document.ID,
+	uploadUser2Customization := []factory.Customization{
+		{
+			Model:    uploadUser1.Document,
+			LinkOnly: true,
 		},
 	}
-	uploadUser2 := testdatagen.MakeUserUpload(suite.DB(), uploadUser2Assertions)
+	uploadUser2 := factory.BuildUserUpload(suite.DB(), uploadUser2Customization, nil)
 
 	file := suite.Fixture(FixturePDF)
 	fakeS3.Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)
@@ -313,7 +313,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccessEvenWithS3Failure() {
 	// therefore a failure in the S3 storer will still result in a successful soft delete.
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
-	uploadUser := testdatagen.MakeDefaultUserUpload(suite.DB())
+	uploadUser := factory.BuildUserUpload(suite.DB(), nil, nil)
 	suite.Nil(uploadUser.Upload.DeletedAt)
 
 	file := suite.Fixture(FixturePDF)
@@ -459,7 +459,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 		_, params := createPPMPrereqs(suite, FixtureXLS)
 
-		document := testdatagen.MakeDefaultDocument(suite.DB())
+		document := factory.BuildDocument(suite.DB(), nil, nil)
 		params.DocumentID = strfmt.UUID(document.ID.String())
 
 		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)

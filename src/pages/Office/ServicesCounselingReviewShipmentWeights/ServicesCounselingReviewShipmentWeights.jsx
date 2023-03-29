@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Grid, GridContainer, Tag } from '@trussworks/react-uswds';
+import { Grid, GridContainer, Tag, Alert } from '@trussworks/react-uswds';
 import { Link, generatePath } from 'react-router-dom';
 
 import tabStyles from '../TXOMoveInfo/TXOTab.module.scss';
@@ -12,10 +12,36 @@ import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
 import { calculateEstimatedWeight, calculateWeightRequested } from 'hooks/custom';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { servicesCounselingRoutes } from 'constants/routes';
+import ReviewShipmentWeightsTable from 'components/Office/PPM/ReviewShipmentWeightsTable/ReviewShipmentWeightsTable';
+import {
+  PPMReviewWeightsTableConfig,
+  proGearReviewWeightsTableConfig,
+  nonPPMReviewWeightsTableConfig,
+} from 'components/Office/PPM/ReviewShipmentWeightsTable/helpers';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
+const hasProGear = (orders) => Boolean(orders.entitlement?.proGearWeight || orders.entitlement?.spouseProGearWeight);
+
+const sortShipments = (shipments) => {
+  const ppmShipment = [];
+  const hhgShipment = [];
+  if (!shipments) {
+    return null;
+  }
+  shipments.forEach((shipment) => {
+    if (shipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
+      ppmShipment.push(shipment);
+      return;
+    }
+    hhgShipment.push(shipment);
+  });
+  return { hhgShipment, ppmShipment };
+};
 
 const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
+  const [showExcessWeightAlert, setShowExcessWeightAlert] = useState(false);
   const { orders, mtoShipments, isLoading, isError } = useReviewShipmentWeightsQuery(moveCode);
   const estimatedWeightTotal = calculateEstimatedWeight(mtoShipments);
   const moveWeightTotal = calculateWeightRequested(mtoShipments);
@@ -24,12 +50,26 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
     : 0;
   const order = Object.values(orders)?.[0];
 
+  useEffect(() => {
+    setShowExcessWeightAlert(moveWeightTotal > order.entitlement.totalWeight);
+  }, [moveWeightTotal, order.entitlement.totalWeight]);
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+  // sort shipments for the table
+  const sortedShipments = sortShipments(mtoShipments);
+  const showWeightsMoved = Boolean(hasProGear(order) || sortShipments.hhgShipment);
 
   return (
     <div className={tabStyles.tabContent}>
       <GridContainer>
+        <Grid className={styles.alertContainer}>
+          {showExcessWeightAlert && (
+            <Alert headingLevel="h4" slim type="warning">
+              <span>This move has excess weight. Review PPM weight ticket documents to resolve.</span>
+            </Alert>
+          )}
+        </Grid>
         <Grid row>
           <h1>Review shipment weights</h1>
         </Grid>
@@ -51,6 +91,34 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
           <WeightDisplay heading="Max billable weight" weightValue={order.entitlement.authorizedWeight} />
           <WeightDisplay heading="Move weight (total)" weightValue={moveWeightTotal} />
         </div>
+        {sortedShipments.ppmShipment && (
+          <div className={styles.weightMovedContainer} data-testid="ppmShipmentContainer">
+            <h2 className={styles.weightMovedHeader}>Weight moved by customer</h2>
+            <ReviewShipmentWeightsTable
+              tableData={sortedShipments.ppmShipment}
+              tableConfig={PPMReviewWeightsTableConfig}
+            />
+          </div>
+        )}
+        {showWeightsMoved && (
+          <div className={styles.weightMovedContainer}>
+            <h2 className={styles.weightMovedHeader}>Weight moved</h2>
+            {hasProGear && (
+              <div data-testid="progearContainer">
+                <ReviewShipmentWeightsTable tableData={[order]} tableConfig={proGearReviewWeightsTableConfig} />
+              </div>
+            )}
+            {sortedShipments?.hhgShipment?.length > 0 && (
+              <div className={styles.shipmentContainer} data-testid="nonPpmShipmentContainer">
+                <h3 className={styles.shipmentHeader}>Shipments</h3>
+                <ReviewShipmentWeightsTable
+                  tableData={sortedShipments.hhgShipment}
+                  tableConfig={nonPPMReviewWeightsTableConfig}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </GridContainer>
     </div>
   );
