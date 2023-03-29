@@ -1505,7 +1505,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	suite.Run("Returns 204 when all validations pass", func() {
-		order := testdatagen.MakeDefaultOrder(suite.DB())
+		order := factory.BuildOrder(suite.DB(), nil, nil)
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: order,
 		})
@@ -1539,7 +1539,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 404 when deleter returns NotFoundError", func() {
-		order := testdatagen.MakeDefaultOrder(suite.DB())
+		order := factory.BuildOrder(suite.DB(), nil, nil)
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: order,
 		})
@@ -1572,7 +1572,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 409 - Conflict error", func() {
-		order := testdatagen.MakeDefaultOrder(suite.DB())
+		order := factory.BuildOrder(suite.DB(), nil, nil)
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: order,
 		})
@@ -1608,7 +1608,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	suite.Run("Returns 403 when servicemember ID doesn't match shipment", func() {
 		sm1 := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.GetTraitServiceMemberSetIDs})
 		sm2 := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.GetTraitServiceMemberSetIDs})
-		order := testdatagen.MakeDefaultOrder(suite.DB())
+		order := factory.BuildOrder(suite.DB(), nil, nil)
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: order,
 		})
@@ -1643,7 +1643,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 422 - Unprocessable Enitity error", func() {
-		order := testdatagen.MakeDefaultOrder(suite.DB())
+		order := factory.BuildOrder(suite.DB(), nil, nil)
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: order,
 		})
@@ -1676,7 +1676,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 500 when deleter returns InternalServerError", func() {
-		order := testdatagen.MakeDefaultOrder(suite.DB())
+		order := factory.BuildOrder(suite.DB(), nil, nil)
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: order,
 		})

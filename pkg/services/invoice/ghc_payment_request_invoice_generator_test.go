@@ -1015,13 +1015,14 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 	var paymentRequest models.PaymentRequest
 
 	setupTestData := func() {
-		orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				TAC:    &hhgTAC,
-				NtsTAC: &ntsTAC,
+		orders := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					TAC:    &hhgTAC,
+					NtsTAC: &ntsTAC,
+				},
 			},
-		})
-
+		}, nil)
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: orders,
 		})

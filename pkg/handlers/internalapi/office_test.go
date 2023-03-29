@@ -141,7 +141,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
 func (suite *HandlerSuite) TestCancelMoveHandler() {
 	// Given: a set of orders, a move, and office user
 	// Orders has service member with transportation office and phone nums
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	moveRouter := moverouter.NewMoveRouter()
 
