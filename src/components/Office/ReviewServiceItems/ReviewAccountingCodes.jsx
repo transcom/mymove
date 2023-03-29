@@ -15,7 +15,7 @@ const ReviewAccountingCodesItem = ({ shipmentId, shipmentType, tac, sac, amount 
       <div className={styles.ShipmentAmount}>{toDollarString(amount)}</div>
       <div className={styles.ShipmentType}>{shipmentType}</div>
       {tac && <div>TAC: {tac}</div>}
-      {sac && <div>SAC: {sac}</div>}
+      {sac && <div className={styles.SAC}>SAC: {sac}</div>}
     </div>
   );
 };
