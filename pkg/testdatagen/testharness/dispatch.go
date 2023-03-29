@@ -139,6 +139,9 @@ var actionDispatcher = map[string]actionFunc{
 	"WebhookSubscription": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return testdatagen.MakeWebhookSubscription(appCtx.DB(), testdatagen.Assertions{})
 	},
+	"ApprovedMoveWithPPMShipmentAndExcessWeight": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx)
+	},
 }
 
 func Actions() []string {

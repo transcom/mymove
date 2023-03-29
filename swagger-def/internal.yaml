@@ -1828,6 +1828,10 @@ definitions:
       origin_duty_location:
         $ref: 'definitions/DutyLocationPayload.yaml'
         x-nullable: true
+      originDutyLocationGbloc:
+        type: string
+        title: From what GBLOC do your orders originate?
+        x-nullable: true
       new_duty_location:
         $ref: 'definitions/DutyLocationPayload.yaml'
       uploaded_orders:
@@ -2335,8 +2339,16 @@ definitions:
         $ref: 'definitions/Address.yaml'
       secondaryPickupAddress:
         $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       secondaryDeliveryAddress:
         $ref: 'definitions/Address.yaml'
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       eTag:
         type: string
   MTOShipments:
@@ -2546,9 +2558,11 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+        x-nullable: true
       requestedDeliveryDate:
         format: date
         type: string
+        x-nullable: true
       customerRemarks:
         type: string
         example: handle with care
@@ -2557,10 +2571,18 @@ definitions:
         $ref: 'definitions/Address.yaml'
       secondaryPickupAddress:
         $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+          type: boolean
+          x-nullable: true
+          x-omitempty: false
       destinationAddress:
         $ref: 'definitions/Address.yaml'
       secondaryDeliveryAddress:
         $ref: 'definitions/Address.yaml'
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       agents:
         $ref: '#/definitions/MTOAgents'
   ClientError:

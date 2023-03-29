@@ -219,6 +219,7 @@ func MakeHHGMoveWithShipment(db *pop.Connection, assertions Assertions) models.M
 		ServiceMember:        assertions.ServiceMember,
 		TransportationOffice: assertions.TransportationOffice,
 		Order:                assertions.Order,
+		OriginDutyLocation:   assertions.OriginDutyLocation,
 		Stub:                 assertions.Stub,
 		UserUploader:         assertions.UserUploader,
 	})
