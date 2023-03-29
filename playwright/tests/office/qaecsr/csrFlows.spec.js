@@ -100,7 +100,8 @@ test.describe('Customer Support User Flows', () => {
       await expect(page.getByText('(edited)')).toBeVisible();
 
       // Change user
-      await Promise.all([page.waitForNavigation(), await page.getByText('Sign out').click()]);
+      await page.getByText('Sign out').click();
+      await page.waitForURL('**/sign-in');
 
       await officePage.signInAsNewQAECSRUser();
       await officePage.qaeCsrSearchForAndNavigateToMove(moveLocator);
