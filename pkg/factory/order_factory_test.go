@@ -139,6 +139,31 @@ func (suite *FactorySuite) TestBuildOrder() {
 		suite.Equal(amendedOrders.ID, *order.UploadedAmendedOrdersID)
 		suite.Equal(amendedOrders.ID, order.UploadedAmendedOrders.ID)
 	})
+	suite.Run("Successful creation of order with prebuilt uploaded orders", func() {
+		userUploadForUploadedOrders := BuildUserUpload(suite.DB(), nil, nil)
+		uploadedOrders := userUploadForUploadedOrders.Document
+		uploadedOrders.UserUploads = models.UserUploads{userUploadForUploadedOrders}
+
+		userUploadForAmendedOrders := BuildUserUpload(suite.DB(), nil, nil)
+		amendedOrders := userUploadForAmendedOrders.Document
+		amendedOrders.UserUploads = models.UserUploads{userUploadForAmendedOrders}
+
+		order := BuildOrder(suite.DB(), []Customization{
+			{
+				Model:    uploadedOrders,
+				LinkOnly: true,
+				Type:     &Documents.UploadedOrders,
+			},
+			{
+				Model:    amendedOrders,
+				LinkOnly: true,
+				Type:     &Documents.UploadedAmendedOrders,
+			},
+		}, nil)
+		suite.Equal(order.UploadedOrdersID, uploadedOrders.ID)
+		suite.Equal(1, len(order.UploadedOrders.UserUploads))
+		suite.Equal(1, len(order.UploadedAmendedOrders.UserUploads))
+	})
 	suite.Run("Successful creation of stubbed order", func() {
 		// Under test:      BuildOrder
 		// Set up:          Create an order, but don't pass in a db

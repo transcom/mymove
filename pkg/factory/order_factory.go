@@ -111,8 +111,15 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	// uploadedOrders
 	var uploadedOrders models.Document
 	uploadedOrdersCustoms := customs
+	needsUploadedOrdersUserUpload := true
 	if result := findValidCustomization(customs, Documents.UploadedOrders); result != nil {
-		// the dev provided UploadedOrders customizations, so use them
+		// the dev provided UploadedOrders customizations
+		// If this is a LinkOnly UploadedOrders, we do not need to
+		// build any user uploads
+		if result.LinkOnly {
+			needsUploadedOrdersUserUpload = false
+		}
+		//, so use them
 		uploadedOrdersCustoms = convertCustomizationInList(customs,
 			Documents.UploadedOrders, Document)
 	}
@@ -132,16 +139,18 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 		})
 	}
 
-	// Now call BuildUserUpload with our re-jiggered customs (only
-	// available if db != nil)
-	uploadCustoms := customs
-	if result := findValidCustomization(customs, Documents.UploadedOrders); result != nil {
+	if needsUploadedOrdersUserUpload {
+		// Now call BuildUserUpload with our re-jiggered customs (only
+		// available if db != nil)
+		uploadCustoms := customs
+		if result := findValidCustomization(customs, Documents.UploadedOrders); result != nil {
 
-		uploadCustoms = convertCustomizationInList(customs, Documents.UploadedOrders, Document)
+			uploadCustoms = convertCustomizationInList(customs, Documents.UploadedOrders, Document)
+		}
+		userUpload := BuildUserUpload(db, uploadCustoms, traits)
+		// make sure we append the upload to the uploadedOrders document
+		uploadedOrders.UserUploads = append(uploadedOrders.UserUploads, userUpload)
 	}
-	userUpload := BuildUserUpload(db, uploadCustoms, traits)
-	// make sure we append the upload to the uploadedOrders document
-	uploadedOrders.UserUploads = append(uploadedOrders.UserUploads, userUpload)
 
 	entitlement := BuildEntitlement(db, customs, traits)
 
