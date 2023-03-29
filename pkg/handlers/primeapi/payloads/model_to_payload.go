@@ -145,6 +145,7 @@ func Order(order *models.Order) *primemessages.Order {
 		Rank:                    order.Grade,
 		ETag:                    etag.GenerateEtag(order.UpdatedAt),
 		ReportByDate:            strfmt.Date(order.ReportByDate),
+		OrdersType:              primemessages.OrdersType(order.OrdersType),
 	}
 
 	return &payload

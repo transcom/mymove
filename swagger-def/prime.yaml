@@ -1054,7 +1054,7 @@ definitions:
         description: >
           The estimated weight of this shipment, determined by the movers during the pre-move survey.
           This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made,
-          the Prime contracter will need to contact the TOO to change it.
+          the Prime contractor will need to contact the TOO to change it.
         type: integer
         example: 4500
         minimum: 1
@@ -2081,6 +2081,8 @@ definitions:
       reportByDate:
         type: string
         format: date
+      ordersType:
+        $ref: '#/definitions/OrdersType'
       orderNumber:
         type: string
       linesOfAccounting:
@@ -2089,6 +2091,17 @@ definitions:
         type: string
         readOnly: true
     type: object
+  OrdersType:
+    type: string
+    title: Orders type
+    enum:
+      - PERMANENT_CHANGE_OF_STATION
+      - RETIREMENT
+      - SEPARATION
+    x-display-value:
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      RETIREMENT: Retirement
+      SEPARATION: Separation
   PaymentRequest:
     properties:
       id:
