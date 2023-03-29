@@ -7,7 +7,6 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	progearops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
@@ -30,10 +29,8 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 		params      progearops.CreateProGearWeightTicketParams
 		handler     CreateProGearWeightTicketHandler
 	}
-	makeCreateSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData progearCreateSubtestData) {
-		db := appCtx.DB()
-
-		subtestData.ppmShipment = testdatagen.MakePPMShipment(db, testdatagen.Assertions{})
+	makeCreateSubtestData := func(authenticateRequest bool) (subtestData progearCreateSubtestData) {
+		subtestData.ppmShipment = testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{})
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/pro-gear-weight-tickets", subtestData.ppmShipment.ID.String())
 		req := httptest.NewRequest("POST", endpoint, nil)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
@@ -54,9 +51,7 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 	}
 
 	suite.Run("Successfully Create Weight Ticket - Integration Test", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx, true)
+		subtestData := makeCreateSubtestData(true)
 
 		response := subtestData.handler.Handle(subtestData.params)
 
@@ -69,9 +64,7 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 	})
 
 	suite.Run("POST failure - 400- bad request", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx, true)
+		subtestData := makeCreateSubtestData(true)
 		// Missing PPM Shipment ID
 		params := subtestData.params
 
@@ -83,9 +76,7 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 	})
 
 	suite.Run("POST failure - 403- permission denied - wrong application", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx, false)
+		subtestData := makeCreateSubtestData(false)
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
@@ -101,9 +92,8 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 
 	suite.Run("Post failure - 500 - Server Error", func() {
 		mockCreator := mocks.ProgearWeightTicketCreator{}
-		appCtx := suite.AppContextForTest()
 
-		subtestData := makeCreateSubtestData(appCtx, true)
+		subtestData := makeCreateSubtestData(true)
 		params := subtestData.params
 		serverErr := errors.New("ServerError")
 
@@ -137,11 +127,9 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		params      progearops.UpdateProGearWeightTicketParams
 		handler     UpdateProGearWeightTicketHandler
 	}
-	makeUpdateSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData progearUpdateSubtestData) {
-		db := appCtx.DB()
-
+	makeUpdateSubtestData := func(authenticateRequest bool) (subtestData progearUpdateSubtestData) {
 		// Use fake data:
-		subtestData.progear = testdatagen.MakeProgearWeightTicket(db, testdatagen.Assertions{})
+		subtestData.progear = testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{})
 		subtestData.ppmShipment = subtestData.progear.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
@@ -167,9 +155,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 	}
 
 	suite.Run("Successfully Update Weight Ticket - Integration Test", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 
 		params := subtestData.params
 
@@ -200,9 +186,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 	})
 
 	suite.Run("PATCH failure -400 - nil body", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		subtestData.params.UpdateProGearWeightTicket = nil
 		response := subtestData.handler.Handle(subtestData.params)
 
@@ -210,9 +194,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 	})
 
 	suite.Run("PATCH failure -422 - Invalid Input", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		params := subtestData.params
 		progearDes := "Pro gear desctription"
 		hasWeightTickets := true
@@ -230,9 +212,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 	})
 
 	suite.Run("PATCH failure - 404- not found", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		params := subtestData.params
 		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{}
 		// This test should fail because of the wrong ID
@@ -245,9 +225,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 	})
 
 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		params := subtestData.params
 		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{}
 		params.IfMatch = "intentionally-bad-if-match-header-value"
@@ -259,9 +237,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 
 	suite.Run("PATCH failure - 500", func() {
 		mockUpdater := mocks.ProgearWeightTicketUpdater{}
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		params := subtestData.params
 		progearDes := "Pro gear desctription"
 		hasWeightTickets := true
@@ -305,11 +281,9 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 		params              progearops.DeleteProGearWeightTicketParams
 		handler             DeleteProGearWeightTicketHandler
 	}
-	makeDeleteSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData progearWeightTicketDeleteSubtestData) {
-		db := appCtx.DB()
-
+	makeDeleteSubtestData := func(authenticateRequest bool) (subtestData progearWeightTicketDeleteSubtestData) {
 		// Fake data:
-		subtestData.progearWeightTicket = testdatagen.MakeProgearWeightTicket(db, testdatagen.Assertions{})
+		subtestData.progearWeightTicket = testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{})
 		subtestData.ppmShipment = subtestData.progearWeightTicket.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
@@ -335,9 +309,7 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 	}
 
 	suite.Run("Successfully Delete Pro-gear Weight Ticket - Integration Test", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeDeleteSubtestData(appCtx, true)
+		subtestData := makeDeleteSubtestData(true)
 
 		params := subtestData.params
 		response := subtestData.handler.Handle(params)
@@ -346,17 +318,14 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 	})
 
 	suite.Run("DELETE failure - 401 - permission denied - not authenticated", func() {
-		appCtx := suite.AppContextForTest()
-		subtestData := makeDeleteSubtestData(appCtx, false)
+		subtestData := makeDeleteSubtestData(false)
 		response := subtestData.handler.Handle(subtestData.params)
 
 		suite.IsType(&progearops.DeleteProGearWeightTicketUnauthorized{}, response)
 	})
 
 	suite.Run("DELETE failure - 403 - permission denied - wrong application / user", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeDeleteSubtestData(appCtx, false)
+		subtestData := makeDeleteSubtestData(false)
 
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
@@ -371,9 +340,7 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 	})
 
 	suite.Run("DELETE failure - 403 - permission denied - wrong service member user", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeDeleteSubtestData(appCtx, false)
+		subtestData := makeDeleteSubtestData(false)
 
 		otherServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
@@ -388,9 +355,7 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 	})
 
 	suite.Run("DELETE failure - 404- not found", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeDeleteSubtestData(appCtx, true)
+		subtestData := makeDeleteSubtestData(true)
 		params := subtestData.params
 		// Wrong ID provided
 		uuidString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("e392b01d-3b23-45a9-8f98-e4d5b03c8a93"))
@@ -402,9 +367,7 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 	})
 
 	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and moving expense ID don't match", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeDeleteSubtestData(appCtx, false)
+		subtestData := makeDeleteSubtestData(false)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
 		otherPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
@@ -422,9 +385,8 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 	})
 	suite.Run("DELETE failure - 500 - server error", func() {
 		mockDeleter := mocks.ProgearWeightTicketDeleter{}
-		appCtx := suite.AppContextForTest()
 
-		subtestData := makeDeleteSubtestData(appCtx, true)
+		subtestData := makeDeleteSubtestData(true)
 		params := subtestData.params
 
 		err := errors.New("ServerError")
