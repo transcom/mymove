@@ -131,7 +131,7 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo MoveCrea
 
 	move := testdatagen.MakeMove(appCtx.DB(), moveAssertions)
 
-	if *smWithPPM.Affiliation == models.AffiliationARMY || *smWithPPM.Affiliation == models.AffiliationAIRFORCE {
+	if moveInfo.CloseoutOfficeID == nil && (*smWithPPM.Affiliation == models.AffiliationARMY || *smWithPPM.Affiliation == models.AffiliationAIRFORCE) {
 		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
@@ -982,6 +982,9 @@ func createApprovedMoveWithPPMExcessWeightsAnd2WeightTickets(appCtx appcontext.A
 			MoveLocator: "XSWT02",
 		})
 	secondWeightTicketAssertions := testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
 		PPMShipment:   shipment,
 		ServiceMember: move.Orders.ServiceMember,
 		WeightTicket: models.WeightTicket{
@@ -1005,6 +1008,9 @@ func createApprovedMoveWith2PPMShipmentsAndExcessWeights(appCtx appcontext.AppCo
 		})
 	secondPPMShipment := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
 		PPMShipment: models.PPMShipment{
 			ID: uuid.Must(uuid.NewV4()),
 		},
@@ -2064,10 +2070,11 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 			Status:           models.MoveStatusAPPROVED,
 			SubmittedAt:      &submittedAt,
 			PPMType:          models.StringPointer("FULL"),
+			CloseoutOfficeID: moveInfo.CloseoutOfficeID,
 		},
 	})
 
-	if branch == models.AffiliationARMY || branch == models.AffiliationAIRFORCE {
+	if moveInfo.CloseoutOfficeID == nil && (branch == models.AffiliationARMY || branch == models.AffiliationAIRFORCE) {
 		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}

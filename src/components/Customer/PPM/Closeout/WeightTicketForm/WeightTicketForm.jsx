@@ -127,6 +127,7 @@ const WeightTicketForm = ({
                     onUploadComplete={onUploadComplete}
                     onUploadDelete={onUploadDelete}
                     fileUploadRef={emptyDocumentRef}
+                    tempFlagName={false}
                     values={values}
                     formikProps={formikProps}
                   />

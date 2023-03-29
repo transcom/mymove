@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"database/sql"
 	"errors"
 	"time"
 
@@ -81,29 +82,30 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 
 	ordersType := order.OrdersType
 	payload := &internalmessages.Orders{
-		ID:                    handlers.FmtUUID(order.ID),
-		CreatedAt:             handlers.FmtDateTime(order.CreatedAt),
-		UpdatedAt:             handlers.FmtDateTime(order.UpdatedAt),
-		ServiceMemberID:       handlers.FmtUUID(order.ServiceMemberID),
-		IssueDate:             handlers.FmtDate(order.IssueDate),
-		ReportByDate:          handlers.FmtDate(order.ReportByDate),
-		OrdersType:            &ordersType,
-		OrdersTypeDetail:      order.OrdersTypeDetail,
-		OriginDutyLocation:    payloadForDutyLocationModel(originDutyLocation),
-		Grade:                 order.Grade,
-		NewDutyLocation:       payloadForDutyLocationModel(order.NewDutyLocation),
-		HasDependents:         handlers.FmtBool(order.HasDependents),
-		SpouseHasProGear:      handlers.FmtBool(order.SpouseHasProGear),
-		UploadedOrders:        orderPayload,
-		UploadedAmendedOrders: amendedOrderPayload,
-		OrdersNumber:          order.OrdersNumber,
-		Moves:                 moves,
-		Tac:                   order.TAC,
-		Sac:                   order.SAC,
-		DepartmentIndicator:   (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
-		Status:                internalmessages.OrdersStatus(order.Status),
-		AuthorizedWeight:      dBAuthorizedWeight,
-		Entitlement:           &entitlement,
+		ID:                      handlers.FmtUUID(order.ID),
+		CreatedAt:               handlers.FmtDateTime(order.CreatedAt),
+		UpdatedAt:               handlers.FmtDateTime(order.UpdatedAt),
+		ServiceMemberID:         handlers.FmtUUID(order.ServiceMemberID),
+		IssueDate:               handlers.FmtDate(order.IssueDate),
+		ReportByDate:            handlers.FmtDate(order.ReportByDate),
+		OrdersType:              &ordersType,
+		OrdersTypeDetail:        order.OrdersTypeDetail,
+		OriginDutyLocation:      payloadForDutyLocationModel(originDutyLocation),
+		OriginDutyLocationGbloc: handlers.FmtStringPtr(order.OriginDutyLocationGBLOC),
+		Grade:                   order.Grade,
+		NewDutyLocation:         payloadForDutyLocationModel(order.NewDutyLocation),
+		HasDependents:           handlers.FmtBool(order.HasDependents),
+		SpouseHasProGear:        handlers.FmtBool(order.SpouseHasProGear),
+		UploadedOrders:          orderPayload,
+		UploadedAmendedOrders:   amendedOrderPayload,
+		OrdersNumber:            order.OrdersNumber,
+		Moves:                   moves,
+		Tac:                     order.TAC,
+		Sac:                     order.SAC,
+		DepartmentIndicator:     (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
+		Status:                  internalmessages.OrdersStatus(order.Status),
+		AuthorizedWeight:        dBAuthorizedWeight,
+		Entitlement:             &entitlement,
 	}
 
 	return payload, nil
@@ -139,6 +141,17 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			originDutyLocation := serviceMember.DutyLocation
+
+			originDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
+				default:
+					return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
+				}
+			}
+
 			grade := (*string)(serviceMember.Rank)
 
 			weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents)
@@ -185,6 +198,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				&originDutyLocation,
 				grade,
 				&entitlement,
+				&originDutyLocationGBLOC.GBLOC,
 			)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err

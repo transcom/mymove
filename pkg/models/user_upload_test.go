@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) Test_UserUploadCreate() {
@@ -58,7 +57,7 @@ func (suite *ModelSuite) TestCreateUserUploadWithNoUpload() {
 }
 
 func (suite *ModelSuite) TestFetchUserUpload() {
-	userUpload := testdatagen.MakeDefaultUserUpload(suite.DB())
+	userUpload := factory.BuildUserUpload(suite.DB(), nil, nil)
 
 	session := auth.Session{
 		UserID:          userUpload.Document.ServiceMember.UserID,
@@ -79,7 +78,7 @@ func (suite *ModelSuite) TestFetchUserUpload() {
 }
 
 func (suite *ModelSuite) TestFetchDeletedUserUpload() {
-	userUpload := testdatagen.MakeDefaultUserUpload(suite.DB())
+	userUpload := factory.BuildUserUpload(suite.DB(), nil, nil)
 	session := auth.Session{
 		UserID:          userUpload.Document.ServiceMember.UserID,
 		ApplicationName: auth.MilApp,

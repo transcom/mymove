@@ -62,7 +62,7 @@ export default function ReviewWeightTicket({
 
   const ppmShipment = mtoShipment?.ppmShipment;
 
-  const authorizedWeight = order.entitlement?.authorizedWeight;
+  const weightAllowance = order.entitlement?.totalWeight;
 
   const handleSubmit = (values) => {
     const ownsTrailer = values.ownsTrailer === 'true';
@@ -194,7 +194,7 @@ export default function ReviewWeightTicket({
 
               <EditPPMNetWeight
                 weightTicket={weightTicket}
-                weightAllowance={authorizedWeight}
+                weightAllowance={weightAllowance}
                 shipments={mtoShipments}
               />
 
