@@ -24,6 +24,7 @@
 
   .row {
     display: flex;
+    word-wrap: break-word;
     @include u-font('body', 'xs');
     @include u-line-height('body', 2);
 
