@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"log"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -181,6 +182,8 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	defaultIssueDate := time.Date(testYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 	defaultReportByDate := time.Date(testYear, time.August, 1, 0, 0, 0, 0, time.UTC)
 	defaultStatus := models.OrderStatusDRAFT
+	defaultOriginDutyLocationGbloc := "KKFA"
+	originDutyLocationGbloc := &defaultOriginDutyLocationGbloc
 
 	var ordersNumber *string
 	var tac *string
@@ -195,29 +198,37 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 		ordersTypeDetail = &defaultOrdersTypeDetail
 	}
 
-	order := models.Order{
-		ServiceMember:        serviceMember,
-		ServiceMemberID:      serviceMember.ID,
-		NewDutyLocation:      newDutyLocation,
-		NewDutyLocationID:    newDutyLocation.ID,
-		UploadedOrders:       uploadedOrders,
-		UploadedOrdersID:     uploadedOrders.ID,
-		IssueDate:            defaultIssueDate,
-		ReportByDate:         defaultReportByDate,
-		OrdersType:           defaultOrdersType,
-		OrdersNumber:         ordersNumber,
-		HasDependents:        defaultHasDependents,
-		SpouseHasProGear:     defaultSpouseHasProGear,
-		Status:               defaultStatus,
-		TAC:                  tac,
-		DepartmentIndicator:  departmentsIndicator,
-		Grade:                &defaultGrade,
-		Entitlement:          &entitlement,
-		EntitlementID:        &entitlement.ID,
-		OriginDutyLocation:   &originDutyLocation,
-		OriginDutyLocationID: &originDutyLocation.ID,
-		OrdersTypeDetail:     ordersTypeDetail,
+	if db != nil {
+		postalCodeToGBLOC := FindOrBuildPostalCodeToGBLOC(db, originDutyLocation.Address.PostalCode, "KKFA")
+		originDutyLocationGbloc = &postalCodeToGBLOC.GBLOC
 	}
+
+	order := models.Order{
+		ServiceMember:           serviceMember,
+		ServiceMemberID:         serviceMember.ID,
+		NewDutyLocation:         newDutyLocation,
+		NewDutyLocationID:       newDutyLocation.ID,
+		UploadedOrders:          uploadedOrders,
+		UploadedOrdersID:        uploadedOrders.ID,
+		IssueDate:               defaultIssueDate,
+		ReportByDate:            defaultReportByDate,
+		OrdersType:              defaultOrdersType,
+		OrdersNumber:            ordersNumber,
+		HasDependents:           defaultHasDependents,
+		SpouseHasProGear:        defaultSpouseHasProGear,
+		Status:                  defaultStatus,
+		TAC:                     tac,
+		DepartmentIndicator:     departmentsIndicator,
+		Grade:                   &defaultGrade,
+		Entitlement:             &entitlement,
+		EntitlementID:           &entitlement.ID,
+		OriginDutyLocation:      &originDutyLocation,
+		OriginDutyLocationID:    &originDutyLocation.ID,
+		OrdersTypeDetail:        ordersTypeDetail,
+		OriginDutyLocationGBLOC: originDutyLocationGbloc,
+	}
+
+	log.Printf("DREW DEBUG orders.odlgbloc %#v", order.OriginDutyLocationGBLOC)
 
 	if amendedOrdersDocument != nil {
 		order.UploadedAmendedOrders = amendedOrdersDocument
@@ -227,10 +238,14 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	// Overwrite values with those from assertions
 	testdatagen.MergeModels(&order, cOrder)
 
+	log.Printf("DREW DEBUG orders.odlgbloc 2 %#v", order.OriginDutyLocationGBLOC)
+
 	// If db is false, it's a stub. No need to create in database
 	if db != nil {
 		mustCreate(db, &order)
 	}
+
+	log.Printf("DREW DEBUG orders.odlgbloc 3 %#v", order.OriginDutyLocationGBLOC)
 
 	return order
 }
