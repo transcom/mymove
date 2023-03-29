@@ -1,6 +1,8 @@
 package factory
 
 import (
+	"log"
+
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -53,9 +55,11 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 	}
 	transportationOffice := BuildTransportationOfficeWithPhoneLine(db, tempTOAddressCustoms, traits)
 
-	// Build the required Tariff 400 NG Zip3 to correspond with the duty location address
-	FetchOrBuildTariff400ngZip3(db, []Customization{
-		{
+	tarifCustoms := findValidCustomization(customs, Tariff400ngZip3)
+	if tarifCustoms == nil {
+		// Build the required Tariff 400 NG Zip3 to correspond with the
+		// duty location address
+		tarifCustoms = &Customization{
 			Model: models.Tariff400ngZip3{
 				Zip3:          "503",
 				BasepointCity: "Des Moines",
@@ -64,8 +68,9 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 				RateArea:      "US53",
 				Region:        "7",
 			},
-		},
-	}, nil)
+		}
+	}
+	FetchOrBuildTariff400ngZip3(db, []Customization{*tarifCustoms}, nil)
 
 	// Create default Duty Location
 	affiliation := internalmessages.AffiliationAIRFORCE
@@ -93,6 +98,23 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 // FetchOrBuildCurrentDutyLocation returns a default duty location
 // It always fetches or builds a Yuma AFB Duty Location
 func FetchOrBuildCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
+	if db == nil {
+		return BuildDutyLocation(nil, []Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Yuma AFB",
+				},
+			},
+		}, nil)
+	}
+	// Now that playwright tests create data on demand, it's possible
+	// multiple tests will try to fetch or create the current duty
+	// location simultaneously. If we do nothing, we can get failures
+	// from the race condition of two different tests calling this at
+	// the same time.
+	//
+	cleanupFunc := exclusiveDutyLocationLock(db)
+	defer cleanupFunc()
 	// Check if Yuma Duty Location exists, if not, create it.
 	defaultLocation, err := models.FetchDutyLocationByName(db, "Yuma AFB")
 	if err != nil {
@@ -112,28 +134,35 @@ func FetchOrBuildCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
 // It always fetches or builds a Fort Gordon duty location
 // It also creates a GA 208 tariff
 func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
+	if db == nil {
+		return BuildDutyLocation(nil, []Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Fort Gordon",
+				},
+			},
+		}, nil)
+	}
+	// Now that playwright tests create data on demand, it's possible
+	// multiple tests will try to fetch or create the current duty
+	// location simultaneously. If we do nothing, we can get failures
+	// from the race condition of two different tests calling this at
+	// the same time.
+	//
+	cleanupFunc := exclusiveDutyLocationLock(db)
+	defer cleanupFunc()
+
 	// Check if we already have a Fort Gordon Duty Location, return it if so
 	fortGordon, err := models.FetchDutyLocationByName(db, "Fort Gordon")
 	if err == nil {
 		return fortGordon
 	}
 
-	// If not, build the Fort Gordon Duty location with the associated
-	// address and tariff
-	FetchOrBuildTariff400ngZip3(db, []Customization{
-		{
-			Model: models.Tariff400ngZip3{
-				Zip3:          "308",
-				BasepointCity: "Harlem",
-				State:         "GA",
-				ServiceArea:   "208",
-				RateArea:      "US45",
-				Region:        "12",
-			},
-		},
-	}, nil)
+	return BuildDutyLocation(db, nil, []Trait{GetTraitDefaultOrdersDutyLocation})
+}
 
-	return BuildDutyLocation(db, []Customization{
+func GetTraitDefaultOrdersDutyLocation() []Customization {
+	return []Customization{
 		{
 			Model: models.DutyLocation{
 				Name: "Fort Gordon",
@@ -148,5 +177,47 @@ func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
 				PostalCode: "30813",
 			},
 		},
-	}, nil)
+		{
+			Model: models.Tariff400ngZip3{
+				Zip3:          "308",
+				BasepointCity: "Harlem",
+				State:         "GA",
+				ServiceArea:   "208",
+				RateArea:      "US45",
+				Region:        "12",
+			},
+		},
+	}
+}
+
+// exclusiveDutyLocationLock locks the duty_locations table in a savepoint
+func exclusiveDutyLocationLock(db *pop.Connection) func() {
+	// *sigh*, pop doesn't know about nested transactions, so manage
+	// it ourselves.
+	//
+	// Assume we are in a transation so we can start a postgresql
+	// SAVEPOINT (aka nested transaction)
+	beginSavepoint := "SAVEPOINT duty_location"
+	commitSavepoint := "RELEASE SAVEPOINT duty_location"
+	err := db.RawQuery(beginSavepoint).Exec()
+	if err != nil {
+		log.Fatalf("Error starting duty location savepoint/txn: %s", err)
+	}
+	// lock the table exclusively, fetch to make sure no one has beat
+	// us to it, and then create if necessary. This is not the most
+	// performant way, but this is for tests and so being slightly
+	// slower than theoritically optimal is ok.
+	//
+	// Use EXCLUSIVE lock so reads can happen, but not writes
+	// https://www.postgresql.org/docs/current/explicit-locking.html
+	err = db.RawQuery("LOCK TABLE duty_locations IN EXCLUSIVE MODE").Exec()
+	if err != nil {
+		log.Fatalf("Error locking duty location table: %s", err)
+	}
+
+	return func() {
+		if err := db.RawQuery(commitSavepoint).Exec(); err != nil {
+			log.Fatalf("Error commit duty location savepoint/tx: %s", err)
+		}
+	}
 }
