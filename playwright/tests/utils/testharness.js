@@ -333,6 +333,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build approved move with two ppm shipments and excess weight
+   * @returns {Promise<Move>}
+   */
+  async buildApprovedMoveWithPPMShipmentAndExcessWeight() {
+    return this.buildDefault('ApprovedMoveWithPPMShipmentAndExcessWeight');
+  }
+
+  /**
    * Use testharness to build draft move with ppm departure date
    * @returns {Promise<Move>}
    */
