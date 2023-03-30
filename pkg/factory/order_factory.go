@@ -1,7 +1,6 @@
 package factory
 
 import (
-	"log"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -199,7 +198,7 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	}
 
 	if db != nil {
-		postalCodeToGBLOC := FindOrBuildPostalCodeToGBLOC(db, originDutyLocation.Address.PostalCode, "KKFA")
+		postalCodeToGBLOC := FetchOrBuildPostalCodeToGBLOC(db, originDutyLocation.Address.PostalCode, "KKFA")
 		originDutyLocationGbloc = &postalCodeToGBLOC.GBLOC
 	}
 
@@ -228,8 +227,6 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 		OriginDutyLocationGBLOC: originDutyLocationGbloc,
 	}
 
-	log.Printf("DREW DEBUG orders.odlgbloc %#v", order.OriginDutyLocationGBLOC)
-
 	if amendedOrdersDocument != nil {
 		order.UploadedAmendedOrders = amendedOrdersDocument
 		order.UploadedAmendedOrdersID = &amendedOrdersDocument.ID
@@ -238,14 +235,10 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	// Overwrite values with those from assertions
 	testdatagen.MergeModels(&order, cOrder)
 
-	log.Printf("DREW DEBUG orders.odlgbloc 2 %#v", order.OriginDutyLocationGBLOC)
-
 	// If db is false, it's a stub. No need to create in database
 	if db != nil {
 		mustCreate(db, &order)
 	}
-
-	log.Printf("DREW DEBUG orders.odlgbloc 3 %#v", order.OriginDutyLocationGBLOC)
 
 	return order
 }
