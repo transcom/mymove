@@ -2375,17 +2375,6 @@ definitions:
         type: string
         readOnly: true
     type: object
-  OrdersType:
-    type: string
-    title: Orders type
-    enum:
-      - PERMANENT_CHANGE_OF_STATION
-      - RETIREMENT
-      - SEPARATION
-    x-display-value:
-      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
-      RETIREMENT: Retirement
-      SEPARATION: Separation
   PaymentRequest:
     properties:
       id:
@@ -3368,6 +3357,17 @@ definitions:
       - city
       - state
       - postalCode
+  OrdersType:
+    type: string
+    title: Orders type
+    enum:
+      - PERMANENT_CHANGE_OF_STATION
+      - RETIREMENT
+      - SEPARATION
+    x-display-value:
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      RETIREMENT: Retirement
+      SEPARATION: Separation
   UploadWithOmissions:
     description: An uploaded file.
     type: object

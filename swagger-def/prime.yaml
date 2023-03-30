@@ -2082,7 +2082,7 @@ definitions:
         type: string
         format: date
       ordersType:
-        $ref: '#/definitions/OrdersType'
+        $ref: 'definitions/OrdersType.yaml'
       orderNumber:
         type: string
       linesOfAccounting:
@@ -2091,17 +2091,6 @@ definitions:
         type: string
         readOnly: true
     type: object
-  OrdersType:
-    type: string
-    title: Orders type
-    enum:
-      - PERMANENT_CHANGE_OF_STATION
-      - RETIREMENT
-      - SEPARATION
-    x-display-value:
-      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
-      RETIREMENT: Retirement
-      SEPARATION: Separation
   PaymentRequest:
     properties:
       id:
