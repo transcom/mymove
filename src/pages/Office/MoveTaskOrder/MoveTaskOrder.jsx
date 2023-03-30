@@ -295,17 +295,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);
       queryClient.invalidateQueries([MOVES, data.locator]);
-      if (data.financialReviewFlag) {
-        setAlertMessage('Move flagged for financial review.');
-        setAlertType('success');
-      } else {
-        setAlertMessage('Move unflagged for financial review.');
-        setAlertType('success');
-      }
-    },
-    onError: () => {
-      setAlertMessage('There was a problem flagging the move for financial review. Please try again later.');
-      setAlertType('error');
     },
   });
 
@@ -327,6 +316,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
           }
           setAlertType('success');
           setIsFinancialModalVisible(false);
+        },
+        onError: () => {
+          setAlertMessage('There was a problem flagging the move for financial review. Please try again later.');
+          setAlertType('error');
         },
       },
     );
@@ -421,12 +414,21 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   };
 
   const handleUpdateMTOShipmentStatus = (moveTaskOrderID, mtoShipmentID, eTag) => {
-    mutateMTOShipmentStatus({
-      shipmentID: mtoShipmentID,
-      operationPath: 'shipment.requestShipmentCancellation',
-      ifMatchETag: eTag,
-      onSuccessFlashMsg: 'The request to cancel that shipment has been sent to the movers.',
-    });
+    mutateMTOShipmentStatus(
+      {
+        shipmentID: mtoShipmentID,
+        operationPath: 'shipment.requestShipmentCancellation',
+        ifMatchETag: eTag,
+        onSuccessFlashMsg: 'The request to cancel that shipment has been sent to the movers.',
+      },
+      {
+        onSuccess: (data, variables) => {
+          setIsCancelModalVisible(false);
+          // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
+          setMessage(`MSG_CANCEL_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
+        },
+      },
+    );
   };
 
   const handleEditFacilityInfo = (fields, shipment) => {
