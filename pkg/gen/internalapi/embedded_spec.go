@@ -4753,6 +4753,16 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -5676,6 +5686,11 @@ func init() {
         },
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "originDutyLocationGbloc": {
+          "type": "string",
+          "title": "From what GBLOC do your orders originate?",
+          "x-nullable": true
         },
         "origin_duty_location": {
           "x-nullable": true,
@@ -7705,6 +7720,16 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -13379,6 +13404,16 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -14304,6 +14339,11 @@ func init() {
         },
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "originDutyLocationGbloc": {
+          "type": "string",
+          "title": "From what GBLOC do your orders originate?",
+          "x-nullable": true
         },
         "origin_duty_location": {
           "x-nullable": true,
@@ -16342,6 +16382,16 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"

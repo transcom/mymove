@@ -300,7 +300,9 @@ export function formatMtoShipmentForAPI({
   delivery,
   customerRemarks,
   counselorRemarks,
+  hasSecondaryPickup,
   secondaryPickup,
+  hasSecondaryDelivery,
   secondaryDelivery,
   ntsRecordedWeight,
   tacType,
@@ -351,12 +353,14 @@ export function formatMtoShipmentForAPI({
       }
     }
   }
+  formattedMtoShipment.hasSecondaryPickupAddress = hasSecondaryPickup;
 
-  if (secondaryPickup?.address) {
+  if (hasSecondaryPickup && secondaryPickup?.address) {
     formattedMtoShipment.secondaryPickupAddress = formatAddressForAPI(secondaryPickup.address);
   }
 
-  if (secondaryDelivery?.address) {
+  formattedMtoShipment.hasSecondaryDeliveryAddress = hasSecondaryDelivery;
+  if (hasSecondaryDelivery && secondaryDelivery?.address) {
     formattedMtoShipment.secondaryDeliveryAddress = formatAddressForAPI(secondaryDelivery.address);
   }
 

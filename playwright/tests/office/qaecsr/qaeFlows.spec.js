@@ -98,10 +98,10 @@ class QaeFlowPage extends OfficePage {
   async saveAsDraft() {
     // Click save as draft button
 
-    await Promise.all([this.page.waitForNavigation(), this.page.getByRole('button', { name: 'Save draft' }).click()]);
+    await this.page.getByRole('button', { name: 'Save draft' }).click();
 
     // Should be back on the quality assurance tab
-    expect(this.page.url()).toContain(`/moves/${this.moveLocator}/evaluation-reports`);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/evaluation-reports/);
     await expect(this.page.getByTestId('evaluationReportTable').first()).toBeVisible();
 
     // Should show a saved draft alert

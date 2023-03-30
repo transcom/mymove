@@ -1,6 +1,8 @@
 #!/bin/bash
 
-set -eux -o pipefail
+[[ -n "${DEBUG}" ]] && set -x
+
+set -eu -o pipefail
 
 # Setting REACT_APP_NODE_ENV to development enables the "Local Sign In" button
 export REACT_APP_NODE_ENV=development
@@ -19,6 +21,12 @@ server_pid=$!
 function cleanup {
   kill $server_pid
 }
+
+# wait for server to be ready
+while ! grep -q 'Starting listener' tmp/e2e_server.log; do
+      sleep 1
+done
+
 trap cleanup SIGINT
 trap cleanup exit
 

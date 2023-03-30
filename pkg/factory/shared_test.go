@@ -552,3 +552,63 @@ func (suite *FactorySuite) TestElevateCustomization() {
 		suite.Equal(Addresses.ResidentialAddress, *customizationList[1].Type)
 	})
 }
+
+func (suite *FactorySuite) TestReplaceCustomization() {
+	suite.Run("Replace existing customization", func() {
+		// Under test:       replaceCustomization overrides existing customization
+		// Set up:           Create a service member customization,
+		// override it
+		// Expected outcome: No error
+
+		oldEdipi := "1111111111"
+		oldServiceMember := models.ServiceMember{
+			Edipi: &oldEdipi,
+		}
+		newEdipi := "222222222"
+		newServiceMember := models.ServiceMember{
+			Edipi: &newEdipi,
+		}
+		customs := []Customization{
+			{
+				Model: oldServiceMember,
+			},
+		}
+		// replaceCustomizations needs Type to have been set first
+		customs = setupCustomizations(customs, nil)
+		newCustoms := replaceCustomization(customs, Customization{
+			Model: newServiceMember,
+		})
+		suite.Equal(1, len(newCustoms), newCustoms)
+		suite.Equal(newCustoms, []Customization{
+			{
+				Model: newServiceMember,
+				Type:  &ServiceMember,
+			},
+		})
+	})
+
+	suite.Run("Add customization", func() {
+		// Under test:       replaceCustomization adds customization
+		// if one doesn't exist
+		// Set up:           empty customization
+		// Expected outcome: No error
+
+		newEdipi := "222222222"
+		newServiceMember := models.ServiceMember{
+			Edipi: &newEdipi,
+		}
+		customs := []Customization{}
+		newCustoms := replaceCustomization(customs, Customization{
+			Model: newServiceMember,
+		})
+		suite.Equal(1, len(newCustoms), newCustoms)
+		suite.Equal(newCustoms, []Customization{
+			{
+				Model: newServiceMember,
+				Type:  &ServiceMember,
+			},
+		})
+
+	})
+
+}

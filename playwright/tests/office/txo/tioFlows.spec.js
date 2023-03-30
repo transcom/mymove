@@ -53,6 +53,7 @@ class TioFlowPage extends OfficePage {
       const id = await inputEl.getAttribute('id');
       await this.page.locator(`label[for="${id}"]`).click();
     }
+    await this.slowDown();
   }
 
   /**
@@ -85,6 +86,7 @@ class TioFlowPage extends OfficePage {
   async approveCurrentServiceItem() {
     await this.completeServiceItem(true);
     await this.page.getByText('Next').click();
+    await this.slowDown();
   }
 
   async validateDLCalcValues() {
@@ -130,6 +132,20 @@ class TioFlowPage extends OfficePage {
     await expect(siCalc).toContainText('1.04071');
     await expect(siCalc).toContainText('$150.00');
   }
+
+  // ugh, needed for flaky tests
+  // without this, local tests on a fast machine would fail maybe 1/3
+  // of the time
+  // pretty sure the client app is not updating its state correctly
+  // when clicking through payment requests too quickly
+  async slowDown() {
+    // sigh, give the app time to catch up
+    await this.page.waitForLoadState('networkidle');
+    // sleep for 500ms
+    await new Promise((r) => {
+      setTimeout(() => r(undefined), 500);
+    });
+  }
 }
 
 test.describe('TIO user', () => {
@@ -143,6 +159,7 @@ test.describe('TIO user', () => {
 
       tioFlowPage = new TioFlowPage(officePage, move);
       await officePage.tioNavigateToMove(move.locator);
+      await officePage.page.getByRole('heading', { name: 'Payment Requests', exact: true }).waitFor();
     });
 
     test('can use a payment request page to update orders and review a payment request', async ({ page }) => {
@@ -177,19 +194,13 @@ test.describe('TIO user', () => {
       await form.locator('input[name="sac"]').type('4K988AS098F');
       await form.locator('input[name="sac"]').blur();
       // Edit orders page | Save
-      await Promise.all([page.waitForNavigation(), page.getByRole('button', { name: 'Save' }).click()]);
+      await page.getByRole('button', { name: 'Save' }).click();
+      await page.waitForURL('**/details');
       await tioFlowPage.waitForLoading();
 
-      expect(page.url()).toContain('/details');
-
-      await Promise.all([
-        page.waitForNavigation(),
-        page.getByRole('link', { name: 'Payment requests', exact: true }).click(),
-      ]);
+      await page.getByRole('link', { name: 'Payment requests', exact: true }).click();
+      await page.waitForURL('**/payment-requests');
       await tioFlowPage.waitForLoading();
-
-      // Payment Requests page
-      expect(page.url()).toContain('/payment-requests');
 
       // confirm the move is set up as expected
       await expect(page.getByRole('heading', { name: '$1,130.21' })).toBeVisible();
@@ -197,24 +208,23 @@ test.describe('TIO user', () => {
 
       // again, find the first payment request by sequence number and
       // operate on that
-      await Promise.all([
-        page.waitForNavigation(),
-        prCard.getByRole('button', { name: 'Review service items' }).click(),
-      ]);
+      await prCard.getByRole('button', { name: 'Review service items' }).click();
+
+      // Payment Request detail page
+      await page.waitForURL(`**/payment-requests/${tioFlowPage.paymentRequest.id}`);
       await tioFlowPage.waitForLoading();
 
-      // // Payment Request detail page
-      expect(page.url()).toContain(`/payment-requests/${tioFlowPage.paymentRequest.id}`);
       await expect(page.getByTestId('ReviewServiceItems')).toBeVisible();
 
       // Approve the first service item
       await tioFlowPage.approveServiceItem();
       await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
 
       // Approve the second service item
       await tioFlowPage.approveServiceItem();
       await page.getByText('Next').click();
-      await tioFlowPage.waitForLoading();
+      await tioFlowPage.slowDown();
 
       // Approve the shuttling service item
 
@@ -230,10 +240,12 @@ test.describe('TIO user', () => {
 
       await tioFlowPage.approveServiceItem();
       await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
 
       // Approve the second service item
       await tioFlowPage.approveServiceItem();
       await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
 
       // Approve the crating service item
 
@@ -248,12 +260,14 @@ test.describe('TIO user', () => {
 
       await tioFlowPage.approveServiceItem();
       await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
 
       // Reject the last
       await tioFlowPage.rejectServiceItem();
       await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
 
-      await expect(page.getByText('item still needs your review')).not.toBeVisible();
+      await expect(page.getByText('needs your review')).toHaveCount(0, { timeout: 10000 });
       // Complete Request
       await page.getByText('Complete request').click();
 
@@ -264,7 +278,7 @@ test.describe('TIO user', () => {
       await page.getByText('Authorize payment').click();
       await tioFlowPage.waitForLoading();
 
-      await page.waitForLoadState('networkidle', { timeout: 10000 });
+      await tioFlowPage.slowDown();
 
       // Returns to payment requests overview for move
       expect(page.url()).toContain('/payment-requests');
@@ -297,16 +311,18 @@ test.describe('TIO user', () => {
       // Payment Requests page
       const secondPaymentRequest = tioFlowPage.findPaymentRequestBySequenceNumber(2);
       const paymentRequestCard = page.getByText(secondPaymentRequest.payment_request_number).locator('../..');
-      await Promise.all([page.waitForNavigation(), paymentRequestCard.getByText('Review service items').click()]);
-      await officePage.waitForLoading();
+      await paymentRequestCard.getByText('Review service items').click();
+      await expect(page.getByRole('heading', { name: 'Review service items' })).toBeVisible();
 
       // Approve the first service item
       await tioFlowPage.approveServiceItem();
       await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
 
       // Reject the second
       await tioFlowPage.rejectServiceItem();
       await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
 
       // Complete Request
       await page.getByText('Complete request').click();
@@ -399,7 +415,7 @@ test.describe('TIO user', () => {
       expect(page.url()).toContain('/payment-requests');
       await expect(page.getByTestId('MovePaymentRequests')).toBeVisible();
 
-      await Promise.all([page.waitForNavigation(), page.getByText('Review service items').first().click()]);
+      await page.getByText('Review service items').first().click();
 
       // await expect(page.locator('[data-testid="serviceItemName"]')).toContainText('Move management');
       // await page.locator('[data-testid="approveRadio"]').click({ force: true });
@@ -446,6 +462,7 @@ test.describe('TIO user', () => {
 
       tioFlowPage = new TioFlowPage(officePage, move);
       await officePage.tioNavigateToMove(move.locator);
+      await officePage.page.getByRole('heading', { name: 'Payment Requests', exact: true }).waitFor();
     });
 
     test('can review a NTS-R', async ({ page, officePage }) => {
@@ -535,6 +552,7 @@ test.describe('TIO user', () => {
 
       await tioFlowPage.rejectServiceItem();
       await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
 
       // Reject the Request
       await expect(page.getByText('Review details')).toBeVisible();
@@ -562,6 +580,7 @@ test.describe('TIO user', () => {
 
       tioFlowPage = new TioFlowPage(officePage, move);
       await officePage.tioNavigateToMove(move.locator);
+      await officePage.page.getByRole('heading', { name: 'Payment Requests', exact: true }).waitFor();
     });
 
     test('can view calculation factors', async ({ page }) => {
