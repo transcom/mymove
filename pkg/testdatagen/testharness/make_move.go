@@ -278,14 +278,23 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 			DependentsAuthorized: &dependentsAuthorized,
 		},
 	})
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
 		},
-		UserUploader: userUploader,
-		Entitlement:  entitlements,
-	})
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 	mtoSelectedMoveType := models.SelectedMoveTypeHHG
 	mto := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Move: models.Move{
@@ -625,17 +634,22 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 	dodID := testdatagen.MakeRandomNumberString(10)
 	userInfo := newUserInfo("customer")
 
-	orders := testdatagen.MakeOrderWithoutDefaults(appCtx.DB(), testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			ProvidesServicesCounseling: true,
+	orders := factory.BuildOrderWithoutDefaults(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				Edipi:         models.StringPointer(dodID),
+			},
 		},
-		ServiceMember: models.ServiceMember{
-			PersonalEmail: &userInfo.email,
-			FirstName:     &userInfo.firstName,
-			LastName:      &userInfo.lastName,
-			Edipi:         swag.String(dodID),
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
 		},
-	})
+	}, nil)
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			Status:           models.MoveStatusNeedsServiceCounseling,
@@ -689,14 +703,24 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 	}, nil)
 
 	// Create Orders
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
-			TAC:             &tac,
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				TAC: &tac,
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	// Create Move
 	selectedMoveType := models.SelectedMoveTypeNTSR
@@ -830,13 +854,19 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 		},
 	}, nil)
 
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	mto := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Move: models.Move{
@@ -1219,17 +1249,27 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 	}, nil)
 
 	// Create Orders
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
-			TAC:             &tac,
-			NtsTAC:          &tac2,
-			SAC:             &sac,
-			NtsSAC:          &sac2,
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				TAC:    &tac,
+				NtsTAC: &tac2,
+				SAC:    &sac,
+				NtsSAC: &sac2,
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	// Create Move
 	selectedMoveType := models.SelectedMoveTypeNTSR
