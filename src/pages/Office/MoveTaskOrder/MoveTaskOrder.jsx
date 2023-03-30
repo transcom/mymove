@@ -151,6 +151,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     });
     return serviceItemsForShipment;
   }, [mtoServiceItems]);
+
   const queryClient = useQueryClient();
   const { mutate: mutateMTOServiceItemStatus } = useMutation({
     mutationFn: patchMTOServiceItemStatus,
@@ -160,8 +161,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         newMTOServiceItem;
       queryClient.setQueryData([MTO_SERVICE_ITEMS, variables.moveId, false], mtoServiceItems);
       queryClient.invalidateQueries([MTO_SERVICE_ITEMS, variables.moveId]);
-      setIsModalVisible(false);
-      setSelectedServiceItem({});
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -187,10 +186,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestCancellation button to update immediately
       queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
-
-      setIsCancelModalVisible(false);
-      // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
-      setMessage(`MSG_CANCEL_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -200,18 +195,13 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   const { mutate: mutateMTOShipmentRequestReweigh } = useMutation({
     mutationFn: updateMTOShipmentRequestReweigh,
-    onSuccess: (data, variables) => {
+    onSuccess: (data) => {
       // Update mtoShipments with our updated status and set query data to match
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === data.shipmentID)] = data;
       queryClient.setQueryData([MTO_SHIPMENTS, move.id, false], mtoShipments);
-
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestReweigh button to update immediately
       queryClient.invalidateQueries([MTO_SHIPMENTS, move.id]);
-
-      setIsReweighModalVisible(false);
-      // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
-      setMessage(`MSG_REWEIGH_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -230,15 +220,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         },
       });
       queryClient.invalidateQueries([ORDERS, variables.orderID]);
-      setIsWeightModalVisible(false);
-
-      setMessage(
-        `MSG_MAX_BILLABLE_WEIGHT_SUCCESS_${variables.orderID}`,
-        'success',
-        'The maximum billable weight has been updated.',
-        '',
-        true,
-      );
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -298,7 +279,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const { mutate: mutateSubmitSITExtension } = useMutation({
     mutationFn: submitSITExtension,
     onSuccess: (data, variables) => {
-      setIsSuccessAlertVisible(true);
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
@@ -332,12 +312,24 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const handleSubmitFinancialReviewModal = (remarks, flagForReview) => {
     // if it's set to yes let's send a true to the backend. If not we'll send false.
     const flagForReviewBool = flagForReview === 'yes';
-    mutateFinancialReview({
-      moveID: move.id,
-      ifMatchETag: move.eTag,
-      body: { remarks, flagForReview: flagForReviewBool },
-    });
-    setIsFinancialModalVisible(false);
+    mutateFinancialReview(
+      {
+        moveID: move.id,
+        ifMatchETag: move.eTag,
+        body: { remarks, flagForReview: flagForReviewBool },
+      },
+      {
+        onSuccess: (data) => {
+          if (data.financialReviewFlag) {
+            setAlertMessage('Move flagged for financial review.');
+          } else {
+            setAlertMessage('Move unflagged for financial review.');
+          }
+          setAlertType('success');
+          setIsFinancialModalVisible(false);
+        },
+      },
+    );
   };
 
   const handleCancelFinancialReviewModal = () => {
@@ -367,32 +359,55 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   };
 
   const handleSubmitSITExtension = (formValues, shipment) => {
-    mutateSubmitSITExtension({
-      shipmentID: shipment.id,
-      ifMatchETag: shipment.eTag,
-      body: {
-        requestReason: formValues.requestReason,
-        officeRemarks: formValues.officeRemarks,
-        approvedDays: parseInt(formValues.daysApproved, 10),
+    mutateSubmitSITExtension(
+      {
+        shipmentID: shipment.id,
+        ifMatchETag: shipment.eTag,
+        body: {
+          requestReason: formValues.requestReason,
+          officeRemarks: formValues.officeRemarks,
+          approvedDays: parseInt(formValues.daysApproved, 10),
+        },
       },
-    });
+      {
+        onSuccess: () => setIsSuccessAlertVisible(true),
+      },
+    );
   };
 
   const handleDivertShipment = (mtoShipmentID, eTag) => {
-    mutateMTOShipmentStatus({
-      shipmentID: mtoShipmentID,
-      operationPath: 'shipment.requestShipmentDiversion',
-      ifMatchETag: eTag,
-      onSuccessFlashMsg: `Diversion successfully requested for Shipment #${mtoShipmentID}`,
-    });
+    mutateMTOShipmentStatus(
+      {
+        shipmentID: mtoShipmentID,
+        operationPath: 'shipment.requestShipmentDiversion',
+        ifMatchETag: eTag,
+        onSuccessFlashMsg: `Diversion successfully requested for Shipment #${mtoShipmentID}`,
+      },
+      {
+        onSuccess: (data, variables) => {
+          setIsCancelModalVisible(false);
+          // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
+          setMessage(`MSG_CANCEL_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
+        },
+      },
+    );
   };
 
   const handleReweighShipment = (mtoShipmentID, eTag) => {
-    mutateMTOShipmentRequestReweigh({
-      shipmentID: mtoShipmentID,
-      ifMatchETag: eTag,
-      onSuccessFlashMsg: `Reweigh successfully requested.`,
-    });
+    mutateMTOShipmentRequestReweigh(
+      {
+        shipmentID: mtoShipmentID,
+        ifMatchETag: eTag,
+        onSuccessFlashMsg: `Reweigh successfully requested.`,
+      },
+      {
+        onSuccess: (data, variables) => {
+          setIsReweighModalVisible(false);
+          // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
+          setMessage(`MSG_REWEIGH_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
+        },
+      },
+    );
   };
 
   const handleEditAccountingCodes = (fields, shipment) => {
@@ -441,21 +456,43 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const handleUpdateMTOServiceItemStatus = (mtoServiceItemID, mtoShipmentID, status, rejectionReason) => {
     const mtoServiceItemForRequest = shipmentServiceItems[`${mtoShipmentID}`]?.find((s) => s.id === mtoServiceItemID);
 
-    mutateMTOServiceItemStatus({
-      moveId: move.id,
-      mtoServiceItemID,
-      status,
-      rejectionReason,
-      ifMatchEtag: mtoServiceItemForRequest.eTag,
-    });
+    mutateMTOServiceItemStatus(
+      {
+        moveId: move.id,
+        mtoServiceItemID,
+        status,
+        rejectionReason,
+        ifMatchEtag: mtoServiceItemForRequest.eTag,
+      },
+      {
+        onSuccess: () => {
+          setIsModalVisible(false);
+          setSelectedServiceItem({});
+        },
+      },
+    );
   };
 
   const handleUpdateBillableWeight = (maxBillableWeight) => {
-    mutateOrderBillableWeight({
-      orderID: order.id,
-      ifMatchETag: order.eTag,
-      body: { authorizedWeight: maxBillableWeight },
-    });
+    mutateOrderBillableWeight(
+      {
+        orderID: order.id,
+        ifMatchETag: order.eTag,
+        body: { authorizedWeight: maxBillableWeight },
+      },
+      {
+        onSuccess: (data, variables) => {
+          setIsWeightModalVisible(false);
+          setMessage(
+            `MSG_MAX_BILLABLE_WEIGHT_SUCCESS_${variables.orderID}`,
+            'success',
+            'The maximum billable weight has been updated.',
+            '',
+            true,
+          );
+        },
+      },
+    );
   };
 
   const handleAcknowledgeExcessWeightRisk = () => {
