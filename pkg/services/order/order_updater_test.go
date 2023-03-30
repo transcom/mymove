@@ -103,7 +103,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 				},
 			},
 		}, nil)
-		updatedGbloc := testdatagen.MakePostalCodeToGBLOC(suite.DB(), updatedOriginDutyLocation.Address.PostalCode, "UUUU")
+		updatedGbloc := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), updatedOriginDutyLocation.Address.PostalCode, "UUUU")
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")

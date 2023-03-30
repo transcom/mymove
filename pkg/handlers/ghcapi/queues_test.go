@@ -246,7 +246,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 			RejectionReason: &rejectionReason,
 		},
 	})
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "06001", "AGFM")
+	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "06001", "AGFM")
 
 	// Create an order with an origin duty location outside of office user GBLOC
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -1199,7 +1199,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	}, nil)
 
 	// Create a custom postal code to GBLOC
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), dutyLocationAddress.PostalCode, "UUUU")
+	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocationAddress.PostalCode, "UUUU")
 	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
 			Model: models.DutyLocation{
