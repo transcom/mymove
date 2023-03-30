@@ -103,7 +103,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 				},
 			},
 		}, nil)
-		updatedGbloc := testdatagen.MakePostalCodeToGBLOC(suite.DB(), updatedOriginDutyLocation.Address.PostalCode, "UUUU")
+		updatedGbloc := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), updatedOriginDutyLocation.Address.PostalCode, "UUUU")
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -358,7 +358,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	suite.Run("Rolls back transaction if Order is missing required fields", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
-		orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
+		orderWithoutDefaults := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
 		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusServiceCounselingCompleted,
@@ -476,7 +476,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 	suite.Run("Rolls back transaction if Order is invalid", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
-		order := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
+		order := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
@@ -653,7 +653,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	suite.Run("Updates the allowance when move needs service counseling and order fields are missing", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
-		orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
+		orderWithoutDefaults := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusNeedsServiceCounseling,
@@ -874,24 +874,22 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 	suite.Run("Saves userUpload payload to order.UploadedAmendedOrders if the document already exists", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
-		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-			{
-				Model:    factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
-				LinkOnly: true,
-			},
-		}, nil)
+
 		var moves models.Moves
 		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
-		document := factory.BuildDocument(suite.DB(), nil, nil)
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				OriginDutyLocation:      &dutyLocation,
-				UploadedAmendedOrders:   &document,
-				UploadedAmendedOrdersID: &document.ID,
+		dutyLocationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model:    dutyLocationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DutyLocationAddress,
 			},
-			Move: mto,
-		})
+			{
+				Model: models.Document{},
+				Type:  &factory.Documents.UploadedAmendedOrders,
+			},
+		}, nil)
 		order.Moves = append(moves, mto)
 
 		file := testdatagen.FixtureRuntimeFile("test.pdf")
@@ -924,7 +922,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		suite.NoError(err)
 		suite.NotNil(orderInDB.ID)
 		suite.NotNil(orderInDB.UploadedAmendedOrders)
-		suite.Equal(document.ID, *orderInDB.UploadedAmendedOrdersID)
+		suite.Equal(order.UploadedAmendedOrdersID, orderInDB.UploadedAmendedOrdersID)
 		suite.NotNil(order.UploadedAmendedOrders)
 		suite.NotNil(orderInDB.UploadedAmendedOrders)
 	})

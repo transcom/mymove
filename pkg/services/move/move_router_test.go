@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -19,7 +18,7 @@ func (suite *MoveServiceSuite) TestMoveApproval() {
 	moveRouter := NewMoveRouter()
 
 	suite.Run("from valid statuses", func() {
-		orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{Stub: true})
+		orders := factory.BuildOrder(nil, nil, nil)
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: orders,
 			Stub:  true})
@@ -103,13 +102,12 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		// Under test: MoveRouter.RouteAfterAmendingOrders
 		// Set up: Submit an approved move with an orders record
 		// Expected outcome: move status updated to APPROVALSREQUESTED
-		document := factory.BuildDocument(suite.DB(), nil, nil)
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ID:                    uuid.Must(uuid.NewV4()),
-				UploadedAmendedOrders: &document,
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: models.Document{},
+				Type:  &factory.Documents.UploadedAmendedOrders,
 			},
-		})
+		}, nil)
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusAPPROVED,
@@ -126,13 +124,12 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		// Under test: MoveRouter.RouteAfterAmendingOrders
 		// Set up: Create a CANCELLED move without an OrdersID
 		// Expected outcome: Error on ordersID
-		document := factory.BuildDocument(suite.DB(), nil, nil)
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ID:                    uuid.Must(uuid.NewV4()),
-				UploadedAmendedOrders: &document,
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: models.Document{},
+				Type:  &factory.Documents.UploadedAmendedOrders,
 			},
-		})
+		}, nil)
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusCANCELED,
@@ -149,15 +146,18 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		// Under test: MoveRouter.RouteAfterAmendingOrders
 		// Set up: Create a move amended orders acknowledged, then submit with amended orders
 		// Expected outcome: Status goes to APPROVALSREQUESTED and timestamp is cleared
-		document := factory.BuildDocument(suite.DB(), nil, nil)
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ID:                    uuid.Must(uuid.NewV4()),
-				UploadedAmendedOrders: &document,
-				// we need a time here that's non-nil
-				AmendedOrdersAcknowledgedAt: swag.Time(testdatagen.DateInsidePerformancePeriod),
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					// we need a time here that's non-nil
+					AmendedOrdersAcknowledgedAt: models.TimePointer(testdatagen.DateInsidePerformancePeriod),
+				},
 			},
-		})
+			{
+				Model: models.Document{},
+				Type:  &factory.Documents.UploadedAmendedOrders,
+			},
+		}, nil)
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusAPPROVED,
@@ -495,7 +495,7 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 	moveRouter := NewMoveRouter()
 
 	suite.Run("from valid statuses", func() {
-		orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+		orders := factory.BuildOrder(suite.DB(), nil, nil)
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: orders})
 		validStatuses := []struct {

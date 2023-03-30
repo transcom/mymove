@@ -227,7 +227,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	}, nil)
 
 	// Create a custom postal code to GBLOC
-	newGBLOC := testdatagen.MakePostalCodeToGBLOC(suite.DB(), newDutyLocationAddress.PostalCode, "UUUU")
+	newGBLOC := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), newDutyLocationAddress.PostalCode, "UUUU")
 	newDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -594,14 +594,13 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 }
 
 func (suite *HandlerSuite) TestShowServiceMemberOrders() {
-	order1 := testdatagen.MakeDefaultOrder(suite.DB())
-	order2Assertions := testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMember:   order1.ServiceMember,
-			ServiceMemberID: order1.ServiceMemberID,
+	order1 := factory.BuildOrder(suite.DB(), nil, nil)
+	order2 := factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model:    order1.ServiceMember,
+			LinkOnly: true,
 		},
-	}
-	order2 := testdatagen.MakeOrder(suite.DB(), order2Assertions)
+	}, nil)
 
 	req := httptest.NewRequest("GET", "/service_members/some_id/current_orders", nil)
 	req = suite.AuthenticateRequest(req, order1.ServiceMember)

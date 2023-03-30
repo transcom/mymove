@@ -64,7 +64,7 @@ func (suite *ModelSuite) TestPPMAdvance() {
 } */
 
 func (suite *ModelSuite) TestPPMStateMachine() {
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.MustSave(&orders)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
@@ -99,11 +99,13 @@ func (suite *ModelSuite) TestFetchPersonallyProcuredMoveByOrderID() {
 	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
 	invalidID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
 
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: Order{
-			ID: orderID,
+	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model: Order{
+				ID: orderID,
+			},
 		},
-	})
+	}, nil)
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: Move{
 			ID:       moveID,

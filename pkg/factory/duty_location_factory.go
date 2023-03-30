@@ -46,7 +46,7 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 	dlAddress := BuildAddress(db, tempAddressCustoms, []Trait{GetTraitAddress3})
 
 	if db != nil {
-		FindOrBuildPostalCodeToGBLOC(db, dlAddress.PostalCode, "KKFA")
+		FetchOrBuildPostalCodeToGBLOC(db, dlAddress.PostalCode, "KKFA")
 	}
 
 	// Find/create the transportationOffice Model

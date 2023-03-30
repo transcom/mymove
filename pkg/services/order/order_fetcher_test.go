@@ -45,7 +45,7 @@ func (suite *OrderServiceSuite) TestFetchOrderWithEmptyFields() {
 	// an empty OriginDutyLocation. During local testing in the office app, we
 	// noticed an exception due to trying to load empty OriginDutyLocations.
 	// This was not caught by any tests, so we're adding one now.
-	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
+	expectedOrder := factory.BuildOrder(suite.DB(), nil, nil)
 
 	expectedOrder.Entitlement = nil
 	expectedOrder.EntitlementID = nil
@@ -77,7 +77,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
 		// Make a postal code and GBLOC → AGFM
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(), agfmPostalCode, "AGFM")
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), agfmPostalCode, "AGFM")
 
 		return officeUser, move
 	}
@@ -830,7 +830,7 @@ func (suite *OrderServiceSuite) TestListOrdersMarines() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
-	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
+	expectedOrder := factory.BuildOrder(suite.DB(), nil, nil)
 
 	expectedOrder.Entitlement = nil
 	expectedOrder.EntitlementID = nil
@@ -1043,10 +1043,10 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 	setupTestData := func() models.OfficeUser {
 		// Make an office user → GBLOC X
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 		// Ensure there's an entry connecting the default shipment pickup postal code with the office user's gbloc
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(),
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(),
 			defaultShipmentPickupPostalCode,
 			officeUser.TransportationOffice.Gbloc)
 
@@ -1317,7 +1317,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 			},
 		}, nil)
 
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(), dutyLocationAddress2.PostalCode, "ZANY")
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocationAddress2.PostalCode, "ZANY")
 		originDutyLocation2 := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
 				Model: models.DutyLocation{
@@ -1389,7 +1389,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 	// Make a TOO user.
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	// GBLOC for the below doesn't really matter, it just means the query for the moves passes the inner join in ListOrders
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), ppmShipment.PickupPostalCode, tooOfficeUser.TransportationOffice.Gbloc)
+	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), ppmShipment.PickupPostalCode, tooOfficeUser.TransportationOffice.Gbloc)
 
 	orderFetcher := NewOrderFetcher()
 	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextForTest(), tooOfficeUser.ID, &services.ListOrderParams{})
