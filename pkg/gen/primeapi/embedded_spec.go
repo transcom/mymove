@@ -2729,7 +2729,7 @@ func init() {
         "RETIREMENT",
         "SEPARATION"
       ],
-      "x-display-value": {
+      "x-enumDescriptions": {
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation"
@@ -7117,7 +7117,7 @@ func init() {
         "RETIREMENT",
         "SEPARATION"
       ],
-      "x-display-value": {
+      "x-enumDescriptions": {
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation"
