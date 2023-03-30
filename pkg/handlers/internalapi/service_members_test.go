@@ -227,7 +227,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	}, nil)
 
 	// Create a custom postal code to GBLOC
-	newGBLOC := testdatagen.MakePostalCodeToGBLOC(suite.DB(), newDutyLocationAddress.PostalCode, "UUUU")
+	newGBLOC := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), newDutyLocationAddress.PostalCode, "UUUU")
 	newDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
 			Model: models.DutyLocation{

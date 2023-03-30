@@ -45,6 +45,7 @@ var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
 var Organization CustomType = "Organization"
+var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
 var ReService CustomType = "ReService"
 var ServiceItemParamKey CustomType = "ServiceItemParamKey"
 var ServiceMember CustomType = "ServiceMember"
@@ -70,6 +71,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.OfficeUser":           OfficeUser,
 	"models.Order":                Order,
 	"models.Organization":         Organization,
+	"models.PostalCodeToGBLOC":    PostalCodeToGBLOC,
 	"models.ReService":            ReService,
 	"models.ServiceItemParamKey":  ServiceItemParamKey,
 	"models.ServiceMember":        ServiceMember,
