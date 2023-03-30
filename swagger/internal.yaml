@@ -2655,7 +2655,7 @@ definitions:
       - PERMANENT_CHANGE_OF_STATION
       - RETIREMENT
       - SEPARATION
-    x-enumDescriptions:
+    x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       RETIREMENT: Retirement
       SEPARATION: Separation
