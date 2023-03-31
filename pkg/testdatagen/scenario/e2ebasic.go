@@ -1813,21 +1813,25 @@ func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploa
 }
 
 func serviceMemberWithOrdersAndPPMMove07(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	customer := factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
 				ID: uuid.FromStringOrNil("1a13ee6b-3e21-4170-83bc-0d41f60edb99"),
 			},
 		},
-	}, nil)
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("8779beda-f69a-43bf-8606-ebd22973d474"),
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
+		{
+			Model: models.Order{
+				ID: uuid.FromStringOrNil("8779beda-f69a-43bf-8606-ebd22973d474"),
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Move: models.Move{
@@ -1838,21 +1842,26 @@ func serviceMemberWithOrdersAndPPMMove07(appCtx appcontext.AppContext, userUploa
 }
 
 func serviceMemberWithOrdersAndPPMMove08(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	customer := factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
 				ID: uuid.FromStringOrNil("25a90fef-301e-4682-9758-60f0c76ea8b4"),
 			},
 		},
-	}, nil)
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("f2473488-2504-4872-a6b6-dd385dad4bf9"),
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
+		{
+			Model: models.Order{
+				ID: uuid.FromStringOrNil("f2473488-2504-4872-a6b6-dd385dad4bf9"),
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Move: models.Move{
@@ -2019,22 +2028,26 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 	dlhCost := unit.Cents(99999)
 	csCost := unit.Cents(25000)
 	fscCost := unit.Cents(55555)
-	customer := factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
 				ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
 			},
 		},
-	}, nil)
-
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("f52f851e-91b8-4cb7-9f8a-6b0b8477ae2a"),
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
+		{
+			Model: models.Order{
+				ID: uuid.FromStringOrNil("f52f851e-91b8-4cb7-9f8a-6b0b8477ae2a"),
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	mto := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Move: models.Move{
@@ -2397,21 +2410,25 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	msCost := unit.Cents(10000)
 
-	customer8 := factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+	orders8 := factory.BuildOrder(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
 				ID: uuid.FromStringOrNil("9e8da3c7-ffe5-4f7f-b45a-8f01ccc56591"),
 			},
 		},
-	}, nil)
-	orders8 := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("1d49bb07-d9dd-4308-934d-baad94f2de9b"),
-			ServiceMemberID: customer8.ID,
-			ServiceMember:   customer8,
+		{
+			Model: models.Order{
+				ID: uuid.FromStringOrNil("1d49bb07-d9dd-4308-934d-baad94f2de9b"),
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	move8 := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Move: models.Move{
@@ -2686,30 +2703,33 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 
 func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	logger := appCtx.Logger()
-	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+	dependentsAuthorized := true
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
 				ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b63"),
 			},
 		},
-	}, nil)
-	dependentsAuthorized := true
-	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Entitlement{
 				DependentsAuthorized: &dependentsAuthorized,
 			},
 		},
-	}, nil)
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4988"),
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
+		{
+			Model: models.Order{
+				ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4988"),
+			},
 		},
-		UserUploader: userUploader,
-		Entitlement:  entitlements,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
 	mtoSelectedMoveType := models.SelectedMoveTypeHHG
 	mto := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Move: models.Move{
@@ -2927,21 +2947,25 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 
 func createMoveWithSinceParamater(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	// A more recent MTO for demonstrating the since parameter
-	customer6 := factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+	orders6 := factory.BuildOrder(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
 				ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b61"),
 			},
 		},
-	}, nil)
-	orders6 := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4981"),
-			ServiceMemberID: customer6.ID,
-			ServiceMember:   customer6,
+		{
+			Model: models.Order{
+				ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4981"),
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 	mto2 := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			ID:                 uuid.FromStringOrNil("da3f34cc-fb94-4e0b-1c90-ba3333cb7791"),
@@ -3294,21 +3318,24 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 	sac := "3333"
 	sac2 := "4444"
 
-	// Create Customer
-	customer := factory.BuildServiceMember(appCtx.DB(), nil, nil)
-
 	// Create Orders
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
-			TAC:             &tac,
-			NtsTAC:          &tac2,
-			SAC:             &sac,
-			NtsSAC:          &sac2,
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				TAC:    &tac,
+				NtsTAC: &tac2,
+				SAC:    &sac,
+				NtsSAC: &sac2,
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	// Create Move
 	selectedMoveType := models.SelectedMoveTypeNTSR
@@ -3815,18 +3842,21 @@ func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader
 	currentTime := time.Now()
 	tac := "1111"
 
-	// Create Customer
-	customer := factory.BuildServiceMember(appCtx.DB(), nil, nil)
-
 	// Create Orders
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
-			TAC:             &tac,
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				TAC: &tac,
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	// Create Move
 	selectedMoveType := models.SelectedMoveTypeNTSR

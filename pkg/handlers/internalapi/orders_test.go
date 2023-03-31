@@ -22,7 +22,7 @@ import (
 func (suite *HandlerSuite) TestCreateOrder() {
 	sm := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
 	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
+	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	req := httptest.NewRequest("POST", "/orders", nil)
