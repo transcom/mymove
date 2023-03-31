@@ -29,6 +29,13 @@ type PPMDocumentFetcher interface {
 	GetPPMDocuments(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (*models.PPMDocuments, error)
 }
 
+// PPMPPMShipmentSummaryWorksheetCreator fetches all documents associated with a PPM shipment
+//
+//go:generate mockery --name PPMPPMShipmentSummaryWorksheetCreator
+type PPMShipmentSummaryWorksheetCreator interface {
+	// FetchDataShipmentSummaryWorksheetFormData
+}
+
 // PPMEstimator estimates the cost of a PPM shipment
 //
 //go:generate mockery --name PPMEstimator
