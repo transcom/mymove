@@ -1377,7 +1377,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
 		for _, shipment := range move.MTOShipments {
 			if queueIncludeShipmentStatus(shipment.Status) && shipment.DeletedAt == nil {
-				earliestDateInCurrentShipment := findEarliestDate(shipment)
+				earliestDateInCurrentShipment := findEarliestDateForRequestedMoveDate(shipment)
 				if earliestRequestedPickup == nil || (earliestDateInCurrentShipment != nil && earliestDateInCurrentShipment.Before(*earliestRequestedPickup)) {
 					earliestRequestedPickup = earliestDateInCurrentShipment
 				}
@@ -1426,7 +1426,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			ID:                      *handlers.FmtUUID(move.ID),
 			Locator:                 move.Locator,
 			SubmittedAt:             handlers.FmtDateTimePtr(move.SubmittedAt),
-			AppearedInTooDate:       handlers.FmtDateTimePtr(move.SubmittedAt),
+			AppearedInTooDate:       handlers.FmtDateTimePtr(findLastSentToTOO(move)),
 			RequestedMoveDate:       handlers.FmtDatePtr(earliestRequestedPickup),
 			DepartmentIndicator:     &deptIndicator,
 			ShipmentsCount:          int64(len(validMTOShipments)),
@@ -1441,7 +1441,17 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 	return &queueMoves
 }
 
-func findEarliestDate(shipment models.MTOShipment) (earliestDate *time.Time) {
+func findLastSentToTOO(move models.Move) (latestOccurance *time.Time) {
+	possibleValues := [2]*time.Time{move.SubmittedAt, move.ServiceCounselingCompletedAt}
+	for _, time := range possibleValues {
+		if time != nil && (latestOccurance == nil || time.After(*latestOccurance)) {
+			latestOccurance = time
+		}
+	}
+	return latestOccurance
+}
+
+func findEarliestDateForRequestedMoveDate(shipment models.MTOShipment) (earliestDate *time.Time) {
 	var possibleValues []*time.Time
 
 	if shipment.RequestedPickupDate != nil {
