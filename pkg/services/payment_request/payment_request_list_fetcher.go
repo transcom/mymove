@@ -171,6 +171,11 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 	}
 	locatorQuery := locatorFilter(&locator)
 
+	marinesBranch := branchFilter(swag.String(string(models.AffiliationMARINES)))
+	if marinesBranch {
+		gbloc == "USMC"
+	}
+
 	options := [3]QueryOption{branchQuery, gblocQuery, locatorQuery}
 
 	for _, option := range options {
