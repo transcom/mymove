@@ -10,11 +10,13 @@ import (
 	"net/url"
 	golangswaggerpaths "path"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // GetMovesQueueURL generates an URL for the get moves queue operation
 type GetMovesQueueURL struct {
+	AppearedInTooAt         *strfmt.DateTime
 	Branch                  *string
 	DestinationDutyLocation *string
 	DodID                   *string
@@ -61,6 +63,14 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
 	qs := make(url.Values)
+
+	var appearedInTooAtQ string
+	if o.AppearedInTooAt != nil {
+		appearedInTooAtQ = o.AppearedInTooAt.String()
+	}
+	if appearedInTooAtQ != "" {
+		qs.Set("appearedInTooAt", appearedInTooAtQ)
+	}
 
 	var branchQ string
 	if o.Branch != nil {

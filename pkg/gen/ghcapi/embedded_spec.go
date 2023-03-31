@@ -3177,7 +3177,7 @@ func init() {
               "originDutyLocation",
               "destinationDutyLocation",
               "requestedMoveDate",
-              "appearedInTooDate"
+              "appearedInTooAt"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -3222,6 +3222,12 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "appearedInTooAt",
             "in": "query"
           },
           {
@@ -7622,7 +7628,7 @@ func init() {
     "QueueMove": {
       "type": "object",
       "properties": {
-        "appearedInTooDate": {
+        "appearedInTooAt": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
@@ -13352,7 +13358,7 @@ func init() {
               "originDutyLocation",
               "destinationDutyLocation",
               "requestedMoveDate",
-              "appearedInTooDate"
+              "appearedInTooAt"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -13397,6 +13403,12 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "appearedInTooAt",
             "in": "query"
           },
           {
@@ -18078,7 +18090,7 @@ func init() {
     "QueueMove": {
       "type": "object",
       "properties": {
-        "appearedInTooDate": {
+        "appearedInTooAt": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true

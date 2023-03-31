@@ -20,9 +20,9 @@ import (
 // swagger:model QueueMove
 type QueueMove struct {
 
-	// appeared in too date
+	// appeared in too at
 	// Format: date-time
-	AppearedInTooDate *strfmt.DateTime `json:"appearedInTooDate,omitempty"`
+	AppearedInTooAt *strfmt.DateTime `json:"appearedInTooAt,omitempty"`
 
 	// closeout initiated
 	// Format: date-time
@@ -76,7 +76,7 @@ type QueueMove struct {
 func (m *QueueMove) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAppearedInTooDate(formats); err != nil {
+	if err := m.validateAppearedInTooAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -130,12 +130,12 @@ func (m *QueueMove) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *QueueMove) validateAppearedInTooDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.AppearedInTooDate) { // not required
+func (m *QueueMove) validateAppearedInTooAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.AppearedInTooAt) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("appearedInTooDate", "body", "date-time", m.AppearedInTooDate.String(), formats); err != nil {
+	if err := validate.FormatOf("appearedInTooAt", "body", "date-time", m.AppearedInTooAt.String(), formats); err != nil {
 		return err
 	}
 

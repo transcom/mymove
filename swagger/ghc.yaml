@@ -2752,7 +2752,7 @@ paths:
             - originDutyLocation
             - destinationDutyLocation
             - requestedMoveDate
-            - appearedInTooDate
+            - appearedInTooAt
           description: field that results should be sorted by
         - in: query
           name: order
@@ -2779,6 +2779,10 @@ paths:
         - in: query
           name: destinationDutyLocation
           type: string
+        - in: query
+          name: appearedInTooAt
+          type: string
+          format: date-time
         - in: query
           name: requestedMoveDate
           type: string
@@ -4738,7 +4742,7 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
-      appearedInTooDate:
+      appearedInTooAt:
         format: date-time
         type: string
         x-nullable: true

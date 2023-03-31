@@ -97,13 +97,14 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	destinationDutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
 	moveStatusQuery := moveStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
+	appearedInTOOAtQuery := appearedInTOOAtFilter(params.AppearedInTOOAt)
 	requestedMoveDateQuery := requestedMoveDateFilter(params.RequestedMoveDate)
 	closeoutInitiatedQuery := closeoutInitiatedFilter(params.CloseoutInitiated)
 	closeoutLocationQuery := closeoutLocationFilter(params.CloseoutLocation, ppmCloseoutGblocs)
 	ppmTypeQuery := ppmTypeFilter(params.PPMType)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [14]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, sortOrderQuery}
+	options := [15]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, sortOrderQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -369,6 +370,19 @@ func submittedAtFilter(submittedAt *time.Time) QueryOption {
 		}
 	}
 }
+
+func appearedInTOOAtFilter(appearedInTOOAt *time.Time) QueryOption {
+	return func(query *pop.Query) {
+		if appearedInTOOAt != nil {
+			start := appearedInTOOAt.Format(time.RFC3339)
+			// Between is inclusive, so the end date is set to 1 milsecond prior to the next day
+			appearedInTOOAtEnd := appearedInTOOAt.AddDate(0, 0, 1).Add(-1 * time.Millisecond)
+			end := appearedInTOOAtEnd.Format(time.RFC3339)
+			query.Where("(moves.submitted_at between ? and ? OR moves.service_counseling_completed_at between ? and ?)", start, end, start, end)
+		}
+	}
+}
+
 func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	return func(query *pop.Query) {
 		if requestedMoveDate != nil {

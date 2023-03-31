@@ -63,10 +63,10 @@ const columns = (showBranchFilter = true) => [
   createHeader(
     'Date submitted',
     (row) => {
-      return formatDateFromIso(row.appearedInTooDate, DATE_FORMAT_STRING);
+      return formatDateFromIso(row.appearedInTooAt, DATE_FORMAT_STRING);
     },
     {
-      id: 'appearedInTooDate',
+      id: 'appearedInTooAt',
       isFilterable: true,
       // eslint-disable-next-line react/jsx-props-no-spreading
       Filter: (props) => <DateSelectFilter dateTime {...props} />,
