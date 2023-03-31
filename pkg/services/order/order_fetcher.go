@@ -479,6 +479,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 		"locator":                 "moves.locator",
 		"status":                  "moves.status",
 		"submittedAt":             "moves.submitted_at",
+		"appearedInTooAt":         "GREATEST(moves.submitted_at, moves.service_counseling_completed_at)",
 		"originDutyLocation":      "origin_dl.name",
 		"destinationDutyLocation": "dest_dl.name",
 		"requestedMoveDate":       "LEAST(COALESCE(MIN(mto_shipments.requested_pickup_date), 'infinity'), COALESCE(MIN(ppm_shipments.expected_departure_date), 'infinity'), COALESCE(MIN(mto_shipments.requested_delivery_date), 'infinity'))",
