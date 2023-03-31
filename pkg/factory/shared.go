@@ -149,6 +149,20 @@ var DutyLocations = dutyLocationsGroup{
 	NewDutyLocation:    "NewDutyLocation",
 }
 
+// transportationOfficeGroup is a grouping of all the transportation office related fields
+type transportationOfficeGroup struct {
+	OriginDutyLocation CustomType
+	NewDutyLocation    CustomType
+	CloseoutOffice     CustomType
+}
+
+// TransportationOffices is the struct to access the fields externally
+var TransportationOffices = transportationOfficeGroup{
+	OriginDutyLocation: "OriginDutyLocationTransportationOffice",
+	NewDutyLocation:    "NewDutyLocationTransportationOffice",
+	CloseoutOffice:     "CloseoutOffice",
+}
+
 // Below are errors returned by various functions
 
 var ErrNestedModel = errors.New("NESTED_MODEL_ERROR")
