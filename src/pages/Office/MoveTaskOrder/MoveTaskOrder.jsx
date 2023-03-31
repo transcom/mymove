@@ -160,7 +160,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       mtoServiceItems[mtoServiceItems.find((serviceItem) => serviceItem.id === newMTOServiceItem.id)] =
         newMTOServiceItem;
       queryClient.setQueryData([MTO_SERVICE_ITEMS, variables.moveId, false], mtoServiceItems);
-      queryClient.invalidateQueries([MTO_SERVICE_ITEMS, variables.moveId]);
+      queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, variables.moveId] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -172,7 +172,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     mutationFn: updateMTOShipment,
     onSuccess: (_, variables) => {
       queryClient.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
-      queryClient.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, variables.moveTaskOrderID] });
     },
   });
 
@@ -185,7 +185,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestCancellation button to update immediately
-      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -201,7 +201,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       queryClient.setQueryData([MTO_SHIPMENTS, move.id, false], mtoShipments);
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestReweigh button to update immediately
-      queryClient.invalidateQueries([MTO_SHIPMENTS, move.id]);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, move.id] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -212,14 +212,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const { mutate: mutateOrderBillableWeight } = useMutation({
     mutationFn: updateBillableWeight,
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries([MOVES, move.locator]);
+      queryClient.invalidateQueries({ queryKey: [MOVES, move.locator] });
       const updatedOrder = data.orders[variables.orderID];
       queryClient.setQueryData([ORDERS, variables.orderID], {
         orders: {
           [`${variables.orderID}`]: updatedOrder,
         },
       });
-      queryClient.invalidateQueries([ORDERS, variables.orderID]);
+      queryClient.invalidateQueries({ queryKey: [ORDERS, variables.orderID] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -230,7 +230,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const { mutate: mutateAcknowledgeExcessWeightRisk } = useMutation({
     mutationFn: acknowledgeExcessWeightRisk,
     onSuccess: () => {
-      queryClient.invalidateQueries([MOVES, move.locator]);
+      queryClient.invalidateQueries({ queryKey: [MOVES, move.locator] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -254,7 +254,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -268,7 +268,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -282,7 +282,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -294,7 +294,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     mutationFn: updateFinancialFlag,
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);
-      queryClient.invalidateQueries([MOVES, data.locator]);
+      queryClient.invalidateQueries({ queryKey: [MOVES, data.locator] });
     },
   });
 
