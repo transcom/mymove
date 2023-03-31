@@ -154,7 +154,9 @@ func (obligation Obligation) MaxAdvance() float64 {
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
 func (f *ppmShipmentSummaryWorksheetCreator) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (ShipmentSummaryFormData, error) {
 	ppmShipment, err := FetchPPMShipmentFromMTOShipmentID(appCtx, mtoShipmentID)
-
+	if err != nil {
+		return ShipmentSummaryFormData{}, apperror.UnprocessableEntityError{}
+	}
 	// _, authErr := FetchOrderForUser(db, session, move.OrdersID)
 	// if authErr != nil {
 	// 	return ShipmentSummaryFormData{}, authErr
@@ -230,6 +232,7 @@ func SSWGetEntitlement(rank models.ServiceMemberRank, hasDependents bool, spouse
 	return sswEntitlements
 }
 
+// QUESTION - is there still need for this? If so how does this concept map to our current database structures
 // // CalculateRemainingPPMEntitlement calculates the remaining PPM entitlement for PPM moves
 // // a PPMs remaining entitlement weight is equal to total entitlement - hhg weight
 // func CalculateRemainingPPMEntitlement(move Move, totalEntitlement unit.Pound) (unit.Pound, error) {
@@ -302,7 +305,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 
 	actualObligations := data.Obligations.ActualObligation
 	page1.ActualObligationGCC100 = FormatDollars(actualObligations.GCC100())
-	page1.PPMRemainingEntitlement = FormatWeights(data.PPMRemainingEntitlement)
+	// page1.PPMRemainingEntitlement = FormatWeights(data.PPMRemainingEntitlement)
 	page1.ActualObligationGCC95 = FormatDollars(actualObligations.GCC95())
 	page1.ActualObligationSIT = FormatDollars(actualObligations.FormatSIT())
 	page1.ActualObligationAdvance = formatActualObligationAdvance(data)
@@ -310,6 +313,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	return page1
 }
 
+// UPDATED - to use the new PPMShipment model and the AdvanceAmountRequested field
 func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
 	if len(data.PPMShipments) > 0 && data.PPMShipments[0].AdvanceAmountRequested != nil {
 		advance := data.PPMShipments[0].AdvanceAmountRequested.ToDollarFloatNoRound()
@@ -318,6 +322,8 @@ func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
 	return FormatDollars(0)
 }
 
+// UPDATED - since this in in a service object now instead of the model package,
+// "models." has been prefixed where needed
 // FormatRank formats the service member's rank for Shipment Summary Worksheet
 func FormatRank(rank *models.ServiceMemberRank) string {
 	var rankDisplayValue = map[models.ServiceMemberRank]string{
@@ -412,7 +418,7 @@ func FormatServiceMemberFullName(serviceMember models.ServiceMember) string {
 }
 
 // FormatAllShipments formats Shipment line items for the Shipment Summary Worksheet
-func FormatAllShipments(ppms models.PersonallyProcuredMoves) ShipmentSummaryWorkSheetShipments {
+func FormatAllShipments(ppms models.PPMShipments) ShipmentSummaryWorkSheetShipments {
 	totalShipments := len(ppms)
 	formattedShipments := ShipmentSummaryWorkSheetShipments{}
 	formattedNumberAndTypes := make([]string, totalShipments)
@@ -471,7 +477,7 @@ func getExpenseType(expense models.MovingExpense) string {
 }
 
 // FormatCurrentPPMStatus formats FormatCurrentPPMStatus for the Shipment Summary Worksheet
-func FormatCurrentPPMStatus(ppm models.PersonallyProcuredMove) string {
+func FormatCurrentPPMStatus(ppm models.PPMShipment) string {
 	if ppm.Status == "PAYMENT_REQUESTED" {
 		return "At destination"
 	}
@@ -483,19 +489,38 @@ func FormatPPMNumberAndType(i int) string {
 	return fmt.Sprintf("%02d - PPM", i+1)
 }
 
+// UPDATED - to use models.PPMShipment and includes logic for calculating net weight
+// NOTE - we no longer have a ppmShipment.NetWeight field, instead it has been calculated
+// based on the full - empty weights of approved weight tickets
+// we don't yet have a service or reusable function for doing these calculations
 // FormatPPMWeight formats a ppms NetWeight for the Shipment Summary Worksheet
-func FormatPPMWeight(ppm models.PersonallyProcuredMove) string {
-	if ppm.NetWeight != nil {
-		wtg := FormatWeights(unit.Pound(*ppm.NetWeight))
-		return fmt.Sprintf("%s lbs - FINAL", wtg)
+func FormatPPMWeight(ppm models.PPMShipment) string {
+	weightTickets := ppm.WeightTickets
+	var fullWeights unit.Pound
+	var emptyWeights unit.Pound
+	for _, weightTicket := range weightTickets {
+		emptyWeight := weightTicket.EmptyWeight
+		fullWeight := weightTicket.FullWeight
+		status := weightTicket.Status
+		if status != nil && *status == models.PPMDocumentStatusApproved {
+			if emptyWeight != nil {
+				emptyWeights += *emptyWeight
+			}
+			if fullWeight != nil {
+				fullWeights += *fullWeight
+			}
+		}
 	}
-	return ""
+	wtg := FormatWeights(unit.Pound(fullWeights - emptyWeights))
+	return fmt.Sprintf("%s lbs - FINAL", wtg)
 }
 
+// UPDATED - to use models.PPMShipment
+// maps the old personallyProcuredMove.OriginalMoveDate -> ppmShipment.ActualMoveDate
 // FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
-func FormatPPMPickupDate(ppm models.PersonallyProcuredMove) string {
-	if ppm.OriginalMoveDate != nil {
-		return FormatDate(*ppm.OriginalMoveDate)
+func FormatPPMPickupDate(ppm models.PPMShipment) string {
+	if ppm.ActualMoveDate != nil {
+		return FormatDate(*ppm.ActualMoveDate)
 	}
 	return ""
 }
