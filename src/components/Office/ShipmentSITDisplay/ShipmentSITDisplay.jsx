@@ -19,6 +19,33 @@ import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
+const SITHistoryItem = ({ sitItem }) => (
+  <dl>
+    <div>
+      <dt>Reason:</dt>
+      <dd>{sitExtensionReasons[sitItem.requestReason]}</dd>
+    </div>
+    {sitItem.contractorRemarks && (
+      <div>
+        <dt>Contractor remarks:</dt>
+        <dd>{sitItem.contractorRemarks}</dd>
+      </div>
+    )}
+    {sitItem.officeRemarks && (
+      <div>
+        <dt>Office remarks:</dt>
+        <dd>{sitItem.officeRemarks}</dd>
+      </div>
+    )}
+  </dl>
+);
+
+const SITHistoryHeader = ({ sitItem }) => (
+  <div className={styles.sitHistoryHeader}>
+    Total days of SIT approved: {sitItem.approvedDays}{' '}
+    <span>updated on {formatDateFromIso(sitItem.decisionDate, 'DD MMM YYYY')} </span>
+  </div>
+);
 const ShipmentSITDisplay = ({
   sitExtensions,
   sitStatus,
@@ -30,61 +57,14 @@ const ShipmentSITDisplay = ({
 }) => {
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
 
-  const sitEndDate = `Ends ${moment().utc().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY')}`;
+  const sitEndDate = moment().utc().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY');
 
-  const mappedSITExtensionList = sitExtensions
-    .filter((sitExt) => sitExt.status !== SIT_EXTENSION_STATUS.PENDING)
-    .map((sitExt) => {
-      return (
-        <dl key={sitExt.id}>
-          {sitExt.status === SIT_EXTENSION_STATUS.APPROVED ? (
-            <div>
-              <dt>{sitExt.approvedDays} days added</dt>
-              <dd>on {formatDateFromIso(sitExt.decisionDate, 'DD MMM YYYY')}</dd>
-            </div>
-          ) : (
-            <div>
-              <dt>0 days added</dt>
-              <dd>on {formatDateFromIso(sitExt.decisionDate, 'DD MMM YYYY')} — request rejected</dd>
-            </div>
-          )}
-          <div>
-            <dt>Reason:</dt>
-            <dd>{sitExtensionReasons[sitExt.requestReason]}</dd>
-          </div>
-          {sitExt.contractorRemarks && (
-            <div>
-              <dt>Contractor remarks:</dt>
-              <dd>{sitExt.contractorRemarks}</dd>
-            </div>
-          )}
-          {sitExt.officeRemarks && (
-            <div>
-              <dt>Office remarks:</dt>
-              <dd>{sitExt.officeRemarks}</dd>
-            </div>
-          )}
-        </dl>
-      );
-    });
-
-  const totalDaysAuthorizedAndUsed = (
-    <>
-      <p>{shipment.sitDaysAllowance} authorized</p>
-      <p>{sitStatus.totalSITDaysUsed} used</p>
-    </>
+  const sitHistory = React.useMemo(
+    () => sitExtensions.filter((sitItem) => sitItem.status !== SIT_EXTENSION_STATUS.PENDING),
+    [sitExtensions],
   );
-
-  // data-happo-hide is in place to compensate for mockDate being ignored in Storybook
-  const daysRemainingAndEndDate = (
-    <>
-      <p>{sitStatus.totalDaysRemaining} remaining</p>
-      <p data-happo-hide>{sitEndDate}</p>
-    </>
-  );
-
   // Currently active SIT
-  const currentLocation = sitStatus.location === LOCATION_TYPES.ORIGIN ? 'origin' : 'destination';
+  const currentLocation = sitStatus.location === LOCATION_TYPES.ORIGIN ? 'origin SIT' : 'destination SIT';
 
   const currentDaysInSit = <p>{sitStatus.totalSITDaysUsed}</p>;
   const currentDateEnteredSit = <p>{formatDate(sitStatus.sitEntryDate, utcDateFormat, 'DD MMM YYYY')}</p>;
@@ -132,19 +112,29 @@ const ShipmentSITDisplay = ({
       </div>
 
       <DataTable
-        columnHeaders={['Total days of SIT', 'Total days remaining']}
-        dataRow={[totalDaysAuthorizedAndUsed, daysRemainingAndEndDate]}
+        columnHeaders={['Total days of SIT approved', 'Total days used', 'Total days remaining']}
+        dataRow={[shipment.sitDaysAllowance, sitStatus.totalSITDaysUsed, sitStatus.totalDaysRemaining]}
       />
       <p>Current location: {currentLocation}</p>
       <DataTable
-        columnHeaders={[`Days in ${currentLocation} SIT`, 'Date entered SIT']}
-        dataRow={[currentDaysInSit, currentDateEnteredSit]}
+        columnHeaders={[`SIT start date`, 'SIT authorized end date']}
+        dataRow={[currentDateEnteredSit, sitEndDate]}
       />
+      <DataTable columnHeaders={['Total days in destination SIT']} dataRow={[currentDaysInSit]} />
       {sitStatus.pastSITServiceItems && (
         <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
       )}
-      {sitExtensions && mappedSITExtensionList.length > 0 && (
-        <DataTable columnHeaders={['SIT extensions']} dataRow={[mappedSITExtensionList]} />
+      {sitExtensions && sitHistory.length > 0 && (
+        <>
+          <p>SIT history</p>
+          {sitHistory.map((sitItem) => (
+            <DataTable
+              key={sitItem.id}
+              columnHeaders={[<SITHistoryHeader sitItem={sitItem} />]}
+              dataRow={[<SITHistoryItem sitItem={sitItem} />]}
+            />
+          ))}
+        </>
       )}
     </DataTableWrapper>
   );

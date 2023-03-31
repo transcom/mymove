@@ -10,7 +10,6 @@
   @include u-border('1px');
   @include u-radius('05');
   background-color: $bg-gray;
-
   .title {
     display: flex;
     justify-content: space-between;
@@ -18,11 +17,12 @@
 
     p {
       @include u-margin-y(0);
-      @include u-font-size('body', '3xs');
+      @include u-font-size('body', 'sm');
 
       :global .usa-tag {
-        @include u-font-size('body', '3xs');
+        @include u-font-size('body', 'sm');
       }
+      font-weight: bold;
     }
 
     button {
@@ -81,5 +81,11 @@
     dd {
       margin-left: 5px;
     }
+  }
+}
+.sitHistoryHeader {
+  color: $base-darker;
+  span {
+    font-weight: 400;
   }
 }
