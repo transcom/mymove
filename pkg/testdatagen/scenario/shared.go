@@ -63,7 +63,7 @@ var hhgMoveType = models.SelectedMoveTypeHHG
 var ppmMoveType = models.SelectedMoveTypePPM
 var tioRemarks = "New billable weight set"
 
-// Closeout offices populated via migrations, this is the ID of one within the GBLOC 'KKFA'
+// Closeout offices populated via migrations, this is the ID of one within the GBLOC 'KKFA' with the name 'Creech AFB'
 var DefaultCloseoutOfficeID = uuid.FromStringOrNil("5de30a80-a8e5-458c-9b54-edfae7b8cdb9")
 
 // fully public to facilitate reuse outside of this package
