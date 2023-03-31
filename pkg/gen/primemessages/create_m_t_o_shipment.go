@@ -71,7 +71,7 @@ type CreateMTOShipment struct {
 	// ppm shipment
 	PpmShipment *CreatePPMShipment `json:"ppmShipment,omitempty"`
 
-	// The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.
+	// The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contractor will need to contact the TOO to change it.
 	//
 	// Example: 4500
 	// Minimum: 1
