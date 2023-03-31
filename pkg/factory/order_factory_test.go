@@ -22,6 +22,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 	testYear := 2018
 	defaultIssueDate := time.Date(testYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 	defaultReportByDate := time.Date(testYear, time.August, 1, 0, 0, 0, 0, time.UTC)
+	defaultGBLOC := "KKFA"
 
 	suite.Run("Successful creation of default order", func() {
 		// Under test:      BuildOrder
@@ -46,6 +47,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 		suite.Equal(defaultStatus, order.Status)
 		suite.Equal(defaultIssueDate, order.IssueDate)
 		suite.Equal(defaultReportByDate, order.ReportByDate)
+		suite.Equal(defaultGBLOC, *order.OriginDutyLocationGBLOC)
 
 		// extended service members have backup contacts
 		suite.False(order.ServiceMemberID.IsNil())
