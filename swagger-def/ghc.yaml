@@ -2653,7 +2653,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, dodID, branch, locator, status, originDutyLocation, destinationDutyLocation, requestedMoveDate]
+          enum: [lastName, dodID, branch, locator, status, originDutyLocation, destinationDutyLocation, requestedMoveDate, appearedInTooDate]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -4567,6 +4567,10 @@ definitions:
       locator:
         type: string
       submittedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      appearedInTooDate:
         format: date-time
         type: string
         x-nullable: true

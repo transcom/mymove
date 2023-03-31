@@ -40,6 +40,7 @@ jest.mock('hooks/queries', () => ({
             },
             originGBLOC: 'EEEE',
             requestedMoveDate: '2023-02-10',
+            appearedInTooDate: '2023-02-10T00:00:00.000Z',
           },
           {
             id: 'move2',
@@ -58,6 +59,7 @@ jest.mock('hooks/queries', () => ({
             },
             originGBLOC: 'EEEE',
             requestedMoveDate: '2023-02-12',
+            appearedInTooDate: '2023-02-12T00:00:00.000Z',
           },
         ],
       },
@@ -93,6 +95,7 @@ describe('MoveQueue', () => {
     expect(firstMove.find({ 'data-testid': 'originDutyLocation-0' }).text()).toBe('Area 51');
     expect(firstMove.find({ 'data-testid': 'originGBLOC-0' }).text()).toBe('EEEE');
     expect(firstMove.find({ 'data-testid': 'requestedMoveDate-0' }).text()).toBe('10 Feb 2023');
+    expect(firstMove.find({ 'data-testid': 'appearedInTooDate-0' }).text()).toBe('10 Feb 2023');
 
     const secondMove = moves.at(1);
     expect(secondMove.find({ 'data-testid': 'lastName-1' }).text()).toBe('test another last, test another first');
@@ -104,6 +107,7 @@ describe('MoveQueue', () => {
     expect(secondMove.find({ 'data-testid': 'originDutyLocation-1' }).text()).toBe('Los Alamos');
     expect(secondMove.find({ 'data-testid': 'originGBLOC-1' }).text()).toBe('EEEE');
     expect(secondMove.find({ 'data-testid': 'requestedMoveDate-1' }).text()).toBe('12 Feb 2023');
+    expect(secondMove.find({ 'data-testid': 'appearedInTooDate-1' }).text()).toBe('12 Feb 2023');
   });
 
   it('should render the pagination component', () => {

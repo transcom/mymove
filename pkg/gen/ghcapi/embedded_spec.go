@@ -3176,7 +3176,8 @@ func init() {
               "status",
               "originDutyLocation",
               "destinationDutyLocation",
-              "requestedMoveDate"
+              "requestedMoveDate",
+              "appearedInTooDate"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -7621,6 +7622,11 @@ func init() {
     "QueueMove": {
       "type": "object",
       "properties": {
+        "appearedInTooDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",
@@ -13345,7 +13351,8 @@ func init() {
               "status",
               "originDutyLocation",
               "destinationDutyLocation",
-              "requestedMoveDate"
+              "requestedMoveDate",
+              "appearedInTooDate"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -18071,6 +18078,11 @@ func init() {
     "QueueMove": {
       "type": "object",
       "properties": {
+        "appearedInTooDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",

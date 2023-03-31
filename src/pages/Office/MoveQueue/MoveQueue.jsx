@@ -61,6 +61,18 @@ const columns = (showBranchFilter = true) => [
     },
   ),
   createHeader(
+    'Date submitted',
+    (row) => {
+      return formatDateFromIso(row.appearedInTooDate, DATE_FORMAT_STRING);
+    },
+    {
+      id: 'appearedInTooDate',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <DateSelectFilter dateTime {...props} />,
+    },
+  ),
+  createHeader(
     'Branch',
     (row) => {
       return serviceMemberAgencyLabel(row.customer.agency);
