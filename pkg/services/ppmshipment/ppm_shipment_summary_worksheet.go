@@ -2,11 +2,9 @@ package ppmshipment
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 	"time"
 
-	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -14,8 +12,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -28,6 +24,58 @@ type ppmShipmentSummaryWorksheetCreator struct{}
 // NewPPMShipmentSummaryWorksheetCreator creates a new struct
 func NewPPMShipmentSummaryWorksheetCreator() services.PPMShipmentSummaryWorksheetCreator {
 	return &ppmShipmentSummaryWorksheetCreator{}
+}
+
+// FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
+func (p *ppmShipmentSummaryWorksheetCreator) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, ShipmentSummaryWorksheetPage3Values, error) {
+	page1 := FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData)
+	page2 := FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData)
+	page3 := FormatValuesShipmentSummaryWorksheetFormPage3(shipmentSummaryFormData)
+
+	return page1, page2, page3, nil
+}
+
+// ShipmentSummaryWorksheetPage1Values is an object representing a Shipment Summary Worksheet
+type ShipmentSummaryWorksheetPage1Values struct {
+	CUIBanner                       string
+	ServiceMemberName               string
+	MaxSITStorageEntitlement        string
+	PreferredPhoneNumber            string
+	PreferredEmail                  string
+	DODId                           string
+	ServiceBranch                   string
+	RankGrade                       string
+	IssuingBranchOrAgency           string
+	OrdersIssueDate                 string
+	OrdersTypeAndOrdersNumber       string
+	AuthorizedOrigin                string
+	AuthorizedDestination           string
+	NewDutyAssignment               string
+	WeightAllotment                 string
+	WeightAllotmentProgear          string
+	WeightAllotmentProgearSpouse    string
+	TotalWeightAllotment            string
+	POVAuthorized                   string
+	ShipmentNumberAndTypes          string
+	ShipmentPickUpDates             string
+	ShipmentWeights                 string
+	ShipmentCurrentShipmentStatuses string
+	SITNumberAndTypes               string
+	SITEntryDates                   string
+	SITEndDates                     string
+	SITDaysInStorage                string
+	PreparationDate                 string
+	MaxObligationGCC100             string
+	TotalWeightAllotmentRepeat      string
+	MaxObligationGCC95              string
+	MaxObligationSIT                string
+	MaxObligationGCCMaxAdvance      string
+	PPMRemainingEntitlement         string
+	ActualObligationGCC100          string
+	ActualObligationGCC95           string
+	ActualObligationAdvance         string
+	ActualObligationSIT             string
+	MileageTotal                    string
 }
 
 // ShipmentSummaryWorkSheetShipments is an object representing shipment line items on Shipment Summary Worksheet
@@ -110,45 +158,10 @@ type ShipmentSummaryFormData struct {
 	WeightAllotment     models.SSWMaxWeightEntitlement
 	PPMShipments        models.PPMShipments
 	PreparationDate     time.Time
-	Obligations         Obligations
+	Obligations         models.Obligations
 	MovingExpenses      models.MovingExpenses
 	// PPMRemainingEntitlement unit.Pound
 	SignedCertification models.SignedCertification
-}
-
-// Obligations is an object representing the winning and non-winning Max Obligation and Actual Obligation sections of the shipment summary worksheet
-type Obligations struct {
-	MaxObligation              Obligation
-	ActualObligation           Obligation
-	NonWinningMaxObligation    Obligation
-	NonWinningActualObligation Obligation
-}
-
-// Obligation an object representing the obligations section on the shipment summary worksheet
-type Obligation struct {
-	Gcc   unit.Cents
-	SIT   unit.Cents
-	Miles unit.Miles
-}
-
-// GCC100 calculates the 100% GCC on shipment summary worksheet
-func (obligation Obligation) GCC100() float64 {
-	return obligation.Gcc.ToDollarFloatNoRound()
-}
-
-// GCC95 calculates the 95% GCC on shipment summary worksheet
-func (obligation Obligation) GCC95() float64 {
-	return obligation.Gcc.MultiplyFloat64(.95).ToDollarFloatNoRound()
-}
-
-// FormatSIT formats the SIT Cost into a dollar float for the shipment summary worksheet
-func (obligation Obligation) FormatSIT() float64 {
-	return obligation.SIT.ToDollarFloatNoRound()
-}
-
-// MaxAdvance calculates the Max Advance on the shipment summary worksheet
-func (obligation Obligation) MaxAdvance() float64 {
-	return obligation.Gcc.MultiplyFloat64(.60).ToDollarFloatNoRound()
 }
 
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
@@ -169,7 +182,7 @@ func (f *ppmShipmentSummaryWorksheetCreator) FetchDataShipmentSummaryWorksheetFo
 	if serviceMember.Rank != nil {
 		rank = models.ServiceMemberRank(*serviceMember.Rank)
 		// QUESTION: would we want to use orders.SpouseHasProgear vs ppmShipment.SpouseProgearWeight
-		weightAllotment = models.SSWGetEntitlement(rank, orders.HasDependents, orders.SpouseHasProGear)
+		weightAllotment = SSWGetEntitlement(rank, orders.HasDependents, orders.SpouseHasProGear)
 	}
 
 	// Question: where should we now pull this info from? For remaining PPM entitlement
@@ -196,43 +209,24 @@ func (f *ppmShipmentSummaryWorksheetCreator) FetchDataShipmentSummaryWorksheetFo
 	return ssd, nil
 }
 
-// SSWMaxWeightEntitlement weight allotment for the shipment summary worksheet.
-type SSWMaxWeightEntitlement struct {
-	Entitlement   unit.Pound
-	ProGear       unit.Pound
-	SpouseProGear unit.Pound
-	TotalWeight   unit.Pound
-}
-
-// QUESTION: do we need this? do we have to use reflect here?
-// adds a line item to shipment summary worksheet SSWMaxWeightEntitlement and increments total allotment
-func (wa *SSWMaxWeightEntitlement) addLineItem(field string, value int) {
-	r := reflect.ValueOf(wa).Elem()
-	f := r.FieldByName(field)
-	if f.IsValid() && f.CanSet() {
-		f.SetInt(int64(value))
-		wa.TotalWeight += unit.Pound(value)
-	}
-}
-
 // SSWGetEntitlement calculates the entitlement for the shipment summary worksheet based on the parameters of
 // a move (hasDependents, spouseHasProGear)
-func SSWGetEntitlement(rank models.ServiceMemberRank, hasDependents bool, spouseHasProGear bool) SSWMaxWeightEntitlement {
-	sswEntitlements := SSWMaxWeightEntitlement{}
+func SSWGetEntitlement(rank models.ServiceMemberRank, hasDependents bool, spouseHasProGear bool) models.SSWMaxWeightEntitlement {
+	sswEntitlements := models.SSWMaxWeightEntitlement{}
 	entitlements := models.GetWeightAllotment(rank)
-	sswEntitlements.addLineItem("ProGear", entitlements.ProGearWeight)
+	sswEntitlements.AddLineItem("ProGear", entitlements.ProGearWeight)
 	if !hasDependents {
-		sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelf)
+		sswEntitlements.AddLineItem("Entitlement", entitlements.TotalWeightSelf)
 		return sswEntitlements
 	}
-	sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelfPlusDependents)
+	sswEntitlements.AddLineItem("Entitlement", entitlements.TotalWeightSelfPlusDependents)
 	if spouseHasProGear {
-		sswEntitlements.addLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
+		sswEntitlements.AddLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
 	}
 	return sswEntitlements
 }
 
-// QUESTION - is there still need for this? If so how does this concept map to our current database structures
+// QUESTION - how does this concept map to our current database structure?
 // // CalculateRemainingPPMEntitlement calculates the remaining PPM entitlement for PPM moves
 // // a PPMs remaining entitlement weight is equal to total entitlement - hhg weight
 // func CalculateRemainingPPMEntitlement(move Move, totalEntitlement unit.Pound) (unit.Pound, error) {
@@ -443,13 +437,13 @@ func FormatAllShipments(ppms models.PPMShipments) ShipmentSummaryWorkSheetShipme
 	return formattedShipments
 }
 
-// FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
-// TODO: update to create moving expense summary with the new moving expense model
-func FetchMovingExpensesShipmentSummaryWorksheet(move models.Move, db *pop.Connection, session *auth.Session) (models.MovingExpenses, error) {
-	var movingExpenseDocuments models.MovingExpenses
+// // FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
+// // TODO: update to create moving expense summary with the new moving expense model
+// func FetchMovingExpensesShipmentSummaryWorksheet(move models.Move, db *pop.Connection, session *auth.Session) (models.MovingExpenses, error) {
+// 	var movingExpenseDocuments models.MovingExpenses
 
-	return movingExpenseDocuments, nil
-}
+// 	return movingExpenseDocuments, nil
+// }
 
 // SubTotalExpenses groups moving expenses by type and payment method
 func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64 {
@@ -585,66 +579,4 @@ func derefStringTypes(st interface{}) string {
 		return v
 	}
 	return ""
-}
-
-// GetPPMDocuments returns all documents associated with a PPM shipment.
-func (f *ppmShipmentSummaryWorksheetCreator) GetPPMDocuments(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (*models.PPMDocuments, error) {
-	var documents models.PPMDocuments
-
-	err := appCtx.DB().
-		Scope(utilities.ExcludeDeletedScope(models.WeightTicket{})).
-		EagerPreload(
-			"EmptyDocument.UserUploads.Upload",
-			"FullDocument.UserUploads.Upload",
-			"ProofOfTrailerOwnershipDocument.UserUploads.Upload",
-		).
-		InnerJoin("ppm_shipments ppm", "ppm.id = weight_tickets.ppm_shipment_id").
-		Where("ppm.shipment_id = ? AND ppm.deleted_at IS NULL", mtoShipmentID).
-		All(&documents.WeightTickets)
-
-	if err != nil {
-		return nil, apperror.NewQueryError("WeightTicket", err, "unable to search for WeightTickets")
-	}
-
-	for i := range documents.WeightTickets {
-		documents.WeightTickets[i].EmptyDocument.UserUploads = documents.WeightTickets[i].EmptyDocument.UserUploads.FilterDeleted()
-		documents.WeightTickets[i].FullDocument.UserUploads = documents.WeightTickets[i].FullDocument.UserUploads.FilterDeleted()
-		documents.WeightTickets[i].ProofOfTrailerOwnershipDocument.UserUploads = documents.WeightTickets[i].ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
-	}
-
-	err = appCtx.DB().
-		Scope(utilities.ExcludeDeletedScope(models.ProgearWeightTicket{})).
-		EagerPreload(
-			"Document.UserUploads.Upload",
-		).
-		InnerJoin("ppm_shipments ppm", "ppm.id = progear_weight_tickets.ppm_shipment_id").
-		Where("ppm.shipment_id = ? AND ppm.deleted_at IS NULL", mtoShipmentID).
-		All(&documents.ProgearWeightTickets)
-
-	if err != nil {
-		return nil, apperror.NewQueryError("ProgearWeightTicket", err, "unable to search for ProgearWeightTickets")
-	}
-
-	for i := range documents.ProgearWeightTickets {
-		documents.ProgearWeightTickets[i].Document.UserUploads = documents.ProgearWeightTickets[i].Document.UserUploads.FilterDeleted()
-	}
-
-	err = appCtx.DB().
-		Scope(utilities.ExcludeDeletedScope(models.MovingExpense{})).
-		EagerPreload(
-			"Document.UserUploads.Upload",
-		).
-		InnerJoin("ppm_shipments ppm", "ppm.id = moving_expenses.ppm_shipment_id").
-		Where("ppm.shipment_id = ? AND ppm.deleted_at IS NULL", mtoShipmentID).
-		All(&documents.MovingExpenses)
-
-	if err != nil {
-		return nil, apperror.NewQueryError("MovingExpense", err, "unable to search for MovingExpenses")
-	}
-
-	for i := range documents.MovingExpenses {
-		documents.MovingExpenses[i].Document.UserUploads = documents.MovingExpenses[i].Document.UserUploads.FilterDeleted()
-	}
-
-	return &documents, nil
 }
