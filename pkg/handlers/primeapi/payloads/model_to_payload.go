@@ -149,6 +149,10 @@ func Order(order *models.Order) *primemessages.Order {
 		OrdersType:              primemessages.OrdersType(order.OrdersType),
 	}
 
+	if payload.Customer.Branch == "Marines" {
+		payload.OriginDutyLocationGBLOC = "USMC"
+	}
+
 	return &payload
 }
 
