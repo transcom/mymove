@@ -56,6 +56,10 @@ type Order struct {
 	// origin duty location
 	OriginDutyLocation *DutyLocation `json:"originDutyLocation,omitempty"`
 
+	// origin duty location g b l o c
+	// Example: KKFA
+	OriginDutyLocationGBLOC string `json:"originDutyLocationGBLOC,omitempty"`
+
 	// rank
 	// Example: E_5
 	// Required: true

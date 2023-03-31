@@ -140,6 +140,7 @@ func Order(order *models.Order) *primemessages.Order {
 		Entitlement:             Entitlement(order.Entitlement),
 		ID:                      strfmt.UUID(order.ID.String()),
 		OriginDutyLocation:      originDutyLocation,
+		OriginDutyLocationGBLOC: swag.StringValue(order.OriginDutyLocationGBLOC),
 		OrderNumber:             order.OrdersNumber,
 		LinesOfAccounting:       order.TAC,
 		Rank:                    order.Grade,
