@@ -111,6 +111,7 @@ type Move struct {
 	ShipmentGBLOC                MoveToGBLOCs            `has_many:"move_to_gbloc" fk_id:"move_id"`
 	CloseoutOfficeID             *uuid.UUID              `db:"closeout_office_id"`
 	CloseoutOffice               *TransportationOffice   `belongs_to:"transportation_offices" fk_id:"closeout_office_id"`
+	SentBackToTOOAt              *time.Time              `db:"sent_back_to_too_at"`
 }
 
 // TableName overrides the table name used by Pop.

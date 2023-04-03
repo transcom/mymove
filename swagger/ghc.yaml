@@ -3381,6 +3381,13 @@ definitions:
           The transportation office that will handle reviewing PPM Closeout
           documentation for Army and Air Force service members
         x-nullable: true
+      sentBackToTooAt:
+        type: string
+        format: date-time
+        description: >-
+          The time at which a move is sent back to the TOO becuase the prime
+          added a new service item for approval
+        x-nullable: true
       createdAt:
         type: string
         format: date-time

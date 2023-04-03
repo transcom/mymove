@@ -56,6 +56,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		BillableWeightsReviewedAt:    handlers.FmtDateTimePtr(move.BillableWeightsReviewedAt),
 		CreatedAt:                    strfmt.DateTime(move.CreatedAt),
 		SubmittedAt:                  handlers.FmtDateTimePtr(move.SubmittedAt),
+		SentBackToTooAt:              handlers.FmtDateTimePtr(move.SentBackToTOOAt),
 		UpdatedAt:                    strfmt.DateTime(move.UpdatedAt),
 		ETag:                         etag.GenerateEtag(move.UpdatedAt),
 		ServiceCounselingCompletedAt: handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),

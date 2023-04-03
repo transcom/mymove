@@ -480,6 +480,8 @@ func (router moveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, 
 		err = router.Approve(appCtx, &move)
 	} else {
 		err = router.SendToOfficeUser(appCtx, &move)
+		now := time.Now()
+		move.SentBackToTOOAt = &now
 	}
 
 	if err != nil {
