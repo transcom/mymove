@@ -374,6 +374,8 @@ func (router moveRouter) SendToOfficeUser(appCtx appcontext.AppContext, move *mo
 		return errors.Wrap(models.ErrInvalidTransition, errorMessage)
 	}
 	move.Status = models.MoveStatusAPPROVALSREQUESTED
+	now := time.Now()
+	move.SentBackToTOOAt = &now
 
 	if verrs, err := appCtx.DB().ValidateAndSave(move); verrs.HasAny() || err != nil {
 		msg := "failure saving move when routing move submission"
@@ -480,8 +482,6 @@ func (router moveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, 
 		err = router.Approve(appCtx, &move)
 	} else {
 		err = router.SendToOfficeUser(appCtx, &move)
-		now := time.Now()
-		move.SentBackToTOOAt = &now
 	}
 
 	if err != nil {
