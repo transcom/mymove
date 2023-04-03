@@ -3,6 +3,7 @@ package testharness
 import (
 	"errors"
 	"sort"
+	"sync"
 
 	"go.uber.org/zap"
 
@@ -139,6 +140,9 @@ var actionDispatcher = map[string]actionFunc{
 	"WebhookSubscription": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return testdatagen.MakeWebhookSubscription(appCtx.DB(), testdatagen.Assertions{})
 	},
+	"ApprovedMoveWithPPMShipmentAndExcessWeight": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx)
+	},
 }
 
 func Actions() []string {
@@ -150,7 +154,16 @@ func Actions() []string {
 	return actions
 }
 
+var mutex sync.Mutex
+
 func Dispatch(appCtx appcontext.AppContext, action string) (testHarnessResponse, error) {
+
+	// ensure only one dispatch is running at a time in a heavy handed
+	// way to prevent multiple setup functions from stomping on each
+	// other when creating shared data (like duty locations)
+	mutex.Lock()
+	defer mutex.Unlock()
+
 	dispatcher, ok := actionDispatcher[action]
 	if !ok {
 		appCtx.Logger().Error("Cannot find testharness dispatcher", zap.Any("action", action))

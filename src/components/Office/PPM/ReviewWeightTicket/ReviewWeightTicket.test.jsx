@@ -13,7 +13,7 @@ beforeEach(() => {
 const defaultProps = {
   order: {
     entitlement: {
-      authorizedWeight: 2000,
+      totalWeight: 2000,
     },
   },
   ppmShipment: {

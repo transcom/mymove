@@ -45,6 +45,7 @@ var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
 var Organization CustomType = "Organization"
+var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
 var ReService CustomType = "ReService"
 var ServiceItemParamKey CustomType = "ServiceItemParamKey"
 var ServiceMember CustomType = "ServiceMember"
@@ -70,6 +71,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.OfficeUser":           OfficeUser,
 	"models.Order":                Order,
 	"models.Organization":         Organization,
+	"models.PostalCodeToGBLOC":    PostalCodeToGBLOC,
 	"models.ReService":            ReService,
 	"models.ServiceItemParamKey":  ServiceItemParamKey,
 	"models.ServiceMember":        ServiceMember,
@@ -119,6 +121,17 @@ var Dimensions = dimensionGroup{
 	// MTOServiceItems may include:
 	CrateDimension: "CrateDimension",
 	ItemDimension:  "ItemDimension",
+}
+
+type documentGroup struct {
+	UploadedOrders        CustomType
+	UploadedAmendedOrders CustomType
+}
+
+var Documents = documentGroup{
+	// Orders may include:
+	UploadedOrders:        "UploadedOrders",
+	UploadedAmendedOrders: "UploadedAmendedOrders",
 }
 
 // dutyLocationsGroup is a grouping of all the duty location related fields
@@ -369,6 +382,30 @@ func findValidCustomization(customs []Customization, customType CustomType) *Cus
 		}
 	}
 	return custom
+}
+
+func replaceCustomization(customs []Customization, newCustom Customization) []Customization {
+	err := linkOnlyHasID([]Customization{newCustom})
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// assign the type as all customizations should have a type
+	if err := assignType(&newCustom); err != nil {
+		log.Panic(err.Error())
+	}
+	// See if an existing customization exists with the type
+	ndx, _ := findCustomWithIdx(customs, *newCustom.Type)
+	if ndx >= 0 {
+		// Found a customization for the provided model and we need to
+		// replace it
+		customs[ndx] = newCustom
+	} else {
+		// Did not find an existing customization, append it
+		customs = append(customs, newCustom)
+	}
+
+	return customs
 }
 
 // checkNestedModels ensures we have no nested models.

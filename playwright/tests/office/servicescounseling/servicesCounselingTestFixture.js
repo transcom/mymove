@@ -57,6 +57,9 @@ export class ServiceCounselorPage extends OfficePage {
     reviewDocumentsConfirmation: async () => {
       await expect(this.page.getByRole('heading', { name: 'Send to customer?', level: 3 })).toBeVisible();
     },
+    reviewShipmentWeights: async () => {
+      await expect(this.page.getByRole('heading', { name: 'Review shipment weights', level: 1 })).toBeVisible();
+    },
   };
 
   /**

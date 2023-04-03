@@ -61,7 +61,9 @@ const PaymentRequestAccountingCodes = ({
       <span data-testid="tac">{tacValue}</span>
       &nbsp;|&nbsp;
       <strong>SAC: </strong>
-      <span data-testid="sac">{sacValue}</span>
+      <span style={{ wordWrap: 'break-word' }} data-testid="sac">
+        {sacValue}
+      </span>
       {showEdit && (
         <button type="button" className={styles.EditButton} onClick={handleEditClick}>
           Edit

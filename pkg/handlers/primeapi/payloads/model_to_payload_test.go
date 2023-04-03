@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -24,6 +25,8 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	excessWeightQualifiedAt := time.Now()
 	excessWeightAcknowledgedAt := time.Now()
 	excessWeightUploadID := uuid.Must(uuid.NewV4())
+	ordersType := primemessages.OrdersTypeRETIREMENT
+	originDutyGBLOC := "KKFA"
 
 	basicMove := models.Move{
 		ID:                         moveTaskOrderID,
@@ -31,7 +34,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		CreatedAt:                  time.Now(),
 		AvailableToPrimeAt:         &primeTime,
 		OrdersID:                   ordersID,
-		Orders:                     models.Order{},
+		Orders:                     models.Order{OrdersType: internalmessages.OrdersType(ordersType), OriginDutyLocationGBLOC: &originDutyGBLOC},
 		ReferenceID:                &referenceID,
 		PaymentRequests:            models.PaymentRequests{},
 		SubmittedAt:                &submittedAt,
@@ -56,6 +59,8 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(strfmt.DateTime(basicMove.CreatedAt), returnedModel.CreatedAt)
 		suite.Equal(handlers.FmtDateTimePtr(basicMove.AvailableToPrimeAt), returnedModel.AvailableToPrimeAt)
 		suite.Equal(strfmt.UUID(basicMove.OrdersID.String()), returnedModel.OrderID)
+		suite.Equal(ordersType, returnedModel.Order.OrdersType)
+		suite.Equal(originDutyGBLOC, returnedModel.Order.OriginDutyLocationGBLOC)
 		suite.Equal(referenceID, returnedModel.ReferenceID)
 		suite.Equal(strfmt.DateTime(basicMove.UpdatedAt), returnedModel.UpdatedAt)
 		suite.NotEmpty(returnedModel.ETag)

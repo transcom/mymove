@@ -74,6 +74,9 @@ type Orders struct {
 	// orders type detail
 	OrdersTypeDetail *OrdersTypeDetail `json:"orders_type_detail,omitempty"`
 
+	// From what GBLOC do your orders originate?
+	OriginDutyLocationGbloc *string `json:"originDutyLocationGbloc,omitempty"`
+
 	// origin duty location
 	OriginDutyLocation *DutyLocationPayload `json:"origin_duty_location,omitempty"`
 

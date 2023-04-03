@@ -1435,7 +1435,7 @@ func init() {
           "$ref": "#/definitions/CreatePPMShipment"
         },
         "primeEstimatedWeight": {
-          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
+          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contractor will need to contact the TOO to change it.\n",
           "type": "integer",
           "minimum": 1,
           "x-nullable": true,
@@ -2705,8 +2705,15 @@ func init() {
         "orderNumber": {
           "type": "string"
         },
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
+        },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
+        },
+        "originDutyLocationGBLOC": {
+          "type": "string",
+          "example": "KKFA"
         },
         "rank": {
           "type": "string",
@@ -2716,6 +2723,20 @@ func init() {
           "type": "string",
           "format": "date"
         }
+      }
+    },
+    "OrdersType": {
+      "type": "string",
+      "title": "Orders type",
+      "enum": [
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION"
+      ],
+      "x-display-value": {
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
       }
     },
     "PPMShipment": {
@@ -5806,7 +5827,7 @@ func init() {
           "$ref": "#/definitions/CreatePPMShipment"
         },
         "primeEstimatedWeight": {
-          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
+          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contractor will need to contact the TOO to change it.\n",
           "type": "integer",
           "minimum": 1,
           "x-nullable": true,
@@ -7076,8 +7097,15 @@ func init() {
         "orderNumber": {
           "type": "string"
         },
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
+        },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
+        },
+        "originDutyLocationGBLOC": {
+          "type": "string",
+          "example": "KKFA"
         },
         "rank": {
           "type": "string",
@@ -7087,6 +7115,20 @@ func init() {
           "type": "string",
           "format": "date"
         }
+      }
+    },
+    "OrdersType": {
+      "type": "string",
+      "title": "Orders type",
+      "enum": [
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION"
+      ],
+      "x-display-value": {
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
       }
     },
     "PPMShipment": {

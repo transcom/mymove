@@ -15,6 +15,14 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 
 		suite.Equal(dutyLocation.ID, dutyLocation.ID)
 	})
+	suite.Run("test fetch stubbed current duty location", func() {
+		dutyLocation := FetchOrBuildCurrentDutyLocation(nil)
+		suite.Equal("Yuma AFB", dutyLocation.Name)
+	})
+	suite.Run("test fetch stubbed orders duty location", func() {
+		dutyLocation := FetchOrBuildOrdersDutyLocation(nil)
+		suite.Equal("Fort Gordon", dutyLocation.Name)
+	})
 	suite.Run("Successful creation of default duty location", func() {
 		// Under test:      BuildDutyLocation
 		// Mocked:          None
@@ -43,6 +51,10 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		suite.Equal(defaultOffice.Gbloc, dutyLocation.TransportationOffice.Gbloc)
 		suite.Equal(defaultOffice.Latitude, dutyLocation.TransportationOffice.Latitude)
 		suite.Equal(defaultOffice.Longitude, dutyLocation.TransportationOffice.Longitude)
+
+		gblocForPostalCode, err := models.FetchGBLOCForPostalCode(suite.DB(), dutyLocation.Address.PostalCode)
+		suite.NoError(err)
+		suite.Equal(gblocForPostalCode.GBLOC, defaultOffice.Gbloc)
 	})
 
 	suite.Run("Successful creation of customized DutyLocation", func() {

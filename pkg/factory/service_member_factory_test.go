@@ -335,4 +335,20 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		suite.Equal(1, len(serviceMember.BackupContacts))
 		suite.Equal(models.BackupContactPermissionEDIT, serviceMember.BackupContacts[0].Permission)
 	})
+	suite.Run("Successful return of stubbed ExtendedServiceMember", func() {
+		// Under test:       BuildServiceMember
+		// Set up:           Pass in a linkOnly serviceMember
+		// Expected outcome: No new ServiceMember should be created.
+
+		// Check num ServiceMember records
+		precount, err := suite.DB().Count(&models.ServiceMember{})
+		suite.NoError(err)
+
+		serviceMember := BuildExtendedServiceMember(nil, nil, nil)
+		suite.Equal("Yuma AFB", serviceMember.DutyLocation.Name)
+
+		count, err := suite.DB().Count(&models.ServiceMember{})
+		suite.Equal(precount, count)
+		suite.NoError(err)
+	})
 }
