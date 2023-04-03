@@ -120,8 +120,10 @@ type MTOShipment struct {
 	MTOServiceItems                  MTOServiceItems   `has_many:"mto_service_items" fk_id:"mto_shipment_id"`
 	SecondaryPickupAddress           *Address          `belongs_to:"addresses" fk_id:"secondary_pickup_address_id"`
 	SecondaryPickupAddressID         *uuid.UUID        `db:"secondary_pickup_address_id"`
+	HasSecondaryPickupAddress        *bool             `db:"has_secondary_pickup_address"`
 	SecondaryDeliveryAddress         *Address          `belongs_to:"addresses" fk_id:"secondary_delivery_address_id"`
 	SecondaryDeliveryAddressID       *uuid.UUID        `db:"secondary_delivery_address_id"`
+	HasSecondaryDeliveryAddress      *bool             `db:"has_secondary_delivery_address"`
 	SITDaysAllowance                 *int              `db:"sit_days_allowance"`
 	SITExtensions                    SITExtensions     `has_many:"sit_extensions" fk_id:"mto_shipment_id"`
 	PrimeEstimatedWeight             *unit.Pound       `db:"prime_estimated_weight"`

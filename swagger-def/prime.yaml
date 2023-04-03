@@ -1054,7 +1054,7 @@ definitions:
         description: >
           The estimated weight of this shipment, determined by the movers during the pre-move survey.
           This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made,
-          the Prime contracter will need to contact the TOO to change it.
+          the Prime contractor will need to contact the TOO to change it.
         type: integer
         example: 4500
         minimum: 1
@@ -2075,12 +2075,17 @@ definitions:
         $ref: '#/definitions/DutyLocation'
       originDutyLocation:
         $ref: '#/definitions/DutyLocation'
+      originDutyLocationGBLOC:
+        type: string
+        example: 'KKFA'
       rank:
         type: string
         example: 'E_5'
       reportByDate:
         type: string
         format: date
+      ordersType:
+        $ref: 'definitions/OrdersType.yaml'
       orderNumber:
         type: string
       linesOfAccounting:

@@ -1,12 +1,15 @@
 package internalapi
 
 import (
+	"database/sql"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -206,7 +209,8 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 
 			if len(serviceMember.Orders) != 0 && h.isDraftMove(&serviceMember) {
 				// Will have to be refactored once we support multiple moves/orders
-				order, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), serviceMember.Orders[0].ID)
+				var order models.Order
+				order, err = models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), serviceMember.Orders[0].ID)
 
 				if err != nil {
 					return handlers.ResponseForError(appCtx.Logger(), err), err
@@ -218,8 +222,20 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 				}
 
 				if serviceMember.DutyLocation.ID != order.OriginDutyLocation.ID {
+					dutyLocation := &serviceMember.DutyLocation
+					var originDutyLocationGBLOC models.PostalCodeToGBLOC
+					originDutyLocationGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), dutyLocation.Address.PostalCode)
+					if err != nil {
+						switch err {
+						case sql.ErrNoRows:
+							return nil, apperror.NewNotFoundError(dutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
+						default:
+							return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
+						}
+					}
 					order.OriginDutyLocation = &serviceMember.DutyLocation
 					order.OriginDutyLocationID = &serviceMember.DutyLocation.ID
+					order.OriginDutyLocationGBLOC = &originDutyLocationGBLOC.GBLOC
 				}
 
 				verrs, err = appCtx.DB().ValidateAndSave(&order)
