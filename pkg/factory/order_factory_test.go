@@ -22,6 +22,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 	testYear := 2018
 	defaultIssueDate := time.Date(testYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 	defaultReportByDate := time.Date(testYear, time.August, 1, 0, 0, 0, 0, time.UTC)
+	defaultGBLOC := "KKFA"
 
 	suite.Run("Successful creation of default order", func() {
 		// Under test:      BuildOrder
@@ -46,6 +47,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 		suite.Equal(defaultStatus, order.Status)
 		suite.Equal(defaultIssueDate, order.IssueDate)
 		suite.Equal(defaultReportByDate, order.ReportByDate)
+		suite.Equal(defaultGBLOC, *order.OriginDutyLocationGBLOC)
 
 		// extended service members have backup contacts
 		suite.False(order.ServiceMemberID.IsNil())
@@ -138,6 +140,31 @@ func (suite *FactorySuite) TestBuildOrder() {
 		suite.Equal(*entitlement.TotalDependents, *order.Entitlement.TotalDependents)
 		suite.Equal(amendedOrders.ID, *order.UploadedAmendedOrdersID)
 		suite.Equal(amendedOrders.ID, order.UploadedAmendedOrders.ID)
+	})
+	suite.Run("Successful creation of order with prebuilt uploaded orders", func() {
+		userUploadForUploadedOrders := BuildUserUpload(suite.DB(), nil, nil)
+		uploadedOrders := userUploadForUploadedOrders.Document
+		uploadedOrders.UserUploads = models.UserUploads{userUploadForUploadedOrders}
+
+		userUploadForAmendedOrders := BuildUserUpload(suite.DB(), nil, nil)
+		amendedOrders := userUploadForAmendedOrders.Document
+		amendedOrders.UserUploads = models.UserUploads{userUploadForAmendedOrders}
+
+		order := BuildOrder(suite.DB(), []Customization{
+			{
+				Model:    uploadedOrders,
+				LinkOnly: true,
+				Type:     &Documents.UploadedOrders,
+			},
+			{
+				Model:    amendedOrders,
+				LinkOnly: true,
+				Type:     &Documents.UploadedAmendedOrders,
+			},
+		}, nil)
+		suite.Equal(order.UploadedOrdersID, uploadedOrders.ID)
+		suite.Equal(1, len(order.UploadedOrders.UserUploads))
+		suite.Equal(1, len(order.UploadedAmendedOrders.UserUploads))
 	})
 	suite.Run("Successful creation of stubbed order", func() {
 		// Under test:      BuildOrder

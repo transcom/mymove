@@ -50,8 +50,15 @@ type Order struct {
 	// Required: true
 	OrderNumber *string `json:"orderNumber"`
 
+	// orders type
+	OrdersType OrdersType `json:"ordersType,omitempty"`
+
 	// origin duty location
 	OriginDutyLocation *DutyLocation `json:"originDutyLocation,omitempty"`
+
+	// origin duty location g b l o c
+	// Example: KKFA
+	OriginDutyLocationGBLOC string `json:"originDutyLocationGBLOC,omitempty"`
 
 	// rank
 	// Example: E_5
@@ -92,6 +99,10 @@ func (m *Order) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOrderNumber(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOrdersType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -212,6 +223,23 @@ func (m *Order) validateOrderNumber(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Order) validateOrdersType(formats strfmt.Registry) error {
+	if swag.IsZero(m.OrdersType) { // not required
+		return nil
+	}
+
+	if err := m.OrdersType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ordersType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ordersType")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *Order) validateOriginDutyLocation(formats strfmt.Registry) error {
 	if swag.IsZero(m.OriginDutyLocation) { // not required
 		return nil
@@ -269,6 +297,10 @@ func (m *Order) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 	}
 
 	if err := m.contextValidateEntitlement(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOrdersType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -334,6 +366,20 @@ func (m *Order) contextValidateEntitlement(ctx context.Context, formats strfmt.R
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateOrdersType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.OrdersType.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ordersType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ordersType")
+		}
+		return err
 	}
 
 	return nil

@@ -51,6 +51,10 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		suite.Equal(defaultOffice.Gbloc, dutyLocation.TransportationOffice.Gbloc)
 		suite.Equal(defaultOffice.Latitude, dutyLocation.TransportationOffice.Latitude)
 		suite.Equal(defaultOffice.Longitude, dutyLocation.TransportationOffice.Longitude)
+
+		gblocForPostalCode, err := models.FetchGBLOCForPostalCode(suite.DB(), dutyLocation.Address.PostalCode)
+		suite.NoError(err)
+		suite.Equal(gblocForPostalCode.GBLOC, defaultOffice.Gbloc)
 	})
 
 	suite.Run("Successful creation of customized DutyLocation", func() {

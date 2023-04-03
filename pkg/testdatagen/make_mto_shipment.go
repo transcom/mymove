@@ -79,6 +79,12 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		}
 
 		secondaryPickupAddress = assertions.SecondaryPickupAddress
+
+		// Check that a GBLOC exists for pickup address postal code, make one if not
+		gbloc, err := models.FetchGBLOCForPostalCode(db, pickupAddress.PostalCode)
+		if gbloc.GBLOC == "" || err != nil {
+			MakePostalCodeToGBLOC(db, pickupAddress.PostalCode, "KKFA")
+		}
 	}
 
 	var destinationAddress, secondaryDeliveryAddress models.Address
@@ -181,6 +187,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		if !isZeroUUID(secondaryDeliveryAddress.ID) {
 			MTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
 			MTOShipment.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
+			MTOShipment.HasSecondaryDeliveryAddress = swag.Bool(true)
 		}
 	}
 
@@ -191,6 +198,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		if !isZeroUUID(secondaryPickupAddress.ID) {
 			MTOShipment.SecondaryPickupAddress = &secondaryPickupAddress
 			MTOShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
+			MTOShipment.HasSecondaryPickupAddress = swag.Bool(true)
 		}
 	}
 

@@ -212,13 +212,40 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	origEmailIsPreferred := swag.Bool(true)
 	newEmailIsPreferred := swag.Bool(false)
 
-	dutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+	origDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+	// Test updating duty location to one with different GBLOC
+	newDutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "Fort Gordon",
+				City:           "Augusta",
+				State:          "GA",
+				PostalCode:     "77777",
+				Country:        models.StringPointer("United States"),
+			},
+		},
+	}, nil)
+
+	// Create a custom postal code to GBLOC
+	newGBLOC := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), newDutyLocationAddress.PostalCode, "UUUU")
+	newDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name: "Fort Sam Houston",
+			},
+		},
+		{
+			Model:    newDutyLocationAddress,
+			LinkOnly: true,
+		},
+	}, nil)
+	newDutyLocationID := strfmt.UUID(newDutyLocation.ID.String())
 
 	newServiceMember := models.ServiceMember{
 		UserID:             user.ID,
 		Edipi:              &origEdipi,
-		DutyLocationID:     &dutyLocation.ID,
-		DutyLocation:       dutyLocation,
+		DutyLocationID:     &origDutyLocation.ID,
+		DutyLocation:       origDutyLocation,
 		Rank:               &origRank,
 		Affiliation:        &origAffiliation,
 		FirstName:          origFirstName,
@@ -233,14 +260,13 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	}
 	suite.MustSave(&newServiceMember)
 
-	orderDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 	orderGrade := (string)(models.ServiceMemberRankE5)
 	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMember:        newServiceMember,
 			ServiceMemberID:      newServiceMember.ID,
-			OriginDutyLocation:   &orderDutyLocation,
-			OriginDutyLocationID: &orderDutyLocation.ID,
+			OriginDutyLocation:   &origDutyLocation,
+			OriginDutyLocationID: &origDutyLocation.ID,
 			Grade:                &orderGrade,
 		},
 	})
@@ -263,6 +289,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		SecondaryTelephone:   newSecondaryTelephone,
 		Suffix:               newSuffix,
 		Telephone:            newTelephone,
+		CurrentLocationID:    &newDutyLocationID,
 	}
 
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
@@ -299,7 +326,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	suite.Equal(*resAddress.StreetAddress1, *serviceMemberPayload.ResidentialAddress.StreetAddress1)
 	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
 	// Editing SM info DutyLocation and Rank fields should edit Orders OriginDutyLocation and Grade fields
-	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyLocation.Name, newServiceMember.DutyLocation.Name)
+	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyLocation.Name, newDutyLocation.Name)
+	suite.Equal(serviceMemberPayload.Orders[0].OriginDutyLocationGbloc, &newGBLOC.GBLOC)
 	suite.Equal(*serviceMemberPayload.Orders[0].Grade, (string)(rank))
 	suite.NotEqual(*serviceMemberPayload.Orders[0].Grade, orderGrade)
 }

@@ -1755,17 +1755,6 @@ definitions:
       SUBMITTED: Submitted
       APPROVED: Approved
       CANCELED: Canceled
-  OrdersType:
-    type: string
-    title: Orders type
-    enum:
-      - PERMANENT_CHANGE_OF_STATION
-      - RETIREMENT
-      - SEPARATION
-    x-display-value:
-      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
-      RETIREMENT: Retirement
-      SEPARATION: Separation
   OrdersTypeDetail:
     type: string
     title: Orders type detail
@@ -1816,7 +1805,7 @@ definitions:
       status:
         $ref: '#/definitions/OrdersStatus'
       orders_type:
-        $ref: '#/definitions/OrdersType'
+        $ref: 'definitions/OrdersType.yaml'
       orders_type_detail:
         $ref: '#/definitions/OrdersTypeDetail'
       has_dependents:
@@ -1827,6 +1816,10 @@ definitions:
         title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       origin_duty_location:
         $ref: 'definitions/DutyLocationPayload.yaml'
+        x-nullable: true
+      originDutyLocationGbloc:
+        type: string
+        title: From what GBLOC do your orders originate?
         x-nullable: true
       new_duty_location:
         $ref: 'definitions/DutyLocationPayload.yaml'
@@ -1916,7 +1909,7 @@ definitions:
         example: '2018-04-26'
         title: Report-by date
       orders_type:
-        $ref: '#/definitions/OrdersType'
+        $ref: 'definitions/OrdersType.yaml'
       orders_type_detail:
         $ref: '#/definitions/OrdersTypeDetail'
       has_dependents:
@@ -2335,8 +2328,16 @@ definitions:
         $ref: 'definitions/Address.yaml'
       secondaryPickupAddress:
         $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       secondaryDeliveryAddress:
         $ref: 'definitions/Address.yaml'
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       eTag:
         type: string
   MTOShipments:
@@ -2546,9 +2547,11 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+        x-nullable: true
       requestedDeliveryDate:
         format: date
         type: string
+        x-nullable: true
       customerRemarks:
         type: string
         example: handle with care
@@ -2557,10 +2560,18 @@ definitions:
         $ref: 'definitions/Address.yaml'
       secondaryPickupAddress:
         $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+          type: boolean
+          x-nullable: true
+          x-omitempty: false
       destinationAddress:
         $ref: 'definitions/Address.yaml'
       secondaryDeliveryAddress:
         $ref: 'definitions/Address.yaml'
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       agents:
         $ref: '#/definitions/MTOAgents'
   ClientError:
