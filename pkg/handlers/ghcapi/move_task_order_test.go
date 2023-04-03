@@ -37,7 +37,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
-	order := testdatagen.MakeDefaultOrder(suite.DB())
+	order := factory.BuildOrder(suite.DB(), nil, nil)
 	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: order,
 	})
@@ -200,7 +200,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncompleteOrder() {
-	orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
+	orderWithoutDefaults := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			Status: models.MoveStatusServiceCounselingCompleted,
@@ -447,7 +447,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 	setupTestData := func() (models.Move, UpdateMoveTIORemarksHandlerFunc, models.User) {
 
-		order := testdatagen.MakeDefaultOrder(suite.DB())
+		order := factory.BuildOrder(suite.DB(), nil, nil)
 		moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusNeedsServiceCounseling,

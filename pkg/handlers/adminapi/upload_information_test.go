@@ -21,12 +21,12 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 		sm := factory.BuildServiceMember(suite.DB(), nil, nil)
 		suite.MustSave(&sm)
 
-		orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ServiceMemberID: sm.ID,
-				ServiceMember:   sm,
+		orders := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model:    sm,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 		suite.MustSave(&orders)
 
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
