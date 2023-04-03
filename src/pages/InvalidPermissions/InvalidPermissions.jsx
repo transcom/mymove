@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import qs from 'query-string';
 import { bool, shape, string } from 'prop-types';
 import { Button, ButtonGroup } from '@trussworks/react-uswds';
@@ -13,6 +13,7 @@ import { LogoutUser } from 'utils/api';
 import { logOut } from 'store/auth/actions';
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
+import { generateAdminPageTitleFromString } from 'shared/utils';
 
 const InvalidPermissions = ({ context }) => {
   const navigate = useNavigate();
@@ -21,6 +22,9 @@ const InvalidPermissions = ({ context }) => {
   const { siteName } = context;
   const { traceId } = qs.parse(location.search);
   const signoutClass = siteName === 'my.move.mil' ? styles.signInButton : 'usa-button';
+  useEffect(() => {
+    document.title = generateAdminPageTitleFromString('Invalid Permissions');
+  });
 
   const handleLogOut = () => {
     logOut();

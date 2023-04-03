@@ -3,6 +3,7 @@ import { capitalize, find, get, includes, mapValues } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { formatDateForSwagger } from './dates';
+import { ADMIN_BASE_PAGE_TITLE, CUSTOMER_BASE_PAGE_TITLE, OFFICE_BASE_PAGE_TITLE } from './constants';
 
 export const no_op = () => undefined;
 export const no_op_action = () => {
@@ -132,6 +133,7 @@ export function openLinkInNewWindow(url, windowName, window, relativeSize) {
     .open(
       url,
       windowName,
+      // eslint-disable-next-line prettier/prettier
       `resizable,scrollbars,status,noopener=true,noreferrer=true,width=${window.outerWidth * relativeSize},height=${
         window.outerHeight * relativeSize
       }`,
@@ -167,4 +169,49 @@ export function isEmpty(obj) {
     }
   });
   return empty;
+}
+
+export function convertPathToSubtitle(path) {
+  return (
+    path &&
+    path
+      .split('/')
+      .filter((component) => component && component.match(/^(?!:)/))
+      .map((word) =>
+        word
+          .split('-')
+          .map((word) => capitalize(word))
+          .join(' '),
+      )
+      .join(' - ')
+  );
+}
+
+export function generatePageTitleFromPath(baseTitle, path) {
+  const subtitle = convertPathToSubtitle(path);
+  return generatePageTitleFromString(baseTitle, subtitle);
+}
+
+export function generatePageTitleFromString(baseTitle, string) {
+  return baseTitle + (string ? ` - ${string}` : '');
+}
+
+export function generateCustomerPageTitleFromPath(path) {
+  return generatePageTitleFromPath(CUSTOMER_BASE_PAGE_TITLE, path);
+}
+
+export function generateCustomerPageTitleFromString(string) {
+  return generatePageTitleFromString(CUSTOMER_BASE_PAGE_TITLE, string);
+}
+
+export function generateOfficePageTitleFromPath(path) {
+  return generatePageTitleFromPath(OFFICE_BASE_PAGE_TITLE, path);
+}
+
+export function generateAdminPageTitleFromPath(path) {
+  return generatePageTitleFromPath(ADMIN_BASE_PAGE_TITLE, path);
+}
+
+export function generateAdminPageTitleFromString(string) {
+  return generatePageTitleFromString(ADMIN_BASE_PAGE_TITLE, string);
 }

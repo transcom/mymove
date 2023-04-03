@@ -11,6 +11,7 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { useTXOMoveInfoQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { generateOfficePageTitleFromPath } from 'shared/utils';
 
 const ServicesCounselingMoveDocumentWrapper = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper'),
@@ -74,6 +75,9 @@ const ServicesCounselingMoveInfo = () => {
   const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
 
   const { pathname } = useLocation();
+  useEffect(() => {
+    document.title = generateOfficePageTitleFromPath(pathname);
+  });
   const hideNav =
     matchPath(
       {
