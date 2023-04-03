@@ -89,4 +89,8 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 		suite.Equal(officeRemarks, *sitExtensionInDB.OfficeRemarks)
 		suite.Equal(models.SITExtensionStatusApproved, sitExtensionInDB.Status)
 	})
+
+	// TODO: MB-15612
+	// Create a test case for increasing and decreasing the number of days when
+	// creating a new SIT extension as TOO.
 }

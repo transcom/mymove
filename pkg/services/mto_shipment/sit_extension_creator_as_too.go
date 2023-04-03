@@ -57,6 +57,10 @@ func (f *sitExtensionCreatorAsTOO) CreateSITExtensionAsTOO(appCtx appcontext.App
 	return returnedShipment, nil
 }
 
+// FIXME: MB-15612
+// updateSitDaysAllowance is a function in the mto_shipment package whic
+// updates the SIT days allowance to be an addition of approved days and the
+// shipments current shipment.SITDaysAllowance.
 func (f *sitExtensionCreatorAsTOO) updateSitDaysAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment, approvedDays int) (*models.MTOShipment, error) {
 	if shipment.SITDaysAllowance != nil {
 		sda := approvedDays + int(*shipment.SITDaysAllowance)
