@@ -2075,6 +2075,9 @@ definitions:
         $ref: '#/definitions/DutyLocation'
       originDutyLocation:
         $ref: '#/definitions/DutyLocation'
+      originDutyLocationGBLOC:
+        type: string
+        example: 'KKFA'
       rank:
         type: string
         example: 'E_5'

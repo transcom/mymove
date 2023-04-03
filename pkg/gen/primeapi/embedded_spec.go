@@ -2711,6 +2711,10 @@ func init() {
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "originDutyLocationGBLOC": {
+          "type": "string",
+          "example": "KKFA"
+        },
         "rank": {
           "type": "string",
           "example": "E_5"
@@ -7098,6 +7102,10 @@ func init() {
         },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
+        },
+        "originDutyLocationGBLOC": {
+          "type": "string",
+          "example": "KKFA"
         },
         "rank": {
           "type": "string",
