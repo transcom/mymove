@@ -63,8 +63,8 @@ var hhgMoveType = models.SelectedMoveTypeHHG
 var ppmMoveType = models.SelectedMoveTypePPM
 var tioRemarks = "New billable weight set"
 
-// Closeout offices populated via migrations, this is the ID of one with the name 'Base Ketchikan'
-var DefaultCloseoutOfficeID = uuid.FromStringOrNil("4afd7912-5cb5-4a90-a85d-ec72b436380e")
+// Closeout offices populated via migrations, this is the ID of one within the GBLOC 'KKFA' with the name 'Creech AFB'
+var DefaultCloseoutOfficeID = uuid.FromStringOrNil("5de30a80-a8e5-458c-9b54-edfae7b8cdb9")
 
 // fully public to facilitate reuse outside of this package
 type MoveCreatorInfo struct {
@@ -168,15 +168,17 @@ func makeOrdersForServiceMember(appCtx appcontext.AppContext, serviceMember mode
 		document.UserUploads = append(document.UserUploads, upload)
 	}
 
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID:  serviceMember.ID,
-			ServiceMember:    serviceMember,
-			UploadedOrders:   document,
-			UploadedOrdersID: document.ID,
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model:    document,
+			LinkOnly: true,
+			Type:     &factory.Documents.UploadedOrders,
+		},
+	}, nil)
 
 	return orders
 }
@@ -3070,7 +3072,9 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 	uuidStr := "c5f202b3-90d3-46aa-8e3b-83e937fcca99"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	user := factory.BuildUser(db, []factory.Customization{
+	smWithHHGID := "cfb9024b-39f3-47ca-b14b-a4e78a41e9db"
+
+	orders := factory.BuildOrder(db, []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -3078,10 +3082,6 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 				LoginGovEmail: email,
 				Active:        true,
 			}},
-	}, nil)
-
-	smWithHHGID := "cfb9024b-39f3-47ca-b14b-a4e78a41e9db"
-	smWithHHG := factory.BuildExtendedServiceMember(db, []factory.Customization{
 		{
 			Model: models.ServiceMember{
 				ID:            uuid.FromStringOrNil(smWithHHGID),
@@ -3092,19 +3092,13 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 			},
 		},
 		{
-			Model:    user,
-			LinkOnly: true,
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
 		},
 	}, nil)
-
-	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.Must(uuid.NewV4()),
-			ServiceMemberID: smWithHHG.ID,
-			ServiceMember:   smWithHHG,
-		},
-		UserUploader: userUploader,
-	})
 
 	orders = makeAmendedOrders(appCtx, orders, userUploader, &[]string{"medium.jpg", "small.pdf"})
 
@@ -4252,14 +4246,19 @@ func CreateMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 
 	db := appCtx.DB()
 	submittedAt := time.Now()
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			ProvidesServicesCounseling: servicesCounseling,
+	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: servicesCounseling,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
 		},
-		Order: models.Order{
-			OrdersType: ordersType,
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+			},
 		},
-	})
+	}, nil)
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator:          locator,
@@ -4319,6 +4318,7 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		ServiceMember:   customer,
 	}
 	testdatagen.MergeModels(&order, assertions.Order)
+	// assertions passed in means we cannot yet convert to BuildOrder
 	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order:        order,
 		UserUploader: userUploader,
@@ -4417,21 +4417,25 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	db := appCtx.DB()
 	msCost := unit.Cents(10000)
 
-	customer8 := factory.BuildServiceMember(db, []factory.Customization{
+	orders8 := factory.BuildOrder(db, []factory.Customization{
 		{
 			Model: models.ServiceMember{
 				ID: uuid.FromStringOrNil("9e8da3c7-ffe5-4f7f-b45a-8f01ccc56591"),
 			},
 		},
-	}, nil)
-	orders8 := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("1d49bb07-d9dd-4308-934d-baad94f2de9b"),
-			ServiceMemberID: customer8.ID,
-			ServiceMember:   customer8,
+		{
+			Model: models.Order{
+				ID: uuid.FromStringOrNil("1d49bb07-d9dd-4308-934d-baad94f2de9b"),
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	move8 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
@@ -4758,22 +4762,25 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	/* Customer with two payment requests */
-	customer7 := factory.BuildServiceMember(db, []factory.Customization{
+	orders7 := factory.BuildOrder(db, []factory.Customization{
 		{
 			Model: models.ServiceMember{
 				ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
 			},
 		},
-	}, nil)
-
-	orders7 := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("f52f851e-91b8-4cb7-9f8a-6b0b8477ae2a"),
-			ServiceMemberID: customer7.ID,
-			ServiceMember:   customer7,
+		{
+			Model: models.Order{
+				ID: uuid.FromStringOrNil("f52f851e-91b8-4cb7-9f8a-6b0b8477ae2a"),
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	mto7 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
@@ -4951,25 +4958,28 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 	db := appCtx.DB()
 	msCost := unit.Cents(10000)
 
-	customer := factory.BuildExtendedServiceMember(db, nil, nil)
-
 	hhgTAC := "1111"
 	ntsTAC := "2222"
 	hhgSAC := "3333"
 	ntsSAC := "4444"
 
-	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.Must(uuid.NewV4()),
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
-			TAC:             &hhgTAC,
-			NtsTAC:          &ntsTAC,
-			SAC:             &hhgSAC,
-			NtsSAC:          &ntsSAC,
+	orders := factory.BuildOrder(db, []factory.Customization{
+		{
+			Model: models.Order{
+				TAC:    &hhgTAC,
+				NtsTAC: &ntsTAC,
+				SAC:    &hhgSAC,
+				NtsSAC: &ntsSAC,
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
@@ -5698,16 +5708,15 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 	db := appCtx.DB()
 	msCost := unit.Cents(10000)
 
-	customer := factory.BuildExtendedServiceMember(db, nil, nil)
-
-	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.Must(uuid.NewV4()),
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
+	orders := factory.BuildOrder(db, []factory.Customization{
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
 		},
-		UserUploader: userUploader,
-	})
+	}, nil)
 
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
@@ -6130,22 +6139,25 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	/* Customer with two payment requests */
-	customer7 := factory.BuildExtendedServiceMember(db, []factory.Customization{
+	orders7 := factory.BuildOrder(db, []factory.Customization{
 		{
 			Model: models.ServiceMember{
 				ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-ffffffffffff"),
 			},
 		},
-	}, nil)
-
-	orders7 := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("f52f851e-91b8-4cb7-9f8a-ffffffffffff"),
-			ServiceMemberID: customer7.ID,
-			ServiceMember:   customer7,
+		{
+			Model: models.Order{
+				ID: uuid.FromStringOrNil("f52f851e-91b8-4cb7-9f8a-ffffffffffff"),
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	locatorID := "PAYREJ"
 	mto7 := testdatagen.MakeMove(db, testdatagen.Assertions{
@@ -7454,16 +7466,20 @@ func createWebhookSubscriptionForPaymentRequestUpdate(appCtx appcontext.AppConte
 
 func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
-	customer := factory.BuildExtendedServiceMember(db, nil, nil)
-
-	orders9 := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("796a0acd-1ccb-4a2f-a9b3-e44906ced698"),
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
+	orders9 := factory.BuildOrder(db, []factory.Customization{
+		{
+			Model: models.Order{
+				ID: uuid.FromStringOrNil("796a0acd-1ccb-4a2f-a9b3-e44906ced698"),
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	move9 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
@@ -7553,15 +7569,20 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 
 func createMoveWithBasicServiceItems(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
-	customer := factory.BuildExtendedServiceMember(db, nil, nil)
-	orders10 := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("796a0acd-1ccb-4a2f-a9b3-e44906ced699"),
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
+	orders10 := factory.BuildOrder(db, []factory.Customization{
+		{
+			Model: models.Order{
+				ID: uuid.FromStringOrNil("796a0acd-1ccb-4a2f-a9b3-e44906ced699"),
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	move10 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
@@ -7624,7 +7645,8 @@ func createMoveWithBasicServiceItems(appCtx appcontext.AppContext, userUploader 
 
 func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
-	address := factory.BuildAddress(db, []factory.Customization{
+
+	order := factory.BuildOrder(db, []factory.Customization{
 		{
 			Model: models.Address{
 				StreetAddress1: "2 Second St",
@@ -7635,24 +7657,15 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 				PostalCode:     "29212",
 				Country:        models.StringPointer("US"),
 			},
+			Type: &factory.Addresses.DutyLocationAddress,
 		},
-	}, nil)
-
-	newDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
 		{
-			Model:    address,
-			LinkOnly: true,
+			Model: models.Order{
+				OrdersNumber: models.StringPointer("ORDER3"),
+				TAC:          models.StringPointer("F8E1"),
+			},
 		},
 	}, nil)
-
-	order := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			NewDutyLocationID: newDutyLocation.ID,
-			NewDutyLocation:   newDutyLocation,
-			OrdersNumber:      models.StringPointer("ORDER3"),
-			TAC:               models.StringPointer("F8E1"),
-		},
-	})
 
 	testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
@@ -7674,18 +7687,23 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 	ordersNumber := "8675309"
 	departmentIndicator := "ARMY"
 	tac := "E19A"
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			ProvidesServicesCounseling: true,
+	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
 		},
-		Order: models.Order{
-			OrdersType:          ordersType,
-			OrdersTypeDetail:    &hhgPermitted,
-			OrdersNumber:        &ordersNumber,
-			DepartmentIndicator: &departmentIndicator,
-			TAC:                 &tac,
+		{
+			Model: models.Order{
+				OrdersType:          ordersType,
+				OrdersTypeDetail:    &hhgPermitted,
+				OrdersNumber:        &ordersNumber,
+				DepartmentIndicator: &departmentIndicator,
+				TAC:                 &tac,
+			},
 		},
-	})
+	}, nil)
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator:     locator,
@@ -7739,14 +7757,19 @@ Create Needs Service Counseling without all required order information
 func createNeedsServicesCounselingWithoutCompletedOrders(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			ProvidesServicesCounseling: true,
+	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
 		},
-		Order: models.Order{
-			OrdersType: ordersType,
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+			},
 		},
-	})
+	}, nil)
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator:     locator,
@@ -7793,15 +7816,20 @@ func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string,
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsMoveType := models.SelectedMoveTypeNTS
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			ProvidesServicesCounseling: true,
+	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
 		},
-		ServiceMember: models.ServiceMember{
-			Edipi:     swag.String(dodID),
-			FirstName: swag.String("QAECSRTestFirst"),
+		{
+			Model: models.ServiceMember{
+				Edipi:     swag.String(dodID),
+				FirstName: swag.String("QAECSRTestFirst"),
+			},
 		},
-	})
+	}, nil)
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator:          locator,
@@ -7833,14 +7861,19 @@ func createNeedsServicesCounselingSingleHHG(appCtx appcontext.AppContext, orders
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsMoveType := models.SelectedMoveTypeNTS
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			ProvidesServicesCounseling: true,
+	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
 		},
-		Order: models.Order{
-			OrdersType: ordersType,
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+			},
 		},
-	})
+	}, nil)
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator:          locator,
@@ -7872,14 +7905,19 @@ func CreateNeedsServicesCounselingMinimalNTSR(appCtx appcontext.AppContext, orde
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsMoveType := models.SelectedMoveTypeNTS
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			ProvidesServicesCounseling: true,
+	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
 		},
-		Order: models.Order{
-			OrdersType: ordersType,
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+			},
 		},
-	})
+	}, nil)
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator:          locator,
@@ -8022,11 +8060,14 @@ func createHHGServicesCounselingCompleted(appCtx appcontext.AppContext) {
 func createHHGNoShipments(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			ProvidesServicesCounseling: true,
+	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
 		},
-	})
+	}, nil)
 
 	testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
@@ -8600,14 +8641,19 @@ func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator stri
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsMoveType := models.SelectedMoveTypeNTS
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			ProvidesServicesCounseling: true,
+	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
 		},
-		Order: models.Order{
-			OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		{
+			Model: models.Order{
+				OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+			},
 		},
-	})
+	}, nil)
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator:          locator,
@@ -8649,14 +8695,19 @@ func CreateMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator str
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsrMoveType := models.SelectedMoveTypeNTSR
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			ProvidesServicesCounseling: true,
+	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
 		},
-		Order: models.Order{
-			OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		{
+			Model: models.Order{
+				OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+			},
 		},
-	})
+	}, nil)
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator:          locator,
@@ -8697,14 +8748,19 @@ func CreateMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, use
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsMoveType := models.SelectedMoveTypeNTS
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			ProvidesServicesCounseling: true,
+	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
 		},
-		Order: models.Order{
-			OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		{
+			Model: models.Order{
+				OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+			},
 		},
-	})
+	}, nil)
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator:          locator,
@@ -8730,14 +8786,19 @@ func createMoveWithNTSRShipment(appCtx appcontext.AppContext, locator string, us
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	ntsrMoveType := models.SelectedMoveTypeNTSR
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			ProvidesServicesCounseling: true,
+	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
 		},
-		Order: models.Order{
-			OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		{
+			Model: models.Order{
+				OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+			},
 		},
-	})
+	}, nil)
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator:          locator,
@@ -8818,6 +8879,7 @@ func createRandomMove(
 	assertions.ServiceMember.FirstName = &randomFirst
 	assertions.ServiceMember.LastName = &randomLast
 
+	// assertions passed in means we cannot yet convert to BuildOrder
 	var order models.Order
 	if withFullOrder {
 		order = testdatagen.MakeOrder(db, assertions)

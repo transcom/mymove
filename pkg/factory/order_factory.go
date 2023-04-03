@@ -243,7 +243,7 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	return order
 }
 
-// BuildOrder creates a Order.
+// BuildOrder creates an Order.
 //
 // Params:
 //   - customs is a slice that will be modified by the factory
@@ -252,7 +252,7 @@ func BuildOrder(db *pop.Connection, customs []Customization, traits []Trait) mod
 	return buildOrderWithBuildType(db, customs, traits, orderBuildBasic)
 }
 
-// BuildOrderWithout creates a Order that only includes fiels that the
+// BuildOrderWithoutDefaults creates an Order that only includes fields that the
 // server member would have supplied prior to uploading their documents
 //
 // Params:

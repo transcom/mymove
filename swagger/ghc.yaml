@@ -3572,17 +3572,6 @@ definitions:
       ARMY: 21 Army
       AIR_FORCE: 57 Air Force
       COAST_GUARD: 70 Coast Guard
-  OrdersType:
-    type: string
-    title: Orders type
-    enum:
-      - PERMANENT_CHANGE_OF_STATION
-      - RETIREMENT
-      - SEPARATION
-    x-display-value:
-      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
-      RETIREMENT: Retirement
-      SEPARATION: Separation
   OrdersTypeDetail:
     type: string
     title: Orders type detail
@@ -5380,6 +5369,17 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
+  OrdersType:
+    type: string
+    title: Orders type
+    enum:
+      - PERMANENT_CHANGE_OF_STATION
+      - RETIREMENT
+      - SEPARATION
+    x-display-value:
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      RETIREMENT: Retirement
+      SEPARATION: Separation
   TransportationOffice:
     type: object
     properties:
