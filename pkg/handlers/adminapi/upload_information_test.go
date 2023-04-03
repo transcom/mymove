@@ -13,36 +13,14 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/upload"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetUploadHandler() {
 	setupTestData := func() (models.UserUpload, models.Move) {
-		sm := factory.BuildServiceMember(suite.DB(), nil, nil)
-		suite.MustSave(&sm)
-
-		orders := factory.BuildOrder(suite.DB(), []factory.Customization{
-			{
-				Model:    sm,
-				LinkOnly: true,
-			},
-		}, nil)
-		suite.MustSave(&orders)
-
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Orders:   orders,
-				OrdersID: orders.ID,
-			},
-		})
-		suite.MustSave(&move)
-
-		document := factory.BuildDocumentLinkServiceMember(suite.DB(), sm)
-		suite.MustSave(&document)
-
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		uploadInstance := factory.BuildUserUpload(suite.DB(), []factory.Customization{
 			{
-				Model:    document,
+				Model:    move.Orders.UploadedOrders,
 				LinkOnly: true,
 			},
 			{
@@ -53,7 +31,6 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 				},
 			},
 		}, nil)
-		suite.MustSave(&uploadInstance)
 
 		return uploadInstance, move
 	}

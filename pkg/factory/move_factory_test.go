@@ -1,6 +1,8 @@
 package factory
 
 import (
+	"time"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -62,6 +64,7 @@ func (suite *FactorySuite) TestBuildMove() {
 		ppmType := "FULL"
 		moveType := models.SelectedMoveTypeHHG
 		locator := "ABC123"
+		closeoutOfficeName := "Closeout office"
 
 		customMove := models.Move{
 			ReferenceID:      &referenceID,
@@ -74,6 +77,12 @@ func (suite *FactorySuite) TestBuildMove() {
 			{
 				Model: customMove,
 			},
+			{
+				Model: models.TransportationOffice{
+					Name: closeoutOfficeName,
+				},
+				Type: &TransportationOffices.CloseoutOffice,
+			},
 		}
 		move := BuildMove(suite.DB(), customs, nil)
 
@@ -81,6 +90,7 @@ func (suite *FactorySuite) TestBuildMove() {
 		suite.Equal(ppmType, *move.PPMType)
 		suite.False(*move.Show)
 		suite.Equal(locator, move.Locator)
+		suite.Equal(closeoutOfficeName, move.CloseoutOffice.Name)
 		suite.Equal(referenceID, *move.ReferenceID)
 		suite.NotNil(move.Contractor)
 	})
@@ -156,13 +166,58 @@ func (suite *FactorySuite) TestBuildMove() {
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
 		suite.NotNil(move.AvailableToPrimeAt)
 	})
+	suite.Run("Successful creation of submitted move", func() {
+		// Under test:      BuildSubmittedMove
+		// Set up:          Create a move with status submitted
+		// Expected outcome:Move with submitted status
+
+		move := BuildSubmittedMove(suite.DB(), nil, nil)
+		suite.Equal(models.MoveStatusSUBMITTED, move.Status)
+		suite.NotNil(move.SubmittedAt)
+	})
+	suite.Run("Successful creation of customized move with submitted status", func() {
+		// Under test:      BuildSubmittedMove
+		// Set up:          Create a move with status submitted
+		// Expected outcome:Move with submitted status
+
+		customMove := models.Move{
+			Locator: "999111",
+		}
+		// Create move
+		move := BuildSubmittedMove(suite.DB(), []Customization{
+			{
+				Model: customMove,
+			},
+		}, nil)
+		suite.Equal(customMove.Locator, move.Locator)
+		suite.Equal(models.MoveStatusSUBMITTED, move.Status)
+		suite.NotNil(move.SubmittedAt)
+	})
 	suite.Run("Successful creation of needs SC move", func() {
 		// Under test:      BuildNeedsServiceCounselingMove
 		// Set up:          Create a move with status needs SC
 		// Expected outcome:Move with needs SC status
 
-		move := BuildNeedsServiceCounselingMove(suite.DB())
+		move := BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status)
+	})
+	suite.Run("Successful creation of customized move with needs SC status", func() {
+		// Under test:      BuildNeedsServiceCounselingMove
+		// Set up:          Create a move with status needs SC
+		// Expected outcome:Move with needs SC status
+
+		customMove := models.Move{
+			Locator: "999111",
+		}
+		// Create move
+		move := BuildNeedsServiceCounselingMove(suite.DB(), []Customization{
+			{
+				Model: customMove,
+			},
+		}, nil)
+		suite.Equal(customMove.Locator, move.Locator)
+		suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status)
+		suite.NotNil(move.SubmittedAt)
 	})
 	suite.Run("Successful creation of SC completed move", func() {
 		// Under test:      BuildServiceCounselingCompletedMove
@@ -190,4 +245,35 @@ func (suite *FactorySuite) TestBuildMove() {
 		suite.Equal(models.MoveStatusServiceCounselingCompleted, move.Status)
 		suite.NotNil(move.ServiceCounselingCompletedAt)
 	})
+	suite.Run("Successful creation of available to prime move", func() {
+		// Under test:      BuildAvailableToPrimeMove
+		// Set up:          Create a move with status SC completed
+		// Expected outcome:Move with SC completd status
+
+		move := BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+		suite.NotNil(move.SubmittedAt)
+		suite.NotNil(move.AvailableToPrimeAt)
+	})
+	suite.Run("Successful creation of customized available to prime move", func() {
+		// Under test:      BuildAvailableToPrimeMove
+		// Set up:          Create a move with status needs SC
+		// Expected outcome:Move with needs SC status
+		availableToPrimeAt := time.Now().Add(-3 * 24 * time.Hour)
+		customMove := models.Move{
+			Locator:            "999111",
+			AvailableToPrimeAt: &availableToPrimeAt,
+		}
+		// Create move
+		move := BuildAvailableToPrimeMove(suite.DB(), []Customization{
+			{
+				Model: customMove,
+			},
+		}, nil)
+		suite.Equal(customMove.Locator, move.Locator)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+		suite.Equal(availableToPrimeAt, *move.AvailableToPrimeAt)
+		suite.NotNil(move.AvailableToPrimeAt)
+	})
+
 }
