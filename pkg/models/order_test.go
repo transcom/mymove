@@ -39,7 +39,7 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 }
 
 func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
-	move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
+	move := factory.BuildStubbedMoveWithStatus(MoveStatusSUBMITTED)
 	order := move.Orders
 	order.Moves = append(order.Moves, move)
 
@@ -72,7 +72,7 @@ func (suite *ModelSuite) TestTacCanBeNilBeforeSubmissionToTOO() {
 		{"NeedsServiceCounseling", MoveStatusNeedsServiceCounseling},
 	}
 	for _, validStatus := range validStatuses {
-		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), validStatus.value)
+		move := factory.BuildStubbedMoveWithStatus(validStatus.value)
 		order := move.Orders
 		order.TAC = nil
 		order.Moves = append(order.Moves, move)
@@ -95,7 +95,7 @@ func (suite *ModelSuite) TestTacFormat() {
 		{"TestNonAlphaNumChars", "AB-C"},
 	}
 	for _, invalidCase := range invalidCases {
-		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
+		move := factory.BuildStubbedMoveWithStatus(MoveStatusSUBMITTED)
 		order := move.Orders
 		order.TAC = &invalidCase.tac
 		order.Moves = append(order.Moves, move)

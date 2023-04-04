@@ -41,6 +41,7 @@ var Contractor CustomType = "Contractor"
 var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
+var Move CustomType = "Move"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
@@ -67,6 +68,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Document":             Document,
 	"models.DutyLocation":         DutyLocation,
 	"models.Entitlement":          Entitlement,
+	"models.Move":                 Move,
 	"models.OfficePhoneLine":      OfficePhoneLine,
 	"models.OfficeUser":           OfficeUser,
 	"models.Order":                Order,
@@ -145,6 +147,20 @@ var DutyLocations = dutyLocationsGroup{
 	// Orders may include:
 	OriginDutyLocation: "OriginDutyLocation",
 	NewDutyLocation:    "NewDutyLocation",
+}
+
+// transportationOfficeGroup is a grouping of all the transportation office related fields
+type transportationOfficeGroup struct {
+	OriginDutyLocation CustomType
+	NewDutyLocation    CustomType
+	CloseoutOffice     CustomType
+}
+
+// TransportationOffices is the struct to access the fields externally
+var TransportationOffices = transportationOfficeGroup{
+	OriginDutyLocation: "OriginDutyLocationTransportationOffice",
+	NewDutyLocation:    "NewDutyLocationTransportationOffice",
+	CloseoutOffice:     "CloseoutOffice",
 }
 
 // Below are errors returned by various functions

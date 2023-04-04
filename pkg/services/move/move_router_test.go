@@ -651,7 +651,7 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 	moveRouter := NewMoveRouter()
 
 	suite.Run("status changed to service counseling completed", func() {
-		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), models.MoveStatusNeedsServiceCounseling)
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
 		hhgShipment := testdatagen.MakeStubbedShipment(suite.DB())
 		move.MTOShipments = models.MTOShipments{hhgShipment}
 
@@ -662,7 +662,7 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 	})
 
 	suite.Run("status changed to approved", func() {
-		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), models.MoveStatusNeedsServiceCounseling)
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
 		ppmShipment := testdatagen.MakeStubbedPPMShipment(suite.DB())
 		move.MTOShipments = models.MTOShipments{ppmShipment.Shipment}
 
@@ -673,7 +673,7 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 	})
 
 	suite.Run("no shipments present", func() {
-		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), models.MoveStatusNeedsServiceCounseling)
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
 
 		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
 
@@ -683,7 +683,7 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 	})
 
 	suite.Run("move has unexpected existing status", func() {
-		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), models.MoveStatusDRAFT)
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusDRAFT)
 		ppmShipment := testdatagen.MakeStubbedPPMShipment(suite.DB())
 		move.MTOShipments = models.MTOShipments{ppmShipment.Shipment}
 
@@ -695,7 +695,7 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 	})
 
 	suite.Run("NTS-release with no facility info", func() {
-		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), models.MoveStatusNeedsServiceCounseling)
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
 		ntsrShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				ID:           uuid.Must(uuid.NewV4()),
