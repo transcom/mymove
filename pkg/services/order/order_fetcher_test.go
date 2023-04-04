@@ -251,6 +251,61 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 	})
 
+	suite.Run("returns moves filtered appeared in TOO at", func() {
+		// Under test: ListOrders
+		// Expected outcome: Only the one move with the right date should be returned
+		officeUser, _ := setupTestData()
+
+		// Moves with specified timestamp
+		specifiedDay := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
+		specifiedTimestamp1 := time.Date(2022, 04, 01, 1, 0, 0, 0, time.UTC)
+		specifiedTimestamp2 := time.Date(2022, 04, 01, 23, 59, 59, 999999000, time.UTC) // the upper bound is 999999499 nanoseconds but the DB only stores microseconds
+
+		matchingSubmittedAt := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SubmittedAt: &specifiedDay,
+			},
+		})
+
+		matchingSCCompletedAt := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				ServiceCounselingCompletedAt: &specifiedTimestamp1,
+			},
+		})
+
+		matchingSentBackToTOOAt := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SentBackToTOOAt: &specifiedTimestamp2,
+			},
+		})
+
+		// Test non dates matching
+		nonMatchingDate1 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
+		nonMatchingDate2 := time.Date(2022, 03, 31, 23, 59, 59, 999999000, time.UTC) // the upper bound is 999999499 nanoseconds but the DB only stores microseconds
+		nonMatchingDate3 := time.Date(2023, 04, 01, 0, 0, 0, 0, time.UTC)
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SubmittedAt:                  &nonMatchingDate1,
+				ServiceCounselingCompletedAt: &nonMatchingDate2,
+				SentBackToTOOAt:              &nonMatchingDate3,
+			},
+		})
+
+		// Filter by AppearedInTOOAt timestamp
+		params := services.ListOrderParams{AppearedInTOOAt: &specifiedDay}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(3, len(moves))
+		var foundIDs []uuid.UUID
+		for _, move := range moves {
+			foundIDs = append(foundIDs, move.ID)
+		}
+		suite.Contains(foundIDs, matchingSubmittedAt.ID)
+		suite.Contains(foundIDs, matchingSCCompletedAt.ID)
+		suite.Contains(foundIDs, matchingSentBackToTOOAt.ID)
+	})
+
 	suite.Run("returns moves filtered by requested pickup date", func() {
 		// Under test: ListOrders
 		// Set up:           Make 3 moves, with different submitted_at times, and search for a specific move

@@ -17,6 +17,8 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+const RFC3339Micro = "2006-01-02T15:04:05.999999Z07:00"
+
 type orderFetcher struct {
 }
 
@@ -374,11 +376,11 @@ func submittedAtFilter(submittedAt *time.Time) QueryOption {
 func appearedInTOOAtFilter(appearedInTOOAt *time.Time) QueryOption {
 	return func(query *pop.Query) {
 		if appearedInTOOAt != nil {
-			start := appearedInTOOAt.Format(time.RFC3339)
-			// Between is inclusive, so the end date is set to 1 milsecond prior to the next day
-			appearedInTOOAtEnd := appearedInTOOAt.AddDate(0, 0, 1).Add(-1 * time.Millisecond)
-			end := appearedInTOOAtEnd.Format(time.RFC3339)
-			query.Where("(moves.submitted_at between ? and ? OR moves.service_counseling_completed_at between ? and ?)", start, end, start, end)
+			start := appearedInTOOAt.Format(RFC3339Micro)
+			// Between is inclusive, so the end date is set to 1 microsecond prior to the next day
+			appearedInTOOAtEnd := appearedInTOOAt.AddDate(0, 0, 1).Add(-1 * time.Microsecond)
+			end := appearedInTOOAtEnd.Format(RFC3339Micro)
+			query.Where("(moves.submitted_at between ? AND ? OR moves.service_counseling_completed_at between ? AND ? OR moves.sent_back_to_too_at between ? AND ?)", start, end, start, end, start, end)
 		}
 	}
 }

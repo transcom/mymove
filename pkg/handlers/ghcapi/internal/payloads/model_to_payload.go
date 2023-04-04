@@ -1443,7 +1443,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 }
 
 func findLastSentToTOO(move models.Move) (latestOccurance *time.Time) {
-	possibleValues := [2]*time.Time{move.SubmittedAt, move.ServiceCounselingCompletedAt}
+	possibleValues := [3]*time.Time{move.SubmittedAt, move.ServiceCounselingCompletedAt, move.SentBackToTOOAt}
 	for _, time := range possibleValues {
 		if time != nil && (latestOccurance == nil || time.After(*latestOccurance)) {
 			latestOccurance = time
