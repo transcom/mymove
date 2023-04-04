@@ -25,7 +25,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 	})
 
 	suite.Run("Returns an empty shipment list when no shipments exist", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(suite.AppContextForTest(), move.ID)
 
@@ -34,19 +34,18 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 	})
 
 	suite.Run("Returns external vendor shipments last", func() {
-		db := suite.DB()
-		move := testdatagen.MakeMove(db, testdatagen.Assertions{})
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
-		externalVendorShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		externalVendorShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
 				UsesExternalVendor: true,
 			},
 		})
-		firstShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		firstShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
-		secondShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		secondShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
 
@@ -62,7 +61,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 	})
 
 	suite.Run("Returns multiple shipments for move ordered by created date", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		firstShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -82,7 +81,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 	})
 
 	suite.Run("Returns only non-deleted shipments", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -104,7 +103,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 	})
 
 	suite.Run("Loads all shipment associations", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 
@@ -160,7 +159,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 	})
 	suite.Run("Loads PPM associations", func() {
 		// not reusing the test above because the fetcher only loads PPM associations if the shipment type is PPM
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})

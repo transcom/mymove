@@ -728,11 +728,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		// A diverted shipment should transition to the SUBMITTED status.
 		// If the move it is connected to is APPROVED, that move should transition to APPROVALS REQUESTED
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusAPPROVED,
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
 			},
-		})
+		}, nil)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
@@ -860,7 +862,13 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			factory.BuildReServiceByCode(suite.DB(), expectedReServiceCodes[i])
 		}
 
-		mto = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
+		mto = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 			MTOShipment: models.MTOShipment{

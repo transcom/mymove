@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -157,12 +158,13 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	now := time.Now()
 	show := false
 	setupTestData := func() (models.Move, models.Move, models.MTOShipment) {
-		hiddenMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
-				Show:               &show,
+		hiddenMTO := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Show: &show,
+				},
 			},
-		})
+		}, nil)
 
 		mto := testdatagen.MakeDefaultMove(suite.DB())
 
@@ -289,15 +291,15 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
-	// Set up a hidden move so we can check if it's in the output:
 	now := time.Now()
-	show := false
-	hiddenMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
-			Show:               &show,
+	// Set up a hidden move so we can check if it's in the output:
+	hiddenMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Show: models.BoolPointer(false),
+			},
 		},
-	})
+	}, nil)
 	// Make a default, not Prime-available move:
 	nonPrimeMove := testdatagen.MakeDefaultMove(suite.DB())
 	// Make some Prime moves:

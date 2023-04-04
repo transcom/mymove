@@ -928,11 +928,13 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 	setupTestData := func() (models.MTOShipment, services.MTOServiceItemCreator, models.ReService) {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusAPPROVED,
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
 			},
-		})
+		}, nil)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})

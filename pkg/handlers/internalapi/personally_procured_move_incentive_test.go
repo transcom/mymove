@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -122,14 +121,12 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest(ordersID uui
 		},
 	}, nil)
 
-	moveID, _ := uuid.NewV4()
-	_ = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:       moveID,
-			OrdersID: ordersID,
+	_ = factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-		Order: orders,
-	})
+	}, nil)
 }
 
 func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {

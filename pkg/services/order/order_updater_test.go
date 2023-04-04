@@ -359,12 +359,13 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		orderWithoutDefaults := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusServiceCounselingCompleted,
+
+		factory.BuildServiceCounselingCompletedMove(suite.DB(), []factory.Customization{
+			{
+				Model:    orderWithoutDefaults,
+				LinkOnly: true,
 			},
-			Order: orderWithoutDefaults,
-		})
+		}, nil)
 
 		eTag := etag.GenerateEtag(orderWithoutDefaults.UpdatedAt)
 
@@ -654,12 +655,12 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		orderWithoutDefaults := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusNeedsServiceCounseling,
+		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
+			{
+				Model:    orderWithoutDefaults,
+				LinkOnly: true,
 			},
-			Order: orderWithoutDefaults,
-		})
+		}, nil)
 
 		grade := ghcmessages.GradeO5
 		affiliation := ghcmessages.AffiliationAIRFORCE
@@ -793,9 +794,13 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 			},
 		}, nil)
 		var moves models.Moves
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			OriginDutyLocation: dutyLocation,
-		})
+		mto := factory.BuildServiceCounselingCompletedMove(suite.DB(), []factory.Customization{
+			{
+				Model:    dutyLocation,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
 
 		order := mto.Orders
 		order.Moves = append(moves, mto)
@@ -876,7 +881,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 
 		var moves models.Moves
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 
 		dutyLocationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{

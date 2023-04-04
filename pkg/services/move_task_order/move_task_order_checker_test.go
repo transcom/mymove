@@ -1,11 +1,10 @@
 package movetaskorder_test
 
 import (
-	"time"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -22,14 +21,14 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 	})
 
 	suite.Run("MTO is available but hidden - failure", func() {
-		now := time.Now()
 		hide := false
-		availableHiddenMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
-				Show:               &hide,
+		availableHiddenMTO := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Show: &hide,
+				},
 			},
-		})
+		}, nil)
 
 		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.AppContextForTest(), availableHiddenMTO.ID)
 		suite.Error(err)

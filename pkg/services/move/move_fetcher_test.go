@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -59,11 +60,13 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 
 	suite.Run("Returns not found for a move that is marked hidden in the db", func() {
 		hide := false
-		hiddenMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Show: &hide,
+		hiddenMove := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Show: &hide,
+				},
 			},
-		})
+		}, nil)
 		locator := hiddenMove.Locator
 		searchParams := services.MoveFetcherParams{
 			IncludeHidden: false,
@@ -77,11 +80,13 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 
 	suite.Run("Returns hidden move if explicit param is passed in", func() {
 		hide := false
-		actualMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Show: &hide,
+		actualMove := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Show: &hide,
+				},
 			},
-		})
+		}, nil)
 		locator := actualMove.Locator
 		searchParams := services.MoveFetcherParams{
 			IncludeHidden: true,

@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -181,13 +182,13 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 
 	suite.Run("removes excess weight qualification when estimated weight drops below previously met threshold", func() {
 		now := time.Now()
-		approvedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt:      &now,
-				Status:                  models.MoveStatusAPPROVED,
-				ExcessWeightQualifiedAt: &now,
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightQualifiedAt: &now,
+				},
 			},
-		})
+		}, nil)
 
 		pickupDate := now.AddDate(0, 0, 10)
 		estimatedWeight := unit.Pound(7200)

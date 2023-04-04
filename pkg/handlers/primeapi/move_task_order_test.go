@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -132,12 +131,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
-		successMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: swag.Time(time.Now()),
-				Status:             models.MoveStatusAPPROVED,
-			},
-		})
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		destinationType := models.DestinationTypeHomeOfRecord
 		successShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -362,13 +356,13 @@ func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 		}
 
 		now := time.Now()
-		availableMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt:      &now,
-				Status:                  models.MoveStatusAPPROVED,
-				ExcessWeightQualifiedAt: &now,
+		availableMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightQualifiedAt: &now,
+				},
 			},
-		})
+		}, nil)
 
 		params := movetaskorderops.CreateExcessWeightRecordParams{
 			HTTPRequest:     request,

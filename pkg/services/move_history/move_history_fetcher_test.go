@@ -1098,13 +1098,14 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 	}
 
 	setupServiceMemberTestData := func(userFirstName string, fakeEventName string) (string, models.User) {
-		assertions := testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				FirstName: &userFirstName,
-			},
-		}
 		// Create an unsubmitted move with the service member attached to the orders.
-		move := testdatagen.MakeMove(suite.DB(), assertions)
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName: &userFirstName,
+				},
+			},
+		}, nil)
 		user := move.Orders.ServiceMember.User
 		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{

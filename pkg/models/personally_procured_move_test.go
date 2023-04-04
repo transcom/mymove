@@ -99,20 +99,18 @@ func (suite *ModelSuite) TestFetchPersonallyProcuredMoveByOrderID() {
 	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
 	invalidID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
 
-	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: Move{
+				ID: moveID,
+			},
+		},
 		{
 			Model: Order{
 				ID: orderID,
 			},
 		},
 	}, nil)
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: Move{
-			ID:       moveID,
-			OrdersID: orderID,
-			Orders:   order,
-		},
-	})
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
 

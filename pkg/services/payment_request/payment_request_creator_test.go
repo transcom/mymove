@@ -532,7 +532,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		{
 			TestDescription: "Given move with orders but no LOA, the create should fail",
 			InvalidMove: func() models.Move {
-				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
 				orders := mtoInvalid.Orders
 				orders.TAC = nil
 				suite.MustSave(&orders)
@@ -547,7 +547,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		{
 			TestDescription: "Given move with orders but blank LOA, the create should fail",
 			InvalidMove: func() models.Move {
-				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
 				orders := mtoInvalid.Orders
 				blankTAC := ""
 				orders.TAC = &blankTAC
@@ -564,7 +564,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		{
 			TestDescription: "Given move with orders no OriginDutyLocation, the create should fail",
 			InvalidMove: func() models.Move {
-				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
 				orders := mtoInvalid.Orders
 				orders.OriginDutyLocation = nil
 				orders.OriginDutyLocationID = nil
@@ -603,7 +603,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		{
 			TestDescription: "Given move with service member that has no First Name, the create should fail",
 			InvalidMove: func() models.Move {
-				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
 				sm := mtoInvalid.Orders.ServiceMember
 				sm.FirstName = nil
 				err := suite.DB().Update(&sm)
@@ -619,7 +619,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		{
 			TestDescription: "Given move with service member that has blank First Name, the create should fail",
 			InvalidMove: func() models.Move {
-				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
 				sm := mtoInvalid.Orders.ServiceMember
 				blankStr := ""
 				sm.FirstName = &blankStr
@@ -636,7 +636,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		{
 			TestDescription: "Given move with service member that has no Last Name, the create should fail",
 			InvalidMove: func() models.Move {
-				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
 				sm := mtoInvalid.Orders.ServiceMember
 				sm.LastName = nil
 				err := suite.DB().Update(&sm)
@@ -652,7 +652,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		{
 			TestDescription: "Given move with service member that has blank Last Name, the create should fail",
 			InvalidMove: func() models.Move {
-				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
 				sm := mtoInvalid.Orders.ServiceMember
 				blankStr := ""
 				sm.LastName = &blankStr
@@ -669,7 +669,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		{
 			TestDescription: "Given move with service member that has no Rank, the create should fail",
 			InvalidMove: func() models.Move {
-				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
 				sm := mtoInvalid.Orders.ServiceMember
 				sm.Rank = nil
 				err := suite.DB().Update(&sm)
@@ -685,7 +685,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		{
 			TestDescription: "Given move with service member that has blank Rank, the create should fail",
 			InvalidMove: func() models.Move {
-				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
 				sm := mtoInvalid.Orders.ServiceMember
 				blank := models.ServiceMemberRank("")
 				sm.Rank = &blank
@@ -702,7 +702,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		{
 			TestDescription: "Given move with service member that has no Affiliation, the create should fail",
 			InvalidMove: func() models.Move {
-				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
 				sm := mtoInvalid.Orders.ServiceMember
 				sm.Affiliation = nil
 				err := suite.DB().Update(&sm)
@@ -718,7 +718,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		{
 			TestDescription: "Given move with service member that has blank Affiliation, the create should fail",
 			InvalidMove: func() models.Move {
-				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
 				sm := mtoInvalid.Orders.ServiceMember
 				blank := models.ServiceMemberAffiliation("")
 				sm.Affiliation = &blank

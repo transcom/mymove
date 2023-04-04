@@ -172,12 +172,7 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 
 	// Test successful event
 	suite.Run("Success with GHC MoveTaskOrder endpoint", func() {
-		now := time.Now()
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
-			},
-		})
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		mtoID := mto.ID
 
 		traceID := uuid.Must(uuid.NewV4())

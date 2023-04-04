@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -46,11 +45,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	})
 
 	suite.Run("Move/shipment/PPM statuses are updated successfully (with PPM shipment)", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusNeedsServiceCounseling,
-			},
-		})
+		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
@@ -86,11 +81,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 			},
 		}, nil)
 
-		expectedMTOWithFacility := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusNeedsServiceCounseling,
-			},
-		})
+		expectedMTOWithFacility := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: expectedMTOWithFacility,
 			MTOShipment: models.MTOShipment{
@@ -108,11 +99,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	})
 
 	suite.Run("Invalid input error when there is no facility information on NTS-r shipment", func() {
-		noFacilityInfoMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusNeedsServiceCounseling,
-			},
-		})
+		noFacilityInfoMove := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
@@ -134,11 +121,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	})
 
 	suite.Run("No shipments on move", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusNeedsServiceCounseling,
-			},
-		})
+		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
 		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), move.ID, eTag)
@@ -149,11 +132,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	})
 
 	suite.Run("MTO status is in a conflicted state", func() {
-		draftMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusDRAFT,
-			},
-		})
+		draftMove := factory.BuildMove(suite.DB(), nil, nil)
 		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: draftMove,
 		})
@@ -296,14 +275,15 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 
 	// Case: Move successfully deactivated
 	suite.Run("Success - Set show field to false", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Show: swag.Bool(true),
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Show: models.BoolPointer(true),
+				},
 			},
-		})
-
+		}, nil)
 		// Set show to false
-		updatedMove, err := updater.ShowHide(suite.AppContextForTest(), move.ID, swag.Bool(false))
+		updatedMove, err := updater.ShowHide(suite.AppContextForTest(), move.ID, models.BoolPointer(false))
 
 		suite.NotNil(updatedMove)
 		suite.NoError(err)
@@ -315,11 +295,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	// Case: Move successfully activated
 	suite.Run("Success - Set show field to true", func() {
 		// Start with a show = false move
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Show: swag.Bool(false),
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Show: models.BoolPointer(false),
+				},
 			},
-		})
+		}, nil)
 
 		// Set shot to true
 		show := true
@@ -335,7 +317,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	suite.Run("Fail - Move not found", func() {
 		// Use a non-existent id
 		badMoveID := uuid.Must(uuid.NewV4())
-		updatedMove, err := updater.ShowHide(suite.AppContextForTest(), badMoveID, swag.Bool(true))
+		updatedMove, err := updater.ShowHide(suite.AppContextForTest(), badMoveID, models.BoolPointer(true))
 
 		suite.Nil(updatedMove)
 		suite.Error(err)
@@ -345,7 +327,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 
 	// Case: Show input value is nil, not True or False
 	suite.Run("Fail - Nil value in show field", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		updatedMove, err := updater.ShowHide(suite.AppContextForTest(), move.ID, nil)
 
@@ -358,7 +340,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	// Case: Invalid input found while updating the move
 	// TODO: Is there a way to mock ValidateUpdate so that these tests actually mean something?
 	suite.Run("Fail - Invalid input found on move", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
 		mockUpdater.On("ShowHide",
@@ -367,7 +349,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 			mock.Anything,
 		).Return(nil, apperror.InvalidInputError{})
 
-		updatedMove, err := mockUpdater.ShowHide(suite.AppContextForTest(), move.ID, swag.Bool(true))
+		updatedMove, err := mockUpdater.ShowHide(suite.AppContextForTest(), move.ID, models.BoolPointer(true))
 
 		suite.Nil(updatedMove)
 		suite.Error(err)
@@ -376,7 +358,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 
 	// Case: Query error encountered while updating the move
 	suite.Run("Fail - Query error", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
 		mockUpdater.On("ShowHide",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -384,7 +366,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 			mock.Anything,
 		).Return(nil, apperror.QueryError{})
 
-		updatedMove, err := mockUpdater.ShowHide(suite.AppContextForTest(), move.ID, swag.Bool(true))
+		updatedMove, err := mockUpdater.ShowHide(suite.AppContextForTest(), move.ID, models.BoolPointer(true))
 
 		suite.Nil(updatedMove)
 		suite.Error(err)
@@ -418,11 +400,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		moveRouter := moverouter.NewMoveRouter()
 		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter)
 
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
-			},
-		})
+		move := factory.BuildSubmittedMove(suite.DB(), nil, nil)
 
 		eTag := etag.GenerateEtag(time.Now())
 		_, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, true, true)
@@ -547,12 +525,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter)
 
 		orderWithoutDefaults := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusServiceCounselingCompleted,
+		move := factory.BuildServiceCounselingCompletedMove(suite.DB(), []factory.Customization{
+			{
+				Model:    orderWithoutDefaults,
+				LinkOnly: true,
 			},
-			Order: orderWithoutDefaults,
-		})
+		}, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		fetchedMove := models.Move{}
 
@@ -588,11 +566,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_BillableWeights
 		moveRouter := moverouter.NewMoveRouter()
 		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter)
 
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
-			},
-		})
+		move := factory.BuildSubmittedMove(suite.DB(), nil, nil)
 
 		eTag := etag.GenerateEtag(time.Now())
 		_, err := mtoUpdater.UpdateReviewedBillableWeightsAt(suite.AppContextForTest(), move.ID, eTag)
@@ -618,11 +592,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_TIORemarks() {
 	})
 
 	suite.Run("When ETag is stale", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
-			},
-		})
+		move := factory.BuildSubmittedMove(suite.DB(), nil, nil)
 
 		eTag := etag.GenerateEtag(time.Now())
 		_, err := mtoUpdater.UpdateTIORemarks(suite.AppContextForTest(), move.ID, eTag, remarks)
@@ -631,11 +601,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_TIORemarks() {
 	})
 
 	suite.Run("Fail - Move not found", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
-			},
-		})
+		move := factory.BuildSubmittedMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
 		badMoveID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
