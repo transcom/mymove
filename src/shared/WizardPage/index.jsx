@@ -8,6 +8,7 @@ import './index.css';
 
 import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
 import withRouter from 'utils/routing';
+import { RouterShape } from 'types';
 
 export class WizardPage extends Component {
   constructor(props) {
@@ -101,7 +102,7 @@ WizardPage.propTypes = {
   pageIsValid: PropTypes.bool,
   canMoveNext: PropTypes.bool,
   dirty: PropTypes.bool,
-  router: PropTypes.object, //from withRouter
+  router: RouterShape, //from withRouter
   additionalParams: PropTypes.object,
   footerText: PropTypes.node,
 };
