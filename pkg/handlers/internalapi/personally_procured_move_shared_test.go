@@ -3,33 +3,33 @@ package internalapi
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) setupPersonallyProcuredMoveSharedTest(orderID uuid.UUID) {
-	address := models.Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     "12345",
-	}
-	suite.MustSave(&address)
-
-	locationName := "New Duty Location"
-	location := models.DutyLocation{
-		Name:      locationName,
-		AddressID: address.ID,
-		Address:   address,
-	}
-	suite.MustSave(&location)
-
-	_ = testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ID:                orderID,
-			NewDutyLocationID: location.ID,
+	_ = factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				ID: orderID,
+			},
 		},
-	})
+		{
+			Model: models.DutyLocation{
+				Name: "New Duty Location",
+			},
+			Type: &factory.DutyLocations.NewDutyLocation,
+		},
+		{
+			Model: models.Address{
+				StreetAddress1: "some address",
+				City:           "city",
+				State:          "state",
+				PostalCode:     "12345",
+			},
+			Type: &factory.Addresses.DutyLocationAddress,
+		},
+	}, nil)
 }
 
 func (suite *HandlerSuite) GetDestinationDutyLocationPostalCode() {

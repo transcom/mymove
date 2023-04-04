@@ -60,7 +60,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 
 	suite.Run("new duty location missing", func() {
 		// add orders
-		order := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
+		order := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
 
 		sm := order.ServiceMember
 

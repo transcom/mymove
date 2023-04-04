@@ -154,7 +154,7 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveTest() {
 
 func (suite *HandlerSuite) TestCreatePPMHandler() {
 	user1 := factory.BuildServiceMember(suite.DB(), nil, nil)
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	selectedMoveType := models.SelectedMoveTypeHHGPPM
@@ -448,8 +448,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	initialWeight := unit.Pound(1)
 	newWeight := swag.Int64(5)
 
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
-	orders1 := testdatagen.MakeDefaultOrder(suite.DB())
+	orders := factory.BuildOrder(suite.DB(), nil, nil)
+	orders1 := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	selectedMoveType := models.SelectedMoveTypeHHGPPM
