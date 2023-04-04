@@ -166,15 +166,17 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 	var gblocQuery QueryOption
 	if gbloc == "USMC" {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
+		//} else if gbloc == "CNNQ" && branchQuery == branchFilter(swag.String(string(models.AffiliationMARINES))) {
+		//	gbloc = "USMC"
 	} else {
 		gblocQuery = shipmentGBLOCFilter(&gbloc)
 	}
 	locatorQuery := locatorFilter(&locator)
 
-	marinesBranch := branchFilter(swag.String(string(models.AffiliationMARINES)))
-	if marinesBranch {
-		gbloc == "USMC"
-	}
+	//marinesBranch := branchFilter(swag.String(string(models.AffiliationMARINES)))
+	//if marinesBranch {
+	//	gbloc == "USMC"
+	//}
 
 	options := [3]QueryOption{branchQuery, gblocQuery, locatorQuery}
 
