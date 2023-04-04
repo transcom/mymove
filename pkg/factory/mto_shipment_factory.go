@@ -1,0 +1,169 @@
+package factory
+
+import (
+	"time"
+
+	"github.com/gobuffalo/pop/v6"
+
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
+)
+
+// GHCTestYear is the default for GHC rate engine testing
+var GHCTestYear = 2020
+
+type mtoShipmentBuildType byte
+
+const (
+	mtoShipmentBuildBasic mtoShipmentBuildType = iota
+	mtoShipmentBuild
+)
+
+func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, traits []Trait, buildType mtoShipmentBuildType) models.MTOShipment {
+	customs = setupCustomizations(customs, traits)
+
+	// Find mtoShipment customization and convert to mtoShipment model
+	var cMtoShipment models.MTOShipment
+	if result := findValidCustomization(customs, MTOShipment); result != nil {
+		cMtoShipment = result.Model.(models.MTOShipment)
+		if result.LinkOnly {
+			return cMtoShipment
+		}
+	}
+
+	move := BuildMove(db, customs, traits)
+	shipmentType := models.MTOShipmentTypeHHG
+
+	newMTOShipment := models.MTOShipment{
+		MoveTaskOrder:   move,
+		MoveTaskOrderID: move.ID,
+		ShipmentType:    shipmentType,
+		Status:          models.MTOShipmentStatusSubmitted,
+	}
+
+	if buildType == mtoShipmentBuild {
+		shipmentStatus := models.MTOShipmentStatusDraft
+
+		storageFacility := BuildStorageFacility(db, customs, traits)
+
+		actualWeight := unit.Pound(980)
+
+		shipmentHasPickupDetails := cMtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && cMtoShipment.ShipmentType != models.MTOShipmentTypePPM
+		shipmentHasDeliveryDetails := cMtoShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom && cMtoShipment.ShipmentType != models.MTOShipmentTypePPM
+
+		// mock dates -- set to nil initially since these are all nullable
+		var requestedPickupDate, scheduledPickupDate, actualPickupDate, requestedDeliveryDate *time.Time
+
+		newMTOShipment = models.MTOShipment{
+			MoveTaskOrder:         move,
+			MoveTaskOrderID:       move.ID,
+			RequestedPickupDate:   requestedPickupDate,
+			ScheduledPickupDate:   scheduledPickupDate,
+			ActualPickupDate:      actualPickupDate,
+			RequestedDeliveryDate: requestedDeliveryDate,
+			CustomerRemarks:       models.StringPointer("Please treat gently"),
+			ShipmentType:          shipmentType,
+			Status:                shipmentStatus,
+			PrimeActualWeight:     &actualWeight,
+			StorageFacilityID:     &storageFacility.ID,
+			StorageFacility:       &storageFacility,
+		}
+
+		if shipmentHasPickupDetails {
+			newMTOShipment.RequestedPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
+			newMTOShipment.ScheduledPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
+			newMTOShipment.ActualPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
+
+			// Find/create the Pickup Address
+			tempPickupAddressCustoms := customs
+			result := findValidCustomization(customs, Addresses.PickupAddress)
+			if result != nil {
+				tempPickupAddressCustoms = convertCustomizationInList(tempPickupAddressCustoms, Addresses.PickupAddress, Address)
+			}
+
+			pickupAddress := BuildAddress(db, tempPickupAddressCustoms, traits)
+			newMTOShipment.PickupAddress = &pickupAddress
+			newMTOShipment.PickupAddressID = &pickupAddress.ID
+
+			// Check that a GBLOC exists for pickup address postal code, make one if not
+			gbloc, err := models.FetchGBLOCForPostalCode(db, pickupAddress.PostalCode)
+			if gbloc.GBLOC == "" || err != nil {
+				//MakePostalCodeToGBLOC(db, pickupAddress.PostalCode, "KKFA")
+				FetchOrBuildPostalCodeToGBLOC(db, pickupAddress.PostalCode, "KKFA")
+			}
+
+			// Find Secondary Pickup Address
+			tempSecondaryPicAddressCustoms := customs
+			result = findValidCustomization(customs, Addresses.SecondaryPickupAddress)
+			if result != nil {
+				tempSecondaryPicAddressCustoms = convertCustomizationInList(tempSecondaryPicAddressCustoms, Addresses.SecondaryPickupAddress, Address)
+				secondaryPickupAddress := BuildAddress(db, tempSecondaryPicAddressCustoms, traits)
+
+				newMTOShipment.SecondaryPickupAddress = &secondaryPickupAddress
+				newMTOShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
+				newMTOShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
+			}
+		}
+
+		if shipmentHasDeliveryDetails {
+			newMTOShipment.RequestedDeliveryDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
+
+			// Find/create the Delivery Address
+			tempDeliveryAddressCustoms := customs
+			result := findValidCustomization(customs, Addresses.DeliveryAddress)
+			if result != nil {
+				tempDeliveryAddressCustoms = convertCustomizationInList(tempDeliveryAddressCustoms, Addresses.DeliveryAddress, Address)
+			}
+
+			traits = append(traits, GetTraitAddress2)
+			deliveryAddress := BuildAddress(db, tempDeliveryAddressCustoms, traits)
+			newMTOShipment.DestinationAddress = &deliveryAddress
+			newMTOShipment.DestinationAddressID = &deliveryAddress.ID
+
+			// Find Secondary Delivery Address
+			tempSecondaryDeliveryAddressCustoms := customs
+			result = findValidCustomization(customs, Addresses.SecondaryDeliveryAddress)
+			if result != nil {
+				tempSecondaryDeliveryAddressCustoms = convertCustomizationInList(tempSecondaryDeliveryAddressCustoms, Addresses.SecondaryDeliveryAddress, Address)
+				secondaryDeliveryAddress := BuildAddress(db, tempSecondaryDeliveryAddressCustoms, traits)
+
+				newMTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
+				newMTOShipment.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
+				newMTOShipment.HasSecondaryDeliveryAddress = models.BoolPointer(true)
+			}
+		}
+
+		if cMtoShipment.Status == models.MTOShipmentStatusApproved {
+			approvedDate := time.Date(GHCTestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
+			newMTOShipment.ApprovedDate = &approvedDate
+		}
+
+		if cMtoShipment.ScheduledPickupDate != nil {
+			requiredDeliveryDate := time.Date(GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
+			newMTOShipment.RequiredDeliveryDate = &requiredDeliveryDate
+		}
+	}
+
+	testdatagen.MergeModels(&newMTOShipment, cMtoShipment)
+
+	if db != nil {
+		mustCreate(db, &newMTOShipment)
+	}
+
+	return newMTOShipment
+}
+
+// BuildBaseMTOShipment creates a single MTOShipment with the base set of data required for a shipment.
+func BuildBaseMTOShipment(db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
+	return buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentBuildBasic)
+}
+
+// BuildMTOShipment creates a single MTOShipment and associated set relationships
+// It will make a move record, if one is not provided.
+// It will make pickup addresses if the shipment type is not one of (HHGOutOfNTSDom, PPM)
+// It will make delivery addresses if the shipment type is not one of (HHGIntoNTSDom, PPM)
+// It will make a storage facility if the shipment type is HHGOutOfNTSDom
+func BuildMTOShipment(db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
+	return buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentBuild)
+}
