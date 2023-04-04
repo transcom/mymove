@@ -95,6 +95,14 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		}
 	}
 
+	// check service member branch
+	if *moveTaskOrder.Orders.ServiceMember.DutyLocation.Affiliation != "" {
+		err := g.checkMarinesBranch(moveTaskOrder.Orders.ServiceMember)
+		if err != "" {
+			return ediinvoice.Invoice858C{}, nil
+		}
+	}
+
 	currentTime := g.clock.Now()
 
 	interchangeControlNumber, err := g.icnSequencer.NextVal(appCtx)
@@ -852,14 +860,14 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(ap
 	return segments, l3, nil
 }
 
-//func (g ghcPaymentRequestInvoiceGenerator) checkMarinesBranch(serviceMember models.ServiceMember) string {
-//	if *serviceMember.Affiliation == models.AffiliationMARINES {
-//		return "USMC"
-//	}
-//	// May need to be more explicit here about the origin duty location:
-//	//models.FetchDutyLocationTransportationOffice(appCtx.DB(), originDutyLocation.ID)
-//	return serviceMember.DutyLocation.TransportationOffice.Gbloc
-//}
+func (g ghcPaymentRequestInvoiceGenerator) checkMarinesBranch(serviceMember models.ServiceMember) string {
+	if *serviceMember.Affiliation == models.AffiliationMARINES {
+		return "USMC"
+	}
+	// May need to be more explicit here about the origin duty location:
+	//models.FetchDutyLocationTransportationOffice(appCtx.DB(), originDutyLocation.ID)
+	return serviceMember.DutyLocation.TransportationOffice.Gbloc
+}
 
 func msOrCsOnly(paymentServiceItems models.PaymentServiceItems) bool {
 	for _, psi := range paymentServiceItems {
