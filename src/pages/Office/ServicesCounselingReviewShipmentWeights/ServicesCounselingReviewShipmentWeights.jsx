@@ -58,7 +58,7 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
   if (isError) return <SomethingWentWrong />;
   // sort shipments for the table
   const sortedShipments = sortShipments(mtoShipments);
-  const showWeightsMoved = Boolean(hasProGear(order) || sortShipments.hhgShipment);
+  const showWeightsMoved = Boolean(hasProGear(order) || sortedShipments.hhgShipment);
 
   return (
     <div className={tabStyles.tabContent}>
