@@ -378,7 +378,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 
 	var err error
 	var originDutyLocation models.DutyLocation
-
+	// check if they are Marines here, and add condition to set Gbloc to USMC
 	if orders.OriginDutyLocationID != nil && *orders.OriginDutyLocationID != uuid.Nil {
 		originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *orders.OriginDutyLocationID)
 		if err != nil {
@@ -851,6 +851,15 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(ap
 
 	return segments, l3, nil
 }
+
+//func (g ghcPaymentRequestInvoiceGenerator) checkMarinesBranch(serviceMember models.ServiceMember) string {
+//	if *serviceMember.Affiliation == models.AffiliationMARINES {
+//		return "USMC"
+//	}
+//	// May need to be more explicit here about the origin duty location:
+//	//models.FetchDutyLocationTransportationOffice(appCtx.DB(), originDutyLocation.ID)
+//	return serviceMember.DutyLocation.TransportationOffice.Gbloc
+//}
 
 func msOrCsOnly(paymentServiceItems models.PaymentServiceItems) bool {
 	for _, psi := range paymentServiceItems {
