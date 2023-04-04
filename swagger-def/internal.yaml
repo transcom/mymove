@@ -1755,17 +1755,6 @@ definitions:
       SUBMITTED: Submitted
       APPROVED: Approved
       CANCELED: Canceled
-  OrdersType:
-    type: string
-    title: Orders type
-    enum:
-      - PERMANENT_CHANGE_OF_STATION
-      - RETIREMENT
-      - SEPARATION
-    x-display-value:
-      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
-      RETIREMENT: Retirement
-      SEPARATION: Separation
   OrdersTypeDetail:
     type: string
     title: Orders type detail
@@ -1816,7 +1805,7 @@ definitions:
       status:
         $ref: '#/definitions/OrdersStatus'
       orders_type:
-        $ref: '#/definitions/OrdersType'
+        $ref: 'definitions/OrdersType.yaml'
       orders_type_detail:
         $ref: '#/definitions/OrdersTypeDetail'
       has_dependents:
@@ -1920,7 +1909,7 @@ definitions:
         example: '2018-04-26'
         title: Report-by date
       orders_type:
-        $ref: '#/definitions/OrdersType'
+        $ref: 'definitions/OrdersType.yaml'
       orders_type_detail:
         $ref: '#/definitions/OrdersTypeDetail'
       has_dependents:

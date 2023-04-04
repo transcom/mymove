@@ -3441,17 +3441,6 @@ definitions:
       ARMY: 21 Army
       AIR_FORCE: 57 Air Force
       COAST_GUARD: 70 Coast Guard
-  OrdersType:
-    type: string
-    title: Orders type
-    enum:
-      - PERMANENT_CHANGE_OF_STATION
-      - RETIREMENT
-      - SEPARATION
-    x-display-value:
-      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
-      RETIREMENT: Retirement
-      SEPARATION: Separation
   OrdersTypeDetail:
     type: string
     title: Orders type detail
@@ -3527,7 +3516,7 @@ definitions:
         x-nullable: true
         example: '030-00362'
       order_type:
-        $ref: '#/definitions/OrdersType'
+        $ref: 'definitions/OrdersType.yaml'
       order_type_detail:
         $ref: '#/definitions/OrdersTypeDetail'
         x-nullable: true
@@ -3589,7 +3578,7 @@ definitions:
         example: '2018-04-26'
         title: Report-by date
       ordersType:
-        $ref: '#/definitions/OrdersType'
+        $ref: 'definitions/OrdersType.yaml'
       ordersTypeDetail:
         $ref: '#/definitions/OrdersTypeDetail'
       ordersNumber:
@@ -3651,7 +3640,7 @@ definitions:
         example: '2018-04-26'
         title: Report-by date
       ordersType:
-        $ref: '#/definitions/OrdersType'
+        $ref: 'definitions/OrdersType.yaml'
       ordersTypeDetail:
         $ref: '#/definitions/OrdersTypeDetail'
       originDutyLocationId:
