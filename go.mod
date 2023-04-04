@@ -50,7 +50,7 @@ require (
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.5
-	github.com/pterm/pterm v0.12.57
+	github.com/pterm/pterm v0.12.58
 	github.com/rickar/cal/v2 v2.1.12
 	github.com/spf13/afero v1.9.5
 	github.com/spf13/cobra v1.6.1
@@ -133,7 +133,7 @@ require (
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/gookit/color v1.5.2 // indirect
+	github.com/gookit/color v1.5.3 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
