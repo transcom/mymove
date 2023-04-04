@@ -391,7 +391,7 @@ OfficeApp.propTypes = {
 
 OfficeApp.defaultProps = {
   officeUserId: null,
-  loginIsLoading: true,
+  loginIsLoading: false,
   userIsLoggedIn: false,
   userPermissions: [],
   userRoles: [],
