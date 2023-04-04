@@ -12,6 +12,7 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 
 import { beforeTransition, getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage } from './utils';
 import withRouter from 'utils/routing';
+import { RouterShape } from 'types';
 
 export class WizardFormPage extends Component {
   constructor(props) {
@@ -150,7 +151,7 @@ WizardFormPage.propTypes = {
   pageKey: PropTypes.string.isRequired,
   valid: PropTypes.bool,
   dirty: PropTypes.bool,
-  router: PropTypes.object, //from withRouter
+  router: RouterShape, //from withRouter
   additionalParams: PropTypes.object,
   additionalValues: PropTypes.object, // These values are passed into the form with change()
   discardOnBack: PropTypes.bool,
