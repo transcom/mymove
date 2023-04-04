@@ -426,6 +426,4 @@ describe('Orders page', () => {
       });
     });
   });
-
-  afterEach(jest.resetAllMocks);
 });
