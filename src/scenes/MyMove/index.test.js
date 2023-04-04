@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { shallow } from 'enzyme';
 import { Provider } from 'react-redux';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { CustomerApp } from './index';
 
@@ -71,7 +71,6 @@ const renderAtRoute = (path = '/', state = {}) => {
 };
 
 afterEach(() => {
-  cleanup();
   jest.resetAllMocks();
 });
 
