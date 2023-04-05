@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -93,7 +94,7 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 		invalidMoveStatus := invalidMoveStatus
 
 		suite.Run(fmt.Sprintf("Doesn't approve a shipment if the move status is %s", invalidMoveStatus), func() {
-			move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), invalidMoveStatus)
+			move := factory.BuildStubbedMoveWithStatus(invalidMoveStatus)
 
 			overrides := testdatagen.Assertions{
 				Move: move,
@@ -124,7 +125,7 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 	}
 
 	suite.Run(fmt.Sprintf("can approve a shipment if it is a PPM shipment and the move status is %s", models.MoveStatusNeedsServiceCounseling), func() {
-		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), models.MoveStatusNeedsServiceCounseling)
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
 
 		overrides := testdatagen.Assertions{
 			Move: move,

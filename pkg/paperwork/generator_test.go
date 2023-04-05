@@ -14,7 +14,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -49,7 +48,7 @@ func (suite *PaperworkSuite) sha256ForPath(path string, fs *afero.Afero) (string
 }
 
 func (suite *PaperworkSuite) setupOrdersDocument() (*Generator, models.Order) {
-	order := testdatagen.MakeDefaultOrder(suite.DB())
+	order := factory.BuildOrder(suite.DB(), nil, nil)
 
 	document := factory.BuildDocument(suite.DB(), nil, nil)
 

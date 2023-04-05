@@ -10,7 +10,7 @@ import (
 )
 
 func (suite *ModelSuite) TestCreateMoveWithPPMShow() {
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -35,7 +35,7 @@ func (suite *ModelSuite) TestCreateMoveWithPPMShow() {
 }
 
 func (suite *ModelSuite) TestCreateMoveWithPPMNoShow() {
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -61,7 +61,7 @@ func (suite *ModelSuite) TestCreateMoveWithPPMNoShow() {
 }
 
 func (suite *ModelSuite) TestCreateNewMoveWithNoPPMShow() {
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	moveOptions := MoveOptions{
