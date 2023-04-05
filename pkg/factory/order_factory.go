@@ -43,11 +43,22 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	// customization to the newly created duty location
 
 	originDutyLocationCustoms := customs
-	if result := findValidCustomization(customs, DutyLocations.OriginDutyLocation); result != nil {
-		originDutyLocationCustoms =
-			convertCustomizationInList(originDutyLocationCustoms,
-				DutyLocations.OriginDutyLocation, DutyLocation)
+	originDutyLocationChecks := []struct {
+		convertFrom CustomType
+		convertTo   CustomType
+	}{
+		{DutyLocations.OriginDutyLocation, DutyLocation},
+		{TransportationOffices.OriginDutyLocation, TransportationOffice},
 	}
+
+	for _, customType := range originDutyLocationChecks {
+		if result := findValidCustomization(customs, customType.convertFrom); result != nil {
+			originDutyLocationCustoms =
+				convertCustomizationInList(originDutyLocationCustoms,
+					customType.convertFrom, customType.convertTo)
+		}
+	}
+
 	originDutyLocation := BuildDutyLocation(db, originDutyLocationCustoms, nil)
 	if db != nil {
 		// can only do LinkOnly if we have an ID, which we won't have
@@ -59,13 +70,27 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 		})
 	}
 
+	newDutyLocationCustoms := customs
+	hasNewDutyLocationCustoms := false
+	newDutyLocationChecks := []struct {
+		convertFrom CustomType
+		convertTo   CustomType
+	}{
+		{DutyLocations.NewDutyLocation, DutyLocation},
+		{TransportationOffices.NewDutyLocation, TransportationOffice},
+	}
+
+	for _, customType := range newDutyLocationChecks {
+		if result := findValidCustomization(customs, customType.convertFrom); result != nil {
+			hasNewDutyLocationCustoms = true
+			newDutyLocationCustoms =
+				convertCustomizationInList(newDutyLocationCustoms,
+					customType.convertFrom, customType.convertTo)
+		}
+	}
+
 	var newDutyLocation models.DutyLocation
-	if result := findValidCustomization(customs, DutyLocations.NewDutyLocation); result != nil {
-		// the dev provided customizations for the new duty location,
-		// so use them
-		newDutyLocationCustoms :=
-			convertCustomizationInList(customs,
-				DutyLocations.NewDutyLocation, DutyLocation)
+	if hasNewDutyLocationCustoms {
 		newDutyLocation = BuildDutyLocation(db, newDutyLocationCustoms, nil)
 	} else {
 		// the dev did not provide any customizations for the new duty
