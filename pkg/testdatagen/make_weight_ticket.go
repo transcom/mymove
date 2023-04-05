@@ -9,7 +9,7 @@ import (
 
 // MakeMinimalWeightTicket creates a single WeightTicket and associated relationships with a minimal set of data
 func MakeMinimalWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTicket {
-	assertions = ensureServiceMemberIsSetUpInAssertions(db, assertions)
+	assertions = EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation(db, assertions)
 
 	ppmShipment := checkOrCreatePPMShipment(db, assertions)
 
@@ -45,7 +45,7 @@ func MakeMinimalDefaultWeightTicket(db *pop.Connection) models.WeightTicket {
 
 // MakeWeightTicket creates a single WeightTicket and associated relationships with weights and documents
 func MakeWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTicket {
-	assertions = ensureServiceMemberIsSetUpInAssertions(db, assertions)
+	assertions = EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation(db, assertions)
 
 	// Because this model points at multiple documents, it's not really good to point at the base assertions.Document,
 	// so we'll look at assertions.WeightTicket.<Document>
@@ -80,27 +80,4 @@ func MakeWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTi
 // MakeDefaultWeightTicket makes a WeightTicket with default values
 func MakeDefaultWeightTicket(db *pop.Connection) models.WeightTicket {
 	return MakeWeightTicket(db, Assertions{})
-}
-
-// ensureServiceMemberIsSetUpInAssertions checks for ServiceMember in assertions, or creates one if none exists. Several
-// of the downstream functions need a service member, but they don't always share assertions, look at the same
-// assertion, or create the service members in the same ways. We'll check now to see if we already have one created,
-// and if not, create one that we can place in the assertions for all the rest.
-func ensureServiceMemberIsSetUpInAssertions(db *pop.Connection, assertions Assertions) Assertions {
-	if !assertions.Stub && assertions.ServiceMember.CreatedAt.IsZero() || assertions.ServiceMember.ID.IsNil() {
-		serviceMember := MakeExtendedServiceMember(db, assertions)
-
-		assertions.ServiceMember = serviceMember
-		assertions.Order.ServiceMemberID = serviceMember.ID
-		assertions.Order.ServiceMember = serviceMember
-		assertions.Document.ServiceMemberID = serviceMember.ID
-		assertions.Document.ServiceMember = serviceMember
-	} else {
-		assertions.Order.ServiceMemberID = assertions.ServiceMember.ID
-		assertions.Order.ServiceMember = assertions.ServiceMember
-		assertions.Document.ServiceMemberID = assertions.ServiceMember.ID
-		assertions.Document.ServiceMember = assertions.ServiceMember
-	}
-
-	return assertions
 }

@@ -178,7 +178,41 @@ func MakeApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, assertions Ass
 	// Overwrite values with those from assertions
 	mergeModels(&fullAssertions, assertions)
 
-	return MakePPMShipment(db, fullAssertions)
+	ppmShipment := MakePPMShipment(db, fullAssertions)
+
+	if ppmShipment.HasRequestedAdvance != nil && *ppmShipment.HasRequestedAdvance {
+		aoaFullAssertions := Assertions{
+			ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+		}
+
+		mergeModels(&aoaFullAssertions, assertions)
+
+		aoaFullAssertions = EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation(db, aoaFullAssertions)
+
+		aoaDocumentAssertion := models.Document{}
+		if aoaFullAssertions.PPMShipment.AOAPacket != nil {
+			aoaDocumentAssertion = *aoaFullAssertions.PPMShipment.AOAPacket
+		}
+
+		if aoaFullAssertions.File == nil {
+			aoaFullAssertions.File = Fixture("aoa-packet.pdf")
+		}
+
+		aoaPacket := GetOrCreateDocumentWithUploads(db, aoaDocumentAssertion, aoaFullAssertions)
+
+		ppmShipment.AOAPacket = &aoaPacket
+		ppmShipment.AOAPacketID = &aoaPacket.ID
+	}
+
+	if !assertions.Stub {
+		MustSave(db, &ppmShipment)
+	}
+
+	// Because of the way we're working with the PPMShipment, the changes we've made to it aren't reflected in the
+	// pointer reference that the MTOShipment has, so we'll need to update it to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
 }
 
 // MakeApprovedPPMShipmentWithActualInfo creates a single PPMShipment that has been approved by a counselor, has some
@@ -291,6 +325,75 @@ func MakePPMShipmentThatNeedsPaymentApproval(db *pop.Connection, assertions Asse
 	ppmShipment.SubmittedAt = models.TimePointer(time.Now())
 
 	mergeModels(&ppmShipment, assertions.PPMShipment)
+
+	if !assertions.Stub {
+		MustSave(db, &ppmShipment)
+	}
+
+	// Because of the way we're working with the PPMShipment, the changes we've made to it aren't reflected in the
+	// pointer reference that the MTOShipment has, so we'll need to update it to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
+}
+
+// MakePPMShipmentWithApprovedDocuments creates a PPMShipment that has all the documents approved.
+func MakePPMShipmentWithApprovedDocuments(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
+	// changes on top of those changes.
+	ppmShipment := MakePPMShipmentThatNeedsPaymentApproval(db, assertions)
+
+	ppmShipment.Status = models.PPMShipmentStatusPaymentApproved
+	ppmShipment.ReviewedAt = models.TimePointer(time.Now())
+
+	approvedStatus := models.PPMDocumentStatusApproved
+	for i := range ppmShipment.WeightTickets {
+		ppmShipment.WeightTickets[i].Status = &approvedStatus
+
+		if !assertions.Stub {
+			MustSave(db, &ppmShipment.WeightTickets[i])
+		}
+	}
+
+	for i := range ppmShipment.ProgearWeightTickets {
+		ppmShipment.ProgearWeightTickets[i].Status = &approvedStatus
+
+		if !assertions.Stub {
+			MustSave(db, &ppmShipment.ProgearWeightTickets[i])
+		}
+	}
+
+	for i := range ppmShipment.MovingExpenses {
+		ppmShipment.MovingExpenses[i].Status = &approvedStatus
+
+		if !assertions.Stub {
+			MustSave(db, &ppmShipment.MovingExpenses[i])
+		}
+	}
+
+	if ppmShipment.HasReceivedAdvance != nil && *ppmShipment.HasReceivedAdvance {
+		paymentPacketFullAssertions := Assertions{
+			ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+		}
+
+		mergeModels(&paymentPacketFullAssertions, assertions)
+
+		paymentPacketFullAssertions = EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation(db, paymentPacketFullAssertions)
+
+		paymentPacketDocumentAssertion := models.Document{}
+		if paymentPacketFullAssertions.PPMShipment.AOAPacket != nil {
+			paymentPacketDocumentAssertion = *paymentPacketFullAssertions.PPMShipment.AOAPacket
+		}
+
+		if paymentPacketFullAssertions.File == nil {
+			paymentPacketFullAssertions.File = Fixture("payment-packet.pdf")
+		}
+
+		paymentPacket := GetOrCreateDocumentWithUploads(db, paymentPacketDocumentAssertion, paymentPacketFullAssertions)
+
+		ppmShipment.PaymentPacket = &paymentPacket
+		ppmShipment.PaymentPacketID = &paymentPacket.ID
+	}
 
 	if !assertions.Stub {
 		MustSave(db, &ppmShipment)

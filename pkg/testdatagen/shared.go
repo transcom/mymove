@@ -320,6 +320,29 @@ func CurrentDateWithoutTime() *time.Time {
 	return &currentDate
 }
 
+// EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation checks for ServiceMember in assertions, or creates one if
+// none exists. Several of the document functions need a service member, but they don't always share assertions, look
+// at the same assertion, or create the service members in the same ways. We'll check now to see if we already have one
+// created, and if not, create one that we can place in the assertions for all the rest.
+func EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation(db *pop.Connection, assertions Assertions) Assertions {
+	if !assertions.Stub && assertions.ServiceMember.CreatedAt.IsZero() || assertions.ServiceMember.ID.IsNil() {
+		serviceMember := MakeExtendedServiceMember(db, assertions)
+
+		assertions.ServiceMember = serviceMember
+		assertions.Order.ServiceMemberID = serviceMember.ID
+		assertions.Order.ServiceMember = serviceMember
+		assertions.Document.ServiceMemberID = serviceMember.ID
+		assertions.Document.ServiceMember = serviceMember
+	} else {
+		assertions.Order.ServiceMemberID = assertions.ServiceMember.ID
+		assertions.Order.ServiceMember = assertions.ServiceMember
+		assertions.Document.ServiceMemberID = assertions.ServiceMember.ID
+		assertions.Document.ServiceMember = assertions.ServiceMember
+	}
+
+	return assertions
+}
+
 // GetOrCreateDocument checks if a document exists. If it does, it returns it, otherwise, it creates it
 func GetOrCreateDocument(db *pop.Connection, document models.Document, assertions Assertions) models.Document {
 	if assertions.Stub && document.CreatedAt.IsZero() || document.ID.IsNil() {
