@@ -95,13 +95,13 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		}
 	}
 
-	// check service member branch
-	if *moveTaskOrder.Orders.ServiceMember.DutyLocation.Affiliation != "" {
-		err := g.checkMarinesBranch(moveTaskOrder.Orders.ServiceMember)
-		if err != "" {
-			return ediinvoice.Invoice858C{}, nil
-		}
-	}
+	//// check service member branch
+	//if *moveTaskOrder.Orders.ServiceMember.DutyLocation.Affiliation != "" {
+	//	err := g.checkMarinesBranch(moveTaskOrder.Orders.ServiceMember)
+	//	if err != "" {
+	//		return ediinvoice.Invoice858C{}, nil
+	//	}
+	//}
 
 	currentTime := g.clock.Now()
 
@@ -201,6 +201,13 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 	edi858.Header.ContractCode = edisegment.N9{
 		ReferenceIdentificationQualifier: "CT",
 		ReferenceIdentification:          contractCodeServiceItemParam.Value,
+	}
+	// check service member branch
+	if *moveTaskOrder.Orders.ServiceMember.DutyLocation.Affiliation != "" {
+		err := g.checkMarinesBranch(moveTaskOrder.Orders.ServiceMember)
+		if err != "" {
+			return ediinvoice.Invoice858C{}, nil
+		}
 	}
 
 	// Add service member details to header
@@ -386,7 +393,6 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 
 	var err error
 	var originDutyLocation models.DutyLocation
-	// check if they are Marines here, and add condition to set Gbloc to USMC
 	if orders.OriginDutyLocationID != nil && *orders.OriginDutyLocationID != uuid.Nil {
 		originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *orders.OriginDutyLocationID)
 		if err != nil {
