@@ -265,15 +265,10 @@ func MakeApprovedPPMShipmentWithActualInfo(db *pop.Connection, assertions Assert
 	return ppmShipment
 }
 
-// MakePPMShipmentReadyForFinalCustomerCloseOut creates a single PPMShipment that has customer documents and is ready
-// for the customer to sign and submit.
-func MakePPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, assertions Assertions) models.PPMShipment {
-	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
-	// changes on top of those changes.
-	ppmShipment := MakeApprovedPPMShipmentWithActualInfo(db, assertions)
-
+// AddWeightTicketToPPMShipment adds a weight ticket to an existing PPMShipment
+func AddWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, assertions Assertions) {
 	fullWeightTicketSetAssertions := Assertions{
-		PPMShipment: ppmShipment,
+		PPMShipment: *ppmShipment,
 	}
 
 	mergeModels(&fullWeightTicketSetAssertions, assertions)
@@ -281,6 +276,42 @@ func MakePPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, assertions
 	weightTicket := MakeWeightTicket(db, fullWeightTicketSetAssertions)
 
 	ppmShipment.WeightTickets = append(ppmShipment.WeightTickets, weightTicket)
+}
+
+// AddProgearWeightTicketToPPMShipment adds a progear weight ticket to an existing PPMShipment
+func AddProgearWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, assertions Assertions) {
+	fullProgearWeightTicketSetAssertions := Assertions{
+		PPMShipment: *ppmShipment,
+	}
+
+	mergeModels(&fullProgearWeightTicketSetAssertions, assertions)
+
+	progearWeightTicket := MakeProgearWeightTicket(db, fullProgearWeightTicketSetAssertions)
+
+	ppmShipment.ProgearWeightTickets = append(ppmShipment.ProgearWeightTickets, progearWeightTicket)
+}
+
+// AddMovingExpenseToPPMShipment adds a moving expense to an existing PPMShipment
+func AddMovingExpenseToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, assertions Assertions) {
+	fullMovingExpenseAssertions := Assertions{
+		PPMShipment: *ppmShipment,
+	}
+
+	mergeModels(&fullMovingExpenseAssertions, assertions)
+
+	movingExpense := MakeMovingExpense(db, fullMovingExpenseAssertions)
+
+	ppmShipment.MovingExpenses = append(ppmShipment.MovingExpenses, movingExpense)
+}
+
+// MakePPMShipmentReadyForFinalCustomerCloseOut creates a single PPMShipment that has customer documents and is ready
+// for the customer to sign and submit.
+func MakePPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
+	// changes on top of those changes.
+	ppmShipment := MakeApprovedPPMShipmentWithActualInfo(db, assertions)
+
+	AddWeightTicketToPPMShipment(db, &ppmShipment, assertions)
 
 	ppmShipment.FinalIncentive = ppmShipment.EstimatedIncentive
 
@@ -289,6 +320,24 @@ func MakePPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, assertions
 	if !assertions.Stub {
 		MustSave(db, &ppmShipment)
 	}
+
+	// Because of the way we're working with the PPMShipment, the changes we've made to it aren't reflected in the
+	// pointer reference that the MTOShipment has, so we'll need to update it to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
+}
+
+// MakePPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes creates a single PPMShipment that has one of each type
+// of customer documents (weight ticket, pro-gear weight ticket, and a moving expense) and is ready for the customer to
+// sign and submit.
+func MakePPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
+	// changes on top of those changes.
+	ppmShipment := MakePPMShipmentReadyForFinalCustomerCloseOut(db, assertions)
+
+	AddProgearWeightTicketToPPMShipment(db, &ppmShipment, assertions)
+	AddMovingExpenseToPPMShipment(db, &ppmShipment, assertions)
 
 	// Because of the way we're working with the PPMShipment, the changes we've made to it aren't reflected in the
 	// pointer reference that the MTOShipment has, so we'll need to update it to point at the latest version.
@@ -329,6 +378,24 @@ func MakePPMShipmentThatNeedsPaymentApproval(db *pop.Connection, assertions Asse
 	if !assertions.Stub {
 		MustSave(db, &ppmShipment)
 	}
+
+	// Because of the way we're working with the PPMShipment, the changes we've made to it aren't reflected in the
+	// pointer reference that the MTOShipment has, so we'll need to update it to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
+}
+
+// MakePPMShipmentThatNeedsPaymentApprovalWithAllDocTypes creates a PPMShipment that contains one of each type of
+// customer document (weight ticket, pro-gear weight ticket, and a moving expense) that is waiting for a counselor to
+// review after a customer has submitted their documents.
+func MakePPMShipmentThatNeedsPaymentApprovalWithAllDocTypes(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
+	// changes on top of those changes.
+	ppmShipment := MakePPMShipmentThatNeedsPaymentApproval(db, assertions)
+
+	AddProgearWeightTicketToPPMShipment(db, &ppmShipment, assertions)
+	AddMovingExpenseToPPMShipment(db, &ppmShipment, assertions)
 
 	// Because of the way we're working with the PPMShipment, the changes we've made to it aren't reflected in the
 	// pointer reference that the MTOShipment has, so we'll need to update it to point at the latest version.
@@ -398,6 +465,36 @@ func MakePPMShipmentWithApprovedDocuments(db *pop.Connection, assertions Asserti
 	if !assertions.Stub {
 		MustSave(db, &ppmShipment)
 	}
+
+	// Because of the way we're working with the PPMShipment, the changes we've made to it aren't reflected in the
+	// pointer reference that the MTOShipment has, so we'll need to update it to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
+}
+
+// MakePPMShipmentWithAllDocTypesApproved creates a PPMShipment that has at least one of each doc type and with all of
+// the documents approved.
+func MakePPMShipmentWithAllDocTypesApproved(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
+	// changes on top of those changes.
+	ppmShipment := MakePPMShipmentWithApprovedDocuments(db, assertions)
+
+	approvedStatus := models.PPMDocumentStatusApproved
+
+	fullAssertions := Assertions{
+		ProgearWeightTicket: models.ProgearWeightTicket{
+			Status: &approvedStatus,
+		},
+		MovingExpense: models.MovingExpense{
+			Status: &approvedStatus,
+		},
+	}
+
+	mergeModels(&fullAssertions, assertions)
+
+	AddProgearWeightTicketToPPMShipment(db, &ppmShipment, fullAssertions)
+	AddMovingExpenseToPPMShipment(db, &ppmShipment, fullAssertions)
 
 	// Because of the way we're working with the PPMShipment, the changes we've made to it aren't reflected in the
 	// pointer reference that the MTOShipment has, so we'll need to update it to point at the latest version.
