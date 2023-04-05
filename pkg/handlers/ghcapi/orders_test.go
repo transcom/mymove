@@ -80,19 +80,22 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 
 func (suite *HandlerSuite) TestWeightAllowances() {
 	suite.Run("With E-1 rank and no dependents", func() {
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Stub: true,
-			Order: models.Order{
-				ID:            uuid.Must(uuid.NewV4()),
-				HasDependents: *swag.Bool(false),
+		order := factory.BuildOrder(nil, []factory.Customization{
+			{
+				Model: models.Order{
+					ID:            uuid.Must(uuid.NewV4()),
+					HasDependents: *models.BoolPointer(false),
+				},
 			},
-			Entitlement: models.Entitlement{
-				ID:                   uuid.Must(uuid.NewV4()),
-				DependentsAuthorized: swag.Bool(false),
-				ProGearWeight:        2000,
-				ProGearWeightSpouse:  500,
+			{
+				Model: models.Entitlement{
+					DependentsAuthorized: models.BoolPointer(false),
+					ProGearWeight:        2000,
+					ProGearWeightSpouse:  500,
+				},
 			},
-		})
+		}, nil)
+
 		request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
 		params := orderop.GetOrderParams{
 			HTTPRequest: request,
@@ -131,13 +134,14 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 	})
 
 	suite.Run("With E-1 rank and dependents", func() {
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Stub: true,
-			Order: models.Order{
-				ID:            uuid.Must(uuid.NewV4()),
-				HasDependents: *swag.Bool(true),
+		order := factory.BuildOrder(nil, []factory.Customization{
+			{
+				Model: models.Order{
+					ID:            uuid.Must(uuid.NewV4()),
+					HasDependents: *models.BoolPointer(true),
+				},
 			},
-		})
+		}, nil)
 
 		request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
 		params := orderop.GetOrderParams{

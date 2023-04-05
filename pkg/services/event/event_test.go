@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -460,7 +461,7 @@ func (suite *EventServiceSuite) TestNotificationEventHandler() {
 
 	// Test a nil MTO ID is present and no notification stored
 	suite.Run("No move and notification stored", func() {
-		order := testdatagen.MakeDefaultOrder(suite.DB())
+		order := factory.BuildOrder(suite.DB(), nil, nil)
 		traceID := uuid.Must(uuid.NewV4())
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 		event := Event{
