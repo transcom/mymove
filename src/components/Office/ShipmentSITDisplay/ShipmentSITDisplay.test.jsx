@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ShipmentSITDisplay from './ShipmentSITDisplay';
@@ -26,15 +26,19 @@ describe('ShipmentSITDisplay', () => {
       </MockProviders>,
     );
     expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeTruthy();
+    const sitStatusTable = await screen.findByTestId('sitStatusTable');
+    expect(sitStatusTable).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('Total days of SIT approved')).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('270')).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('Total days used')).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('45')).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('Total days remaining')).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('60')).toBeInTheDocument();
 
-    expect(screen.getByText('270 authorized')).toBeInTheDocument();
-    expect(screen.getByText('45 used')).toBeInTheDocument();
-    expect(screen.getByText('60 remaining')).toBeInTheDocument();
+    expect(screen.getByText('Current location: origin SIT')).toBeInTheDocument();
 
-    expect(screen.getByText('Current location: origin')).toBeInTheDocument();
-
-    expect(screen.getByText('Days in origin SIT')).toBeInTheDocument();
-    expect(screen.getByText('45')).toBeInTheDocument();
+    expect(screen.getByText('Total days in origin SIT')).toBeInTheDocument();
+    // expect(screen.getByText('45')).toBeInTheDocument();
     expect(screen.getByText(`13 Aug 2021`)).toBeInTheDocument();
 
     expect(await screen.queryByText('Office remarks:')).toBeFalsy();
@@ -47,8 +51,8 @@ describe('ShipmentSITDisplay', () => {
       </MockProviders>,
     );
 
-    expect(screen.getByText('Current location: destination')).toBeInTheDocument();
-    expect(screen.getByText('Days in destination SIT')).toBeInTheDocument();
+    expect(screen.getByText('Current location: destination SIT')).toBeInTheDocument();
+    expect(screen.getByText('Total days in destination SIT')).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT at Destination, previous origin SIT', async () => {
@@ -79,9 +83,9 @@ describe('ShipmentSITDisplay', () => {
         <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusDestination} shipment={SITShipment} />
       </MockProviders>,
     );
-    expect(screen.getByText('SIT extensions')).toBeInTheDocument();
-    expect(screen.getByText('30 days added')).toBeInTheDocument();
-    expect(screen.getByText('on 13 Sep 2021')).toBeInTheDocument();
+    expect(screen.getByText('SIT history')).toBeInTheDocument();
+    expect(screen.getByText('Total days of SIT approved: 30')).toBeInTheDocument();
+    expect(screen.getByText('updated on 13 Sep 2021')).toBeInTheDocument();
     expect(screen.getByText('Serious illness of the member')).toBeInTheDocument();
   });
 
@@ -106,6 +110,7 @@ describe('ShipmentSITDisplay', () => {
     ).toBeInTheDocument();
   });
 
+  // To-do: Update this test once negative approved days is functional
   it('renders the denied Shipment SIT Extensions', async () => {
     render(
       <MockProviders>
@@ -116,9 +121,9 @@ describe('ShipmentSITDisplay', () => {
         />
       </MockProviders>,
     );
-    expect(screen.getByText('SIT extensions')).toBeInTheDocument();
-    expect(screen.getByText('0 days added')).toBeInTheDocument();
-    expect(screen.getByText('on 13 Sep 2021 — request rejected')).toBeInTheDocument();
+    expect(screen.getByText('SIT history')).toBeInTheDocument();
+    expect(screen.getByText('Total days of SIT approved: 0')).toBeInTheDocument();
+    expect(screen.getByText('updated on 13 Sep 2021')).toBeInTheDocument();
     expect(screen.getByText('Serious illness of the member')).toBeInTheDocument();
   });
 

@@ -20,7 +20,7 @@ import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
 const SITHistoryItem = ({ sitItem }) => (
-  <dl>
+  <dl data-testid="sitHistoryItem" className={styles.sitHistoryItem}>
     <div>
       <dt>Reason:</dt>
       <dd>{sitExtensionReasons[sitItem.requestReason]}</dd>
@@ -40,9 +40,9 @@ const SITHistoryItem = ({ sitItem }) => (
   </dl>
 );
 
-const SITHistoryHeader = ({ sitItem }) => (
-  <div className={styles.sitHistoryHeader}>
-    Total days of SIT approved: {sitItem.approvedDays}{' '}
+const SITHistoryItemHeader = ({ sitItem }) => (
+  <div className={styles.sitHistoryItemHeader}>
+    Total days of SIT approved: {sitItem.approvedDays ?? '0'}{' '}
     <span>updated on {formatDateFromIso(sitItem.decisionDate, 'DD MMM YYYY')} </span>
   </div>
 );
@@ -110,27 +110,28 @@ const ShipmentSITDisplay = ({
             </Restricted>
           ))}
       </div>
-
-      <DataTable
-        columnHeaders={['Total days of SIT approved', 'Total days used', 'Total days remaining']}
-        dataRow={[shipment.sitDaysAllowance, sitStatus.totalSITDaysUsed, sitStatus.totalDaysRemaining]}
-      />
+      <div data-testid="sitStatusTable">
+        <DataTable
+          columnHeaders={['Total days of SIT approved', 'Total days used', 'Total days remaining']}
+          dataRow={[shipment.sitDaysAllowance, sitStatus.totalSITDaysUsed, sitStatus.totalDaysRemaining]}
+        />
+      </div>
       <p>Current location: {currentLocation}</p>
       <DataTable
         columnHeaders={[`SIT start date`, 'SIT authorized end date']}
         dataRow={[currentDateEnteredSit, sitEndDate]}
       />
-      <DataTable columnHeaders={['Total days in destination SIT']} dataRow={[currentDaysInSit]} />
+      <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSit]} />
       {sitStatus.pastSITServiceItems && (
         <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
       )}
       {sitExtensions && sitHistory.length > 0 && (
         <>
-          <p>SIT history</p>
+          <p className={styles.sitHeader}>SIT history</p>
           {sitHistory.map((sitItem) => (
             <DataTable
               key={sitItem.id}
-              columnHeaders={[<SITHistoryHeader sitItem={sitItem} />]}
+              columnHeaders={[<SITHistoryItemHeader sitItem={sitItem} />]}
               dataRow={[<SITHistoryItem sitItem={sitItem} />]}
             />
           ))}

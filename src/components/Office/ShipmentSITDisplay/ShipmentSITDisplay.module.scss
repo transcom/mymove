@@ -83,9 +83,21 @@
     }
   }
 }
-.sitHistoryHeader {
-  color: $base-darker;
-  span {
-    font-weight: 400;
+.sitHistoryItem {
+  @include u-margin-y(0);
+  .sitHistoryItemHeader {
+    color: $base-darker;
+    span {
+      font-weight: 400;
+    }
   }
+}
+p.sitHeader {
+  @include u-font-size('body', 'sm');
+  @include u-margin-bottom(0);
+  @include u-margin-top(1);
+  :global .usa-tag {
+    @include u-font-size('body', 'sm');
+  }
+  font-weight: bold;
 }
