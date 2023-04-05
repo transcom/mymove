@@ -45,7 +45,7 @@ func (suite *OrderServiceSuite) TestFetchOrderWithEmptyFields() {
 	// an empty OriginDutyLocation. During local testing in the office app, we
 	// noticed an exception due to trying to load empty OriginDutyLocations.
 	// This was not caught by any tests, so we're adding one now.
-	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
+	expectedOrder := factory.BuildOrder(suite.DB(), nil, nil)
 
 	expectedOrder.Entitlement = nil
 	expectedOrder.EntitlementID = nil
@@ -885,7 +885,7 @@ func (suite *OrderServiceSuite) TestListOrdersMarines() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
-	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
+	expectedOrder := factory.BuildOrder(suite.DB(), nil, nil)
 
 	expectedOrder.Entitlement = nil
 	expectedOrder.EntitlementID = nil

@@ -85,11 +85,13 @@ func (suite *HandlerSuite) TestShowOrder() {
 			LinkOnly: true,
 		},
 	}, nil)
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			OriginDutyLocation: &dutyLocation,
+	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model:    dutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
-	})
+	}, nil)
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
 	req = suite.AuthenticateRequest(req, order.ServiceMember)
@@ -154,7 +156,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 // TODO: Fix now that we capture transaction error. May be a data setup problem
 /*
 func (suite *HandlerSuite) TestUpdateOrder() {
-	order := testdatagen.MakeDefaultOrder(suite.DB())
+	order := factory.BuildOrder(suite.DB(), nil, nil)
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("PUT", path, nil)

@@ -716,12 +716,13 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 	suite.Run("Submits move with amended orders for review", func() {
 		// Given: a set of orders, a move, user and service member
 		document := factory.BuildDocument(suite.DB(), nil, nil)
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				UploadedAmendedOrders:   &document,
-				UploadedAmendedOrdersID: &document.ID,
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model:    document,
+				LinkOnly: true,
+				Type:     &factory.Documents.UploadedAmendedOrders,
 			},
-		})
+		}, nil)
 
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{

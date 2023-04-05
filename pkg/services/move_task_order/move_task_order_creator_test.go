@@ -5,7 +5,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {
@@ -14,7 +13,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {
 	builder := query.NewQueryBuilder()
 	mtoCreator := NewMoveTaskOrderCreator(builder)
 
-	order := testdatagen.MakeDefaultOrder(suite.DB())
+	order := factory.BuildOrder(suite.DB(), nil, nil)
 	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	contractorID := contractor.ID
 	newMto := models.Move{
