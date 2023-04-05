@@ -25,7 +25,6 @@ type QueryOption func(*pop.Query)
 
 func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
 	var moves []models.Move
-	var serviceMemberAffiliation models.ServiceMemberAffiliation
 	var transportationOffice models.TransportationOffice
 	// select the GBLOC associated with the transportation office of the session's current office user
 	err := appCtx.DB().Q().
@@ -65,13 +64,9 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
 	// var gblocQuery QueryOption
-	marinesBranch := serviceMemberAffiliation == "MARINES"
 	var gblocToFilterBy *string
 	if officeUserGbloc == "USMC" && !needsCounseling {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), needsCounseling, ppmCloseoutGblocs)
-		gblocToFilterBy = params.OriginGBLOC
-	} else if officeUserGbloc == "USMC" && marinesBranch {
-		*params.OriginGBLOC = "USMC"
 		gblocToFilterBy = params.OriginGBLOC
 	} else {
 		gblocToFilterBy = &officeUserGbloc
