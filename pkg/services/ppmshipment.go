@@ -31,9 +31,10 @@ type PPMDocumentFetcher interface {
 
 // PPMPPMShipmentSummaryWorksheetCreator fetches all documents associated with a PPM shipment
 //
-//go:generate mockery --name PPMPPMShipmentSummaryWorksheetCreator
+//go:generate mockery --name PPMShipmentSummaryWorksheetCreator
 type PPMShipmentSummaryWorksheetCreator interface {
 	FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (models.ShipmentSummaryFormData, error)
+	FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData models.ShipmentSummaryFormData) (models.ShipmentSummaryWorksheetPage1Values, models.ShipmentSummaryWorksheetPage2Values, models.ShipmentSummaryWorksheetPage3Values, error)
 }
 
 // PPMEstimator estimates the cost of a PPM shipment

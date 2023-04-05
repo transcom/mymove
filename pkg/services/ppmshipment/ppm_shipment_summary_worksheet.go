@@ -27,7 +27,7 @@ func NewPPMShipmentSummaryWorksheetCreator() services.PPMShipmentSummaryWorkshee
 }
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
-func (p *ppmShipmentSummaryWorksheetCreator) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, ShipmentSummaryWorksheetPage3Values, error) {
+func (p *ppmShipmentSummaryWorksheetCreator) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData models.ShipmentSummaryFormData) (models.ShipmentSummaryWorksheetPage1Values, models.ShipmentSummaryWorksheetPage2Values, models.ShipmentSummaryWorksheetPage3Values, error) {
 	page1 := FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData)
 	page2 := FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData)
 	page3 := FormatValuesShipmentSummaryWorksheetFormPage3(shipmentSummaryFormData)
@@ -35,140 +35,11 @@ func (p *ppmShipmentSummaryWorksheetCreator) FormatValuesShipmentSummaryWorkshee
 	return page1, page2, page3, nil
 }
 
-// ShipmentSummaryWorksheetPage1Values is an object representing a Shipment Summary Worksheet
-type ShipmentSummaryWorksheetPage1Values struct {
-	CUIBanner                       string
-	ServiceMemberName               string
-	MaxSITStorageEntitlement        string
-	PreferredPhoneNumber            string
-	PreferredEmail                  string
-	DODId                           string
-	ServiceBranch                   string
-	RankGrade                       string
-	IssuingBranchOrAgency           string
-	OrdersIssueDate                 string
-	OrdersTypeAndOrdersNumber       string
-	AuthorizedOrigin                string
-	AuthorizedDestination           string
-	NewDutyAssignment               string
-	WeightAllotment                 string
-	WeightAllotmentProgear          string
-	WeightAllotmentProgearSpouse    string
-	TotalWeightAllotment            string
-	POVAuthorized                   string
-	ShipmentNumberAndTypes          string
-	ShipmentPickUpDates             string
-	ShipmentWeights                 string
-	ShipmentCurrentShipmentStatuses string
-	SITNumberAndTypes               string
-	SITEntryDates                   string
-	SITEndDates                     string
-	SITDaysInStorage                string
-	PreparationDate                 string
-	MaxObligationGCC100             string
-	TotalWeightAllotmentRepeat      string
-	MaxObligationGCC95              string
-	MaxObligationSIT                string
-	MaxObligationGCCMaxAdvance      string
-	PPMRemainingEntitlement         string
-	ActualObligationGCC100          string
-	ActualObligationGCC95           string
-	ActualObligationAdvance         string
-	ActualObligationSIT             string
-	MileageTotal                    string
-}
-
-// ShipmentSummaryWorkSheetShipments is an object representing shipment line items on Shipment Summary Worksheet
-type ShipmentSummaryWorkSheetShipments struct {
-	ShipmentNumberAndTypes  string
-	PickUpDates             string
-	ShipmentWeights         string
-	CurrentShipmentStatuses string
-}
-
-// ShipmentSummaryWorkSheetSIT is an object representing SIT on the Shipment Summary Worksheet
-type ShipmentSummaryWorkSheetSIT struct {
-	NumberAndTypes string
-	EntryDates     string
-	EndDates       string
-	DaysInStorage  string
-}
-
-// ShipmentSummaryWorksheetPage2Values is an object representing a Shipment Summary Worksheet
-type ShipmentSummaryWorksheetPage2Values struct {
-	CUIBanner       string
-	PreparationDate string
-	TAC             string
-	SAC             string
-	FormattedMovingExpenses
-}
-
-// Dollar represents a type for dollar monetary unit
-type Dollar float64
-
-// FormattedMovingExpenses is an object representing the service member's moving expenses formatted for the SSW
-type FormattedMovingExpenses struct {
-	ContractedExpenseMemberPaid Dollar
-	ContractedExpenseGTCCPaid   Dollar
-	RentalEquipmentMemberPaid   Dollar
-	RentalEquipmentGTCCPaid     Dollar
-	PackingMaterialsMemberPaid  Dollar
-	PackingMaterialsGTCCPaid    Dollar
-	WeighingFeesMemberPaid      Dollar
-	WeighingFeesGTCCPaid        Dollar
-	GasMemberPaid               Dollar
-	GasGTCCPaid                 Dollar
-	TollsMemberPaid             Dollar
-	TollsGTCCPaid               Dollar
-	OilMemberPaid               Dollar
-	OilGTCCPaid                 Dollar
-	OtherMemberPaid             Dollar
-	OtherGTCCPaid               Dollar
-	TotalMemberPaid             Dollar
-	TotalGTCCPaid               Dollar
-	TotalMemberPaidRepeated     Dollar
-	TotalGTCCPaidRepeated       Dollar
-	TotalPaidNonSIT             Dollar
-	TotalMemberPaidSIT          Dollar
-	TotalGTCCPaidSIT            Dollar
-	TotalPaidSIT                Dollar
-}
-
-// FormattedOtherExpenses is an object representing the other moving expenses formatted for the SSW
-type FormattedOtherExpenses struct {
-	Descriptions string
-	AmountsPaid  string
-}
-
-// ShipmentSummaryWorksheetPage3Values is an object representing a Shipment Summary Worksheet
-type ShipmentSummaryWorksheetPage3Values struct {
-	CUIBanner              string
-	PreparationDate        string
-	ServiceMemberSignature string
-	SignatureDate          string
-	FormattedOtherExpenses
-}
-
-// ShipmentSummaryFormData is a container for the various objects required for the a Shipment Summary Worksheet
-type ShipmentSummaryFormData struct {
-	ServiceMember       models.ServiceMember
-	Order               models.Order
-	CurrentDutyLocation models.DutyLocation
-	NewDutyLocation     models.DutyLocation
-	WeightAllotment     models.SSWMaxWeightEntitlement
-	PPMShipments        models.PPMShipments
-	PreparationDate     time.Time
-	Obligations         models.Obligations
-	MovingExpenses      models.MovingExpenses
-	// PPMRemainingEntitlement unit.Pound
-	SignedCertification models.SignedCertification
-}
-
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
-func (f *ppmShipmentSummaryWorksheetCreator) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (ShipmentSummaryFormData, error) {
+func (f *ppmShipmentSummaryWorksheetCreator) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (models.ShipmentSummaryFormData, error) {
 	ppmShipment, err := FetchPPMShipmentFromMTOShipmentID(appCtx, mtoShipmentID)
 	if err != nil {
-		return ShipmentSummaryFormData{}, apperror.UnprocessableEntityError{}
+		return models.ShipmentSummaryFormData{}, apperror.UnprocessableEntityError{}
 	}
 	// _, authErr := FetchOrderForUser(db, session, move.OrdersID)
 	// if authErr != nil {
@@ -193,10 +64,10 @@ func (f *ppmShipmentSummaryWorksheetCreator) FetchDataShipmentSummaryWorksheetFo
 
 	signedCertification := ppmShipment.SignedCertification
 	if signedCertification == nil {
-		return ShipmentSummaryFormData{},
+		return models.ShipmentSummaryFormData{},
 			apperror.NewConflictError(ppmShipment.ID, "shipment summary worksheet: signed certification is nil")
 	}
-	ssd := ShipmentSummaryFormData{
+	ssd := models.ShipmentSummaryFormData{
 		ServiceMember:       serviceMember,
 		Order:               orders,
 		CurrentDutyLocation: serviceMember.DutyLocation,
@@ -255,8 +126,8 @@ const (
 )
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage1Values {
-	page1 := ShipmentSummaryWorksheetPage1Values{}
+func FormatValuesShipmentSummaryWorksheetFormPage1(data models.ShipmentSummaryFormData) models.ShipmentSummaryWorksheetPage1Values {
+	page1 := models.ShipmentSummaryWorksheetPage1Values{}
 	page1.CUIBanner = controlledUnclassifiedInformationText
 	page1.MaxSITStorageEntitlement = "90 days per each shipment"
 	// We don't currently know what allows POV to be authorized, so we are hardcoding it to "No" to start
@@ -308,7 +179,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 }
 
 // UPDATED - to use the new PPMShipment model and the AdvanceAmountRequested field
-func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
+func formatActualObligationAdvance(data models.ShipmentSummaryFormData) string {
 	if len(data.PPMShipments) > 0 && data.PPMShipments[0].AdvanceAmountRequested != nil {
 		advance := data.PPMShipments[0].AdvanceAmountRequested.ToDollarFloatNoRound()
 		return FormatDollars(advance)
@@ -358,8 +229,8 @@ func FormatRank(rank *models.ServiceMemberRank) string {
 }
 
 // FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage2Values {
-	page2 := ShipmentSummaryWorksheetPage2Values{}
+func FormatValuesShipmentSummaryWorksheetFormPage2(data models.ShipmentSummaryFormData) models.ShipmentSummaryWorksheetPage2Values {
+	page2 := models.ShipmentSummaryWorksheetPage2Values{}
 	page2.CUIBanner = controlledUnclassifiedInformationText
 	page2.TAC = derefStringTypes(data.Order.TAC)
 	page2.SAC = derefStringTypes(data.Order.SAC)
@@ -370,8 +241,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 }
 
 // FormatValuesShipmentSummaryWorksheetFormPage3 formats the data for page 2 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage3(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage3Values {
-	page3 := ShipmentSummaryWorksheetPage3Values{}
+func FormatValuesShipmentSummaryWorksheetFormPage3(data models.ShipmentSummaryFormData) models.ShipmentSummaryWorksheetPage3Values {
+	page3 := models.ShipmentSummaryWorksheetPage3Values{}
 	page3.CUIBanner = controlledUnclassifiedInformationText
 	page3.PreparationDate = FormatDate(data.PreparationDate)
 	page3.ServiceMemberSignature = FormatSignature(data.ServiceMember)
@@ -412,9 +283,9 @@ func FormatServiceMemberFullName(serviceMember models.ServiceMember) string {
 }
 
 // FormatAllShipments formats Shipment line items for the Shipment Summary Worksheet
-func FormatAllShipments(ppms models.PPMShipments) ShipmentSummaryWorkSheetShipments {
+func FormatAllShipments(ppms models.PPMShipments) models.ShipmentSummaryWorkSheetShipments {
 	totalShipments := len(ppms)
-	formattedShipments := ShipmentSummaryWorkSheetShipments{}
+	formattedShipments := models.ShipmentSummaryWorkSheetShipments{}
 	formattedNumberAndTypes := make([]string, totalShipments)
 	formattedPickUpDates := make([]string, totalShipments)
 	formattedShipmentWeights := make([]string, totalShipments)
