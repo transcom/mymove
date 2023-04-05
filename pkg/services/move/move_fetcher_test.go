@@ -7,7 +7,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MoveServiceSuite) TestMoveFetcher() {
@@ -15,7 +14,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 	defaultSearchParams := services.MoveFetcherParams{}
 
 	suite.Run("successfully returns default draft move", func() {
-		expectedMove := testdatagen.MakeDefaultMove(suite.DB())
+		expectedMove := factory.BuildMove(suite.DB(), nil, nil)
 
 		actualMove, err := moveFetcher.FetchMove(suite.AppContextForTest(), expectedMove.Locator, &defaultSearchParams)
 		suite.FatalNoError(err)
@@ -33,7 +32,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 	})
 
 	suite.Run("successfully returns submitted move available to prime", func() {
-		expectedMove := testdatagen.MakeAvailableMove(suite.DB())
+		expectedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		actualMove, err := moveFetcher.FetchMove(suite.AppContextForTest(), expectedMove.Locator, &defaultSearchParams)
 		suite.FatalNoError(err)
@@ -51,7 +50,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 	})
 
 	suite.Run("returns not found error for unknown locator", func() {
-		_ = testdatagen.MakeAvailableMove(suite.DB())
+		_ = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		_, err := moveFetcher.FetchMove(suite.AppContextForTest(), "QX97UY", &defaultSearchParams)
 		suite.Error(err)

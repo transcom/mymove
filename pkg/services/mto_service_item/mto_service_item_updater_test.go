@@ -180,7 +180,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	// Test successful Prime validation
 	suite.Run("UpdateMTOServiceItemPrimeValidator - success", func() {
 		oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()),
+			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 		})
 		newServiceItemPrime := oldServiceItemPrime
 
@@ -222,7 +222,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	// Test unsuccessful Prime validation - Invalid input
 	suite.Run("UpdateMTOServiceItemPrimeValidator - invalid input failure", func() {
 		oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()),
+			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 		})
 		newServiceItemPrime := oldServiceItemPrime
 
@@ -251,7 +251,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	// Test unsuccessful Prime validation - Payment requests
 	suite.Run("UpdateMTOServiceItemPrimeValidator - payment request failure", func() {
 		oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()),
+			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 		})
 		newServiceItemPrime := oldServiceItemPrime
 
@@ -293,7 +293,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 }
 
 func (suite *MTOServiceItemServiceSuite) createServiceItem() (string, models.MTOServiceItem, models.Move) {
-	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+	move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 
 	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: move,
@@ -305,7 +305,7 @@ func (suite *MTOServiceItemServiceSuite) createServiceItem() (string, models.MTO
 }
 
 func (suite *MTOServiceItemServiceSuite) createServiceItemForUnapprovedMove() (string, models.MTOServiceItem, models.Move) {
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 
 	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: move,
@@ -337,15 +337,22 @@ func (suite *MTOServiceItemServiceSuite) createServiceItemForMoveWithUnacknowled
 
 	amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
 	now := time.Now()
-	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			UploadedAmendedOrders:   &amendedDocument,
-			UploadedAmendedOrdersID: &amendedDocument.ID,
-			ServiceMember:           amendedDocument.ServiceMember,
-			ServiceMemberID:         amendedDocument.ServiceMemberID,
+	move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				ExcessWeightQualifiedAt: &now,
+			},
 		},
-		Move: models.Move{ExcessWeightQualifiedAt: &now},
-	})
+		{
+			Model:    amendedDocument,
+			LinkOnly: true,
+			Type:     &factory.Documents.UploadedAmendedOrders,
+		},
+		{
+			Model:    amendedDocument.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: move,

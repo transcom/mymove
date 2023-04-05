@@ -18,7 +18,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 
 	suite.Run("qualifies move for excess weight when an approved shipment estimated weight is updated within threshold", func() {
 		// The default weight allotment for this move is 8000 and the threshold is 90% of that
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
@@ -47,7 +47,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 	})
 
 	suite.Run("does not flag move for excess weight when an approved shipment estimated weight is lower than threshold", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
@@ -75,7 +75,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 	})
 
 	suite.Run("qualifies move for excess weight when the sum of approved shipments is updated within threshold", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		estimatedWeight := unit.Pound(3600)
@@ -113,7 +113,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 	})
 
 	suite.Run("does not flag move for excess weight when the sum of non-approved shipments meets the threshold", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		estimatedWeight := unit.Pound(3600)
@@ -151,7 +151,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 	})
 
 	suite.Run("does not flag move for excess weight when updated shipment status is not approved", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 
@@ -218,7 +218,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 	})
 
 	suite.Run("returns error if orders grade is unset to lookup weight allowance", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		approvedMove.Orders.Grade = nil
 
 		err := suite.DB().Save(&approvedMove.Orders)
@@ -230,7 +230,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 	})
 
 	suite.Run("returns error if dependents authorized is unset to lookup weight allowance", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		approvedMove.Orders.Entitlement.DependentsAuthorized = nil
 
 		err := suite.DB().Save(approvedMove.Orders.Entitlement)
@@ -243,7 +243,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 
 	suite.Run("qualifies move for excess weight when an approved shipment with PPM weights is greater than threshold", func() {
 		// The default weight allotment for this move is 8000 and the threshold is 90% of that
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		//Default estimatedWeight for ppm is 4000
 		ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
 		now := time.Now()
@@ -276,7 +276,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 
 	suite.Run("does not flag move for excess weight when an approved shipment with PPM weights is below the threshold", func() {
 		// The default weight allotment for this move is 8000 and the threshold is 90% of that
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		//Default estimatedWeight for ppm is 4000
 		ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
 		now := time.Now()
@@ -313,7 +313,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 	suite.Run("requests reweigh on shipment if the acutal weight is 90% of the weight allowance", func() {
 		// The default weight allotment for this move is 8000 and the threshold is 90% of that
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
@@ -342,7 +342,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		mockedReweighRequestor := mocks.ShipmentReweighRequester{}
 		mockedWeightService := NewMoveWeights(&mockedReweighRequestor)
 
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
@@ -365,7 +365,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 	})
 
 	suite.Run("requests reweigh on existing shipments in addition to the one being updated", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
@@ -414,7 +414,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		mockedReweighRequestor := mocks.ShipmentReweighRequester{}
 		mockedWeightService := NewMoveWeights(&mockedReweighRequestor)
 
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		actualWeight := unit.Pound(3600)
@@ -452,7 +452,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 	suite.Run("uses lower reweigh weight on shipments that already have reweighs", func() {
 		mockedReweighRequestor := mocks.ShipmentReweighRequester{}
 		mockedWeightService := NewMoveWeights(&mockedReweighRequestor)
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
@@ -506,7 +506,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 	})
 
 	suite.Run("returns error if orders grade is unset to lookup weight allowance", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		approvedMove.Orders.Grade = nil
 
 		err := suite.DB().Save(&approvedMove.Orders)
@@ -517,7 +517,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 	})
 
 	suite.Run("returns error if dependents authorized is unset to lookup weight allowance", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		approvedMove.Orders.Entitlement.DependentsAuthorized = nil
 
 		err := suite.DB().Save(approvedMove.Orders.Entitlement)

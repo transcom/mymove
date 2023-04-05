@@ -33,10 +33,10 @@ func (suite *HandlerSuite) TestListMovesHandlerReturnsUpdated() {
 	now := time.Now()
 	lastFetch := now.Add(-time.Second)
 
-	move := testdatagen.MakeAvailableMove(suite.DB())
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 	// this move should not be returned
-	olderMove := testdatagen.MakeAvailableMove(suite.DB())
+	olderMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 	// Pop will overwrite UpdatedAt when saving a model, so use SQL to set it in the past
 	suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?",
@@ -75,7 +75,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
 
-		successMove := testdatagen.MakeAvailableMove(suite.DB())
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
 			HTTPRequest: request,
 			MoveID:      successMove.ID.String(),
@@ -103,7 +103,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
-		successMove := testdatagen.MakeAvailableMove(suite.DB())
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
 			HTTPRequest: request,
 			MoveID:      successMove.Locator,
@@ -173,7 +173,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
-		successMove := testdatagen.MakeAvailableMove(suite.DB())
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
 			HTTPRequest: request,
 			MoveID:      successMove.Locator,
@@ -207,7 +207,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
-		successMove := testdatagen.MakeAvailableMove(suite.DB())
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
 			HTTPRequest: request,
 			MoveID:      successMove.Locator,
@@ -242,7 +242,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		// Create two shipments, one prime, one external.  Only prime one should be returned.
 		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
@@ -287,7 +287,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
@@ -320,7 +320,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
-		failureMove := testdatagen.MakeDefaultMove(suite.DB()) // default is not available to Prime
+		failureMove := factory.BuildMove(suite.DB(), nil, nil) // default is not available to Prime
 		params := movetaskorderops.GetMoveTaskOrderParams{
 			HTTPRequest: request,
 			MoveID:      failureMove.ID.String(),
@@ -423,7 +423,7 @@ func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 			moverouter.NewPrimeMoveExcessWeightUploader(upload.NewUploadCreator(fakeS3)),
 		}
 
-		unavailableMove := testdatagen.MakeDefaultMove(suite.DB()) // default move is not available to Prime
+		unavailableMove := factory.BuildMove(suite.DB(), nil, nil) // default move is not available to Prime
 		params := movetaskorderops.CreateExcessWeightRecordParams{
 			HTTPRequest:     request,
 			File:            suite.Fixture("test.pdf"),
@@ -448,7 +448,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 	suite.Run("Successful patch - Integration Test", func() {
 		requestUser := factory.BuildUser(nil, nil, nil)
-		mto := testdatagen.MakeAvailableMove(suite.DB())
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(mto.UpdatedAt)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
@@ -521,7 +521,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 	suite.Run("Unsuccessful patch - Integration Test - patch fail MTO not available", func() {
 		requestUser := factory.BuildUser(nil, nil, nil)
-		defaultMTO := testdatagen.MakeDefaultMove(suite.DB())
+		defaultMTO := factory.BuildMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(defaultMTO.UpdatedAt)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", defaultMTO.ID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
@@ -557,7 +557,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 	suite.Run("Patch failure - 500", func() {
 		requestUser := factory.BuildUser(nil, nil, nil)
-		mto := testdatagen.MakeAvailableMove(suite.DB())
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(mto.UpdatedAt)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
@@ -598,7 +598,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 	suite.Run("Patch failure - 404", func() {
 		requestUser := factory.BuildUser(nil, nil, nil)
-		mto := testdatagen.MakeAvailableMove(suite.DB())
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(mto.UpdatedAt)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
@@ -637,7 +637,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 	suite.Run("Patch failure - 409", func() {
 		requestUser := factory.BuildUser(nil, nil, nil)
-		mto := testdatagen.MakeAvailableMove(suite.DB())
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(mto.UpdatedAt)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
@@ -675,7 +675,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 	suite.Run("Patch failure - 422", func() {
 		requestUser := factory.BuildUser(nil, nil, nil)
-		mto := testdatagen.MakeAvailableMove(suite.DB())
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(mto.UpdatedAt)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)

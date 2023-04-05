@@ -14,7 +14,7 @@ import (
 )
 
 func (suite *OrderServiceSuite) TestFetchOrder() {
-	expectedMove := testdatagen.MakeDefaultMove(suite.DB())
+	expectedMove := factory.BuildMove(suite.DB(), nil, nil)
 	expectedOrder := expectedMove.Orders
 	orderFetcher := NewOrderFetcher()
 
@@ -97,7 +97,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser, expectedMove := setupTestData()
 
 		// Create a Move without a shipment
-		testdatagen.MakeDefaultMove(suite.DB())
+		factory.BuildMove(suite.DB(), nil, nil)
 
 		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{})
 

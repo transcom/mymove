@@ -72,7 +72,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 
 func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	// Given: a set of incomplete orders, a move, office user and servicemember user
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// Given: an office User
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	moveRouter := moverouter.NewMoveRouter()
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 
 func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
 	// Given: a set of orders, a move, office user and servicemember user
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// Given: an non-office User
 	user := factory.BuildServiceMember(suite.DB(), nil, nil)
 	moveRouter := moverouter.NewMoveRouter()
@@ -209,7 +209,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 
 func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
 	// Given: a set of orders, a move, office user and servicemember user
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// Given: an non-office User
 	user := factory.BuildServiceMember(suite.DB(), nil, nil)
 

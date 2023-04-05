@@ -16,7 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	. "github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestPPMValidation() {
@@ -31,7 +30,7 @@ func (suite *ModelSuite) TestPPMValidation() {
 
 func (suite *ModelSuite) TestPPMAdvance() {
 
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	serviceMember := move.Orders.ServiceMember
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
@@ -54,7 +53,7 @@ func (suite *ModelSuite) TestPPMAdvance() {
 
 // TODO: Fix test now that we capture transaction error
 /* func (suite *ModelSuite) TestPPMAdvanceNoGTCC() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptGTCC)
 

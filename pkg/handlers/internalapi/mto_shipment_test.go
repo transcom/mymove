@@ -1273,7 +1273,7 @@ type mtoListSubtestData struct {
 
 func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestData) {
 	subtestData = &mtoListSubtestData{}
-	mto := testdatagen.MakeDefaultMove(suite.DB())
+	mto := factory.BuildMove(suite.DB(), nil, nil)
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 	})

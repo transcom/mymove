@@ -146,7 +146,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	})
 
 	suite.Run("Etag is stale", func() {
-		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
@@ -170,7 +170,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 	)
 
 	suite.Run("MTO post counseling information is updated successfully", func() {
-		expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
+		expectedMTO := factory.BuildMove(suite.DB(), nil, nil)
 		// Make a couple of shipments for the move; one prime, one external
 		primeShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			Move: expectedMTO,
@@ -227,7 +227,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 	})
 
 	suite.Run("Counseling isn't an approved service item", func() {
-		expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
+		expectedMTO := factory.BuildMove(suite.DB(), nil, nil)
 		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			Move: expectedMTO,
 			MTOShipment: models.MTOShipment{
@@ -242,7 +242,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 	})
 
 	suite.Run("Etag is stale", func() {
-		expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
+		expectedMTO := factory.BuildMove(suite.DB(), nil, nil)
 		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
 			MTOServiceItem: models.MTOServiceItem{
 				Status: models.MTOServiceItemStatusApproved,
@@ -381,7 +381,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		moveRouter := moverouter.NewMoveRouter()
 		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter)
 		// Create move in DRAFT status, which should fail to get approved
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		fetchedMove := models.Move{}
 
@@ -551,7 +551,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_BillableWeights
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter)
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
 		updatedMove, err := mtoUpdater.UpdateReviewedBillableWeightsAt(suite.AppContextForTest(), move.ID, eTag)
@@ -582,7 +582,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_TIORemarks() {
 	moveRouter := moverouter.NewMoveRouter()
 	mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter)
 	suite.Run("Service item creator is not called if move fails to get approved", func() {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
 		updatedMove, err := mtoUpdater.UpdateTIORemarks(suite.AppContextForTest(), move.ID, eTag, remarks)

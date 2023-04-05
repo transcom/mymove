@@ -349,7 +349,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 
 	suite.Run("Correct addresses are used for NTS and NTS-release shipments", func() {
 		// Make a move and service for reuse.
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
 
 		// NTS should have a pickup address and storage facility address.

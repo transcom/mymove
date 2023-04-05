@@ -422,7 +422,7 @@ func (suite *EventServiceSuite) TestOrderEventTrigger() {
 	// Test successful event passing with Support API
 	suite.Run("Success with GHC ServiceItem endpoint", func() {
 
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		traceID := uuid.Must(uuid.NewV4())
 		_, err := TriggerEvent(Event{
 			EventKey:        OrderUpdateEventKey,

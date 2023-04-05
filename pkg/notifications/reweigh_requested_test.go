@@ -10,7 +10,7 @@ import (
 )
 
 func (suite *NotificationSuite) TestReweighRequestedOnSuccess() {
-	move := testdatagen.MakeAvailableMove(suite.DB())
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 
@@ -34,7 +34,7 @@ func (suite *NotificationSuite) TestReweighRequestedOnSuccess() {
 }
 
 func (suite *NotificationSuite) TestReweighRequestedHTMLTemplateRender() {
-	move := testdatagen.MakeAvailableMove(suite.DB())
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 	notification := NewReweighRequested(move.ID, shipment)
@@ -79,7 +79,7 @@ func (suite *NotificationSuite) TestReweighRequestedHTMLTemplateRender() {
 }
 
 func (suite *NotificationSuite) TestReweighRequestedTextTemplateRender() {
-	move := testdatagen.MakeAvailableMove(suite.DB())
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 	notification := NewReweighRequested(move.ID, shipment)

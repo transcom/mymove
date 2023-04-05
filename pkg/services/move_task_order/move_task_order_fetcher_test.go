@@ -16,7 +16,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 
 	setupTestData := func() (models.Move, models.MTOShipment) {
 
-		expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
+		expectedMTO := factory.BuildMove(suite.DB(), nil, nil)
 
 		// Make a couple of shipments for the move; one prime, one external
 		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
@@ -93,7 +93,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	})
 
 	suite.Run("Success with move that has only deleted shipments", func() {
-		mtoWithAllShipmentsDeleted := testdatagen.MakeDefaultMove(suite.DB())
+		mtoWithAllShipmentsDeleted := factory.BuildMove(suite.DB(), nil, nil)
 		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: mtoWithAllShipmentsDeleted,
 			MTOShipment: models.MTOShipment{
@@ -166,7 +166,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 			},
 		}, nil)
 
-		mto := testdatagen.MakeDefaultMove(suite.DB())
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 
 		// Make a couple of shipments for the default move; one prime, one external
 		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
@@ -258,8 +258,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		now = time.Now()
 
 		// Create the two moves
-		newMove := testdatagen.MakeAvailableMove(suite.DB())
-		oldMTO := testdatagen.MakeAvailableMove(suite.DB())
+		newMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		oldMTO := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		// Check that they're both returned
 		searchParams := services.MoveTaskOrderFetcherParams{
@@ -301,11 +301,11 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 		},
 	}, nil)
 	// Make a default, not Prime-available move:
-	nonPrimeMove := testdatagen.MakeDefaultMove(suite.DB())
+	nonPrimeMove := factory.BuildMove(suite.DB(), nil, nil)
 	// Make some Prime moves:
-	primeMove1 := testdatagen.MakeAvailableMove(suite.DB())
-	primeMove2 := testdatagen.MakeAvailableMove(suite.DB())
-	primeMove3 := testdatagen.MakeAvailableMove(suite.DB())
+	primeMove1 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	primeMove2 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	primeMove3 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &primeMove3, testdatagen.Assertions{})
 
 	// Move primeMove1 and primeMove3 into the past so we can exclude them:

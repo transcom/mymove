@@ -35,7 +35,7 @@ import (
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
 			ProvidesCloseout: true,
@@ -75,7 +75,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// And: another logged in user
 	anotherUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
@@ -133,7 +133,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerCloseoutOfficeNotFound() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// TransportationOffice doesn't provide PPM closeout so should not be found
 	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 
@@ -163,7 +163,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerCloseoutOfficeNotFound() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerETagPreconditionFailure() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
 			ProvidesCloseout: true,
@@ -196,7 +196,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerETagPreconditionFailure() {
 func (suite *HandlerSuite) TestShowMoveHandler() {
 
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
@@ -221,7 +221,7 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 
 func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// And: another logged in user
 	anotherUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
@@ -244,7 +244,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 	suite.Run("Submits ppm success", func() {
 		// Given: a set of orders, a move, user and servicemember
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -571,7 +571,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 
 func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// And: another logged in user
 	anotherUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
@@ -666,7 +666,7 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 			},
 		})
 
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	netWeight := unit.Pound(1000)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{

@@ -778,7 +778,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		// when ScheduledPickupDate was included in the payload. See PR #6919.
 		// ApprovedDate affects shipment diversions, so we want to make sure it
 		// never gets nullified, regardless of which fields are being updated.
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		oldShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
@@ -1334,7 +1334,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		setupTestData()
 
 		approvedShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()),
+			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
 			},
@@ -1355,7 +1355,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		setupTestData()
 
 		cancellationRequestedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()),
+			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusCancellationRequested,
 			},
@@ -1412,7 +1412,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		// a diversion or diverted shipment is when the PRIME sets the diversion field to true
 		// the status must also be in diversion requested status to be approvable as well
 		diversionRequestedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()),
+			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 			MTOShipment: models.MTOShipment{
 				Status:    models.MTOShipmentStatusDiversionRequested,
 				Diversion: true,

@@ -30,9 +30,9 @@ import (
 
 func (suite *HandlerSuite) TestListMTOsHandler() {
 	// unavailable MTO
-	testdatagen.MakeDefaultMove(suite.DB())
+	factory.BuildMove(suite.DB(), nil, nil)
 
-	moveTaskOrder := testdatagen.MakeAvailableMove(suite.DB())
+	moveTaskOrder := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrder,
@@ -74,8 +74,8 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		}
 		var moves models.Moves
 
-		mto1 := testdatagen.MakeDefaultMove(suite.DB())
-		mto2 := testdatagen.MakeDefaultMove(suite.DB())
+		mto1 := factory.BuildMove(suite.DB(), nil, nil)
+		mto2 := factory.BuildMove(suite.DB(), nil, nil)
 		moves = append(moves, mto1, mto2)
 
 		response := handler.Handle(params)
@@ -180,7 +180,7 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 }
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	params := movetaskorderops.GetMoveTaskOrderParams{
 		HTTPRequest:     request,

@@ -38,7 +38,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGActualAddressLook
 				},
 			}, nil)
 
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{

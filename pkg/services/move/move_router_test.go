@@ -79,7 +79,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		// Under test: MoveRouter.Submit
 		// Set up: Submit a move without an originDutyLocation
 		// Expected outcome: Error on ordersID
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		order := move.Orders
 		order.OriginDutyLocation = nil
 		order.OriginDutyLocationID = nil
@@ -189,7 +189,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		// Under test: MoveRouter.Submit
 		// Set up: Create a move that is not in DRAFT status, submit a move to other statuses
 		// Expected outcome: Error
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		invalidStatuses := []struct {
 			desc   string
@@ -353,7 +353,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	})
 
 	suite.Run("PPM status changes to Submitted", func() {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -538,7 +538,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 	moveRouter := NewMoveRouter()
 
 	suite.Run("approves the move if TOO no longer has actions to perform", func() {
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		updatedMove, err := moveRouter.ApproveOrRequestApproval(suite.AppContextForTest(), move)
 
 		suite.NoError(err)
@@ -552,11 +552,13 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 
 	suite.Run("does not approve the move if excess weight risk exists and has not been acknowledged", func() {
 		now := time.Now()
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ExcessWeightQualifiedAt: &now,
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightQualifiedAt: &now,
+				},
 			},
-		})
+		}, nil)
 
 		updatedMove, err := moveRouter.ApproveOrRequestApproval(suite.AppContextForTest(), move)
 
@@ -604,15 +606,22 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 
 		amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
 		now := time.Now()
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				UploadedAmendedOrders:   &amendedDocument,
-				UploadedAmendedOrdersID: &amendedDocument.ID,
-				ServiceMember:           amendedDocument.ServiceMember,
-				ServiceMemberID:         amendedDocument.ServiceMemberID,
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightQualifiedAt: &now,
+				},
 			},
-			Move: models.Move{ExcessWeightQualifiedAt: &now},
-		})
+			{
+				Model:    amendedDocument,
+				LinkOnly: true,
+				Type:     &factory.Documents.UploadedAmendedOrders,
+			},
+			{
+				Model:    amendedDocument.ServiceMember,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		updatedMove, err := moveRouter.ApproveOrRequestApproval(suite.AppContextForTest(), move)
 
@@ -626,7 +635,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 	})
 
 	suite.Run("does not approve the move if unreviewed SIT extensions exist", func() {
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
@@ -711,7 +720,7 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 }
 
 func (suite *MoveServiceSuite) createServiceItem() (models.MTOServiceItem, models.Move) {
-	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+	move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 
 	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: move,

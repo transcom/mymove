@@ -7,14 +7,13 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 	mtoChecker := NewMoveTaskOrderChecker()
 
 	suite.Run("MTO is available and visible - success", func() {
-		availableMTO := testdatagen.MakeAvailableMove(suite.DB())
+		availableMTO := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.AppContextForTest(), availableMTO.ID)
 		suite.Equal(availableToPrime, true)
 		suite.NoError(err)
@@ -38,7 +37,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 	})
 
 	suite.Run("MTO is not available - no failure, but returns false", func() {
-		notAvailableMTO := testdatagen.MakeDefaultMove(suite.DB())
+		notAvailableMTO := factory.BuildMove(suite.DB(), nil, nil)
 
 		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.AppContextForTest(), notAvailableMTO.ID)
 		suite.Equal(availableToPrime, false)

@@ -55,7 +55,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	setupTestData := func() (CreateMTOShipmentHandler, models.Move) {
 
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		handler := CreateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentCreator,
@@ -414,7 +414,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler, _ := setupTestData()
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
-		unavailableMove := testdatagen.MakeDefaultMove(suite.DB())
+		unavailableMove := factory.BuildMove(suite.DB(), nil, nil)
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreateMTOShipment{
@@ -565,7 +565,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		// Create an available shipment in DB
 		now := testdatagen.CurrentDateWithoutTime()
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
@@ -1342,7 +1342,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 			shipmentUpdater,
 		}
 		// Create a shipment in the DB that has no addresses populated:
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
@@ -1404,7 +1404,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 		// Expected:   Handler should return unprocessable entity error for those addresses already created, but not the new ones.
 		//             Addresses cannot be updated with this endpoint, only created,  and should be listed in errors
 		handler, _ := setupTestData()
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
@@ -1456,7 +1456,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 		// Expected:   Handler should return OK, addresses should be unchanged.
 		//             This endpoint was previously blanking out addresses which is why we have this test.
 		handler, _ := setupTestData()
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
@@ -1546,7 +1546,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			shipmentUpdater,
 		}
 		// Create an available move to be used for the shipments
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		// Add the transit time record
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 		return handler, move
@@ -2134,7 +2134,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		}
 
 		// Set up Prime-available move
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				MoveTaskOrder:   move,
