@@ -21,6 +21,13 @@ afterEach(() => {
   });
 });
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: () => ({
+    pathname: 'sign-in',
+  }),
+}));
+
 describe('SignIn tests', () => {
   it('renders without crashing', () => {
     render(
@@ -130,5 +137,10 @@ describe('SignIn tests', () => {
       </MockRouterProvider>,
     );
     expect(screen.queryByText('You have been logged out due to inactivity.')).not.toBeInTheDocument();
+  });
+  it('renders with the correct page title', () => {
+    const div = document.createElement('div');
+    shallow(<SignIn />, div);
+    expect(document.title).toContain('Sign In');
   });
 });

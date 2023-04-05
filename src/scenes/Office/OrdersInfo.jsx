@@ -15,6 +15,7 @@ import { loadOrders, loadOrdersLabel } from 'shared/Entities/modules/orders';
 import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { stringifyName } from 'shared/utils/serviceMember';
 import { selectOrdersById } from 'store/entities/selectors';
+import { generatePageTitle } from 'shared/utils';
 
 import './office.scss';
 import withRouter from 'utils/routing';
@@ -37,7 +38,7 @@ class OrdersInfo extends Component {
   render() {
     const { serviceMember, uploads } = this.props;
     const name = stringifyName(serviceMember);
-    document.title = `Orders for ${name}`;
+    document.title = generatePageTitle(`Orders for ${name}`);
 
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
     if (this.props.loadDependenciesHasError)

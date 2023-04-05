@@ -1,11 +1,9 @@
-import React, { useEffect } from 'react';
-import { generateCustomerPageTitleFromString } from 'shared/utils';
+import React from 'react';
+import { useTitle } from 'shared/utils';
 import './statements.css';
 
-function PrivacyPolicy() {
-  useEffect(() => {
-    document.title = generateCustomerPageTitleFromString('508 Compliance');
-  });
+function AccessibilityStatement() {
+  useTitle('508 Compliance');
   return (
     <div className="usa-grid">
       <div className="usa-width-two-thirds statement-content">
@@ -58,4 +56,4 @@ function PrivacyPolicy() {
   );
 }
 
-export default PrivacyPolicy;
+export default AccessibilityStatement;

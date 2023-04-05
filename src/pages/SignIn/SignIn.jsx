@@ -13,11 +13,7 @@ import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
 import ConnectedEulaModal from 'components/EulaModal';
 import { isDevelopment } from 'shared/constants';
-import {
-  generateAdminPageTitleFromString,
-  generateCustomerPageTitleFromString,
-  generateOfficePageTitleFromPath,
-} from 'shared/utils';
+import { useTitle } from 'shared/utils';
 
 const SignIn = ({ context, showLocalDevLogin }) => {
   const location = useLocation();
@@ -27,6 +23,8 @@ const SignIn = ({ context, showLocalDevLogin }) => {
   const { error } = qs.parse(location.search);
   const { siteName, showLoginWarning } = context;
 
+  useTitle();
+
   useEffect(() => {
     function unload() {
       navigate('', { replace: true, state: null });
@@ -34,17 +32,6 @@ const SignIn = ({ context, showLocalDevLogin }) => {
     window.addEventListener('beforeunload', unload);
     return () => window.removeEventListener('beforeunload', unload);
   }, [navigate]);
-
-  useEffect(() => {
-    let title = generateCustomerPageTitleFromString('Sign In');
-    if (siteName === 'admin.move.mil') {
-      title = generateAdminPageTitleFromString('Sign In');
-    }
-    if (siteName === 'office.move.mil') {
-      title = generateOfficePageTitleFromPath('Sign In');
-    }
-    document.title = title;
-  });
 
   return (
     <div className="usa-prose grid-container padding-top-3">

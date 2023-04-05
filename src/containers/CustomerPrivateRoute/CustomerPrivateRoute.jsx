@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -6,12 +6,10 @@ import { connect } from 'react-redux';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { selectGetCurrentUserIsLoading, selectIsLoggedIn } from 'store/auth/selectors';
 import { LocationShape } from 'types/index';
-import { generateCustomerPageTitleFromPath } from 'shared/utils';
+import { useTitle } from 'shared/utils';
 
 const CustomerPrivateRoute = ({ loginIsLoading, userIsLoggedIn, location, ...routeProps }) => {
-  useEffect(() => {
-    document.title = generateCustomerPageTitleFromPath(routeProps.path);
-  });
+  useTitle();
 
   if (loginIsLoading) return <LoadingPlaceholder />;
 

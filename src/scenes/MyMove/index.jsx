@@ -20,7 +20,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import { withContext } from 'shared/AppContext';
-import { generateCustomerPageTitleFromString, no_op } from 'shared/utils';
+import { generatePageTitle, no_op } from 'shared/utils';
 import { loadUser as loadUserAction } from 'store/auth/actions';
 import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
 import { selectGetCurrentUserIsLoading, selectIsLoggedIn } from 'store/auth/selectors';
@@ -88,7 +88,7 @@ export class CustomerApp extends Component {
     loadInternalSchema();
     loadUser();
     initOnboarding();
-    document.title = generateCustomerPageTitleFromString('Sign In');
+    document.title = generatePageTitle('Sign In');
   }
 
   componentDidCatch(error, info) {

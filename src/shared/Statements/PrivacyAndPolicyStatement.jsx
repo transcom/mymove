@@ -1,11 +1,9 @@
-import React, { useEffect } from 'react';
-import { generateCustomerPageTitleFromString } from 'shared/utils';
+import React from 'react';
+import { useTitle } from 'shared/utils';
 import './statements.css';
 
 function PrivacyPolicy() {
-  useEffect(() => {
-    document.title = generateCustomerPageTitleFromString('Privacy & Security Policy');
-  });
+  useTitle('Privacy & Security Policy');
   return (
     <div className="usa-grid">
       <div className="usa-width-two-thirds statement-content">

@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Navigate } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { selectLoggedInUser } from 'store/entities/selectors';
 import getRoleTypesFromRoles from 'utils/user';
+import { useTitle } from 'shared/utils';
 import { UserRolesShape } from 'types';
-import { generateOfficePageTitleFromPath } from 'shared/utils';
 
 export function userIsAuthorized(userRoles, requiredRoles) {
   // Return true if no roles are required
@@ -20,14 +20,7 @@ export function userIsAuthorized(userRoles, requiredRoles) {
 }
 
 function PrivateRoute({ requiredRoles, userRoles, children, ...routeProps }) {
-  useEffect(() => {
-    const title = generateOfficePageTitleFromPath(routeProps.path);
-    document.title = title;
-    const titleAnnouncer = document.getElementById('title-announcer');
-    if (titleAnnouncer) {
-      titleAnnouncer.textContent = title;
-    }
-  });
+  useTitle();
   const userRoleTypes = getRoleTypesFromRoles(userRoles);
 
   if (!userIsAuthorized(userRoleTypes, requiredRoles)) {

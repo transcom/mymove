@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { capitalize, find, get, includes, mapValues } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useLocation } from 'react-router-dom';
+import {
+  ADMIN_BASE_PAGE_TITLE,
+  MILMOVE_BASE_PAGE_TITLE,
+  OFFICE_BASE_PAGE_TITLE,
+  isAdminSite,
+  isMilmoveSite,
+  isOfficeSite,
+} from './constants';
 
 import { formatDateForSwagger } from './dates';
-import { ADMIN_BASE_PAGE_TITLE, CUSTOMER_BASE_PAGE_TITLE, OFFICE_BASE_PAGE_TITLE } from './constants';
 
 export const no_op = () => undefined;
 export const no_op_action = () => {
@@ -171,15 +179,17 @@ export function isEmpty(obj) {
   return empty;
 }
 
+// helper function for generating a page subtitle from the path
+// "my-favorite_path/:pathId/details" becomes "My Favorite Path - Details"
 export function convertPathToSubtitle(path) {
   return (
     path &&
     path
       .split('/')
-      .filter((component) => component && component.match(/^(?!:)/))
-      .map((word) =>
-        word
-          .split('-')
+      .filter((parameter) => parameter)
+      .map((segment) =>
+        segment
+          .split(/[-_]/)
           .map((word) => capitalize(word))
           .join(' '),
       )
@@ -187,31 +197,31 @@ export function convertPathToSubtitle(path) {
   );
 }
 
-export function generatePageTitleFromPath(baseTitle, path) {
-  const subtitle = convertPathToSubtitle(path);
-  return generatePageTitleFromString(baseTitle, subtitle);
-}
-
-export function generatePageTitleFromString(baseTitle, string) {
+export function generatePageTitle(string) {
+  const baseTitle = getBasePageTitle();
   return baseTitle + (string ? ` - ${string}` : '');
 }
 
-export function generateCustomerPageTitleFromPath(path) {
-  return generatePageTitleFromPath(CUSTOMER_BASE_PAGE_TITLE, path);
+export function getBasePageTitle() {
+  let baseTitle = '';
+  if (isAdminSite) {
+    baseTitle = ADMIN_BASE_PAGE_TITLE;
+  }
+  if (isMilmoveSite) {
+    baseTitle = MILMOVE_BASE_PAGE_TITLE;
+  }
+  if (isOfficeSite) {
+    baseTitle = OFFICE_BASE_PAGE_TITLE;
+  }
+  return baseTitle;
 }
 
-export function generateCustomerPageTitleFromString(string) {
-  return generatePageTitleFromString(CUSTOMER_BASE_PAGE_TITLE, string);
-}
-
-export function generateOfficePageTitleFromPath(path) {
-  return generatePageTitleFromPath(OFFICE_BASE_PAGE_TITLE, path);
-}
-
-export function generateAdminPageTitleFromPath(path) {
-  return generatePageTitleFromPath(ADMIN_BASE_PAGE_TITLE, path);
-}
-
-export function generateAdminPageTitleFromString(string) {
-  return generatePageTitleFromString(ADMIN_BASE_PAGE_TITLE, string);
+export function useTitle(subtitle) {
+  const { pathname } = useLocation();
+  if (!subtitle) {
+    subtitle = convertPathToSubtitle(pathname);
+  }
+  useEffect(() => {
+    document.title = generatePageTitle(subtitle);
+  });
 }
