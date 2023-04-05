@@ -405,6 +405,16 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("USD", currency.CurrencyCodeC301)
 	})
 
+	// test that service members of affiliation MARINES have a GBLOC of USMC
+	suite.Run("updates the GBLOC for marines to be USMC", func() {
+		setupTestData()
+		// name
+		originDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
+		//n1 := result.Header.OriginName
+		//suite.Equal(originDutyLocation.TransportationOffice.Gbloc, n1.IdentificationCode)
+		suite.Equal(originDutyLocation.TransportationOffice.Gbloc, "USMC")
+	})
+
 	suite.Run("adds actual pickup date to header", func() {
 		setupTestData()
 		g62Requested := result.Header.RequestedPickupDate
@@ -1121,6 +1131,10 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		suite.Error(err)
 		suite.Contains(err.Error(), "Must have an NTS TAC value")
 	})
+}
+
+func (suite *ghcPaymentRequestInvoiceGenerator) TestCheckMarinesBranchFunc() {
+
 }
 
 func (suite *GHCInvoiceSuite) TestTruncateStrFunc() {
