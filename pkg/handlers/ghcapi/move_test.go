@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -30,18 +29,18 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 	availableToPrimeAt := time.Now()
 	submittedAt := availableToPrimeAt.Add(-1 * time.Hour)
 
-	ordersID := uuid.Must(uuid.NewV4())
 	var move models.Move
 	var requestUser models.User
 	setupTestData := func() {
-		move = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status:             models.MoveStatusAPPROVED,
-				AvailableToPrimeAt: &availableToPrimeAt,
-				SubmittedAt:        &submittedAt,
-				Orders:             models.Order{ID: ordersID},
+		move = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:             models.MoveStatusAPPROVED,
+					AvailableToPrimeAt: &availableToPrimeAt,
+					SubmittedAt:        &submittedAt,
+				},
 			},
-		})
+		}, nil)
 		requestUser = factory.BuildUser(nil, nil, nil)
 	}
 
@@ -86,25 +85,31 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		suite.Equal(move.CreatedAt.Format(swaggerTimeFormat), time.Time(payload.CreatedAt).Format(swaggerTimeFormat))
 		suite.Equal(move.SubmittedAt.Format(swaggerTimeFormat), time.Time(*payload.SubmittedAt).Format(swaggerTimeFormat))
 		suite.Equal(move.UpdatedAt.Format(swaggerTimeFormat), time.Time(payload.UpdatedAt).Format(swaggerTimeFormat))
-		suite.Equal(ordersID, move.Orders.ID)
 		suite.Nil(payload.CloseoutOffice)
 	})
 
 	suite.Run("Successful move with a saved transportation office", func() {
-		transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-			TransportationOffice: models.TransportationOffice{
-				ProvidesCloseout: true,
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: true,
+				},
 			},
-		})
+		}, nil)
 
-		move = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status:           models.MoveStatusSUBMITTED,
-				SubmittedAt:      &submittedAt,
-				CloseoutOffice:   &transportationOffice,
-				CloseoutOfficeID: &transportationOffice.ID,
+		move = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:      models.MoveStatusSUBMITTED,
+					SubmittedAt: &submittedAt,
+				},
 			},
-		})
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, nil)
 		moveFetcher := moveservice.NewMoveFetcher()
 		requestOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 

@@ -99,28 +99,28 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest(ordersID uui
 	}
 	suite.MustSave(&tspPerformance)
 
-	address := models.Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     "78626",
-	}
-	suite.MustSave(&address)
-
-	locationName := "New Duty Location"
-	location := models.DutyLocation{
-		Name:      locationName,
-		AddressID: address.ID,
-		Address:   address,
-	}
-	suite.MustSave(&location)
-
-	orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ID:                ordersID,
-			NewDutyLocationID: location.ID,
+	orders := factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				ID: ordersID,
+			},
 		},
-	})
+		{
+			Model: models.DutyLocation{
+				Name: "New Duty Location",
+			},
+			Type: &factory.DutyLocations.NewDutyLocation,
+		},
+		{
+			Model: models.Address{
+				StreetAddress1: "some address",
+				City:           "city",
+				State:          "state",
+				PostalCode:     "78626",
+			},
+			Type: &factory.Addresses.DutyLocationAddress,
+		},
+	}, nil)
 
 	moveID, _ := uuid.NewV4()
 	_ = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{

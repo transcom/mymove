@@ -92,6 +92,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 		originDutyLocation := models.DutyLocation{
 			Name: "Custom Origin",
 		}
+		originDutyLocationTOName := "origin duty location transportation office"
 		firstName := "customFirst"
 		lastName := "customLast"
 		serviceMember := models.ServiceMember{
@@ -114,6 +115,12 @@ func (suite *FactorySuite) TestBuildOrder() {
 				Type:  &DutyLocations.OriginDutyLocation,
 			},
 			{
+				Model: models.TransportationOffice{
+					Name: originDutyLocationTOName,
+				},
+				Type: &TransportationOffices.OriginDutyLocation,
+			},
+			{
 				Model: serviceMember,
 			},
 			{
@@ -133,6 +140,8 @@ func (suite *FactorySuite) TestBuildOrder() {
 
 		suite.Equal(originDutyLocation.Name, order.OriginDutyLocation.Name)
 		suite.Equal(originDutyLocation.Name, order.ServiceMember.DutyLocation.Name)
+		suite.Equal(originDutyLocationTOName, order.OriginDutyLocation.TransportationOffice.Name)
+		suite.Equal(originDutyLocationTOName, order.ServiceMember.DutyLocation.TransportationOffice.Name)
 		suite.Equal(*serviceMember.FirstName, *order.ServiceMember.FirstName)
 		suite.Equal(*serviceMember.LastName, *order.ServiceMember.LastName)
 		suite.Equal(uploadedOrders.ID, order.UploadedOrdersID)

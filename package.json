@@ -41,7 +41,7 @@
     "playwright": "^1.31.2",
     "prop-types": "^15.8.1",
     "query-string": "7",
-    "ra-language-english": "^4.9.0",
+    "ra-language-english": "^4.9.1",
     "react": "^17.0.1",
     "react-admin": "^3.19.12",
     "react-admin-import-csv": "^1.0.33",
@@ -75,7 +75,7 @@
     "reselect": "^4.1.7",
     "sass": "^1.60.0",
     "swagger-client": "^3.18.5",
-    "swagger-ui-dist": "^4.18.1",
+    "swagger-ui-dist": "^4.18.2",
     "uswds": "2.13.3",
     "uuid": "^9.0.0",
     "webpack": "5",
@@ -172,7 +172,7 @@
     "react-select-event": "^5.5.1",
     "react-test-renderer": "^17.0.1",
     "source-map-explorer": "^2.5.3",
-    "typescript": "^5.0.2"
+    "typescript": "^5.0.3"
   },
   "browserslist": [
     ">0.2%",
