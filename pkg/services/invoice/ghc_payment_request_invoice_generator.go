@@ -860,13 +860,18 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(ap
 	return segments, l3, nil
 }
 
+// This business logic should likely live in the transportation_office.go file,
+// however, since the change would likely impact other parts of the application it is here so that it only
+// updates the Gbloc is sent to Syncada
 func (g ghcPaymentRequestInvoiceGenerator) checkMarinesBranch(serviceMember models.ServiceMember) string {
+	serviceMemberGbloc := serviceMember.DutyLocation.TransportationOffice.Gbloc
 	if *serviceMember.Affiliation == models.AffiliationMARINES {
-		return "USMC"
+		serviceMemberGbloc = "USMC"
+		return serviceMemberGbloc
 	}
 	// May need to be more explicit here about the origin duty location:
 	//models.FetchDutyLocationTransportationOffice(appCtx.DB(), originDutyLocation.ID)
-	return serviceMember.DutyLocation.TransportationOffice.Gbloc
+	return serviceMemberGbloc
 }
 
 func msOrCsOnly(paymentServiceItems models.PaymentServiceItems) bool {
