@@ -1,9 +1,11 @@
 package factory
 
 import (
+	"golang.org/x/exp/slices"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -44,8 +46,15 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 
 	if buildType == mtoShipmentBuild {
 		shipmentStatus := models.MTOShipmentStatusDraft
+		var storageFacilityID *uuid.UUID
+		var storageFacility models.StorageFacility
 
-		storageFacility := BuildStorageFacility(db, customs, traits)
+		storageFacilityShipmentTypes := []models.MTOShipmentType{models.MTOShipmentTypeHHGOutOfNTSDom, models.MTOShipmentTypeHHGIntoNTSDom}
+
+		if slices.Contains(storageFacilityShipmentTypes, cMtoShipment.ShipmentType) {
+			storageFacility = BuildStorageFacility(db, customs, traits)
+			storageFacilityID = &storageFacility.ID
+		}
 
 		actualWeight := unit.Pound(980)
 
@@ -66,7 +75,7 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			ShipmentType:          shipmentType,
 			Status:                shipmentStatus,
 			PrimeActualWeight:     &actualWeight,
-			StorageFacilityID:     &storageFacility.ID,
+			StorageFacilityID:     storageFacilityID,
 			StorageFacility:       &storageFacility,
 		}
 
@@ -89,7 +98,6 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			// Check that a GBLOC exists for pickup address postal code, make one if not
 			gbloc, err := models.FetchGBLOCForPostalCode(db, pickupAddress.PostalCode)
 			if gbloc.GBLOC == "" || err != nil {
-				//MakePostalCodeToGBLOC(db, pickupAddress.PostalCode, "KKFA")
 				FetchOrBuildPostalCodeToGBLOC(db, pickupAddress.PostalCode, "KKFA")
 			}
 
