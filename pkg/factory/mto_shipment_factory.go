@@ -3,10 +3,9 @@ package factory
 import (
 	"time"
 
-	"golang.org/x/exp/slices"
-
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -49,9 +48,7 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		var storageFacilityID *uuid.UUID
 		var storageFacility models.StorageFacility
 
-		storageFacilityShipmentTypes := []models.MTOShipmentType{models.MTOShipmentTypeHHGOutOfNTSDom, models.MTOShipmentTypeHHGIntoNTSDom}
-
-		if slices.Contains(storageFacilityShipmentTypes, cMtoShipment.ShipmentType) {
+		if cMtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom || cMtoShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
 			storageFacility = BuildStorageFacility(db, customs, traits)
 			storageFacilityID = &storageFacility.ID
 		}
