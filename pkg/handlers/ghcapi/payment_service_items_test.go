@@ -27,7 +27,7 @@ type updatePaymentSubtestData struct {
 func (suite *HandlerSuite) makeUpdatePaymentSubtestData() (subtestData *updatePaymentSubtestData) {
 	subtestData = &updatePaymentSubtestData{}
 
-	mto := testdatagen.MakeDefaultMove(suite.DB())
+	mto := factory.BuildMove(suite.DB(), nil, nil)
 	paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
 	subtestData.paymentServiceItem = paymentServiceItem
 	requestUser := factory.BuildUser(nil, nil, nil)
@@ -179,7 +179,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 	})
 
 	suite.Run("Successful patch - Approval of Prime available paymentServiceItem", func() {
-		availableMTO := testdatagen.MakeAvailableMove(suite.DB())
+		availableMTO := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		availablePaymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			Move: availableMTO,
 		})

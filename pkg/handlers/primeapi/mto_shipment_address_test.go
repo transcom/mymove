@@ -38,7 +38,7 @@ func isAddressEqual(suite *HandlerSuite, reqAddress *primemessages.Address, resp
 func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 	setupTestData := func() (UpdateMTOShipmentAddressHandler, models.Move) {
 		// Make an available MTO
-		availableMove := testdatagen.MakeAvailableMove(suite.DB())
+		availableMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		// Create handler
 		handler := UpdateMTOShipmentAddressHandler{

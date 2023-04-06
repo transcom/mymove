@@ -207,7 +207,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 
 	suite.Run("Paginated move history fetch results", func() {
 		// Create a move
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		// Add shipment to the move, giving the move some "history"
 		shipment := models.MTOShipment{Status: models.MTOShipmentStatusSubmitted}

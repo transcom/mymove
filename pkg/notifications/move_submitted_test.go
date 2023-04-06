@@ -3,11 +3,10 @@ package notifications
 import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *NotificationSuite) TestMoveSubmitted() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	notification := NewMoveSubmitted(move.ID)
 
 	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
@@ -29,7 +28,7 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 
 func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 	approver := factory.BuildUser(nil, nil, nil)
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	notification := NewMoveSubmitted(move.ID)
 
 	originDutyLocation := "origDutyLocation"
@@ -151,7 +150,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 
 func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocation() {
 	approver := factory.BuildUser(nil, nil, nil)
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	notification := NewMoveSubmitted(move.ID)
 
 	s := moveSubmittedEmailData{
@@ -268,7 +267,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
 func (suite *NotificationSuite) TestMoveSubmittedTextTemplateRender() {
 
 	approver := factory.BuildUser(nil, nil, nil)
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	notification := NewMoveSubmitted(move.ID)
 
 	originDutyLocation := "origDutyLocation"

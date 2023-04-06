@@ -211,7 +211,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 
 	suite.Run("saving report does not overwrite readonly fields", func() {
 		// Create a report and save it to the database
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		originalReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			Move:        move,

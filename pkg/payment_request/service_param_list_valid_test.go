@@ -17,7 +17,7 @@ type serviceParamSubtestData struct {
 func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData *serviceParamSubtestData) {
 	subtestData = &serviceParamSubtestData{}
 	// Create some records we'll need to link to
-	subtestData.move = testdatagen.MakeDefaultMove(suite.DB())
+	subtestData.move = factory.BuildMove(suite.DB(), nil, nil)
 	subtestData.mtoServiceItem1 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: subtestData.move,
 		ReService: models.ReService{

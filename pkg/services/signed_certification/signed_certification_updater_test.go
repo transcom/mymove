@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -16,7 +17,7 @@ func (suite *SignedCertificationSuite) TestUpdateSignedCertification() {
 	var originalSignedCertification models.SignedCertification
 
 	suite.PreloadData(func() {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		serviceMember := move.Orders.ServiceMember
 
 		shipmentCertType := models.SignedCertificationTypeSHIPMENT

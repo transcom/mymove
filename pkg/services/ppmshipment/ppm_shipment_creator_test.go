@@ -6,8 +6,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -26,10 +26,11 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 	}
 
 	// createSubtestData - Sets up objects/data that need to be set up on a per-test basis.
-	createSubtestData := func(appCtx appcontext.AppContext, assertions testdatagen.Assertions) (subtestData *createShipmentSubtestData) {
+	createSubtestData := func(assertions testdatagen.Assertions) (subtestData *createShipmentSubtestData) {
 		subtestData = &createShipmentSubtestData{}
 
-		subtestData.move = testdatagen.MakeMove(appCtx.DB(), assertions)
+		// TODO: pass customs through once we refactor this function to take in []factory.Customization instead of assertions
+		subtestData.move = factory.BuildMove(suite.DB(), nil, nil)
 
 		fullAssertions := testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -41,7 +42,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 
 		testdatagen.MergeModels(&fullAssertions, assertions)
 
-		mtoShipment := testdatagen.MakeBaseMTOShipment(appCtx.DB(), fullAssertions)
+		mtoShipment := testdatagen.MakeBaseMTOShipment(suite.DB(), fullAssertions)
 
 		// Initialize a valid PPMShipment properly with the MTOShipment
 		subtestData.newPPMShipment = &models.PPMShipment{
@@ -61,7 +62,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		appCtx := suite.AppContextForTest()
 
 		// Set required fields for PPMShipment
-		subtestData := createSubtestData(appCtx, testdatagen.Assertions{
+		subtestData := createSubtestData(testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
 				ExpectedDepartureDate: testdatagen.NextValidMoveDate,
 				PickupPostalCode:      "90909",
@@ -133,7 +134,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		suite.Run(fmt.Sprintf("Returns an InvalidInputError if %s", tt.name), func() {
 			appCtx := suite.AppContextForTest()
 
-			subtestData := createSubtestData(appCtx, tt.assertions)
+			subtestData := createSubtestData(tt.assertions)
 
 			createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, subtestData.newPPMShipment)
 
@@ -157,7 +158,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		estimatedWeight := unit.Pound(2450)
 		hasProGear := false
 		estimatedIncentive := unit.Cents(123456)
-		subtestData := createSubtestData(appCtx, testdatagen.Assertions{
+		subtestData := createSubtestData(testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
 				Status:                models.PPMShipmentStatusSubmitted,
 				ExpectedDepartureDate: expectedDepartureDate,
