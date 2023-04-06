@@ -17,6 +17,8 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+// Since timestamps in a postgres DB are stored with at the microsecond precision, we want to ensure that we are checking all timestamps up until that point to prevent moves from not showing up
+// If we only checked values to the second mark, moves towards the end of the day (post 23:59:59 but before 00:00:00) would be lost and not properly show up in the associated filter
 const RFC3339Micro = "2006-01-02T15:04:05.999999Z07:00"
 
 type orderFetcher struct {
