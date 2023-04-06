@@ -288,13 +288,12 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 						MoveTaskOrder:   move,
 						MoveTaskOrderID: move.ID,
 					},
-					Stub: true,
 				})
+
 				ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 					PPMShipment: models.PPMShipment{
 						Status: models.PPMShipmentStatusDraft,
 					},
-					Stub: true,
 				})
 
 				move.MTOShipments = models.MTOShipments{shipment}
@@ -362,20 +361,17 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 				MoveTaskOrder:   move,
 				MoveTaskOrderID: move.ID,
 			},
-			Stub: true,
 		})
+
 		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
 				Status: models.PPMShipmentStatusDraft,
 			},
-			Stub: true,
 		})
 
 		move.MTOShipments = models.MTOShipments{hhgShipment}
 		move.MTOShipments[0].PPMShipment = &ppmShipment
 
-		move.MTOShipments = models.MTOShipments{hhgShipment}
-		move.MTOShipments[0].PPMShipment = &ppmShipment
 		newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
 			SignedCertification: models.SignedCertification{
 				MoveID: move.ID,
