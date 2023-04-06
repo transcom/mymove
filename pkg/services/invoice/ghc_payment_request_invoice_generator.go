@@ -203,7 +203,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		ReferenceIdentification:          contractCodeServiceItemParam.Value,
 	}
 	// check service member branch
-	if *moveTaskOrder.Orders.ServiceMember.DutyLocation.Affiliation != "" {
+	if *moveTaskOrder.Orders.ServiceMember.DutyLocation.Affiliation == "MARINES" {
 		err := g.checkMarinesBranch(moveTaskOrder.Orders.ServiceMember)
 		if err != "" {
 			return ediinvoice.Invoice858C{}, nil
