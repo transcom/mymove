@@ -557,7 +557,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	// getDefaultMTOShipmentAndParams generates a set of default params and an MTOShipment
 	getDefaultMTOShipmentAndParams := func(mockShipmentUpdater *mocks.ShipmentUpdater) *mtoUpdateSubtestData {
-		originalShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		originalShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		pickupAddress.StreetAddress1 = "123 Fake Test St NW"

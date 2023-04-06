@@ -5,6 +5,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -32,7 +33,7 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 
 	suite.Run("Returns an error when etag does not match", func() {
 		sitExtensionCreator := NewCreateSITExtensionAsTOO()
-		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		requestedDays := 45
 		officeRemarks := "office remarks"
 		sitExtensionToSave := models.SITExtension{

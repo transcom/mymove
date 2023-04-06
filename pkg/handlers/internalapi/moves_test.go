@@ -309,7 +309,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 	})
 	suite.Run("Submits hhg shipment success", func() {
 		// Given: a set of orders, a move, user and servicemember
-		hhg := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		hhg := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		move := hhg.MoveTaskOrder
 
 		// And: the context contains the auth values

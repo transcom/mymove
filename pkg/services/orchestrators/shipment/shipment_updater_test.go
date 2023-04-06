@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -114,7 +115,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 		subtestData := makeSubtestData(false, false)
 
-		shipment := testdatagen.MakeDefaultMTOShipment(appCtx.DB())
+		shipment := factory.BuildMTOShipment(appCtx.DB(), nil, nil)
 
 		// Set invalid data, can't pass in blank to the generator above (it'll default to HHG if blank) so we're setting it afterward.
 		shipment.ShipmentType = ""

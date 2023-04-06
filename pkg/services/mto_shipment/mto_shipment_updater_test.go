@@ -75,7 +75,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	var newPickupAddress models.Address
 
 	setupTestData := func() {
-		oldMTOShipment = testdatagen.MakeDefaultMTOShipment(suite.DB())
+		oldMTOShipment = factory.BuildMTOShipment(suite.DB(), nil, nil)
 
 		requestedPickupDate := *oldMTOShipment.RequestedPickupDate
 		secondaryPickupAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
@@ -169,7 +169,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	suite.Run("Updater can handle optional queries set as nil", func() {
 		setupTestData()
 
-		oldMTOShipment2 := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		oldMTOShipment2 := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		mtoShipment2 := models.MTOShipment{
 			ID:           oldMTOShipment2.ID,
 			ShipmentType: "INTERNATIONAL_UB",
@@ -254,7 +254,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		// Ensure we can update every address field on the shipment
 		// Create an mtoShipment to update that has every address populated
-		oldMTOShipment3 := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		oldMTOShipment3 := factory.BuildMTOShipment(suite.DB(), nil, nil)
 
 		eTag := etag.GenerateEtag(oldMTOShipment3.UpdatedAt)
 
@@ -294,7 +294,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		// Minimal MTO Shipment has no associated addresses created by default.
 		// Part of this test ensures that if an address doesn't exist on a shipment,
 		// the updater can successfully create it.
-		oldShipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		oldShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 
@@ -451,7 +451,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	suite.Run("Successfully update MTO Agents", func() {
 		setupTestData()
 
-		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		mtoAgent1 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
 			MTOAgent: models.MTOAgent{
 				MTOShipment:   shipment,
@@ -508,7 +508,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	suite.Run("Successfully add new MTO Agent and edit another", func() {
 		setupTestData()
 
-		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		existingAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
 			MTOAgent: models.MTOAgent{
 				MTOShipment:   shipment,
@@ -1447,7 +1447,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 				AvailableToPrimeAt: &now,
 			},
 		})
-		nonPrimeShipment = testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		nonPrimeShipment = factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		hiddenPrimeShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				AvailableToPrimeAt: &now,

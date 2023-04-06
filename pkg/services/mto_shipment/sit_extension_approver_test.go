@@ -30,7 +30,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 
 	suite.Run("Returns an error when SIT extension is not found", func() {
 		nonexistentUUID := uuid.Must(uuid.NewV4())
-		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		approvedDays := int(20)
 		officeRemarks := "office remarks"
 		eTag := ""
@@ -42,7 +42,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 	})
 
 	suite.Run("Returns an error when etag does not match", func() {
-		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
@@ -58,8 +58,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 	})
 
 	suite.Run("Returns an error when shipment ID from SIT extension and shipment ID found do not match", func() {
-		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		otherMtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		otherMtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})

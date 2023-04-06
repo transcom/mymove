@@ -166,3 +166,22 @@ func BuildBaseMTOShipment(db *pop.Connection, customs []Customization, traits []
 func BuildMTOShipment(db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
 	return buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentBuild)
 }
+
+// BuildMTOShipmentMinimal creates a single MTOShipment with a minimal set of data as could be possible through the UI
+// for any shipment that doesn't have a child table associated with the MTOShipment model. It does not create associated
+// addresses.
+func BuildMTOShipmentMinimal(db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
+	mtoShipment := BuildBaseMTOShipment(db, customs, traits)
+
+	if mtoShipment.RequestedPickupDate == nil {
+		requestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+
+		mtoShipment.RequestedPickupDate = &requestedPickupDate
+
+		if db != nil {
+			mustSave(db, &mtoShipment)
+		}
+	}
+
+	return mtoShipment
+}

@@ -2198,7 +2198,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	suite.Run("404 FAIL - Shipment was not Prime-available", func() {
 		handler, _ := setupTestData()
 
-		nonPrimeShipment := testdatagen.MakeDefaultMTOShipment(suite.DB()) // default is non-Prime available
+		nonPrimeShipment := factory.BuildMTOShipment(suite.DB(), nil, nil) // default is non-Prime available
 		params := mtoshipmentops.UpdateMTOShipmentStatusParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(nonPrimeShipment.ID),
@@ -2386,7 +2386,13 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	})
 
 	suite.Run("Returns 409 - Conflict error", func() {
-		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		deleter := &mocks.ShipmentDeleter{}
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.ConflictError{})
 		handlerConfig := suite.HandlerConfig()
@@ -2410,7 +2416,13 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	})
 
 	suite.Run("Returns 422 - Unprocessable Entity error", func() {
-		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		deleter := &mocks.ShipmentDeleter{}
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.UnprocessableEntityError{})
 		handlerConfig := suite.HandlerConfig()
@@ -2434,7 +2446,13 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	})
 
 	suite.Run("Returns 500 - Server error", func() {
-		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		deleter := &mocks.ShipmentDeleter{}
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.EventError{})
 		handlerConfig := suite.HandlerConfig()

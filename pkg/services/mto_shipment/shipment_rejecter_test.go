@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -19,7 +20,7 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 	reason := "reason"
 
 	suite.Run("If the shipment rejection is approved successfully, it should update the shipment status in the DB", func() {
-		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 
@@ -55,7 +56,7 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 
 	suite.Run("Passing in a stale identifier returns a PreconditionFailedError", func() {
 		staleETag := etag.GenerateEtag(time.Now())
-		staleShipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		staleShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 
 		_, err := approver.RejectShipment(suite.AppContextForTest(), staleShipment.ID, staleETag, &reason)
 
@@ -74,7 +75,7 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 	})
 
 	suite.Run("Passing in an empty rejection reason returns an InvalidInputError", func() {
-		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		emptyReason := ""
 
@@ -87,7 +88,7 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 	suite.Run("It calls Reject on the ShipmentRouter", func() {
 		shipmentRouter := &mocks.ShipmentRouter{}
 		rejecter := NewShipmentRejecter(shipmentRouter)
-		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
 		createdShipment := models.MTOShipment{}

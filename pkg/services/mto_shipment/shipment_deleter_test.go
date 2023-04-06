@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -23,7 +24,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 
 	suite.Run("Returns an error when the Move is neither in Draft nor in NeedsServiceCounseling status", func() {
 		shipmentDeleter := NewShipmentDeleter()
-		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		move := shipment.MoveTaskOrder
 		move.Status = models.MoveStatusServiceCounselingCompleted
 		suite.MustSave(&move)
@@ -36,7 +37,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 
 	suite.Run("Soft deletes the shipment when it is found", func() {
 		shipmentDeleter := NewShipmentDeleter()
-		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 
 		validStatuses := []struct {
 			desc   string
@@ -74,7 +75,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 
 	suite.Run("Returns not found error when the shipment is already deleted", func() {
 		shipmentDeleter := NewShipmentDeleter()
-		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
 
 		suite.NoError(err)

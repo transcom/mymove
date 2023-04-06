@@ -403,7 +403,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		//             Not found error returned, no new service items created
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		reService := factory.BuildReServiceByCode(suite.DB(), "ANY")
 		serviceItemBadShip := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,

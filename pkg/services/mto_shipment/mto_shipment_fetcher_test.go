@@ -220,7 +220,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMTOShipment() {
 
 	// Test successful fetch
 	suite.Run("Returns a shipment successfully with correct ID", func() {
-		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 
 		fetchedShipment, err := mtoShipmentFetcher.GetShipment(suite.AppContextForTest(), shipment.ID)
 		suite.NoError(err)
