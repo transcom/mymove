@@ -59,6 +59,14 @@ references:
   server-ignore-branch: &server-ignore-branch placeholder_branch_name
 
 executors:
+  tls_small:
+    resource_class: small
+    working_directory: ~/transcom/mymove
+    docker:
+      - image: *circleci-docker
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
   av_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
@@ -850,7 +858,7 @@ jobs:
 
   # `check_tls_certificate_env` is used to confirm that the certificate-key pair match
   check_tls_certificate_prd:
-    executor: av_medium
+    executor: tls_small
     steps:
       - checkout
       - tls_vars_prd
@@ -858,7 +866,7 @@ jobs:
       - announce_failure
 
   check_tls_certificate_stg:
-    executor: av_medium
+    executor: tls_small
     steps:
       - checkout
       - tls_vars_stg
@@ -866,7 +874,7 @@ jobs:
       - announce_failure
 
   check_tls_certificate_dp3:
-    executor: av_medium
+    executor: tls_small
     parameters:
       dp3-env:
         type: string
