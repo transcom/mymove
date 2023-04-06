@@ -20,7 +20,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 	//             With mustBeAvailableToPrime = true, we should receive an error
 	//             With mustBeAvailableToPrime = false, there should be no error
 	suite.Run("Using external vendor shipment", func() {
-		availableToPrimeMove := testdatagen.MakeAvailableMove(suite.DB())
+		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		address := factory.BuildAddress(suite.DB(), nil, nil)
 		externalShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: availableToPrimeMove,

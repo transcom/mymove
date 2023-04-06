@@ -48,7 +48,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 
 		now := time.Now()
 		hide := false
-		availableToPrimeMove := testdatagen.MakeAvailableMove(appCtx.DB())
+		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		primeShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: availableToPrimeMove,
 		})

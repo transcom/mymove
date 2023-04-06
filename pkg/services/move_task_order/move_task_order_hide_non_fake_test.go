@@ -66,13 +66,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 		// Unfortunately testdatagen uses an invalid address so we supply a service member
 		// with valid fake address
 		serviceMember := setupTestData()
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			ServiceMember: serviceMember,
-			Order: models.Order{
-				ServiceMemberID: serviceMember.ID,
-				ServiceMember:   serviceMember,
+		factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
 		result, err := mtoHider.Hide(suite.AppContextForTest())
 		// Expect no error, no hidden moves

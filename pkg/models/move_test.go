@@ -251,20 +251,19 @@ func (suite *ModelSuite) TestFetchMoveByOrderID() {
 	orderID := uuid.Must(uuid.NewV4())
 	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
 	invalidID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
-	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+
+	factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: Move{
+				ID: moveID,
+			},
+		},
 		{
 			Model: Order{
 				ID: orderID,
 			},
 		},
 	}, nil)
-	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: Move{
-			ID:       moveID,
-			OrdersID: orderID,
-			Orders:   order,
-		},
-	})
 
 	tests := []struct {
 		lookupID  uuid.UUID
@@ -287,7 +286,7 @@ func (suite *ModelSuite) TestFetchMoveByOrderID() {
 }
 
 func (suite *ModelSuite) TestMoveIsPPMOnly() {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	isPPMOnly := move.IsPPMOnly()
 	suite.False(isPPMOnly, "A move with no shipments will return false for isPPMOnly.")
 

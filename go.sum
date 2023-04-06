@@ -625,8 +625,8 @@ github.com/pterm/pterm v0.12.36/go.mod h1:NjiL09hFhT/vWjQHSj1athJpx6H8cjpHXNAK5b
 github.com/pterm/pterm v0.12.40/go.mod h1:ffwPLwlbXxP+rxT0GsgDTzS3y3rmpAO1NMjUkGTYf8s=
 github.com/pterm/pterm v0.12.58 h1:MEImvkbvty8JvoJH64bJ+CvoCkcuRw2iBIJvRwAEgHI=
 github.com/pterm/pterm v0.12.58/go.mod h1:Ro9CV954hiaxt3mcpDx4a8XF5EmRDlIIpPdlfCKF9fE=
-github.com/rickar/cal/v2 v2.1.12 h1:OYbclmECBUTn6m7Nhz/HgsFhI3S/lHc3PfiXpU5bIgA=
-github.com/rickar/cal/v2 v2.1.12/go.mod h1:/fdlMcx7GjPlIBibMzOM9gMvDBsrK+mOtRXdTzUqV/A=
+github.com/rickar/cal/v2 v2.1.13 h1:FENBPXxDPyL1OWGf9ZdpWGcEiGoSjt0UZED8VOxvK0c=
+github.com/rickar/cal/v2 v2.1.13/go.mod h1:/fdlMcx7GjPlIBibMzOM9gMvDBsrK+mOtRXdTzUqV/A=
 github.com/rivo/uniseg v0.2.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
 github.com/rivo/uniseg v0.4.4 h1:8TfxU8dW6PdqD27gjM8MVNuicgxIjxpm4K7x4jp8sis=
 github.com/rivo/uniseg v0.4.4/go.mod h1:FN3SvrM+Zdj16jyLfmOkMNblXMcoc8DfTHruCPUcx88=
