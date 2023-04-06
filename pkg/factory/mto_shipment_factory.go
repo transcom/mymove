@@ -1,12 +1,12 @@
 package factory
 
 import (
-	"golang.org/x/exp/slices"
 	"time"
+
+	"golang.org/x/exp/slices"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -61,29 +61,23 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		shipmentHasPickupDetails := cMtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && cMtoShipment.ShipmentType != models.MTOShipmentTypePPM
 		shipmentHasDeliveryDetails := cMtoShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom && cMtoShipment.ShipmentType != models.MTOShipmentTypePPM
 
-		// mock dates -- set to nil initially since these are all nullable
-		var requestedPickupDate, scheduledPickupDate, actualPickupDate, requestedDeliveryDate *time.Time
-
 		newMTOShipment = models.MTOShipment{
-			MoveTaskOrder:         move,
-			MoveTaskOrderID:       move.ID,
-			RequestedPickupDate:   requestedPickupDate,
-			ScheduledPickupDate:   scheduledPickupDate,
-			ActualPickupDate:      actualPickupDate,
-			RequestedDeliveryDate: requestedDeliveryDate,
-			CustomerRemarks:       models.StringPointer("Please treat gently"),
-			ShipmentType:          shipmentType,
-			Status:                shipmentStatus,
-			PrimeActualWeight:     &actualWeight,
-			StorageFacilityID:     storageFacilityID,
-			StorageFacility:       &storageFacility,
+			MoveTaskOrder:     move,
+			MoveTaskOrderID:   move.ID,
+			CustomerRemarks:   models.StringPointer("Please treat gently"),
+			ShipmentType:      shipmentType,
+			Status:            shipmentStatus,
+			PrimeActualWeight: &actualWeight,
+			StorageFacilityID: storageFacilityID,
+			StorageFacility:   &storageFacility,
 		}
 
 		if shipmentHasPickupDetails {
 			newMTOShipment.RequestedPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
 			newMTOShipment.ScheduledPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
-			newMTOShipment.ActualPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
-
+			if cMtoShipment.Status != "" && cMtoShipment.Status != models.MTOShipmentStatusDraft {
+				newMTOShipment.ActualPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
+			}
 			// Find/create the Pickup Address
 			tempPickupAddressCustoms := customs
 			result := findValidCustomization(customs, Addresses.PickupAddress)

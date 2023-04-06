@@ -84,7 +84,7 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		defaultCustomerRemarks := models.StringPointer("Please treat gently")
 		// Under test:      BuildMTOShipment
 		// Set up:          Create a default mtoShipment
-		// Expected outcome: Create a move, storageFacility, pickupAddress, DeliveryAddress and mtoShipment
+		// Expected outcome: Create a move, pickupAddress, DeliveryAddress and mtoShipment
 
 		// SETUP
 		defaultPickupAddress := models.Address{
@@ -97,10 +97,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			StreetAddress1: "987 Any Avenue",
 			StreetAddress2: models.StringPointer("P.O. Box 9876"),
 			StreetAddress3: models.StringPointer("c/o Some Person"),
-		}
-
-		defaultStorageFacility := models.StorageFacility{
-			FacilityName: "Storage R Us",
 		}
 
 		moveType := models.SelectedMoveTypePPM
@@ -126,15 +122,12 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.Equal(defaultDeliveryAddress.StreetAddress2, mtoShipment.DestinationAddress.StreetAddress2)
 		suite.Equal(defaultDeliveryAddress.StreetAddress3, mtoShipment.DestinationAddress.StreetAddress3)
 
-		// Check Storage Facility
-		suite.Equal(defaultStorageFacility.FacilityName, mtoShipment.StorageFacility.FacilityName)
-
 		// Check move
 		suite.Equal(defaultMove.PPMType, mtoShipment.MoveTaskOrder.PPMType)
 		suite.Equal(defaultMove.SelectedMoveType, mtoShipment.MoveTaskOrder.SelectedMoveType)
 	})
 
-	suite.Run("Successful creation of custom MTOShipment with other associated set relationships", func() {
+	suite.Run("Successful creation of custom MTOShipment with pickup details and other associated set relationships", func() {
 		// Under test:      BuildMTOShipment
 		// Set up:          Create a custom mtoShipment
 		// Expected outcome: Create a move, storageFacility, pickupAddress, DeliveryAddress and mtoShipment
@@ -148,7 +141,7 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			ID:                   uuid.FromStringOrNil("acf7b357-5cad-40e2-baa7-dedc1d4cf04c"),
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
+			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
 			ApprovedDate:         models.TimePointer(time.Now()),
 			Status:               models.MTOShipmentStatusApproved,
 		}
@@ -220,6 +213,80 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		// Check Secondary PickupAddress
 		suite.Equal(customSecondaryPickupAddress.StreetAddress1, mtoShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(models.BoolPointer(true), mtoShipment.HasSecondaryPickupAddress)
+
+		// Check Storage Facility
+		suite.Equal(customStorageFacility.Email, mtoShipment.StorageFacility.Email)
+
+		// Check move
+		suite.Equal(customMove.Status, mtoShipment.MoveTaskOrder.Status)
+		suite.Equal(customMove.SelectedMoveType, mtoShipment.MoveTaskOrder.SelectedMoveType)
+		suite.Equal(customMove.AvailableToPrimeAt, mtoShipment.MoveTaskOrder.AvailableToPrimeAt)
+	})
+
+	suite.Run("Successful creation of custom MTOShipment with delivery details and other associated set relationships", func() {
+		// Under test:      BuildMTOShipment
+		// Set up:          Create a custom mtoShipment
+		// Expected outcome: Create a move, storageFacility, pickupAddress, DeliveryAddress and mtoShipment
+
+		// SETUP
+		var estimatedWeight = unit.Pound(1400)
+		var actualWeight = unit.Pound(2000)
+		var hhgMoveType = models.SelectedMoveTypeHHG
+
+		customMTOShipment := models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("acf7b357-5cad-40e2-baa7-dedc1d4cf04c"),
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+			ApprovedDate:         models.TimePointer(time.Now()),
+			Status:               models.MTOShipmentStatusApproved,
+		}
+
+		customMove := models.Move{
+			ID:                 uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
+			Status:             models.MoveStatusAPPROVALSREQUESTED,
+			SelectedMoveType:   &hhgMoveType,
+			AvailableToPrimeAt: models.TimePointer(time.Now()),
+		}
+
+		customDeliveryAddress := models.Address{
+			StreetAddress1: "301 Another Good Street",
+		}
+
+		customSecondaryDeliveryAddress := models.Address{
+			StreetAddress1: "401 Big MTO Street",
+		}
+
+		customStorageFacility := models.StorageFacility{
+			Email: models.StringPointer("old@email.com"),
+		}
+
+		mtoShipment := BuildMTOShipment(suite.DB(), []Customization{
+			{
+				Model: customMTOShipment,
+			},
+			{
+				Model: customMove,
+			},
+			{
+				Model: customStorageFacility,
+			},
+			{
+				Model: customDeliveryAddress,
+				Type:  &Addresses.DeliveryAddress,
+			},
+			{
+				Model: customSecondaryDeliveryAddress,
+				Type:  &Addresses.SecondaryDeliveryAddress,
+			},
+		}, nil)
+
+		// VALIDATE RESULTS
+		suite.Equal(customMTOShipment.PrimeEstimatedWeight, mtoShipment.PrimeEstimatedWeight)
+		suite.Equal(customMTOShipment.PrimeActualWeight, mtoShipment.PrimeActualWeight)
+		suite.Equal(customMTOShipment.ShipmentType, mtoShipment.ShipmentType)
+		suite.Equal(customMTOShipment.ApprovedDate, mtoShipment.ApprovedDate)
+		suite.Equal(customMTOShipment.Status, mtoShipment.Status)
 
 		// Check Delivery Address
 		suite.Equal(customDeliveryAddress.StreetAddress1, mtoShipment.DestinationAddress.StreetAddress1)
