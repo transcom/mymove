@@ -253,7 +253,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 	suite.Run("returns moves filtered appeared in TOO at", func() {
 		// Under test: ListOrders
-		// Expected outcome: Only the one move with the right date should be returned
+		// Expected outcome: Only the three move with the right date should be returned
 		officeUser, _ := setupTestData()
 
 		// Moves with specified timestamp
@@ -273,9 +273,9 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			},
 		})
 
-		matchingSentBackToTOOAt := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		matchingApprovalsRequestedAt := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
-				SentBackToTOOAt: &specifiedTimestamp2,
+				ApprovalsRequestedAt: &specifiedTimestamp2,
 			},
 		})
 
@@ -287,7 +287,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			Move: models.Move{
 				SubmittedAt:                  &nonMatchingDate1,
 				ServiceCounselingCompletedAt: &nonMatchingDate2,
-				SentBackToTOOAt:              &nonMatchingDate3,
+				ApprovalsRequestedAt:         &nonMatchingDate3,
 			},
 		})
 
@@ -303,7 +303,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		}
 		suite.Contains(foundIDs, matchingSubmittedAt.ID)
 		suite.Contains(foundIDs, matchingSCCompletedAt.ID)
-		suite.Contains(foundIDs, matchingSentBackToTOOAt.ID)
+		suite.Contains(foundIDs, matchingApprovalsRequestedAt.ID)
 	})
 
 	suite.Run("returns moves filtered by requested pickup date", func() {

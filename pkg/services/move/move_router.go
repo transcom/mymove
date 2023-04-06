@@ -375,7 +375,7 @@ func (router moveRouter) SendToOfficeUser(appCtx appcontext.AppContext, move *mo
 	}
 	move.Status = models.MoveStatusAPPROVALSREQUESTED
 	now := time.Now()
-	move.SentBackToTOOAt = &now
+	move.ApprovalsRequestedAt = &now
 
 	if verrs, err := appCtx.DB().ValidateAndSave(move); verrs.HasAny() || err != nil {
 		msg := "failure saving move when routing move submission"

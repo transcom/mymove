@@ -3381,7 +3381,7 @@ definitions:
           The transportation office that will handle reviewing PPM Closeout
           documentation for Army and Air Force service members
         x-nullable: true
-      sentBackToTooAt:
+      approvalsRequestedAt:
         type: string
         format: date-time
         description: >-

@@ -163,7 +163,7 @@ func MakeApprovalsRequestedMove(db *pop.Connection, assertions Assertions) model
 	availableToPrime := now.Add(time.Hour * -1)
 	assertions.Move.AvailableToPrimeAt = &availableToPrime
 	assertions.Move.Status = models.MoveStatusAPPROVALSREQUESTED
-	assertions.Move.SentBackToTOOAt = &now
+	assertions.Move.ApprovalsRequestedAt = &now
 
 	move := MakeMove(db, assertions)
 	return move

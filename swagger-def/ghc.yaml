@@ -3257,7 +3257,7 @@ definitions:
         format: uuid
         description: The transportation office that will handle reviewing PPM Closeout documentation for Army and Air Force service members
         x-nullable: true
-      sentBackToTooAt:
+      approvalsRequestedAt:
         type: string
         format: date-time
         description: The time at which a move is sent back to the TOO becuase the prime added a new service item for approval

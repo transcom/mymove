@@ -56,7 +56,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		BillableWeightsReviewedAt:    handlers.FmtDateTimePtr(move.BillableWeightsReviewedAt),
 		CreatedAt:                    strfmt.DateTime(move.CreatedAt),
 		SubmittedAt:                  handlers.FmtDateTimePtr(move.SubmittedAt),
-		SentBackToTooAt:              handlers.FmtDateTimePtr(move.SentBackToTOOAt),
+		ApprovalsRequestedAt:         handlers.FmtDateTimePtr(move.ApprovalsRequestedAt),
 		UpdatedAt:                    strfmt.DateTime(move.UpdatedAt),
 		ETag:                         etag.GenerateEtag(move.UpdatedAt),
 		ServiceCounselingCompletedAt: handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
@@ -1443,7 +1443,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 }
 
 func findLastSentToTOO(move models.Move) (latestOccurance *time.Time) {
-	possibleValues := [3]*time.Time{move.SubmittedAt, move.ServiceCounselingCompletedAt, move.SentBackToTOOAt}
+	possibleValues := [3]*time.Time{move.SubmittedAt, move.ServiceCounselingCompletedAt, move.ApprovalsRequestedAt}
 	for _, time := range possibleValues {
 		if time != nil && (latestOccurance == nil || time.After(*latestOccurance)) {
 			latestOccurance = time

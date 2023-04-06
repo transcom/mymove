@@ -6161,6 +6161,12 @@ func init() {
     },
     "Move": {
       "properties": {
+        "approvalsRequestedAt": {
+          "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -6241,12 +6247,6 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "1001-3456"
-        },
-        "sentBackToTooAt": {
-          "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
         },
         "serviceCounselingCompletedAt": {
           "type": "string",
@@ -16628,6 +16628,12 @@ func init() {
     },
     "Move": {
       "properties": {
+        "approvalsRequestedAt": {
+          "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -16708,12 +16714,6 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "1001-3456"
-        },
-        "sentBackToTooAt": {
-          "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
         },
         "serviceCounselingCompletedAt": {
           "type": "string",

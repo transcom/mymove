@@ -380,7 +380,7 @@ func appearedInTOOAtFilter(appearedInTOOAt *time.Time) QueryOption {
 			// Between is inclusive, so the end date is set to 1 microsecond prior to the next day
 			appearedInTOOAtEnd := appearedInTOOAt.AddDate(0, 0, 1).Add(-1 * time.Microsecond)
 			end := appearedInTOOAtEnd.Format(RFC3339Micro)
-			query.Where("(moves.submitted_at between ? AND ? OR moves.service_counseling_completed_at between ? AND ? OR moves.sent_back_to_too_at between ? AND ?)", start, end, start, end, start, end)
+			query.Where("(moves.submitted_at between ? AND ? OR moves.service_counseling_completed_at between ? AND ? OR moves.approvals_requested_at between ? AND ?)", start, end, start, end, start, end)
 		}
 	}
 }
@@ -481,7 +481,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 		"locator":                 "moves.locator",
 		"status":                  "moves.status",
 		"submittedAt":             "moves.submitted_at",
-		"appearedInTooAt":         "GREATEST(moves.submitted_at, moves.service_counseling_completed_at, moves.sent_back_to_too_at)",
+		"appearedInTooAt":         "GREATEST(moves.submitted_at, moves.service_counseling_completed_at, moves.approvals_requested_at)",
 		"originDutyLocation":      "origin_dl.name",
 		"destinationDutyLocation": "dest_dl.name",
 		"requestedMoveDate":       "LEAST(COALESCE(MIN(mto_shipments.requested_pickup_date), 'infinity'), COALESCE(MIN(ppm_shipments.expected_departure_date), 'infinity'), COALESCE(MIN(mto_shipments.requested_delivery_date), 'infinity'))",
