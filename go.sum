@@ -719,8 +719,8 @@ github.com/trussworks/otelhttp v0.0.0-20230303155957-05b6cbc30864 h1:rqeGxBE0EDv
 github.com/trussworks/otelhttp v0.0.0-20230303155957-05b6cbc30864/go.mod h1:NB6vAH8KJbasCBnyLqg81RsM4hHBcVaj3rUt0ksrTq8=
 github.com/urfave/cli v1.22.10 h1:p8Fspmz3iTctJstry1PYS3HVdllxnEzTEsgIgtxTrCk=
 github.com/urfave/cli v1.22.10/go.mod h1:Gos4lmkARVdJ6EkW0WaNv/tZAAMe9V7XWyB60NtXRu0=
-github.com/vektra/mockery/v2 v2.23.1 h1:N59FENM2d/gWE6Ns5JPuf9a7jqQWeheGefZqvuvb1dM=
-github.com/vektra/mockery/v2 v2.23.1/go.mod h1:Zh3Kv1ckKs6FokhlVLcCu6UTyzfS3M8mpROz1lBNp+w=
+github.com/vektra/mockery/v2 v2.23.2 h1:SEqsPdKBQUuDVNumY/z15UVEHLZIahFLQpE73nKdQv4=
+github.com/vektra/mockery/v2 v2.23.2/go.mod h1:Zh3Kv1ckKs6FokhlVLcCu6UTyzfS3M8mpROz1lBNp+w=
 github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT5RDeI=
 github.com/xdg-go/scram v1.0.2/go.mod h1:1WAq6h33pAW+iRreB34OORO2Nf7qel3VV3fjBj+hCSs=
 github.com/xdg-go/scram v1.1.1/go.mod h1:RaEWvsqvNKKvBPvcKeFjrG2cJqOkHTiyTpzz23ni57g=
