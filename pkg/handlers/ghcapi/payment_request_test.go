@@ -29,7 +29,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 	expectedShipmentType := models.MTOShipmentTypeHHG
 
 	setupTestData := func() (models.PaymentServiceItemParam, models.OfficeUser) {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		// This should create all the other associated records we need.
 		paymentServiceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -365,7 +365,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.Run("successful status update of prime-available payment request", func() {
 		officeUser := setupTestData()
-		availableMove := testdatagen.MakeAvailableMove(suite.DB())
+		availableMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		availablePaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: availableMove,
 		})
