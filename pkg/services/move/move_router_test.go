@@ -507,6 +507,7 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 
 			suite.NoError(err)
 			suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
+			suite.NotNil(move.ApprovalsRequestedAt)
 		}
 	})
 
@@ -528,6 +529,18 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 			suite.Contains(err.Error(), "can not be sent to 'Approvals Requested' if the status is cancelled.")
 		}
 	})
+
+	suite.Run("from APPROVALS REQUESTED status", func() {
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		err := moveRouter.SendToOfficeUser(suite.AppContextForTest(), &move)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
+
+		var moveInDB models.Move
+		err = suite.DB().Find(&moveInDB, move.ID)
+		suite.NoError(err)
+		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
+	})
 }
 
 func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
@@ -544,6 +557,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		err = suite.DB().Find(&moveInDB, move.ID)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVED, moveInDB.Status)
+		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
 	})
 
 	suite.Run("does not approve the move if excess weight risk exists and has not been acknowledged", func() {
@@ -565,6 +579,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		err = suite.DB().Find(&moveInDB, move.ID)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
 	})
 
 	suite.Run("does not approve the move if unreviewed service items exist", func() {
@@ -579,6 +594,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		err = suite.DB().Find(&moveInDB, move.ID)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
 	})
 
 	suite.Run("does not approve the move if unacknowledged amended orders exist", func() {
@@ -628,6 +644,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		err = suite.DB().Find(&moveInDB, move.ID)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
 	})
 
 	suite.Run("does not approve the move if unreviewed SIT extensions exist", func() {
@@ -645,6 +662,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		err = suite.DB().Find(&moveInDB, move.ID)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
 	})
 }
 

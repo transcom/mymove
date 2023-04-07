@@ -51,6 +51,7 @@ type ListOrderParams struct {
 	OriginDutyLocation      *string
 	OriginGBLOC             *string
 	SubmittedAt             *time.Time
+	AppearedInTOOAt         *time.Time
 	RequestedMoveDate       *string
 	Status                  []string
 	Page                    *int64

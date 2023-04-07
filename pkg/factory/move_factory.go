@@ -212,11 +212,13 @@ func GetTraitServiceCounselingCompletedMove() []Customization {
 
 func GetTraitApprovalsRequestedMove() []Customization {
 	now := time.Now()
+	availableToPrime := now.Add(time.Hour * -1)
 	return []Customization{
 		{
 			Model: models.Move{
-				AvailableToPrimeAt: &now,
-				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt:   &availableToPrime,
+				ApprovalsRequestedAt: &now,
+				Status:               models.MoveStatusAPPROVALSREQUESTED,
 			},
 		},
 	}

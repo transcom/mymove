@@ -255,6 +255,61 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 	})
 
+	suite.Run("returns moves filtered appeared in TOO at", func() {
+		// Under test: ListOrders
+		// Expected outcome: Only the three move with the right date should be returned
+		officeUser, _ := setupTestData()
+
+		// Moves with specified timestamp
+		specifiedDay := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
+		specifiedTimestamp1 := time.Date(2022, 04, 01, 1, 0, 0, 0, time.UTC)
+		specifiedTimestamp2 := time.Date(2022, 04, 01, 23, 59, 59, 999999000, time.UTC) // the upper bound is 999999499 nanoseconds but the DB only stores microseconds
+
+		matchingSubmittedAt := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SubmittedAt: &specifiedDay,
+			},
+		})
+
+		matchingSCCompletedAt := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				ServiceCounselingCompletedAt: &specifiedTimestamp1,
+			},
+		})
+
+		matchingApprovalsRequestedAt := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				ApprovalsRequestedAt: &specifiedTimestamp2,
+			},
+		})
+
+		// Test non dates matching
+		nonMatchingDate1 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
+		nonMatchingDate2 := time.Date(2022, 03, 31, 23, 59, 59, 999999000, time.UTC) // the upper bound is 999999499 nanoseconds but the DB only stores microseconds
+		nonMatchingDate3 := time.Date(2023, 04, 01, 0, 0, 0, 0, time.UTC)
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SubmittedAt:                  &nonMatchingDate1,
+				ServiceCounselingCompletedAt: &nonMatchingDate2,
+				ApprovalsRequestedAt:         &nonMatchingDate3,
+			},
+		})
+
+		// Filter by AppearedInTOOAt timestamp
+		params := services.ListOrderParams{AppearedInTOOAt: &specifiedDay}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(3, len(moves))
+		var foundIDs []uuid.UUID
+		for _, move := range moves {
+			foundIDs = append(foundIDs, move.ID)
+		}
+		suite.Contains(foundIDs, matchingSubmittedAt.ID)
+		suite.Contains(foundIDs, matchingSCCompletedAt.ID)
+		suite.Contains(foundIDs, matchingApprovalsRequestedAt.ID)
+	})
+
 	suite.Run("returns moves filtered by requested pickup date", func() {
 		// Under test: ListOrders
 		// Set up:           Make 3 moves, with different submitted_at times, and search for a specific move
@@ -1092,6 +1147,33 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(1, len(moves[0].MTOShipments)) // the move with one shipment should be first
 		suite.Equal(2, len(moves[1].MTOShipments))
 		suite.Equal(requestedMoveDate1.Format("2006/01/02"), moves[0].MTOShipments[0].RequestedPickupDate.Format("2006/01/02"))
+	})
+
+	suite.Run("Sort by submitted date (appearedInTooAt) in TOO queue ", func() {
+		// Scenario: In order to sort the moves the submitted_at, service_counseling_completed_at, and approvals_requested_at are checked to which are the minimum
+		// Expected: The moves appear in the order they are created below
+		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		now := time.Now()
+		oneWeekAgo := now.AddDate(0, 0, -7)
+		move1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SubmittedAt: &oneWeekAgo,
+			},
+		})
+
+		move2 := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move2, testdatagen.Assertions{})
+		move3 := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move3, testdatagen.Assertions{})
+
+		params := services.ListOrderParams{Sort: models.StringPointer("appearedInTooAt"), Order: models.StringPointer("asc")}
+
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(3, len(moves))
+		suite.Equal(moves[0].ID, move1.ID)
+		suite.Equal(moves[1].ID, move2.ID)
+		suite.Equal(moves[2].ID, move3.ID)
 	})
 
 	// MUST BE LAST, ADDS EXTRA MOVE
