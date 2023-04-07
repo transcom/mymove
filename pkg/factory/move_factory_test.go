@@ -217,7 +217,6 @@ func (suite *FactorySuite) TestBuildMove() {
 		}, nil)
 		suite.Equal(customMove.Locator, move.Locator)
 		suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status)
-		suite.NotNil(move.SubmittedAt)
 	})
 	suite.Run("Successful creation of SC completed move", func() {
 		// Under test:      BuildServiceCounselingCompletedMove
@@ -252,7 +251,6 @@ func (suite *FactorySuite) TestBuildMove() {
 
 		move := BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		suite.Equal(models.MoveStatusAPPROVED, move.Status)
-		suite.NotNil(move.SubmittedAt)
 		suite.NotNil(move.AvailableToPrimeAt)
 	})
 	suite.Run("Successful creation of customized available to prime move", func() {

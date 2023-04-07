@@ -35,20 +35,33 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 	rank := models.ServiceMemberRankE9
 	moveType := models.SelectedMoveTypeHHGPPM
 
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &moveType,
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				SelectedMoveType: &moveType,
+			},
 		},
-		Order: models.Order{
-			OrdersType:        ordersType,
-			NewDutyLocationID: fortGordon.ID,
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+			},
 		},
-		ServiceMember: models.ServiceMember{
-			DutyLocationID: &yuma.ID,
-			Rank:           &rank,
+		{
+			Model: models.ServiceMember{
+				Rank: &rank,
+			},
 		},
-	})
-
+		{
+			Model:    yuma,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    fortGordon,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
+	}, nil)
 	moveID := move.ID
 	serviceMemberID := move.Orders.ServiceMemberID
 

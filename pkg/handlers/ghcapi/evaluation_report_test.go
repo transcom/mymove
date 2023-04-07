@@ -25,7 +25,7 @@ import (
 
 func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
 	setupTestData := func() (models.OfficeUser, models.Move, handlers.HandlerConfig) {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		handlerConfig := suite.createS3HandlerConfig()
 		return officeUser, move, handlerConfig
@@ -100,7 +100,7 @@ func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
 
 func (suite *HandlerSuite) TestGetCounselingEvaluationReportsHandler() {
 	setupTestData := func() (models.OfficeUser, models.Move, handlers.HandlerConfig) {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		handlerConfig := suite.HandlerConfig()
 		return officeUser, move, handlerConfig
@@ -173,7 +173,7 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 	// 200 response
 	suite.Run("Successful fetch (integration) test", func() {
 		handlerConfig := suite.HandlerConfig()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		fetcher := evaluationreportservice.NewEvaluationReportFetcher()
 
@@ -285,7 +285,7 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 		handlerConfig := suite.HandlerConfig()
 
 		creator := &mocks.EvaluationReportCreator{}
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		handler := CreateEvaluationReportHandler{
 			HandlerConfig:           handlerConfig,
@@ -344,7 +344,7 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 		creator := &mocks.EvaluationReportCreator{}
 		handler := CreateEvaluationReportHandler{handlerConfig, creator}
 
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				MoveTaskOrderID: move.ID,

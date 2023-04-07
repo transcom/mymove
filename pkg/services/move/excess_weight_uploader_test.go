@@ -6,10 +6,10 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/upload"
 	"github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
@@ -20,7 +20,7 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 	defaultUploader := NewMoveExcessWeightUploader(uploadCreator)
 
 	suite.Run("Success - Excess weight upload is created and move is updated", func() {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		testFile, fileErr := os.Open("../../testdatagen/testdata/test.pdf")
 		suite.Require().NoError(fileErr)
@@ -66,7 +66,7 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 	})
 
 	suite.Run("Fail - Move validation error rolls back transaction", func() {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		testFile, fileErr := os.Open("../../testdatagen/testdata/test.pdf")
 		suite.Require().NoError(fileErr)
 
@@ -113,7 +113,7 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUploadPrime() {
 			suite.NoError(closeErr, "Error occurred while closing the test file.")
 		}()
 
-		primeMove := testdatagen.MakeAvailableMove(suite.DB())
+		primeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		updatedMove, err := primeUploader.CreateExcessWeightUpload(
 			suite.AppContextForTest(), primeMove.ID, testFile, testFileName, models.UploadTypePRIME)
@@ -130,7 +130,7 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUploadPrime() {
 	})
 
 	suite.Run("Fail - Cannot create upload for non-Prime move", func() {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		testFile, fileErr := os.Open("../../testdatagen/testdata/test.pdf")
 		suite.Require().NoError(fileErr)

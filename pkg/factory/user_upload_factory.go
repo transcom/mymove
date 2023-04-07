@@ -90,10 +90,14 @@ func BuildUserUpload(db *pop.Connection, customs []Customization, traits []Trait
 		}
 
 		// Create file userUpload
-		userUpload, verrs, err :=
-			cUserUploadParams.UserUploader.CreateUserUploadForDocument(
-				cUserUploadParams.AppContext, &document.ID, uploaderID,
-				uploader.File{File: file}, uploader.AllowedTypesServiceMember)
+		userUpload, verrs, err := cUserUploadParams.UserUploader.CreateUserUploadForDocument(
+			cUserUploadParams.AppContext,
+			&document.ID,
+			uploaderID,
+			uploader.File{File: file},
+			uploader.AllowedTypesPPMDocuments,
+		)
+
 		if verrs.HasAny() || err != nil {
 			log.Panic(fmt.Errorf("errors encountered saving user upload %v, %v", verrs, err))
 		}

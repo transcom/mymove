@@ -52,7 +52,7 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.Pa
 			},
 		}
 
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 			PaymentRequest: models.PaymentRequest{
